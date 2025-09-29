@@ -6,7 +6,7 @@
 @section('content')
 <div class="min-h-screen bg-[#FDFDFC]">
     
-    <!-- Account gelöscht Meldung -->
+    <!-- Account gelöscht Meldung  -->
     @if (session('status') == 'account-deleted')
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
             <div class="bg-green-50 border-l-4 border-green-400 p-4 rounded-lg shadow-sm">
