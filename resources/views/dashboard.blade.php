@@ -1,0 +1,471 @@
+
+@extends('layouts.app')
+
+@section('title', 'Dashboard - Dein Lernfortschritt')
+@section('description', 'Dein persönliches THW-Trainer Dashboard: Verfolge deinen Lernfortschritt, wiederhole falsche Fragen und bereite dich optimal auf deine THW-Prüfung vor.')
+
+@section('content')
+    <div class="max-w-7xl mx-auto p-6">
+        <h1 class="text-3xl font-bold text-blue-800 mb-8 text-center">THW-Trainer Dashboard</h1>
+        
+        @php
+            // Variablen für Dashboard definieren
+            $user = Auth::user();
+            $total = \App\Models\Question::count();
+            $progressArr = is_array($user->solved_questions ?? null) 
+                ? $user->solved_questions 
+                : (is_string($user->solved_questions) ? json_decode($user->solved_questions, true) ?? [] : []);
+            $progress = count($progressArr);
+            $exams = $user->exam_passed_count ?? 0;
+            $progressPercent = $total > 0 ? floor($progress / $total * 100) : 0;
+        @endphp
+
+        @if(session('error'))
+            <div id="error-message" class="mb-6" style="background-color: #fef2f2; border: 2px solid #ef4444; border-radius: 12px; padding: 24px; text-align: center; box-shadow: 0 0 20px rgba(239, 68, 68, 0.3), 0 0 40px rgba(239, 68, 68, 0.1); position: relative;">
+                <button onclick="document.getElementById('error-message').style.display='none'" 
+                        style="position: absolute; top: 8px; right: 8px; background: none; border: none; font-size: 18px; color: #dc2626; cursor: pointer; padding: 4px; border-radius: 4px; hover:bg-red-200;"
+                        onmouseover="this.style.backgroundColor='rgba(239, 68, 68, 0.1)'"
+                        onmouseout="this.style.backgroundColor='transparent'">
+                    ×
+                </button>
+                <p class="text-base font-medium" style="color: #dc2626; margin-bottom: 0;">
+                    🔥 {{ session('error') }}
+                </p>
+            </div>
+        @endif
+
+        <!-- Willkommen Sektion -->
+        <div class="mb-12 bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-semibold text-blue-800 mb-4">👋 Willkommen {{ Auth::user()->name }}!</h2>
+            
+            @php
+                // Motivational Messages basierend auf Fortschritt
+                
+                if ($progressPercent == 100 && $exams >= 5) {
+                    $motivationalMessage = "🎉 Fantastisch! Du hast alle Fragen gelöst und 5+ Prüfungen bestanden! Du bist bereit für die Grundausbildung!";
+                    $messageColor = "text-green-700 bg-green-50 border-green-200";
+                } elseif ($progressPercent == 100) {
+                    $motivationalMessage = "🚀 Großartig! Alle Fragen gelöst! Jetzt kannst du mit den Prüfungen beginnen!";
+                    $messageColor = "text-blue-700 bg-blue-50 border-blue-200";
+                } elseif ($progressPercent >= 75) {
+                    $motivationalMessage = "⚡ Fast geschafft! Du hast schon {$progressPercent}% der Fragen gelöst!";
+                    $messageColor = "text-yellow-700 bg-yellow-50 border-yellow-200";
+                } elseif ($progressPercent >= 50) {
+                    $motivationalMessage = "💪 Gut gemacht! Du hast schon {$progressPercent}% der Fragen gelöst! Weiter so!";
+                    $messageColor = "text-orange-700 bg-orange-50 border-orange-200";
+                } elseif ($progressPercent >= 25) {
+                    $motivationalMessage = "🌟 Super Start! Du hast schon {$progressPercent}% der Fragen gelöst!";
+                    $messageColor = "text-purple-700 bg-purple-50 border-purple-200";
+                } elseif ($progressPercent > 0) {
+                    $motivationalMessage = "🌟 Super Start! Du hast schon {$progressPercent}% der Fragen gelöst!";
+                    $messageColor = "text-purple-700 bg-purple-50 border-purple-200";
+                } else {
+                    $motivationalMessage = "🎯 Willkommen beim THW-Trainer! Starte deine Reise zur Grundausbildung!";
+                    $messageColor = "text-indigo-700 bg-indigo-50 border-indigo-200";
+                }
+            @endphp
+            
+            <!-- Motivational Message -->
+            <div class="mb-4">
+                <p class="text-sm font-medium text-gray-700">{{ $motivationalMessage }}</p>
+            </div>
+            
+            <!-- Spielfortschritt -->
+            <div class="mb-6">
+                <!-- Mobile: 2x2 Grid, Desktop: 4x1 Grid -->
+                <div class="flex flex-wrap gap-2 lg:gap-3">
+                    <!-- Streak -->
+                    <div class="flex-1 min-w-[140px] lg:min-w-[160px] max-w-[calc(50%-4px)] lg:max-w-none flex items-center bg-gradient-to-r from-orange-100 to-red-100 rounded-lg px-2 lg:px-3 py-2 hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer">
+                        <div class="text-base lg:text-lg mr-1 lg:mr-2 flex-shrink-0">🔥</div>
+                        <div class="min-w-0 flex-1">
+                            <div class="text-sm lg:text-base font-bold text-orange-800 truncate">{{ $user->streak_days ?? 0 }}</div>
+                            <div class="text-xs text-orange-600">Tage</div>
+                            <!-- Streak Progress Bar -->
+                            @php
+                                $streakGoal = 7; // 7 Tage Streak als Ziel
+                                $streakProgressPercent = min(100, (($user->streak_days ?? 0) / $streakGoal) * 100);
+                            @endphp
+                            <div class="w-full bg-orange-200 rounded-full h-1 mt-1">
+                                <div class="bg-orange-500 h-1 rounded-full transition-all duration-500" style="width: {{ $streakProgressPercent }}%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Level -->
+                    <div class="flex-1 min-w-[140px] lg:min-w-[160px] max-w-[calc(50%-4px)] lg:max-w-none flex items-center bg-gradient-to-r from-yellow-100 to-orange-100 rounded-lg px-2 lg:px-3 py-2 hover:shadow-md transition-all duration-300 cursor-pointer">
+                        <div class="text-base lg:text-lg mr-1 lg:mr-2 flex-shrink-0">⭐</div>
+                        <div class="min-w-0 flex-1">
+                            <div class="text-sm lg:text-base font-bold text-yellow-800 truncate">Lvl {{ $user->level ?? 1 }}</div>
+                            @php
+                                $levelUpPoints = 100 * pow(1.5, ($user->level ?? 1) - 1);
+                                $currentProgress = ($user->points ?? 0) % $levelUpPoints;
+                                $levelProgressPercent = $levelUpPoints > 0 ? ($currentProgress / $levelUpPoints) * 100 : 0;
+                            @endphp
+                            <div class="text-xs text-yellow-600 truncate hidden lg:block">{{ $currentProgress }}/{{ $levelUpPoints }}</div>
+                            <div class="text-xs text-yellow-600 lg:hidden">XP</div>
+                            <!-- Mini Progress Bar -->
+                            <div class="w-full bg-yellow-200 rounded-full h-1 mt-1">
+                                <div class="bg-yellow-500 h-1 rounded-full transition-all duration-500" style="width: {{ $levelProgressPercent }}%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Daily Challenge -->
+                    <div class="flex-1 min-w-[140px] lg:min-w-[160px] max-w-[calc(50%-4px)] lg:max-w-none flex items-center bg-gradient-to-r from-green-100 to-blue-100 rounded-lg px-2 lg:px-3 py-2 hover:shadow-md transition-all duration-300 cursor-pointer">
+                        <div class="text-base lg:text-lg mr-1 lg:mr-2 flex-shrink-0">⚡</div>
+                        <div class="min-w-0 flex-1">
+                            <div class="text-sm lg:text-base font-bold text-green-800 truncate">{{ $user->daily_questions_solved ?? 0 }}/20</div>
+                            <div class="text-xs text-green-600">Täglich</div>
+                            <!-- Mini Progress Bar -->
+                            @php
+                                $dailyProgressPercent = (($user->daily_questions_solved ?? 0) / 20) * 100;
+                            @endphp
+                            <div class="w-full bg-green-200 rounded-full h-1 mt-1">
+                                <div class="bg-green-500 h-1 rounded-full transition-all duration-500" style="width: {{ $dailyProgressPercent }}%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Achievements -->
+                    <div class="flex-1 min-w-[140px] lg:min-w-[160px] max-w-[calc(50%-4px)] lg:max-w-none flex items-center bg-gradient-to-r from-purple-100 to-pink-100 rounded-lg px-2 lg:px-3 py-2 hover:shadow-md transition-all duration-300 cursor-pointer">
+                        <div class="text-base lg:text-lg mr-1 lg:mr-2 flex-shrink-0">🏆</div>
+                        <div class="min-w-0 flex-1">
+                            @php
+                                $gamificationService = new \App\Services\GamificationService();
+                                $userAchievements = $gamificationService->getUserAchievements($user);
+                                $totalAchievements = count(\App\Services\GamificationService::ACHIEVEMENTS);
+                                $unlockedCount = count(array_filter($userAchievements, fn($a) => $a['unlocked']));
+                                $achievementProgressPercent = $totalAchievements > 0 ? ($unlockedCount / $totalAchievements) * 100 : 0;
+                            @endphp
+                            <div class="text-sm lg:text-base font-bold text-purple-800 truncate">{{ $unlockedCount }}/{{ $totalAchievements }}</div>
+                            <div class="text-xs text-purple-600">Erfolge</div>
+                            <!-- Mini Progress Bar -->
+                            <div class="w-full bg-purple-200 rounded-full h-1 mt-1">
+                                <div class="bg-purple-500 h-1 rounded-full transition-all duration-500" style="width: {{ $achievementProgressPercent }}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @php
+            // Nur bei 100% wirklich 100% anzeigen, sonst aufrunden vermeiden
+            $progressPercent = $total > 0 ? ($progress == $total ? 100 : floor($progress / $total * 100)) : 0;
+            $examsPercent = $exams > 0 ? min(100, floor($exams / 5 * 100)) : 0;
+        @endphp
+
+        <!-- Fortschritt Sektion -->
+        <div class="mb-12 bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-semibold text-blue-800 mb-4">📊 Dein Fortschritt</h2>
+            
+            <!-- Fragen Fortschrittsbalken - immer anzeigen -->
+            <div class="mb-4">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-sm font-medium text-gray-700">Fragen beantwortet</span>
+                    <span class="text-sm font-medium text-gray-700">{{ $progress }}/{{ $total }}</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-4 mb-2">
+                    <div id="progressBar" class="h-4 rounded-full shadow-lg" 
+                         style="width: 0%; background-color: #facc15; box-shadow: 0 0 10px rgba(251, 191, 36, 0.6), 0 0 20px rgba(251, 191, 36, 0.4), 0 0 30px rgba(251, 191, 36, 0.2);"></div>
+                </div>
+                <span class="text-sm text-gray-600">{{ $progressPercent }}% abgeschlossen</span>
+            </div>
+            
+            @if($progress < $total)
+            <!-- Fragen üben Button über der Prüfungs-Info -->
+            <div class="mb-4 text-center">
+                <a href="{{ route('practice.menu') }}" 
+                   style="display: inline-flex; align-items: center; padding: 12px 24px; background: linear-gradient(to right, #facc15, #f59e0b); color: #1e40af; font-size: 14px; font-weight: bold; border-radius: 8px; text-decoration: none; box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4), 0 0 20px rgba(251, 191, 36, 0.3), 0 0 40px rgba(251, 191, 36, 0.1); transition: all 0.3s ease; transform: scale(1);"
+                   onmouseover="this.style.background='linear-gradient(to right, #f59e0b, #d97706)'; this.style.transform='scale(1.05)'; this.style.boxShadow='0 4px 15px rgba(251, 191, 36, 0.4), 0 0 25px rgba(251, 191, 36, 0.4), 0 0 50px rgba(251, 191, 36, 0.2)'"
+                   onmouseout="this.style.background='linear-gradient(to right, #facc15, #f59e0b)'; this.style.transform='scale(1)'; this.style.boxShadow='0 4px 15px rgba(251, 191, 36, 0.4), 0 0 20px rgba(251, 191, 36, 0.3), 0 0 40px rgba(251, 191, 36, 0.1)'">
+                    📚 Fragen üben
+                </a>
+            </div>
+            
+            <!-- Durchsichtiger Kasten für Prüfungen wenn noch Fragen offen -->
+            <div class="mb-4" style="background-color: #eff6ff; border: 2px solid #3b82f6; border-radius: 12px; padding: 24px; text-align: center; box-shadow: 0 0 20px rgba(59, 130, 246, 0.3), 0 0 40px rgba(59, 130, 246, 0.1);">
+                <h3 class="text-base font-medium" style="color: #1e40af; margin-bottom: 8px;">🎓 Prüfungen</h3>
+                <p class="text-sm" style="color: #1e40af; margin-bottom: 8px;">Sobald du alle Fragen einmal erfolgreich beantwortet hast, kannst du mit der Prüfungssimulation beginnen.</p>
+                <p class="text-sm" style="color: #1e40af; margin-bottom: 16px;">Solltest du dennoch Prüfungen machen wollen, nutze den Gästemodus:</p>
+                <a href="{{ route('guest.practice.menu') }}" 
+                   style="display: inline-flex; align-items: center; padding: 12px 24px; background: linear-gradient(to right, #2563eb, #1d4ed8); color: white; font-size: 14px; font-weight: bold; border-radius: 8px; text-decoration: none; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4); transition: all 0.3s ease; transform: scale(1);"
+                   onmouseover="this.style.background='linear-gradient(to right, #1d4ed8, #1e40af)'; this.style.transform='scale(1.05)'"
+                   onmouseout="this.style.background='linear-gradient(to right, #2563eb, #1d4ed8)'; this.style.transform='scale(1)'">
+                    🚀 Gästemodus nutzen
+                </a>
+            </div>
+            @else
+            <!-- Prüfungs Fortschrittsbalken - nur anzeigen wenn alle Fragen beantwortet -->
+            <div class="mb-4">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-sm font-medium text-gray-700">Prüfungen bestanden</span>
+                    <span class="text-sm font-medium text-gray-700">{{ $exams }}/5</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-4 mb-2">
+                    <div id="examProgressBar" class="h-4 rounded-full shadow-lg" 
+                         style="width: 0%; background-color: #2563eb; box-shadow: 0 0 10px rgba(37, 99, 235, 0.6), 0 0 20px rgba(37, 99, 235, 0.4), 0 0 30px rgba(37, 99, 235, 0.2);"></div>
+                </div>
+                <span class="text-sm text-gray-600">{{ $examsPercent }}% abgeschlossen</span>
+            </div>
+            @endif
+            
+            @php
+                $failedArr = is_array($user->exam_failed_questions ?? null) 
+                    ? $user->exam_failed_questions 
+                    : (is_string($user->exam_failed_questions) ? json_decode($user->exam_failed_questions, true) ?? [] : []);
+                
+                // Prüfungs-Status bestimmen
+                if ($exams >= 5) {
+                    $examStatus = 'green';
+                    $examText = 'Geschafft! Du bist bereit zur Grundausbildung!';
+                } elseif ($exams >= 3) {
+                    $examStatus = 'yellow';
+                    $examText = 'Fast am Ziel!';
+                } else {
+                    $examStatus = 'red';
+                    $examText = 'Noch nicht bereit, mach weiter so';
+                }
+            @endphp
+            
+            @if($progress >= $total)
+            <!-- Prüfungs-Status Box -->
+            <div class="mt-4" style="
+                @if($examStatus == 'red')
+                    background-color: #fef2f2; border: 2px solid #ef4444; box-shadow: 0 0 20px rgba(239, 68, 68, 0.3), 0 0 40px rgba(239, 68, 68, 0.1);
+                @elseif($examStatus == 'yellow')
+                    background-color: #fffbeb; border: 2px solid #f59e0b; box-shadow: 0 0 20px rgba(245, 158, 11, 0.3), 0 0 40px rgba(245, 158, 11, 0.1);
+                @else
+                    background-color: #f0fdf4; border: 2px solid #22c55e; box-shadow: 0 0 20px rgba(34, 197, 94, 0.3), 0 0 40px rgba(34, 197, 94, 0.1);
+                @endif
+                border-radius: 12px; padding: 24px; text-align: center;">
+                <p class="text-base font-medium" style="
+                    @if($examStatus == 'red')
+                        color: #dc2626;
+                    @elseif($examStatus == 'yellow')
+                        color: #d97706;
+                    @else
+                        color: #16a34a;
+                    @endif
+                    margin-bottom: 0;">
+                    @if($examStatus == 'red')
+                        🔥 Noch nicht bereit, mach weiter so!
+                    @elseif($examStatus == 'yellow')
+                        ⚡ Fast am Ziel!
+                    @else
+                        🎉 Geschafft! Du bist bereit zur Grundausbildung!
+                    @endif
+                </p>
+            </div>
+            
+            <!-- Prüfungs-Button außerhalb der Status-Karte - nur anzeigen wenn keine Fehler zu wiederholen -->
+            @if(!$failedArr || count($failedArr) == 0)
+            <div class="mt-4 text-center">
+                <a href="{{ route('exam.index') }}" 
+                   style="display: inline-flex; align-items: center; padding: 12px 24px; background: linear-gradient(to right, #2563eb, #1d4ed8); color: white; font-size: 14px; font-weight: bold; border-radius: 8px; text-decoration: none; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4), 0 0 20px rgba(37, 99, 235, 0.3), 0 0 40px rgba(37, 99, 235, 0.1); transition: all 0.3s ease; transform: scale(1);"
+                   onmouseover="this.style.background='linear-gradient(to right, #1d4ed8, #1e40af)'; this.style.transform='scale(1.05)'; this.style.boxShadow='0 4px 15px rgba(37, 99, 235, 0.4), 0 0 25px rgba(37, 99, 235, 0.4), 0 0 50px rgba(37, 99, 235, 0.2)'"
+                   onmouseout="this.style.background='linear-gradient(to right, #2563eb, #1d4ed8)'; this.style.transform='scale(1)'; this.style.boxShadow='0 4px 15px rgba(37, 99, 235, 0.4), 0 0 20px rgba(37, 99, 235, 0.3), 0 0 40px rgba(37, 99, 235, 0.1)'">
+                    🎓 Prüfung starten
+                </a>
+            </div>
+            @endif
+            @endif
+            
+            @if($failedArr && count($failedArr) > 0)
+            <!-- Fehler wiederholen Info-Kasten -->
+            <div class="mt-4" style="background-color: #eff6ff; border: 2px solid #3b82f6; border-radius: 12px; padding: 24px; text-align: center; box-shadow: 0 0 20px rgba(59, 130, 246, 0.3), 0 0 40px rgba(59, 130, 246, 0.1);">
+                <h3 class="text-base font-medium" style="color: #1e40af; margin-bottom: 8px;">🔄 Fehler zu wiederholen</h3>
+                <p class="text-sm" style="color: #1e40af; margin-bottom: 8px;">Du hast <strong>{{ count($failedArr) }} offene Frage{{ count($failedArr) == 1 ? '' : 'n' }}</strong> aus deinen Prüfungen, die du noch beantworten musst.</p>
+                <p class="text-sm" style="color: #1e40af; margin-bottom: 16px;">Bevor du eine neue Prüfung starten kannst, musst du diese Fehler lösen.</p>
+                <a href="{{ route('failed.index') }}" 
+                   style="display: inline-flex; align-items: center; padding: 12px 24px; background: linear-gradient(to right, #2563eb, #1d4ed8); color: white; font-size: 14px; font-weight: bold; border-radius: 8px; text-decoration: none; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4); transition: all 0.3s ease; transform: scale(1);"
+                   onmouseover="this.style.background='linear-gradient(to right, #1d4ed8, #1e40af)'; this.style.transform='scale(1.05)'"
+                   onmouseout="this.style.background='linear-gradient(to right, #2563eb, #1d4ed8)'; this.style.transform='scale(1)'">
+                    🔄 Fehler wiederholen
+                </a>
+            </div>
+            @endif
+            
+        </div>
+
+        <!-- Navigation Sektion -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex items-center justify-between cursor-pointer" onclick="toggleLearning()">
+                <h2 class="text-xl font-semibold text-blue-800">🚀 Weiter lernen</h2>
+                <svg id="learningArrow" class="w-6 h-6 text-blue-800 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+            </div>
+            
+            <div id="learningContent" class="mt-6 grid gap-4" style="display: none;">
+                <a href="{{ route('practice.menu') }}" 
+                   class="block p-4 bg-yellow-100 border border-yellow-300 rounded-lg hover:bg-yellow-200 hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer">
+                    <div class="text-lg font-medium text-blue-800">📚 Übungsmenü</div>
+                    <div class="text-sm text-gray-600">Gezieltes Üben nach Lernabschnitten</div>
+                </a>
+                
+                <a href="{{ route('bookmarks.index') }}" 
+                   class="block p-4 bg-purple-100 border border-purple-300 rounded-lg hover:bg-purple-200 hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer">
+                    <div class="text-lg font-medium text-blue-800">🔖 Gespeicherte Fragen</div>
+                    <div class="text-sm text-gray-600">Deine Lesezeichen und Favoriten</div>
+                </a>
+                
+                <a href="{{ route('gamification.achievements') }}" 
+                   class="block p-4 bg-gradient-to-r from-purple-100 to-blue-100 border border-purple-300 rounded-lg hover:from-purple-200 hover:to-blue-200 hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer">
+                    <div class="text-lg font-medium text-blue-800">🏆 Achievements & Bestenliste</div>
+                    <div class="text-sm text-gray-600">Deine Erfolge und Vergleich mit anderen</div>
+                </a>
+                
+                @php
+                    $failedArr = is_array($user->exam_failed_questions ?? null) 
+                    ? $user->exam_failed_questions 
+                    : (is_string($user->exam_failed_questions) ? json_decode($user->exam_failed_questions, true) ?? [] : []);
+                    $disabledExam = $progress < $total || ($failedArr && count($failedArr));
+                @endphp
+                
+                @if($failedArr && count($failedArr))
+                    <a href="{{ route('failed.index') }}" 
+                       class="block p-4 bg-red-100 border border-red-300 rounded-lg hover:bg-red-200 hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer">
+                        <div class="text-lg font-medium text-blue-800">🔄 Fehler wiederholen</div>
+                        <div class="text-sm text-gray-600">{{ count($failedArr) }} offene Fragen</div>
+                    </a>
+                @endif
+                
+                <a href="{{ $disabledExam ? '#' : route('exam.index') }}"
+                   class="block p-4 rounded-lg transition-all duration-300 {{ $disabledExam ? 'bg-gray-100 border border-gray-300 cursor-not-allowed' : 'bg-blue-100 border border-blue-300 hover:bg-blue-200 hover:shadow-lg hover:scale-105 cursor-pointer' }}"
+                   @if($disabledExam) aria-disabled="true" tabindex="-1" @endif>
+                    <div class="text-lg font-medium {{ $disabledExam ? 'text-gray-500' : 'text-blue-800' }}">🎓 Zur Prüfung</div>
+                    <div class="text-sm {{ $disabledExam ? 'text-gray-400' : 'text-gray-600' }}">
+                        {{ $disabledExam ? 'Erst alle Fragen lösen' : 'Prüfungssimulation starten' }}
+                    </div>
+                </a>
+                
+                @if(Auth::user()->useroll === 'admin')
+                    <a href="{{ route('admin.users.index') }}" 
+                       class="block p-4 bg-red-100 border border-red-300 rounded-lg hover:bg-red-200 hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer">
+                        <div class="text-lg font-medium text-blue-800">⚙️ Administration</div>
+                        <div class="text-sm text-gray-600">Nutzer- und Fragenverwaltung</div>
+                    </a>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    <style>
+        @keyframes emojiFall {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        @keyframes progressPulse {
+            0%, 100% {
+                box-shadow: 0 0 10px rgba(251, 191, 36, 0.6), 0 0 20px rgba(251, 191, 36, 0.4), 0 0 30px rgba(251, 191, 36, 0.2);
+            }
+            50% {
+                box-shadow: 0 0 15px rgba(251, 191, 36, 0.8), 0 0 25px rgba(251, 191, 36, 0.6), 0 0 35px rgba(251, 191, 36, 0.4);
+            }
+        }
+        
+        @keyframes examProgressPulse {
+            0%, 100% {
+                box-shadow: 0 0 10px rgba(37, 99, 235, 0.6), 0 0 20px rgba(37, 99, 235, 0.4), 0 0 30px rgba(37, 99, 235, 0.2);
+            }
+            50% {
+                box-shadow: 0 0 15px rgba(37, 99, 235, 0.8), 0 0 25px rgba(37, 99, 235, 0.6), 0 0 35px rgba(37, 99, 235, 0.4);
+            }
+        }
+        
+        .progress-pulse {
+            animation: progressPulse 2s ease-in-out infinite;
+        }
+        
+        .exam-progress-pulse {
+            animation: examProgressPulse 2s ease-in-out infinite;
+        }
+    </style>
+
+    <script>
+        // Fortschrittsbalken Animation
+        document.addEventListener('DOMContentLoaded', function() {
+            // Fragen Fortschrittsbalken
+            const progressBar = document.getElementById('progressBar');
+            const targetProgress = {{ $progressPercent }};
+            
+            // Prüfungen Fortschrittsbalken
+            const examProgressBar = document.getElementById('examProgressBar');
+            const targetExamProgress = {{ $examsPercent }};
+            
+            // Berechne die Animationsdauer proportional zur Zielbreite
+            // 1.5s für 100%, also proportional weniger für niedrigere Werte
+            const animationDuration = (targetProgress / 100) * 1.5;
+            const examAnimationDuration = (targetExamProgress / 100) * 1.5;
+            
+            // Animation startet nach 200ms Verzögerung
+            setTimeout(() => {
+                // Fragen Animation
+                progressBar.style.transition = `width ${animationDuration}s ease-out`;
+                progressBar.style.width = targetProgress + '%';
+                
+                // Prüfungen Animation (startet 300ms später für Stagger-Effekt)
+                setTimeout(() => {
+                    examProgressBar.style.transition = `width ${examAnimationDuration}s ease-out`;
+                    examProgressBar.style.width = targetExamProgress + '%';
+                }, 300);
+            }, 200);
+            
+            // Emoji-Regen für grünen Prüfungsstatus (5+ Prüfungen)
+            @if($exams >= 5)
+            setTimeout(() => {
+                createEmojiRain();
+            }, 1000);
+            @endif
+        });
+        
+        function createEmojiRain() {
+            const emojis = ['🎊', '🎉', '🥳'];
+            const container = document.body;
+            
+            for (let i = 0; i < 20; i++) {
+                setTimeout(() => {
+                    const emoji = document.createElement('div');
+                    emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                    emoji.style.position = 'fixed';
+                    emoji.style.fontSize = '2rem';
+                    emoji.style.left = Math.random() * 100 + 'vw';
+                    emoji.style.top = '-50px';
+                    emoji.style.zIndex = '9999';
+                    emoji.style.pointerEvents = 'none';
+                    emoji.style.animation = 'emojiFall 3s linear forwards';
+                    
+                    container.appendChild(emoji);
+                    
+                    // Emoji nach 3 Sekunden entfernen
+                    setTimeout(() => {
+                        if (emoji.parentNode) {
+                            emoji.parentNode.removeChild(emoji);
+                        }
+                    }, 3000);
+                }, i * 100);
+            }
+        }
+
+        function toggleLearning() {
+            const content = document.getElementById('learningContent');
+            const arrow = document.getElementById('learningArrow');
+            
+            if (content.style.display === 'none') {
+                content.style.display = 'grid';
+                arrow.style.transform = 'rotate(180deg)';
+            } else {
+                content.style.display = 'none';
+                arrow.style.transform = 'rotate(0deg)';
+            }
+        }
+    </script>
+@endsection
