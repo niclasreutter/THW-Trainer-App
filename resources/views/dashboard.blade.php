@@ -8,7 +8,7 @@
     <div class="max-w-7xl mx-auto p-6">
         <h1 class="text-3xl font-bold text-blue-800 mb-8 text-center">THW-Trainer Dashboard</h1>
         
-        @php
+        @php 
             // Variablen für Dashboard definieren
             $user = Auth::user();
             $total = \App\Models\Question::count();
