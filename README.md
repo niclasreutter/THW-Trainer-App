@@ -1,61 +1,205 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 🚨 THW-Trainer App
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+> **Intelligente Lernplattform für THW-Helfer zur Vorbereitung auf die Grundausbildung**
 
-## About Laravel
+[![Laravel](https://img.shields.io/badge/Laravel-12.x-red.svg)](https://laravel.com)
+[![PHP](https://img.shields.io/badge/PHP-8.2+-blue.svg)](https://php.net)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 📋 Überblick
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Die **THW-Trainer App** ist eine speziell entwickelte Lernplattform für THW-Helfer, die sich auf die Grundausbildung vorbereiten möchten. Die App bietet intelligente Übungsmodi, Prüfungssimulationen und ein umfassendes Gamification-System, um das Lernen effektiv und motivierend zu gestalten.
 
-## Learning Laravel
+## ✨ Hauptfunktionen
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### 🎯 **Intelligente Übungsmodi**
+- **Priorisierte Fragenauswahl**: Zeigt zuerst fehlgeschlagene und ungelöste Fragen an
+- **10 Lernabschnitte**: Strukturiert nach offiziellen THW-Grundausbildungsinhalten
+- **Adaptives Lernen**: System passt sich an den Lernfortschritt an
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+### 📚 **Lernabschnitte**
+1. Das THW im Gefüge des Zivil- und Katastrophenschutzes
+2. Arbeitssicherheit und Gesundheitsschutz
+3. Arbeiten mit Leinen, Drahtseilen, Ketten, Rund- und Bandschlingen
+4. Arbeiten mit Leitern
+5. Stromerzeugung und Beleuchtung
+6. Metall-, Holz- und Steinbearbeitung
+7. Bewegen von Lasten
+8. Arbeiten am und auf dem Wasser
+9. Einsatzgrundlagen
+10. Grundlagen der Rettung und Bergung
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### 🏆 **Gamification-System**
+- **Punkte & Level**: Sammle Punkte durch richtige Antworten
+- **Achievements**: Erhalte Auszeichnungen für verschiedene Meilensteine
+- **Tägliche Streaks**: Belohnung für konsequentes Lernen
+- **Fortschritts-Tracking**: Detaillierte Statistiken zu Lernfortschritt
 
-## Laravel Sponsors
+### 🎓 **Prüfungssimulation**
+- **Realistische Prüfungen**: 40 zufällige Fragen pro Prüfung
+- **Sofortige Auswertung**: Direktes Feedback zu Leistung
+- **Fehleranalyse**: Detaillierte Aufschlüsselung falscher Antworten
+- **Wiederholungsmodus**: Übe spezifisch die falschen Fragen
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### 👤 **Benutzerfunktionen**
+- **Registrierung & Anmeldung**: Vollständiges Account-Management
+- **Profilverwaltung**: Persönliche Einstellungen und Fortschritt
+- **Lesezeichen**: Markiere wichtige Fragen zum späteren Üben
+- **Gastmodus**: Teste die App ohne Registrierung
 
-### Premium Partners
+## 🛠️ Technologie-Stack
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+### **Backend**
+- **Laravel 12.x** - Modernes PHP-Framework
+- **MySQL** - Datenbank für Fragen und Benutzerdaten
+- **Eloquent ORM** - Elegante Datenbankabstraktion
 
-## Contributing
+### **Frontend**
+- **Tailwind CSS** - Utility-first CSS Framework
+- **Blade Templates** - Laravel's Template Engine
+- **JavaScript** - Interaktive Benutzeroberfläche
+- **Responsive Design** - Optimiert für alle Geräte
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### **Features**
+- **Gamification Service** - Punkte, Achievements, Level-System
+- **Session Management** - Sichere Benutzerauthentifizierung
+- **Email-Verification** - Registrierungsbestätigung per E-Mail
+- **Admin-Panel** - Verwaltung von Fragen und Benutzern
 
-## Code of Conduct
+## 🚀 Installation
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### **Voraussetzungen**
+- PHP 8.2 oder höher
+- Composer
+- MySQL/MariaDB
+- Node.js & NPM (für Frontend-Assets)
 
-## Security Vulnerabilities
+### **Setup**
+```bash
+# Repository klonen
+git clone [PRIVATE-REPO-URL] thw-trainer-app
+cd thw-trainer-app
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+# Dependencies installieren
+composer install
+npm install
 
-## License
+# Environment konfigurieren
+cp .env.example .env
+php artisan key:generate
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+# Datenbank konfigurieren (in .env)
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=thw_trainer
+DB_USERNAME=your_username
+DB_PASSWORD=your_password
+
+# Datenbank migrieren
+php artisan migrate
+
+# Frontend-Assets kompilieren
+npm run build
+
+# Server starten
+php artisan serve
+```
+
+## 📁 Projektstruktur
+
+```
+thw-trainer-app/
+├── app/
+│   ├── Http/Controllers/     # API & Web Controllers
+│   ├── Models/               # Eloquent Models
+│   ├── Services/             # Business Logic (Gamification)
+│   └── Mail/                 # Email Templates
+├── database/
+│   ├── migrations/           # Datenbankschema
+│   └── seeders/             # Testdaten
+├── resources/
+│   ├── views/               # Blade Templates
+│   ├── css/                 # Styling
+│   └── js/                  # JavaScript
+└── routes/
+    ├── web.php              # Web Routes
+    └── auth.php             # Authentication Routes
+```
+
+## 🎮 Gamification-System
+
+### **Punkte & Level**
+- **+10 Punkte** pro richtige Antwort
+- **Level-System** basierend auf gesammelten Punkten
+- **Tägliche Streaks** für konsequentes Lernen
+
+### **Achievements**
+- 🥇 **Erste Frage** - Löse deine erste Frage
+- 📚 **Fleißig** - Löse 50 Fragen
+- 🎓 **Wissensdurstig** - Löse 100 Fragen
+- 🏆 **Abschnittsmeister** - Löse alle Fragen in einem Lernabschnitt
+- ⭐ **Perfektionist** - Löse 500 Fragen
+
+## 🔒 Sicherheit & Datenschutz
+
+- **Sichere Authentifizierung** mit Laravel's eingebautem System
+- **CSRF-Schutz** für alle Formulare
+- **Password-Hashing** mit bcrypt
+- **Email-Verification** für neue Accounts
+- **DSGVO-konform** mit Datenschutzerklärung
+
+## 👥 Benutzerrollen
+
+### **Registrierte Benutzer**
+- Vollzugriff auf alle Lernfunktionen
+- Persönlicher Fortschritt wird gespeichert
+- Gamification-Features verfügbar
+- Prüfungen und Statistiken
+
+### **Gäste**
+- Begrenzter Zugriff auf Übungsmodi
+- Keine Fortschrittsspeicherung
+- Einfache Prüfungssimulation
+
+### **Administratoren**
+- Vollzugriff auf alle Funktionen
+- Verwaltung von Fragen und Benutzern
+- Systemstatistiken und -einstellungen
+
+## 📊 Features im Detail
+
+### **Intelligente Übungsmodi**
+1. **Fehlgeschlagene Fragen** - Wiederhole falsche Antworten
+2. **Ungelöste Fragen** - Übe neue Inhalte
+3. **Alle Fragen** - Zufällige Reihenfolge für Wiederholung
+
+### **Statistiken & Tracking**
+- **Gesamtfortschritt** pro Lernabschnitt
+- **Tägliche Aktivität** und Streaks
+- **Punktestand** und Level-Status
+- **Achievement-Übersicht**
+
+### **Responsive Design**
+- **Mobile-optimiert** für Smartphones und Tablets
+- **Desktop-freundlich** für größere Bildschirme
+- **Touch-freundlich** für alle Interaktionen
+
+## 🤝 Support & Kontakt
+
+Bei Fragen oder Problemen:
+- **Issues** über das private Git-Repository
+- **Email** an den Entwickler
+- **Dokumentation** in den Code-Kommentaren
+
+---
+
+## 📄 Lizenz
+
+Dieses Projekt ist privat entwickelt und nicht für die Öffentlichkeit bestimmt. Alle Rechte vorbehalten.
+
+---
+
+**Entwickelt mit ❤️ für das THW**
