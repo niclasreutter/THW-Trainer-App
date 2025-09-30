@@ -13,7 +13,8 @@ class UserController extends Controller
         $user = User::findOrFail($id);
         $questions = \App\Models\Question::all();
         $solved = is_array($user->solved_questions) ? $user->solved_questions : json_decode($user->solved_questions ?? '[]', true);
-        return view('admin.edit_progress', compact('user', 'questions', 'solved'));
+        $failed = is_array($user->exam_failed_questions) ? $user->exam_failed_questions : json_decode($user->exam_failed_questions ?? '[]', true);
+        return view('admin.edit_progress', compact('user', 'questions', 'solved', 'failed'));
     }
 
     public function updateProgress(Request $request, $id)
