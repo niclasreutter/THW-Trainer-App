@@ -124,7 +124,7 @@
                 <p class="text-gray-600">Übe gezielt nach Themengebieten strukturiert.</p>
             </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 @foreach(range(1, 10) as $section)
                     @php
                         $totalQuestions = $sectionStats[$section]['total'] ?? 0;
@@ -136,21 +136,23 @@
                     @endphp
                     
                     <a href="{{ route('practice.section', $section) }}" 
-                       class="block p-6 bg-white border border-blue-200 rounded-lg hover:bg-blue-50 transition-colors">
-                        <div class="text-center">
-                            <div class="text-2xl font-bold text-blue-800 mb-3">{{ $section }}</div>
-                            <div class="text-sm font-medium text-blue-700 mb-4 leading-relaxed min-h-[3.5rem] flex items-center justify-center px-2">{{ $sectionName }}</div>
-                            <div class="text-sm text-gray-600 mb-3">
-                                {{ $solvedQuestions }}/{{ $totalQuestions }} Fragen
+                       class="block p-4 bg-white border border-blue-200 rounded-lg hover:bg-blue-50 hover:shadow-lg hover:scale-105 transition-all duration-300">
+                        <div class="flex items-center">
+                            <div class="text-2xl font-bold text-blue-800 mr-4 flex-shrink-0">{{ $section }}</div>
+                            <div class="min-w-0 flex-1">
+                                <div class="text-sm font-medium text-blue-700 mb-1 leading-tight">{{ $sectionName }}</div>
+                                <div class="text-xs text-gray-600 mb-2">
+                                    {{ $solvedQuestions }}/{{ $totalQuestions }} Fragen
+                                </div>
+                                
+                                <!-- Fortschrittsbalken mit Glow-Effekt wie im Dashboard -->
+                                <div class="w-full bg-gray-200 rounded-full h-1 mt-1">
+                                    <div id="progressBar{{ $section }}" class="h-1 rounded-full shadow-lg" 
+                                         style="width: 0%; background-color: #facc15; box-shadow: 0 0 10px rgba(251, 191, 36, 0.6), 0 0 20px rgba(251, 191, 36, 0.4), 0 0 30px rgba(251, 191, 36, 0.2);"></div>
+                                </div>
+                                
+                                <div class="text-xs text-gray-500 mt-1">{{ $progressPercent }}%</div>
                             </div>
-                            
-                            <!-- Fortschrittsbalken mit Glow-Effekt wie im Dashboard -->
-                            <div class="w-full bg-gray-200 rounded-full h-4 mb-2">
-                                <div class="h-4 rounded-full transition-all duration-500 shadow-lg" 
-                                     style="width: {{ $progressPercent }}%; background-color: #facc15; box-shadow: 0 0 10px rgba(251, 191, 36, 0.6), 0 0 20px rgba(251, 191, 36, 0.4), 0 0 30px rgba(251, 191, 36, 0.2);"></div>
-                            </div>
-                            
-                            <div class="text-xs text-gray-500">{{ $progressPercent }}%</div>
                         </div>
                     </a>
                 @endforeach
@@ -165,5 +167,31 @@
             </a>
         </div>
     </div>
+
+    <script>
+        // Fortschrittsbalken Animation wie im Dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            // Alle Lernabschnitt-Fortschrittsbalken animieren
+            @foreach(range(1, 10) as $section)
+                @php
+                    $totalQuestions = $sectionStats[$section]['total'] ?? 0;
+                    $solvedQuestions = $sectionStats[$section]['solved'] ?? 0;
+                    $progressPercent = $totalQuestions > 0 ? round(($solvedQuestions / $totalQuestions) * 100) : 0;
+                @endphp
+                
+                const progressBar{{ $section }} = document.getElementById('progressBar{{ $section }}');
+                const targetProgress{{ $section }} = {{ $progressPercent }};
+                
+                // Berechne die Animationsdauer proportional zur Zielbreite
+                const animationDuration{{ $section }} = (targetProgress{{ $section }} / 100) * 1.5;
+                
+                // Animation startet nach 200ms Verzögerung + Stagger-Effekt
+                setTimeout(() => {
+                    progressBar{{ $section }}.style.transition = `width ${animationDuration{{ $section }}}s ease-out`;
+                    progressBar{{ $section }}.style.width = targetProgress{{ $section }} + '%';
+                }, 200 + ({{ $section }} * 100)); // Stagger-Effekt: 100ms pro Abschnitt
+            @endforeach
+        });
+    </script>
 
 @endsection
