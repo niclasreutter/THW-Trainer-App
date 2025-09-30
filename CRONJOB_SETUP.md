@@ -21,7 +21,7 @@ Dieses System benachrichtigt und löscht automatisch unbestätigte Accounts:
 
 **Befehl:**
 ```bash
-cd /var/www/vhosts/web22867.bero-web.de/thw-trainer.de && php artisan schedule:run
+cd /var/www/vhosts/web22867.bero-web.de/test.thw-trainer.de && php artisan schedule:run
 ```
 
 **Ausführungszeit:**
@@ -39,7 +39,7 @@ Falls der Scheduler nicht funktioniert, kannst du auch direkt den Command ausfü
 
 **Befehl:**
 ```bash
-cd /var/www/vhosts/web22867.bero-web.de/thw-trainer.de && php artisan accounts:cleanup-unconfirmed
+cd /var/www/vhosts/web22867.bero-web.de/test.thw-trainer.de && php artisan accounts:cleanup-unconfirmed
 ```
 
 **Ausführungszeit:**
@@ -56,7 +56,7 @@ Das bedeutet: **Täglich um 09:00 Uhr**
 ### 1. Command testen
 ```bash
 # Auf dem Server ausführen:
-cd /var/www/vhosts/web22867.bero-web.de/thw-trainer.de
+cd /var/www/vhosts/web22867.bero-web.de/test.thw-trainer.de
 php artisan accounts:cleanup-unconfirmed
 ```
 
