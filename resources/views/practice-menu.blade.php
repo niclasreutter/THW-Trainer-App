@@ -2,18 +2,18 @@
 @section('title', 'Übungsmenü - THW Trainer')
 
 @section('content')
-    <div class="max-w-7xl mx-auto p-6">
-        <h1 class="text-3xl font-bold text-blue-800 mb-8 text-center">Übungsmenü</h1>
+    <div class="max-w-7xl mx-auto p-4 sm:p-6">
+        <h1 class="text-2xl sm:text-3xl font-bold text-blue-800 mb-6 sm:mb-8 text-center">Übungsmenü</h1>
         
         <!-- Suchfeld -->
-        <div class="mb-12 bg-white rounded-lg shadow-md p-6">
-            <h2 class="text-xl font-semibold text-blue-800 mb-4">🔍 Fragen suchen</h2>
-            <form action="{{ route('practice.search') }}" method="GET" class="flex gap-4">
+        <div class="mb-8 sm:mb-12 bg-white rounded-lg shadow-md p-4 sm:p-6">
+            <h2 class="text-lg sm:text-xl font-semibold text-blue-800 mb-4">🔍 Fragen suchen</h2>
+            <form action="{{ route('practice.search') }}" method="GET" class="flex flex-col sm:flex-row gap-3 sm:gap-4">
                 <input type="text" name="search" value="{{ request('search') }}" 
                        placeholder="Suchbegriff eingeben..." 
-                       class="flex-1 px-4 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                       class="flex-1 px-4 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base">
                 <button type="submit" 
-                        class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                        class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm sm:text-base"
                         style="background-color: #2563eb; color: white; padding: 0.5rem 1.5rem; border-radius: 0.5rem; border: none; cursor: pointer;">
                     Suchen
                 </button>
@@ -21,55 +21,55 @@
         </div>
 
         <!-- Alle Fragen Modus -->
-        <div class="mb-12 bg-white rounded-lg shadow-md p-6">
-            <h2 class="text-xl font-semibold text-blue-800 mb-4">📚 Alle Fragen</h2>
+        <div class="mb-8 sm:mb-12 bg-white rounded-lg shadow-md p-4 sm:p-6">
+            <h2 class="text-lg sm:text-xl font-semibold text-blue-800 mb-4">📚 Alle Fragen</h2>
             
             <!-- Statistiken anzeigen -->
-            <div class="mb-6">
-                <div class="flex flex-wrap gap-3 lg:gap-4">
+            <div class="mb-4 sm:mb-6">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4">
                     <!-- Fehlgeschlagene Fragen -->
-                    <div class="flex-1 min-w-[140px] lg:min-w-[160px] max-w-[calc(33.333%-8px)] lg:max-w-none flex items-center bg-gradient-to-r from-red-100 to-pink-100 rounded-lg px-3 lg:px-4 py-3 hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer border border-red-200">
-                        <div class="text-lg lg:text-xl mr-2 lg:mr-3 flex-shrink-0">❌</div>
+                    <div class="flex items-center bg-gradient-to-r from-red-100 to-pink-100 rounded-lg px-3 py-2 sm:py-3 hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer border border-red-200">
+                        <div class="text-lg sm:text-xl mr-3 flex-shrink-0">❌</div>
                         <div class="min-w-0 flex-1">
-                            <div class="text-lg lg:text-xl font-bold text-red-800 truncate">{{ $failedCount }}</div>
-                            <div class="text-xs lg:text-sm text-red-600 font-medium">Fehlgeschlagen</div>
+                            <div class="text-lg sm:text-xl font-bold text-red-800">{{ $failedCount }}</div>
+                            <div class="text-xs sm:text-sm text-red-600 font-medium">Fehlgeschlagen</div>
                             <!-- Progress Bar -->
                             @php
                                 $failedProgressPercent = $totalQuestions > 0 ? ($failedCount / $totalQuestions) * 100 : 0;
                             @endphp
-                            <div class="w-full bg-red-200 rounded-full h-1 mt-2">
+                            <div class="w-full bg-red-200 rounded-full h-1 mt-1">
                                 <div class="bg-red-500 h-1 rounded-full transition-all duration-500" style="width: {{ $failedProgressPercent }}%"></div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Ungelöste Fragen -->
-                    <div class="flex-1 min-w-[140px] lg:min-w-[160px] max-w-[calc(33.333%-8px)] lg:max-w-none flex items-center bg-gradient-to-r from-blue-100 to-indigo-100 rounded-lg px-3 lg:px-4 py-3 hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer border border-blue-200">
-                        <div class="text-lg lg:text-xl mr-2 lg:mr-3 flex-shrink-0">❓</div>
+                    <div class="flex items-center bg-gradient-to-r from-blue-100 to-indigo-100 rounded-lg px-3 py-2 sm:py-3 hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer border border-blue-200">
+                        <div class="text-lg sm:text-xl mr-3 flex-shrink-0">❓</div>
                         <div class="min-w-0 flex-1">
-                            <div class="text-lg lg:text-xl font-bold text-blue-800 truncate">{{ $unsolvedCount }}</div>
-                            <div class="text-xs lg:text-sm text-blue-600 font-medium">Ungelöst</div>
+                            <div class="text-lg sm:text-xl font-bold text-blue-800">{{ $unsolvedCount }}</div>
+                            <div class="text-xs sm:text-sm text-blue-600 font-medium">Ungelöst</div>
                             <!-- Progress Bar -->
                             @php
                                 $unsolvedProgressPercent = $totalQuestions > 0 ? ($unsolvedCount / $totalQuestions) * 100 : 0;
                             @endphp
-                            <div class="w-full bg-blue-200 rounded-full h-1 mt-2">
+                            <div class="w-full bg-blue-200 rounded-full h-1 mt-1">
                                 <div class="bg-blue-500 h-1 rounded-full transition-all duration-500" style="width: {{ $unsolvedProgressPercent }}%"></div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Gelöste Fragen -->
-                    <div class="flex-1 min-w-[140px] lg:min-w-[160px] max-w-[calc(33.333%-8px)] lg:max-w-none flex items-center bg-gradient-to-r from-green-100 to-emerald-100 rounded-lg px-3 lg:px-4 py-3 hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer border border-green-200">
-                        <div class="text-lg lg:text-xl mr-2 lg:mr-3 flex-shrink-0">✅</div>
+                    <div class="flex items-center bg-gradient-to-r from-green-100 to-emerald-100 rounded-lg px-3 py-2 sm:py-3 hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer border border-green-200">
+                        <div class="text-lg sm:text-xl mr-3 flex-shrink-0">✅</div>
                         <div class="min-w-0 flex-1">
-                            <div class="text-lg lg:text-xl font-bold text-green-800 truncate">{{ $solvedCount }}</div>
-                            <div class="text-xs lg:text-sm text-green-600 font-medium">Gelöst</div>
+                            <div class="text-lg sm:text-xl font-bold text-green-800">{{ $solvedCount }}</div>
+                            <div class="text-xs sm:text-sm text-green-600 font-medium">Gelöst</div>
                             <!-- Progress Bar -->
                             @php
                                 $solvedProgressPercent = $totalQuestions > 0 ? ($solvedCount / $totalQuestions) * 100 : 0;
                             @endphp
-                            <div class="w-full bg-green-200 rounded-full h-1 mt-2">
+                            <div class="w-full bg-green-200 rounded-full h-1 mt-1">
                                 <div class="bg-green-500 h-1 rounded-full transition-all duration-500" style="width: {{ $solvedProgressPercent }}%"></div>
                             </div>
                         </div>

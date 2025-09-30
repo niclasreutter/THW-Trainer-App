@@ -2,29 +2,11 @@
 @section('title', 'THW Theorie üben - Interaktive Fragen mit Lernfortschritt')
 @section('description', 'Übe THW Theoriefragen mit deinem persönlichen Lernfortschritt. Markiere schwierige Fragen, filtere nach Lernabschnitten und verfolge deinen Erfolg. Kostenlos und effektiv!')
 @section('content')
-<div class="max-w-xl mx-auto mt-10 p-6 bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
-    @if(session('gamification_result'))
-        @php $result = session('gamification_result'); @endphp
-        <div class="mb-6 p-4 bg-green-100 border border-green-300 rounded-lg shadow-lg animate-pulse">
-            <div class="flex items-center">
-                <div class="text-2xl mr-3">🎉</div>
-                <div>
-                    <div class="font-medium text-green-800">
-                        +{{ $result['points_awarded'] }} Punkte! 
-                        @if($result['level_up'])
-                            🎊 Level UP! Neues Level: {{ $result['new_level'] }}
-                        @endif
-                    </div>
-                    <div class="text-sm text-green-600">{{ $result['reason'] }}</div>
-                </div>
-            </div>
-        </div>
-        @php session()->forget('gamification_result'); @endphp
-    @endif
+<div class="max-w-xl mx-auto mt-4 p-4 bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
 
     @if($question)
-        <div class="mb-4 flex items-center justify-between">
-            <h2 class="text-2xl font-bold">
+        <div class="mb-3 hidden sm:block">
+            <h2 class="text-xl font-bold mb-2">
                 @if(isset($mode))
                     @switch($mode)
                         @case('unsolved')
@@ -46,24 +28,23 @@
                     Theorie üben
                 @endif
             </h2>
-            <a href="{{ route('practice.menu') }}" class="text-blue-600 hover:text-blue-800 text-sm">← Zurück zum Menü</a>
         </div>
         
-        <div class="mb-4 text-sm text-gray-600">
+        <div class="mb-3 text-sm text-gray-600">
             @php
                 // Nur bei 100% wirklich 100% anzeigen, sonst aufrunden vermeiden
                 $progressPercent = $total > 0 ? ($progress == $total ? 100 : floor($progress / $total * 100)) : 0;
             @endphp
             Fortschritt: {{ $progress }}/{{ $total }}
-            <div class="w-full bg-gray-200 rounded-full h-4 mt-1 mb-2">
-                <div class="bg-yellow-400 h-4 rounded-full transition-all duration-300 shadow-lg" 
+            <div class="w-full bg-gray-200 rounded-full h-3 mt-1 mb-1">
+                <div class="bg-yellow-400 h-3 rounded-full transition-all duration-300 shadow-lg" 
                      style="width: {{ $progressPercent }}%; box-shadow: 0 0 10px rgba(251, 191, 36, 0.6), 0 0 20px rgba(251, 191, 36, 0.4), 0 0 30px rgba(251, 191, 36, 0.2);"></div>
             </div>
             <span class="text-xs text-gray-500">{{ $progressPercent }}% abgeschlossen</span>
         </div>
         
         <!-- Bookmark Button außerhalb des Forms -->
-        <div class="mb-4 flex justify-end">
+        <div class="mb-3 flex justify-end">
             @php
                 $user = Auth::user();
                 $bookmarked = is_array($user->bookmarked_questions ?? null) 
@@ -73,16 +54,16 @@
             @endphp
             
             <button type="button" 
-                    class="flex items-center gap-2 px-3 py-1 hover:bg-gray-100 hover:shadow-md hover:scale-105 rounded-lg transition-all duration-300 cursor-pointer"
+                    class="flex items-center gap-1 px-2 py-1 hover:bg-gray-100 hover:shadow-md hover:scale-105 rounded-lg transition-all duration-300 cursor-pointer text-sm"
                     title="{{ $isBookmarked ? 'Aus Lesezeichen entfernen' : 'Zu Lesezeichen hinzufügen' }}"
                     id="bookmarkBtn"
                     onclick="toggleBookmark({{ $question->id }}, {{ $isBookmarked ? 'true' : 'false' }})">
-                <svg class="w-5 h-5 {{ $isBookmarked ? 'text-yellow-500 fill-current' : 'text-gray-400' }}" 
+                <svg class="w-4 h-4 {{ $isBookmarked ? 'text-yellow-500 fill-current' : 'text-gray-400' }}" 
                      viewBox="0 0 20 20" stroke="currentColor" fill="{{ $isBookmarked ? 'currentColor' : 'none' }}" id="bookmarkIcon">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                           d="M5 5a2 2 0 012-2h6a2 2 0 012 2v10l-5-3-5 3V5z"></path>
                 </svg>
-                <span class="text-sm text-gray-600" id="bookmarkText">
+                <span class="text-xs text-gray-600" id="bookmarkText">
                     {{ $isBookmarked ? 'Gespeichert' : 'Speichern' }}
                 </span>
             </button>
@@ -91,17 +72,17 @@
         <form method="POST" action="{{ route('practice.submit') }}">
             @csrf
             <input type="hidden" name="question_id" value="{{ $question->id }}">
-            <div class="mb-6 p-6 border rounded-lg bg-gray-50 shadow-sm hover:shadow-md transition-shadow duration-300">
+            <div class="mb-4 p-4 border rounded-lg bg-gray-50 shadow-sm hover:shadow-md transition-shadow duration-300">
                 <div class="mb-2 text-xs text-gray-500 flex items-center gap-2">
                     <span>ID: {{ $question->id }}</span>
                     <span class="mx-2">&middot;</span>
                     <span>Lernabschnitt: {{ $question->lernabschnitt ?? '-' }}.{{ $question->nummer ?? '-' }}</span>
                 </div>
-                <div class="mb-2 font-bold">Frage:</div>
-                <div class="mb-4">{{ $question->frage }}</div>
-                <div class="mb-4">
-                    <label class="block mb-2 font-semibold">Antwortmöglichkeiten:</label>
-                    <div class="flex flex-col gap-3">
+                <div class="mb-2 font-bold text-sm">Frage:</div>
+                <div class="mb-3 text-sm">{{ $question->frage }}</div>
+                <div class="mb-3">
+                    <label class="block mb-2 font-semibold text-sm">Antwortmöglichkeiten:</label>
+                    <div class="flex flex-col gap-2">
                         @foreach(['A','B','C'] as $option)
                             @php
                                 $solution = collect(explode(',', $question->loesung))->map(fn($s) => trim($s));
@@ -109,7 +90,7 @@
                                 $isUserAnswer = isset($userAnswer) && $userAnswer->contains($option);
                                 $isChecked = isset($isCorrect) && $isUserAnswer;
                             @endphp
-                            <label class="inline-flex items-center p-2 rounded-lg hover:bg-gray-50 transition-all duration-200 cursor-pointer">
+                            <label class="inline-flex items-start p-2 rounded-lg hover:bg-gray-50 transition-all duration-200 cursor-pointer">
                                 @if(isset($isCorrect))
                                     @if($isCorrectAnswer)
                                         <span class="mr-2 text-green-600 text-lg">✅</span>
@@ -122,8 +103,8 @@
                                 <input type="checkbox" name="answer[]" value="{{ $option }}"
                                     @if($isChecked) checked @endif
                                     @if(isset($isCorrect)) disabled @endif
-                                    class="mr-2 w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2">
-                                <span class="ml-2 {{ isset($isCorrect) && $isChecked ? ($isCorrectAnswer ? 'text-green-600 font-semibold' : 'text-red-600 font-semibold') : '' }}">
+                                    class="mr-2 w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2 mt-0.5">
+                                <span class="ml-2 text-sm {{ isset($isCorrect) && $isChecked ? ($isCorrectAnswer ? 'text-green-600 font-semibold' : 'text-red-600 font-semibold') : '' }}">
                                     {{ $option }}: {{ $question['antwort_'.strtolower($option)] }}
                                 </span>
                             </label>
@@ -132,18 +113,18 @@
                 </div>
             </div>
             @if(!isset($isCorrect))
-                <button type="submit" id="submitBtn" class="bg-blue-900 text-yellow-400 px-6 py-2 rounded font-bold hover:bg-yellow-400 hover:text-blue-900 hover:shadow-lg hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none" disabled>Antwort absenden</button>
+                <button type="submit" id="submitBtn" class="bg-blue-900 text-yellow-400 px-4 py-2 rounded font-bold hover:bg-yellow-400 hover:text-blue-900 hover:shadow-lg hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none text-sm" disabled>Antwort absenden</button>
             @elseif(isset($isCorrect) && $isCorrect)
-                <div class="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg text-green-700 font-bold animate-pulse">✅ Richtig! Weiter zur nächsten Frage...</div>
-                <a href="{{ route('practice.index') }}" class="mt-4 inline-block bg-blue-900 text-yellow-400 px-6 py-2 rounded font-bold hover:bg-yellow-400 hover:text-blue-900 hover:shadow-lg hover:scale-105 transition-all duration-300">Nächste Frage</a>
+                <div class="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 font-bold animate-pulse text-sm">✅ Richtig! Weiter zur nächsten Frage...</div>
+                <a href="{{ route('practice.index') }}" class="mt-3 inline-block bg-blue-900 text-yellow-400 px-4 py-2 rounded font-bold hover:bg-yellow-400 hover:text-blue-900 hover:shadow-lg hover:scale-105 transition-all duration-300 text-sm">Nächste Frage</a>
             @elseif(isset($isCorrect) && !$isCorrect)
-                <div class="mt-4 p-4 rounded-lg font-bold shadow-lg" style="background-color: rgba(239, 68, 68, 0.1); border: 2px solid rgba(239, 68, 68, 0.3); color: #dc2626; box-shadow: 0 0 15px rgba(239, 68, 68, 0.3), 0 0 30px rgba(239, 68, 68, 0.1);">
+                <div class="mt-3 p-3 rounded-lg font-bold shadow-lg text-sm" style="background-color: rgba(239, 68, 68, 0.1); border: 2px solid rgba(239, 68, 68, 0.3); color: #dc2626; box-shadow: 0 0 15px rgba(239, 68, 68, 0.3), 0 0 30px rgba(239, 68, 68, 0.1);">
                     <div class="flex items-center">
-                        <div class="text-2xl mr-3">❌</div>
+                        <div class="text-xl mr-2">❌</div>
                         <span>Leider falsch. Die richtigen Antworten sind markiert.</span>
                     </div>
                 </div>
-                <a href="{{ route('practice.index', ['skip_id' => $question->id]) }}" class="mt-4 inline-block bg-blue-900 text-yellow-400 px-6 py-2 rounded font-bold hover:bg-yellow-400 hover:text-blue-900 hover:shadow-lg hover:scale-105 transition-all duration-300">Weiter zur nächsten Frage</a>
+                <a href="{{ route('practice.index', ['skip_id' => $question->id]) }}" class="mt-3 inline-block bg-blue-900 text-yellow-400 px-4 py-2 rounded font-bold hover:bg-yellow-400 hover:text-blue-900 hover:shadow-lg hover:scale-105 transition-all duration-300 text-sm">Weiter zur nächsten Frage</a>
             @endif
         </form>
         
