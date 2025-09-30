@@ -119,19 +119,12 @@
 
         <!-- Lernabschnitte -->
         <div class="bg-white rounded-lg shadow-md p-6">
-            <div class="flex items-center justify-between cursor-pointer" onclick="toggleSections()">
-                <div>
-                    <h2 class="text-xl font-semibold text-blue-800 mb-2">📖 Lernabschnitte</h2>
-                    <p class="text-gray-600">Übe gezielt nach Themengebieten strukturiert.</p>
-                </div>
-                <div class="ml-4">
-                    <svg id="sectionsArrow" class="w-6 h-6 text-blue-800 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                    </svg>
-                </div>
+            <div class="mb-6">
+                <h2 class="text-xl font-semibold text-blue-800 mb-2">📖 Lernabschnitte</h2>
+                <p class="text-gray-600">Übe gezielt nach Themengebieten strukturiert.</p>
             </div>
             
-            <div id="sectionsContent" class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6" style="display: none;">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 @foreach(range(1, 10) as $section)
                     @php
                         $totalQuestions = $sectionStats[$section]['total'] ?? 0;
@@ -151,10 +144,10 @@
                                 {{ $solvedQuestions }}/{{ $totalQuestions }} Fragen
                             </div>
                             
-                            <!-- Fortschrittsbalken -->
+                            <!-- Fortschrittsbalken mit Glow-Effekt wie im Dashboard -->
                             <div class="w-full bg-gray-200 rounded-full h-4 mb-2">
-                                <div class="bg-yellow-400 h-4 rounded-full transition-all duration-300" 
-                                     style="width: {{ $progressPercent }}%"></div>
+                                <div class="h-4 rounded-full transition-all duration-500 shadow-lg" 
+                                     style="width: {{ $progressPercent }}%; background-color: #facc15; box-shadow: 0 0 10px rgba(251, 191, 36, 0.6), 0 0 20px rgba(251, 191, 36, 0.4), 0 0 30px rgba(251, 191, 36, 0.2);"></div>
                             </div>
                             
                             <div class="text-xs text-gray-500">{{ $progressPercent }}%</div>
@@ -173,18 +166,4 @@
         </div>
     </div>
 
-    <script>
-        function toggleSections() {
-            const content = document.getElementById('sectionsContent');
-            const arrow = document.getElementById('sectionsArrow');
-            
-            if (content.style.display === 'none') {
-                content.style.display = 'grid';
-                arrow.style.transform = 'rotate(180deg)';
-            } else {
-                content.style.display = 'none';
-                arrow.style.transform = 'rotate(0deg)';
-            }
-        }
-    </script>
 @endsection
