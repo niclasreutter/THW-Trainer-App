@@ -22,16 +22,20 @@ echo "</div>";
 
 echo "<div class='info'>";
 echo "<h2>📂 Verzeichnis-Struktur</h2>";
-echo "<h3>Aktuelles Verzeichnis:</h3>";
+echo "<h3>Aktuelles Verzeichnis (public):</h3>";
 $currentDir = __DIR__;
 echo "<div class='path'>$currentDir</div>";
 
-echo "<h3>Inhalt des aktuellen Verzeichnisses:</h3>";
-$files = scandir($currentDir);
+echo "<h3>Laravel Root-Verzeichnis (eine Ebene höher):</h3>";
+$laravelRoot = dirname(__DIR__);
+echo "<div class='path'>$laravelRoot</div>";
+
+echo "<h3>Inhalt des Laravel Root-Verzeichnisses:</h3>";
+$files = scandir($laravelRoot);
 echo "<ul>";
 foreach ($files as $file) {
     if ($file !== '.' && $file !== '..') {
-        $path = $currentDir . '/' . $file;
+        $path = $laravelRoot . '/' . $file;
         $type = is_dir($path) ? '📁' : '📄';
         echo "<li>$type $file</li>";
     }
@@ -42,26 +46,26 @@ echo "</div>";
 echo "<div class='info'>";
 echo "<h2>🔍 Laravel-spezifische Prüfungen</h2>";
 
-// Prüfe ob artisan existiert
-$artisanPath = __DIR__ . '/artisan';
+// Prüfe ob artisan existiert (eine Ebene höher)
+$artisanPath = dirname(__DIR__) . '/artisan';
 if (file_exists($artisanPath)) {
     echo "<p>✅ <strong>artisan</strong> gefunden: <div class='path'>$artisanPath</div></p>";
 } else {
-    echo "<p>❌ <strong>artisan</strong> nicht gefunden im aktuellen Verzeichnis</p>";
+    echo "<p>❌ <strong>artisan</strong> nicht gefunden im Laravel Root-Verzeichnis</p>";
 }
 
-// Prüfe ob composer.json existiert
-$composerPath = __DIR__ . '/composer.json';
+// Prüfe ob composer.json existiert (eine Ebene höher)
+$composerPath = dirname(__DIR__) . '/composer.json';
 if (file_exists($composerPath)) {
     echo "<p>✅ <strong>composer.json</strong> gefunden: <div class='path'>$composerPath</div></p>";
 } else {
     echo "<p>❌ <strong>composer.json</strong> nicht gefunden</p>";
 }
 
-// Prüfe Laravel-Ordner
+// Prüfe Laravel-Ordner (eine Ebene höher)
 $laravelFolders = ['app', 'config', 'database', 'resources', 'routes'];
 foreach ($laravelFolders as $folder) {
-    $folderPath = __DIR__ . '/' . $folder;
+    $folderPath = dirname(__DIR__) . '/' . $folder;
     if (is_dir($folderPath)) {
         echo "<p>✅ <strong>$folder/</strong> Ordner gefunden</p>";
     } else {
@@ -75,13 +79,15 @@ echo "<h2>🔧 Mögliche Cronjob-Pfade</h2>";
 echo "<p>Basierend auf dem aktuellen Pfad, versuche diese Cronjob-Befehle:</p>";
 
 $possiblePaths = [
-    __DIR__,
-    dirname(__DIR__),
-    dirname(dirname(__DIR__)),
+    dirname(__DIR__), // Laravel Root
+    __DIR__, // Public Verzeichnis
+    dirname(dirname(__DIR__)), // Eine Ebene höher
 ];
 
 foreach ($possiblePaths as $path) {
-    echo "<div class='path'>cd $path && php artisan schedule:run</div>";
+    $artisanExists = file_exists($path . '/artisan');
+    $status = $artisanExists ? '✅' : '❌';
+    echo "<div class='path'>$status cd $path && php artisan schedule:run</div>";
 }
 
 echo "</div>";
