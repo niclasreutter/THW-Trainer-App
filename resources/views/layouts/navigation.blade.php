@@ -51,6 +51,10 @@
                                         <div class="absolute -bottom-1 left-0 w-0 h-0.5 bg-yellow-400 transition-all duration-200 group-hover:w-full"></div>
                                     </button>
                                     <div id="adminDropdown" class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl z-50 hidden border border-gray-200">
+                                        <a href="{{ route('admin.dashboard') }}" class="block px-4 py-3 text-gray-700 hover:bg-blue-900 hover:text-yellow-400 transition-colors duration-200 flex items-center space-x-2">
+                                            <span class="text-lg">📊</span>
+                                            <span>Admin Dashboard</span>
+                                        </a>
                                         <a href="/admin/questions" class="block px-4 py-3 text-gray-700 hover:bg-blue-900 hover:text-yellow-400 transition-colors duration-200 flex items-center space-x-2">
                                             <span class="text-lg">❓</span>
                                             <span>Fragen</span>
@@ -163,6 +167,10 @@
                         <span>Administration</span>
                     </div>
                     <div class="ml-6 space-y-1">
+                        <a href="{{ route('admin.dashboard') }}" class="block px-3 py-2 text-sm text-gray-300 hover:text-yellow-400 hover:bg-blue-800 rounded-md transition-colors duration-200 flex items-center space-x-2">
+                            <span class="text-lg">📊</span>
+                            <span>Admin Dashboard</span>
+                        </a>
                         <a href="/admin/questions" class="block px-3 py-2 text-sm text-gray-300 hover:text-yellow-400 hover:bg-blue-800 rounded-md transition-colors duration-200 flex items-center space-x-2">
                             <span class="text-lg">❓</span>
                             <span>Fragen</span>
