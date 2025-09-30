@@ -10,10 +10,18 @@ $laravelPath = '/var/www/vhosts/web22867.bero-web.de/test.thw-trainer.de';
 // Wechsle in das Laravel-Verzeichnis
 chdir($laravelPath);
 
+// Setze die Umgebungsvariablen
+putenv('APP_ENV=production');
+
 // Lade Laravel
 require_once $laravelPath . '/vendor/autoload.php';
+
+// Erstelle die Laravel Application
 $app = require_once $laravelPath . '/bootstrap/app.php';
-$app->boot();
+
+// Bootstrap die Application
+$kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
+$kernel->bootstrap();
 
 // Führe den Command aus
 try {
