@@ -4,8 +4,30 @@
  * Dieses Script kann direkt als PHP-Cronjob in Plesk ausgeführt werden
  */
 
-// Setze den korrekten Pfad
-$laravelPath = '/var/www/vhosts/web22867.bero-web.de/test.thw-trainer.de';
+// Dynamischer Pfad - erkennt automatisch Test/Prod Umgebung
+$possiblePaths = [
+    '/var/www/vhosts/web22867.bero-web.de/thw-trainer.de', // Production
+    '/var/www/vhosts/web22867.bero-web.de/test.thw-trainer.de', // Test
+];
+
+$laravelPath = null;
+foreach ($possiblePaths as $path) {
+    if (file_exists($path . '/artisan')) {
+        $laravelPath = $path;
+        break;
+    }
+}
+
+if (!$laravelPath) {
+    echo "[" . date('Y-m-d H:i:s') . "] FEHLER: Laravel-Verzeichnis nicht gefunden!\n";
+    echo "Geprüfte Pfade:\n";
+    foreach ($possiblePaths as $path) {
+        echo "- $path\n";
+    }
+    exit(1);
+}
+
+echo "[" . date('Y-m-d H:i:s') . "] Laravel-Verzeichnis gefunden: $laravelPath\n";
 
 // Wechsle in das Laravel-Verzeichnis
 chdir($laravelPath);
