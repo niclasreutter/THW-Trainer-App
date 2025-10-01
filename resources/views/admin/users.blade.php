@@ -112,14 +112,10 @@
                                 @endif
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-center">
-                                @php
-                                    // Einfache Online-Simulation basierend auf letzter Aktivität
-                                    $isOnline = $user->updated_at->diffInMinutes(now()) < 30;
-                                @endphp
-                                @if($isOnline)
-                                    <div class="w-3 h-3 bg-green-500 rounded-full mx-auto" title="Online"></div>
+                                @if($user->is_online ?? false)
+                                    <span class="text-2xl" title="🟢 Online (letzte Aktivität: {{ $user->updated_at->diffForHumans() }})">🟢</span>
                                 @else
-                                    <div class="w-3 h-3 bg-red-500 rounded-full mx-auto" title="Offline"></div>
+                                    <span class="text-2xl" title="🔴 Offline (letzte Aktivität: {{ $user->updated_at->diffForHumans() }})">🔴</span>
                                 @endif
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
@@ -270,13 +266,10 @@
                                 @else
                                     <span class="text-2xl" title="Benutzer">🎓</span>
                                 @endif
-                                @php
-                                    $isOnline = $user->updated_at->diffInMinutes(now()) < 30;
-                                @endphp
-                                @if($isOnline)
-                                    <div class="w-3 h-3 bg-green-500 rounded-full" title="Online"></div>
+                                @if($user->is_online ?? false)
+                                    <span class="text-2xl" title="🟢 Online (letzte Aktivität: {{ $user->updated_at->diffForHumans() }})">🟢</span>
                                 @else
-                                    <div class="w-3 h-3 bg-red-500 rounded-full" title="Offline"></div>
+                                    <span class="text-2xl" title="🔴 Offline (letzte Aktivität: {{ $user->updated_at->diffForHumans() }})">🔴</span>
                                 @endif
                             </div>
                         </div>

@@ -38,7 +38,21 @@ class UserController extends Controller
     public function index()
     {
         $this->abortIfNotAdmin();
-        $users = User::all();
+        
+        // Hole alle aktiven Sessions aus der Datenbank
+        $activeSessions = \DB::table('sessions')
+            ->where('last_activity', '>', now()->subMinutes(30)->timestamp)
+            ->pluck('user_id')
+            ->filter()
+            ->toArray();
+        
+        $users = User::all()->map(function ($user) use ($activeSessions) {
+            // Prüfe ob User in aktiven Sessions ist oder vor weniger als 30 Minuten aktiv war
+            $user->is_online = in_array($user->id, $activeSessions) || 
+                               $user->updated_at->diffInMinutes(now()) < 30;
+            return $user;
+        });
+        
         return view('admin.users', compact('users'));
     }
 
