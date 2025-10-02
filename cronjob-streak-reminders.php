@@ -46,16 +46,51 @@ $app = require_once $laravelPath . '/bootstrap/app.php';
 $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
 $kernel->bootstrap();
 
-// Führe den Command direkt aus
+// Führe die Streak-Erinnerungs-Logik direkt aus
 try {
     echo "[" . date('Y-m-d H:i:s') . "] Starte Streak-Erinnerungs-Check...\n";
     
-    // Direkter Aufruf der Command-Logik
-    $command = new \App\Console\Commands\SendStreakReminders();
-    $exitCode = $command->handle();
+    // Direkte Implementierung der Streak-Erinnerungs-Logik
+    $today = \Carbon\Carbon::today();
+    $emailsSent = 0;
+    $errors = 0;
     
-    echo "[" . date('Y-m-d H:i:s') . "] Command beendet mit Exit-Code: $exitCode\n";
-    echo "[" . date('Y-m-d H:i:s') . "] Streak-Erinnerungen abgeschlossen.\n";
+    // Finde alle Benutzer die:
+    // 1. E-Mail-Zustimmung haben (email_consent = true)
+    // 2. Einen Streak > 1 haben
+    // 3. Heute noch nicht aktiv waren (last_activity_date != heute)
+    $users = \App\Models\User::where('email_consent', true)
+        ->where('streak_days', '>', 1)
+        ->where(function($query) use ($today) {
+            $query->whereNull('last_activity_date')
+                  ->orWhere('last_activity_date', '!=', $today);
+        })
+        ->get();
+    
+    echo "[" . date('Y-m-d H:i:s') . "] Gefunden: {$users->count()} Benutzer für Erinnerungen.\n";
+    
+    foreach ($users as $user) {
+        try {
+            // Prüfe ob der Benutzer heute wirklich noch nicht aktiv war
+            $lastActivity = $user->last_activity_date ? \Carbon\Carbon::parse($user->last_activity_date) : null;
+            
+            if (!$lastActivity || $lastActivity->lt($today)) {
+                // Sende E-Mail
+                \Illuminate\Support\Facades\Mail::to($user->email)->send(new \App\Mail\StreakReminderMail($user, $user->streak_days));
+                $emailsSent++;
+                
+                echo "[" . date('Y-m-d H:i:s') . "] E-Mail gesendet an: {$user->name} ({$user->email}) - Streak: {$user->streak_days} Tage\n";
+            }
+            
+        } catch (Exception $e) {
+            $errors++;
+            echo "[" . date('Y-m-d H:i:s') . "] FEHLER bei {$user->email}: " . $e->getMessage() . "\n";
+        }
+    }
+    
+    echo "[" . date('Y-m-d H:i:s') . "] Streak-Erinnerungs-Check abgeschlossen!\n";
+    echo "[" . date('Y-m-d H:i:s') . "] E-Mails gesendet: {$emailsSent}\n";
+    echo "[" . date('Y-m-d H:i:s') . "] Fehler: {$errors}\n";
     
 } catch (Exception $e) {
     echo "[" . date('Y-m-d H:i:s') . "] FEHLER: " . $e->getMessage() . "\n";
