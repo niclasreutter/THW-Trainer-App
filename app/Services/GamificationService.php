@@ -142,7 +142,7 @@ class GamificationService
 
         if (!$lastActivity || $lastActivity->diffInDays($today) > 1) {
             // Streak unterbrochen oder erste Aktivität
-            $user->streak_days = 1;
+            $user->streak_days = 0; // Erste Aktivität = 0 Tage Streak
         } elseif ($lastActivity->diffInDays($today) == 1) {
             // Streak fortgesetzt
             $user->streak_days += 1;
