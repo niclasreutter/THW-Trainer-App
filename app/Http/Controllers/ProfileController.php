@@ -33,6 +33,7 @@ class ProfileController extends Controller
         // Einfache Validierung statt ProfileUpdateRequest
         $request->validate([
             'email' => ['required', 'string', 'email', 'max:255'],
+            'email_consent' => ['boolean'],
         ]);
         
         $user = $request->user();
@@ -40,6 +41,11 @@ class ProfileController extends Controller
         $newEmail = $request->input('email');
         
         \Log::info('Original email: ' . $originalEmail . ', New email: ' . $newEmail);
+        
+        // E-Mail-Zustimmung verarbeiten
+        $emailConsent = $request->has('email_consent');
+        $user->email_consent = $emailConsent;
+        $user->email_consent_at = $emailConsent ? now() : null;
         
         // Prüfe ob E-Mail geändert wurde
         if ($originalEmail !== $newEmail) {
@@ -61,6 +67,9 @@ class ProfileController extends Controller
             
             return Redirect::route('profile')->with('status', 'email-verification-sent');
         }
+
+        $user->save();
+        \Log::info('User email consent updated: ' . ($emailConsent ? 'true' : 'false'));
 
         return Redirect::route('profile')->with('status', 'profile-updated');
     }
