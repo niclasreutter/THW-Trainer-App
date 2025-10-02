@@ -32,6 +32,11 @@ Route::get('/dashboard', function () {
     return view('dashboard', compact('user'));
 })->middleware(['auth', 'verified'])->name('dashboard');
 
+Route::post('/dashboard/dismiss-email-consent-banner', function () {
+    session(['email_consent_banner_dismissed' => true]);
+    return response()->json(['success' => true]);
+})->middleware('auth')->name('dashboard.dismiss-email-consent-banner');
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', function() {
         $user = auth()->user()->fresh(); // Fresh reload from database

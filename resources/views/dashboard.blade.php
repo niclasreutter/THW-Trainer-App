@@ -147,6 +147,46 @@
                     </div>
                 </div>
             </div>
+            
+            <!-- E-Mail-Zustimmung Banner -->
+            @if(!$user->email_consent && !session('email_consent_banner_dismissed'))
+                <div id="email-consent-banner" class="mt-6 p-4 rounded-lg" style="background-color: #f0f9ff; border: 2px solid #0ea5e9; box-shadow: 0 0 20px rgba(14, 165, 233, 0.3), 0 0 40px rgba(14, 165, 233, 0.1); position: relative;">
+                    <button onclick="dismissEmailConsentBanner()" 
+                            style="position: absolute; top: 8px; right: 8px; background: none; border: none; font-size: 18px; color: #0284c7; cursor: pointer; padding: 4px; border-radius: 4px;"
+                            onmouseover="this.style.backgroundColor='rgba(14, 165, 233, 0.1)'"
+                            onmouseout="this.style.backgroundColor='transparent'">
+                        ×
+                    </button>
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            <svg class="w-5 h-5 mt-1" style="color: #0284c7;" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path>
+                                <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path>
+                            </svg>
+                        </div>
+                        <div class="ml-3 flex-1">
+                            <h3 class="text-sm font-medium" style="color: #0284c7; margin-bottom: 6px;">📧 E-Mail-Benachrichtigungen aktivieren</h3>
+                            <p class="text-xs" style="color: #0369a1; margin-bottom: 8px;">
+                                Verpasse keine Updates! Aktiviere E-Mail-Benachrichtigungen für deinen Lernfortschritt, neue Features und wichtige Systeminformationen.
+                            </p>
+                            <div class="flex items-center gap-3">
+                                <a href="{{ route('profile') }}" 
+                                   style="background: linear-gradient(to right, #0ea5e9, #0284c7); color: white; font-weight: 600; padding: 6px 12px; border-radius: 6px; text-decoration: none; transition: all 0.3s ease; transform: scale(1); font-size: 12px;"
+                                   onmouseover="this.style.background='linear-gradient(to right, #0284c7, #0369a1)'; this.style.transform='scale(1.02)'"
+                                   onmouseout="this.style.background='linear-gradient(to right, #0ea5e9, #0284c7)'; this.style.transform='scale(1)'">
+                                    📧 Jetzt aktivieren
+                                </a>
+                                <button onclick="dismissEmailConsentBanner()" 
+                                        style="background: none; border: 1px solid #0ea5e9; color: #0284c7; font-weight: 500; padding: 6px 12px; border-radius: 6px; cursor: pointer; transition: all 0.3s ease; font-size: 12px;"
+                                        onmouseover="this.style.backgroundColor='rgba(14, 165, 233, 0.1)'"
+                                        onmouseout="this.style.backgroundColor='transparent'">
+                                    Später
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
         </div>
 
         @php
@@ -466,6 +506,29 @@
                 content.style.display = 'none';
                 arrow.style.transform = 'rotate(0deg)';
             }
+        }
+
+        function dismissEmailConsentBanner() {
+            // Banner ausblenden
+            const banner = document.getElementById('email-consent-banner');
+            if (banner) {
+                banner.style.transition = 'opacity 0.3s ease-out';
+                banner.style.opacity = '0';
+                setTimeout(() => {
+                    banner.style.display = 'none';
+                }, 300);
+            }
+            
+            // Session-Flag setzen via AJAX
+            fetch('/dashboard/dismiss-email-consent-banner', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            }).catch(error => {
+                console.log('Banner dismissed (session update failed):', error);
+            });
         }
     </script>
 @endsection
