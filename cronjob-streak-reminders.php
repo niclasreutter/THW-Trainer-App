@@ -51,7 +51,7 @@ try {
     echo "[" . date('Y-m-d H:i:s') . "] Starte Streak-Erinnerungs-Check...\n";
     
     // Rufe den Laravel Command auf
-    $exitCode = \Illuminate\Support\Facades\Artisan::call('streak:send-reminders');
+    $exitCode = \Illuminate\Support\Facades\Artisan::call('app:send-streak-reminders');
     
     echo "[" . date('Y-m-d H:i:s') . "] Command beendet mit Exit-Code: $exitCode\n";
     

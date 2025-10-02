@@ -15,7 +15,7 @@ class SendStreakReminders extends Command
      *
      * @var string
      */
-    protected $signature = 'streak:send-reminders';
+    protected $signature = 'app:send-streak-reminders';
 
     /**
      * The console command description.
