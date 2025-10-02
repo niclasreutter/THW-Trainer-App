@@ -46,21 +46,15 @@ $app = require_once $laravelPath . '/bootstrap/app.php';
 $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
 $kernel->bootstrap();
 
-// Führe den Command aus
+// Führe den Command direkt aus
 try {
     echo "[" . date('Y-m-d H:i:s') . "] Starte Streak-Erinnerungs-Check...\n";
     
-    // Rufe den Laravel Command auf
-    $exitCode = \Illuminate\Support\Facades\Artisan::call('app:send-streak-reminders');
+    // Direkter Aufruf der Command-Logik
+    $command = new \App\Console\Commands\SendStreakReminders();
+    $exitCode = $command->handle();
     
     echo "[" . date('Y-m-d H:i:s') . "] Command beendet mit Exit-Code: $exitCode\n";
-    
-    // Gib die Ausgabe aus
-    $output = \Illuminate\Support\Facades\Artisan::output();
-    if (!empty($output)) {
-        echo "Ausgabe:\n$output\n";
-    }
-    
     echo "[" . date('Y-m-d H:i:s') . "] Streak-Erinnerungen abgeschlossen.\n";
     
 } catch (Exception $e) {
