@@ -36,12 +36,6 @@
             font-size: 48px;
             margin: 20px 0;
         }
-        .streak-number {
-            font-size: 36px;
-            font-weight: bold;
-            color: #f59e0b;
-            margin: 10px 0;
-        }
         .cta-button {
             display: inline-block;
             background: linear-gradient(to right, #2563eb, #1d4ed8);
@@ -94,7 +88,7 @@
         </div>
 
         <div class="motivation-text">
-            Du warst schon <span class="streak-number">{{ $streakDays }} Tage</span> in Folge aktiv - das ist fantastisch! 
+            Du warst schon {{ $streakDays }} Tage in Folge aktiv - das ist fantastisch! 
             Lass uns diesen Streak nicht unterbrechen!
         </div>
 
@@ -105,14 +99,6 @@
                 🚀 Jetzt lernen und Streak retten!
             </a>
         </div>
-
-        <h3>Warum ist dein Streak wichtig?</h3>
-        <ul>
-            <li><strong>Motivation:</strong> Kontinuierliches Lernen ist der Schlüssel zum Erfolg</li>
-            <li><strong>Achievements:</strong> Erreiche Streak-Achievements für zusätzliche Punkte</li>
-            <li><strong>Fortschritt:</strong> Regelmäßiges Üben führt zu besseren Prüfungsergebnissen</li>
-            <li><strong>Bonus-Punkte:</strong> Streak-Bonus bei korrekten Antworten</li>
-        </ul>
 
         <div class="motivation-text">
             Du schaffst das! Ein kurzer Lernmoment heute und dein Streak bleibt erhalten.
