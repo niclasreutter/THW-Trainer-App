@@ -94,11 +94,11 @@
         </div>
 
         <div class="motivation-text">
-            🎯 Du warst schon <span class="streak-number">{{ $streakDays }} Tage</span> in Folge aktiv - das ist fantastisch! 
+            Du warst schon <span class="streak-number">{{ $streakDays }} Tage</span> in Folge aktiv - das ist fantastisch! 
             Lass uns diesen Streak nicht unterbrechen!
         </div>
 
-        <p>Mit nur <strong>einer Frage</strong> heute kannst du deinen Streak retten und weiter auf dein nächstes Achievement hinarbeiten.</p>
+        <p>Mit nur einer Frage heute kannst du deinen Streak retten und weiter auf dein nächstes Achievement hinarbeiten.</p>
 
         <div style="text-align: center;">
             <a href="{{ url('/practice-menu') }}" class="cta-button">
@@ -106,16 +106,16 @@
             </a>
         </div>
 
-        <h3>💡 Warum ist dein Streak wichtig?</h3>
+        <h3>Warum ist dein Streak wichtig?</h3>
         <ul>
-            <li>🔥 <strong>Motivation:</strong> Kontinuierliches Lernen ist der Schlüssel zum Erfolg</li>
-            <li>🏆 <strong>Achievements:</strong> Erreiche Streak-Achievements für zusätzliche Punkte</li>
-            <li>📈 <strong>Fortschritt:</strong> Regelmäßiges Üben führt zu besseren Prüfungsergebnissen</li>
-            <li>⭐ <strong>Bonus-Punkte:</strong> Streak-Bonus bei korrekten Antworten</li>
+            <li><strong>Motivation:</strong> Kontinuierliches Lernen ist der Schlüssel zum Erfolg</li>
+            <li><strong>Achievements:</strong> Erreiche Streak-Achievements für zusätzliche Punkte</li>
+            <li><strong>Fortschritt:</strong> Regelmäßiges Üben führt zu besseren Prüfungsergebnissen</li>
+            <li><strong>Bonus-Punkte:</strong> Streak-Bonus bei korrekten Antworten</li>
         </ul>
 
         <div class="motivation-text">
-            Du schaffst das! 💪 Ein kurzer Lernmoment heute und dein Streak bleibt erhalten.
+            Du schaffst das! Ein kurzer Lernmoment heute und dein Streak bleibt erhalten.
         </div>
 
         <div class="footer">

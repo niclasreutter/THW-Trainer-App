@@ -32,6 +32,10 @@ class StreakReminderMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
+            from: new \Illuminate\Mail\Mailables\Address('noreply@thw-trainer.de', 'THW-Trainer'),
+            replyTo: [
+                new \Illuminate\Mail\Mailables\Address('support@thw-trainer.de', 'THW-Trainer Support'),
+            ],
             subject: '🔥 Dein ' . $this->streakDays . '-Tage Streak ist in Gefahr!',
         );
     }
@@ -54,5 +58,18 @@ class StreakReminderMail extends Mailable
     public function attachments(): array
     {
         return [];
+    }
+
+    /**
+     * Get the message headers.
+     */
+    public function headers(): array
+    {
+        return [
+            'X-Mailer' => 'THW-Trainer',
+            'X-Priority' => '3',
+            'List-Unsubscribe' => '<' . url('/profile') . '>',
+            'List-Unsubscribe-Post' => 'List-Unsubscribe=One-Click',
+        ];
     }
 }
