@@ -123,9 +123,9 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-center">
                                 @if($user->is_online ?? false)
-                                    <span class="text-2xl" title="🟢 Online (letzte Aktivität: {{ $user->updated_at->diffForHumans() }})">🟢</span>
+                                    <span class="text-2xl" title="🟢 Online (letzte Session: {{ $user->updated_at->diffForHumans() }}, letzte Lern-Aktivität: {{ $user->last_activity_date ? $user->last_activity_date->diffForHumans() : 'Nie' }})">🟢</span>
                                 @else
-                                    <span class="text-2xl" title="🔴 Offline (letzte Aktivität: {{ $user->updated_at->diffForHumans() }})">🔴</span>
+                                    <span class="text-2xl" title="🔴 Offline (letzte Session: {{ $user->updated_at->diffForHumans() }}, letzte Lern-Aktivität: {{ $user->last_activity_date ? $user->last_activity_date->diffForHumans() : 'Nie' }})">🔴</span>
                                 @endif
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
@@ -292,9 +292,9 @@
                                     <span class="text-2xl" title="Benutzer">🎓</span>
                                 @endif
                                 @if($user->is_online ?? false)
-                                    <span class="text-2xl" title="🟢 Online (letzte Aktivität: {{ $user->updated_at->diffForHumans() }})">🟢</span>
+                                    <span class="text-2xl" title="🟢 Online (letzte Session: {{ $user->updated_at->diffForHumans() }}, letzte Lern-Aktivität: {{ $user->last_activity_date ? $user->last_activity_date->diffForHumans() : 'Nie' }})">🟢</span>
                                 @else
-                                    <span class="text-2xl" title="🔴 Offline (letzte Aktivität: {{ $user->updated_at->diffForHumans() }})">🔴</span>
+                                    <span class="text-2xl" title="🔴 Offline (letzte Session: {{ $user->updated_at->diffForHumans() }}, letzte Lern-Aktivität: {{ $user->last_activity_date ? $user->last_activity_date->diffForHumans() : 'Nie' }})">🔴</span>
                                 @endif
                             </div>
                         </div>

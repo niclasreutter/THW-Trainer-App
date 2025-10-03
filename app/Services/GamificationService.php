@@ -154,9 +154,22 @@ class GamificationService
         $user->save();
     }
 
+    /**
+     * Aktualisiert nur die Benutzer-Aktivität (für falsche Antworten)
+     */
+    public function updateUserActivity(User $user)
+    {
+        $this->updateStreak($user);
+        $this->updateDailyQuestions($user);
+    }
+
     public function awardQuestionPoints(User $user, bool $isCorrect = true)
     {
-        if (!$isCorrect) return null;
+        if (!$isCorrect) {
+            // Bei falscher Antwort: Nur Aktivität aktualisieren, keine Punkte
+            $this->updateUserActivity($user);
+            return null;
+        }
 
         $this->updateStreak($user);
         $this->updateDailyQuestions($user);

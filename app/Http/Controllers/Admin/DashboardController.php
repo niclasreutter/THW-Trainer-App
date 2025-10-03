@@ -110,9 +110,11 @@ class DashboardController extends Controller
     
     private function getUserActivity()
     {
-        $today = User::whereDate('updated_at', today())->count();
-        $thisWeek = User::whereBetween('updated_at', [now()->startOfWeek(), now()->endOfWeek()])->count();
-        $thisMonth = User::whereBetween('updated_at', [now()->startOfMonth(), now()->endOfMonth()])->count();
+        // Verwende last_activity_date für echte Benutzer-Aktivität (auch falsche Antworten)
+        // Das vermeidet Verfälschung durch Cronjob-Updates
+        $today = User::whereDate('last_activity_date', today())->count();
+        $thisWeek = User::whereBetween('last_activity_date', [now()->startOfWeek(), now()->endOfWeek()])->count();
+        $thisMonth = User::whereBetween('last_activity_date', [now()->startOfMonth(), now()->endOfMonth()])->count();
         
         return [
             'today' => $today,

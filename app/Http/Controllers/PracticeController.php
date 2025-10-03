@@ -384,6 +384,10 @@ class PracticeController extends Controller
                 $user->save();
             }
             
+            // Gamification: Aktivität auch bei falscher Antwort aktualisieren
+            $gamificationService = new GamificationService();
+            $gamificationService->awardQuestionPoints($user, false);
+            
             // Bei falscher Antwort: Frage nicht aus der Session entfernen, sondern weiter hinten einreihen
             $practiceIds = session('practice_ids', []);
             if (!empty($practiceIds)) {
