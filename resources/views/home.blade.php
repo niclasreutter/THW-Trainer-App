@@ -144,7 +144,7 @@
 
     <!-- FAQ Section -->
     <div class="py-12 lg:py-16 bg-[#FDFDFC]">
-        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-8 lg:mb-12">
                 <h2 class="text-2xl lg:text-4xl font-bold text-gray-900 mb-4 tracking-tight">
                     ❓ Häufig gestellte Fragen
@@ -179,7 +179,7 @@
                     </button>
                     <div id="faq2" class="faq-content hidden px-4 lg:px-5 pb-4 lg:pb-5">
                         <p class="text-gray-700 leading-relaxed text-sm lg:text-base">
-                            Der THW-Trainer bietet dir über 1000 aktuelle THW-Theoriefragen zur optimalen Vorbereitung. 
+                            Der THW-Trainer bietet dir alle aktuelle THW-Theoriefragen zur optimalen Vorbereitung. 
                             Übe systematisch alle Themenbereiche, nutze die Prüfungssimulation und verfolge deinen Lernfortschritt. 
                             Die App funktioniert auf allen Geräten, sodass du auch unterwegs lernen kannst.
                         </p>
@@ -209,7 +209,7 @@
                     </button>
                     <div id="faq4" class="faq-content hidden px-4 lg:px-5 pb-4 lg:pb-5">
                         <p class="text-gray-700 leading-relaxed text-sm lg:text-base">
-                            Der THW-Trainer enthält über 1000 aktuelle THW-Theoriefragen aus allen relevanten Bereichen 
+                            Der THW-Trainer enthält alle aktuelle THW-Theoriefragen aus allen relevanten Bereichen 
                             der Grundausbildung. Die Fragen werden regelmäßig aktualisiert und spiegeln den 
                             aktuellen Stand der THW-Ausbildung wider.
                         </p>
@@ -226,7 +226,7 @@
                         <p class="text-gray-700 leading-relaxed text-sm lg:text-base">
                             Die THW Grundausbildung umfasst Themen wie: Rechtsgrundlagen, Organisation des THW, 
                             Einsatzgrundlagen, Gefahren der Einsatzstelle, Technische Hilfe, Einsatzablauf, 
-                            Führung und Kommunikation, sowie spezielle Fachbereiche je nach Ausrichtung.
+                            Führung und Kommunikation.
                         </p>
                     </div>
                 </div>
