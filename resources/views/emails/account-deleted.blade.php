@@ -22,7 +22,7 @@
             <p style="margin-bottom:18px;font-size:1rem;">Kein Problem! Du kannst jederzeit einen neuen Account erstellen:</p>
             
             <div style="text-align:center; margin:32px 0;">
-                <a href="{{ url('/register') }}" style="background:#FFD700;color:#003399;padding:12px 32px;border-radius:6px;text-decoration:none;font-weight:bold;display:inline-block;">
+                <a href="https://thw-trainer.de/register" style="background:#FFD700;color:#003399;padding:12px 32px;border-radius:6px;text-decoration:none;font-weight:bold;display:inline-block;">
                     🆕 Neuen Account erstellen
                 </a>
             </div>

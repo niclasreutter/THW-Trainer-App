@@ -95,7 +95,7 @@
         <p>Mit nur einer Frage heute kannst du deinen Streak retten und weiter auf dein nächstes Achievement hinarbeiten.</p>
 
         <div style="text-align: center;">
-            <a href="{{ url('/practice-menu') }}" class="cta-button">
+            <a href="https://thw-trainer.de/practice-menu" class="cta-button">
                 🚀 Jetzt lernen und Streak retten!
             </a>
         </div>
@@ -111,7 +111,7 @@
             </p>
             <p>
                 Diese E-Mail wurde automatisch gesendet, weil du E-Mail-Benachrichtigungen aktiviert hast.<br>
-                Du kannst diese Einstellung in deinem <a href="{{ url('/profile') }}">Profil</a> ändern.
+                Du kannst diese Einstellung in deinem <a href="https://thw-trainer.de/profile">Profil</a> ändern.
             </p>
         </div>
     </div>
