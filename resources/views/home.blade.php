@@ -143,26 +143,26 @@
     </div>
 
     <!-- FAQ Section -->
-    <div class="py-16 bg-white">
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-12">
-                <h2 class="text-3xl lg:text-5xl font-bold text-gray-900 mb-4 tracking-tight">
+    <div class="py-12 lg:py-16 bg-[#FDFDFC]">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-8 lg:mb-12">
+                <h2 class="text-2xl lg:text-4xl font-bold text-gray-900 mb-4 tracking-tight">
                     ❓ Häufig gestellte Fragen
                 </h2>
-                <p class="text-lg lg:text-2xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
+                <p class="text-base lg:text-xl text-gray-600 max-w-xl mx-auto leading-relaxed">
                     Alles was du über THW Grundausbildung und den THW-Trainer wissen musst
                 </p>
             </div>
             
-            <div class="space-y-4">
+            <div class="space-y-3">
                 <!-- FAQ Item 1 -->
-                <div class="bg-gray-50 rounded-lg border border-gray-200">
-                    <button class="faq-toggle w-full text-left p-6 flex justify-between items-center hover:bg-gray-100 transition-colors" onclick="toggleFAQ('faq1')">
-                        <span class="text-lg font-semibold text-gray-900">Was ist die THW Grundausbildung?</span>
-                        <span class="faq-icon text-2xl text-gray-500">+</span>
+                <div class="bg-white rounded-lg shadow-sm border border-gray-100">
+                    <button class="faq-toggle w-full text-left p-4 lg:p-5 flex justify-between items-center hover:bg-blue-50 transition-colors rounded-lg" onclick="toggleFAQ('faq1')">
+                        <span class="text-base lg:text-lg font-medium text-gray-900 pr-4">Was ist die THW Grundausbildung?</span>
+                        <span class="faq-icon text-xl text-blue-600 font-bold flex-shrink-0">+</span>
                     </button>
-                    <div id="faq1" class="faq-content hidden px-6 pb-6">
-                        <p class="text-gray-700 leading-relaxed">
+                    <div id="faq1" class="faq-content hidden px-4 lg:px-5 pb-4 lg:pb-5">
+                        <p class="text-gray-700 leading-relaxed text-sm lg:text-base">
                             Die THW Grundausbildung ist die erste Ausbildungsstufe im Technischen Hilfswerk. 
                             Sie vermittelt die grundlegenden Kenntnisse und Fähigkeiten für alle THW-Helfer. 
                             Die Theorie-Prüfung ist ein wichtiger Bestandteil dieser Ausbildung und umfasst 
@@ -172,13 +172,13 @@
                 </div>
 
                 <!-- FAQ Item 2 -->
-                <div class="bg-gray-50 rounded-lg border border-gray-200">
-                    <button class="faq-toggle w-full text-left p-6 flex justify-between items-center hover:bg-gray-100 transition-colors" onclick="toggleFAQ('faq2')">
-                        <span class="text-lg font-semibold text-gray-900">Wie bereite ich mich auf die THW Grundausbildung Theorie vor?</span>
-                        <span class="faq-icon text-2xl text-gray-500">+</span>
+                <div class="bg-white rounded-lg shadow-sm border border-gray-100">
+                    <button class="faq-toggle w-full text-left p-4 lg:p-5 flex justify-between items-center hover:bg-blue-50 transition-colors rounded-lg" onclick="toggleFAQ('faq2')">
+                        <span class="text-base lg:text-lg font-medium text-gray-900 pr-4">Wie bereite ich mich auf die THW Grundausbildung Theorie vor?</span>
+                        <span class="faq-icon text-xl text-blue-600 font-bold flex-shrink-0">+</span>
                     </button>
-                    <div id="faq2" class="faq-content hidden px-6 pb-6">
-                        <p class="text-gray-700 leading-relaxed">
+                    <div id="faq2" class="faq-content hidden px-4 lg:px-5 pb-4 lg:pb-5">
+                        <p class="text-gray-700 leading-relaxed text-sm lg:text-base">
                             Der THW-Trainer bietet dir über 1000 aktuelle THW-Theoriefragen zur optimalen Vorbereitung. 
                             Übe systematisch alle Themenbereiche, nutze die Prüfungssimulation und verfolge deinen Lernfortschritt. 
                             Die App funktioniert auf allen Geräten, sodass du auch unterwegs lernen kannst.
@@ -187,13 +187,13 @@
                 </div>
 
                 <!-- FAQ Item 3 -->
-                <div class="bg-gray-50 rounded-lg border border-gray-200">
-                    <button class="faq-toggle w-full text-left p-6 flex justify-between items-center hover:bg-gray-100 transition-colors" onclick="toggleFAQ('faq3')">
-                        <span class="text-lg font-semibold text-gray-900">Ist der THW-Trainer kostenlos?</span>
-                        <span class="faq-icon text-2xl text-gray-500">+</span>
+                <div class="bg-white rounded-lg shadow-sm border border-gray-100">
+                    <button class="faq-toggle w-full text-left p-4 lg:p-5 flex justify-between items-center hover:bg-blue-50 transition-colors rounded-lg" onclick="toggleFAQ('faq3')">
+                        <span class="text-base lg:text-lg font-medium text-gray-900 pr-4">Ist der THW-Trainer kostenlos?</span>
+                        <span class="faq-icon text-xl text-blue-600 font-bold flex-shrink-0">+</span>
                     </button>
-                    <div id="faq3" class="faq-content hidden px-6 pb-6">
-                        <p class="text-gray-700 leading-relaxed">
+                    <div id="faq3" class="faq-content hidden px-4 lg:px-5 pb-4 lg:pb-5">
+                        <p class="text-gray-700 leading-relaxed text-sm lg:text-base">
                             Ja, der THW-Trainer ist komplett kostenlos! Du kannst sofort mit dem Lernen beginnen, 
                             ohne jegliche Kosten. Auch eine Anmeldung ist nicht zwingend erforderlich - 
                             du kannst anonym üben oder dich kostenlos registrieren, um deinen Lernfortschritt zu speichern.
@@ -202,13 +202,13 @@
                 </div>
 
                 <!-- FAQ Item 4 -->
-                <div class="bg-gray-50 rounded-lg border border-gray-200">
-                    <button class="faq-toggle w-full text-left p-6 flex justify-between items-center hover:bg-gray-100 transition-colors" onclick="toggleFAQ('faq4')">
-                        <span class="text-lg font-semibold text-gray-900">Wie viele Fragen gibt es im THW-Trainer?</span>
-                        <span class="faq-icon text-2xl text-gray-500">+</span>
+                <div class="bg-white rounded-lg shadow-sm border border-gray-100">
+                    <button class="faq-toggle w-full text-left p-4 lg:p-5 flex justify-between items-center hover:bg-blue-50 transition-colors rounded-lg" onclick="toggleFAQ('faq4')">
+                        <span class="text-base lg:text-lg font-medium text-gray-900 pr-4">Wie viele Fragen gibt es im THW-Trainer?</span>
+                        <span class="faq-icon text-xl text-blue-600 font-bold flex-shrink-0">+</span>
                     </button>
-                    <div id="faq4" class="faq-content hidden px-6 pb-6">
-                        <p class="text-gray-700 leading-relaxed">
+                    <div id="faq4" class="faq-content hidden px-4 lg:px-5 pb-4 lg:pb-5">
+                        <p class="text-gray-700 leading-relaxed text-sm lg:text-base">
                             Der THW-Trainer enthält über 1000 aktuelle THW-Theoriefragen aus allen relevanten Bereichen 
                             der Grundausbildung. Die Fragen werden regelmäßig aktualisiert und spiegeln den 
                             aktuellen Stand der THW-Ausbildung wider.
@@ -217,13 +217,13 @@
                 </div>
 
                 <!-- FAQ Item 5 -->
-                <div class="bg-gray-50 rounded-lg border border-gray-200">
-                    <button class="faq-toggle w-full text-left p-6 flex justify-between items-center hover:bg-gray-100 transition-colors" onclick="toggleFAQ('faq5')">
-                        <span class="text-lg font-semibold text-gray-900">Welche Themen werden in der THW Grundausbildung abgefragt?</span>
-                        <span class="faq-icon text-2xl text-gray-500">+</span>
+                <div class="bg-white rounded-lg shadow-sm border border-gray-100">
+                    <button class="faq-toggle w-full text-left p-4 lg:p-5 flex justify-between items-center hover:bg-blue-50 transition-colors rounded-lg" onclick="toggleFAQ('faq5')">
+                        <span class="text-base lg:text-lg font-medium text-gray-900 pr-4">Welche Themen werden in der THW Grundausbildung abgefragt?</span>
+                        <span class="faq-icon text-xl text-blue-600 font-bold flex-shrink-0">+</span>
                     </button>
-                    <div id="faq5" class="faq-content hidden px-6 pb-6">
-                        <p class="text-gray-700 leading-relaxed">
+                    <div id="faq5" class="faq-content hidden px-4 lg:px-5 pb-4 lg:pb-5">
+                        <p class="text-gray-700 leading-relaxed text-sm lg:text-base">
                             Die THW Grundausbildung umfasst Themen wie: Rechtsgrundlagen, Organisation des THW, 
                             Einsatzgrundlagen, Gefahren der Einsatzstelle, Technische Hilfe, Einsatzablauf, 
                             Führung und Kommunikation, sowie spezielle Fachbereiche je nach Ausrichtung.
@@ -232,13 +232,13 @@
                 </div>
 
                 <!-- FAQ Item 6 -->
-                <div class="bg-gray-50 rounded-lg border border-gray-200">
-                    <button class="faq-toggle w-full text-left p-6 flex justify-between items-center hover:bg-gray-100 transition-colors" onclick="toggleFAQ('faq6')">
-                        <span class="text-lg font-semibold text-gray-900">Funktioniert der THW-Trainer auf dem Handy?</span>
-                        <span class="faq-icon text-2xl text-gray-500">+</span>
+                <div class="bg-white rounded-lg shadow-sm border border-gray-100">
+                    <button class="faq-toggle w-full text-left p-4 lg:p-5 flex justify-between items-center hover:bg-blue-50 transition-colors rounded-lg" onclick="toggleFAQ('faq6')">
+                        <span class="text-base lg:text-lg font-medium text-gray-900 pr-4">Funktioniert der THW-Trainer auf dem Handy?</span>
+                        <span class="faq-icon text-xl text-blue-600 font-bold flex-shrink-0">+</span>
                     </button>
-                    <div id="faq6" class="faq-content hidden px-6 pb-6">
-                        <p class="text-gray-700 leading-relaxed">
+                    <div id="faq6" class="faq-content hidden px-4 lg:px-5 pb-4 lg:pb-5">
+                        <p class="text-gray-700 leading-relaxed text-sm lg:text-base">
                             Ja, der THW-Trainer ist vollständig responsive und funktioniert optimal auf Smartphones, 
                             Tablets und Desktop-Computern. Du kannst überall und jederzeit lernen - 
                             egal ob zu Hause, unterwegs oder in der Pause.
@@ -247,13 +247,13 @@
                 </div>
 
                 <!-- FAQ Item 7 -->
-                <div class="bg-gray-50 rounded-lg border border-gray-200">
-                    <button class="faq-toggle w-full text-left p-6 flex justify-between items-center hover:bg-gray-100 transition-colors" onclick="toggleFAQ('faq7')">
-                        <span class="text-lg font-semibold text-gray-900">Wie schwer ist die THW Grundausbildung Theorie-Prüfung?</span>
-                        <span class="faq-icon text-2xl text-gray-500">+</span>
+                <div class="bg-white rounded-lg shadow-sm border border-gray-100">
+                    <button class="faq-toggle w-full text-left p-4 lg:p-5 flex justify-between items-center hover:bg-blue-50 transition-colors rounded-lg" onclick="toggleFAQ('faq7')">
+                        <span class="text-base lg:text-lg font-medium text-gray-900 pr-4">Wie schwer ist die THW Grundausbildung Theorie-Prüfung?</span>
+                        <span class="faq-icon text-xl text-blue-600 font-bold flex-shrink-0">+</span>
                     </button>
-                    <div id="faq7" class="faq-content hidden px-6 pb-6">
-                        <p class="text-gray-700 leading-relaxed">
+                    <div id="faq7" class="faq-content hidden px-4 lg:px-5 pb-4 lg:pb-5">
+                        <p class="text-gray-700 leading-relaxed text-sm lg:text-base">
                             Mit der richtigen Vorbereitung ist die THW Grundausbildung Theorie-Prüfung gut zu schaffen. 
                             Der THW-Trainer hilft dir dabei, alle wichtigen Themen zu verstehen und zu üben. 
                             Nutze die Prüfungssimulation, um dich unter realistischen Bedingungen zu testen.
@@ -262,13 +262,13 @@
                 </div>
 
                 <!-- FAQ Item 8 -->
-                <div class="bg-gray-50 rounded-lg border border-gray-200">
-                    <button class="faq-toggle w-full text-left p-6 flex justify-between items-center hover:bg-gray-100 transition-colors" onclick="toggleFAQ('faq8')">
-                        <span class="text-lg font-semibold text-gray-900">Ist der THW-Trainer offiziell vom THW?</span>
-                        <span class="faq-icon text-2xl text-gray-500">+</span>
+                <div class="bg-white rounded-lg shadow-sm border border-gray-100">
+                    <button class="faq-toggle w-full text-left p-4 lg:p-5 flex justify-between items-center hover:bg-blue-50 transition-colors rounded-lg" onclick="toggleFAQ('faq8')">
+                        <span class="text-base lg:text-lg font-medium text-gray-900 pr-4">Ist der THW-Trainer offiziell vom THW?</span>
+                        <span class="faq-icon text-xl text-blue-600 font-bold flex-shrink-0">+</span>
                     </button>
-                    <div id="faq8" class="faq-content hidden px-6 pb-6">
-                        <p class="text-gray-700 leading-relaxed">
+                    <div id="faq8" class="faq-content hidden px-4 lg:px-5 pb-4 lg:pb-5">
+                        <p class="text-gray-700 leading-relaxed text-sm lg:text-base">
                             Der THW-Trainer ist eine private Initiative eines aktiven THW-Mitglieds und nicht offiziell 
                             vom THW herausgegeben. Die Fragen basieren jedoch auf den offiziellen Ausbildungsunterlagen 
                             und werden regelmäßig aktualisiert, um den aktuellen Stand der THW-Ausbildung zu reflektieren.
