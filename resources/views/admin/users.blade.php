@@ -74,6 +74,16 @@
                     </div>
                 </div>
             </div>
+            
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center">
+                    <div class="text-3xl">📧</div>
+                    <div class="ml-4">
+                        <div class="text-2xl font-bold text-green-800">{{ $users->where('email_consent', true)->count() }}</div>
+                        <div class="text-sm text-gray-600">E-Mail-Zustimmung</div>
+                    </div>
+                </div>
+            </div>
         </div>
         
         <!-- Benutzertabelle -->
@@ -93,6 +103,7 @@
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">E-Mail</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">E-Mail Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">E-Mail Zustimmung</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aktionen</th>
                         </tr>
                     </thead>
@@ -132,6 +143,17 @@
                                 @else
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
                                         ❌ Nicht bestätigt
+                                    </span>
+                                @endif
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                @if($user->email_consent)
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                        📧 Zustimmung erteilt
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                        📧 Keine Zustimmung
                                     </span>
                                 @endif
                             </td>
@@ -176,7 +198,7 @@
                         
                         <!-- Aufklappbare Details -->
                         <tr id="user-details-{{ $user->id }}" class="hidden bg-gray-50">
-                            <td colspan="7" class="px-6 py-4">
+                            <td colspan="8" class="px-6 py-4">
                                 <div class="bg-white rounded-lg p-6 shadow-sm border">
                                     <h3 class="text-lg font-semibold text-gray-900 mb-4">Benutzerdetails</h3>
                                     
@@ -229,6 +251,21 @@
                                                     @endif
                                                 </div>
                                             </div>
+                                            
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">E-Mail-Zustimmung</label>
+                                                <div class="px-3 py-2 bg-gray-100 rounded-lg text-sm">
+                                                    @if($user->email_consent)
+                                                        <span class="text-green-700">📧 Zustimmung erteilt
+                                                            @if($user->email_consent_at)
+                                                                am {{ $user->email_consent_at->format('d.m.Y H:i') }}
+                                                            @endif
+                                                        </span>
+                                                    @else
+                                                        <span class="text-gray-700">📧 Keine Zustimmung erteilt</span>
+                                                    @endif
+                                                </div>
+                                            </div>
                                         </div>
                                         
                                         <div class="flex justify-end pt-4">
@@ -278,15 +315,27 @@
                         <div class="mb-4">
                             <div class="text-lg font-semibold text-gray-900 mb-1">{{ $user->name }}</div>
                             <div class="text-sm text-gray-600 mb-2">{{ $user->email }}</div>
-                            @if($user->email_verified_at)
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                    ✅ E-Mail bestätigt
-                                </span>
-                            @else
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                    ❌ E-Mail nicht bestätigt
-                                </span>
-                            @endif
+                            <div class="flex flex-wrap gap-2">
+                                @if($user->email_verified_at)
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                        ✅ E-Mail bestätigt
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                        ❌ E-Mail nicht bestätigt
+                                    </span>
+                                @endif
+                                
+                                @if($user->email_consent)
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                        📧 Zustimmung erteilt
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                        📧 Keine Zustimmung
+                                    </span>
+                                @endif
+                            </div>
                         </div>
                         
                         <!-- Aufklappbare Details -->
@@ -326,6 +375,21 @@
                                         <div>
                                             <div class="text-gray-600">Letzte Aktivität:</div>
                                             <div class="font-medium">{{ $user->updated_at->format('d.m.Y') }}</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="text-sm">
+                                        <div class="text-gray-600 mb-1">E-Mail-Zustimmung:</div>
+                                        <div class="font-medium">
+                                            @if($user->email_consent)
+                                                <span class="text-green-700">📧 Zustimmung erteilt
+                                                    @if($user->email_consent_at)
+                                                        am {{ $user->email_consent_at->format('d.m.Y H:i') }}
+                                                    @endif
+                                                </span>
+                                            @else
+                                                <span class="text-gray-700">📧 Keine Zustimmung erteilt</span>
+                                            @endif
                                         </div>
                                     </div>
                                     
