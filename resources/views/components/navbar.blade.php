@@ -2,6 +2,9 @@
     <div class="container mx-auto flex items-center justify-between py-3 px-4">
         <div class="flex items-center space-x-6">
             <a href="/" class="font-bold text-xl text-yellow-400">THW-Trainer</a>
+            @if(app()->environment('testing') || str_contains(request()->getHost(), 'test.') || config('app.environment_type') === 'testing')
+                <span class="bg-red-600 text-white px-2 py-1 rounded text-sm font-bold">Test-System!</span>
+            @endif
             <a href="{{ route('dashboard') }}" class="hover:text-yellow-400">Dashboard</a>
             @auth
                 @if(auth()->user()->useroll === 'admin')

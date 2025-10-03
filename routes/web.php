@@ -17,6 +17,57 @@ Route::get('/datenschutz', function () {
     return view('datenschutz');
 })->name('datenschutz');
 
+// Dynamische robots.txt basierend auf Umgebung
+Route::get('/robots.txt', function () {
+    $isTestEnvironment = app()->environment('testing') || str_contains(request()->getHost(), 'test.') || config('app.environment_type') === 'testing';
+    
+    if ($isTestEnvironment) {
+        return response("User-agent: *\nDisallow: /", 200)
+            ->header('Content-Type', 'text/plain');
+    } else {
+        $robotsContent = "User-agent: *
+Allow: /
+Allow: /register
+Allow: /login
+Allow: /guest/*
+Allow: /assets/*
+Allow: /build/*
+
+# Wichtige Seiten für Crawler
+Allow: /
+Allow: /guest/practice/menu
+Allow: /guest/exam
+
+# Geschützte Bereiche
+Disallow: /dashboard
+Disallow: /practice
+Disallow: /exam
+Disallow: /admin
+Disallow: /profile
+Disallow: /failed
+Disallow: /bookmarks
+
+# Admin und private Bereiche
+Disallow: /admin/*
+Disallow: /api/*
+Disallow: /telescope/*
+
+# Cache und temporäre Dateien
+Disallow: /storage/*
+Disallow: /vendor/*
+Disallow: /node_modules/*
+
+# Sitemap
+Sitemap: " . url('/sitemap.xml') . "
+
+# Crawl-Delay für bessere Performance
+Crawl-delay: 1";
+        
+        return response($robotsContent, 200)
+            ->header('Content-Type', 'text/plain');
+    }
+});
+
 // Guest Routes (ohne Auth)
 Route::prefix('guest')->name('guest.')->group(function () {
     Route::get('/practice-menu', [\App\Http\Controllers\GuestPracticeController::class, 'menu'])->name('practice.menu');

@@ -9,6 +9,9 @@
                         <img src="{{ asset('logo-thwtrainer_w.png') }}" alt="THW-Trainer Logo" style="height:100%;max-height:2.5rem;width:auto;" class="mr-2 inline-block align-middle" />
                         <!-- <span class="font-bold text-white text-xl hover:text-yellow-400 transition align-middle">THW-Trainer</span> -->
                     </a>
+                    @if(app()->environment('testing') || str_contains(request()->getHost(), 'test.') || config('app.environment_type') === 'testing')
+                        <span class="bg-red-600 text-white px-2 py-1 rounded text-sm font-bold ml-2">Test-System!</span>
+                    @endif
                 </div>
 
                 <!-- Navigation Links -->

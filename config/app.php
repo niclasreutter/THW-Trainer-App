@@ -30,6 +30,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Application Environment Type
+    |--------------------------------------------------------------------------
+    |
+    | This value determines if the application is running in a testing environment.
+    | This can be used to hide the site from search engines and show test indicators.
+    | Set this to 'testing' for your test environment.
+    |
+    */
+
+    'environment_type' => env('APP_ENVIRONMENT_TYPE', 'production'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Debug Mode
     |--------------------------------------------------------------------------
     |

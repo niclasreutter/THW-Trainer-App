@@ -11,7 +11,12 @@
         <meta name="description" content="@hasSection('description')@yield('description')@else THW-Trainer: Bereite dich optimal auf deine THW-Prüfung vor. Kostenlose Theoriefragen, Prüfungssimulation und Lernfortschritt. Jetzt anonym oder mit Account üben! @endif">
         <meta name="keywords" content="THW, Technisches Hilfswerk, Theorie, Prüfung, Übung, Lernfortschritt, kostenlos, Simulation">
         <meta name="author" content="Niclas Reutter">
-        <meta name="robots" content="index, follow">
+        @if(app()->environment('testing') || str_contains(request()->getHost(), 'test.') || config('app.environment_type') === 'testing')
+            <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+            <meta name="googlebot" content="noindex, nofollow">
+        @else
+            <meta name="robots" content="index, follow">
+        @endif
         
         <!-- Open Graph / Facebook -->
         <meta property="og:type" content="website">
