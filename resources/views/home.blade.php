@@ -289,8 +289,7 @@
                         <img src="{{ asset('niclas.png') }}" 
                              alt="Niclas Reutter - Entwickler des THW-Trainers" 
                              class="h-auto object-contain"
-                             style="max-height: 300px; max-width: 250px;"
-                             loading="lazy">
+                             style="max-height: 300px; max-width: 250px;">
                     </div>
                 </div>
                 
