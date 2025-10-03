@@ -43,12 +43,12 @@ try {
     // Finde alle Benutzer die:
     // 1. E-Mail-Zustimmung haben (email_consent = true)
     // 2. Einen Streak > 1 haben
-    // 3. Heute noch nicht aktiv waren (last_activity_date != heute)
+    // 3. Heute noch keine Fragen beantwortet haben (daily_questions_date != heute)
     $users = \App\Models\User::where('email_consent', true)
         ->where('streak_days', '>', 1)
         ->where(function($query) use ($today) {
-            $query->whereNull('last_activity_date')
-                  ->orWhere('last_activity_date', '!=', $today);
+            $query->whereNull('daily_questions_date')
+                  ->orWhere('daily_questions_date', '!=', $today);
         })
         ->get();
     
@@ -56,10 +56,10 @@ try {
     
     foreach ($users as $user) {
         try {
-            // Prüfe ob der Benutzer heute wirklich noch nicht aktiv war
-            $lastActivity = $user->last_activity_date ? \Carbon\Carbon::parse($user->last_activity_date) : null;
+            // Prüfe ob der Benutzer heute wirklich noch keine Fragen beantwortet hat
+            $lastDailyActivity = $user->daily_questions_date ? \Carbon\Carbon::parse($user->daily_questions_date) : null;
             
-            if (!$lastActivity || $lastActivity->lt($today)) {
+            if (!$lastDailyActivity || $lastDailyActivity->lt($today)) {
                 // Sende E-Mail
                 \Illuminate\Support\Facades\Mail::to($user->email)->send(new \App\Mail\StreakReminderMail($user, $user->streak_days));
                 $emailsSent++;
