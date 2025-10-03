@@ -40,6 +40,17 @@ try {
     $emailsSent = 0;
     $errors = 0;
     
+    // Debug: Zeige alle Benutzer mit Streak > 1
+    $allUsersWithStreak = \App\Models\User::where('streak_days', '>', 1)->get();
+    echo "[" . date('Y-m-d H:i:s') . "] DEBUG: Alle Benutzer mit Streak > 1: {$allUsersWithStreak->count()}\n";
+    
+    foreach ($allUsersWithStreak as $debugUser) {
+        $lastDailyActivity = $debugUser->daily_questions_date ? \Carbon\Carbon::parse($debugUser->daily_questions_date) : null;
+        $lastDailyActivityStr = $lastDailyActivity ? $lastDailyActivity->format('Y-m-d') : 'NULL';
+        $emailConsent = $debugUser->email_consent ? 'true' : 'false';
+        echo "[" . date('Y-m-d H:i:s') . "] DEBUG: {$debugUser->name} - Streak: {$debugUser->streak_days}, E-Mail-Zustimmung: {$emailConsent}, Letzte Fragen-Aktivität: {$lastDailyActivityStr}\n";
+    }
+    
     // Finde alle Benutzer die:
     // 1. E-Mail-Zustimmung haben (email_consent = true)
     // 2. Einen Streak > 1 haben
