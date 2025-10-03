@@ -37,7 +37,7 @@
             
             <!-- Untertitel -->
             <p style="font-size: clamp(1rem, 4vw, 1.5rem); color: #dbeafe; margin-bottom: 2rem; max-width: 48rem; margin-left: auto; margin-right: auto; font-weight: 300; line-height: 1.4;">
-                Dein digitaler Begleiter zum Üben der THW-Theorie!
+                Dein digitaler Begleiter in der Grundausbildung zum Üben der THW-Theorie!
             </p>
             
             <!-- CTA Button -->
