@@ -144,7 +144,7 @@
 
     <!-- FAQ Section -->
     <div class="py-12 lg:py-16 bg-[#FDFDFC]">
-        <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-2xl lg:max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-8 lg:mb-12">
                 <h2 class="text-2xl lg:text-4xl font-bold text-gray-900 mb-4 tracking-tight">
                     ❓ Häufig gestellte Fragen
