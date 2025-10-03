@@ -48,7 +48,7 @@
                onmouseout="this.style.background='#fbbf24'; this.style.transform='scale(1)'"
                onclick="launchRocket(event)">
                 <span id="rocket" style="font-size: clamp(1rem, 3vw, 1.25rem); margin-right: 8px; animation: rocket-bounce 1.5s infinite;">🚀</span>
-                <span>Jetzt kostenlos üben</span>
+                <span>THW-Theorie kostenlos üben</span>
             </a>
             
             <!-- Anonym Text -->
@@ -76,7 +76,7 @@
                     🎯 Was bietet der THW-Trainer?
                 </h2>
                 <p class="text-lg lg:text-5xl text-gray-600 max-w-4xl mx-auto leading-relaxed font-light px-4">
-                    Alles, was du brauchst, um dich optimal auf THW-Prüfungen vorzubereiten
+                    Alles, was du brauchst, um dich optimal auf Grundausbildungs Theorie-Prüfung im THW vorzubereiten
                 </p>
             </div>
             <br>
@@ -87,7 +87,7 @@
                 <div class="bg-white rounded-lg shadow-md p-6">
                     <h3 class="text-xl font-semibold text-blue-800 mb-4">📚 Alle Theoriefragen</h3>
                     <p class="text-gray-700 leading-relaxed">
-                        Umfassende Sammlung aller relevanten THW-Theoriefragen zum Üben und Lernen. 
+                        Umfassende Sammlung aller THW-Theoriefragen zum Üben und Lernen. 
                         Von Grundlagen bis zu spezialisierten Bereichen.
                     </p>
                 </div>
@@ -121,7 +121,7 @@
                 📑 Bereit zum Lernen?
             </h2>
             <p class="text-base lg:text-5xl text-white mb-8 lg:mb-16 max-w-4xl mx-auto leading-relaxed font-light px-4">
-                Starte jetzt mit dem THW-Trainer und bereite dich optimal auf deine Prüfung vor. 
+                Starte jetzt mit dem THW-Trainer und bereite dich optimal auf deine Grundausbildungs Theorie-Prüfung im THW vor. 
             </p>
             <p class="text-base lg:text-5xl text-white max-w-4xl mx-auto leading-relaxed font-light px-4" style="margin-bottom: 2rem;">
             Registriere dich kostenlos und beginne sofort mit dem Lernen, egal ob Handy, Laptop oder Tablet!
