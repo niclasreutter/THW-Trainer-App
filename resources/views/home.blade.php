@@ -76,7 +76,7 @@
                     🎯 Was bietet der THW-Trainer?
                 </h2>
                 <p class="text-lg lg:text-5xl text-gray-600 max-w-4xl mx-auto leading-relaxed font-light px-4">
-                    Alles, was du brauchst, um dich optimal auf Grundausbildungs Theorie-Prüfung im THW vorzubereiten
+                    Alles, was du brauchst, um dich optimal auf deine Grundausbildung Theorie-Prüfung im THW vorzubereiten
                 </p>
             </div>
             <br>
@@ -121,7 +121,7 @@
                 📑 Bereit zum Lernen?
             </h2>
             <p class="text-base lg:text-5xl text-white mb-8 lg:mb-16 max-w-4xl mx-auto leading-relaxed font-light px-4">
-                Starte jetzt mit dem THW-Trainer und bereite dich optimal auf deine Grundausbildungs Theorie-Prüfung im THW vor. 
+                Starte jetzt mit dem THW-Trainer und bereite dich optimal auf deine Grundausbildung Theorie-Prüfung im THW vor. 
             </p>
             <p class="text-base lg:text-5xl text-white max-w-4xl mx-auto leading-relaxed font-light px-4" style="margin-bottom: 2rem;">
             Registriere dich kostenlos und beginne sofort mit dem Lernen, egal ob Handy, Laptop oder Tablet!
