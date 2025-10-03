@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'THW-Trainer - Kostenlos THW Theorie üben')
-@section('description', 'THW-Trainer: Dein kostenloser digitaler Begleiter für die THW-Theorieprüfung. Über 1000 Fragen, Prüfungssimulation und Lernfortschritt. Jetzt anonym starten oder kostenlos registrieren!')
+@section('description', 'THW-Trainer: Dein kostenloser digitaler Begleiter für die THW-Theorieprüfung. Alle aktuellen Fragen, Prüfungssimulation und Lernfortschritt. Jetzt anonym starten oder kostenlos registrieren!')
 
 @section('content')
 <div class="min-h-screen bg-[#FDFDFC]">
