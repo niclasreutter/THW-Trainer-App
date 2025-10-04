@@ -70,10 +70,16 @@ try {
                 // Reset Streak auf 0
                 $oldStreak = $user->streak_days;
                 $user->streak_days = 0;
+                
+                // Reset Daily Questions Counter
+                $oldDailyQuestions = $user->daily_questions_solved;
+                $user->daily_questions_solved = 0;
+                $user->daily_questions_date = null;
+                
                 $user->save();
                 $resetsCount++;
                 
-                echo "[" . date('Y-m-d H:i:s') . "] Streak zurückgesetzt: {$user->name} ({$user->email}) - Von {$oldStreak} auf 0 Tage\n";
+                echo "[" . date('Y-m-d H:i:s') . "] Streak zurückgesetzt: {$user->name} ({$user->email}) - Von {$oldStreak} auf 0 Tage, Daily Questions: {$oldDailyQuestions} → 0\n";
             }
             
         } catch (Exception $e) {
