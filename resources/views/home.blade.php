@@ -286,10 +286,11 @@
                 <!-- Container links - Bild -->
                 <div class="flex-shrink-0 flex justify-center lg:justify-start">
                     <div class="relative">
-                        <img src="{{ asset('niclas.png') }}" 
+                        <img src="{{ asset('niclas_compressed.png') }}" 
                              alt="Niclas Reutter - Entwickler des THW-Trainers" 
                              class="h-auto object-contain block"
-                             style="max-height: 300px; max-width: 250px; opacity: 1; visibility: visible;">
+                             style="max-height: 300px; max-width: 250px; opacity: 1; visibility: visible;"
+                             loading="lazy">
                     </div>
                 </div>
                 
