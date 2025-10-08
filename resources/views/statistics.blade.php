@@ -113,9 +113,6 @@
                         <div class="flex-1">
                             <h3 class="font-semibold text-gray-800 text-sm">{{ $stat->lernabschnitt }}. {{ $sectionName }}</h3>
                         </div>
-                        <span class="ml-2 font-bold text-lg {{ $stat->success_rate >= 80 ? 'text-green-600' : ($stat->success_rate >= 60 ? 'text-yellow-600' : 'text-red-600') }}">
-                            {{ $stat->success_rate }}%
-                        </span>
                     </div>
                     <div class="flex items-center justify-between text-xs text-gray-600 mb-2">
                         <span>{{ number_format($stat->total_attempts) }} Versuche</span>
