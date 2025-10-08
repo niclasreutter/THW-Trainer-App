@@ -120,14 +120,18 @@
                     <div class="flex items-center justify-between text-xs text-gray-600 mb-2">
                         <span>{{ number_format($stat->total_attempts) }} Versuche</span>
                         <div class="flex gap-3">
-                            <span class="text-green-600">✓ {{ number_format($stat->correct_count) }}</span>
-                            <span class="text-red-600">✗ {{ number_format($stat->wrong_count) }}</span>
+                            <span class="text-green-600 font-semibold">✓ {{ number_format($stat->correct_count) }}</span>
+                            <span class="text-red-600 font-semibold">✗ {{ number_format($stat->wrong_count) }}</span>
                         </div>
                     </div>
-                    <!-- Progress Bar -->
-                    <div class="w-full bg-gray-200 rounded-full h-2">
-                        <div class="h-2 rounded-full {{ $stat->success_rate >= 80 ? 'bg-green-500' : ($stat->success_rate >= 60 ? 'bg-yellow-500' : 'bg-red-500') }}" 
-                             style="width: {{ $stat->success_rate }}%"></div>
+                    <!-- Stacked Progress Bar (Grün/Rot Verteilung) -->
+                    <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden flex">
+                        <div class="bg-green-500 h-3 transition-all duration-500" 
+                             style="width: {{ $stat->success_rate }}%"
+                             title="Richtig: {{ $stat->success_rate }}%"></div>
+                        <div class="bg-red-500 h-3 transition-all duration-500" 
+                             style="width: {{ 100 - $stat->success_rate }}%"
+                             title="Falsch: {{ 100 - $stat->success_rate }}%"></div>
                     </div>
                 </div>
             @endforeach

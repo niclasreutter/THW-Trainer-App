@@ -91,7 +91,7 @@ class StatisticsController extends Controller
                 DB::raw('ROUND((SUM(CASE WHEN is_correct = 1 THEN 1 ELSE 0 END) * 100.0 / COUNT(*)), 1) as success_rate')
             )
             ->groupBy('questions.lernabschnitt')
-            ->orderBy('questions.lernabschnitt')
+            ->orderByRaw('CAST(questions.lernabschnitt AS UNSIGNED)')
             ->get();
         
         return view('statistics', compact(
