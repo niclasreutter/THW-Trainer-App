@@ -17,6 +17,9 @@ Route::get('/datenschutz', function () {
     return view('datenschutz');
 })->name('datenschutz');
 
+// Öffentliche Statistik-Seite
+Route::get('/statistik', [\App\Http\Controllers\StatisticsController::class, 'index'])->name('statistics');
+
 // Dynamische robots.txt basierend auf Umgebung
 Route::get('/robots.txt', function () {
     $isTestEnvironment = app()->environment('testing') || str_contains(request()->getHost(), 'test.') || config('app.environment_type') === 'testing';

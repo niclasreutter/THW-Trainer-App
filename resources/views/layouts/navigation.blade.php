@@ -42,6 +42,21 @@
                             @endif
                         </a>
                     @endauth
+                    
+                    <!-- Öffentliche Statistik (für alle sichtbar) -->
+                    <a href="{{ route('statistics') }}" 
+                       class="inline-flex items-center px-3 py-2 text-sm font-medium text-white hover:text-yellow-400 transition-colors duration-200 relative group {{ request()->routeIs('statistics') ? 'text-yellow-400' : '' }}">
+                        <span class="flex items-center space-x-2">
+                            <span class="text-lg">📈</span>
+                            <span>Statistik</span>
+                        </span>
+                        @if(request()->routeIs('statistics'))
+                            <div class="absolute -bottom-1 left-0 w-full h-0.5 bg-yellow-400"></div>
+                        @else
+                            <div class="absolute -bottom-1 left-0 w-0 h-0.5 bg-yellow-400 transition-all duration-200 group-hover:w-full"></div>
+                        @endif
+                    </a>
+                    
                         @auth
                             @if(Auth::user()->useroll === 'admin')
                                 <div class="relative ml-2">
@@ -119,6 +134,18 @@
             <!-- Login/Register Links for Guests -->
             @guest
             <div class="hidden sm:flex sm:items-center sm:ms-6 space-x-8">
+                <a href="{{ route('statistics') }}" 
+                   class="text-white hover:text-yellow-400 font-medium text-sm transition-colors duration-200 relative group {{ request()->routeIs('statistics') ? 'text-yellow-400' : '' }}">
+                    <span class="flex items-center space-x-2">
+                        <span class="text-lg">📈</span>
+                        <span>Statistik</span>
+                    </span>
+                    @if(request()->routeIs('statistics'))
+                        <div class="absolute -bottom-1 left-0 w-full h-0.5 bg-yellow-400"></div>
+                    @else
+                        <div class="absolute -bottom-1 left-0 w-0 h-0.5 bg-yellow-400 transition-all duration-200 group-hover:w-full"></div>
+                    @endif
+                </a>
                 <a href="{{ route('login') }}" 
                    class="text-white hover:text-yellow-400 font-medium text-sm transition-colors duration-200 relative group">
                     <span class="flex items-center space-x-2">
@@ -164,6 +191,14 @@
                     <span class="text-lg">🏆</span>
                     <span>Achievements</span>
                 </a>
+                
+                <!-- Öffentliche Statistik (für alle sichtbar) -->
+                <a href="{{ route('statistics') }}" 
+                   class="block px-3 py-2 text-base font-medium text-white hover:text-yellow-400 hover:bg-blue-800 rounded-md transition-colors duration-200 flex items-center space-x-2 {{ request()->routeIs('statistics') ? 'text-yellow-400 bg-blue-800' : '' }}">
+                    <span class="text-lg">📈</span>
+                    <span>Statistik</span>
+                </a>
+                
                 @if(Auth::user()->useroll === 'admin')
                     <div class="px-3 py-2 text-base font-medium text-white flex items-center space-x-2">
                         <span class="text-lg">⚙️</span>
@@ -186,6 +221,13 @@
                 @endif
             @endauth
             @guest
+                <!-- Öffentliche Statistik (für alle sichtbar) -->
+                <a href="{{ route('statistics') }}" 
+                   class="block px-3 py-2 text-base font-medium text-white hover:text-yellow-400 hover:bg-blue-800 rounded-md transition-colors duration-200 flex items-center space-x-2 {{ request()->routeIs('statistics') ? 'text-yellow-400 bg-blue-800' : '' }}">
+                    <span class="text-lg">📈</span>
+                    <span>Statistik</span>
+                </a>
+                
                 <a href="{{ route('login') }}" 
                    class="block px-3 py-2 text-base font-medium text-white hover:text-yellow-400 hover:bg-blue-800 rounded-md transition-colors duration-200 flex items-center space-x-2">
                     <span class="text-lg">🔑</span>
