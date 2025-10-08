@@ -126,11 +126,11 @@
                     </div>
                     <!-- Stacked Progress Bar (Grün/Rot Verteilung) -->
                     <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden flex">
-                        <div class="bg-green-500 h-3 transition-all duration-500" 
-                             style="width: {{ $stat->success_rate }}%"
+                        <div class="h-3 transition-all duration-500" 
+                             style="width: {{ $stat->success_rate }}%; background-color: #10b981;"
                              title="Richtig: {{ $stat->success_rate }}%"></div>
-                        <div class="bg-red-500 h-3 transition-all duration-500" 
-                             style="width: {{ 100 - $stat->success_rate }}%"
+                        <div class="h-3 transition-all duration-500" 
+                             style="width: {{ 100 - $stat->success_rate }}%; background-color: #ef4444;"
                              title="Falsch: {{ 100 - $stat->success_rate }}%"></div>
                     </div>
                 </div>
