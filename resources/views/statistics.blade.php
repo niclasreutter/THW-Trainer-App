@@ -21,14 +21,15 @@
     </div>
 
     <!-- Gesamt-Statistiken KPI Karten -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
         <!-- Gesamt beantwortet -->
-        <div class="rounded-xl p-6 text-white card-shadow hover-scale gradient-blue">
+        <div class="rounded-xl p-6 text-white hover-scale cursor-pointer"
+             style="background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4), 0 0 20px rgba(37, 99, 235, 0.3), 0 0 40px rgba(37, 99, 235, 0.1); border-radius: 12px;">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-blue-100 text-sm font-medium">Gesamt beantwortet</p>
-                    <p class="text-3xl font-bold mt-2">{{ number_format($totalAnswered) }}</p>
-                    <p class="text-blue-100 text-xs mt-1">Fragen</p>
+                    <p class="text-3xl font-bold">{{ number_format($totalAnswered) }}</p>
+                    <p class="text-blue-100 text-sm">Fragen</p>
                 </div>
                 <div class="bg-white bg-opacity-20 rounded-full p-3">
                     <i class="fas fa-chart-bar text-2xl"></i>
@@ -37,12 +38,13 @@
         </div>
 
         <!-- Richtig beantwortet -->
-        <div class="rounded-xl p-6 text-white card-shadow hover-scale gradient-green">
+        <div class="rounded-xl p-6 text-white hover-scale cursor-pointer"
+             style="background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); box-shadow: 0 4px 15px rgba(34, 197, 94, 0.4), 0 0 20px rgba(34, 197, 94, 0.3), 0 0 40px rgba(34, 197, 94, 0.1); border-radius: 12px;">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-green-100 text-sm font-medium">Richtig beantwortet</p>
-                    <p class="text-3xl font-bold mt-2">{{ number_format($totalCorrect) }}</p>
-                    <p class="text-green-100 text-xs mt-1">{{ $successRate }}% Erfolgsrate</p>
+                    <p class="text-3xl font-bold">{{ number_format($totalCorrect) }}</p>
+                    <p class="text-green-100 text-sm">{{ $successRate }}% Erfolgsrate</p>
                 </div>
                 <div class="bg-white bg-opacity-20 rounded-full p-3">
                     <i class="fas fa-check-circle text-2xl"></i>
@@ -51,12 +53,13 @@
         </div>
 
         <!-- Falsch beantwortet -->
-        <div class="rounded-xl p-6 text-white card-shadow hover-scale gradient-red">
+        <div class="rounded-xl p-6 text-white hover-scale cursor-pointer"
+             style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4), 0 0 20px rgba(239, 68, 68, 0.3), 0 0 40px rgba(239, 68, 68, 0.1); border-radius: 12px;">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-red-100 text-sm font-medium">Falsch beantwortet</p>
-                    <p class="text-3xl font-bold mt-2">{{ number_format($totalWrong) }}</p>
-                    <p class="text-red-100 text-xs mt-1">{{ $errorRate }}% Fehlerrate</p>
+                    <p class="text-3xl font-bold">{{ number_format($totalWrong) }}</p>
+                    <p class="text-red-100 text-sm">{{ $errorRate }}% Fehlerrate</p>
                 </div>
                 <div class="bg-white bg-opacity-20 rounded-full p-3">
                     <i class="fas fa-times-circle text-2xl"></i>
@@ -64,13 +67,14 @@
             </div>
         </div>
 
-        <!-- Durchschnitt -->
-        <div class="rounded-xl p-6 text-blue-800 card-shadow hover-scale gradient-yellow">
+        <!-- Erfolgsrate -->
+        <div class="rounded-xl p-6 text-white hover-scale cursor-pointer"
+             style="background: linear-gradient(135deg, #facc15 0%, #f59e0b 100%); color: #1e40af; box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4), 0 0 20px rgba(251, 191, 36, 0.3), 0 0 40px rgba(251, 191, 36, 0.1); border-radius: 12px;">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-blue-800 text-sm font-medium">Erfolgsrate</p>
-                    <p class="text-3xl font-bold mt-2">{{ $successRate }}%</p>
-                    <p class="text-blue-800 text-xs mt-1">aller Antworten</p>
+                    <p class="text-3xl font-bold">{{ $successRate }}%</p>
+                    <p class="text-blue-800 text-sm">aller Antworten</p>
                 </div>
                 <div class="bg-blue-800 bg-opacity-20 rounded-full p-3">
                     <i class="fas fa-trophy text-2xl text-blue-800"></i>
