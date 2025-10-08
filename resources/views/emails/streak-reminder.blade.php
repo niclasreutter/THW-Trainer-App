@@ -92,6 +92,20 @@
             Lass uns diesen Streak nicht unterbrechen!
         </div>
 
+        @if($streakDays >= 3)
+        <div style="background-color: #dbeafe; border: 2px solid #3b82f6; border-radius: 8px; padding: 15px; margin: 20px 0;">
+            <h3 style="color: #1d4ed8; margin-top: 0;">🎯 Streak-Bonus aktiv!</h3>
+            <p style="margin-bottom: 0;">Da du bereits {{ $streakDays }} Tage Streak hast, bekommst du <strong>doppelte Punkte</strong> für jede richtige Antwort! 
+            Das sind 20 Punkte statt 10 Punkte pro Frage - oder willst du wieder nur 10 Punkte bekommen?</p>
+        </div>
+        @else
+        <div style="background-color: #fef3c7; border: 2px solid #f59e0b; border-radius: 8px; padding: 15px; margin: 20px 0;">
+            <h3 style="color: #d97706; margin-top: 0;">🚀 Nur noch {{ 3 - $streakDays }} Tag{{ 3 - $streakDays == 1 ? '' : 'e' }} bis zum Streak-Bonus!</h3>
+            <p style="margin-bottom: 0;">Lerne heute und morgen weiter, dann bekommst du ab dem {{ $streakDays + 1 }}. Tag <strong>doppelte Punkte</strong> für jede richtige Antwort! 
+            Das sind 20 Punkte statt 10 Punkte pro Frage - willst du dir das entgehen lassen?</p>
+        </div>
+        @endif
+
         <p>Mit nur einer Frage heute kannst du deinen Streak retten und weiter auf dein nächstes Achievement hinarbeiten.</p>
 
         <div style="text-align: center;">
