@@ -39,7 +39,7 @@
 
         <!-- Richtig beantwortet -->
         <div class="rounded-xl p-6 text-white hover-scale cursor-pointer"
-             style="background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); box-shadow: 0 4px 15px rgba(34, 197, 94, 0.4), 0 0 20px rgba(34, 197, 94, 0.3), 0 0 40px rgba(34, 197, 94, 0.1); border-radius: 12px;">
+             style="background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); box-shadow: 0 4px 15px rgba(34, 197, 94, 0.6), 0 0 25px rgba(34, 197, 94, 0.4), 0 0 50px rgba(34, 197, 94, 0.2); border-radius: 12px;">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-green-100 text-sm font-medium">Richtig beantwortet</p>
@@ -128,15 +128,15 @@
                     <div class="w-full bg-gray-200 rounded-full h-3 flex" style="overflow: visible; position: relative;">
                         <div class="h-3 transition-all duration-500" 
                              style="width: {{ $stat->success_rate }}%; 
-                                    background: linear-gradient(135deg, #10b981 0%, #059669 100%); 
-                                    box-shadow: 0 0 10px rgba(16, 185, 129, 0.8), 0 0 20px rgba(16, 185, 129, 0.4), 0 0 30px rgba(16, 185, 129, 0.2);
-                                    border: 1px solid rgba(16, 185, 129, 0.3);
+                                    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); 
+                                    box-shadow: 0 0 6px rgba(34, 197, 94, 0.5), 0 0 12px rgba(34, 197, 94, 0.2);
+                                    border: 1px solid rgba(34, 197, 94, 0.3);
                                     border-radius: {{ $stat->success_rate == 100 ? '12px' : '12px 0 0 12px' }};"
                              title="Richtig: {{ $stat->success_rate }}%"></div>
                         <div class="h-3 transition-all duration-500" 
                              style="width: {{ 100 - $stat->success_rate }}%; 
                                     background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); 
-                                    box-shadow: 0 0 10px rgba(239, 68, 68, 0.8), 0 0 20px rgba(239, 68, 68, 0.4), 0 0 30px rgba(239, 68, 68, 0.2);
+                                    box-shadow: 0 0 6px rgba(239, 68, 68, 0.5), 0 0 12px rgba(239, 68, 68, 0.2);
                                     border: 1px solid rgba(239, 68, 68, 0.3);
                                     border-radius: {{ $stat->success_rate == 0 ? '12px' : '0 12px 12px 0' }};"
                              title="Falsch: {{ 100 - $stat->success_rate }}%"></div>
