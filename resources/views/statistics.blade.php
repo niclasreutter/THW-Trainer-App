@@ -126,17 +126,19 @@
                     </div>
                     <!-- Stacked Progress Bar (Grün/Rot Verteilung) -->
                     <div class="w-full bg-gray-200 rounded-full h-3 flex" style="overflow: visible; position: relative;">
-                        <div class="h-3 transition-all duration-500 rounded-l-full" 
+                        <div class="h-3 transition-all duration-500" 
                              style="width: {{ $stat->success_rate }}%; 
                                     background: linear-gradient(135deg, #10b981 0%, #059669 100%); 
                                     box-shadow: 0 0 10px rgba(16, 185, 129, 0.8), 0 0 20px rgba(16, 185, 129, 0.4), 0 0 30px rgba(16, 185, 129, 0.2);
-                                    border: 1px solid rgba(16, 185, 129, 0.3);"
+                                    border: 1px solid rgba(16, 185, 129, 0.3);
+                                    border-radius: {{ $stat->success_rate == 100 ? '12px' : '12px 0 0 12px' }};"
                              title="Richtig: {{ $stat->success_rate }}%"></div>
-                        <div class="h-3 transition-all duration-500 rounded-r-full" 
+                        <div class="h-3 transition-all duration-500" 
                              style="width: {{ 100 - $stat->success_rate }}%; 
                                     background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); 
                                     box-shadow: 0 0 10px rgba(239, 68, 68, 0.8), 0 0 20px rgba(239, 68, 68, 0.4), 0 0 30px rgba(239, 68, 68, 0.2);
-                                    border: 1px solid rgba(239, 68, 68, 0.3);"
+                                    border: 1px solid rgba(239, 68, 68, 0.3);
+                                    border-radius: {{ $stat->success_rate == 0 ? '12px' : '0 12px 12px 0' }};"
                              title="Falsch: {{ 100 - $stat->success_rate }}%"></div>
                     </div>
                 </div>
