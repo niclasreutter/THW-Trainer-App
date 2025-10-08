@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Question;
+use App\Models\QuestionStatistic;
 use Illuminate\Support\Facades\Session;
 use App\Services\GamificationService;
 
@@ -84,6 +85,12 @@ class ExamController extends Controller
             } else {
                 $failed[] = $frage->id;
             }
+            
+            // Anonyme Statistik erfassen
+            QuestionStatistic::create([
+                'question_id' => $frage->id,
+                'is_correct' => $isCorrect,
+            ]);
         }
         $total = count($fragen);
         $passed = $total > 0 && $correctCount / $total >= 0.8;

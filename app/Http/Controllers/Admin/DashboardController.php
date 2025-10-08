@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Question;
+use App\Models\QuestionStatistic;
 use App\Models\ExamResult;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -27,9 +28,11 @@ class DashboardController extends Controller
         $totalQuestions = Question::count();
         $learningSections = Question::distinct('lernabschnitt')->count();
         
-        // Gelöste Fragen
-        $totalSolvedQuestions = User::sum(DB::raw("JSON_LENGTH(solved_questions)"));
-        $averageSolved = $totalUsers > 0 ? round(($totalSolvedQuestions / $totalUsers), 1) : 0;
+        // Statistiken aus question_statistics Tabelle
+        $totalAnsweredQuestions = QuestionStatistic::count();
+        $totalCorrectAnswers = QuestionStatistic::where('is_correct', true)->count();
+        $totalWrongAnswers = QuestionStatistic::where('is_correct', false)->count();
+        $wrongAnswerRate = $totalAnsweredQuestions > 0 ? round(($totalWrongAnswers / $totalAnsweredQuestions) * 100, 1) : 0;
         
         // Benutzer Aktivität (30 Tage)
         $userActivity = $this->getUserActivity();
@@ -48,8 +51,10 @@ class DashboardController extends Controller
             'verificationRate',
             'totalQuestions',
             'learningSections',
-            'totalSolvedQuestions',
-            'averageSolved',
+            'totalAnsweredQuestions',
+            'totalCorrectAnswers',
+            'totalWrongAnswers',
+            'wrongAnswerRate',
             'userActivity',
             'learningProgress',
             'leaderboard'

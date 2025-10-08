@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Question;
+use App\Models\QuestionStatistic;
 use App\Services\GamificationService;
 
 class PracticeController extends Controller
@@ -342,6 +343,12 @@ class PracticeController extends Controller
         $userAnswer = collect($request->answer ?? []);
         $solution = collect(explode(',', $question->loesung))->map(fn($s) => trim($s));
         $isCorrect = $userAnswer->sort()->values()->all() === $solution->sort()->values()->all();
+
+        // Anonyme Statistik erfassen
+        QuestionStatistic::create([
+            'question_id' => $question->id,
+            'is_correct' => $isCorrect,
+        ]);
 
         $user = Auth::user();
         $solved = $this->ensureArray($user->solved_questions);

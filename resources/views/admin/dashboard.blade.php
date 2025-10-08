@@ -118,17 +118,17 @@
                     </div>
                 </div>
 
-                <!-- Gelöste Fragen -->
+                <!-- Beantwortete Fragen -->
                 <div class="admin-kpi-card p-6 text-white hover-scale cursor-pointer"
                      style="background: linear-gradient(135deg, #00337F 0%, #002a66 100%); box-shadow: 0 4px 15px rgba(0, 51, 127, 0.4), 0 0 20px rgba(0, 51, 127, 0.3), 0 0 40px rgba(0, 51, 127, 0.1);">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-blue-100 text-sm font-medium">Gelöste Fragen</p>
-                            <p class="text-3xl font-bold">{{ $totalSolvedQuestions }}</p>
-                            <p class="text-blue-100 text-sm">{{ $averageSolved }}% Durchschnitt</p>
+                            <p class="text-blue-100 text-sm font-medium">Beantwortete Fragen</p>
+                            <p class="text-3xl font-bold">{{ number_format($totalAnsweredQuestions) }}</p>
+                            <p class="text-blue-100 text-sm">{{ $wrongAnswerRate }}% Falsch</p>
                         </div>
                         <div class="bg-white bg-opacity-20 rounded-full p-3">
-                            <i class="fas fa-bullseye text-2xl"></i>
+                            <i class="fas fa-chart-bar text-2xl"></i>
                         </div>
                     </div>
                 </div>
@@ -136,6 +136,34 @@
 
             <!-- Detailed Information Cards -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-12">
+                <!-- Fragen-Statistik Details -->
+                <div class="bg-white rounded-xl p-6 card-shadow">
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-chart-pie text-gray-600 mr-2"></i>
+                        <h3 class="text-lg font-semibold text-gray-800">Fragen-Statistik</h3>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">Gesamt beantwortet</span>
+                            <span class="font-semibold text-gray-900">{{ number_format($totalAnsweredQuestions) }}</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">Richtig</span>
+                            <span class="font-semibold text-green-600">{{ number_format($totalCorrectAnswers) }}</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">Falsch</span>
+                            <span class="font-semibold text-red-600">{{ number_format($totalWrongAnswers) }}</span>
+                        </div>
+                        <div class="mt-4 pt-4 border-t border-gray-200">
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-600 font-medium">Erfolgsrate</span>
+                                <span class="font-bold text-blue-600">{{ $totalAnsweredQuestions > 0 ? round((($totalCorrectAnswers / $totalAnsweredQuestions) * 100), 1) : 0 }}%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            
                 <!-- Benutzer-Aktivität -->
                 <div class="bg-white rounded-xl p-6 card-shadow">
                     <div class="flex items-center mb-4">
@@ -179,7 +207,10 @@
                         </div>
                     </div>
                 </div>
-
+            </div>
+            
+            <!-- Leaderboard Section -->
+            <div class="grid grid-cols-1 gap-6 mb-12">
                 <!-- Leaderboard Top-10 -->
                 <div class="bg-white rounded-xl p-6 card-shadow">
                     <div class="flex items-center mb-4">

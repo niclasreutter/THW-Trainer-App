@@ -3,6 +3,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Question;
+use App\Models\QuestionStatistic;
 
 class GuestPracticeController extends Controller
 {
@@ -143,6 +144,12 @@ class GuestPracticeController extends Controller
         $userAnswer = collect($request->answer ?? []);
         $solution = collect(explode(',', $question->loesung))->map(fn($s) => trim($s));
         $isCorrect = $userAnswer->sort()->values()->all() === $solution->sort()->values()->all();
+
+        // Anonyme Statistik erfassen
+        QuestionStatistic::create([
+            'question_id' => $question->id,
+            'is_correct' => $isCorrect,
+        ]);
 
         $skipped = session('guest_practice_skipped', []);
         

@@ -3,6 +3,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Question;
+use App\Models\QuestionStatistic;
 
 class GuestExamController extends Controller
 {
@@ -50,6 +51,12 @@ class GuestExamController extends Controller
             if ($isCorrect) {
                 $correctCount++;
             }
+            
+            // Anonyme Statistik erfassen
+            QuestionStatistic::create([
+                'question_id' => $frage->id,
+                'is_correct' => $isCorrect,
+            ]);
         }
         
         $total = count($fragen);
