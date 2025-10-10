@@ -158,7 +158,7 @@
             </div>
             
             <!-- E-Mail-Zustimmung -->
-            <div class="p-4 rounded-xl" style="background: linear-gradient(135deg, rgba(14, 165, 233, 0.1) 0%, rgba(2, 132, 199, 0.1) 100%); border: 2px solid rgba(14, 165, 233, 0.3); box-shadow: 0 0 20px rgba(14, 165, 233, 0.2);">
+            <div class="p-4" style="background: linear-gradient(135deg, rgba(14, 165, 233, 0.1) 0%, rgba(2, 132, 199, 0.1) 100%); border: 2px solid rgba(14, 165, 233, 0.3); box-shadow: 0 0 20px rgba(14, 165, 233, 0.2); border-radius: 12px;">
                 <div class="flex items-start">
                     <div class="flex-shrink-0">
                         <svg class="w-5 h-5 mt-1" style="color: #0284c7;" fill="currentColor" viewBox="0 0 20 20">
