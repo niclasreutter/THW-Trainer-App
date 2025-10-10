@@ -16,6 +16,7 @@ class StatisticsController extends Controller
     {
         // Gesamt-Statistiken
         $totalAnswered = QuestionStatistic::count();
+        $totalAnsweredToday = QuestionStatistic::whereDate('created_at', today())->count();
         $totalCorrect = QuestionStatistic::where('is_correct', true)->count();
         $totalWrong = QuestionStatistic::where('is_correct', false)->count();
         $successRate = $totalAnswered > 0 ? round(($totalCorrect / $totalAnswered) * 100, 1) : 0;
@@ -103,6 +104,7 @@ class StatisticsController extends Controller
         
         return view('statistics', compact(
             'totalAnswered',
+            'totalAnsweredToday',
             'totalCorrect', 
             'totalWrong',
             'successRate',

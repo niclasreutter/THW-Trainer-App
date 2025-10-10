@@ -29,7 +29,7 @@
                 <div>
                     <p class="text-blue-100 text-sm font-medium">Gesamt beantwortet</p>
                     <p class="text-3xl font-bold">{{ number_format($totalAnswered) }}</p>
-                    <p class="text-blue-100 text-sm">Fragen</p>
+                    <p class="text-blue-100 text-sm">{{ number_format($totalAnsweredToday) }} Heute</p>
                 </div>
                 <div class="bg-white bg-opacity-20 rounded-full p-3">
                     <i class="fas fa-chart-bar text-2xl"></i>
