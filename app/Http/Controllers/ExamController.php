@@ -86,16 +86,19 @@ class ExamController extends Controller
             } else {
                 $failed[] = $frage->id;
             }
-            
-            // Anonyme Statistik erfassen
-            QuestionStatistic::create([
-                'question_id' => $frage->id,
-                'is_correct' => $isCorrect,
-            ]);
         }
         $total = count($fragen);
         $passed = $total > 0 && $correctCount / $total >= 0.8;
         $user = Auth::user();
+        
+        // Fragenstatistiken erfassen (mit User ID)
+        foreach ($results as $result) {
+            QuestionStatistic::create([
+                'question_id' => $result['frage']->id,
+                'user_id' => $user->id,
+                'is_correct' => $result['isCorrect'],
+            ]);
+        }
         
         // Prüfungsstatistik erfassen
         ExamStatistic::create([

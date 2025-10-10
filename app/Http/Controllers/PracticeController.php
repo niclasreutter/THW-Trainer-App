@@ -344,13 +344,14 @@ class PracticeController extends Controller
         $solution = collect(explode(',', $question->loesung))->map(fn($s) => trim($s));
         $isCorrect = $userAnswer->sort()->values()->all() === $solution->sort()->values()->all();
 
-        // Anonyme Statistik erfassen
+        $user = Auth::user();
+
+        // Statistik erfassen (mit User ID)
         QuestionStatistic::create([
             'question_id' => $question->id,
+            'user_id' => $user->id,
             'is_correct' => $isCorrect,
         ]);
-
-        $user = Auth::user();
         $solved = $this->ensureArray($user->solved_questions);
         $skipped = session('practice_skipped', []);
         
