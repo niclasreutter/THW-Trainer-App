@@ -163,7 +163,7 @@ class GamificationService
         $this->updateDailyQuestions($user);
     }
 
-    public function awardQuestionPoints(User $user, bool $isCorrect = true)
+    public function awardQuestionPoints(User $user, bool $isCorrect = true, int $questionId = null)
     {
         if (!$isCorrect) {
             // Bei falscher Antwort: Nur Aktivität aktualisieren, keine Punkte
@@ -175,10 +175,23 @@ class GamificationService
         $this->updateDailyQuestions($user);
 
         $basePoints = self::POINTS_PER_QUESTION;
+        
+        // Prüfe ob es eine Top-Wrong-Frage ist (doppelte Punkte)
+        $topWrongBonus = 0;
+        $reason = 'Frage beantwortet';
+        
+        if ($questionId) {
+            $topWrongQuestions = \Cache::get('top_wrong_questions', []);
+            if (in_array($questionId, $topWrongQuestions)) {
+                $topWrongBonus = $basePoints; // Verdoppelt die Punkte
+                $reason = 'Top-Wrong-Frage gelöst';
+            }
+        }
+        
         $streakBonus = $user->streak_days >= 3 ? $basePoints * (self::STREAK_BONUS_MULTIPLIER - 1) : 0;
-        $totalPoints = $basePoints + $streakBonus;
+        $totalPoints = $basePoints + $topWrongBonus + $streakBonus;
 
-        $result = $this->awardPoints($user, $totalPoints, 'Frage beantwortet');
+        $result = $this->awardPoints($user, $totalPoints, $reason);
         
         $this->checkQuestionAchievements($user);
         $this->checkDailyAchievements($user);

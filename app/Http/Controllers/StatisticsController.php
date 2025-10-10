@@ -102,6 +102,10 @@ class StatisticsController extends Controller
             ->orderByRaw('CAST(questions.lernabschnitt AS UNSIGNED)')
             ->get();
         
+        // Top-10 falsch beantwortete Fragen für doppelte Punkte cachen
+        $topWrongQuestionIds = $topWrongQuestions->pluck('question_id')->toArray();
+        \Cache::put('top_wrong_questions', $topWrongQuestionIds, 3600); // 1 Stunde Cache
+        
         return view('statistics', compact(
             'totalAnswered',
             'totalAnsweredToday',

@@ -84,10 +84,16 @@
                 
                 // Grund-Text basierend auf Punkten
                 $pointsAwarded = $gamificationResult['points_awarded'] ?? 0;
+                $reason = $gamificationResult['reason'] ?? 'Frage beantwortet';
+                
                 if ($pointsAwarded >= 20) {
-                    $reasonText = 'Mit Streak-Bonus';
+                    if (str_contains($reason, 'Top-Wrong')) {
+                        $reasonText = 'Top-Wrong-Frage gelöst';
+                    } else {
+                        $reasonText = 'Mit Streak-Bonus';
+                    }
                 } else {
-                    $reasonText = 'Frage beantwortet';
+                    $reasonText = $reason;
                 }
             @endphp
             

@@ -369,7 +369,7 @@ class PracticeController extends Controller
             
             // Gamification: Punkte für richtige Antwort
             $gamificationService = new GamificationService();
-            $gamificationResult = $gamificationService->awardQuestionPoints($user, true);
+            $gamificationResult = $gamificationService->awardQuestionPoints($user, true, $question->id);
             
             // Entferne Frage aus geskippten Liste falls dort
             $skipped = array_diff($skipped, [$question->id]);
