@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Question;
 use App\Models\QuestionStatistic;
+use App\Models\ExamStatistic;
 
 class GuestExamController extends Controller
 {
@@ -61,6 +62,13 @@ class GuestExamController extends Controller
         
         $total = count($fragen);
         $passed = $total > 0 && $correctCount / $total >= 0.8; // 80% wie bei normaler Prüfung
+        
+        // Prüfungsstatistik erfassen (anonym, ohne user_id)
+        ExamStatistic::create([
+            'user_id' => null, // Gast hat keine User-ID
+            'is_passed' => $passed,
+            'correct_answers' => $correctCount,
+        ]);
         
         // Session löschen
         session()->forget(['guest_exam_questions', 'guest_exam_answers', 'guest_exam_current']);

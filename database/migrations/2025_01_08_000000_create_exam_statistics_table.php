@@ -9,7 +9,7 @@ return new class extends Migration {
     {
         Schema::create('exam_statistics', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->boolean('is_passed');
             $table->integer('correct_answers');
             $table->timestamps();
