@@ -81,7 +81,7 @@
     </div>
 
     <!-- Register Card -->
-    <div class="register-card w-full max-w-lg p-8">
+    <div class="register-card w-full max-w-md p-8">
         <div class="text-center mb-6">
             <h2 class="text-2xl font-bold text-blue-900 mb-2">✨ Kostenlos registrieren</h2>
             <p class="text-gray-600">Erstelle deinen Account in wenigen Sekunden</p>
