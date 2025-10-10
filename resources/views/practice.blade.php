@@ -1,7 +1,24 @@
 @extends('layouts.app')
 @section('title', 'THW Theorie üben - Interaktive Fragen mit Lernfortschritt')
 @section('description', 'Übe THW Theoriefragen mit deinem persönlichen Lernfortschritt. Markiere schwierige Fragen, filtere nach Lernabschnitten und verfolge deinen Erfolg. Kostenlos und effektiv!')
+
 @section('content')
+<style>
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .animate-fade-in {
+        animation: fadeIn 0.5s ease-out;
+    }
+</style>
 <div class="max-w-xl mx-auto mt-4 p-4 bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
 
     @if($question)
@@ -43,8 +60,54 @@
             <span class="text-xs text-gray-500">{{ $progressPercent }}% abgeschlossen</span>
         </div>
         
-        <!-- Bookmark Button außerhalb des Forms -->
-        <div class="mb-3 flex justify-end">
+        <!-- Gamification & Bookmark Button außerhalb des Forms -->
+        <div class="mb-3 flex justify-between items-center">
+            @php
+                $gamificationResult = session('gamification_result');
+                $showGamification = $gamificationResult && isset($gamificationResult['points_awarded']);
+                
+                // Verschiedene Emojis und Texte für Abwechslung
+                $celebrations = [
+                    ['emoji' => '🥳', 'text' => 'Grandios!'],
+                    ['emoji' => '🎉', 'text' => 'Fantastisch!'],
+                    ['emoji' => '⭐', 'text' => 'Super!'],
+                    ['emoji' => '💪', 'text' => 'Stark!'],
+                    ['emoji' => '🔥', 'text' => 'Mega!'],
+                    ['emoji' => '✨', 'text' => 'Klasse!'],
+                    ['emoji' => '🎯', 'text' => 'Volltreffer!'],
+                    ['emoji' => '🚀', 'text' => 'Genial!'],
+                ];
+                
+                // Wähle basierend auf Fragen-ID eine konsistente Variation
+                $celebrationIndex = $question->id % count($celebrations);
+                $celebration = $celebrations[$celebrationIndex];
+                
+                // Grund-Text basierend auf Punkten
+                $pointsAwarded = $gamificationResult['points_awarded'] ?? 0;
+                if ($pointsAwarded >= 20) {
+                    $reasonText = 'Mit Streak-Bonus';
+                } else {
+                    $reasonText = 'Frage beantwortet';
+                }
+            @endphp
+            
+            <!-- Gamification Anzeige (links) -->
+            @if($showGamification)
+                <div class="flex items-center gap-1 px-3 py-1.5 bg-green-50 border border-green-200 rounded-lg text-sm animate-fade-in">
+                    <span class="text-base">{{ $celebration['emoji'] }}</span>
+                    <span class="font-bold text-green-700">{{ $celebration['text'] }}</span>
+                    <span class="text-green-600">+{{ $pointsAwarded }} Punkte</span>
+                    <span class="text-gray-500 text-xs">({{ $reasonText }})</span>
+                </div>
+                @php
+                    // Lösche die Session nach der Anzeige
+                    session()->forget('gamification_result');
+                @endphp
+            @else
+                <div></div>
+            @endif
+            
+            <!-- Bookmark Button (rechts) -->
             @php
                 $user = Auth::user();
                 $bookmarked = is_array($user->bookmarked_questions ?? null) 
