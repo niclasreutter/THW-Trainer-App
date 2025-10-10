@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Question;
 use App\Models\QuestionStatistic;
+use App\Models\ExamStatistic;
 use Illuminate\Support\Facades\DB;
 
 class StatisticsController extends Controller
@@ -19,6 +20,12 @@ class StatisticsController extends Controller
         $totalWrong = QuestionStatistic::where('is_correct', false)->count();
         $successRate = $totalAnswered > 0 ? round(($totalCorrect / $totalAnswered) * 100, 1) : 0;
         $errorRate = $totalAnswered > 0 ? round(($totalWrong / $totalAnswered) * 100, 1) : 0;
+        
+        // Prüfungsstatistiken
+        $totalExams = ExamStatistic::count();
+        $passedExams = ExamStatistic::where('is_passed', true)->count();
+        $failedExams = ExamStatistic::where('is_passed', false)->count();
+        $examPassRate = $totalExams > 0 ? round(($passedExams / $totalExams) * 100, 1) : 0;
         
         // Top 10 der am häufigsten falsch beantworteten Fragen
         $topWrongQuestions = DB::table('question_statistics')
@@ -96,10 +103,14 @@ class StatisticsController extends Controller
         
         return view('statistics', compact(
             'totalAnswered',
-            'totalCorrect',
+            'totalCorrect', 
             'totalWrong',
             'successRate',
             'errorRate',
+            'totalExams',
+            'passedExams',
+            'failedExams',
+            'examPassRate',
             'topWrongQuestionsWithDetails',
             'topCorrectQuestionsWithDetails',
             'sectionStats'

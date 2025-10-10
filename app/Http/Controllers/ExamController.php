@@ -5,6 +5,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Question;
 use App\Models\QuestionStatistic;
+use App\Models\ExamStatistic;
 use Illuminate\Support\Facades\Session;
 use App\Services\GamificationService;
 
@@ -95,6 +96,13 @@ class ExamController extends Controller
         $total = count($fragen);
         $passed = $total > 0 && $correctCount / $total >= 0.8;
         $user = Auth::user();
+        
+        // Prüfungsstatistik erfassen
+        ExamStatistic::create([
+            'user_id' => $user->id,
+            'is_passed' => $passed,
+            'correct_answers' => $correctCount,
+        ]);
         
         $gamificationResult = null;
         
