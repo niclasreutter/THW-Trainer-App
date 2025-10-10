@@ -54,13 +54,11 @@
 </style>
 
 <div class="gradient-bg flex flex-col justify-center items-center py-12 px-4">
-    <!-- THW Logo & Header -->
+    <!-- THW Logo -->
     <div class="text-center mb-8">
-        <div class="floating-icon mb-4">
+        <div class="mb-4">
             <img src="{{ asset('logo-thwtrainer.png') }}" alt="THW-Trainer Logo" class="h-16 w-auto mx-auto">
         </div>
-        <h1 class="thw-logo text-4xl font-bold mb-2">Willkommen zurück!</h1>
-        <p class="text-gray-600 text-lg">Melde dich an, um deinen Lernfortschritt fortzusetzen</p>
     </div>
 
     <!-- Login Card -->
