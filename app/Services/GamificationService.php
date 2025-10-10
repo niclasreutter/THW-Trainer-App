@@ -184,7 +184,7 @@ class GamificationService
             $topWrongQuestions = \Cache::get('top_wrong_questions', []);
             if (in_array($questionId, $topWrongQuestions)) {
                 $topWrongBonus = $basePoints; // Verdoppelt die Punkte
-                $reason = 'Top-Wrong-Frage gelöst';
+                $reason = 'Häufig falsche Frage gelöst';
             }
         }
         

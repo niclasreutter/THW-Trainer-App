@@ -87,8 +87,8 @@
                 $reason = $gamificationResult['reason'] ?? 'Frage beantwortet';
                 
                 if ($pointsAwarded >= 20) {
-                    if (str_contains($reason, 'Top-Wrong')) {
-                        $reasonText = 'Top-Wrong-Frage gelöst';
+                    if (str_contains($reason, 'Häufig falsche')) {
+                        $reasonText = 'Häufig falsche Frage gelöst';
                     } else {
                         $reasonText = 'Mit Streak-Bonus';
                     }
