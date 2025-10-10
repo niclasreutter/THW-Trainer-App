@@ -21,7 +21,7 @@
     </div>
 
     <!-- Gesamt-Statistiken KPI Karten -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-6 mb-12" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
         <!-- Gesamt beantwortet -->
         <div class="rounded-xl p-6 text-white hover-scale cursor-pointer"
              style="background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4), 0 0 20px rgba(37, 99, 235, 0.3), 0 0 40px rgba(37, 99, 235, 0.1); border-radius: 12px;">
@@ -82,32 +82,17 @@
             </div>
         </div>
 
-        <!-- Gesamt Prüfungen -->
+        <!-- Prüfungen -->
         <div class="rounded-xl p-6 text-white hover-scale cursor-pointer"
-             style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4), 0 0 20px rgba(139, 92, 246, 0.3), 0 0 40px rgba(139, 92, 246, 0.1); border-radius: 12px;">
+             style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4), 0 0 20px rgba(245, 158, 11, 0.3), 0 0 40px rgba(245, 158, 11, 0.1); border-radius: 12px;">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-purple-100 text-sm font-medium">Gesamt Prüfungen</p>
+                    <p class="text-orange-100 text-sm font-medium">Prüfungen</p>
                     <p class="text-3xl font-bold">{{ number_format($totalExams) }}</p>
-                    <p class="text-purple-100 text-sm">Durchgeführt</p>
+                    <p class="text-orange-100 text-sm">{{ number_format($passedExams) }} bestanden ({{ $examPassRate }}%)</p>
                 </div>
                 <div class="bg-white bg-opacity-20 rounded-full p-3">
                     <i class="fas fa-clipboard-check text-2xl"></i>
-                </div>
-            </div>
-        </div>
-
-        <!-- Bestandene Prüfungen -->
-        <div class="rounded-xl p-6 text-white hover-scale cursor-pointer"
-             style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4), 0 0 20px rgba(16, 185, 129, 0.3), 0 0 40px rgba(16, 185, 129, 0.1); border-radius: 12px;">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-emerald-100 text-sm font-medium">Bestanden</p>
-                    <p class="text-3xl font-bold">{{ number_format($passedExams) }}</p>
-                    <p class="text-emerald-100 text-sm">{{ $examPassRate }}% Bestehensrate</p>
-                </div>
-                <div class="bg-white bg-opacity-20 rounded-full p-3">
-                    <i class="fas fa-graduation-cap text-2xl"></i>
                 </div>
             </div>
         </div>
