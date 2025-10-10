@@ -64,7 +64,7 @@
     </div>
 
     <!-- Login Card -->
-    <div class="login-card w-full max-w-md p-8">
+    <div class="login-card w-full p-8" style="max-width: 600px; margin: 0 auto;">
         <div class="text-center mb-6">
             <h2 class="text-2xl font-bold text-blue-900 mb-2">🔐 Anmeldung</h2>
             <p class="text-gray-600">Gib deine Zugangsdaten ein</p>

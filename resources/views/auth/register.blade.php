@@ -215,31 +215,5 @@
         </div>
     </div>
 
-    <!-- Benefits Section -->
-    <div class="w-full max-w-4xl mt-12">
-        <h3 class="text-center text-2xl font-bold text-blue-900 mb-8">Warum THW-Trainer?</h3>
-        <div class="benefits-grid">
-            <div class="benefit-item">
-                <div class="text-3xl mb-2">📊</div>
-                <h4 class="font-semibold text-blue-900 mb-1">Fortschritt verfolgen</h4>
-                <p class="text-sm text-gray-600">Sieh deine Lernstatistiken und Erfolge</p>
-            </div>
-            <div class="benefit-item">
-                <div class="text-3xl mb-2">🏆</div>
-                <h4 class="font-semibold text-blue-900 mb-1">Achievements</h4>
-                <p class="text-sm text-gray-600">Sammle Punkte und schalte Erfolge frei</p>
-            </div>
-            <div class="benefit-item">
-                <div class="text-3xl mb-2">📚</div>
-                <h4 class="font-semibold text-blue-900 mb-1">Prüfungssimulation</h4>
-                <p class="text-sm text-gray-600">Bereite dich optimal auf die echte Prüfung vor</p>
-            </div>
-            <div class="benefit-item">
-                <div class="text-3xl mb-2">📈</div>
-                <h4 class="font-semibold text-blue-900 mb-1">Schwäche-Analyse</h4>
-                <p class="text-sm text-gray-600">Erkenne deine Lernlücken und arbeite gezielt</p>
-            </div>
-        </div>
-    </div>
 </div>
 @endsection
