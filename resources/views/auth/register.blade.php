@@ -208,7 +208,7 @@
             <p class="text-center text-gray-600 text-sm mb-3">
                 Oder lerne direkt ohne Anmeldung:
             </p>
-            <a href="{{ route('guest.practice-menu') }}" 
+            <a href="{{ route('guest.practice.menu') }}" 
                class="block w-full text-center py-2 px-4 border-2 border-blue-600 text-blue-600 rounded-lg font-medium hover:bg-blue-600 hover:text-white transition-all duration-200">
                 🎯 Als Gast üben
             </a>
