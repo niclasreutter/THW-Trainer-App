@@ -8,6 +8,7 @@ class QuestionStatistic extends Model
 {
     protected $fillable = [
         'question_id',
+        'user_id',
         'is_correct',
     ];
 
@@ -21,6 +22,14 @@ class QuestionStatistic extends Model
     public function question(): BelongsTo
     {
         return $this->belongsTo(Question::class);
+    }
+
+    /**
+     * Eine Statistik gehört zu einem User (optional)
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 }
 
