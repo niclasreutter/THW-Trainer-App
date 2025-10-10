@@ -67,21 +67,6 @@
             </div>
         </div>
 
-        <!-- Erfolgsrate -->
-        <div class="rounded-xl p-6 text-white hover-scale cursor-pointer"
-             style="background: linear-gradient(135deg, #facc15 0%, #f59e0b 100%); color: #1e40af; box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4), 0 0 20px rgba(251, 191, 36, 0.3), 0 0 40px rgba(251, 191, 36, 0.1); border-radius: 12px;">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-blue-800 text-sm font-medium">Erfolgsrate</p>
-                    <p class="text-3xl font-bold">{{ $successRate }}%</p>
-                    <p class="text-blue-800 text-sm">aller Antworten</p>
-                </div>
-                <div class="bg-blue-800 bg-opacity-20 rounded-full p-3">
-                    <i class="fas fa-trophy text-2xl text-blue-800"></i>
-                </div>
-            </div>
-        </div>
-
         <!-- Prüfungen -->
         <div class="rounded-xl p-6 text-white hover-scale cursor-pointer"
              style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4), 0 0 20px rgba(245, 158, 11, 0.3), 0 0 40px rgba(245, 158, 11, 0.1); border-radius: 12px;">
