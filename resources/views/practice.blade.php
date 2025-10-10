@@ -93,11 +93,16 @@
             
             <!-- Gamification Anzeige (links) -->
             @if($showGamification)
-                <div class="flex items-center gap-1 px-3 py-1.5 bg-green-50 border border-green-200 rounded-lg text-sm animate-fade-in">
+                <div class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm animate-fade-in"
+                     style="background-color: #f0fdf4; 
+                            border: 1px solid #bbf7d0; 
+                            box-shadow: 0 0 15px rgba(34, 197, 94, 0.4), 
+                                       0 0 30px rgba(34, 197, 94, 0.2),
+                                       0 0 45px rgba(34, 197, 94, 0.1);">
                     <span class="text-base">{{ $celebration['emoji'] }}</span>
-                    <span class="font-bold text-green-700">{{ $celebration['text'] }}</span>
-                    <span class="text-green-600">+{{ $pointsAwarded }} Punkte</span>
-                    <span class="text-gray-500 text-xs">({{ $reasonText }})</span>
+                    <span class="font-bold" style="color: #15803d;">{{ $celebration['text'] }}</span>
+                    <span style="color: #16a34a;">+{{ $pointsAwarded }} Punkte</span>
+                    <span class="text-xs" style="color: #6b7280;">({{ $reasonText }})</span>
                 </div>
                 @php
                     // Lösche die Session nach der Anzeige
