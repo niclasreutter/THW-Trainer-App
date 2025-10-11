@@ -55,8 +55,8 @@ class DailyAdminReport extends Command
             'users' => [
                 'total' => User::count(),
                 'verified' => User::whereNotNull('email_verified_at')->count(),
-                'active_today' => User::where('last_activity', '>=', $today)->count(),
-                'active_last_week' => User::where('last_activity', '>=', $lastWeek)->count(),
+                'active_today' => User::where('updated_at', '>=', $today)->count(), // Verwende updated_at statt last_activity
+                'active_last_week' => User::where('updated_at', '>=', $lastWeek)->count(),
                 'new_today' => User::whereDate('created_at', $today)->count(),
                 'new_last_week' => User::where('created_at', '>=', $lastWeek)->count(),
             ],
@@ -91,10 +91,23 @@ class DailyAdminReport extends Command
 
     private function sendReportEmail($email, $reportData)
     {
-        Mail::send('emails.admin-daily-report', $reportData, function ($message) use ($email, $reportData) {
-            $message->to($email)
-                    ->subject("THW-Trainer Tagesreport - {$reportData['date']}");
-        });
+        try {
+            Mail::send('emails.admin-daily-report', $reportData, function ($message) use ($email, $reportData) {
+                $message->to($email)
+                        ->subject("THW-Trainer Tagesreport - {$reportData['date']}");
+            });
+            
+            $this->info("📧 E-Mail erfolgreich gesendet an: {$email}");
+            
+        } catch (\Exception $e) {
+            $this->error("❌ E-Mail-Versand fehlgeschlagen: " . $e->getMessage());
+            \Log::error('Admin-Report E-Mail-Versand fehlgeschlagen', [
+                'email' => $email,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            throw $e;
+        }
     }
 
     private function getDatabaseSize()
