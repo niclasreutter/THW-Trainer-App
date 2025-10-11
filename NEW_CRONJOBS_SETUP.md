@@ -17,7 +17,7 @@
 ### 2. 📊 Tägliche Admin-Übersicht
 **Command:** `admin:daily-report`
 **Zeitplan:** Täglich um 08:00 Uhr
-**Zweck:** Sendet tägliche Admin-Übersicht per E-Mail an niclasreutter@icloud.com
+**Zweck:** Sendet tägliche Admin-Übersicht per E-Mail an protokolle@thw-trainer.de
 
 **Was es macht:**
 - Erstellt detaillierten Tagesreport

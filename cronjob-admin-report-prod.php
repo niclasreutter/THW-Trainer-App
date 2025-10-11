@@ -28,7 +28,7 @@ $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
 try {
     // Führe Admin-Report aus
     $exitCode = $kernel->call('admin:daily-report', [
-        'email' => 'niclasreutter@icloud.com'
+        'email' => 'protokolle@thw-trainer.de'
     ]);
     
     if ($exitCode === 0) {

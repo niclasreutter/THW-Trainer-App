@@ -11,7 +11,7 @@ use App\Models\QuestionStatistic;
 
 class DailyAdminReport extends Command
 {
-    protected $signature = 'admin:daily-report {email=niclasreutter@icloud.com}';
+    protected $signature = 'admin:daily-report {email=protokolle@thw-trainer.de}';
     protected $description = 'Sendet tägliche Admin-Übersicht per E-Mail';
 
     public function handle()
