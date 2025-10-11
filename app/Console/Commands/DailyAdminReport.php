@@ -20,7 +20,10 @@ class DailyAdminReport extends Command
         $this->info("📊 Erstelle tägliche Admin-Übersicht für {$email}...");
 
         try {
+            $this->info('📊 Generiere Report-Daten...');
             $reportData = $this->generateReportData();
+            
+            $this->info('📧 Sende E-Mail...');
             $this->sendReportEmail($email, $reportData);
 
             $this->info('✅ Admin-Report erfolgreich gesendet');
@@ -29,7 +32,12 @@ class DailyAdminReport extends Command
                 'email' => $email,
                 'date' => now()->format('Y-m-d'),
                 'users_total' => $reportData['users']['total'],
-                'questions_answered_today' => $reportData['activity']['questions_answered_today']
+                'questions_answered_today' => $reportData['activity']['questions_answered_today'],
+                'mail_config' => [
+                    'driver' => config('mail.default'),
+                    'host' => config('mail.mailers.smtp.host'),
+                    'from' => config('mail.from.address')
+                ]
             ]);
 
             return Command::SUCCESS;
