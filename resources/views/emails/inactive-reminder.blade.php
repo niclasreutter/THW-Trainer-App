@@ -141,7 +141,7 @@
         <div class="progress-box">
             <h2 style="color: #1d4ed8; margin-top: 0;">🎯 Dein Fortschritt</h2>
             <p style="font-size: 18px; margin: 10px 0;">
-                Du hast bereits <strong>{{ $progressPercentage }}%</strong> geschafft!
+                Du hast bereits <strong>{{ $masteredQuestions }} von {{ $totalQuestions }} Fragen</strong> gemeistert!
             </p>
             <div class="progress-bar-container">
                 <div class="progress-bar" style="width: {{ $progressPercentage }}%;">
@@ -151,18 +151,21 @@
             <p style="color: #059669; font-weight: bold; font-size: 20px; margin-top: 15px;">
                 Nur noch <strong>{{ $remainingQuestions }} Frage{{ $remainingQuestions == 1 ? '' : 'n' }}</strong> bis zum Ziel!
             </p>
+            <p style="font-size: 12px; color: #6b7280; margin-top: 10px;">
+                <em>Der Balken zeigt deinen Gesamt-Fortschritt inkl. teilweise gelöster Fragen</em>
+            </p>
         </div>
 
         <div class="stats-grid">
             <div class="stat-card">
-                <div class="stat-label">Verbleibend</div>
-                <div class="stat-number">{{ $remainingQuestions }}</div>
-                <div class="stat-label">Fragen</div>
+                <div class="stat-label">Gemeistert</div>
+                <div class="stat-number">{{ $masteredQuestions }}</div>
+                <div class="stat-label">von {{ $totalQuestions }} Fragen</div>
             </div>
             <div class="stat-card">
-                <div class="stat-label">Fortschritt</div>
-                <div class="stat-number">{{ $progressPercentage }}%</div>
-                <div class="stat-label">Geschafft</div>
+                <div class="stat-label">Noch offen</div>
+                <div class="stat-number">{{ $remainingQuestions }}</div>
+                <div class="stat-label">Fragen</div>
             </div>
         </div>
 

@@ -64,13 +64,10 @@
                         <div class="text-lg sm:text-xl mr-3 flex-shrink-0">✅</div>
                         <div class="min-w-0 flex-1">
                             <div class="text-lg sm:text-xl font-bold text-green-800">{{ $solvedCount }}</div>
-                            <div class="text-xs sm:text-sm text-green-600 font-medium">Gelöst</div>
-                            <!-- Progress Bar -->
-                            @php
-                                $solvedProgressPercent = $totalQuestions > 0 ? ($solvedCount / $totalQuestions) * 100 : 0;
-                            @endphp
+                            <div class="text-xs sm:text-sm text-green-600 font-medium">Gemeistert</div>
+                            <!-- Progress Bar (zeigt Gesamt-Fortschritt inkl. 1x richtige) -->
                             <div class="w-full bg-green-200 rounded-full h-1 mt-1">
-                                <div class="bg-green-500 h-1 rounded-full transition-all duration-500" style="width: {{ $solvedProgressPercent }}%"></div>
+                                <div class="bg-green-500 h-1 rounded-full transition-all duration-500" style="width: {{ $progressPercentage }}%"></div>
                             </div>
                         </div>
                     </div>

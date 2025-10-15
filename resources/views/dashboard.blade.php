@@ -15,9 +15,17 @@
             $progressArr = is_array($user->solved_questions ?? null) 
                 ? $user->solved_questions 
                 : (is_string($user->solved_questions) ? json_decode($user->solved_questions, true) ?? [] : []);
-            $progress = count($progressArr);
+            $progress = count($progressArr); // Gemeisterte Fragen (2x richtig)
             $exams = $user->exam_passed_count ?? 0;
-            $progressPercent = $total > 0 ? floor($progress / $total * 100) : 0;
+            
+            // Neue Fortschrittsbalken-Logik: Berücksichtigt auch 1x richtige Antworten
+            $progressData = \App\Models\UserQuestionProgress::where('user_id', $user->id)->get();
+            $totalProgressPoints = 0;
+            foreach ($progressData as $prog) {
+                $totalProgressPoints += min($prog->consecutive_correct, 2);
+            }
+            $maxProgressPoints = $total * 2;
+            $progressPercent = $maxProgressPoints > 0 ? round(($totalProgressPoints / $maxProgressPoints) * 100) : 0;
         @endphp
 
         @if(session('error'))
@@ -202,14 +210,17 @@
             <!-- Fragen Fortschrittsbalken - immer anzeigen -->
             <div class="mb-4">
                 <div class="flex justify-between items-center mb-2">
-                    <span class="text-sm font-medium text-gray-700">Fragen beantwortet</span>
+                    <span class="text-sm font-medium text-gray-700">Fragen gemeistert</span>
                     <span class="text-sm font-medium text-gray-700">{{ $progress }}/{{ $total }}</span>
                 </div>
                 <div class="w-full bg-gray-200 rounded-full h-4 mb-2">
                     <div id="progressBar" class="h-4 rounded-full shadow-lg" 
                          style="width: 0%; background-color: #facc15; box-shadow: 0 0 10px rgba(251, 191, 36, 0.6), 0 0 20px rgba(251, 191, 36, 0.4), 0 0 30px rgba(251, 191, 36, 0.2);"></div>
                 </div>
-                <span class="text-sm text-gray-600">{{ $progressPercent }}% abgeschlossen</span>
+                <span class="text-sm text-gray-600">{{ $progressPercent }}% Gesamt-Fortschritt</span>
+                <span class="text-xs text-gray-500" style="display: block; margin-top: 4px;">
+                    <em title="Berücksichtigt auch Fragen die du bereits 1x richtig beantwortet hast">ℹ️ Inkl. teilweise gelöster Fragen</em>
+                </span>
             </div>
             
             @if($progress < $total)

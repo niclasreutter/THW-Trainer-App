@@ -20,6 +20,7 @@ class InactiveReminderMail extends Mailable
     public $remainingQuestions;
     public $totalQuestions;
     public $progressPercentage;
+    public $masteredQuestions;
 
     /**
      * Create a new message instance.
@@ -29,12 +30,27 @@ class InactiveReminderMail extends Mailable
         $this->user = $user;
         $this->daysInactive = $daysInactive;
         
-        // Berechne verbleibende Fragen
+        // Berechne Fragen-Statistiken
         $this->totalQuestions = Question::count();
-        $solvedQuestions = count($user->solved_questions ?? []);
-        $this->remainingQuestions = max(0, $this->totalQuestions - $solvedQuestions);
-        $this->progressPercentage = $this->totalQuestions > 0 
-            ? round(($solvedQuestions / $this->totalQuestions) * 100) 
+        $this->masteredQuestions = count($user->solved_questions ?? []); // 2x richtig
+        $this->remainingQuestions = max(0, $this->totalQuestions - $this->masteredQuestions);
+        
+        // Fortschrittsbalken berücksichtigt auch 1x richtige Antworten
+        // Hole alle Fortschritte des Users
+        $progressData = \App\Models\UserQuestionProgress::where('user_id', $user->id)->get();
+        
+        $totalProgress = 0;
+        foreach ($progressData as $progress) {
+            // Jede Frage kann max. 2 Punkte haben (2x richtig)
+            $totalProgress += min($progress->consecutive_correct, 2);
+        }
+        
+        // Max mögliche Punkte: Alle Fragen × 2
+        $maxProgress = $this->totalQuestions * 2;
+        
+        // Berechne Prozentsatz
+        $this->progressPercentage = $maxProgress > 0 
+            ? round(($totalProgress / $maxProgress) * 100) 
             : 0;
     }
 

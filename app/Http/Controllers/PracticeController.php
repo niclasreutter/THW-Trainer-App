@@ -56,8 +56,17 @@ class PracticeController extends Controller
         $failedCount = count($failed);
         $unsolvedCount = $totalQuestions - $solvedCount;
         
+        // Neue Fortschrittsbalken-Logik: Berücksichtigt auch 1x richtige Antworten
+        $progressData = UserQuestionProgress::where('user_id', $user->id)->get();
+        $totalProgressPoints = 0;
+        foreach ($progressData as $prog) {
+            $totalProgressPoints += min($prog->consecutive_correct, 2);
+        }
+        $maxProgressPoints = $totalQuestions * 2;
+        $progressPercentage = $maxProgressPoints > 0 ? round(($totalProgressPoints / $maxProgressPoints) * 100) : 0;
+        
         $sectionNames = self::SECTION_NAMES;
-        return view('practice-menu', compact('sectionStats', 'totalQuestions', 'solvedCount', 'failedCount', 'unsolvedCount', 'sectionNames'));
+        return view('practice-menu', compact('sectionStats', 'totalQuestions', 'solvedCount', 'failedCount', 'unsolvedCount', 'sectionNames', 'progressPercentage'));
     }
 
     /**
