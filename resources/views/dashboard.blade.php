@@ -207,6 +207,22 @@
         <div class="mb-12 bg-white rounded-lg shadow-md p-6">
             <h2 class="text-xl font-semibold text-blue-800 mb-4">📊 Dein Fortschritt</h2>
             
+            <!-- Info-Karte: 2x richtig Regel -->
+            <div class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <div class="flex items-start gap-2">
+                    <div class="flex-shrink-0 mt-0.5">
+                        <svg class="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                        </svg>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-xs text-blue-800">
+                            Alle Fragen müssen zweimal in Folge richtig beantwortet werden, damit sie als gemeistert zählen.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
             <!-- Fragen Fortschrittsbalken - immer anzeigen -->
             <div class="mb-4">
                 <div class="flex justify-between items-center mb-2">
@@ -218,9 +234,6 @@
                          style="width: 0%; background-color: #facc15; box-shadow: 0 0 10px rgba(251, 191, 36, 0.6), 0 0 20px rgba(251, 191, 36, 0.4), 0 0 30px rgba(251, 191, 36, 0.2);"></div>
                 </div>
                 <span class="text-sm text-gray-600">{{ $progressPercent }}% Gesamt-Fortschritt</span>
-                <span class="text-xs text-gray-500" style="display: block; margin-top: 4px;">
-                    <em title="Berücksichtigt auch Fragen die du bereits 1x richtig beantwortet hast">ℹ️ Alle Fragen müssen zweimal infolge richtig beantwortet werden</em>
-                </span>
             </div>
             
             @if($progress < $total)
