@@ -216,10 +216,8 @@
                     ×
                 </button>
                 <div style="display: flex; align-items: flex-start; gap: 8px; padding-right: 20px;">
-                    <div style="flex-shrink: 0; margin-top: 2px;">
-                        <svg style="width: 16px; height: 16px; color: #2563eb;" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
-                        </svg>
+                    <div style="flex-shrink: 0; font-size: 16px; margin-top: 0px;">
+                        ℹ️
                     </div>
                     <div style="flex: 1;">
                         <p style="font-size: 12px; color: #1e40af; margin: 0; line-height: 1.5;">
