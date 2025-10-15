@@ -263,41 +263,25 @@ function insertPlaceholder() {
 
 // Info-Card einfügen
 function insertInfoCard() {
-    const text = prompt('Text für die Info-Card:');
-    if (!text) return;
-    const align = prompt('Textausrichtung?\n\n1. left (linksbündig)\n2. center (zentriert)\n3. right (rechtsbündig)\n\nStandard: left', 'left');
-    const textAlign = align || 'left';
-    const html = '<div class="info-card"><p style="text-align: ' + textAlign + ';">' + text + '</p></div><p><br></p>';
+    const html = '<div class="info-card"><p>Dein Info-Text hier...</p></div><p><br></p>';
     insertHTML(html);
 }
 
 // Warning-Card einfügen
 function insertWarningCard() {
-    const text = prompt('Text für die Warning-Card:');
-    if (!text) return;
-    const align = prompt('Textausrichtung?\n\n1. left (linksbündig)\n2. center (zentriert)\n3. right (rechtsbündig)\n\nStandard: left', 'left');
-    const textAlign = align || 'left';
-    const html = '<div class="warning-card"><p style="text-align: ' + textAlign + ';">' + text + '</p></div><p><br></p>';
+    const html = '<div class="warning-card"><p>Dein Warning-Text hier...</p></div><p><br></p>';
     insertHTML(html);
 }
 
 // Success-Card einfügen
 function insertSuccessCard() {
-    const text = prompt('Text für die Success-Card:');
-    if (!text) return;
-    const align = prompt('Textausrichtung?\n\n1. left (linksbündig)\n2. center (zentriert)\n3. right (rechtsbündig)\n\nStandard: left', 'left');
-    const textAlign = align || 'left';
-    const html = '<div class="success-card"><p style="text-align: ' + textAlign + ';">' + text + '</p></div><p><br></p>';
+    const html = '<div class="success-card"><p>Dein Success-Text hier...</p></div><p><br></p>';
     insertHTML(html);
 }
 
 // Error-Card einfügen
 function insertErrorCard() {
-    const text = prompt('Text für die Error-Card:');
-    if (!text) return;
-    const align = prompt('Textausrichtung?\n\n1. left (linksbündig)\n2. center (zentriert)\n3. right (rechtsbündig)\n\nStandard: left', 'left');
-    const textAlign = align || 'left';
-    const html = '<div class="error-card"><p style="text-align: ' + textAlign + ';">' + text + '</p></div><p><br></p>';
+    const html = '<div class="error-card"><p>Dein Error-Text hier...</p></div><p><br></p>';
     insertHTML(html);
 }
 
@@ -328,9 +312,7 @@ function insertStatBox() {
     if (!number) return;
     const label = prompt('Beschriftung:');
     if (!label) return;
-    const align = prompt('Ausrichtung?\n\n1. left (links)\n2. center (mitte)\n3. right (rechts)\n\nStandard: center', 'center');
-    const textAlign = align || 'center';
-    const html = '<div class="stat-box" style="text-align: ' + textAlign + ';"><div class="stat-number">' + number + '</div><div class="stat-label">' + label + '</div></div><p><br></p>';
+    const html = '<div class="stat-box"><div class="stat-number">' + number + '</div><div class="stat-label">' + label + '</div></div><p><br></p>';
     insertHTML(html);
 }
 
