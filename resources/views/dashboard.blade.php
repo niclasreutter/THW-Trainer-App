@@ -219,7 +219,7 @@
                 </div>
                 <span class="text-sm text-gray-600">{{ $progressPercent }}% Gesamt-Fortschritt</span>
                 <span class="text-xs text-gray-500" style="display: block; margin-top: 4px;">
-                    <em title="Berücksichtigt auch Fragen die du bereits 1x richtig beantwortet hast">ℹ️ Alle Fragen müssen zweimal richtig beantwortet werden</em>
+                    <em title="Berücksichtigt auch Fragen die du bereits 1x richtig beantwortet hast">ℹ️ Alle Fragen müssen zweimal infolge richtig beantwortet werden</em>
                 </span>
             </div>
             

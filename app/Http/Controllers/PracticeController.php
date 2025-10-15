@@ -405,16 +405,7 @@ class PracticeController extends Controller
             }
         } else {
             // Frage noch nicht gemeistert (0 oder 1x richtig)
-            if (!$isCorrect) {
-                // Bei falscher Antwort: Zu exam_failed_questions hinzufügen für zukünftige Priorisierung
-                $failed = $this->ensureArray($user->exam_failed_questions);
-                
-                if (!in_array($question->id, $failed)) {
-                    $failed[] = $question->id;
-                    $user->exam_failed_questions = $failed;
-                    $user->save();
-                }
-            }
+            // KEINE Änderung an exam_failed_questions - das ist nur für Prüfungen!
             
             // Gamification: Aktivität auch bei nicht-gemeisterter Antwort aktualisieren
             $gamificationService = new GamificationService();
