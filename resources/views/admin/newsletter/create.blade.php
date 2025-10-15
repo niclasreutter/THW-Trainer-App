@@ -45,18 +45,46 @@
                            placeholder="z.B. Neue Features im THW-Trainer">
                 </div>
 
-                <!-- HTML Editor -->
+                <!-- Rich-Text Editor mit Formatierungs-Toolbar -->
                 <div class="mb-4">
-                    <label for="content" class="block text-sm font-medium text-gray-700 mb-2">Inhalt</label>
-                    <textarea id="content" name="content" rows="15" 
-                              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"
-                              placeholder="Hier deinen Newsletter-Inhalt eingeben..."></textarea>
-                </div>
-                
-                <!-- Komponenten-Buttons -->
-                <div class="mb-4 p-3 bg-gray-50 border rounded-lg">
-                    <p class="text-xs font-semibold text-gray-700 mb-2">Komponenten einfügen:</p>
-                    <div class="flex flex-wrap gap-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Inhalt</label>
+                    
+                    <!-- Formatierungs-Toolbar -->
+                    <div class="mb-2 p-2 bg-gray-100 border rounded-t-lg flex flex-wrap gap-2">
+                        <button type="button" onclick="formatText('bold')" 
+                                style="padding: 6px 12px; background-color: #374151; color: white; border: none; border-radius: 4px; font-size: 14px; cursor: pointer; font-weight: bold;">
+                            B
+                        </button>
+                        <button type="button" onclick="formatText('italic')" 
+                                style="padding: 6px 12px; background-color: #374151; color: white; border: none; border-radius: 4px; font-size: 14px; cursor: pointer; font-style: italic;">
+                            I
+                        </button>
+                        <button type="button" onclick="formatText('underline')" 
+                                style="padding: 6px 12px; background-color: #374151; color: white; border: none; border-radius: 4px; font-size: 14px; cursor: pointer; text-decoration: underline;">
+                            U
+                        </button>
+                        <div style="width: 1px; background-color: #d1d5db;"></div>
+                        <button type="button" onclick="formatText('insertOrderedList')" 
+                                style="padding: 6px 12px; background-color: #374151; color: white; border: none; border-radius: 4px; font-size: 14px; cursor: pointer;">
+                            1. Liste
+                        </button>
+                        <button type="button" onclick="formatText('insertUnorderedList')" 
+                                style="padding: 6px 12px; background-color: #374151; color: white; border: none; border-radius: 4px; font-size: 14px; cursor: pointer;">
+                            • Liste
+                        </button>
+                        <div style="width: 1px; background-color: #d1d5db;"></div>
+                        <button type="button" onclick="formatHeading('h2')" 
+                                style="padding: 6px 12px; background-color: #374151; color: white; border: none; border-radius: 4px; font-size: 14px; cursor: pointer; font-weight: bold;">
+                            H2
+                        </button>
+                        <button type="button" onclick="formatHeading('h3')" 
+                                style="padding: 6px 12px; background-color: #374151; color: white; border: none; border-radius: 4px; font-size: 14px; cursor: pointer; font-weight: bold;">
+                            H3
+                        </button>
+                    </div>
+                    
+                    <!-- Komponenten-Toolbar -->
+                    <div class="mb-2 p-2 bg-blue-50 border-x border-b rounded-b-lg flex flex-wrap gap-2">
                         <button type="button" onclick="insertPlaceholder()" 
                                 style="padding: 6px 12px; background-color: #3b82f6; color: white; border: none; border-radius: 4px; font-size: 14px; cursor: pointer; transition: all 0.2s;" 
                                 onmouseover="this.style.backgroundColor='#2563eb'" 
@@ -100,6 +128,14 @@
                             📊 Stat-Box
                         </button>
                     </div>
+                    
+                    <!-- ContentEditable Editor -->
+                    <div id="editor" contenteditable="true"
+                         style="min-height: 400px; padding: 16px; background: white; border: 1px solid #d1d5db; border-radius: 8px; outline: none; overflow-y: auto; max-height: 600px;"
+                         class="focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <p>Hier deinen Newsletter-Inhalt schreiben...</p>
+                    </div>
+                    <input type="hidden" id="content" name="content">
                 </div>
 
                 <!-- Aktionen -->
@@ -165,16 +201,25 @@
 const testRoute = '{{ route("admin.newsletter.test") }}';
 const sendRoute = '{{ route("admin.newsletter.send") }}';
 
-// Helper-Funktion: Text in Textarea an Cursor-Position einfügen
-function insertAtCursor(textarea, text) {
-    const startPos = textarea.selectionStart;
-    const endPos = textarea.selectionEnd;
-    const textBefore = textarea.value.substring(0, startPos);
-    const textAfter = textarea.value.substring(endPos);
-    
-    textarea.value = textBefore + text + textAfter;
-    textarea.selectionStart = textarea.selectionEnd = startPos + text.length;
-    textarea.focus();
+// Text-Formatierung (Bold, Italic, etc.)
+function formatText(command) {
+    document.execCommand(command, false, null);
+    document.getElementById('editor').focus();
+    updatePreview();
+}
+
+// Überschrift formatieren
+function formatHeading(tag) {
+    document.execCommand('formatBlock', false, tag);
+    document.getElementById('editor').focus();
+    updatePreview();
+}
+
+// HTML an Cursor-Position einfügen
+function insertHTML(html) {
+    const editor = document.getElementById('editor');
+    editor.focus();
+    document.execCommand('insertHTML', false, html);
     updatePreview();
 }
 
@@ -182,8 +227,7 @@ function insertAtCursor(textarea, text) {
 function insertPlaceholder() {
     const placeholder = prompt('Welchen Platzhalter möchtest du einfügen?\n\n1. name\n2. email\n3. level\n4. points\n5. streak\n\nGib den Namen ein:');
     if (placeholder) {
-        const textarea = document.getElementById('content');
-        insertAtCursor(textarea, '{{' + placeholder + '}}');
+        insertHTML('{{' + placeholder + '}}');
     }
 }
 
@@ -191,9 +235,8 @@ function insertPlaceholder() {
 function insertInfoCard() {
     const text = prompt('Text für die Info-Card:');
     if (text) {
-        const textarea = document.getElementById('content');
-        const html = '\n<div class="info-card">\n    <p>' + text + '</p>\n</div>\n\n';
-        insertAtCursor(textarea, html);
+        const html = '<div class="info-card"><p>' + text + '</p></div><p><br></p>';
+        insertHTML(html);
     }
 }
 
@@ -201,9 +244,8 @@ function insertInfoCard() {
 function insertWarningCard() {
     const text = prompt('Text für die Warning-Card:');
     if (text) {
-        const textarea = document.getElementById('content');
-        const html = '\n<div class="warning-card">\n    <p>' + text + '</p>\n</div>\n\n';
-        insertAtCursor(textarea, html);
+        const html = '<div class="warning-card"><p>' + text + '</p></div><p><br></p>';
+        insertHTML(html);
     }
 }
 
@@ -211,9 +253,8 @@ function insertWarningCard() {
 function insertSuccessCard() {
     const text = prompt('Text für die Success-Card:');
     if (text) {
-        const textarea = document.getElementById('content');
-        const html = '\n<div class="success-card">\n    <p>' + text + '</p>\n</div>\n\n';
-        insertAtCursor(textarea, html);
+        const html = '<div class="success-card"><p>' + text + '</p></div><p><br></p>';
+        insertHTML(html);
     }
 }
 
@@ -221,9 +262,8 @@ function insertSuccessCard() {
 function insertErrorCard() {
     const text = prompt('Text für die Error-Card:');
     if (text) {
-        const textarea = document.getElementById('content');
-        const html = '\n<div class="error-card">\n    <p>' + text + '</p>\n</div>\n\n';
-        insertAtCursor(textarea, html);
+        const html = '<div class="error-card"><p>' + text + '</p></div><p><br></p>';
+        insertHTML(html);
     }
 }
 
@@ -233,9 +273,8 @@ function insertGlowButton() {
     if (!text) return;
     const url = prompt('Link-URL:');
     if (url) {
-        const textarea = document.getElementById('content');
-        const html = '\n<p style="text-align: center;"><a href="' + url + '" class="glow-button">' + text + '</a></p>\n\n';
-        insertAtCursor(textarea, html);
+        const html = '<p style="text-align: center;"><a href="' + url + '" class="glow-button">' + text + '</a></p><p><br></p>';
+        insertHTML(html);
     }
 }
 
@@ -245,17 +284,20 @@ function insertStatBox() {
     if (!number) return;
     const label = prompt('Beschriftung:');
     if (label) {
-        const textarea = document.getElementById('content');
-        const html = '\n<div class="stat-box">\n    <div class="stat-number">' + number + '</div>\n    <div class="stat-label">' + label + '</div>\n</div>\n\n';
-        insertAtCursor(textarea, html);
+        const html = '<div class="stat-box"><div class="stat-number">' + number + '</div><div class="stat-label">' + label + '</div></div><p><br></p>';
+        insertHTML(html);
     }
 }
 
 // Vorschau aktualisieren
 function updatePreview() {
     const subject = document.getElementById('subject').value;
-    const content = document.getElementById('content').value;
+    const content = document.getElementById('editor').innerHTML;
     
+    // Hidden field aktualisieren
+    document.getElementById('content').value = content;
+    
+    // Vorschau aktualisieren
     document.getElementById('preview').innerHTML = `
         <div style="border-bottom: 3px solid #2563eb; padding-bottom: 10px; margin-bottom: 20px;">
             <div style="font-size: 24px; font-weight: bold; color: #2563eb; margin-bottom: 10px;">THW-Trainer</div>
@@ -268,8 +310,29 @@ function updatePreview() {
 // Betreff-Änderungen überwachen
 document.getElementById('subject').addEventListener('input', updatePreview);
 
-// Content-Änderungen überwachen
-document.getElementById('content').addEventListener('input', updatePreview);
+// Content-Änderungen überwachen (MutationObserver für contenteditable)
+const editor = document.getElementById('editor');
+const observer = new MutationObserver(updatePreview);
+observer.observe(editor, { 
+    childList: true, 
+    subtree: true, 
+    characterData: true,
+    attributes: true 
+});
+
+// Auch bei direktem Tippen
+editor.addEventListener('input', updatePreview);
+editor.addEventListener('paste', () => setTimeout(updatePreview, 100));
+
+// Initiale Vorschau generieren
+updatePreview();
+
+// Platzhalter-Text beim ersten Fokus entfernen
+editor.addEventListener('focus', function() {
+    if (this.innerHTML === '<p>Hier deinen Newsletter-Inhalt schreiben...</p>') {
+        this.innerHTML = '<p><br></p>';
+    }
+}, { once: true });
 
 // Test-Mail senden
 document.getElementById('sendTestBtn').addEventListener('click', function() {
@@ -342,7 +405,7 @@ document.getElementById('sendAllBtn').addEventListener('click', function() {
             showMessage(data.message, 'success');
             // Formular zurücksetzen
             document.getElementById('subject').value = '';
-            document.getElementById('content').value = '';
+            document.getElementById('editor').innerHTML = '<p>Hier deinen Newsletter-Inhalt schreiben...</p>';
             updatePreview();
             // Seite nach 2 Sekunden neu laden um Historie zu aktualisieren
             setTimeout(() => location.reload(), 2000);
@@ -374,6 +437,31 @@ function showMessage(message, type) {
 </script>
 
 <style>
+/* Editor Styles */
+#editor {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    color: #333;
+}
+
+#editor p {
+    margin: 10px 0;
+}
+
+#editor h2 {
+    font-size: 24px;
+    font-weight: bold;
+    margin: 20px 0 10px 0;
+    color: #1e40af;
+}
+
+#editor h3 {
+    font-size: 20px;
+    font-weight: bold;
+    margin: 16px 0 8px 0;
+    color: #1e40af;
+}
+
 /* Custom Styles im Editor UND in der Vorschau */
 #editor .info-card,
 #preview .info-card {
@@ -449,6 +537,31 @@ function showMessage(message, type) {
 #preview .stat-label {
     font-size: 14px;
     color: #6b7280;
+}
+
+/* Preview Styles */
+#preview {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    color: #333;
+}
+
+#preview p {
+    margin: 10px 0;
+}
+
+#preview h2 {
+    font-size: 24px;
+    font-weight: bold;
+    margin: 20px 0 10px 0;
+    color: #1e40af;
+}
+
+#preview h3 {
+    font-size: 20px;
+    font-weight: bold;
+    margin: 16px 0 8px 0;
+    color: #1e40af;
 }
 </style>
 @endsection
