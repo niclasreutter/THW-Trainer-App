@@ -5,10 +5,16 @@
     <div class="max-w-7xl mx-auto p-6">
         <div class="flex items-center justify-between mb-8">
             <h1 class="text-3xl font-bold text-blue-800">👥 Nutzerverwaltung</h1>
-            <a href="{{ route('dashboard') }}" 
-               class="inline-flex items-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
-                ← Zurück zum Dashboard
-            </a>
+            <div class="flex gap-3">
+                <a href="{{ route('admin.newsletter.create') }}" 
+                   class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-lg">
+                    📧 Newsletter senden
+                </a>
+                <a href="{{ route('dashboard') }}" 
+                   class="inline-flex items-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
+                    ← Zurück zum Dashboard
+                </a>
+            </div>
         </div>
         
         @if(session('success'))
