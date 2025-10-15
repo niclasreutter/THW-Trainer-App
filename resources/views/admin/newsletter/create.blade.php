@@ -113,6 +113,11 @@
 <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
 
 <script>
+// Routes für AJAX
+const testRoute = '{{ route("admin.newsletter.test") }}';
+const sendRoute = '{{ route("admin.newsletter.send") }}';
+
+@verbatim
 // TinyMCE initialisieren
 tinymce.init({
     selector: '#content',
@@ -442,7 +447,7 @@ document.getElementById('sendTestBtn').addEventListener('click', function() {
     btn.disabled = true;
     btn.textContent = '⏳ Wird gesendet...';
     
-    fetch('{{ route("admin.newsletter.test") }}', {
+    fetch(testRoute, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -485,7 +490,7 @@ document.getElementById('sendAllBtn').addEventListener('click', function() {
     btn.disabled = true;
     btn.textContent = '⏳ Wird gesendet...';
     
-    fetch('{{ route("admin.newsletter.send") }}', {
+    fetch(sendRoute, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -528,6 +533,7 @@ function showMessage(message, type) {
         statusDiv.classList.add('hidden');
     }, 5000);
 }
+@endverbatim
 </script>
 
 <style>
