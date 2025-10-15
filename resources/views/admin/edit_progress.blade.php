@@ -63,13 +63,24 @@
                 @method('PUT')
                 
                 <!-- Statistiken Dashboard -->
+                @php
+                    // Berechne echten Fortschritt inkl. 1x richtige Antworten
+                    $progressData = \App\Models\UserQuestionProgress::where('user_id', $user->id)->get();
+                    $totalProgressPoints = 0;
+                    foreach ($progressData as $prog) {
+                        $totalProgressPoints += min($prog->consecutive_correct, 2);
+                    }
+                    $maxProgressPoints = $questions->count() * 2;
+                    $trueProgressPercent = $maxProgressPoints > 0 ? round(($totalProgressPoints / $maxProgressPoints) * 100) : 0;
+                @endphp
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
                     <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200">
                         <div class="flex items-center">
                             <div class="text-4xl mr-4">✅</div>
                             <div>
                                 <div class="text-3xl font-bold text-green-800" id="solvedCount">{{ count($solved) }}</div>
-                                <div class="text-sm text-green-600 font-medium">Gelöste Fragen</div>
+                                <div class="text-sm text-green-600 font-medium">Gemeisterte Fragen</div>
+                                <div class="text-xs text-gray-500 mt-1">2x richtig in Folge</div>
                             </div>
                         </div>
                     </div>
@@ -80,6 +91,7 @@
                             <div>
                                 <div class="text-3xl font-bold text-red-800" id="failedCount">{{ isset($failed) ? count($failed) : 0 }}</div>
                                 <div class="text-sm text-red-600 font-medium">Wiederholungsfragen</div>
+                                <div class="text-xs text-gray-500 mt-1">Aus Prüfungen</div>
                             </div>
                         </div>
                     </div>
@@ -88,9 +100,28 @@
                         <div class="flex items-center">
                             <div class="text-4xl mr-4">📊</div>
                             <div>
-                                <div class="text-3xl font-bold text-blue-800">{{ round((count($solved) / $questions->count()) * 100) }}%</div>
-                                <div class="text-sm text-blue-600 font-medium">Gesamtfortschritt</div>
+                                <div class="text-3xl font-bold text-blue-800">{{ $trueProgressPercent }}%</div>
+                                <div class="text-sm text-blue-600 font-medium">Gesamt-Fortschritt</div>
+                                <div class="text-xs text-gray-500 mt-1">Inkl. 1x richtige</div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Info-Box: Neue 2x-richtig Logik -->
+                <div class="bg-blue-50 border-l-4 border-blue-500 p-6 mb-6 rounded-lg">
+                    <div class="flex items-start">
+                        <div class="text-2xl mr-3">ℹ️</div>
+                        <div>
+                            <h3 class="text-lg font-bold text-blue-900 mb-2">Wichtig: "2x richtig in Folge" Logik</h3>
+                            <p class="text-sm text-blue-800 mb-2">
+                                Seit dem Update müssen User jede Frage <strong>2x hintereinander richtig</strong> beantworten, um sie zu meistern.
+                            </p>
+                            <ul class="text-sm text-blue-700 list-disc list-inside space-y-1">
+                                <li><strong>Gelöste Fragen:</strong> Wurden mindestens 2x richtig in Folge beantwortet</li>
+                                <li><strong>Wiederholungsfragen:</strong> Nur aus Prüfungen (nicht aus Übungen)</li>
+                                <li>Beim Speichern wird automatisch die <code class="bg-blue-100 px-1 rounded">user_question_progress</code> Tabelle aktualisiert</li>
+                            </ul>
                         </div>
                     </div>
                 </div>
@@ -102,8 +133,8 @@
                             <div class="flex items-center">
                                 <div class="text-4xl mr-4">✅</div>
                                 <div>
-                                    <h2 class="text-2xl font-bold text-green-800 mb-2">Erfolgreich beantwortete Fragen</h2>
-                                    <p class="text-gray-600">Markiere Fragen als bereits erfolgreich beantwortet</p>
+                                    <h2 class="text-2xl font-bold text-green-800 mb-2">Gemeisterte Fragen (2x richtig)</h2>
+                                    <p class="text-gray-600">Fragen die mindestens 2x in Folge richtig beantwortet wurden</p>
                                 </div>
                             </div>
                             <div class="flex gap-2">
