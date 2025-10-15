@@ -54,6 +54,25 @@
 - Analysiert Speicherplatz-Verbrauch
 - Bereinigt Queue-Jobs
 
+### 5. 📧 Inaktivitäts-Erinnerungen
+**Command:** `app:send-inactive-reminders`
+**Zeitplan:** Täglich um 10:00 Uhr
+**Zweck:** Sendet Erinnerungs-Mails an inaktive User (seit mind. 4 Tagen)
+
+**Was es macht:**
+- Findet User mit E-Mail-Zustimmung, die seit ≥4 Tagen inaktiv sind
+- Berechnet verbleibende Fragen und Fortschritt
+- Sendet personalisierte "Du fehlst uns" E-Mail
+- Zeigt Fortschritt in % und verbleibende Fragen
+- Markiert User, damit Mail nur 1x gesendet wird (oder max. alle 30 Tage)
+- Verhindert Spam durch intelligente Tracking-Logik
+
+**Besonderheiten:**
+- Mail wird nur einmalig gesendet (via `inactive_reminder_sent_at`)
+- Erst nach 30 Tagen kann erneut eine Mail gesendet werden
+- Personalisierte Inhalte je nach Fortschritt (fast fertig vs. viel offen)
+- Motivierende Texte und visueller Fortschrittsbalken
+
 ## Plesk Cronjob Setup
 
 ### Performance-Optimierung (Prod)
@@ -134,6 +153,26 @@ Stunde: 3
 Tag: *
 Monat: *
 Wochentag: 0
+```
+
+### Inaktivitäts-Erinnerungen (Prod)
+```
+Befehl: cd /var/www/vhosts/web22867.bero-web.de/thw-trainer.de && php cronjob-inactive-reminders-prod.php
+Minute: 0
+Stunde: 10
+Tag: *
+Monat: *
+Wochentag: *
+```
+
+### Inaktivitäts-Erinnerungen (Test)
+```
+Befehl: cd /var/www/vhosts/web22867.bero-web.de/test.thw-trainer.de && php cronjob-inactive-reminders-test.php
+Minute: 0
+Stunde: 10
+Tag: *
+Monat: *
+Wochentag: *
 ```
 
 ## Überwachung und Logs
