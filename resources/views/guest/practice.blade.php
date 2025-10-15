@@ -79,10 +79,15 @@
                 </div>
             </div>
             @if(!isset($isCorrect))
-                <button type="submit" id="submitBtn" class="bg-blue-900 text-yellow-400 px-6 py-2 rounded font-bold hover:bg-yellow-400 hover:text-blue-900 hover:shadow-lg hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none" disabled>Antwort absenden</button>
+                <button type="submit" id="submitBtn" style="width: 100%; display: block; text-align: center; background-color: #1e3a8a; color: #fbbf24; padding: 12px 24px; border-radius: 8px; font-weight: bold; border: none; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 0 20px rgba(30, 58, 138, 0.4), 0 0 40px rgba(30, 58, 138, 0.2);" 
+                        onmouseover="if(!this.disabled) { this.style.backgroundColor='#fbbf24'; this.style.color='#1e3a8a'; this.style.transform='scale(1.02)'; this.style.boxShadow='0 0 25px rgba(251, 191, 36, 0.5), 0 0 50px rgba(251, 191, 36, 0.3)'; }" 
+                        onmouseout="if(!this.disabled) { this.style.backgroundColor='#1e3a8a'; this.style.color='#fbbf24'; this.style.transform='scale(1)'; this.style.boxShadow='0 0 20px rgba(30, 58, 138, 0.4), 0 0 40px rgba(30, 58, 138, 0.2)'; }"
+                        disabled>Antwort absenden</button>
             @elseif(isset($isCorrect) && $isCorrect)
                 <div class="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg text-green-700 font-bold animate-pulse">✅ Richtig! Weiter zur nächsten Frage...</div>
-                <a href="{{ route('guest.practice.index') }}" class="mt-4 inline-block bg-blue-900 text-yellow-400 px-6 py-2 rounded font-bold hover:bg-yellow-400 hover:text-blue-900 hover:shadow-lg hover:scale-105 transition-all duration-300">Nächste Frage</a>
+                <a href="{{ route('guest.practice.index') }}" style="width: 100%; display: block; text-align: center; background-color: #1e3a8a; color: #fbbf24; padding: 12px 24px; border-radius: 8px; font-weight: bold; text-decoration: none; margin-top: 16px; transition: all 0.3s ease; box-shadow: 0 0 20px rgba(30, 58, 138, 0.4), 0 0 40px rgba(30, 58, 138, 0.2);"
+                   onmouseover="this.style.backgroundColor='#fbbf24'; this.style.color='#1e3a8a'; this.style.transform='scale(1.02)'; this.style.boxShadow='0 0 25px rgba(251, 191, 36, 0.5), 0 0 50px rgba(251, 191, 36, 0.3)';"
+                   onmouseout="this.style.backgroundColor='#1e3a8a'; this.style.color='#fbbf24'; this.style.transform='scale(1)'; this.style.boxShadow='0 0 20px rgba(30, 58, 138, 0.4), 0 0 40px rgba(30, 58, 138, 0.2)';">Nächste Frage</a>
             @elseif(isset($isCorrect) && !$isCorrect)
                 <div class="mt-4 p-4 rounded-lg font-bold shadow-lg" style="background-color: rgba(239, 68, 68, 0.1); border: 2px solid rgba(239, 68, 68, 0.3); color: #dc2626; box-shadow: 0 0 15px rgba(239, 68, 68, 0.3), 0 0 30px rgba(239, 68, 68, 0.1);">
                     <div class="flex items-center">
@@ -90,7 +95,9 @@
                         <span>Leider falsch. Die richtigen Antworten sind markiert.</span>
                     </div>
                 </div>
-                <a href="{{ route('guest.practice.index', ['skip_id' => $question->id]) }}" class="mt-4 inline-block bg-blue-900 text-yellow-400 px-6 py-2 rounded font-bold hover:bg-yellow-400 hover:text-blue-900 hover:shadow-lg hover:scale-105 transition-all duration-300">Weiter zur nächsten Frage</a>
+                <a href="{{ route('guest.practice.index', ['skip_id' => $question->id]) }}" style="width: 100%; display: block; text-align: center; background-color: #1e3a8a; color: #fbbf24; padding: 12px 24px; border-radius: 8px; font-weight: bold; text-decoration: none; margin-top: 16px; transition: all 0.3s ease; box-shadow: 0 0 20px rgba(30, 58, 138, 0.4), 0 0 40px rgba(30, 58, 138, 0.2);"
+                   onmouseover="this.style.backgroundColor='#fbbf24'; this.style.color='#1e3a8a'; this.style.transform='scale(1.02)'; this.style.boxShadow='0 0 25px rgba(251, 191, 36, 0.5), 0 0 50px rgba(251, 191, 36, 0.3)';"
+                   onmouseout="this.style.backgroundColor='#1e3a8a'; this.style.color='#fbbf24'; this.style.transform='scale(1)'; this.style.boxShadow='0 0 20px rgba(30, 58, 138, 0.4), 0 0 40px rgba(30, 58, 138, 0.2)';">Weiter zur nächsten Frage</a>
             @endif
         </form>
         
