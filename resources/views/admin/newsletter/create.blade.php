@@ -45,10 +45,11 @@
                            placeholder="z.B. Neue Features im THW-Trainer">
                 </div>
 
-                <!-- TinyMCE Editor -->
+                <!-- Quill Editor -->
                 <div class="mb-4">
                     <label for="content" class="block text-sm font-medium text-gray-700 mb-2">Inhalt</label>
-                    <textarea id="content" name="content"></textarea>
+                    <div id="editor" style="height: 400px; background: white;"></div>
+                    <input type="hidden" id="content" name="content">
                 </div>
 
                 <!-- Aktionen -->
@@ -109,317 +110,131 @@
     @endif
 </div>
 
-<!-- TinyMCE einbinden -->
-<script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+<!-- Quill Editor einbinden -->
+<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+<script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
 
 <script>
 // Routes für AJAX
 const testRoute = '{{ route("admin.newsletter.test") }}';
 const sendRoute = '{{ route("admin.newsletter.send") }}';
 
-@verbatim
-// TinyMCE initialisieren
-tinymce.init({
-    selector: '#content',
-    height: 400,
-    menubar: false,
-    plugins: 'code link lists',
-    toolbar: 'undo redo | formatselect | bold italic | alignleft aligncenter alignright | bullist numlist | link | code | infocard warningcard successcard errorcard glowbutton statbox | placeholders',
-    
-    // Custom Buttons für Komponenten
-    setup: function(editor) {
-        // Platzhalter Button
-        editor.ui.registry.addMenuButton('placeholders', {
-            text: '{{...}} Platzhalter',
-            fetch: function(callback) {
-                var items = [
-                    {
-                        type: 'menuitem',
-                        text: 'Name ({{name}})',
-                        onAction: function() {
-                            editor.insertContent('{{name}}');
-                        }
-                    },
-                    {
-                        type: 'menuitem',
-                        text: 'E-Mail ({{email}})',
-                        onAction: function() {
-                            editor.insertContent('{{email}}');
-                        }
-                    },
-                    {
-                        type: 'menuitem',
-                        text: 'Level ({{level}})',
-                        onAction: function() {
-                            editor.insertContent('{{level}}');
-                        }
-                    },
-                    {
-                        type: 'menuitem',
-                        text: 'Punkte ({{points}})',
-                        onAction: function() {
-                            editor.insertContent('{{points}}');
-                        }
-                    },
-                    {
-                        type: 'menuitem',
-                        text: 'Streak ({{streak}})',
-                        onAction: function() {
-                            editor.insertContent('{{streak}}');
-                        }
-                    }
-                ];
-                callback(items);
-            }
-        });
-
-        // Info-Card Button
-        editor.ui.registry.addButton('infocard', {
-            text: 'ℹ️ Info-Card',
-            onAction: function() {
-                editor.windowManager.open({
-                    title: 'Info-Card einfügen',
-                    body: {
-                        type: 'panel',
-                        items: [
-                            {
-                                type: 'textarea',
-                                name: 'text',
-                                label: 'Text'
-                            }
-                        ]
-                    },
-                    buttons: [
-                        {
-                            type: 'cancel',
-                            text: 'Abbrechen'
-                        },
-                        {
-                            type: 'submit',
-                            text: 'Einfügen',
-                            primary: true
-                        }
-                    ],
-                    onSubmit: function(api) {
-                        var data = api.getData();
-                        var html = '<div class="info-card"><p>' + data.text + '</p></div>';
-                        editor.insertContent(html);
-                        api.close();
-                    }
-                });
-            }
-        });
-
-        // Warning-Card Button
-        editor.ui.registry.addButton('warningcard', {
-            text: '⚠️ Warning-Card',
-            onAction: function() {
-                editor.windowManager.open({
-                    title: 'Warning-Card einfügen',
-                    body: {
-                        type: 'panel',
-                        items: [
-                            {
-                                type: 'textarea',
-                                name: 'text',
-                                label: 'Text'
-                            }
-                        ]
-                    },
-                    buttons: [
-                        {
-                            type: 'cancel',
-                            text: 'Abbrechen'
-                        },
-                        {
-                            type: 'submit',
-                            text: 'Einfügen',
-                            primary: true
-                        }
-                    ],
-                    onSubmit: function(api) {
-                        var data = api.getData();
-                        var html = '<div class="warning-card"><p>' + data.text + '</p></div>';
-                        editor.insertContent(html);
-                        api.close();
-                    }
-                });
-            }
-        });
-
-        // Success-Card Button
-        editor.ui.registry.addButton('successcard', {
-            text: '✅ Success-Card',
-            onAction: function() {
-                editor.windowManager.open({
-                    title: 'Success-Card einfügen',
-                    body: {
-                        type: 'panel',
-                        items: [
-                            {
-                                type: 'textarea',
-                                name: 'text',
-                                label: 'Text'
-                            }
-                        ]
-                    },
-                    buttons: [
-                        {
-                            type: 'cancel',
-                            text: 'Abbrechen'
-                        },
-                        {
-                            type: 'submit',
-                            text: 'Einfügen',
-                            primary: true
-                        }
-                    ],
-                    onSubmit: function(api) {
-                        var data = api.getData();
-                        var html = '<div class="success-card"><p>' + data.text + '</p></div>';
-                        editor.insertContent(html);
-                        api.close();
-                    }
-                });
-            }
-        });
-
-        // Error-Card Button
-        editor.ui.registry.addButton('errorcard', {
-            text: '❌ Error-Card',
-            onAction: function() {
-                editor.windowManager.open({
-                    title: 'Error-Card einfügen',
-                    body: {
-                        type: 'panel',
-                        items: [
-                            {
-                                type: 'textarea',
-                                name: 'text',
-                                label: 'Text'
-                            }
-                        ]
-                    },
-                    buttons: [
-                        {
-                            type: 'cancel',
-                            text: 'Abbrechen'
-                        },
-                        {
-                            type: 'submit',
-                            text: 'Einfügen',
-                            primary: true
-                        }
-                    ],
-                    onSubmit: function(api) {
-                        var data = api.getData();
-                        var html = '<div class="error-card"><p>' + data.text + '</p></div>';
-                        editor.insertContent(html);
-                        api.close();
-                    }
-                });
-            }
-        });
-
-        // Glow Button Button
-        editor.ui.registry.addButton('glowbutton', {
-            text: '🔘 Glow-Button',
-            onAction: function() {
-                editor.windowManager.open({
-                    title: 'Glow-Button einfügen',
-                    body: {
-                        type: 'panel',
-                        items: [
-                            {
-                                type: 'input',
-                                name: 'text',
-                                label: 'Button-Text'
-                            },
-                            {
-                                type: 'input',
-                                name: 'url',
-                                label: 'Link-URL'
-                            }
-                        ]
-                    },
-                    buttons: [
-                        {
-                            type: 'cancel',
-                            text: 'Abbrechen'
-                        },
-                        {
-                            type: 'submit',
-                            text: 'Einfügen',
-                            primary: true
-                        }
-                    ],
-                    onSubmit: function(api) {
-                        var data = api.getData();
-                        var html = '<p style="text-align: center;"><a href="' + data.url + '" class="glow-button">' + data.text + '</a></p>';
-                        editor.insertContent(html);
-                        api.close();
-                    }
-                });
-            }
-        });
-
-        // Statistik-Box Button
-        editor.ui.registry.addButton('statbox', {
-            text: '📊 Stat-Box',
-            onAction: function() {
-                editor.windowManager.open({
-                    title: 'Statistik-Box einfügen',
-                    body: {
-                        type: 'panel',
-                        items: [
-                            {
-                                type: 'input',
-                                name: 'number',
-                                label: 'Zahl'
-                            },
-                            {
-                                type: 'input',
-                                name: 'label',
-                                label: 'Beschriftung'
-                            }
-                        ]
-                    },
-                    buttons: [
-                        {
-                            type: 'cancel',
-                            text: 'Abbrechen'
-                        },
-                        {
-                            type: 'submit',
-                            text: 'Einfügen',
-                            primary: true
-                        }
-                    ],
-                    onSubmit: function(api) {
-                        var data = api.getData();
-                        var html = '<div class="stat-box"><div class="stat-number">' + data.number + '</div><div class="stat-label">' + data.label + '</div></div>';
-                        editor.insertContent(html);
-                        api.close();
-                    }
-                });
-            }
-        });
-
-        // Update Vorschau bei Änderungen
-        editor.on('change keyup', function() {
-            updatePreview();
-        });
-    },
-    
-    // Erlaube unsichere Content-Klassen (für unsere Custom-Styles)
-    extended_valid_elements: 'div[class|style],a[class|href|style]',
-    valid_children: '+body[style]'
+// Quill Editor initialisieren
+const quill = new Quill('#editor', {
+    theme: 'snow',
+    modules: {
+        toolbar: [
+            [{ 'header': [1, 2, 3, false] }],
+            ['bold', 'italic', 'underline'],
+            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+            [{ 'align': [] }],
+            ['link'],
+            ['clean']
+        ]
+    }
 });
+
+// Custom Toolbar für Komponenten
+const toolbarContainer = document.createElement('div');
+toolbarContainer.className = 'mb-3 p-3 bg-gray-50 border rounded-lg';
+toolbarContainer.innerHTML = `
+    <div class="flex flex-wrap gap-2">
+        <button type="button" onclick="insertPlaceholder()" class="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600">
+            {{...}} Platzhalter
+        </button>
+        <button type="button" onclick="insertInfoCard()" class="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600">
+            ℹ️ Info-Card
+        </button>
+        <button type="button" onclick="insertWarningCard()" class="px-3 py-1 bg-yellow-500 text-white rounded text-sm hover:bg-yellow-600">
+            ⚠️ Warning-Card
+        </button>
+        <button type="button" onclick="insertSuccessCard()" class="px-3 py-1 bg-green-500 text-white rounded text-sm hover:bg-green-600">
+            ✅ Success-Card
+        </button>
+        <button type="button" onclick="insertErrorCard()" class="px-3 py-1 bg-red-500 text-white rounded text-sm hover:bg-red-600">
+            ❌ Error-Card
+        </button>
+        <button type="button" onclick="insertGlowButton()" class="px-3 py-1 bg-purple-500 text-white rounded text-sm hover:bg-purple-600">
+            🔘 Glow-Button
+        </button>
+        <button type="button" onclick="insertStatBox()" class="px-3 py-1 bg-indigo-500 text-white rounded text-sm hover:bg-indigo-600">
+            📊 Stat-Box
+        </button>
+    </div>
+`;
+document.getElementById('editor').parentNode.insertBefore(toolbarContainer, document.getElementById('editor'));
+
+// Platzhalter einfügen
+function insertPlaceholder() {
+    const placeholder = prompt('Welchen Platzhalter möchtest du einfügen?\n\n1. name\n2. email\n3. level\n4. points\n5. streak\n\nGib den Namen ein:');
+    if (placeholder) {
+        const range = quill.getSelection(true);
+        quill.insertText(range.index, '{{' + placeholder + '}}');
+    }
+}
+
+// Info-Card einfügen
+function insertInfoCard() {
+    const text = prompt('Text für die Info-Card:');
+    if (text) {
+        const range = quill.getSelection(true);
+        quill.clipboard.dangerouslyPasteHTML(range.index, '<div class="info-card"><p>' + text + '</p></div>');
+    }
+}
+
+// Warning-Card einfügen
+function insertWarningCard() {
+    const text = prompt('Text für die Warning-Card:');
+    if (text) {
+        const range = quill.getSelection(true);
+        quill.clipboard.dangerouslyPasteHTML(range.index, '<div class="warning-card"><p>' + text + '</p></div>');
+    }
+}
+
+// Success-Card einfügen
+function insertSuccessCard() {
+    const text = prompt('Text für die Success-Card:');
+    if (text) {
+        const range = quill.getSelection(true);
+        quill.clipboard.dangerouslyPasteHTML(range.index, '<div class="success-card"><p>' + text + '</p></div>');
+    }
+}
+
+// Error-Card einfügen
+function insertErrorCard() {
+    const text = prompt('Text für die Error-Card:');
+    if (text) {
+        const range = quill.getSelection(true);
+        quill.clipboard.dangerouslyPasteHTML(range.index, '<div class="error-card"><p>' + text + '</p></div>');
+    }
+}
+
+// Glow-Button einfügen
+function insertGlowButton() {
+    const text = prompt('Button-Text:');
+    if (!text) return;
+    const url = prompt('Link-URL:');
+    if (url) {
+        const range = quill.getSelection(true);
+        quill.clipboard.dangerouslyPasteHTML(range.index, '<p style="text-align: center;"><a href="' + url + '" class="glow-button">' + text + '</a></p>');
+    }
+}
+
+// Stat-Box einfügen
+function insertStatBox() {
+    const number = prompt('Zahl:');
+    if (!number) return;
+    const label = prompt('Beschriftung:');
+    if (label) {
+        const range = quill.getSelection(true);
+        quill.clipboard.dangerouslyPasteHTML(range.index, '<div class="stat-box"><div class="stat-number">' + number + '</div><div class="stat-label">' + label + '</div></div>');
+    }
+}
 
 // Vorschau aktualisieren
 function updatePreview() {
     const subject = document.getElementById('subject').value;
-    const content = tinymce.get('content').getContent();
+    const content = quill.root.innerHTML;
     
     document.getElementById('preview').innerHTML = `
         <div style="border-bottom: 3px solid #2563eb; padding-bottom: 10px; margin-bottom: 20px;">
@@ -428,16 +243,22 @@ function updatePreview() {
         </div>
         ${content}
     `;
+    
+    // Hidden field aktualisieren
+    document.getElementById('content').value = content;
 }
 
 // Betreff-Änderungen überwachen
 document.getElementById('subject').addEventListener('input', updatePreview);
 
+// Quill-Änderungen überwachen
+quill.on('text-change', updatePreview);
+
 // Test-Mail senden
 document.getElementById('sendTestBtn').addEventListener('click', function() {
     const btn = this;
     const subject = document.getElementById('subject').value;
-    const content = tinymce.get('content').getContent();
+    const content = document.getElementById('content').value;
     
     if (!subject || !content) {
         showMessage('Bitte fülle Betreff und Inhalt aus!', 'error');
@@ -476,7 +297,7 @@ document.getElementById('sendTestBtn').addEventListener('click', function() {
 document.getElementById('sendAllBtn').addEventListener('click', function() {
     const btn = this;
     const subject = document.getElementById('subject').value;
-    const content = tinymce.get('content').getContent();
+    const content = document.getElementById('content').value;
     
     if (!subject || !content) {
         showMessage('Bitte fülle Betreff und Inhalt aus!', 'error');
@@ -504,7 +325,7 @@ document.getElementById('sendAllBtn').addEventListener('click', function() {
             showMessage(data.message, 'success');
             // Formular zurücksetzen
             document.getElementById('subject').value = '';
-            tinymce.get('content').setContent('');
+            quill.setText('');
             updatePreview();
             // Seite nach 2 Sekunden neu laden um Historie zu aktualisieren
             setTimeout(() => location.reload(), 2000);
@@ -533,11 +354,10 @@ function showMessage(message, type) {
         statusDiv.classList.add('hidden');
     }, 5000);
 }
-@endverbatim
 </script>
 
 <style>
-/* TinyMCE Custom Styles in der Vorschau */
+/* Custom Styles in der Vorschau */
 #preview .info-card {
     background-color: #eff6ff;
     border: 2px solid #3b82f6;

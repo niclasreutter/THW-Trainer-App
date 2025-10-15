@@ -130,23 +130,26 @@ du hast bereits {{points}} Punkte gesammelt und bist auf Level {{level}}!
 
 ## 🎨 Verwendung des Editors
 
+Der Editor verwendet **Quill** - ein Open-Source WYSIWYG-Editor ohne API-Key!
+
 ### Komponente einfügen
 
 1. Platziere den Cursor an die gewünschte Stelle
-2. Klicke auf den entsprechenden Button in der Toolbar:
-   - `ℹ️ Info-Card`
-   - `⚠️ Warning-Card`
-   - `✅ Success-Card`
-   - `❌ Error-Card`
-   - `🔘 Glow-Button`
-   - `📊 Stat-Box`
-3. Gib den Text/Inhalt im Dialog ein
-4. Klicke auf "Einfügen"
+2. Klicke auf den entsprechenden Button über dem Editor:
+   - `{{...}} Platzhalter` - Fügt einen Platzhalter ein
+   - `ℹ️ Info-Card` - Blaue Info-Box mit Glow
+   - `⚠️ Warning-Card` - Gelbe Warning-Box mit Glow
+   - `✅ Success-Card` - Grüne Success-Box mit Glow
+   - `❌ Error-Card` - Rote Error-Box mit Glow
+   - `🔘 Glow-Button` - Button mit Glow-Effekt
+   - `📊 Stat-Box` - Statistik-Box für Zahlen
+3. Gib den Text/Inhalt in das Popup ein
+4. Bestätige mit OK
 
 ### Platzhalter einfügen
 
-1. Klicke auf das Dropdown `{{...}} Platzhalter`
-2. Wähle den gewünschten Platzhalter aus
+1. Klicke auf `{{...}} Platzhalter`
+2. Gib den Platzhalter-Namen ein (z.B. "name", "email", "level", "points", "streak")
 3. Er wird an der Cursor-Position eingefügt
 
 ## 🧪 Test-Funktion
@@ -292,7 +295,8 @@ Dein THW-Trainer Team</p>
 ### Komponenten werden nicht angezeigt
 
 - Stelle sicher, dass die CSS-Klassen in `resources/views/emails/newsletter.blade.php` vorhanden sind
-- Prüfe ob TinyMCE korrekt geladen wurde (Browser-Konsole)
+- Prüfe ob Quill korrekt geladen wurde (Browser-Konsole)
+- Überprüfe ob JavaScript-Fehler vorliegen (F12 → Console)
 
 ## 📞 Support
 
