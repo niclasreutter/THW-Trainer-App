@@ -407,9 +407,9 @@ class PracticeController extends Controller
             // Frage noch nicht gemeistert (0 oder 1x richtig)
             // KEINE Änderung an exam_failed_questions - das ist nur für Prüfungen!
             
-            // Gamification: Aktivität auch bei nicht-gemeisterter Antwort aktualisieren
+            // Gamification: Auch beim ersten richtigen Beantworten Punkte vergeben
             $gamificationService = new GamificationService();
-            $gamificationService->awardQuestionPoints($user, false);
+            $gamificationResult = $gamificationService->awardQuestionPoints($user, $isCorrect, $question->id);
             
             // Bei nicht-gemeisterter Antwort: Frage nicht aus der Session entfernen, sondern weiter hinten einreihen
             $practiceIds = session('practice_ids', []);
@@ -456,8 +456,9 @@ class PracticeController extends Controller
             'progress' => $progressCount,
             'total' => $total,
             'mode' => $mode,
-            'questionProgress' => $progress // NEU: Fortschritt der aktuellen Frage (0, 1, oder 2+)
-        ]);
+            'questionProgress' => $progress, // NEU: Fortschritt der aktuellen Frage (0, 1, oder 2+)
+            'gamificationResult' => $gamificationResult ?? null // Direkt an View übergeben
+        ])->with('gamification_result', $gamificationResult ?? null);
     }
 
     /**
