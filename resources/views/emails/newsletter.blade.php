@@ -94,8 +94,8 @@
             background-color: #f3f4f6;
             padding: 15px;
             border-radius: 8px;
-            text-align: center;
             margin: 10px 0;
+            /* text-align wird via Inline-Style gesetzt */
         }
         .stat-number {
             font-size: 32px;

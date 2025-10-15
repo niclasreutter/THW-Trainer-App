@@ -64,6 +64,19 @@
                             U
                         </button>
                         <div style="width: 1px; background-color: #d1d5db;"></div>
+                        <button type="button" onclick="alignText('left')" title="Linksbündig"
+                                style="padding: 6px 12px; background-color: #374151; color: white; border: none; border-radius: 4px; font-size: 14px; cursor: pointer;">
+                            ◀
+                        </button>
+                        <button type="button" onclick="alignText('center')" title="Zentriert"
+                                style="padding: 6px 12px; background-color: #374151; color: white; border: none; border-radius: 4px; font-size: 14px; cursor: pointer;">
+                            ▬
+                        </button>
+                        <button type="button" onclick="alignText('right')" title="Rechtsbündig"
+                                style="padding: 6px 12px; background-color: #374151; color: white; border: none; border-radius: 4px; font-size: 14px; cursor: pointer;">
+                            ▶
+                        </button>
+                        <div style="width: 1px; background-color: #d1d5db;"></div>
                         <button type="button" onclick="formatText('insertOrderedList')" 
                                 style="padding: 6px 12px; background-color: #374151; color: white; border: none; border-radius: 4px; font-size: 14px; cursor: pointer;">
                             1. Liste
@@ -213,6 +226,18 @@ function formatText(command) {
     updatePreview();
 }
 
+// Textausrichtung
+function alignText(alignment) {
+    const alignmentMap = {
+        'left': 'justifyLeft',
+        'center': 'justifyCenter',
+        'right': 'justifyRight'
+    };
+    document.execCommand(alignmentMap[alignment], false, null);
+    document.getElementById('editor').focus();
+    updatePreview();
+}
+
 // Überschrift formatieren
 function formatHeading(tag) {
     document.execCommand('formatBlock', false, tag);
@@ -239,37 +264,41 @@ function insertPlaceholder() {
 // Info-Card einfügen
 function insertInfoCard() {
     const text = prompt('Text für die Info-Card:');
-    if (text) {
-        const html = '<div class="info-card"><p>' + text + '</p></div><p><br></p>';
-        insertHTML(html);
-    }
+    if (!text) return;
+    const align = prompt('Textausrichtung?\n\n1. left (linksbündig)\n2. center (zentriert)\n3. right (rechtsbündig)\n\nStandard: left', 'left');
+    const textAlign = align || 'left';
+    const html = '<div class="info-card"><p style="text-align: ' + textAlign + ';">' + text + '</p></div><p><br></p>';
+    insertHTML(html);
 }
 
 // Warning-Card einfügen
 function insertWarningCard() {
     const text = prompt('Text für die Warning-Card:');
-    if (text) {
-        const html = '<div class="warning-card"><p>' + text + '</p></div><p><br></p>';
-        insertHTML(html);
-    }
+    if (!text) return;
+    const align = prompt('Textausrichtung?\n\n1. left (linksbündig)\n2. center (zentriert)\n3. right (rechtsbündig)\n\nStandard: left', 'left');
+    const textAlign = align || 'left';
+    const html = '<div class="warning-card"><p style="text-align: ' + textAlign + ';">' + text + '</p></div><p><br></p>';
+    insertHTML(html);
 }
 
 // Success-Card einfügen
 function insertSuccessCard() {
     const text = prompt('Text für die Success-Card:');
-    if (text) {
-        const html = '<div class="success-card"><p>' + text + '</p></div><p><br></p>';
-        insertHTML(html);
-    }
+    if (!text) return;
+    const align = prompt('Textausrichtung?\n\n1. left (linksbündig)\n2. center (zentriert)\n3. right (rechtsbündig)\n\nStandard: left', 'left');
+    const textAlign = align || 'left';
+    const html = '<div class="success-card"><p style="text-align: ' + textAlign + ';">' + text + '</p></div><p><br></p>';
+    insertHTML(html);
 }
 
 // Error-Card einfügen
 function insertErrorCard() {
     const text = prompt('Text für die Error-Card:');
-    if (text) {
-        const html = '<div class="error-card"><p>' + text + '</p></div><p><br></p>';
-        insertHTML(html);
-    }
+    if (!text) return;
+    const align = prompt('Textausrichtung?\n\n1. left (linksbündig)\n2. center (zentriert)\n3. right (rechtsbündig)\n\nStandard: left', 'left');
+    const textAlign = align || 'left';
+    const html = '<div class="error-card"><p style="text-align: ' + textAlign + ';">' + text + '</p></div><p><br></p>';
+    insertHTML(html);
 }
 
 // Glow-Button einfügen (Table + Inline-Styles für maximale Kompatibilität)
@@ -298,10 +327,11 @@ function insertStatBox() {
     const number = prompt('Zahl:');
     if (!number) return;
     const label = prompt('Beschriftung:');
-    if (label) {
-        const html = '<div class="stat-box"><div class="stat-number">' + number + '</div><div class="stat-label">' + label + '</div></div><p><br></p>';
-        insertHTML(html);
-    }
+    if (!label) return;
+    const align = prompt('Ausrichtung?\n\n1. left (links)\n2. center (mitte)\n3. right (rechts)\n\nStandard: center', 'center');
+    const textAlign = align || 'center';
+    const html = '<div class="stat-box" style="text-align: ' + textAlign + ';"><div class="stat-number">' + number + '</div><div class="stat-label">' + label + '</div></div><p><br></p>';
+    insertHTML(html);
 }
 
 // Vorschau aktualisieren
@@ -557,8 +587,8 @@ function showMessage(message, type) {
     background-color: #f3f4f6;
     padding: 15px;
     border-radius: 8px;
-    text-align: center;
     margin: 10px 0;
+    /* text-align wird jetzt via Inline-Style gesetzt */
 }
 
 #editor .stat-number,
