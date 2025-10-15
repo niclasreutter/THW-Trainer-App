@@ -208,8 +208,14 @@
             <h2 class="text-xl font-semibold text-blue-800 mb-4">📊 Dein Fortschritt</h2>
             
             <!-- Info-Karte: 2x richtig Regel -->
-            <div style="margin-bottom: 16px; padding: 12px; background-color: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px;">
-                <div style="display: flex; align-items: flex-start; gap: 8px;">
+            <div id="info-2x-rule" style="margin-bottom: 16px; padding: 12px; background-color: #eff6ff; border: 2px solid #3b82f6; border-radius: 8px; box-shadow: 0 0 20px rgba(59, 130, 246, 0.3), 0 0 40px rgba(59, 130, 246, 0.1); position: relative;">
+                <button onclick="document.getElementById('info-2x-rule').style.display='none'" 
+                        style="position: absolute; top: 8px; right: 8px; background: none; border: none; font-size: 18px; color: #2563eb; cursor: pointer; padding: 4px; border-radius: 4px; line-height: 1;"
+                        onmouseover="this.style.backgroundColor='rgba(59, 130, 246, 0.1)'"
+                        onmouseout="this.style.backgroundColor='transparent'">
+                    ×
+                </button>
+                <div style="display: flex; align-items: flex-start; gap: 8px; padding-right: 20px;">
                     <div style="flex-shrink: 0; margin-top: 2px;">
                         <svg style="width: 16px; height: 16px; color: #2563eb;" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
