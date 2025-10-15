@@ -273,7 +273,7 @@ function insertGlowButton() {
     if (!text) return;
     const url = prompt('Link-URL:');
     if (url) {
-        const html = '<p style="text-align: center;"><a href="' + url + '" class="glow-button">' + text + '</a></p><p><br></p>';
+        const html = '<p style="text-align: center; margin: 20px 0;"><a href="' + url + '" style="display: inline-block; background: linear-gradient(to right, #2563eb, #1d4ed8); color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4), 0 0 20px rgba(37, 99, 235, 0.3), 0 0 40px rgba(37, 99, 235, 0.1);">' + text + '</a></p><p><br></p>';
         insertHTML(html);
     }
 }
@@ -503,6 +503,13 @@ function showMessage(message, type) {
     box-shadow: 0 0 20px rgba(239, 68, 68, 0.3), 0 0 40px rgba(239, 68, 68, 0.1);
 }
 
+/* Links im Editor anklickbar machen */
+#editor a {
+    color: #2563eb;
+    cursor: pointer;
+}
+
+/* Glow-Button wird jetzt via Inline-Styles eingefügt, aber für Legacy-Kompatibilität: */
 #editor .glow-button,
 #preview .glow-button {
     display: inline-block;
