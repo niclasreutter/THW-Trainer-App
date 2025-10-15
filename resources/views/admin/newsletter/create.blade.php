@@ -140,7 +140,7 @@ toolbarContainer.className = 'mb-3 p-3 bg-gray-50 border rounded-lg';
 toolbarContainer.innerHTML = `
     <div class="flex flex-wrap gap-2">
         <button type="button" onclick="insertPlaceholder()" class="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600">
-            {{...}} Platzhalter
+            @{{...}} Platzhalter
         </button>
         <button type="button" onclick="insertInfoCard()" class="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600">
             ℹ️ Info-Card
@@ -169,7 +169,7 @@ function insertPlaceholder() {
     const placeholder = prompt('Welchen Platzhalter möchtest du einfügen?\n\n1. name\n2. email\n3. level\n4. points\n5. streak\n\nGib den Namen ein:');
     if (placeholder) {
         const range = quill.getSelection(true);
-        quill.insertText(range.index, '{{' + placeholder + '}}');
+        quill.insertText(range.index, '@{{' + placeholder + '}}');
     }
 }
 
