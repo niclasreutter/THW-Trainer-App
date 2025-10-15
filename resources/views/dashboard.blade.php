@@ -199,7 +199,7 @@
 
         @php
             // Nur bei 100% wirklich 100% anzeigen, sonst aufrunden vermeiden
-            $progressPercent = $total > 0 ? ($progress == $total ? 100 : floor($progress / $total * 100)) : 0;
+            $masteredPercent = $total > 0 ? ($progress == $total ? 100 : floor($progress / $total * 100)) : 0;
             $examsPercent = $exams > 0 ? min(100, floor($exams / 5 * 100)) : 0;
         @endphp
 
