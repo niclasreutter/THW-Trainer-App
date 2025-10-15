@@ -45,11 +45,61 @@
                            placeholder="z.B. Neue Features im THW-Trainer">
                 </div>
 
-                <!-- Quill Editor -->
+                <!-- HTML Editor -->
                 <div class="mb-4">
                     <label for="content" class="block text-sm font-medium text-gray-700 mb-2">Inhalt</label>
-                    <div id="editor" style="height: 400px; background: white;"></div>
-                    <input type="hidden" id="content" name="content">
+                    <textarea id="content" name="content" rows="15" 
+                              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"
+                              placeholder="Hier deinen Newsletter-Inhalt eingeben..."></textarea>
+                </div>
+                
+                <!-- Komponenten-Buttons -->
+                <div class="mb-4 p-3 bg-gray-50 border rounded-lg">
+                    <p class="text-xs font-semibold text-gray-700 mb-2">Komponenten einfügen:</p>
+                    <div class="flex flex-wrap gap-2">
+                        <button type="button" onclick="insertPlaceholder()" 
+                                style="padding: 6px 12px; background-color: #3b82f6; color: white; border: none; border-radius: 4px; font-size: 14px; cursor: pointer; transition: all 0.2s;" 
+                                onmouseover="this.style.backgroundColor='#2563eb'" 
+                                onmouseout="this.style.backgroundColor='#3b82f6'">
+                            @{{...}} Platzhalter
+                        </button>
+                        <button type="button" onclick="insertInfoCard()" 
+                                style="padding: 6px 12px; background-color: #3b82f6; color: white; border: none; border-radius: 4px; font-size: 14px; cursor: pointer; transition: all 0.2s;" 
+                                onmouseover="this.style.backgroundColor='#2563eb'" 
+                                onmouseout="this.style.backgroundColor='#3b82f6'">
+                            ℹ️ Info-Card
+                        </button>
+                        <button type="button" onclick="insertWarningCard()" 
+                                style="padding: 6px 12px; background-color: #f59e0b; color: white; border: none; border-radius: 4px; font-size: 14px; cursor: pointer; transition: all 0.2s;" 
+                                onmouseover="this.style.backgroundColor='#d97706'" 
+                                onmouseout="this.style.backgroundColor='#f59e0b'">
+                            ⚠️ Warning-Card
+                        </button>
+                        <button type="button" onclick="insertSuccessCard()" 
+                                style="padding: 6px 12px; background-color: #22c55e; color: white; border: none; border-radius: 4px; font-size: 14px; cursor: pointer; transition: all 0.2s;" 
+                                onmouseover="this.style.backgroundColor='#16a34a'" 
+                                onmouseout="this.style.backgroundColor='#22c55e'">
+                            ✅ Success-Card
+                        </button>
+                        <button type="button" onclick="insertErrorCard()" 
+                                style="padding: 6px 12px; background-color: #ef4444; color: white; border: none; border-radius: 4px; font-size: 14px; cursor: pointer; transition: all 0.2s;" 
+                                onmouseover="this.style.backgroundColor='#dc2626'" 
+                                onmouseout="this.style.backgroundColor='#ef4444'">
+                            ❌ Error-Card
+                        </button>
+                        <button type="button" onclick="insertGlowButton()" 
+                                style="padding: 6px 12px; background-color: #a855f7; color: white; border: none; border-radius: 4px; font-size: 14px; cursor: pointer; transition: all 0.2s;" 
+                                onmouseover="this.style.backgroundColor='#9333ea'" 
+                                onmouseout="this.style.backgroundColor='#a855f7'">
+                            🔘 Glow-Button
+                        </button>
+                        <button type="button" onclick="insertStatBox()" 
+                                style="padding: 6px 12px; background-color: #6366f1; color: white; border: none; border-radius: 4px; font-size: 14px; cursor: pointer; transition: all 0.2s;" 
+                                onmouseover="this.style.backgroundColor='#4f46e5'" 
+                                onmouseout="this.style.backgroundColor='#6366f1'">
+                            📊 Stat-Box
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Aktionen -->
@@ -110,83 +160,30 @@
     @endif
 </div>
 
-<!-- Quill Editor einbinden -->
-<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
-<script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
-
 <script>
 // Routes für AJAX
 const testRoute = '{{ route("admin.newsletter.test") }}';
 const sendRoute = '{{ route("admin.newsletter.send") }}';
 
-// Quill mit Custom Blot für HTML
-const Block = Quill.import('blots/block');
-class CustomHTML extends Block {
-    static create(value) {
-        let node = super.create();
-        node.innerHTML = value;
-        return node;
-    }
-    static value(node) {
-        return node.innerHTML;
-    }
+// Helper-Funktion: Text in Textarea an Cursor-Position einfügen
+function insertAtCursor(textarea, text) {
+    const startPos = textarea.selectionStart;
+    const endPos = textarea.selectionEnd;
+    const textBefore = textarea.value.substring(0, startPos);
+    const textAfter = textarea.value.substring(endPos);
+    
+    textarea.value = textBefore + text + textAfter;
+    textarea.selectionStart = textarea.selectionEnd = startPos + text.length;
+    textarea.focus();
+    updatePreview();
 }
-CustomHTML.blotName = 'customhtml';
-CustomHTML.tagName = 'div';
-CustomHTML.className = 'custom-html';
-Quill.register(CustomHTML);
-
-// Quill Editor initialisieren
-const quill = new Quill('#editor', {
-    theme: 'snow',
-    modules: {
-        toolbar: [
-            [{ 'header': [1, 2, 3, false] }],
-            ['bold', 'italic', 'underline'],
-            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-            [{ 'align': [] }],
-            ['link'],
-            ['clean']
-        ]
-    }
-});
-
-// Custom Toolbar für Komponenten
-const toolbarContainer = document.createElement('div');
-toolbarContainer.style.cssText = 'margin-bottom: 12px; padding: 12px; background-color: #f9fafb; border: 1px solid #d1d5db; border-radius: 8px;';
-toolbarContainer.innerHTML = `
-    <div style="display: flex; flex-wrap: wrap; gap: 8px;">
-        <button type="button" onclick="insertPlaceholder()" style="padding: 6px 12px; background-color: #3b82f6; color: white; border: none; border-radius: 4px; font-size: 14px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.backgroundColor='#2563eb'" onmouseout="this.style.backgroundColor='#3b82f6'">
-            @{{...}} Platzhalter
-        </button>
-        <button type="button" onclick="insertInfoCard()" style="padding: 6px 12px; background-color: #3b82f6; color: white; border: none; border-radius: 4px; font-size: 14px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.backgroundColor='#2563eb'" onmouseout="this.style.backgroundColor='#3b82f6'">
-            ℹ️ Info-Card
-        </button>
-        <button type="button" onclick="insertWarningCard()" style="padding: 6px 12px; background-color: #f59e0b; color: white; border: none; border-radius: 4px; font-size: 14px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.backgroundColor='#d97706'" onmouseout="this.style.backgroundColor='#f59e0b'">
-            ⚠️ Warning-Card
-        </button>
-        <button type="button" onclick="insertSuccessCard()" style="padding: 6px 12px; background-color: #22c55e; color: white; border: none; border-radius: 4px; font-size: 14px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.backgroundColor='#16a34a'" onmouseout="this.style.backgroundColor='#22c55e'">
-            ✅ Success-Card
-        </button>
-        <button type="button" onclick="insertErrorCard()" style="padding: 6px 12px; background-color: #ef4444; color: white; border: none; border-radius: 4px; font-size: 14px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.backgroundColor='#dc2626'" onmouseout="this.style.backgroundColor='#ef4444'">
-            ❌ Error-Card
-        </button>
-        <button type="button" onclick="insertGlowButton()" style="padding: 6px 12px; background-color: #a855f7; color: white; border: none; border-radius: 4px; font-size: 14px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.backgroundColor='#9333ea'" onmouseout="this.style.backgroundColor='#a855f7'">
-            🔘 Glow-Button
-        </button>
-        <button type="button" onclick="insertStatBox()" style="padding: 6px 12px; background-color: #6366f1; color: white; border: none; border-radius: 4px; font-size: 14px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.backgroundColor='#4f46e5'" onmouseout="this.style.backgroundColor='#6366f1'">
-            📊 Stat-Box
-        </button>
-    </div>
-`;
-document.getElementById('editor').parentNode.insertBefore(toolbarContainer, document.getElementById('editor'));
 
 // Platzhalter einfügen
 function insertPlaceholder() {
     const placeholder = prompt('Welchen Platzhalter möchtest du einfügen?\n\n1. name\n2. email\n3. level\n4. points\n5. streak\n\nGib den Namen ein:');
     if (placeholder) {
-        const range = quill.getSelection(true);
-        quill.insertText(range.index, '@{{' + placeholder + '}}');
+        const textarea = document.getElementById('content');
+        insertAtCursor(textarea, '{{' + placeholder + '}}');
     }
 }
 
@@ -194,10 +191,9 @@ function insertPlaceholder() {
 function insertInfoCard() {
     const text = prompt('Text für die Info-Card:');
     if (text) {
-        const range = quill.getSelection(true);
-        const html = '<div class="info-card"><p>' + text + '</p></div><p><br></p>';
-        quill.clipboard.dangerouslyPasteHTML(range.index, html);
-        quill.setSelection(range.index + html.length);
+        const textarea = document.getElementById('content');
+        const html = '\n<div class="info-card">\n    <p>' + text + '</p>\n</div>\n\n';
+        insertAtCursor(textarea, html);
     }
 }
 
@@ -205,10 +201,9 @@ function insertInfoCard() {
 function insertWarningCard() {
     const text = prompt('Text für die Warning-Card:');
     if (text) {
-        const range = quill.getSelection(true);
-        const html = '<div class="warning-card"><p>' + text + '</p></div><p><br></p>';
-        quill.clipboard.dangerouslyPasteHTML(range.index, html);
-        quill.setSelection(range.index + html.length);
+        const textarea = document.getElementById('content');
+        const html = '\n<div class="warning-card">\n    <p>' + text + '</p>\n</div>\n\n';
+        insertAtCursor(textarea, html);
     }
 }
 
@@ -216,10 +211,9 @@ function insertWarningCard() {
 function insertSuccessCard() {
     const text = prompt('Text für die Success-Card:');
     if (text) {
-        const range = quill.getSelection(true);
-        const html = '<div class="success-card"><p>' + text + '</p></div><p><br></p>';
-        quill.clipboard.dangerouslyPasteHTML(range.index, html);
-        quill.setSelection(range.index + html.length);
+        const textarea = document.getElementById('content');
+        const html = '\n<div class="success-card">\n    <p>' + text + '</p>\n</div>\n\n';
+        insertAtCursor(textarea, html);
     }
 }
 
@@ -227,10 +221,9 @@ function insertSuccessCard() {
 function insertErrorCard() {
     const text = prompt('Text für die Error-Card:');
     if (text) {
-        const range = quill.getSelection(true);
-        const html = '<div class="error-card"><p>' + text + '</p></div><p><br></p>';
-        quill.clipboard.dangerouslyPasteHTML(range.index, html);
-        quill.setSelection(range.index + html.length);
+        const textarea = document.getElementById('content');
+        const html = '\n<div class="error-card">\n    <p>' + text + '</p>\n</div>\n\n';
+        insertAtCursor(textarea, html);
     }
 }
 
@@ -240,10 +233,9 @@ function insertGlowButton() {
     if (!text) return;
     const url = prompt('Link-URL:');
     if (url) {
-        const range = quill.getSelection(true);
-        const html = '<p style="text-align: center;"><a href="' + url + '" class="glow-button">' + text + '</a></p><p><br></p>';
-        quill.clipboard.dangerouslyPasteHTML(range.index, html);
-        quill.setSelection(range.index + html.length);
+        const textarea = document.getElementById('content');
+        const html = '\n<p style="text-align: center;"><a href="' + url + '" class="glow-button">' + text + '</a></p>\n\n';
+        insertAtCursor(textarea, html);
     }
 }
 
@@ -253,17 +245,16 @@ function insertStatBox() {
     if (!number) return;
     const label = prompt('Beschriftung:');
     if (label) {
-        const range = quill.getSelection(true);
-        const html = '<div class="stat-box"><div class="stat-number">' + number + '</div><div class="stat-label">' + label + '</div></div><p><br></p>';
-        quill.clipboard.dangerouslyPasteHTML(range.index, html);
-        quill.setSelection(range.index + html.length);
+        const textarea = document.getElementById('content');
+        const html = '\n<div class="stat-box">\n    <div class="stat-number">' + number + '</div>\n    <div class="stat-label">' + label + '</div>\n</div>\n\n';
+        insertAtCursor(textarea, html);
     }
 }
 
 // Vorschau aktualisieren
 function updatePreview() {
     const subject = document.getElementById('subject').value;
-    const content = quill.root.innerHTML;
+    const content = document.getElementById('content').value;
     
     document.getElementById('preview').innerHTML = `
         <div style="border-bottom: 3px solid #2563eb; padding-bottom: 10px; margin-bottom: 20px;">
@@ -272,16 +263,13 @@ function updatePreview() {
         </div>
         ${content}
     `;
-    
-    // Hidden field aktualisieren
-    document.getElementById('content').value = content;
 }
 
 // Betreff-Änderungen überwachen
 document.getElementById('subject').addEventListener('input', updatePreview);
 
-// Quill-Änderungen überwachen
-quill.on('text-change', updatePreview);
+// Content-Änderungen überwachen
+document.getElementById('content').addEventListener('input', updatePreview);
 
 // Test-Mail senden
 document.getElementById('sendTestBtn').addEventListener('click', function() {
@@ -354,7 +342,7 @@ document.getElementById('sendAllBtn').addEventListener('click', function() {
             showMessage(data.message, 'success');
             // Formular zurücksetzen
             document.getElementById('subject').value = '';
-            quill.setText('');
+            document.getElementById('content').value = '';
             updatePreview();
             // Seite nach 2 Sekunden neu laden um Historie zu aktualisieren
             setTimeout(() => location.reload(), 2000);
