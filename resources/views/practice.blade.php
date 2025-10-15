@@ -48,16 +48,12 @@
         </div>
         
         <div class="mb-3 text-sm text-gray-600">
-            @php
-                // Nur bei 100% wirklich 100% anzeigen, sonst aufrunden vermeiden
-                $progressPercent = $total > 0 ? ($progress == $total ? 100 : floor($progress / $total * 100)) : 0;
-            @endphp
-            Fortschritt: {{ $progress }}/{{ $total }}
+            Fortschritt: {{ $progress }}/{{ $total }} gemeistert
             <div class="w-full bg-gray-200 rounded-full h-3 mt-1 mb-1">
                 <div class="bg-yellow-400 h-3 rounded-full transition-all duration-300 shadow-lg" 
-                     style="width: {{ $progressPercent }}%; box-shadow: 0 0 10px rgba(251, 191, 36, 0.6), 0 0 20px rgba(251, 191, 36, 0.4), 0 0 30px rgba(251, 191, 36, 0.2);"></div>
+                     style="width: {{ $progressPercent ?? 0 }}%; box-shadow: 0 0 10px rgba(251, 191, 36, 0.6), 0 0 20px rgba(251, 191, 36, 0.4), 0 0 30px rgba(251, 191, 36, 0.2);"></div>
             </div>
-            <span class="text-xs text-gray-500">{{ $progressPercent }}% abgeschlossen</span>
+            <span class="text-xs text-gray-500">{{ $progressPercent ?? 0 }}% Gesamt-Fortschritt (inkl. 1x richtig)</span>
         </div>
         
         <!-- Gamification & Bookmark Button außerhalb des Forms -->

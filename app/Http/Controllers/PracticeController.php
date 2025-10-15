@@ -278,6 +278,15 @@ class PracticeController extends Controller
         $total = $totalQuestions;
         $progress = $solvedCount;
         
+        // Neue Fortschrittsbalken-Logik: Berücksichtigt auch 1x richtige Antworten
+        $progressData = UserQuestionProgress::where('user_id', $user->id)->get();
+        $totalProgressPoints = 0;
+        foreach ($progressData as $prog) {
+            $totalProgressPoints += min($prog->consecutive_correct, 2);
+        }
+        $maxProgressPoints = $totalQuestions * 2;
+        $progressPercent = $maxProgressPoints > 0 ? round(($totalProgressPoints / $maxProgressPoints) * 100) : 0;
+        
         // Session für aktuellen Modus speichern
         session([
             'practice_mode' => $mode,
@@ -285,7 +294,7 @@ class PracticeController extends Controller
             'practice_ids' => $idsToShow
         ]);
         
-        return view('practice', compact('question', 'progress', 'total', 'mode'));
+        return view('practice', compact('question', 'progress', 'total', 'mode', 'progressPercent'));
     }
 
     public function show(Request $request)
@@ -338,12 +347,21 @@ class PracticeController extends Controller
             $total = Question::count();
             $progress = count($solved);
             
+            // Neue Fortschrittsbalken-Logik: Berücksichtigt auch 1x richtige Antworten
+            $progressData = UserQuestionProgress::where('user_id', $user->id)->get();
+            $totalProgressPoints = 0;
+            foreach ($progressData as $prog) {
+                $totalProgressPoints += min($prog->consecutive_correct, 2);
+            }
+            $maxProgressPoints = $total * 2;
+            $progressPercent = $maxProgressPoints > 0 ? round(($totalProgressPoints / $maxProgressPoints) * 100) : 0;
+            
         } else {
             // Legacy mode - redirect to menu
             return redirect()->route('practice.menu');
         }
         
-        return view('practice', compact('question', 'progress', 'total', 'mode'));
+        return view('practice', compact('question', 'progress', 'total', 'mode', 'progressPercent'));
     }
 
 
@@ -436,6 +454,15 @@ class PracticeController extends Controller
         $total = Question::count();
         $progressCount = count($solved);
         
+        // Neue Fortschrittsbalken-Logik: Berücksichtigt auch 1x richtige Antworten
+        $progressData = UserQuestionProgress::where('user_id', $user->id)->get();
+        $totalProgressPoints = 0;
+        foreach ($progressData as $prog) {
+            $totalProgressPoints += min($prog->consecutive_correct, 2);
+        }
+        $maxProgressPoints = $total * 2;
+        $progressPercent = $maxProgressPoints > 0 ? round(($totalProgressPoints / $maxProgressPoints) * 100) : 0;
+        
         if ($progress->isMastered()) {
             // Frage ist gemeistert (2x richtig) - direkt zur nächsten Frage weiterleiten
             if ($gamificationResult) {
@@ -457,7 +484,8 @@ class PracticeController extends Controller
             'total' => $total,
             'mode' => $mode,
             'questionProgress' => $progress, // NEU: Fortschritt der aktuellen Frage (0, 1, oder 2+)
-            'gamificationResult' => $gamificationResult ?? null // Direkt an View übergeben
+            'gamificationResult' => $gamificationResult ?? null, // Direkt an View übergeben
+            'progressPercent' => $progressPercent // Berücksichtigt auch 1x richtige Antworten
         ])->with('gamification_result', $gamificationResult ?? null);
     }
 
