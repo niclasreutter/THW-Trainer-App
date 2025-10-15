@@ -74,18 +74,21 @@
             box-shadow: 0 0 20px rgba(239, 68, 68, 0.3), 0 0 40px rgba(239, 68, 68, 0.1);
         }
         .glow-button {
-            display: inline-block;
-            background: linear-gradient(to right, #2563eb, #1d4ed8);
-            color: white;
-            padding: 15px 30px;
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: bold;
-            margin: 20px 0;
-            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4), 0 0 20px rgba(37, 99, 235, 0.3), 0 0 40px rgba(37, 99, 235, 0.1);
+            display: inline-block !important;
+            background: linear-gradient(to right, #2563eb, #1d4ed8) !important;
+            color: #ffffff !important;
+            padding: 15px 30px !important;
+            text-decoration: none !important;
+            border-radius: 8px !important;
+            font-weight: bold !important;
+            margin: 20px 0 !important;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4), 0 0 20px rgba(37, 99, 235, 0.3), 0 0 40px rgba(37, 99, 235, 0.1) !important;
         }
         .glow-button:hover {
-            background: linear-gradient(to right, #1d4ed8, #1e40af);
+            background: linear-gradient(to right, #1d4ed8, #1e40af) !important;
+        }
+        a.glow-button {
+            color: #ffffff !important;
         }
         .stat-box {
             background-color: #f3f4f6;

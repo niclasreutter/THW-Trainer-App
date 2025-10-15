@@ -267,13 +267,23 @@ function insertErrorCard() {
     }
 }
 
-// Glow-Button einfügen
+// Glow-Button einfügen (Table + Inline-Styles für maximale Kompatibilität)
 function insertGlowButton() {
     const text = prompt('Button-Text:');
     if (!text) return;
-    const url = prompt('Link-URL:');
+    const url = prompt('Link-URL (z.B. https://thw-trainer.de/dashboard):');
     if (url) {
-        const html = '<p style="text-align: center; margin: 20px 0;"><a href="' + url + '" style="display: inline-block; background: linear-gradient(to right, #2563eb, #1d4ed8); color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4), 0 0 20px rgba(37, 99, 235, 0.3), 0 0 40px rgba(37, 99, 235, 0.1);">' + text + '</a></p><p><br></p>';
+        const html = `
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: 20px 0;">
+    <tr>
+        <td align="center">
+            <a href="${url}" target="_blank" class="glow-button" style="display: inline-block; background: linear-gradient(to right, #2563eb, #1d4ed8); background-color: #2563eb; color: #ffffff !important; padding: 15px 30px; text-decoration: none !important; border-radius: 8px; font-weight: bold; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4), 0 0 20px rgba(37, 99, 235, 0.3), 0 0 40px rgba(37, 99, 235, 0.1);">
+                <span style="color: #ffffff !important;">${text}</span>
+            </a>
+        </td>
+    </tr>
+</table>
+<p><br></p>`;
         insertHTML(html);
     }
 }
@@ -507,6 +517,19 @@ function showMessage(message, type) {
 #editor a {
     color: #2563eb;
     cursor: pointer;
+}
+
+/* Table-basierte Buttons im Editor */
+#editor table a,
+#preview table a {
+    display: inline-block;
+    background: linear-gradient(to right, #2563eb, #1d4ed8);
+    color: white !important;
+    padding: 15px 30px;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: bold;
+    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4), 0 0 20px rgba(37, 99, 235, 0.3), 0 0 40px rgba(37, 99, 235, 0.1);
 }
 
 /* Glow-Button wird jetzt via Inline-Styles eingefügt, aber für Legacy-Kompatibilität: */
