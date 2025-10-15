@@ -139,13 +139,17 @@
                 </div>
 
                 <!-- Aktionen -->
-                <div class="flex gap-3">
+                <div style="display: flex; gap: 12px;">
                     <button type="button" id="sendTestBtn" 
-                            class="flex-1 bg-yellow-500 text-white px-6 py-3 rounded-lg font-bold hover:bg-yellow-600 transition-all duration-300 hover:shadow-lg">
+                            style="flex: 1; background-color: #eab308; color: white; padding: 12px 24px; border-radius: 8px; font-weight: bold; font-size: 14px; border: none; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);"
+                            onmouseover="this.style.backgroundColor='#ca8a04'; this.style.boxShadow='0 6px 12px rgba(0, 0, 0, 0.15)';"
+                            onmouseout="this.style.backgroundColor='#eab308'; this.style.boxShadow='0 4px 6px rgba(0, 0, 0, 0.1)';">
                         🧪 Test-Mail an mich
                     </button>
                     <button type="button" id="sendAllBtn"
-                            class="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-blue-700 transition-all duration-300 hover:shadow-lg">
+                            style="flex: 1; background-color: #2563eb; color: white; padding: 12px 24px; border-radius: 8px; font-weight: bold; font-size: 14px; border: none; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);"
+                            onmouseover="this.style.backgroundColor='#1d4ed8'; this.style.boxShadow='0 6px 12px rgba(0, 0, 0, 0.15)';"
+                            onmouseout="this.style.backgroundColor='#2563eb'; this.style.boxShadow='0 4px 6px rgba(0, 0, 0, 0.1)';">
                         📧 An alle senden
                     </button>
                 </div>
@@ -201,6 +205,7 @@
 const testRoute = '{{ route("admin.newsletter.test") }}';
 const sendRoute = '{{ route("admin.newsletter.send") }}';
 
+@verbatim
 // Text-Formatierung (Bold, Italic, etc.)
 function formatText(command) {
     document.execCommand(command, false, null);
@@ -444,6 +449,7 @@ function showMessage(message, type) {
         statusDiv.classList.add('hidden');
     }, 5000);
 }
+@endverbatim
 </script>
 
 <style>
