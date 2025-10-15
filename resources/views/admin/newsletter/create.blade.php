@@ -19,11 +19,11 @@
             <div>
                 <h3 class="font-bold text-blue-800 mb-1">Verfügbare Platzhalter:</h3>
                 <p class="text-sm text-blue-700">
-                    <code class="bg-blue-100 px-2 py-1 rounded">{{name}}</code> - Name des Users |
-                    <code class="bg-blue-100 px-2 py-1 rounded">{{email}}</code> - E-Mail |
-                    <code class="bg-blue-100 px-2 py-1 rounded">{{level}}</code> - Level |
-                    <code class="bg-blue-100 px-2 py-1 rounded">{{points}}</code> - Punkte |
-                    <code class="bg-blue-100 px-2 py-1 rounded">{{streak}}</code> - Streak
+                    <code class="bg-blue-100 px-2 py-1 rounded">@{{name}}</code> - Name des Users |
+                    <code class="bg-blue-100 px-2 py-1 rounded">@{{email}}</code> - E-Mail |
+                    <code class="bg-blue-100 px-2 py-1 rounded">@{{level}}</code> - Level |
+                    <code class="bg-blue-100 px-2 py-1 rounded">@{{points}}</code> - Punkte |
+                    <code class="bg-blue-100 px-2 py-1 rounded">@{{streak}}</code> - Streak
                 </p>
             </div>
         </div>
