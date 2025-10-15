@@ -5,6 +5,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Question;
 use App\Models\QuestionStatistic;
+use App\Models\UserQuestionProgress;
 use App\Services\GamificationService;
 
 class PracticeController extends Controller
@@ -352,23 +353,34 @@ class PracticeController extends Controller
             'user_id' => $user->id,
             'is_correct' => $isCorrect,
         ]);
+        
+        // NEU: Fortschritt in user_question_progress tracken
+        $progress = UserQuestionProgress::getOrCreate($user->id, $question->id);
+        $progress->updateProgress($isCorrect);
+        
         $solved = $this->ensureArray($user->solved_questions);
         $skipped = session('practice_skipped', []);
         
         $gamificationResult = null;
         
-        if ($isCorrect) {
-            $solved[] = $question->id;
-            $user->solved_questions = array_unique($solved);
+        // Nur wenn Frage gemeistert (2x richtig in Folge)
+        if ($progress->isMastered()) {
+            // Zu solved_questions hinzufügen (falls noch nicht drin)
+            if (!in_array($question->id, $solved)) {
+                $solved[] = $question->id;
+                $user->solved_questions = array_unique($solved);
+                $user->save();
+            }
             
             // Entferne Frage aus exam_failed_questions falls dort vorhanden
             $failed = $this->ensureArray($user->exam_failed_questions);
-            $failed = array_diff($failed, [$question->id]);
-            $user->exam_failed_questions = array_values($failed);
+            if (in_array($question->id, $failed)) {
+                $failed = array_diff($failed, [$question->id]);
+                $user->exam_failed_questions = array_values($failed);
+                $user->save();
+            }
             
-            $user->save();
-            
-            // Gamification: Punkte für richtige Antwort
+            // Gamification: Punkte nur wenn gemeistert
             $gamificationService = new GamificationService();
             $gamificationResult = $gamificationService->awardQuestionPoints($user, true, $question->id);
             
@@ -376,27 +388,30 @@ class PracticeController extends Controller
             $skipped = array_diff($skipped, [$question->id]);
             session(['practice_skipped' => $skipped]);
             
-            // WICHTIG: Entferne gelöste Frage auch aus der aktuellen Practice Session
+            // WICHTIG: Entferne gemeisterte Frage auch aus der aktuellen Practice Session
             $practiceIds = session('practice_ids', []);
             if (!empty($practiceIds)) {
                 $practiceIds = array_diff($practiceIds, [$question->id]);
                 session(['practice_ids' => array_values($practiceIds)]);
             }
         } else {
-            // Bei falscher Antwort: Zu exam_failed_questions hinzufügen für zukünftige Priorisierung
-            $failed = $this->ensureArray($user->exam_failed_questions);
-            
-            if (!in_array($question->id, $failed)) {
-                $failed[] = $question->id;
-                $user->exam_failed_questions = $failed;
-                $user->save();
+            // Frage noch nicht gemeistert (0 oder 1x richtig)
+            if (!$isCorrect) {
+                // Bei falscher Antwort: Zu exam_failed_questions hinzufügen für zukünftige Priorisierung
+                $failed = $this->ensureArray($user->exam_failed_questions);
+                
+                if (!in_array($question->id, $failed)) {
+                    $failed[] = $question->id;
+                    $user->exam_failed_questions = $failed;
+                    $user->save();
+                }
             }
             
-            // Gamification: Aktivität auch bei falscher Antwort aktualisieren
+            // Gamification: Aktivität auch bei nicht-gemeisterter Antwort aktualisieren
             $gamificationService = new GamificationService();
             $gamificationService->awardQuestionPoints($user, false);
             
-            // Bei falscher Antwort: Frage nicht aus der Session entfernen, sondern weiter hinten einreihen
+            // Bei nicht-gemeisterter Antwort: Frage nicht aus der Session entfernen, sondern weiter hinten einreihen
             $practiceIds = session('practice_ids', []);
             if (!empty($practiceIds)) {
                 // Entferne aktuelle Frage und füge sie am Ende wieder hinzu
@@ -419,10 +434,10 @@ class PracticeController extends Controller
         
         // Fortschritt sollte immer die tatsächlich gelösten Fragen vs Gesamtfragen zeigen
         $total = Question::count();
-        $progress = count($solved);
+        $progressCount = count($solved);
         
-        if ($isCorrect) {
-            // Direkt zur nächsten Frage weiterleiten
+        if ($progress->isMastered()) {
+            // Frage ist gemeistert (2x richtig) - direkt zur nächsten Frage weiterleiten
             if ($gamificationResult) {
                 session(['gamification_result' => $gamificationResult]);
             }
@@ -438,9 +453,10 @@ class PracticeController extends Controller
             'question' => $question,
             'isCorrect' => $isCorrect,
             'userAnswer' => $userAnswer,
-            'progress' => $progress,
+            'progress' => $progressCount,
             'total' => $total,
-            'mode' => $mode
+            'mode' => $mode,
+            'questionProgress' => $progress // NEU: Fortschritt der aktuellen Frage (0, 1, oder 2+)
         ]);
     }
 

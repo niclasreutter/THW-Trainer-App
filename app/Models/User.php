@@ -56,6 +56,14 @@ class User extends Authenticatable implements MustVerifyEmail
             'achievements' => 'array',
         ];
     }
+    
+    /**
+     * User hat viele Fragen-Fortschritte
+     */
+    public function questionProgress()
+    {
+        return $this->hasMany(UserQuestionProgress::class);
+    }
     /**
      * Override the default email verification notification.
      */

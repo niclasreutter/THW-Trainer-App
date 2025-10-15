@@ -5,6 +5,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Question;
 use App\Models\QuestionStatistic;
+use App\Models\UserQuestionProgress;
 use App\Models\ExamStatistic;
 use Illuminate\Support\Facades\Session;
 use App\Services\GamificationService;
@@ -98,6 +99,12 @@ class ExamController extends Controller
                 'user_id' => $user->id,
                 'is_correct' => $result['isCorrect'],
             ]);
+            
+            // NEU: Auch Fortschritt in user_question_progress tracken
+            // Hinweis: In Prüfungen wird NICHT automatisch zu solved_questions hinzugefügt
+            // User müssen Fragen im Practice-Modus 2x richtig beantworten
+            $progress = UserQuestionProgress::getOrCreate($user->id, $result['frage']->id);
+            $progress->updateProgress($result['isCorrect']);
         }
         
         // Prüfungsstatistik erfassen

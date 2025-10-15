@@ -189,8 +189,21 @@
             @if(!isset($isCorrect))
                 <button type="submit" id="submitBtn" class="bg-blue-900 text-yellow-400 px-4 py-2 rounded font-bold hover:bg-yellow-400 hover:text-blue-900 hover:shadow-lg hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none text-sm" disabled>Antwort absenden</button>
             @elseif(isset($isCorrect) && $isCorrect)
-                <div class="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 font-bold animate-pulse text-sm">✅ Richtig! Weiter zur nächsten Frage...</div>
-                <a href="{{ route('practice.index') }}" class="mt-3 inline-block bg-blue-900 text-yellow-400 px-4 py-2 rounded font-bold hover:bg-yellow-400 hover:text-blue-900 hover:shadow-lg hover:scale-105 transition-all duration-300 text-sm">Nächste Frage</a>
+                @if(isset($questionProgress) && $questionProgress->consecutive_correct == 1)
+                    <div class="mt-3 p-3 bg-blue-50 border-2 border-blue-300 rounded-lg text-blue-700 font-bold text-sm">
+                        <div class="flex items-center">
+                            <div class="text-xl mr-2">👍</div>
+                            <div>
+                                <div>Richtig! Aber noch nicht gemeistert.</div>
+                                <div class="text-xs mt-1 font-normal">Beantworte die Frage noch <strong>1x richtig</strong>, um sie zu meistern!</div>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="{{ route('practice.index') }}" class="mt-3 inline-block bg-blue-900 text-yellow-400 px-4 py-2 rounded font-bold hover:bg-yellow-400 hover:text-blue-900 hover:shadow-lg hover:scale-105 transition-all duration-300 text-sm">Nächste Frage</a>
+                @else
+                    <div class="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 font-bold animate-pulse text-sm">✅ Richtig! Frage gemeistert! Weiter zur nächsten Frage...</div>
+                    <a href="{{ route('practice.index') }}" class="mt-3 inline-block bg-blue-900 text-yellow-400 px-4 py-2 rounded font-bold hover:bg-yellow-400 hover:text-blue-900 hover:shadow-lg hover:scale-105 transition-all duration-300 text-sm">Nächste Frage</a>
+                @endif
             @elseif(isset($isCorrect) && !$isCorrect)
                 <div class="mt-3 p-3 rounded-lg font-bold shadow-lg text-sm" style="background-color: rgba(239, 68, 68, 0.1); border: 2px solid rgba(239, 68, 68, 0.3); color: #dc2626; box-shadow: 0 0 15px rgba(239, 68, 68, 0.3), 0 0 30px rgba(239, 68, 68, 0.1);">
                     <div class="flex items-center">
