@@ -64,6 +64,69 @@
             <span class="text-xs text-gray-500">{{ $progressPercent ?? 0 }}% Gesamt-Fortschritt (inkl. 1x richtig)</span>
         </div>
         
+        <!-- Gamification Anzeige oben (für gemeisterte Fragen) -->
+        @php
+            $topGamificationResult = session('gamification_result');
+            $showTopGamification = !isset($isCorrect) && $topGamificationResult && isset($topGamificationResult['points_awarded']);
+            
+            if ($showTopGamification) {
+                // Verschiedene Emojis und Texte für Abwechslung
+                $celebrations = [
+                    ['emoji' => '🥳', 'text' => 'Grandios!'],
+                    ['emoji' => '🎉', 'text' => 'Fantastisch!'],
+                    ['emoji' => '⭐', 'text' => 'Super!'],
+                    ['emoji' => '💪', 'text' => 'Stark!'],
+                    ['emoji' => '🔥', 'text' => 'Mega!'],
+                    ['emoji' => '✨', 'text' => 'Klasse!'],
+                    ['emoji' => '🎯', 'text' => 'Volltreffer!'],
+                    ['emoji' => '🚀', 'text' => 'Genial!'],
+                ];
+                
+                // Wähle basierend auf Fragen-ID eine konsistente Variation
+                $celebrationIndex = $question->id % count($celebrations);
+                $topCelebration = $celebrations[$celebrationIndex];
+                
+                // Grund-Text basierend auf Punkten
+                $topPointsAwarded = $topGamificationResult['points_awarded'] ?? 0;
+                $topReason = $topGamificationResult['reason'] ?? 'Frage beantwortet';
+                
+                if ($topPointsAwarded >= 20) {
+                    if (str_contains($topReason, 'Häufig falsche')) {
+                        $topReasonText = 'Häufig falsche Frage gelöst';
+                    } else {
+                        $topReasonText = 'Mit Streak-Bonus';
+                    }
+                } else {
+                    $topReasonText = $topReason;
+                }
+                
+                // Lösche die Session nach der Anzeige
+                session()->forget('gamification_result');
+            }
+        @endphp
+        
+        @if($showTopGamification)
+            <div class="mb-3 animate-fade-in">
+                <div class="flex items-center gap-1 px-3 py-2 rounded-lg text-sm"
+                     style="background-color: #f0fdf4; 
+                            border: 1px solid #bbf7d0; 
+                            box-shadow: 0 0 15px rgba(34, 197, 94, 0.4), 
+                                       0 0 30px rgba(34, 197, 94, 0.2),
+                                       0 0 45px rgba(34, 197, 94, 0.1);">
+                    <span class="text-base">{{ $topCelebration['emoji'] }}</span>
+                    <span class="font-bold" style="color: #15803d;">{{ $topCelebration['text'] }}</span>
+                    <span style="color: #16a34a;">+{{ $topPointsAwarded }} Punkte</span>
+                    <span class="text-xs" style="color: #6b7280;">({{ $topReasonText }})</span>
+                </div>
+                <div class="mt-2 px-3 py-2 rounded-lg text-sm font-semibold text-center" 
+                     style="background-color: #dcfce7; 
+                            border: 1px solid #86efac; 
+                            color: #15803d;">
+                    ✅ Frage gemeistert! Du hast sie 2x hintereinander richtig beantwortet!
+                </div>
+            </div>
+        @endif
+        
         <!-- Bookmark Button -->
         <div class="mb-3 flex justify-end items-center">
             @php
