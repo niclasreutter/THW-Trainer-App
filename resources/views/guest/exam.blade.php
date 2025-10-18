@@ -116,14 +116,10 @@
                 <input type="hidden" name="answer_mappings[{{ $nr }}]" value="{{ $mappingJson }}">
                 
                 <div class="mb-6 p-6 border rounded-lg bg-gray-50 shadow-sm hover:shadow-md transition-shadow duration-300">
-                    <div class="mb-2 text-xs text-gray-500 flex items-center gap-2 flex-wrap">
+                    <div class="mb-2 text-xs text-gray-500 flex items-center gap-2">
                         <span>ID: {{ $frage->id }}</span>
                         <span class="mx-2">&middot;</span>
                         <span>Lernabschnitt: {{ $frage->lernabschnitt ?? '-' }}.{{ $frage->nummer ?? '-' }}</span>
-                        <span class="mx-2">&middot;</span>
-                        <span class="text-blue-600">Mapping: {{ $mappingJson }}</span>
-                        <span class="mx-2">&middot;</span>
-                        <span class="text-green-600">Lösung DB: {{ $frage->loesung }}</span>
                     </div>
                     <div class="mb-2 font-bold">Frage {{ $nr+1 }}:</div>
                     <div class="mb-4">{{ $frage->frage }}</div>
@@ -141,10 +137,7 @@
                                     @if($isUserAnswer) checked @endif
                                     @if(isset($submitted)) disabled @endif
                                     class="mr-2 w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2">
-                                <span class="ml-2">
-                                    {{ $answer['text'] }}
-                                    <span class="text-xs text-gray-400 ml-1">(DB: {{ $answer['letter'] }})</span>
-                                </span>
+                                <span class="ml-2">{{ $answer['text'] }}</span>
                                     @if(isset($submitted))
                                         @if($isCorrectAnswer)
                                             <span class="mr-2 text-green-600 text-lg">✅</span>
