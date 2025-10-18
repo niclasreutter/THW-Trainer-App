@@ -22,9 +22,6 @@
         $isCorrect = null;
         $userAnswer = null;
         $questionProgress = null;
-        
-        // Wenn keine answer_result vorhanden ist, sollte auch keine gamification_result 
-        // für eine beantwortete Frage angezeigt werden (nur für gemeisterte Fragen ist OK)
     }
 @endphp
 <style>
@@ -109,6 +106,49 @@
         <form method="POST" action="{{ route('practice.submit') }}">
             @csrf
             <input type="hidden" name="question_id" value="{{ $question->id }}">
+            
+            @php
+                // Erstelle ein Array mit den Antworten
+                $answersOriginal = [
+                    ['letter' => 'A', 'text' => $question->antwort_a],
+                    ['letter' => 'B', 'text' => $question->antwort_b],
+                    ['letter' => 'C', 'text' => $question->antwort_c],
+                ];
+                
+                // Wenn eine Antwort angezeigt wird (isCorrect gesetzt), nutze das gespeicherte Mapping
+                // aus der answer_result Session
+                if (isset($isCorrect) && isset($answerResult['answer_mapping'])) {
+                    $mappingArray = $answerResult['answer_mapping'];
+                    
+                    // Sortiere $answers entsprechend dem Mapping
+                    $answers = [];
+                    foreach ($mappingArray as $position => $letter) {
+                        foreach ($answersOriginal as $ans) {
+                            if ($ans['letter'] === $letter) {
+                                $answers[$position] = $ans;
+                                break;
+                            }
+                        }
+                    }
+                    ksort($answers); // Sortiere nach Position
+                } else {
+                    // Neue Frage: shuffle
+                    $answers = $answersOriginal;
+                    shuffle($answers);
+                    
+                    // Erstelle Mapping: Position -> Buchstabe
+                    $mappingArray = [];
+                    foreach ($answers as $index => $answer) {
+                        $mappingArray[$index] = $answer['letter'];
+                    }
+                }
+                
+                $mappingJson = json_encode($mappingArray);
+                $solution = collect(explode(',', $question->loesung))->map(fn($s) => trim($s));
+            @endphp
+            
+            <input type="hidden" name="answer_mapping" value="{{ $mappingJson }}">
+            
             <div class="mb-4 p-4 border rounded-lg bg-gray-50 shadow-sm hover:shadow-md transition-shadow duration-300">
                 <div class="mb-2 text-xs text-gray-500 flex items-center gap-2">
                     <span>ID: {{ $question->id }}</span>
@@ -120,11 +160,11 @@
                 <div class="mb-3">
                     <label class="block mb-2 font-semibold text-sm">Antwortmöglichkeiten:</label>
                     <div class="flex flex-col gap-2">
-                        @foreach(['A','B','C'] as $option)
+                        @foreach($answers as $index => $answer)
                             @php
-                                $solution = collect(explode(',', $question->loesung))->map(fn($s) => trim($s));
-                                $isCorrectAnswer = $solution->contains($option);
-                                $isUserAnswer = isset($userAnswer) && $userAnswer->contains($option);
+                                $originalLetter = $answer['letter'];
+                                $isCorrectAnswer = $solution->contains($originalLetter);
+                                $isUserAnswer = isset($userAnswer) && $userAnswer->contains($originalLetter);
                                 $isChecked = isset($isCorrect) && $isUserAnswer;
                             @endphp
                             <label class="inline-flex items-start p-2 rounded-lg hover:bg-gray-50 transition-all duration-200 cursor-pointer">
@@ -137,12 +177,12 @@
                                         <span class="mr-2 text-gray-400 text-lg">⚪</span>
                                     @endif
                                 @endif
-                                <input type="checkbox" name="answer[]" value="{{ $option }}"
+                                <input type="checkbox" name="answer[]" value="{{ $index }}"
                                     @if($isChecked) checked @endif
                                     @if(isset($isCorrect)) disabled @endif
                                     class="mr-2 w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2 mt-0.5">
                                 <span class="ml-2 text-sm {{ isset($isCorrect) && $isChecked ? ($isCorrectAnswer ? 'text-green-600 font-semibold' : 'text-red-600 font-semibold') : '' }}">
-                                    {{ $option }}: {{ $question['antwort_'.strtolower($option)] }}
+                                    {{ $answer['text'] }}
                                 </span>
                             </label>
                         @endforeach

@@ -379,9 +379,21 @@ class PracticeController extends Controller
     public function submit(Request $request)
     {
         $question = Question::findOrFail($request->question_id);
-        $userAnswer = collect($request->answer ?? []);
-        $solution = collect(explode(',', $question->loesung))->map(fn($s) => trim($s));
-        $isCorrect = $userAnswer->sort()->values()->all() === $solution->sort()->values()->all();
+        
+        // Hole das Mapping aus dem Hidden Field
+        $mappingJson = $request->input('answer_mapping');
+        $mapping = json_decode($mappingJson, true);
+        
+        // User-Antworten (Positionen 0, 1, 2)
+        $userAnswerPositions = $request->answer ?? [];
+        
+        // Mappe Positionen zurück auf Original-Buchstaben
+        $userAnswer = collect($userAnswerPositions)->map(function($position) use ($mapping) {
+            return $mapping[$position] ?? null;
+        })->filter()->sort()->values();
+        
+        $solution = collect(explode(',', $question->loesung))->map(fn($s) => trim($s))->sort()->values();
+        $isCorrect = $userAnswer->all() === $solution->all();
 
         $user = Auth::user();
 
@@ -473,7 +485,8 @@ class PracticeController extends Controller
                     'question_id' => $question->id,
                     'is_correct' => $isCorrect,
                     'user_answer' => $userAnswer->toArray(),
-                    'question_progress' => $progress->consecutive_correct
+                    'question_progress' => $progress->consecutive_correct,
+                    'answer_mapping' => $mapping // Mapping auch speichern für die Anzeige
                 ]
             ]);
             
