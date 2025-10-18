@@ -163,4 +163,38 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix
     Route::get('newsletter/{newsletter}', [\App\Http\Controllers\NewsletterController::class, 'show'])->name('newsletter.show');
 });
 
+// Test Routes für Error Pages (nur für Development/Testing)
+if (config('app.debug')) {
+    Route::prefix('test-errors')->group(function () {
+        Route::get('/404', function () {
+            abort(404);
+        });
+        
+        Route::get('/403', function () {
+            abort(403);
+        });
+        
+        Route::get('/500', function () {
+            abort(500);
+        });
+        
+        Route::get('/503', function () {
+            abort(503);
+        });
+        
+        Route::get('/419', function () {
+            abort(419);
+        });
+        
+        Route::get('/429', function () {
+            abort(429);
+        });
+        
+        // Übersichtsseite
+        Route::get('/', function () {
+            return view('errors.test-overview');
+        })->name('test.errors');
+    });
+}
+
 require __DIR__.'/auth.php';
