@@ -307,11 +307,19 @@ class PracticeController extends Controller
         $practiceIds = session('practice_ids', []);
         $mode = session('practice_mode', 'all');
         
+        // WICHTIG: Wenn eine Frage gerade beantwortet wurde (answer_result in Session),
+        // zeige diese Frage nochmal (damit die Antwort angezeigt werden kann)
+        $answerResult = session('answer_result');
+        $showAnsweredQuestion = $answerResult && isset($answerResult['question_id']);
+        
         if (!empty($practiceIds)) {
             // Continue with current practice session
             $idsToShow = $practiceIds; // Alle IDs aus der Session
             
-            if ($request->has('skip_id')) {
+            if ($showAnsweredQuestion) {
+                // Zeige die gerade beantwortete Frage nochmal
+                $questionId = $answerResult['question_id'];
+            } elseif ($request->has('skip_id')) {
                 $skipId = $request->input('skip_id');
                 // Entferne die geskippte Frage nur temporär von der Anzeige
                 $idsToShow = array_diff($idsToShow, [$skipId]);
@@ -319,23 +327,26 @@ class PracticeController extends Controller
                 // Füge zur geskippten Liste für diese Runde hinzu
                 $skipped = array_merge($skipped, [$skipId]);
                 session(['practice_skipped' => array_unique($skipped)]);
+                
+                if (empty($idsToShow)) {
+                    session()->forget(['practice_mode', 'practice_parameter', 'practice_ids', 'practice_skipped']);
+                    return redirect()->route('practice.menu')->with('success', 'Alle Fragen in diesem Modus bearbeitet! 🎉');
+                }
+                
+                $questionId = reset($idsToShow);
             } else {
                 // Normale Anzeige: entferne nur bereits verarbeitete Fragen
                 $idsToShow = array_diff($idsToShow, $skipped);
+                
+                if (empty($idsToShow)) {
+                    session()->forget(['practice_mode', 'practice_parameter', 'practice_ids', 'practice_skipped']);
+                    return redirect()->route('practice.menu')->with('success', 'Alle Fragen in diesem Modus bearbeitet! 🎉');
+                }
+                
+                $questionId = reset($idsToShow);
             }
             
-            if (empty($idsToShow)) {
-                session()->forget(['practice_mode', 'practice_parameter', 'practice_ids', 'practice_skipped']);
-                return redirect()->route('practice.menu')->with('success', 'Alle Fragen in diesem Modus bearbeitet! 🎉');
-            }
-            
-            // Sicherheitscheck vor Zugriff auf Array
-            if (!isset($idsToShow[0])) {
-                session()->forget(['practice_mode', 'practice_parameter', 'practice_ids', 'practice_skipped']);
-                return redirect()->route('practice.menu')->with('error', 'Fehler beim Laden der nächsten Frage.');
-            }
-            
-            $question = Question::find($idsToShow[0]);
+            $question = Question::find($questionId);
             
             // Prüfe ob Frage existiert
             if (!$question) {
@@ -441,49 +452,33 @@ class PracticeController extends Controller
                 }
             }
             
-            // Temporär zu skipped hinzufügen (nur für diese Anzeige)
-            $skipped[] = $question->id;
-            session(['practice_skipped' => array_unique($skipped)]);
+            // NICHT zu skipped hinzufügen! Die Frage bleibt in practice_ids und kommt später wieder
+            // Sie wird nur durch answer_result temporär "pausiert" für diese Anzeige
         }
         
-        // Aktuelle Practice Session Info
-        $practiceIds = session('practice_ids', []);
-        $mode = session('practice_mode', 'all');
-        
-        // Fortschritt sollte immer die tatsächlich gelösten Fragen vs Gesamtfragen zeigen
-        $total = Question::count();
-        $progressCount = count($solved);
-        
-        // Neue Fortschrittsbalken-Logik: Berücksichtigt auch 1x richtige Antworten
-        $progressData = UserQuestionProgress::where('user_id', $user->id)->get();
-        $totalProgressPoints = 0;
-        foreach ($progressData as $prog) {
-            $totalProgressPoints += min($prog->consecutive_correct, 2);
+        // Immer Gamification Result in Session speichern
+        if ($gamificationResult) {
+            session(['gamification_result' => $gamificationResult]);
         }
-        $maxProgressPoints = $total * 2;
-        $progressPercent = $maxProgressPoints > 0 ? round(($totalProgressPoints / $maxProgressPoints) * 100) : 0;
         
+        // WICHTIG: Immer redirect machen (Post/Redirect/Get Pattern)
+        // um zu verhindern, dass bei F5 die Frage doppelt gezählt wird
         if ($progress->isMastered()) {
-            // Frage ist gemeistert (2x richtig) - direkt zur nächsten Frage weiterleiten
-            if ($gamificationResult) {
-                session(['gamification_result' => $gamificationResult]);
-            }
+            // Gemeistert: einfach zur nächsten Frage
+            return redirect()->route('practice.index');
+        } else {
+            // Nicht gemeistert: redirect zur gleichen Frage mit Antwort-Details
+            session([
+                'answer_result' => [
+                    'question_id' => $question->id,
+                    'is_correct' => $isCorrect,
+                    'user_answer' => $userAnswer->toArray(),
+                    'question_progress' => $progress->consecutive_correct
+                ]
+            ]);
             
             return redirect()->route('practice.index');
         }
-
-        // NICHT redirect bei nicht-gemeisterten Fragen - direkt View zurückgeben
-        return view('practice', [
-            'question' => $question,
-            'isCorrect' => $isCorrect,
-            'userAnswer' => $userAnswer,
-            'progress' => $progressCount,
-            'total' => $total,
-            'mode' => $mode,
-            'questionProgress' => $progress,
-            'gamificationResult' => $gamificationResult,
-            'progressPercent' => $progressPercent
-        ]);
     }
 
     /**

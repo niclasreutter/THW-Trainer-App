@@ -4,12 +4,25 @@
 
 @section('content')
 @php
-    // Variablen werden entweder direkt vom Controller übergeben oder sind null
-    // $isCorrect, $userAnswer, $questionProgress, $gamificationResult werden vom Controller gesetzt
-    $isCorrect = $isCorrect ?? null;
-    $userAnswer = $userAnswer ?? null;
-    $questionProgress = $questionProgress ?? null;
-    $gamificationResult = $gamificationResult ?? session('gamification_result');
+    // Hole Antwort-Details aus Session (falls vorhanden)
+    $answerResult = session('answer_result');
+    $hasAnswerResult = $answerResult && isset($answerResult['question_id']) && $answerResult['question_id'] == $question->id;
+    
+    if ($hasAnswerResult) {
+        $isCorrect = $answerResult['is_correct'];
+        $userAnswer = collect($answerResult['user_answer']);
+        $questionProgress = (object)['consecutive_correct' => $answerResult['question_progress']];
+        
+        // Lösche die Session nach dem Auslesen
+        session()->forget('answer_result');
+    } else {
+        $isCorrect = null;
+        $userAnswer = null;
+        $questionProgress = null;
+    }
+    
+    // Gamification Result aus Session
+    $gamificationResult = session('gamification_result');
 @endphp
 <style>
     @keyframes fadeIn {
