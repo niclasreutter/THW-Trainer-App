@@ -175,14 +175,6 @@
                     }
                 @endphp
                 
-                <!-- Richtig Meldung -->
-                <div class="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 font-bold text-sm">
-                    <div class="flex items-center">
-                        <span class="text-xl mr-2">✅</span>
-                        <span>Richtig!</span>
-                    </div>
-                </div>
-                
                 <!-- Gamification Anzeige -->
                 @if($showGamification)
                     <div class="mt-3 animate-fade-in">
@@ -198,7 +190,13 @@
                             <span class="text-xs" style="color: #6b7280;">({{ $reasonText }})</span>
                         </div>
                         @if(isset($questionProgress) && $questionProgress->consecutive_correct == 1)
-                            <div class="mt-2 px-3 py-2 rounded-lg text-sm" style="background-color: #dbeafe; border: 1px solid #93c5fd; color: #1e40af;">
+                            <div class="mt-2 px-3 py-2 rounded-lg text-sm font-semibold" 
+                                 style="background-color: #dbeafe; 
+                                        border: 1px solid #93c5fd; 
+                                        color: #1e40af;
+                                        box-shadow: 0 0 15px rgba(59, 130, 246, 0.5), 
+                                                   0 0 30px rgba(59, 130, 246, 0.3),
+                                                   0 0 45px rgba(59, 130, 246, 0.1);">
                                 💡 Noch <strong>1x richtig</strong> beantworten, um die Frage zu meistern!
                             </div>
                         @endif
