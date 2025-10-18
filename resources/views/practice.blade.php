@@ -3,6 +3,24 @@
 @section('description', 'Übe THW Theoriefragen mit deinem persönlichen Lernfortschritt. Markiere schwierige Fragen, filtere nach Lernabschnitten und verfolge deinen Erfolg. Kostenlos und effektiv!')
 
 @section('content')
+@php
+    // Hole Antwort-Details aus Session (falls vorhanden)
+    $answerResult = session('answer_result');
+    $hasAnswerResult = $answerResult && isset($answerResult['question_id']) && $answerResult['question_id'] == $question->id;
+    
+    if ($hasAnswerResult) {
+        $isCorrect = $answerResult['is_correct'];
+        $userAnswer = collect($answerResult['user_answer']);
+        $questionProgress = (object)['consecutive_correct' => $answerResult['question_progress']];
+        
+        // Lösche die Session nach dem Auslesen
+        session()->forget('answer_result');
+    } else {
+        $isCorrect = null;
+        $userAnswer = null;
+        $questionProgress = null;
+    }
+@endphp
 <style>
     @keyframes fadeIn {
         from {

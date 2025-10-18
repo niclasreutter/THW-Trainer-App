@@ -446,47 +446,23 @@ class PracticeController extends Controller
             session(['practice_skipped' => array_unique($skipped)]);
         }
         
-        // Aktuelle Practice Session Info
-        $practiceIds = session('practice_ids', []);
-        $mode = session('practice_mode', 'all');
-        
-        // Fortschritt sollte immer die tatsächlich gelösten Fragen vs Gesamtfragen zeigen
-        $total = Question::count();
-        $progressCount = count($solved);
-        
-        // Neue Fortschrittsbalken-Logik: Berücksichtigt auch 1x richtige Antworten
-        $progressData = UserQuestionProgress::where('user_id', $user->id)->get();
-        $totalProgressPoints = 0;
-        foreach ($progressData as $prog) {
-            $totalProgressPoints += min($prog->consecutive_correct, 2);
+        // Gamification Result immer zur Session hinzufügen (egal ob gemeistert oder nicht)
+        if ($gamificationResult) {
+            session(['gamification_result' => $gamificationResult]);
         }
-        $maxProgressPoints = $total * 2;
-        $progressPercent = $maxProgressPoints > 0 ? round(($totalProgressPoints / $maxProgressPoints) * 100) : 0;
         
-        if ($progress->isMastered()) {
-            // Frage ist gemeistert (2x richtig) - direkt zur nächsten Frage weiterleiten
-            if ($gamificationResult) {
-                session(['gamification_result' => $gamificationResult]);
-            }
-            
-            // Debug: Log notifications
-            $notifications = session('gamification_notifications', []);
-            \Log::info('Gamification notifications in session: ' . json_encode($notifications));
-            
-            return redirect()->route('practice.index');
-        }
-
-        return view('practice', [
-            'question' => $question,
-            'isCorrect' => $isCorrect,
-            'userAnswer' => $userAnswer,
-            'progress' => $progressCount,
-            'total' => $total,
-            'mode' => $mode,
-            'questionProgress' => $progress, // NEU: Fortschritt der aktuellen Frage (0, 1, oder 2+)
-            'gamificationResult' => $gamificationResult ?? null, // Direkt an View übergeben
-            'progressPercent' => $progressPercent // Berücksichtigt auch 1x richtige Antworten
-        ])->with('gamification_result', $gamificationResult ?? null);
+        // Zusätzlich auch Antwort-Details zur Session hinzufügen für die Anzeige nach Redirect
+        session([
+            'answer_result' => [
+                'question_id' => $question->id,
+                'is_correct' => $isCorrect,
+                'user_answer' => $userAnswer->toArray(),
+                'question_progress' => $progress->consecutive_correct
+            ]
+        ]);
+        
+        // Immer redirect machen, um Doppel-Submit beim Aktualisieren zu verhindern (Post/Redirect/Get Pattern)
+        return redirect()->route('practice.index');
     }
 
     /**
