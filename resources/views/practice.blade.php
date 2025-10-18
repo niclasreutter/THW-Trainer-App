@@ -4,36 +4,12 @@
 
 @section('content')
 @php
-    // Hole Antwort-Details aus Session (falls vorhanden)
-    $answerResult = session('answer_result');
-    $hasAnswerResult = $answerResult && isset($answerResult['question_id']) && $answerResult['question_id'] == $question->id;
-    
-    if ($hasAnswerResult) {
-        $isCorrect = $answerResult['is_correct'];
-        $userAnswer = collect($answerResult['user_answer']);
-        $questionProgress = (object)['consecutive_correct' => $answerResult['question_progress']];
-        
-        // Debug: Log dass wir Antwort-Daten haben
-        \Log::info('Practice view: Answer result found', [
-            'question_id' => $question->id,
-            'is_correct' => $isCorrect,
-            'user_answer' => $answerResult['user_answer'],
-            'progress' => $answerResult['question_progress']
-        ]);
-        
-        // Lösche die Session nach dem Auslesen
-        session()->forget('answer_result');
-    } else {
-        $isCorrect = null;
-        $userAnswer = null;
-        $questionProgress = null;
-        
-        // Debug: Log dass keine Antwort-Daten vorhanden sind
-        \Log::info('Practice view: No answer result in session', [
-            'question_id' => $question->id,
-            'session_keys' => array_keys(session()->all())
-        ]);
-    }
+    // Variablen werden entweder direkt vom Controller übergeben oder sind null
+    // $isCorrect, $userAnswer, $questionProgress, $gamificationResult werden vom Controller gesetzt
+    $isCorrect = $isCorrect ?? null;
+    $userAnswer = $userAnswer ?? null;
+    $questionProgress = $questionProgress ?? null;
+    $gamificationResult = $gamificationResult ?? session('gamification_result');
 @endphp
 <style>
     @keyframes fadeIn {
@@ -164,7 +140,6 @@
                         disabled>Antwort absenden</button>
             @elseif(isset($isCorrect) && $isCorrect)
                 @php
-                    $gamificationResult = session('gamification_result');
                     $showGamification = $gamificationResult && isset($gamificationResult['points_awarded']);
                     
                     if ($showGamification) {
@@ -197,9 +172,6 @@
                         } else {
                             $reasonText = $reason;
                         }
-                        
-                        // Lösche die Session nach der Anzeige
-                        session()->forget('gamification_result');
                     }
                 @endphp
                 

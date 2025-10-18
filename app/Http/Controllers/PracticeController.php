@@ -446,23 +446,44 @@ class PracticeController extends Controller
             session(['practice_skipped' => array_unique($skipped)]);
         }
         
-        // Gamification Result immer zur Session hinzufügen (egal ob gemeistert oder nicht)
-        if ($gamificationResult) {
-            session(['gamification_result' => $gamificationResult]);
+        // Aktuelle Practice Session Info
+        $practiceIds = session('practice_ids', []);
+        $mode = session('practice_mode', 'all');
+        
+        // Fortschritt sollte immer die tatsächlich gelösten Fragen vs Gesamtfragen zeigen
+        $total = Question::count();
+        $progressCount = count($solved);
+        
+        // Neue Fortschrittsbalken-Logik: Berücksichtigt auch 1x richtige Antworten
+        $progressData = UserQuestionProgress::where('user_id', $user->id)->get();
+        $totalProgressPoints = 0;
+        foreach ($progressData as $prog) {
+            $totalProgressPoints += min($prog->consecutive_correct, 2);
         }
+        $maxProgressPoints = $total * 2;
+        $progressPercent = $maxProgressPoints > 0 ? round(($totalProgressPoints / $maxProgressPoints) * 100) : 0;
         
-        // Zusätzlich auch Antwort-Details zur Session hinzufügen für die Anzeige nach Redirect
-        session([
-            'answer_result' => [
-                'question_id' => $question->id,
-                'is_correct' => $isCorrect,
-                'user_answer' => $userAnswer->toArray(),
-                'question_progress' => $progress->consecutive_correct
-            ]
+        if ($progress->isMastered()) {
+            // Frage ist gemeistert (2x richtig) - direkt zur nächsten Frage weiterleiten
+            if ($gamificationResult) {
+                session(['gamification_result' => $gamificationResult]);
+            }
+            
+            return redirect()->route('practice.index');
+        }
+
+        // NICHT redirect bei nicht-gemeisterten Fragen - direkt View zurückgeben
+        return view('practice', [
+            'question' => $question,
+            'isCorrect' => $isCorrect,
+            'userAnswer' => $userAnswer,
+            'progress' => $progressCount,
+            'total' => $total,
+            'mode' => $mode,
+            'questionProgress' => $progress,
+            'gamificationResult' => $gamificationResult,
+            'progressPercent' => $progressPercent
         ]);
-        
-        // Immer redirect machen, um Doppel-Submit beim Aktualisieren zu verhindern (Post/Redirect/Get Pattern)
-        return redirect()->route('practice.index');
     }
 
     /**
