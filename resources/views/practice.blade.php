@@ -13,12 +13,26 @@
         $userAnswer = collect($answerResult['user_answer']);
         $questionProgress = (object)['consecutive_correct' => $answerResult['question_progress']];
         
+        // Debug: Log dass wir Antwort-Daten haben
+        \Log::info('Practice view: Answer result found', [
+            'question_id' => $question->id,
+            'is_correct' => $isCorrect,
+            'user_answer' => $answerResult['user_answer'],
+            'progress' => $answerResult['question_progress']
+        ]);
+        
         // Lösche die Session nach dem Auslesen
         session()->forget('answer_result');
     } else {
         $isCorrect = null;
         $userAnswer = null;
         $questionProgress = null;
+        
+        // Debug: Log dass keine Antwort-Daten vorhanden sind
+        \Log::info('Practice view: No answer result in session', [
+            'question_id' => $question->id,
+            'session_keys' => array_keys(session()->all())
+        ]);
     }
 @endphp
 <style>
@@ -74,72 +88,8 @@
             <span class="text-xs text-gray-500">{{ $progressPercent ?? 0 }}% Gesamt-Fortschritt (inkl. 1x richtig)</span>
         </div>
         
-        <!-- Gamification & Bookmark Button außerhalb des Forms -->
-        <div class="mb-3 flex justify-between items-center">
-            @php
-                $gamificationResult = session('gamification_result');
-                $showGamification = $gamificationResult && isset($gamificationResult['points_awarded']);
-                
-                // Verschiedene Emojis und Texte für Abwechslung
-                $celebrations = [
-                    ['emoji' => '🥳', 'text' => 'Grandios!'],
-                    ['emoji' => '🎉', 'text' => 'Fantastisch!'],
-                    ['emoji' => '⭐', 'text' => 'Super!'],
-                    ['emoji' => '💪', 'text' => 'Stark!'],
-                    ['emoji' => '🔥', 'text' => 'Mega!'],
-                    ['emoji' => '✨', 'text' => 'Klasse!'],
-                    ['emoji' => '🎯', 'text' => 'Volltreffer!'],
-                    ['emoji' => '🚀', 'text' => 'Genial!'],
-                ];
-                
-                // Wähle basierend auf Fragen-ID eine konsistente Variation
-                $celebrationIndex = $question->id % count($celebrations);
-                $celebration = $celebrations[$celebrationIndex];
-                
-                // Grund-Text basierend auf Punkten
-                $pointsAwarded = $gamificationResult['points_awarded'] ?? 0;
-                $reason = $gamificationResult['reason'] ?? 'Frage beantwortet';
-                
-                if ($pointsAwarded >= 20) {
-                    if (str_contains($reason, 'Häufig falsche')) {
-                        $reasonText = 'Häufig falsche Frage gelöst';
-                    } else {
-                        $reasonText = 'Mit Streak-Bonus';
-                    }
-                } else {
-                    $reasonText = $reason;
-                }
-            @endphp
-            
-            <!-- Gamification Anzeige (links) -->
-            @if($showGamification)
-                <div class="flex flex-col gap-1">
-                    <div class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm animate-fade-in"
-                         style="background-color: #f0fdf4; 
-                                border: 1px solid #bbf7d0; 
-                                box-shadow: 0 0 15px rgba(34, 197, 94, 0.4), 
-                                           0 0 30px rgba(34, 197, 94, 0.2),
-                                           0 0 45px rgba(34, 197, 94, 0.1);">
-                        <span class="text-base">{{ $celebration['emoji'] }}</span>
-                        <span class="font-bold" style="color: #15803d;">{{ $celebration['text'] }}</span>
-                        <span style="color: #16a34a;">+{{ $pointsAwarded }} Punkte</span>
-                        <span class="text-xs" style="color: #6b7280;">({{ $reasonText }})</span>
-                    </div>
-                    @if(isset($questionProgress) && $questionProgress->consecutive_correct == 1)
-                        <div class="px-2 py-1 text-xs" style="color: #2563eb;">
-                            💡 Noch <strong>1x richtig</strong> beantworten, um zu meistern!
-                        </div>
-                    @endif
-                </div>
-                @php
-                    // Lösche die Session nach der Anzeige
-                    session()->forget('gamification_result');
-                @endphp
-            @else
-                <div></div>
-            @endif
-            
-            <!-- Bookmark Button (rechts) -->
+        <!-- Bookmark Button -->
+        <div class="mb-3 flex justify-end items-center">
             @php
                 $user = Auth::user();
                 $bookmarked = is_array($user->bookmarked_questions ?? null) 
@@ -213,12 +163,76 @@
                         onmouseout="if(!this.disabled) { this.style.backgroundColor='#1e3a8a'; this.style.color='#fbbf24'; this.style.transform='scale(1)'; this.style.boxShadow='0 0 20px rgba(30, 58, 138, 0.4), 0 0 40px rgba(30, 58, 138, 0.2)'; }"
                         disabled>Antwort absenden</button>
             @elseif(isset($isCorrect) && $isCorrect)
+                @php
+                    $gamificationResult = session('gamification_result');
+                    $showGamification = $gamificationResult && isset($gamificationResult['points_awarded']);
+                    
+                    if ($showGamification) {
+                        // Verschiedene Emojis und Texte für Abwechslung
+                        $celebrations = [
+                            ['emoji' => '🥳', 'text' => 'Grandios!'],
+                            ['emoji' => '🎉', 'text' => 'Fantastisch!'],
+                            ['emoji' => '⭐', 'text' => 'Super!'],
+                            ['emoji' => '💪', 'text' => 'Stark!'],
+                            ['emoji' => '🔥', 'text' => 'Mega!'],
+                            ['emoji' => '✨', 'text' => 'Klasse!'],
+                            ['emoji' => '🎯', 'text' => 'Volltreffer!'],
+                            ['emoji' => '🚀', 'text' => 'Genial!'],
+                        ];
+                        
+                        // Wähle basierend auf Fragen-ID eine konsistente Variation
+                        $celebrationIndex = $question->id % count($celebrations);
+                        $celebration = $celebrations[$celebrationIndex];
+                        
+                        // Grund-Text basierend auf Punkten
+                        $pointsAwarded = $gamificationResult['points_awarded'] ?? 0;
+                        $reason = $gamificationResult['reason'] ?? 'Frage beantwortet';
+                        
+                        if ($pointsAwarded >= 20) {
+                            if (str_contains($reason, 'Häufig falsche')) {
+                                $reasonText = 'Häufig falsche Frage gelöst';
+                            } else {
+                                $reasonText = 'Mit Streak-Bonus';
+                            }
+                        } else {
+                            $reasonText = $reason;
+                        }
+                        
+                        // Lösche die Session nach der Anzeige
+                        session()->forget('gamification_result');
+                    }
+                @endphp
+                
+                <!-- Richtig Meldung -->
                 <div class="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 font-bold text-sm">
                     <div class="flex items-center">
                         <span class="text-xl mr-2">✅</span>
                         <span>Richtig!</span>
                     </div>
                 </div>
+                
+                <!-- Gamification Anzeige -->
+                @if($showGamification)
+                    <div class="mt-3 animate-fade-in">
+                        <div class="flex items-center gap-1 px-3 py-2 rounded-lg text-sm"
+                             style="background-color: #f0fdf4; 
+                                    border: 1px solid #bbf7d0; 
+                                    box-shadow: 0 0 15px rgba(34, 197, 94, 0.4), 
+                                               0 0 30px rgba(34, 197, 94, 0.2),
+                                               0 0 45px rgba(34, 197, 94, 0.1);">
+                            <span class="text-base">{{ $celebration['emoji'] }}</span>
+                            <span class="font-bold" style="color: #15803d;">{{ $celebration['text'] }}</span>
+                            <span style="color: #16a34a;">+{{ $pointsAwarded }} Punkte</span>
+                            <span class="text-xs" style="color: #6b7280;">({{ $reasonText }})</span>
+                        </div>
+                        @if(isset($questionProgress) && $questionProgress->consecutive_correct == 1)
+                            <div class="mt-2 px-3 py-2 rounded-lg text-sm" style="background-color: #dbeafe; border: 1px solid #93c5fd; color: #1e40af;">
+                                💡 Noch <strong>1x richtig</strong> beantworten, um die Frage zu meistern!
+                            </div>
+                        @endif
+                    </div>
+                @endif
+                
                 <a href="{{ route('practice.index') }}" style="width: 100%; display: block; text-align: center; background-color: #1e3a8a; color: #fbbf24; padding: 12px 16px; border-radius: 8px; font-weight: bold; font-size: 14px; text-decoration: none; margin-top: 12px; transition: all 0.3s ease; box-shadow: 0 0 20px rgba(30, 58, 138, 0.4), 0 0 40px rgba(30, 58, 138, 0.2);"
                    onmouseover="this.style.backgroundColor='#fbbf24'; this.style.color='#1e3a8a'; this.style.transform='scale(1.02)'; this.style.boxShadow='0 0 25px rgba(251, 191, 36, 0.5), 0 0 50px rgba(251, 191, 36, 0.3)';"
                    onmouseout="this.style.backgroundColor='#1e3a8a'; this.style.color='#fbbf24'; this.style.transform='scale(1)'; this.style.boxShadow='0 0 20px rgba(30, 58, 138, 0.4), 0 0 40px rgba(30, 58, 138, 0.2)';">Nächste Frage</a>
