@@ -64,69 +64,6 @@
             <span class="text-xs text-gray-500">{{ $progressPercent ?? 0 }}% Gesamt-Fortschritt (inkl. 1x richtig)</span>
         </div>
         
-        <!-- Gamification Anzeige oben (für gemeisterte Fragen) -->
-        @php
-            $topGamificationResult = session('gamification_result');
-            $showTopGamification = !isset($isCorrect) && $topGamificationResult && isset($topGamificationResult['points_awarded']);
-            
-            if ($showTopGamification) {
-                // Verschiedene Emojis und Texte für Abwechslung
-                $celebrations = [
-                    ['emoji' => '🥳', 'text' => 'Grandios!'],
-                    ['emoji' => '🎉', 'text' => 'Fantastisch!'],
-                    ['emoji' => '⭐', 'text' => 'Super!'],
-                    ['emoji' => '💪', 'text' => 'Stark!'],
-                    ['emoji' => '🔥', 'text' => 'Mega!'],
-                    ['emoji' => '✨', 'text' => 'Klasse!'],
-                    ['emoji' => '🎯', 'text' => 'Volltreffer!'],
-                    ['emoji' => '🚀', 'text' => 'Genial!'],
-                ];
-                
-                // Wähle basierend auf Fragen-ID eine konsistente Variation
-                $celebrationIndex = $question->id % count($celebrations);
-                $topCelebration = $celebrations[$celebrationIndex];
-                
-                // Grund-Text basierend auf Punkten
-                $topPointsAwarded = $topGamificationResult['points_awarded'] ?? 0;
-                $topReason = $topGamificationResult['reason'] ?? 'Frage beantwortet';
-                
-                if ($topPointsAwarded >= 20) {
-                    if (str_contains($topReason, 'Häufig falsche')) {
-                        $topReasonText = 'Häufig falsche Frage gelöst';
-                    } else {
-                        $topReasonText = 'Mit Streak-Bonus';
-                    }
-                } else {
-                    $topReasonText = $topReason;
-                }
-                
-                // Lösche die Session nach der Anzeige
-                session()->forget('gamification_result');
-            }
-        @endphp
-        
-        @if($showTopGamification)
-            <div class="mb-3 animate-fade-in">
-                <div class="flex items-center gap-1 px-3 py-2 rounded-lg text-sm"
-                     style="background-color: #f0fdf4; 
-                            border: 1px solid #bbf7d0; 
-                            box-shadow: 0 0 15px rgba(34, 197, 94, 0.4), 
-                                       0 0 30px rgba(34, 197, 94, 0.2),
-                                       0 0 45px rgba(34, 197, 94, 0.1);">
-                    <span class="text-base">{{ $topCelebration['emoji'] }}</span>
-                    <span class="font-bold" style="color: #15803d;">{{ $topCelebration['text'] }}</span>
-                    <span style="color: #16a34a;">+{{ $topPointsAwarded }} Punkte</span>
-                    <span class="text-xs" style="color: #6b7280;">({{ $topReasonText }})</span>
-                </div>
-                <div class="mt-2 px-3 py-2 rounded-lg text-sm font-semibold text-center" 
-                     style="background-color: #dcfce7; 
-                            border: 1px solid #86efac; 
-                            color: #15803d;">
-                    ✅ Frage gemeistert! Du hast sie 2x hintereinander richtig beantwortet!
-                </div>
-            </div>
-        @endif
-        
         <!-- Bookmark Button -->
         <div class="mb-3 flex justify-end items-center">
             @php
@@ -201,7 +138,75 @@
                         onmouseover="if(!this.disabled) { this.style.backgroundColor='#fbbf24'; this.style.color='#1e3a8a'; this.style.transform='scale(1.02)'; this.style.boxShadow='0 0 25px rgba(251, 191, 36, 0.5), 0 0 50px rgba(251, 191, 36, 0.3)'; }" 
                         onmouseout="if(!this.disabled) { this.style.backgroundColor='#1e3a8a'; this.style.color='#fbbf24'; this.style.transform='scale(1)'; this.style.boxShadow='0 0 20px rgba(30, 58, 138, 0.4), 0 0 40px rgba(30, 58, 138, 0.2)'; }"
                         disabled>Antwort absenden</button>
+                
+                <!-- Gamification Anzeige unten (für gemeisterte Fragen aus Session) -->
+                @php
+                    $topGamificationResult = session('gamification_result');
+                    $showTopGamification = $topGamificationResult && isset($topGamificationResult['points_awarded']);
+                    
+                    if ($showTopGamification) {
+                        // Verschiedene Emojis und Texte für Abwechslung
+                        $celebrations = [
+                            ['emoji' => '🥳', 'text' => 'Grandios!'],
+                            ['emoji' => '🎉', 'text' => 'Fantastisch!'],
+                            ['emoji' => '⭐', 'text' => 'Super!'],
+                            ['emoji' => '💪', 'text' => 'Stark!'],
+                            ['emoji' => '🔥', 'text' => 'Mega!'],
+                            ['emoji' => '✨', 'text' => 'Klasse!'],
+                            ['emoji' => '🎯', 'text' => 'Volltreffer!'],
+                            ['emoji' => '🚀', 'text' => 'Genial!'],
+                        ];
+                        
+                        // Wähle basierend auf Fragen-ID eine konsistente Variation
+                        $celebrationIndex = $question->id % count($celebrations);
+                        $topCelebration = $celebrations[$celebrationIndex];
+                        
+                        // Grund-Text basierend auf Punkten
+                        $topPointsAwarded = $topGamificationResult['points_awarded'] ?? 0;
+                        $topReason = $topGamificationResult['reason'] ?? 'Frage beantwortet';
+                        
+                        if ($topPointsAwarded >= 20) {
+                            if (str_contains($topReason, 'Häufig falsche')) {
+                                $topReasonText = 'Häufig falsche Frage gelöst';
+                            } else {
+                                $topReasonText = 'Mit Streak-Bonus';
+                            }
+                        } else {
+                            $topReasonText = $topReason;
+                        }
+                        
+                        // Lösche die Session nach der Anzeige
+                        session()->forget('gamification_result');
+                    }
+                @endphp
+                
+                @if($showTopGamification)
+                    <div class="mt-3 animate-fade-in">
+                        <div class="flex items-center gap-1 px-3 py-2 rounded-lg text-sm"
+                             style="background-color: #f0fdf4; 
+                                    border: 1px solid #bbf7d0; 
+                                    box-shadow: 0 0 15px rgba(34, 197, 94, 0.4), 
+                                               0 0 30px rgba(34, 197, 94, 0.2),
+                                               0 0 45px rgba(34, 197, 94, 0.1);">
+                            <span class="text-base">{{ $topCelebration['emoji'] }}</span>
+                            <span class="font-bold" style="color: #15803d;">{{ $topCelebration['text'] }}</span>
+                            <span style="color: #16a34a;">+{{ $topPointsAwarded }} Punkte</span>
+                            <span class="text-xs" style="color: #6b7280;">({{ $topReasonText }})</span>
+                        </div>
+                        <div class="mt-2 px-3 py-2 rounded-lg text-sm font-semibold text-center" 
+                             style="background-color: #dcfce7; 
+                                    border: 1px solid #86efac; 
+                                    color: #15803d;">
+                            ✅ Frage gemeistert! Du hast sie 2x hintereinander richtig beantwortet!
+                        </div>
+                    </div>
+                @endif
+                
             @elseif(isset($isCorrect) && $isCorrect)
+                <a href="{{ route('practice.index') }}" style="width: 100%; display: block; text-align: center; background-color: #1e3a8a; color: #fbbf24; padding: 12px 16px; border-radius: 8px; font-weight: bold; font-size: 14px; text-decoration: none; transition: all 0.3s ease; box-shadow: 0 0 20px rgba(30, 58, 138, 0.4), 0 0 40px rgba(30, 58, 138, 0.2);"
+                   onmouseover="this.style.backgroundColor='#fbbf24'; this.style.color='#1e3a8a'; this.style.transform='scale(1.02)'; this.style.boxShadow='0 0 25px rgba(251, 191, 36, 0.5), 0 0 50px rgba(251, 191, 36, 0.3)';"
+                   onmouseout="this.style.backgroundColor='#1e3a8a'; this.style.color='#fbbf24'; this.style.transform='scale(1)'; this.style.boxShadow='0 0 20px rgba(30, 58, 138, 0.4), 0 0 40px rgba(30, 58, 138, 0.2)';">Nächste Frage</a>
+                
                 @php
                     $showGamification = $gamificationResult && isset($gamificationResult['points_awarded']);
                     
@@ -266,19 +271,17 @@
                     </div>
                 @endif
                 
-                <a href="{{ route('practice.index') }}" style="width: 100%; display: block; text-align: center; background-color: #1e3a8a; color: #fbbf24; padding: 12px 16px; border-radius: 8px; font-weight: bold; font-size: 14px; text-decoration: none; margin-top: 12px; transition: all 0.3s ease; box-shadow: 0 0 20px rgba(30, 58, 138, 0.4), 0 0 40px rgba(30, 58, 138, 0.2);"
-                   onmouseover="this.style.backgroundColor='#fbbf24'; this.style.color='#1e3a8a'; this.style.transform='scale(1.02)'; this.style.boxShadow='0 0 25px rgba(251, 191, 36, 0.5), 0 0 50px rgba(251, 191, 36, 0.3)';"
-                   onmouseout="this.style.backgroundColor='#1e3a8a'; this.style.color='#fbbf24'; this.style.transform='scale(1)'; this.style.boxShadow='0 0 20px rgba(30, 58, 138, 0.4), 0 0 40px rgba(30, 58, 138, 0.2)';">Nächste Frage</a>
             @elseif(isset($isCorrect) && !$isCorrect)
+                <a href="{{ route('practice.index', ['skip_id' => $question->id]) }}" style="width: 100%; display: block; text-align: center; background-color: #1e3a8a; color: #fbbf24; padding: 12px 16px; border-radius: 8px; font-weight: bold; font-size: 14px; text-decoration: none; transition: all 0.3s ease; box-shadow: 0 0 20px rgba(30, 58, 138, 0.4), 0 0 40px rgba(30, 58, 138, 0.2);"
+                   onmouseover="this.style.backgroundColor='#fbbf24'; this.style.color='#1e3a8a'; this.style.transform='scale(1.02)'; this.style.boxShadow='0 0 25px rgba(251, 191, 36, 0.5), 0 0 50px rgba(251, 191, 36, 0.3)';"
+                   onmouseout="this.style.backgroundColor='#1e3a8a'; this.style.color='#fbbf24'; this.style.transform='scale(1)'; this.style.boxShadow='0 0 20px rgba(30, 58, 138, 0.4), 0 0 40px rgba(30, 58, 138, 0.2)';">Weiter zur nächsten Frage</a>
+                
                 <div class="mt-3 p-3 rounded-lg font-bold shadow-lg text-sm" style="background-color: rgba(239, 68, 68, 0.1); border: 2px solid rgba(239, 68, 68, 0.3); color: #dc2626; box-shadow: 0 0 15px rgba(239, 68, 68, 0.3), 0 0 30px rgba(239, 68, 68, 0.1);">
                     <div class="flex items-center">
                         <div class="text-xl mr-2">❌</div>
                         <span>Leider falsch. Die richtigen Antworten sind markiert.</span>
                     </div>
                 </div>
-                <a href="{{ route('practice.index', ['skip_id' => $question->id]) }}" style="width: 100%; display: block; text-align: center; background-color: #1e3a8a; color: #fbbf24; padding: 12px 16px; border-radius: 8px; font-weight: bold; font-size: 14px; text-decoration: none; margin-top: 12px; transition: all 0.3s ease; box-shadow: 0 0 20px rgba(30, 58, 138, 0.4), 0 0 40px rgba(30, 58, 138, 0.2);"
-                   onmouseover="this.style.backgroundColor='#fbbf24'; this.style.color='#1e3a8a'; this.style.transform='scale(1.02)'; this.style.boxShadow='0 0 25px rgba(251, 191, 36, 0.5), 0 0 50px rgba(251, 191, 36, 0.3)';"
-                   onmouseout="this.style.backgroundColor='#1e3a8a'; this.style.color='#fbbf24'; this.style.transform='scale(1)'; this.style.boxShadow='0 0 20px rgba(30, 58, 138, 0.4), 0 0 40px rgba(30, 58, 138, 0.2)';">Weiter zur nächsten Frage</a>
             @endif
         </form>
         
