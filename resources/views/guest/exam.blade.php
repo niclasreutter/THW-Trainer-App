@@ -76,6 +76,45 @@
             @csrf
             @foreach($fragen as $nr => $frage)
                 <input type="hidden" name="fragen_ids[]" value="{{ $frage->id }}">
+                
+                @php
+                    // Erstelle ein Array mit den Antworten
+                    $answersOriginal = [
+                        ['letter' => 'A', 'text' => $frage->antwort_a],
+                        ['letter' => 'B', 'text' => $frage->antwort_b],
+                        ['letter' => 'C', 'text' => $frage->antwort_c],
+                    ];
+                    
+                    // Neue Prüfung: shuffle - Submitted: nutze das Mapping
+                    if (isset($submitted) && isset($results[$nr]['mapping'])) {
+                        $mappingArray = $results[$nr]['mapping'];
+                        
+                        $answers = [];
+                        foreach ($mappingArray as $position => $letter) {
+                            foreach ($answersOriginal as $ans) {
+                                if ($ans['letter'] === $letter) {
+                                    $answers[$position] = $ans;
+                                    break;
+                                }
+                            }
+                        }
+                        ksort($answers);
+                    } else {
+                        $answers = $answersOriginal;
+                        shuffle($answers);
+                        
+                        $mappingArray = [];
+                        foreach ($answers as $index => $answer) {
+                            $mappingArray[$index] = $answer['letter'];
+                        }
+                    }
+                    
+                    $mappingJson = json_encode($mappingArray);
+                    $solution = collect(explode(',', $frage->loesung))->map(fn($s) => trim($s));
+                @endphp
+                
+                <input type="hidden" name="answer_mappings[{{ $nr }}]" value="{{ $mappingJson }}">
+                
                 <div class="mb-6 p-6 border rounded-lg bg-gray-50 shadow-sm hover:shadow-md transition-shadow duration-300">
                     <div class="mb-2 text-xs text-gray-500 flex items-center gap-2">
                         <span>ID: {{ $frage->id }}</span>
@@ -87,17 +126,22 @@
                     <div class="mb-4">
                         <label class="block mb-2 font-semibold">Antwortmöglichkeiten:</label>
                         <div class="flex flex-col gap-3">
-                            @foreach(['A','B','C'] as $option)
+                            @foreach($answers as $index => $answer)
+                                @php
+                                    $originalLetter = $answer['letter'];
+                                    $isCorrectAnswer = $solution->contains($originalLetter);
+                                    $isUserAnswer = isset($submitted) && isset($results[$nr]['userAnswer']) && $results[$nr]['userAnswer']->contains($originalLetter);
+                                @endphp
                                 <label class="inline-flex items-center p-2 rounded-lg hover:bg-gray-50 transition-all duration-200 cursor-pointer">
-                                    <input type="checkbox" name="answer[{{ $nr }}][]" value="{{ $option }}"
-                                        @if(isset($submitted) && isset($results[$nr]['userAnswer']) && $results[$nr]['userAnswer']->contains($option)) checked @endif
+                                    <input type="checkbox" name="answer[{{ $nr }}][]" value="{{ $index }}"
+                                        @if($isUserAnswer) checked @endif
                                         @if(isset($submitted)) disabled @endif
                                         class="mr-2 w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2">
-                                    <span class="ml-2">{{ $option }}: {{ $frage['antwort_'.strtolower($option)] }}</span>
+                                    <span class="ml-2">{{ $answer['text'] }}</span>
                                     @if(isset($submitted))
-                                        @if($results[$nr]['solution']->contains($option))
+                                        @if($isCorrectAnswer)
                                             <span class="mr-2 text-green-600 text-lg">✅</span>
-                                        @elseif(isset($results[$nr]['userAnswer']) && $results[$nr]['userAnswer']->contains($option))
+                                        @elseif($isUserAnswer)
                                             <span class="mr-2 text-red-600 text-lg">❌</span>
                                         @else
                                             <span class="mr-2 text-gray-400 text-lg">⚪</span>

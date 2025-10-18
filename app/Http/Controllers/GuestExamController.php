@@ -36,18 +36,35 @@ class GuestExamController extends Controller
     {
         $fragen = collect($request->fragen_ids ?? [])->map(fn($id) => Question::find($id));
         $userAnswers = $request->input('answer', []);
+        $answerMappings = $request->input('answer_mappings', []);
         $results = [];
         $correctCount = 0;
         
         foreach ($fragen as $nr => $frage) {
+            // Hole Mapping für diese Frage
+            $mappingJson = $answerMappings[$nr] ?? null;
+            $mapping = $mappingJson ? json_decode($mappingJson, true) : null;
+            
             $solution = collect(explode(',', $frage->loesung))->map(fn($s) => trim($s));
-            $userAnswer = collect($userAnswers[$nr] ?? []);
-            $isCorrect = $userAnswer->sort()->values()->all() === $solution->sort()->values()->all();
+            
+            // Wenn Mapping vorhanden, mappe Positionen zurück auf Buchstaben
+            if ($mapping) {
+                $userAnswerPositions = $userAnswers[$nr] ?? [];
+                $userAnswer = collect($userAnswerPositions)->map(function($position) use ($mapping) {
+                    return $mapping[$position] ?? null;
+                })->filter()->sort()->values();
+            } else {
+                // Fallback ohne Mapping (alter Code)
+                $userAnswer = collect($userAnswers[$nr] ?? [])->sort()->values();
+            }
+            
+            $isCorrect = $userAnswer->all() === $solution->sort()->values()->all();
             $results[$nr] = [
                 'frage' => $frage,
                 'userAnswer' => $userAnswer,
                 'solution' => $solution,
-                'isCorrect' => $isCorrect
+                'isCorrect' => $isCorrect,
+                'mapping' => $mapping // Speichere Mapping für die Anzeige
             ];
             if ($isCorrect) {
                 $correctCount++;

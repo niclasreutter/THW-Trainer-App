@@ -141,9 +141,21 @@ class GuestPracticeController extends Controller
     public function submit(Request $request)
     {
         $question = Question::findOrFail($request->question_id);
-        $userAnswer = collect($request->answer ?? []);
-        $solution = collect(explode(',', $question->loesung))->map(fn($s) => trim($s));
-        $isCorrect = $userAnswer->sort()->values()->all() === $solution->sort()->values()->all();
+        
+        // Hole das Mapping aus dem Hidden Field
+        $mappingJson = $request->input('answer_mapping');
+        $mapping = json_decode($mappingJson, true);
+        
+        // User-Antworten (Positionen 0, 1, 2)
+        $userAnswerPositions = $request->answer ?? [];
+        
+        // Mappe Positionen zurück auf Original-Buchstaben
+        $userAnswer = collect($userAnswerPositions)->map(function($position) use ($mapping) {
+            return $mapping[$position] ?? null;
+        })->filter()->sort()->values();
+        
+        $solution = collect(explode(',', $question->loesung))->map(fn($s) => trim($s))->sort()->values();
+        $isCorrect = $userAnswer->all() === $solution->all();
 
         // Anonyme Statistik erfassen
         QuestionStatistic::create([
@@ -189,11 +201,7 @@ class GuestPracticeController extends Controller
         $total = Question::count();
         $progress = 0; // Im Gast-Modus keine Fortschrittsverfolgung
         
-        if ($isCorrect) {
-            // Direkt zur nächsten Frage weiterleiten
-            return redirect()->route('guest.practice.index');
-        }
-
+        // Im Guest-Modus immer die Lösung anzeigen (auch bei richtig)
         return view('guest.practice', [
             'question' => $question,
             'isCorrect' => $isCorrect,
