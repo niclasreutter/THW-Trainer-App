@@ -8,21 +8,24 @@
     $answerResult = session('answer_result');
     $hasAnswerResult = $answerResult && isset($answerResult['question_id']) && $answerResult['question_id'] == $question->id;
     
+    // Hole Gamification Result aus Session
+    $gamificationResult = session('gamification_result');
+    
     if ($hasAnswerResult) {
         $isCorrect = $answerResult['is_correct'];
         $userAnswer = collect($answerResult['user_answer']);
         $questionProgress = (object)['consecutive_correct' => $answerResult['question_progress']];
         
-        // Lösche die Session nach dem Auslesen
-        session()->forget('answer_result');
+        // Lösche BEIDE Sessions nach dem Auslesen (sie gehören zusammen)
+        session()->forget(['answer_result', 'gamification_result']);
     } else {
         $isCorrect = null;
         $userAnswer = null;
         $questionProgress = null;
+        
+        // Wenn keine answer_result vorhanden ist, sollte auch keine gamification_result 
+        // für eine beantwortete Frage angezeigt werden (nur für gemeisterte Fragen ist OK)
     }
-    
-    // Gamification Result aus Session
-    $gamificationResult = session('gamification_result');
 @endphp
 <style>
     @keyframes fadeIn {
