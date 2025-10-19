@@ -23,15 +23,14 @@
         }
     }
 </style>
-<div class="max-w-xl mx-auto mt-2 sm:mt-6 p-2 sm:p-6 bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
+<div class="max-w-xl mx-auto mt-2 sm:mt-6 p-3 sm:p-6 bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
     @if($question)
-        <div class="mb-2 sm:mb-4 flex items-center justify-between">
-            <h2 class="text-lg sm:text-2xl font-bold">
+        <div class="mb-4 flex items-center justify-between">
+            <h2 class="text-xl sm:text-2xl font-bold">
                 @if(isset($mode))
                     @switch($mode)
                         @case('all')
-                            <span class="hidden sm:inline">📚 Alle Fragen (Anonym)</span>
-                            <span class="sm:hidden">📚 Anonym</span>
+                            📚 <span class="hidden sm:inline">Alle Fragen (</span>Anonym<span class="hidden sm:inline">)</span>
                             @break
                         @default
                             Anonym
@@ -40,18 +39,18 @@
                     Anonym
                 @endif
             </h2>
-            <a href="{{ route('guest.practice.menu') }}" class="text-blue-600 hover:text-blue-800 text-xs sm:text-sm">← <span class="hidden sm:inline">Zurück zum </span>Menü</a>
+            <a href="{{ route('guest.practice.menu') }}" class="text-blue-600 hover:text-blue-800 text-sm">← <span class="hidden sm:inline">Zurück zum </span>Menü</a>
         </div>
         
-        <div class="mb-2 sm:mb-4 text-xs sm:text-sm text-gray-600">
-            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-2 sm:p-3 mb-2 sm:mb-3">
+        <div class="mb-4 text-sm text-gray-600">
+            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-3">
                 <div class="flex items-start">
-                    <svg class="w-4 h-4 sm:w-5 sm:h-5 text-yellow-600 mt-0.5 mr-1.5 sm:mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <svg class="w-5 h-5 text-yellow-600 mt-0.5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
                     </svg>
                     <div>
-                        <p class="text-xs sm:text-sm text-yellow-800 font-medium">Anonymes Üben</p>
-                        <p class="text-xs text-yellow-700 mt-0.5 sm:mt-1"><span class="hidden sm:inline">Deine Fortschritte werden nicht gespeichert. Für vollständige Funktionen erstelle einen </span>Kein Fortschritt<span class="hidden sm:inline"> ohne Account</span>.</p>
+                        <p class="text-sm text-yellow-800 font-medium">Anonymes Üben</p>
+                        <p class="text-xs text-yellow-700 mt-1"><span class="hidden sm:inline">Deine Fortschritte werden nicht gespeichert. Für vollständige Funktionen erstelle einen kostenlosen Account.</span><span class="sm:hidden">Kein Fortschritt ohne Account.</span></p>
                     </div>
                 </div>
             </div>
@@ -110,17 +109,17 @@
             
             <input type="hidden" name="answer_mapping" value="{{ $mappingJson }}">
             
-            <div class="mb-2 sm:mb-4 p-2 sm:p-4 border rounded-lg bg-gray-50 shadow-sm hover:shadow-md transition-shadow duration-300">
-                <div class="mb-1 sm:mb-2 text-xs text-gray-500 flex items-center gap-1 sm:gap-2">
+            <div class="mb-4 p-3 sm:p-4 border rounded-lg bg-gray-50 shadow-sm hover:shadow-md transition-shadow duration-300">
+                <div class="mb-2 text-xs text-gray-500 flex items-center gap-2">
                     <span>ID: {{ $question->id }}</span>
-                    <span class="mx-1 sm:mx-2">&middot;</span>
-                    <span>LA: {{ $question->lernabschnitt ?? '-' }}.{{ $question->nummer ?? '-' }}</span>
+                    <span class="mx-2">&middot;</span>
+                    <span class="hidden sm:inline">Lernabschnitt: </span><span class="sm:hidden">LA: </span>{{ $question->lernabschnitt ?? '-' }}.{{ $question->nummer ?? '-' }}
                 </div>
-                <div class="mb-1 sm:mb-2 font-bold text-xs sm:text-base">Frage:</div>
-                <div class="mb-2 sm:mb-4 text-xs sm:text-base">{{ $question->frage }}</div>
+                <div class="mb-2 font-bold text-sm">Frage:</div>
+                <div class="mb-4 text-sm leading-relaxed">{{ $question->frage }}</div>
                 <div class="mb-0">
-                    <label class="block mb-1 sm:mb-2 font-semibold text-xs sm:text-base">Antwortmöglichkeiten:</label>
-                    <div class="flex flex-col gap-1.5 sm:gap-3">
+                    <label class="block mb-2 font-semibold text-sm">Antwortmöglichkeiten:</label>
+                    <div class="flex flex-col gap-2.5 sm:gap-3">
                         @foreach($answers as $index => $answer)
                             @php
                                 $originalLetter = $answer['letter'];
@@ -128,21 +127,21 @@
                                 $isUserAnswer = isset($userAnswer) && $userAnswer->contains($originalLetter);
                                 $isChecked = isset($isCorrect) && $isUserAnswer;
                             @endphp
-                            <label class="inline-flex items-center p-1.5 sm:p-2 rounded-lg hover:bg-gray-50 transition-all duration-200 cursor-pointer">
+                            <label class="inline-flex items-center p-2.5 sm:p-2 rounded-lg hover:bg-gray-50 transition-all duration-200 cursor-pointer">
                                 @if(isset($isCorrect))
                                     @if($isCorrectAnswer)
-                                        <span class="mr-1 sm:mr-2 text-green-600 text-base sm:text-lg">✅</span>
+                                        <span class="mr-2 text-green-600 text-lg">✅</span>
                                     @elseif($isUserAnswer)
-                                        <span class="mr-1 sm:mr-2 text-red-600 text-base sm:text-lg">❌</span>
+                                        <span class="mr-2 text-red-600 text-lg">❌</span>
                                     @else
-                                        <span class="mr-1 sm:mr-2 text-gray-400 text-base sm:text-lg">⚪</span>
+                                        <span class="mr-2 text-gray-400 text-lg">⚪</span>
                                     @endif
                                 @endif
                                 <input type="checkbox" name="answer[]" value="{{ $index }}"
                                     @if($isChecked) checked @endif
                                     @if(isset($isCorrect)) disabled @endif
-                                    class="mr-1.5 sm:mr-2 w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2">
-                                <span class="ml-1 sm:ml-2 text-xs sm:text-base {{ isset($isCorrect) && $isChecked ? ($isCorrectAnswer ? 'text-green-600 font-semibold' : 'text-red-600 font-semibold') : '' }}">
+                                    class="mr-2 w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2">
+                                <span class="ml-2 text-sm {{ isset($isCorrect) && $isChecked ? ($isCorrectAnswer ? 'text-green-600 font-semibold' : 'text-red-600 font-semibold') : '' }}">
                                     {{ $answer['text'] }}
                                 </span>
                             </label>
@@ -151,30 +150,30 @@
                 </div>
             </div>
             @if(!isset($isCorrect))
-                <button type="submit" id="submitBtn" class="w-full text-center font-bold border-none cursor-pointer transition-all duration-300 rounded-lg py-2.5 px-4 sm:py-3 sm:px-6 text-xs sm:text-base" 
+                <button type="submit" id="submitBtn" class="w-full text-center font-bold border-none cursor-pointer transition-all duration-300 rounded-lg py-3 px-6 text-sm" 
                         style="background-color: #1e3a8a; color: #fbbf24; box-shadow: 0 0 20px rgba(30, 58, 138, 0.4), 0 0 40px rgba(30, 58, 138, 0.2);" 
                         onmouseover="if(!this.disabled) { this.style.backgroundColor='#fbbf24'; this.style.color='#1e3a8a'; this.style.transform='scale(1.02)'; this.style.boxShadow='0 0 25px rgba(251, 191, 36, 0.5), 0 0 50px rgba(251, 191, 36, 0.3)'; }" 
                         onmouseout="if(!this.disabled) { this.style.backgroundColor='#1e3a8a'; this.style.color='#fbbf24'; this.style.transform='scale(1)'; this.style.boxShadow='0 0 20px rgba(30, 58, 138, 0.4), 0 0 40px rgba(30, 58, 138, 0.2)'; }"
                         disabled>Antwort absenden</button>
             @elseif(isset($isCorrect) && $isCorrect)
-                <a href="{{ route('guest.practice.index') }}" class="block w-full text-center font-bold no-underline transition-all duration-300 rounded-lg py-2.5 px-4 sm:py-3 sm:px-6 text-xs sm:text-base"
+                <a href="{{ route('guest.practice.index') }}" class="block w-full text-center font-bold no-underline transition-all duration-300 rounded-lg py-3 px-6 text-sm"
                    style="background-color: #1e3a8a; color: #fbbf24; box-shadow: 0 0 20px rgba(30, 58, 138, 0.4), 0 0 40px rgba(30, 58, 138, 0.2);"
                    onmouseover="this.style.backgroundColor='#fbbf24'; this.style.color='#1e3a8a'; this.style.transform='scale(1.02)'; this.style.boxShadow='0 0 25px rgba(251, 191, 36, 0.5), 0 0 50px rgba(251, 191, 36, 0.3)';"
                    onmouseout="this.style.backgroundColor='#1e3a8a'; this.style.color='#fbbf24'; this.style.transform='scale(1)'; this.style.boxShadow='0 0 20px rgba(30, 58, 138, 0.4), 0 0 40px rgba(30, 58, 138, 0.2)';">Nächste Frage</a>
-                <div class="mt-2 sm:mt-3 p-2 sm:p-4 bg-green-50 border-2 border-green-300 rounded-lg text-green-800 font-bold shadow-lg text-xs sm:text-base" style="box-shadow: 0 0 15px rgba(34, 197, 94, 0.3), 0 0 30px rgba(34, 197, 94, 0.1);">
+                <div class="mt-3 p-3 sm:p-4 bg-green-50 border-2 border-green-300 rounded-lg text-green-800 font-bold shadow-lg text-sm" style="box-shadow: 0 0 15px rgba(34, 197, 94, 0.3), 0 0 30px rgba(34, 197, 94, 0.1);">
                     <div class="flex items-center">
-                        <div class="text-lg sm:text-2xl mr-2 sm:mr-3">✅</div>
+                        <div class="text-xl sm:text-2xl mr-3">✅</div>
                         <span>Richtig<span class="hidden sm:inline"> beantwortet</span>!</span>
                     </div>
                 </div>
             @elseif(isset($isCorrect) && !$isCorrect)
-                <a href="{{ route('guest.practice.index', ['skip_id' => $question->id]) }}" class="block w-full text-center font-bold no-underline transition-all duration-300 rounded-lg py-2.5 px-4 sm:py-3 sm:px-6 text-xs sm:text-base"
+                <a href="{{ route('guest.practice.index', ['skip_id' => $question->id]) }}" class="block w-full text-center font-bold no-underline transition-all duration-300 rounded-lg py-3 px-6 text-sm"
                    style="background-color: #1e3a8a; color: #fbbf24; box-shadow: 0 0 20px rgba(30, 58, 138, 0.4), 0 0 40px rgba(30, 58, 138, 0.2);"
                    onmouseover="this.style.backgroundColor='#fbbf24'; this.style.color='#1e3a8a'; this.style.transform='scale(1.02)'; this.style.boxShadow='0 0 25px rgba(251, 191, 36, 0.5), 0 0 50px rgba(251, 191, 36, 0.3)';"
                    onmouseout="this.style.backgroundColor='#1e3a8a'; this.style.color='#fbbf24'; this.style.transform='scale(1)'; this.style.boxShadow='0 0 20px rgba(30, 58, 138, 0.4), 0 0 40px rgba(30, 58, 138, 0.2)';">Nächste Frage</a>
-                <div class="mt-2 sm:mt-3 p-2 sm:p-4 rounded-lg font-bold shadow-lg text-xs sm:text-base" style="background-color: rgba(239, 68, 68, 0.1); border: 2px solid rgba(239, 68, 68, 0.3); color: #dc2626; box-shadow: 0 0 15px rgba(239, 68, 68, 0.3), 0 0 30px rgba(239, 68, 68, 0.1);">
+                <div class="mt-3 p-3 sm:p-4 rounded-lg font-bold shadow-lg text-sm" style="background-color: rgba(239, 68, 68, 0.1); border: 2px solid rgba(239, 68, 68, 0.3); color: #dc2626; box-shadow: 0 0 15px rgba(239, 68, 68, 0.3), 0 0 30px rgba(239, 68, 68, 0.1);">
                     <div class="flex items-center">
-                        <div class="text-lg sm:text-2xl mr-2 sm:mr-3">❌</div>
+                        <div class="text-xl sm:text-2xl mr-3">❌</div>
                         <span>Leider falsch. <span class="hidden sm:inline">Die richtigen Antworten sind markiert.</span></span>
                     </div>
                 </div>
