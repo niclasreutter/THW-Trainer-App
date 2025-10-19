@@ -2,44 +2,23 @@
 @section('title', 'THW Theorie anonym üben - Sofort starten ohne Anmeldung')
 @section('description', 'Übe THW Theoriefragen sofort und anonym ohne Anmeldung. Perfekt zum schnellen Testen und Lernen. Jederzeit kostenlos verfügbar!')
 @section('content')
-<style>
-    /* Mobile Optimierungen */
-    @media (max-width: 640px) {
-        footer {
-            display: none !important;
-        }
-        body {
-            padding-bottom: 0 !important;
-        }
-        nav {
-            padding-top: 0.25rem !important;
-            padding-bottom: 0.25rem !important;
-        }
-        nav .h-16 {
-            height: 3rem !important;
-        }
-        main {
-            padding-top: 0 !important;
-        }
-    }
-</style>
-<div class="max-w-xl mx-auto mt-2 sm:mt-6 p-3 sm:p-6 bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
+<div class="max-w-xl mx-auto mt-10 p-6 bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
     @if($question)
         <div class="mb-4 flex items-center justify-between">
-            <h2 class="text-xl sm:text-2xl font-bold">
+            <h2 class="text-2xl font-bold">
                 @if(isset($mode))
                     @switch($mode)
                         @case('all')
-                            📚 <span class="hidden sm:inline">Alle Fragen (</span>Anonym<span class="hidden sm:inline">)</span>
+                            📚 Alle Fragen (Anonym)
                             @break
                         @default
-                            Anonym
+                            Anonym üben
                     @endswitch
                 @else
-                    Anonym
+                    Anonym üben
                 @endif
             </h2>
-            <a href="{{ route('guest.practice.menu') }}" class="text-blue-600 hover:text-blue-800 text-sm">← <span class="hidden sm:inline">Zurück zum </span>Menü</a>
+            <a href="{{ route('guest.practice.menu') }}" class="text-blue-600 hover:text-blue-800 text-sm">← Zurück zum Menü</a>
         </div>
         
         <div class="mb-4 text-sm text-gray-600">
@@ -50,7 +29,7 @@
                     </svg>
                     <div>
                         <p class="text-sm text-yellow-800 font-medium">Anonymes Üben</p>
-                        <p class="text-xs text-yellow-700 mt-1"><span class="hidden sm:inline">Deine Fortschritte werden nicht gespeichert. Für vollständige Funktionen erstelle einen kostenlosen Account.</span><span class="sm:hidden">Kein Fortschritt ohne Account.</span></p>
+                        <p class="text-xs text-yellow-700 mt-1">Deine Fortschritte werden nicht gespeichert. Für vollständige Funktionen erstelle einen kostenlosen Account.</p>
                     </div>
                 </div>
             </div>
@@ -109,17 +88,17 @@
             
             <input type="hidden" name="answer_mapping" value="{{ $mappingJson }}">
             
-            <div class="mb-4 p-3 sm:p-4 border rounded-lg bg-gray-50 shadow-sm hover:shadow-md transition-shadow duration-300">
+            <div class="mb-6 p-6 border rounded-lg bg-gray-50 shadow-sm hover:shadow-md transition-shadow duration-300">
                 <div class="mb-2 text-xs text-gray-500 flex items-center gap-2">
                     <span>ID: {{ $question->id }}</span>
                     <span class="mx-2">&middot;</span>
-                    <span class="hidden sm:inline">Lernabschnitt: </span><span class="sm:hidden">LA: </span>{{ $question->lernabschnitt ?? '-' }}.{{ $question->nummer ?? '-' }}
+                    <span>Lernabschnitt: {{ $question->lernabschnitt ?? '-' }}.{{ $question->nummer ?? '-' }}</span>
                 </div>
-                <div class="mb-2 font-bold text-sm">Frage:</div>
-                <div class="mb-4 text-sm leading-relaxed">{{ $question->frage }}</div>
-                <div class="mb-0">
-                    <label class="block mb-2 font-semibold text-sm">Antwortmöglichkeiten:</label>
-                    <div class="flex flex-col gap-2.5 sm:gap-3">
+                <div class="mb-2 font-bold">Frage:</div>
+                <div class="mb-4">{{ $question->frage }}</div>
+                <div class="mb-4">
+                    <label class="block mb-2 font-semibold">Antwortmöglichkeiten:</label>
+                    <div class="flex flex-col gap-3">
                         @foreach($answers as $index => $answer)
                             @php
                                 $originalLetter = $answer['letter'];
@@ -127,7 +106,7 @@
                                 $isUserAnswer = isset($userAnswer) && $userAnswer->contains($originalLetter);
                                 $isChecked = isset($isCorrect) && $isUserAnswer;
                             @endphp
-                            <label class="inline-flex items-center p-2.5 sm:p-2 rounded-lg hover:bg-gray-50 transition-all duration-200 cursor-pointer">
+                            <label class="inline-flex items-center p-2 rounded-lg hover:bg-gray-50 transition-all duration-200 cursor-pointer">
                                 @if(isset($isCorrect))
                                     @if($isCorrectAnswer)
                                         <span class="mr-2 text-green-600 text-lg">✅</span>
@@ -141,7 +120,7 @@
                                     @if($isChecked) checked @endif
                                     @if(isset($isCorrect)) disabled @endif
                                     class="mr-2 w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2">
-                                <span class="ml-2 text-sm {{ isset($isCorrect) && $isChecked ? ($isCorrectAnswer ? 'text-green-600 font-semibold' : 'text-red-600 font-semibold') : '' }}">
+                                <span class="ml-2 {{ isset($isCorrect) && $isChecked ? ($isCorrectAnswer ? 'text-green-600 font-semibold' : 'text-red-600 font-semibold') : '' }}">
                                     {{ $answer['text'] }}
                                 </span>
                             </label>
@@ -150,31 +129,28 @@
                 </div>
             </div>
             @if(!isset($isCorrect))
-                <button type="submit" id="submitBtn" class="w-full text-center font-bold border-none cursor-pointer transition-all duration-300 rounded-lg py-3 px-6 text-sm" 
-                        style="background-color: #1e3a8a; color: #fbbf24; box-shadow: 0 0 20px rgba(30, 58, 138, 0.4), 0 0 40px rgba(30, 58, 138, 0.2);" 
+                <button type="submit" id="submitBtn" style="width: 100%; display: block; text-align: center; background-color: #1e3a8a; color: #fbbf24; padding: 12px 24px; border-radius: 8px; font-weight: bold; border: none; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 0 20px rgba(30, 58, 138, 0.4), 0 0 40px rgba(30, 58, 138, 0.2);" 
                         onmouseover="if(!this.disabled) { this.style.backgroundColor='#fbbf24'; this.style.color='#1e3a8a'; this.style.transform='scale(1.02)'; this.style.boxShadow='0 0 25px rgba(251, 191, 36, 0.5), 0 0 50px rgba(251, 191, 36, 0.3)'; }" 
                         onmouseout="if(!this.disabled) { this.style.backgroundColor='#1e3a8a'; this.style.color='#fbbf24'; this.style.transform='scale(1)'; this.style.boxShadow='0 0 20px rgba(30, 58, 138, 0.4), 0 0 40px rgba(30, 58, 138, 0.2)'; }"
                         disabled>Antwort absenden</button>
             @elseif(isset($isCorrect) && $isCorrect)
-                <a href="{{ route('guest.practice.index') }}" class="block w-full text-center font-bold no-underline transition-all duration-300 rounded-lg py-3 px-6 text-sm"
-                   style="background-color: #1e3a8a; color: #fbbf24; box-shadow: 0 0 20px rgba(30, 58, 138, 0.4), 0 0 40px rgba(30, 58, 138, 0.2);"
+                <a href="{{ route('guest.practice.index') }}" style="width: 100%; display: block; text-align: center; background-color: #1e3a8a; color: #fbbf24; padding: 12px 24px; border-radius: 8px; font-weight: bold; text-decoration: none; transition: all 0.3s ease; box-shadow: 0 0 20px rgba(30, 58, 138, 0.4), 0 0 40px rgba(30, 58, 138, 0.2);"
                    onmouseover="this.style.backgroundColor='#fbbf24'; this.style.color='#1e3a8a'; this.style.transform='scale(1.02)'; this.style.boxShadow='0 0 25px rgba(251, 191, 36, 0.5), 0 0 50px rgba(251, 191, 36, 0.3)';"
                    onmouseout="this.style.backgroundColor='#1e3a8a'; this.style.color='#fbbf24'; this.style.transform='scale(1)'; this.style.boxShadow='0 0 20px rgba(30, 58, 138, 0.4), 0 0 40px rgba(30, 58, 138, 0.2)';">Nächste Frage</a>
-                <div class="mt-3 p-3 sm:p-4 bg-green-50 border-2 border-green-300 rounded-lg text-green-800 font-bold shadow-lg text-sm" style="box-shadow: 0 0 15px rgba(34, 197, 94, 0.3), 0 0 30px rgba(34, 197, 94, 0.1);">
+                <div class="mt-3 p-4 bg-green-50 border-2 border-green-300 rounded-lg text-green-800 font-bold shadow-lg" style="box-shadow: 0 0 15px rgba(34, 197, 94, 0.3), 0 0 30px rgba(34, 197, 94, 0.1);">
                     <div class="flex items-center">
-                        <div class="text-xl sm:text-2xl mr-3">✅</div>
-                        <span>Richtig<span class="hidden sm:inline"> beantwortet</span>!</span>
+                        <div class="text-2xl mr-3">✅</div>
+                        <span>Richtig beantwortet!</span>
                     </div>
                 </div>
             @elseif(isset($isCorrect) && !$isCorrect)
-                <a href="{{ route('guest.practice.index', ['skip_id' => $question->id]) }}" class="block w-full text-center font-bold no-underline transition-all duration-300 rounded-lg py-3 px-6 text-sm"
-                   style="background-color: #1e3a8a; color: #fbbf24; box-shadow: 0 0 20px rgba(30, 58, 138, 0.4), 0 0 40px rgba(30, 58, 138, 0.2);"
+                <a href="{{ route('guest.practice.index', ['skip_id' => $question->id]) }}" style="width: 100%; display: block; text-align: center; background-color: #1e3a8a; color: #fbbf24; padding: 12px 24px; border-radius: 8px; font-weight: bold; text-decoration: none; transition: all 0.3s ease; box-shadow: 0 0 20px rgba(30, 58, 138, 0.4), 0 0 40px rgba(30, 58, 138, 0.2);"
                    onmouseover="this.style.backgroundColor='#fbbf24'; this.style.color='#1e3a8a'; this.style.transform='scale(1.02)'; this.style.boxShadow='0 0 25px rgba(251, 191, 36, 0.5), 0 0 50px rgba(251, 191, 36, 0.3)';"
                    onmouseout="this.style.backgroundColor='#1e3a8a'; this.style.color='#fbbf24'; this.style.transform='scale(1)'; this.style.boxShadow='0 0 20px rgba(30, 58, 138, 0.4), 0 0 40px rgba(30, 58, 138, 0.2)';">Nächste Frage</a>
-                <div class="mt-3 p-3 sm:p-4 rounded-lg font-bold shadow-lg text-sm" style="background-color: rgba(239, 68, 68, 0.1); border: 2px solid rgba(239, 68, 68, 0.3); color: #dc2626; box-shadow: 0 0 15px rgba(239, 68, 68, 0.3), 0 0 30px rgba(239, 68, 68, 0.1);">
+                <div class="mt-3 p-4 rounded-lg font-bold shadow-lg" style="background-color: rgba(239, 68, 68, 0.1); border: 2px solid rgba(239, 68, 68, 0.3); color: #dc2626; box-shadow: 0 0 15px rgba(239, 68, 68, 0.3), 0 0 30px rgba(239, 68, 68, 0.1);">
                     <div class="flex items-center">
-                        <div class="text-xl sm:text-2xl mr-3">❌</div>
-                        <span>Leider falsch. <span class="hidden sm:inline">Die richtigen Antworten sind markiert.</span></span>
+                        <div class="text-2xl mr-3">❌</div>
+                        <span>Leider falsch. Die richtigen Antworten sind markiert.</span>
                     </div>
                 </div>
             @endif

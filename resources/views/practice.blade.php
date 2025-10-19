@@ -39,31 +39,8 @@
     .animate-fade-in {
         animation: fadeIn 0.5s ease-out;
     }
-    
-    /* Mobile Optimierungen */
-    @media (max-width: 640px) {
-        /* Footer ausblenden */
-        footer {
-            display: none !important;
-        }
-        body {
-            padding-bottom: 0 !important;
-        }
-        /* Navbar kompakter */
-        nav {
-            padding-top: 0.25rem !important;
-            padding-bottom: 0.25rem !important;
-        }
-        nav .h-16 {
-            height: 3rem !important;
-        }
-        /* Main Container ohne oberen Abstand */
-        main {
-            padding-top: 0 !important;
-        }
-    }
 </style>
-<div class="max-w-xl mx-auto mt-2 sm:mt-4 p-3 sm:p-4 bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
+<div class="max-w-xl mx-auto mt-4 p-4 bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
 
     @if($question)
         <div class="mb-3 hidden sm:block">
@@ -172,17 +149,17 @@
             
             <input type="hidden" name="answer_mapping" value="{{ $mappingJson }}">
             
-            <div class="mb-4 p-3 sm:p-4 border rounded-lg bg-gray-50 shadow-sm hover:shadow-md transition-shadow duration-300">
+            <div class="mb-4 p-4 border rounded-lg bg-gray-50 shadow-sm hover:shadow-md transition-shadow duration-300">
                 <div class="mb-2 text-xs text-gray-500 flex items-center gap-2">
                     <span>ID: {{ $question->id }}</span>
                     <span class="mx-2">&middot;</span>
-                    <span class="hidden sm:inline">Lernabschnitt: </span><span class="sm:hidden">LA: </span>{{ $question->lernabschnitt ?? '-' }}.{{ $question->nummer ?? '-' }}
+                    <span>Lernabschnitt: {{ $question->lernabschnitt ?? '-' }}.{{ $question->nummer ?? '-' }}</span>
                 </div>
                 <div class="mb-2 font-bold text-sm">Frage:</div>
-                <div class="mb-4 text-sm leading-relaxed">{{ $question->frage }}</div>
-                <div class="mb-0">
+                <div class="mb-3 text-sm">{{ $question->frage }}</div>
+                <div class="mb-3">
                     <label class="block mb-2 font-semibold text-sm">Antwortmöglichkeiten:</label>
-                    <div class="flex flex-col gap-2.5 sm:gap-2">
+                    <div class="flex flex-col gap-2">
                         @foreach($answers as $index => $answer)
                             @php
                                 $originalLetter = $answer['letter'];
@@ -190,7 +167,7 @@
                                 $isUserAnswer = isset($userAnswer) && $userAnswer->contains($originalLetter);
                                 $isChecked = isset($isCorrect) && $isUserAnswer;
                             @endphp
-                            <label class="inline-flex items-start p-2.5 sm:p-2 rounded-lg hover:bg-gray-50 transition-all duration-200 cursor-pointer">
+                            <label class="inline-flex items-start p-2 rounded-lg hover:bg-gray-50 transition-all duration-200 cursor-pointer">
                                 @if(isset($isCorrect))
                                     @if($isCorrectAnswer)
                                         <span class="mr-2 text-green-600 text-lg">✅</span>
@@ -213,8 +190,7 @@
                 </div>
             </div>
             @if(!isset($isCorrect))
-                <button type="submit" id="submitBtn" class="w-full text-center font-bold border-none cursor-pointer transition-all duration-300 rounded-lg py-3 px-4 text-sm" 
-                        style="background-color: #1e3a8a; color: #fbbf24; box-shadow: 0 0 20px rgba(30, 58, 138, 0.4), 0 0 40px rgba(30, 58, 138, 0.2);" 
+                <button type="submit" id="submitBtn" style="width: 100%; display: block; text-align: center; background-color: #1e3a8a; color: #fbbf24; padding: 12px 16px; border-radius: 8px; font-weight: bold; font-size: 14px; border: none; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 0 20px rgba(30, 58, 138, 0.4), 0 0 40px rgba(30, 58, 138, 0.2);" 
                         onmouseover="if(!this.disabled) { this.style.backgroundColor='#fbbf24'; this.style.color='#1e3a8a'; this.style.transform='scale(1.02)'; this.style.boxShadow='0 0 25px rgba(251, 191, 36, 0.5), 0 0 50px rgba(251, 191, 36, 0.3)'; }" 
                         onmouseout="if(!this.disabled) { this.style.backgroundColor='#1e3a8a'; this.style.color='#fbbf24'; this.style.transform='scale(1)'; this.style.boxShadow='0 0 20px rgba(30, 58, 138, 0.4), 0 0 40px rgba(30, 58, 138, 0.2)'; }"
                         disabled>Antwort absenden</button>
@@ -270,21 +246,20 @@
                                                0 0 45px rgba(34, 197, 94, 0.1);">
                             <span class="text-base">{{ $topCelebration['emoji'] }}</span>
                             <span class="font-bold" style="color: #15803d;">{{ $topCelebration['text'] }}</span>
-                            <span style="color: #16a34a;">+{{ $topPointsAwarded }} <span class="hidden sm:inline">Punkte</span><span class="sm:hidden">P</span></span>
-                            <span class="text-xs hidden sm:inline" style="color: #6b7280;">({{ $topReasonText }})</span>
+                            <span style="color: #16a34a;">+{{ $topPointsAwarded }} Punkte</span>
+                            <span class="text-xs" style="color: #6b7280;">({{ $topReasonText }})</span>
                         </div>
                         <div class="mt-2 px-3 py-2 rounded-lg text-sm font-semibold text-center" 
                              style="background-color: #dcfce7; 
                                     border: 1px solid #86efac; 
                                     color: #15803d;">
-                            ✅ Frage gemeistert! <span class="hidden sm:inline">Du hast sie 2x hintereinander richtig beantwortet!</span>
+                            ✅ Frage gemeistert! Du hast sie 2x hintereinander richtig beantwortet!
                         </div>
                     </div>
                 @endif
                 
             @elseif(isset($isCorrect) && $isCorrect)
-                <a href="{{ route('practice.index') }}" class="block w-full text-center font-bold no-underline transition-all duration-300 rounded-lg py-3 px-4 text-sm"
-                   style="background-color: #1e3a8a; color: #fbbf24; box-shadow: 0 0 20px rgba(30, 58, 138, 0.4), 0 0 40px rgba(30, 58, 138, 0.2);"
+                <a href="{{ route('practice.index') }}" style="width: 100%; display: block; text-align: center; background-color: #1e3a8a; color: #fbbf24; padding: 12px 16px; border-radius: 8px; font-weight: bold; font-size: 14px; text-decoration: none; transition: all 0.3s ease; box-shadow: 0 0 20px rgba(30, 58, 138, 0.4), 0 0 40px rgba(30, 58, 138, 0.2);"
                    onmouseover="this.style.backgroundColor='#fbbf24'; this.style.color='#1e3a8a'; this.style.transform='scale(1.02)'; this.style.boxShadow='0 0 25px rgba(251, 191, 36, 0.5), 0 0 50px rgba(251, 191, 36, 0.3)';"
                    onmouseout="this.style.backgroundColor='#1e3a8a'; this.style.color='#fbbf24'; this.style.transform='scale(1)'; this.style.boxShadow='0 0 20px rgba(30, 58, 138, 0.4), 0 0 40px rgba(30, 58, 138, 0.2)';">Nächste Frage</a>
                 
@@ -335,8 +310,8 @@
                                                0 0 45px rgba(34, 197, 94, 0.1);">
                             <span class="text-base">{{ $celebration['emoji'] }}</span>
                             <span class="font-bold" style="color: #15803d;">{{ $celebration['text'] }}</span>
-                            <span style="color: #16a34a;">+{{ $pointsAwarded }} <span class="hidden sm:inline">Punkte</span><span class="sm:hidden">P</span></span>
-                            <span class="text-xs hidden sm:inline" style="color: #6b7280;">({{ $reasonText }})</span>
+                            <span style="color: #16a34a;">+{{ $pointsAwarded }} Punkte</span>
+                            <span class="text-xs" style="color: #6b7280;">({{ $reasonText }})</span>
                         </div>
                         @if(isset($questionProgress) && $questionProgress->consecutive_correct == 1)
                             <div class="mt-2 px-3 py-2 rounded-lg text-sm font-semibold" 
@@ -346,22 +321,21 @@
                                         box-shadow: 0 0 15px rgba(59, 130, 246, 0.5), 
                                                    0 0 30px rgba(59, 130, 246, 0.3),
                                                    0 0 45px rgba(59, 130, 246, 0.1);">
-                                💡 Noch <strong>1x richtig</strong> beantworten<span class="hidden sm:inline">, um die Frage zu meistern</span>!
+                                💡 Noch <strong>1x richtig</strong> beantworten, um die Frage zu meistern!
                             </div>
                         @endif
                     </div>
                 @endif
                 
             @elseif(isset($isCorrect) && !$isCorrect)
-                <a href="{{ route('practice.index', ['skip_id' => $question->id]) }}" class="block w-full text-center font-bold no-underline transition-all duration-300 rounded-lg py-3 px-4 text-sm"
-                   style="background-color: #1e3a8a; color: #fbbf24; box-shadow: 0 0 20px rgba(30, 58, 138, 0.4), 0 0 40px rgba(30, 58, 138, 0.2);"
+                <a href="{{ route('practice.index', ['skip_id' => $question->id]) }}" style="width: 100%; display: block; text-align: center; background-color: #1e3a8a; color: #fbbf24; padding: 12px 16px; border-radius: 8px; font-weight: bold; font-size: 14px; text-decoration: none; transition: all 0.3s ease; box-shadow: 0 0 20px rgba(30, 58, 138, 0.4), 0 0 40px rgba(30, 58, 138, 0.2);"
                    onmouseover="this.style.backgroundColor='#fbbf24'; this.style.color='#1e3a8a'; this.style.transform='scale(1.02)'; this.style.boxShadow='0 0 25px rgba(251, 191, 36, 0.5), 0 0 50px rgba(251, 191, 36, 0.3)';"
-                   onmouseout="this.style.backgroundColor='#1e3a8a'; this.style.color='#fbbf24'; this.style.transform='scale(1)'; this.style.boxShadow='0 0 20px rgba(30, 58, 138, 0.4), 0 0 40px rgba(30, 58, 138, 0.2)';">Nächste Frage</a>
+                   onmouseout="this.style.backgroundColor='#1e3a8a'; this.style.color='#fbbf24'; this.style.transform='scale(1)'; this.style.boxShadow='0 0 20px rgba(30, 58, 138, 0.4), 0 0 40px rgba(30, 58, 138, 0.2)';">Weiter zur nächsten Frage</a>
                 
                 <div class="mt-3 p-3 rounded-lg font-bold shadow-lg text-sm" style="background-color: rgba(239, 68, 68, 0.1); border: 2px solid rgba(239, 68, 68, 0.3); color: #dc2626; box-shadow: 0 0 15px rgba(239, 68, 68, 0.3), 0 0 30px rgba(239, 68, 68, 0.1);">
                     <div class="flex items-center">
                         <div class="text-xl mr-2">❌</div>
-                        <span>Leider falsch. <span class="hidden sm:inline">Die richtigen Antworten sind markiert.</span></span>
+                        <span>Leider falsch. Die richtigen Antworten sind markiert.</span>
                     </div>
                 </div>
             @endif
