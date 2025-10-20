@@ -75,9 +75,21 @@ class DashboardController extends Controller
     {
         try {
             DB::connection()->getPdo();
-            return ['status' => 'ok', 'message' => 'Verbindung erfolgreich'];
+            
+            // Datenbankgröße abrufen
+            $databaseName = config('database.connections.mysql.database');
+            $result = DB::select("
+                SELECT 
+                    ROUND(SUM(data_length + index_length) / 1024 / 1024, 2) AS size_mb
+                FROM information_schema.TABLES
+                WHERE table_schema = ?
+            ", [$databaseName]);
+            
+            $sizeMB = $result[0]->size_mb ?? 0;
+            
+            return ['status' => 'ok', 'message' => $sizeMB . ' MB'];
         } catch (\Exception $e) {
-            return ['status' => 'error', 'message' => 'Verbindung fehlgeschlagen'];
+            return ['status' => 'error', 'message' => 'Fehler'];
         }
     }
     
