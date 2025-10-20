@@ -676,7 +676,13 @@
                                 <div style="font-size: 18px; color: #16a34a; font-weight: 600;">+{{ $pointsAwarded ?? 10 }} Punkte</div>
                             </div>
                         </div>
-                        <div style="font-size: 14px; color: #6b7280; text-align: center;">Frage {{ $questionProgress->consecutive_correct }}x richtig beantwortet</div>
+                        <div style="font-size: 14px; color: #6b7280; text-align: center;">
+                            @if(isset($questionProgress) && $questionProgress->consecutive_correct >= 1)
+                                Frage {{ $questionProgress->consecutive_correct }}x richtig beantwortet
+                            @else
+                                Frage richtig beantwortet
+                            @endif
+                        </div>
                     @endif
                     
                     @if($showMastered)
