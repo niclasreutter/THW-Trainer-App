@@ -51,25 +51,25 @@
                 
                 if ($progressPercent == 100 && $exams >= 5) {
                     $motivationalMessage = "🎉 Fantastisch! Du hast alle Fragen gelöst und 5+ Prüfungen bestanden! Du bist bereit für die Grundausbildung!";
-                    $messageColor = "text-green-700 bg-green-50 border-green-200";
+                    $messageColor = "text-green-800 bg-green-50 border-green-300";
                 } elseif ($progressPercent == 100) {
                     $motivationalMessage = "🚀 Großartig! Alle Fragen gelöst! Jetzt kannst du mit den Prüfungen beginnen!";
-                    $messageColor = "text-blue-700 bg-blue-50 border-blue-200";
+                    $messageColor = "text-green-800 bg-green-50 border-green-300";
                 } elseif ($progressPercent >= 75) {
                     $motivationalMessage = "⚡ Fast geschafft! Du hast schon {$progressPercent}% der Fragen gelöst!";
-                    $messageColor = "text-yellow-700 bg-yellow-50 border-yellow-200";
+                    $messageColor = "text-yellow-800 bg-yellow-50 border-yellow-300";
                 } elseif ($progressPercent >= 50) {
                     $motivationalMessage = "💪 Gut gemacht! Du hast schon {$progressPercent}% der Fragen gelöst! Weiter so!";
-                    $messageColor = "text-orange-700 bg-orange-50 border-orange-200";
+                    $messageColor = "text-blue-800 bg-blue-50 border-blue-300";
                 } elseif ($progressPercent >= 25) {
                     $motivationalMessage = "🌟 Super Start! Du hast schon {$progressPercent}% der Fragen gelöst!";
-                    $messageColor = "text-purple-700 bg-purple-50 border-purple-200";
+                    $messageColor = "text-blue-800 bg-blue-50 border-blue-300";
                 } elseif ($progressPercent > 0) {
                     $motivationalMessage = "🌟 Super Start! Du hast schon {$progressPercent}% der Fragen gelöst!";
-                    $messageColor = "text-purple-700 bg-purple-50 border-purple-200";
+                    $messageColor = "text-blue-800 bg-blue-50 border-blue-300";
                 } else {
                     $motivationalMessage = "🎯 Willkommen beim THW-Trainer! Starte deine Reise zur Grundausbildung!";
-                    $messageColor = "text-indigo-700 bg-indigo-50 border-indigo-200";
+                    $messageColor = "text-blue-900 bg-blue-50 border-blue-300";
                 }
             @endphp
             
@@ -83,59 +83,59 @@
                 <!-- Mobile: 2x2 Grid, Desktop: 4x1 Grid -->
                 <div class="flex flex-wrap gap-2 lg:gap-3">
                     <!-- Streak -->
-                    <div class="flex-1 min-w-[140px] lg:min-w-[160px] max-w-[calc(50%-4px)] lg:max-w-none flex items-center bg-gradient-to-r from-orange-100 to-red-100 rounded-lg px-2 lg:px-3 py-2 hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer">
+                    <div class="flex-1 min-w-[140px] lg:min-w-[160px] max-w-[calc(50%-4px)] lg:max-w-none flex items-center bg-gradient-to-r from-yellow-100 to-yellow-200 rounded-lg px-2 lg:px-3 py-2 hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer">
                         <div class="text-base lg:text-lg mr-1 lg:mr-2 flex-shrink-0">🔥</div>
                         <div class="min-w-0 flex-1">
-                            <div class="text-sm lg:text-base font-bold text-orange-800 truncate">{{ $user->streak_days ?? 0 }}</div>
-                            <div class="text-xs text-orange-600">Tage</div>
+                            <div class="text-sm lg:text-base font-bold text-yellow-900 truncate">{{ $user->streak_days ?? 0 }}</div>
+                            <div class="text-xs text-yellow-700">Tage</div>
                             <!-- Streak Progress Bar -->
                             @php
                                 $streakGoal = 7; // 7 Tage Streak als Ziel
                                 $streakProgressPercent = min(100, (($user->streak_days ?? 0) / $streakGoal) * 100);
                             @endphp
-                            <div class="w-full bg-orange-200 rounded-full h-1 mt-1">
-                                <div class="bg-orange-500 h-1 rounded-full transition-all duration-500" style="width: {{ $streakProgressPercent }}%"></div>
+                            <div class="w-full bg-yellow-300 rounded-full h-1 mt-1">
+                                <div class="bg-yellow-600 h-1 rounded-full transition-all duration-500" style="width: {{ $streakProgressPercent }}%"></div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Level -->
-                    <div class="flex-1 min-w-[140px] lg:min-w-[160px] max-w-[calc(50%-4px)] lg:max-w-none flex items-center bg-gradient-to-r from-yellow-100 to-orange-100 rounded-lg px-2 lg:px-3 py-2 hover:shadow-md transition-all duration-300 cursor-pointer">
+                    <div class="flex-1 min-w-[140px] lg:min-w-[160px] max-w-[calc(50%-4px)] lg:max-w-none flex items-center bg-gradient-to-r from-blue-100 to-blue-200 rounded-lg px-2 lg:px-3 py-2 hover:shadow-md transition-all duration-300 cursor-pointer">
                         <div class="text-base lg:text-lg mr-1 lg:mr-2 flex-shrink-0">⭐</div>
                         <div class="min-w-0 flex-1">
-                            <div class="text-sm lg:text-base font-bold text-yellow-800 truncate">Lvl {{ $user->level ?? 1 }}</div>
+                            <div class="text-sm lg:text-base font-bold text-blue-900 truncate">Lvl {{ $user->level ?? 1 }}</div>
                             @php
                                 $levelUpPoints = 100 * pow(1.5, ($user->level ?? 1) - 1);
                                 $currentProgress = ($user->points ?? 0) % $levelUpPoints;
                                 $levelProgressPercent = $levelUpPoints > 0 ? ($currentProgress / $levelUpPoints) * 100 : 0;
                             @endphp
-                            <div class="text-xs text-yellow-600 truncate hidden lg:block">{{ $currentProgress }}/{{ $levelUpPoints }}</div>
-                            <div class="text-xs text-yellow-600 lg:hidden">XP</div>
+                            <div class="text-xs text-blue-700 truncate hidden lg:block">{{ $currentProgress }}/{{ $levelUpPoints }}</div>
+                            <div class="text-xs text-blue-700 lg:hidden">XP</div>
                             <!-- Mini Progress Bar -->
-                            <div class="w-full bg-yellow-200 rounded-full h-1 mt-1">
-                                <div class="bg-yellow-500 h-1 rounded-full transition-all duration-500" style="width: {{ $levelProgressPercent }}%"></div>
+                            <div class="w-full bg-blue-300 rounded-full h-1 mt-1">
+                                <div class="bg-blue-600 h-1 rounded-full transition-all duration-500" style="width: {{ $levelProgressPercent }}%"></div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Daily Challenge -->
-                    <div class="flex-1 min-w-[140px] lg:min-w-[160px] max-w-[calc(50%-4px)] lg:max-w-none flex items-center bg-gradient-to-r from-green-100 to-blue-100 rounded-lg px-2 lg:px-3 py-2 hover:shadow-md transition-all duration-300 cursor-pointer">
+                    <div class="flex-1 min-w-[140px] lg:min-w-[160px] max-w-[calc(50%-4px)] lg:max-w-none flex items-center bg-gradient-to-r from-green-100 to-green-200 rounded-lg px-2 lg:px-3 py-2 hover:shadow-md transition-all duration-300 cursor-pointer">
                         <div class="text-base lg:text-lg mr-1 lg:mr-2 flex-shrink-0">⚡</div>
                         <div class="min-w-0 flex-1">
-                            <div class="text-sm lg:text-base font-bold text-green-800 truncate">{{ $user->daily_questions_solved ?? 0 }}/20</div>
-                            <div class="text-xs text-green-600">Täglich</div>
+                            <div class="text-sm lg:text-base font-bold text-green-900 truncate">{{ $user->daily_questions_solved ?? 0 }}/20</div>
+                            <div class="text-xs text-green-700">Täglich</div>
                             <!-- Mini Progress Bar -->
                             @php
                                 $dailyProgressPercent = min(100, (($user->daily_questions_solved ?? 0) / 20) * 100);
                             @endphp
-                            <div class="w-full bg-green-200 rounded-full h-1 mt-1">
-                                <div class="bg-green-500 h-1 rounded-full transition-all duration-500" style="width: {{ $dailyProgressPercent }}%"></div>
+                            <div class="w-full bg-green-300 rounded-full h-1 mt-1">
+                                <div class="bg-green-600 h-1 rounded-full transition-all duration-500" style="width: {{ $dailyProgressPercent }}%"></div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Achievements -->
-                    <div class="flex-1 min-w-[140px] lg:min-w-[160px] max-w-[calc(50%-4px)] lg:max-w-none flex items-center bg-gradient-to-r from-purple-100 to-pink-100 rounded-lg px-2 lg:px-3 py-2 hover:shadow-md transition-all duration-300 cursor-pointer">
+                    <div class="flex-1 min-w-[140px] lg:min-w-[160px] max-w-[calc(50%-4px)] lg:max-w-none flex items-center bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg px-2 lg:px-3 py-2 hover:shadow-md transition-all duration-300 cursor-pointer">
                         <div class="text-base lg:text-lg mr-1 lg:mr-2 flex-shrink-0">🏆</div>
                         <div class="min-w-0 flex-1">
                             @php
@@ -145,11 +145,11 @@
                                 $unlockedCount = count(array_filter($userAchievements, fn($a) => $a['unlocked']));
                                 $achievementProgressPercent = $totalAchievements > 0 ? ($unlockedCount / $totalAchievements) * 100 : 0;
                             @endphp
-                            <div class="text-sm lg:text-base font-bold text-purple-800 truncate">{{ $unlockedCount }}/{{ $totalAchievements }}</div>
-                            <div class="text-xs text-purple-600">Erfolge</div>
+                            <div class="text-sm lg:text-base font-bold text-blue-900 truncate">{{ $unlockedCount }}/{{ $totalAchievements }}</div>
+                            <div class="text-xs text-blue-700">Erfolge</div>
                             <!-- Mini Progress Bar -->
-                            <div class="w-full bg-purple-200 rounded-full h-1 mt-1">
-                                <div class="bg-purple-500 h-1 rounded-full transition-all duration-500" style="width: {{ $achievementProgressPercent }}%"></div>
+                            <div class="w-full bg-blue-200 rounded-full h-1 mt-1">
+                                <div class="bg-blue-500 h-1 rounded-full transition-all duration-500" style="width: {{ $achievementProgressPercent }}%"></div>
                             </div>
                         </div>
                     </div>
@@ -373,13 +373,13 @@
                 </a>
                 
                 <a href="{{ route('bookmarks.index') }}" 
-                   class="block p-4 bg-purple-100 border border-purple-300 rounded-lg hover:bg-purple-200 hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer">
+                   class="block p-4 bg-blue-50 border border-blue-300 rounded-lg hover:bg-blue-100 hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer">
                     <div class="text-lg font-medium text-blue-800">🔖 Gespeicherte Fragen</div>
                     <div class="text-sm text-gray-600">Deine Lesezeichen und Favoriten</div>
                 </a>
                 
                 <a href="{{ route('gamification.achievements') }}" 
-                   class="block p-4 bg-gradient-to-r from-purple-100 to-blue-100 border border-purple-300 rounded-lg hover:from-purple-200 hover:to-blue-200 hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer">
+                   class="block p-4 bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-300 rounded-lg hover:from-blue-100 hover:to-blue-200 hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer">
                     <div class="text-lg font-medium text-blue-800">🏆 Achievements & Bestenliste</div>
                     <div class="text-sm text-gray-600">Deine Erfolge und Vergleich mit anderen</div>
                 </a>
