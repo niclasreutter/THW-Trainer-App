@@ -57,6 +57,22 @@
                         @endif
                     </a>
                     
+                    @auth
+                    <!-- Kontakt (nur für eingeloggte User) -->
+                    <a href="{{ route('contact.index') }}" 
+                       class="inline-flex items-center px-3 py-2 text-sm font-medium text-white hover:text-yellow-400 transition-colors duration-200 relative group {{ request()->routeIs('contact.*') ? 'text-yellow-400' : '' }}">
+                        <span class="flex items-center space-x-2">
+                            <span class="text-lg">📬</span>
+                            <span>Kontakt</span>
+                        </span>
+                        @if(request()->routeIs('contact.*'))
+                            <div class="absolute -bottom-1 left-0 w-full h-0.5 bg-yellow-400"></div>
+                        @else
+                            <div class="absolute -bottom-1 left-0 w-0 h-0.5 bg-yellow-400 transition-all duration-200 group-hover:w-full"></div>
+                        @endif
+                    </a>
+                    @endauth
+                    
                         @auth
                             @if(Auth::user()->useroll === 'admin')
                                 <div class="relative ml-2">
@@ -80,6 +96,20 @@
                                         <a href="/admin/users" class="block px-4 py-3 text-gray-700 hover:bg-blue-900 hover:text-yellow-400 transition-colors duration-200 flex items-center space-x-2">
                                             <span class="text-lg">👥</span>
                                             <span>Nutzerverwaltung</span>
+                                        </a>
+                                        <a href="{{ route('admin.newsletter.create') }}" class="block px-4 py-3 text-gray-700 hover:bg-blue-900 hover:text-yellow-400 transition-colors duration-200 flex items-center space-x-2">
+                                            <span class="text-lg">📧</span>
+                                            <span>Newsletter</span>
+                                        </a>
+                                        <a href="{{ route('admin.contact-messages.index') }}" class="block px-4 py-3 text-gray-700 hover:bg-blue-900 hover:text-yellow-400 transition-colors duration-200 flex items-center space-x-2">
+                                            <span class="text-lg">📬</span>
+                                            <span>Kontaktanfragen</span>
+                                            @php
+                                                $unreadCount = \App\Models\ContactMessage::where('is_read', false)->count();
+                                            @endphp
+                                            @if($unreadCount > 0)
+                                                <span class="ml-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">{{ $unreadCount }}</span>
+                                            @endif
                                         </a>
                                     </div>
                                 </div>
@@ -187,6 +217,13 @@
                     <span>Statistik</span>
                 </a>
                 
+                <!-- Kontakt (nur für eingeloggte User) -->
+                <a href="{{ route('contact.index') }}" 
+                   class="block px-3 py-2 text-base font-medium text-white hover:text-yellow-400 hover:bg-blue-800 rounded-md transition-colors duration-200 flex items-center space-x-2 {{ request()->routeIs('contact.*') ? 'text-yellow-400 bg-blue-800' : '' }}">
+                    <span class="text-lg">📬</span>
+                    <span>Kontakt & Feedback</span>
+                </a>
+                
                 @if(Auth::user()->useroll === 'admin')
                     <div class="px-3 py-2 text-base font-medium text-white flex items-center space-x-2">
                         <span class="text-lg">⚙️</span>
@@ -204,6 +241,20 @@
                         <a href="/admin/users" class="block px-3 py-2 text-sm text-gray-300 hover:text-yellow-400 hover:bg-blue-800 rounded-md transition-colors duration-200 flex items-center space-x-2">
                             <span class="text-lg">👥</span>
                             <span>Nutzerverwaltung</span>
+                        </a>
+                        <a href="{{ route('admin.newsletter.create') }}" class="block px-3 py-2 text-sm text-gray-300 hover:text-yellow-400 hover:bg-blue-800 rounded-md transition-colors duration-200 flex items-center space-x-2">
+                            <span class="text-lg">📧</span>
+                            <span>Newsletter</span>
+                        </a>
+                        <a href="{{ route('admin.contact-messages.index') }}" class="block px-3 py-2 text-sm text-gray-300 hover:text-yellow-400 hover:bg-blue-800 rounded-md transition-colors duration-200 flex items-center space-x-2">
+                            <span class="text-lg">📬</span>
+                            <span>Kontaktanfragen</span>
+                            @php
+                                $unreadCount = \App\Models\ContactMessage::where('is_read', false)->count();
+                            @endphp
+                            @if($unreadCount > 0)
+                                <span class="ml-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">{{ $unreadCount }}</span>
+                            @endif
                         </a>
                     </div>
                 @endif

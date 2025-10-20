@@ -275,6 +275,18 @@
                         <i class="fas fa-envelope mr-3"></i>
                         <span class="font-medium">Newsletter senden</span>
                     </a>
+                    <a href="{{ route('admin.contact-messages.index') }}" 
+                       class="flex items-center p-4 rounded-lg transition-all duration-300 hover:scale-105 flex-1 min-w-[200px]"
+                       style="background: linear-gradient(to right, #f59e0b, #d97706); color: white; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4), 0 0 20px rgba(245, 158, 11, 0.3), 0 0 40px rgba(245, 158, 11, 0.1);">
+                        <i class="fas fa-inbox mr-3"></i>
+                        <span class="font-medium">Kontaktanfragen</span>
+                        @php
+                            $unreadCount = \App\Models\ContactMessage::where('is_read', false)->count();
+                        @endphp
+                        @if($unreadCount > 0)
+                            <span class="ml-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">{{ $unreadCount }}</span>
+                        @endif
+                    </a>
                     <a href="{{ route('dashboard') }}" 
                        class="flex items-center p-4 rounded-lg transition-all duration-300 hover:scale-105 flex-1 min-w-[200px]"
                        style="background: linear-gradient(to right, #00337F, #002a66); color: white; box-shadow: 0 4px 15px rgba(0, 51, 127, 0.4), 0 0 20px rgba(0, 51, 127, 0.3), 0 0 40px rgba(0, 51, 127, 0.1);">

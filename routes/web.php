@@ -17,6 +17,12 @@ Route::get('/datenschutz', function () {
     return view('datenschutz');
 })->name('datenschutz');
 
+// Kontaktformular (öffentlich zugänglich)
+Route::get('/kontakt', [\App\Http\Controllers\ContactController::class, 'index'])->name('contact.index');
+Route::post('/kontakt', [\App\Http\Controllers\ContactController::class, 'store'])
+    ->middleware('throttle:3,60') // Max 3 Anfragen pro Stunde
+    ->name('contact.submit');
+
 // Öffentliche Statistik-Seite
 Route::get('/statistik', [\App\Http\Controllers\StatisticsController::class, 'index'])->name('statistics');
 
@@ -107,6 +113,12 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+// Contact Routes (verfügbar für alle - auch Gäste)
+Route::get('/kontakt', [\App\Http\Controllers\ContactController::class, 'index'])->name('contact.index');
+Route::post('/kontakt', [\App\Http\Controllers\ContactController::class, 'store'])
+    ->middleware('throttle:3,60') // 3 Anfragen pro 60 Minuten
+    ->name('contact.submit');
+
 Route::middleware('auth')->group(function () {
     // Practice Menu und Modi
     Route::get('/practice-menu', [\App\Http\Controllers\PracticeController::class, 'menu'])->name('practice.menu');
@@ -161,6 +173,14 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix
     Route::post('newsletter/send', [\App\Http\Controllers\NewsletterController::class, 'sendToAll'])->name('newsletter.send');
     Route::get('newsletter', [\App\Http\Controllers\NewsletterController::class, 'index'])->name('newsletter.index');
     Route::get('newsletter/{newsletter}', [\App\Http\Controllers\NewsletterController::class, 'show'])->name('newsletter.show');
+    
+    // Contact Messages Routes
+    Route::get('contact-messages', [\App\Http\Controllers\Admin\ContactMessageController::class, 'index'])->name('contact-messages.index');
+    Route::get('contact-messages/{contactMessage}', [\App\Http\Controllers\Admin\ContactMessageController::class, 'show'])->name('contact-messages.show');
+    Route::patch('contact-messages/{contactMessage}/mark-read', [\App\Http\Controllers\Admin\ContactMessageController::class, 'markAsRead'])->name('contact-messages.mark-read');
+    Route::patch('contact-messages/{contactMessage}/mark-unread', [\App\Http\Controllers\Admin\ContactMessageController::class, 'markAsUnread'])->name('contact-messages.mark-unread');
+    Route::delete('contact-messages/{contactMessage}', [\App\Http\Controllers\Admin\ContactMessageController::class, 'destroy'])->name('contact-messages.destroy');
+    Route::delete('contact-messages', [\App\Http\Controllers\Admin\ContactMessageController::class, 'bulkDelete'])->name('contact-messages.bulk-delete');
 });
 
 // Test Routes für Error Pages (nur für Development/Testing)

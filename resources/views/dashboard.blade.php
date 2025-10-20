@@ -415,6 +415,12 @@
                         <div class="text-sm text-gray-600">Nutzer- und Fragenverwaltung</div>
                     </a>
                 @endif
+                
+                <a href="{{ route('contact.index') }}" 
+                   class="block p-4 bg-yellow-50 border border-yellow-300 rounded-lg hover:bg-yellow-100 hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer">
+                    <div class="text-lg font-medium text-blue-800">📬 Kontakt & Feedback</div>
+                    <div class="text-sm text-gray-600">Fragen, Feedback oder Fehler melden</div>
+                </a>
             </div>
         </div>
     </div>
