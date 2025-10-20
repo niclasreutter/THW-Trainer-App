@@ -262,7 +262,7 @@
             display: flex !important;
             flex-direction: column !important;
             min-height: calc(100vh - 140px) !important;
-            padding-bottom: 8px !important;
+            padding-bottom: 4px !important;
         }
         
         #practiceContainer > form > .mb-2 {
@@ -275,7 +275,7 @@
             content: '' !important;
             flex-grow: 1 !important;
             order: 2 !important;
-            min-height: 12px !important;
+            min-height: 8px !important;
         }
         
         /* Button und Meldungen am Ende */
@@ -283,7 +283,7 @@
         #practiceContainer a.w-full {
             order: 4 !important;
             margin-top: 0 !important;
-            margin-bottom: 8px !important;
+            margin-bottom: 4px !important;
         }
         
         /* Gamification/Meldungen über dem Button */
@@ -291,7 +291,7 @@
         #practiceContainer > form > div.animate-fade-in {
             order: 3 !important;
             margin-top: 0 !important;
-            margin-bottom: 16px !important;
+            margin-bottom: 12px !important;
         }
         
         /* Mehr Abstand zwischen Frage und Antworten */
