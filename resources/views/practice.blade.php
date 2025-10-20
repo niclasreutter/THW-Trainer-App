@@ -291,43 +291,43 @@
             margin-top: 24px !important;
         }
         
-        /* Gamification Popup Overlay */
+        /* Gamification Popup Overlay - Oben rechts positioniert */
         .gamification-popup {
             position: fixed !important;
-            top: 50% !important;
-            left: 50% !important;
-            transform: translate(-50%, -50%) scale(0.9) !important;
+            top: 20px !important;
+            right: 20px !important;
             z-index: 9999 !important;
-            width: 90% !important;
-            max-width: 400px !important;
+            width: 320px !important;
+            max-width: 90vw !important;
             opacity: 0 !important;
             pointer-events: none !important;
             transition: all 0.3s ease-out !important;
+            transform: translateX(100%) !important;
         }
         
         .gamification-popup.show {
             opacity: 1 !important;
-            transform: translate(-50%, -50%) scale(1) !important;
+            transform: translateX(0) !important;
             pointer-events: auto !important;
         }
         
-        /* Error Popup (Falsch-Meldung) */
+        /* Error Popup - Oben rechts positioniert */
         .error-popup {
             position: fixed !important;
-            bottom: 80px !important;
-            left: 50% !important;
-            transform: translateX(-50%) translateY(20px) !important;
+            top: 20px !important;
+            right: 20px !important;
             z-index: 9999 !important;
-            width: 90% !important;
-            max-width: 400px !important;
+            width: 320px !important;
+            max-width: 90vw !important;
             opacity: 0 !important;
             pointer-events: none !important;
             transition: all 0.3s ease-out !important;
+            transform: translateX(100%) !important;
         }
         
         .error-popup.show {
             opacity: 1 !important;
-            transform: translateX(-50%) translateY(0) !important;
+            transform: translateX(0) !important;
             pointer-events: auto !important;
         }
     }
@@ -374,14 +374,31 @@
             font-size: 1.1rem !important;
         }
         
-        /* Desktop Popup Styling */
+        /* Desktop Popup Styling - Oben rechts */
         .gamification-popup {
-            max-width: 500px !important;
+            position: fixed !important;
+            top: 20px !important;
+            right: 20px !important;
+            width: 380px !important;
+            max-width: 90vw !important;
+            transform: translateX(100%) !important;
+        }
+        
+        .gamification-popup.show {
+            transform: translateX(0) !important;
         }
         
         .error-popup {
-            bottom: 100px !important;
-            max-width: 500px !important;
+            position: fixed !important;
+            top: 20px !important;
+            right: 20px !important;
+            width: 380px !important;
+            max-width: 90vw !important;
+            transform: translateX(100%) !important;
+        }
+        
+        .error-popup.show {
+            transform: translateX(0) !important;
         }
     }
 </style>
@@ -636,19 +653,31 @@
             
             $showMastered = isset($questionProgress) && $questionProgress->consecutive_correct == 2;
             $showOneMore = isset($questionProgress) && $questionProgress->consecutive_correct == 1;
+            $showCorrect = isset($questionProgress) && $questionProgress->consecutive_correct >= 1;
         @endphp
         
-        @if($showGamification)
+        @if($showGamification || $showCorrect)
             <div id="gamificationPopup" class="gamification-popup hidden">
                 <div style="background: white; border-radius: 16px; padding: 20px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 0 30px rgba(34, 197, 94, 0.4);">
-                    <div class="flex items-center gap-2 mb-3">
-                        <span style="font-size: 32px;">{{ $celebration['emoji'] }}</span>
-                        <div>
-                            <div style="font-size: 20px; font-weight: bold; color: #15803d;">{{ $celebration['text'] }}</div>
-                            <div style="font-size: 18px; color: #16a34a; font-weight: 600;">+{{ $pointsAwarded }} Punkte</div>
+                    @if($showGamification)
+                        <div class="flex items-center gap-2 mb-3">
+                            <span style="font-size: 32px;">{{ $celebration['emoji'] }}</span>
+                            <div>
+                                <div style="font-size: 20px; font-weight: bold; color: #15803d;">{{ $celebration['text'] }}</div>
+                                <div style="font-size: 18px; color: #16a34a; font-weight: 600;">+{{ $pointsAwarded }} Punkte</div>
+                            </div>
                         </div>
-                    </div>
-                    <div style="font-size: 14px; color: #6b7280; text-align: center;">{{ $reasonText }}</div>
+                        <div style="font-size: 14px; color: #6b7280; text-align: center;">{{ $reasonText }}</div>
+                    @else
+                        <div class="flex items-center gap-2 mb-3">
+                            <span style="font-size: 32px;">🎉</span>
+                            <div>
+                                <div style="font-size: 20px; font-weight: bold; color: #15803d;">Richtig!</div>
+                                <div style="font-size: 18px; color: #16a34a; font-weight: 600;">+{{ $pointsAwarded ?? 10 }} Punkte</div>
+                            </div>
+                        </div>
+                        <div style="font-size: 14px; color: #6b7280; text-align: center;">Frage {{ $questionProgress->consecutive_correct }}x richtig beantwortet</div>
+                    @endif
                     
                     @if($showMastered)
                         <div style="margin-top: 12px; padding: 12px; background-color: #dcfce7; border: 2px solid #86efac; border-radius: 12px; text-align: center;">
