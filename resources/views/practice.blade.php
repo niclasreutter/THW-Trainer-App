@@ -25,7 +25,7 @@
     }
 @endphp
 <style>
-    /* CACHE BUST v6.9 - GAMIFICATION POPUPS FIX - 2025-10-20-19:30 */
+    /* CACHE BUST v7.0 - POPUP FIX - 2025-10-20-20:00 */
     @keyframes fadeIn {
         from {
             opacity: 0;
@@ -653,10 +653,10 @@
             
             $showMastered = isset($questionProgress) && $questionProgress->consecutive_correct == 2;
             $showOneMore = isset($questionProgress) && $questionProgress->consecutive_correct == 1;
-            $showCorrect = isset($questionProgress) && $questionProgress->consecutive_correct >= 1;
+            $showCorrect = isset($isCorrect) && $isCorrect;
         @endphp
         
-        @if($showGamification || $showCorrect)
+        @if($showCorrect)
             <div id="gamificationPopup" class="gamification-popup hidden">
                 <div style="background: white; border-radius: 16px; padding: 20px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 0 30px rgba(34, 197, 94, 0.4);">
                     @if($showGamification)

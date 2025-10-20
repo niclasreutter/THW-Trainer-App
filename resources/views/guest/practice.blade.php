@@ -3,7 +3,7 @@
 @section('description', 'Übe THW Theoriefragen sofort und anonym ohne Anmeldung. Perfekt zum schnellen Testen und Lernen. Jederzeit kostenlos verfügbar!')
 @section('content')
 <style>
-    /* CACHE BUST v6.9 - GAMIFICATION POPUPS FIX - 2025-10-20-19:30 */
+    /* CACHE BUST v7.0 - POPUP FIX - 2025-10-20-20:00 */
     @keyframes fadeIn {
         from {
             opacity: 0;
@@ -255,43 +255,43 @@
             margin-top: 24px !important;
         }
         
-        /* Gamification Popup Overlay */
+        /* Gamification Popup Overlay - Oben rechts positioniert */
         .gamification-popup {
             position: fixed !important;
-            top: 50% !important;
-            left: 50% !important;
-            transform: translate(-50%, -50%) scale(0.9) !important;
+            top: 20px !important;
+            right: 20px !important;
             z-index: 9999 !important;
-            width: 90% !important;
-            max-width: 400px !important;
+            width: 320px !important;
+            max-width: 90vw !important;
             opacity: 0 !important;
             pointer-events: none !important;
             transition: all 0.3s ease-out !important;
+            transform: translateX(100%) !important;
         }
         
         .gamification-popup.show {
             opacity: 1 !important;
-            transform: translate(-50%, -50%) scale(1) !important;
+            transform: translateX(0) !important;
             pointer-events: auto !important;
         }
         
-        /* Error Popup (Falsch-Meldung) */
+        /* Error Popup - Oben rechts positioniert */
         .error-popup {
             position: fixed !important;
-            bottom: 80px !important;
-            left: 50% !important;
-            transform: translateX(-50%) translateY(20px) !important;
+            top: 20px !important;
+            right: 20px !important;
             z-index: 9999 !important;
-            width: 90% !important;
-            max-width: 400px !important;
+            width: 320px !important;
+            max-width: 90vw !important;
             opacity: 0 !important;
             pointer-events: none !important;
             transition: all 0.3s ease-out !important;
+            transform: translateX(100%) !important;
         }
         
         .error-popup.show {
             opacity: 1 !important;
-            transform: translateX(-50%) translateY(0) !important;
+            transform: translateX(0) !important;
             pointer-events: auto !important;
         }
     }
@@ -338,14 +338,31 @@
             font-size: 1.1rem !important;
         }
         
-        /* Desktop Popup Styling */
+        /* Desktop Popup Styling - Oben rechts */
         .gamification-popup {
-            max-width: 500px !important;
+            position: fixed !important;
+            top: 20px !important;
+            right: 20px !important;
+            width: 380px !important;
+            max-width: 90vw !important;
+            transform: translateX(100%) !important;
+        }
+        
+        .gamification-popup.show {
+            transform: translateX(0) !important;
         }
         
         .error-popup {
-            bottom: 100px !important;
-            max-width: 500px !important;
+            position: fixed !important;
+            top: 20px !important;
+            right: 20px !important;
+            width: 380px !important;
+            max-width: 90vw !important;
+            transform: translateX(100%) !important;
+        }
+        
+        .error-popup.show {
+            transform: translateX(0) !important;
         }
     }
         
