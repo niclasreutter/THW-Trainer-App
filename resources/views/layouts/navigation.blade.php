@@ -29,18 +29,6 @@
                                 <div class="absolute -bottom-1 left-0 w-0 h-0.5 bg-yellow-400 transition-all duration-200 group-hover:w-full"></div>
                             @endif
                         </a>
-                        <a href="{{ route('gamification.achievements') }}" 
-                           class="inline-flex items-center px-3 py-2 text-sm font-medium text-white hover:text-yellow-400 transition-colors duration-200 relative group {{ request()->routeIs('gamification.*') ? 'text-yellow-400' : '' }}">
-                            <span class="flex items-center space-x-2">
-                                <span class="text-lg">🏆</span>
-                                <span>Achievements</span>
-                            </span>
-                            @if(request()->routeIs('gamification.*'))
-                                <div class="absolute -bottom-1 left-0 w-full h-0.5 bg-yellow-400"></div>
-                            @else
-                                <div class="absolute -bottom-1 left-0 w-0 h-0.5 bg-yellow-400 transition-all duration-200 group-hover:w-full"></div>
-                            @endif
-                        </a>
                     @endauth
                     
                     <!-- Öffentliche Statistik (für alle sichtbar) -->
@@ -203,11 +191,6 @@
                    class="block px-3 py-2 text-base font-medium text-white hover:text-yellow-400 hover:bg-blue-800 rounded-md transition-colors duration-200 flex items-center space-x-2 {{ request()->routeIs('dashboard') ? 'text-yellow-400 bg-blue-800' : '' }}">
                     <span class="text-lg">📊</span>
                     <span>Dashboard</span>
-                </a>
-                <a href="{{ route('gamification.achievements') }}" 
-                   class="block px-3 py-2 text-base font-medium text-white hover:text-yellow-400 hover:bg-blue-800 rounded-md transition-colors duration-200 flex items-center space-x-2 {{ request()->routeIs('gamification.*') ? 'text-yellow-400 bg-blue-800' : '' }}">
-                    <span class="text-lg">🏆</span>
-                    <span>Achievements</span>
                 </a>
                 
                 <!-- Öffentliche Statistik (für alle sichtbar) -->
