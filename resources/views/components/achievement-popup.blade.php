@@ -1,5 +1,5 @@
 <!-- Achievement Popup (wird über JavaScript eingeblendet) -->
-<div id="achievementPopup" class="fixed top-4 right-4 z-50 transform translate-x-full transition-transform duration-500 ease-in-out">
+<div id="achievementPopup" class="fixed top-4 right-4 z-50 hidden transform translate-x-full transition-transform duration-500 ease-in-out">
     <div class="bg-gradient-to-r from-yellow-400 to-orange-500 text-white rounded-lg shadow-lg p-4 max-w-sm">
         <div class="flex items-center">
             <div class="text-3xl mr-3" id="achievementIcon">🏆</div>
@@ -25,8 +25,14 @@ function showAchievementPopup(icon, title) {
     iconEl.textContent = icon;
     titleEl.textContent = title;
     
-    popup.classList.remove('translate-x-full');
-    popup.classList.add('translate-x-0');
+    // Zeige den Popup
+    popup.classList.remove('hidden');
+    
+    // Warte kurz, dann slide-in Animation
+    setTimeout(() => {
+        popup.classList.remove('translate-x-full');
+        popup.classList.add('translate-x-0');
+    }, 10);
     
     // Auto-hide nach 5 Sekunden
     setTimeout(() => {
@@ -38,6 +44,11 @@ function hideAchievementPopup() {
     const popup = document.getElementById('achievementPopup');
     popup.classList.remove('translate-x-0');
     popup.classList.add('translate-x-full');
+    
+    // Verstecke nach Animation
+    setTimeout(() => {
+        popup.classList.add('hidden');
+    }, 500);
 }
 
 // Beispiel für automatisches Anzeigen (kann in anderen Views verwendet werden)

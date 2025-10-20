@@ -38,9 +38,9 @@
             @csrf
             <input type="hidden" name="question_id" value="{{ $question->id }}">
             <div class="mb-4 p-4 border rounded bg-gray-50">
-                <div class="mb-2 text-xs text-gray-500 flex items-center gap-2">
+                <div class="mb-2 text-[9px] sm:text-xs text-gray-500 flex items-center gap-1">
                     <span>ID: {{ $question->id }}</span>
-                    <span class="mx-2">&middot;</span>
+                    <span class="mx-0.5 sm:mx-2">&middot;</span>
                     <span>Lernabschnitt: {{ $question->lernabschnitt ?? '-' }}.{{ $question->nummer ?? '-' }}</span>
                 </div>
                 <div class="mb-2 font-bold">Frage:</div>

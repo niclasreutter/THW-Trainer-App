@@ -126,7 +126,7 @@
                             <div class="text-xs text-green-600">Täglich</div>
                             <!-- Mini Progress Bar -->
                             @php
-                                $dailyProgressPercent = (($user->daily_questions_solved ?? 0) / 20) * 100;
+                                $dailyProgressPercent = min(100, (($user->daily_questions_solved ?? 0) / 20) * 100);
                             @endphp
                             <div class="w-full bg-green-200 rounded-full h-1 mt-1">
                                 <div class="bg-green-500 h-1 rounded-full transition-all duration-500" style="width: {{ $dailyProgressPercent }}%"></div>

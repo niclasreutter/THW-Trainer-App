@@ -116,9 +116,9 @@
                 <input type="hidden" name="answer_mappings[{{ $nr }}]" value="{{ $mappingJson }}">
                 
                 <div class="mb-6 p-6 border rounded-lg bg-gray-50 shadow-sm hover:shadow-md transition-shadow duration-300">
-                    <div class="mb-2 text-xs text-gray-500 flex items-center gap-2">
+                    <div class="mb-2 text-[9px] sm:text-xs text-gray-500 flex items-center gap-1">
                         <span>ID: {{ $frage->id }}</span>
-                        <span class="mx-2">&middot;</span>
+                        <span class="mx-0.5 sm:mx-2">&middot;</span>
                         <span>Lernabschnitt: {{ $frage->lernabschnitt ?? '-' }}.{{ $frage->nummer ?? '-' }}</span>
                     </div>
                     <div class="mb-2 font-bold">Frage {{ $nr+1 }}:</div>
