@@ -671,8 +671,8 @@
                             errorPopup.classList.add('hidden');
                         }, 300);
                     }, 3000);
-                }
-            });
+                }, 100);
+            }
         });
         
         @if(!isset($isCorrect))

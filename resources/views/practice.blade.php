@@ -733,11 +733,10 @@
                                 errorPopup.classList.add('hidden');
                             }, 300);
                         }, 3000);
+                    }, 100);
                 }
-            });
-            
-            // Initialize Bookmark Icon Colors on Page Load
-            document.addEventListener('DOMContentLoaded', function() {
+                
+                // Initialize Bookmark Icon Colors
                 updateBookmarkIconState('bookmarkIconMobile', 'bookmarkBtnMobile', null);
                 updateBookmarkIconState('bookmarkIcon', 'bookmarkBtn', 'bookmarkText');
             });
