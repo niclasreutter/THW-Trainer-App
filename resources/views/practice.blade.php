@@ -25,7 +25,7 @@
     }
 @endphp
 <style>
-    /* CACHE BUST v7.2 - GREEN TRANSPARENT POPUP - 2025-10-20-20:30 */
+    /* CACHE BUST v7.4 - SMALLER FONT SIZES - 2025-10-20-20:40 */
     @keyframes fadeIn {
         from {
             opacity: 0;
@@ -332,46 +332,59 @@
         }
     }
     
-    /* Desktop: Mehr vertikaler Platz und größere Elemente */
+    /* Desktop: Kompakte Ansicht für alle Bildschirmgrößen */
     @media (min-width: 641px) {
         main {
-            padding-top: 2rem;
-            padding-bottom: 2rem;
-            min-height: calc(100vh - 200px);
+            padding-top: 1rem !important;
+            padding-bottom: 1rem !important;
+            min-height: 100vh !important;
         }
         
-        /* Größere Schriften und Abstände auf Desktop */
+        /* Kompaktere Schriften und Abstände auf Desktop */
         #practiceContainer h2 {
-            font-size: 1.5rem !important;
-            margin-bottom: 1.5rem !important;
+            font-size: 1.25rem !important;
+            margin-bottom: 0.75rem !important;
         }
         
         #practiceContainer .text-sm {
-            font-size: 1rem !important;
+            font-size: 0.95rem !important;
         }
         
         #practiceContainer .text-xs {
-            font-size: 0.9rem !important;
+            font-size: 0.85rem !important;
         }
         
         #practiceContainer .mb-3 {
-            margin-bottom: 1.5rem !important;
+            margin-bottom: 0.75rem !important;
         }
         
         #practiceContainer .mb-2 {
-            margin-bottom: 1rem !important;
+            margin-bottom: 0.5rem !important;
         }
         
         #practiceContainer label {
-            padding: 1rem !important;
-            font-size: 1rem !important;
-            line-height: 1.6 !important;
+            padding: 0.75rem !important;
+            font-size: 0.95rem !important;
+            line-height: 1.5 !important;
+            margin-bottom: 0.5rem !important;
         }
         
         #practiceContainer button[type="submit"],
         #practiceContainer a.w-full {
-            padding: 1rem 1.5rem !important;
-            font-size: 1.1rem !important;
+            padding: 0.75rem 1.25rem !important;
+            font-size: 1rem !important;
+            margin-top: 0.75rem !important;
+        }
+        
+        /* Frage-Container kompakter */
+        #practiceContainer > form > div.mb-2 {
+            padding: 1rem !important;
+            margin-bottom: 0.75rem !important;
+        }
+        
+        /* Antworten kompakter stapeln */
+        #practiceContainer .flex.flex-col.gap-1\.5 {
+            gap: 0.5rem !important;
         }
         
         /* Desktop Popup Styling - Oben rechts */
@@ -404,7 +417,7 @@
 </style>
 
 <!-- Practice Container -->
-<div class="max-w-xl mx-auto mt-0 sm:mt-8 p-3 sm:p-6 bg-white sm:rounded-lg sm:shadow-lg sm:hover:shadow-xl sm:transition-shadow sm:duration-300" 
+<div class="max-w-xl mx-auto mt-0 sm:mt-4 p-3 sm:p-4 bg-white sm:rounded-lg sm:shadow-lg sm:hover:shadow-xl sm:transition-shadow sm:duration-300" 
      id="practiceContainer">
 
     @if($question)
@@ -450,8 +463,8 @@
         </div>
 
         <!-- Desktop: Normaler Header -->
-        <div class="mb-3 hidden sm:block">
-            <h2 class="text-xl font-bold mb-2">
+        <div class="mb-2 hidden sm:block">
+            <h2 class="text-lg font-bold mb-1">
                 @if(isset($mode))
                     @switch($mode)
                         @case('unsolved')
@@ -475,17 +488,17 @@
             </h2>
         </div>
         
-        <div class="mb-3 text-sm text-gray-600 hidden sm:block">
+        <div class="mb-2 text-xs text-gray-600 hidden sm:block">
             Fortschritt: {{ $progress }}/{{ $total }} gemeistert
-            <div class="w-full bg-gray-200 rounded-full h-3 mt-1 mb-1">
-                <div class="bg-yellow-400 h-3 rounded-full transition-all duration-300 shadow-lg" 
+            <div class="w-full bg-gray-200 rounded-full h-2 mt-0.5 mb-0.5">
+                <div class="bg-yellow-400 h-2 rounded-full transition-all duration-300 shadow-lg" 
                      style="width: {{ $progressPercent ?? 0 }}%; box-shadow: 0 0 10px rgba(251, 191, 36, 0.6), 0 0 20px rgba(251, 191, 36, 0.4), 0 0 30px rgba(251, 191, 36, 0.2);"></div>
             </div>
-            <span class="text-xs text-gray-500">{{ $progressPercent ?? 0 }}% Gesamt-Fortschritt (inkl. 1x richtig)</span>
+            <span class="text-[10px] text-gray-500">{{ $progressPercent ?? 0 }}% Gesamt-Fortschritt (inkl. 1x richtig)</span>
         </div>
         
         <!-- Desktop: Bookmark Button -->
-        <div class="mb-3 flex justify-end items-center hidden sm:flex">
+        <div class="mb-2 flex justify-end items-center hidden sm:flex">
             @php
                 $user = Auth::user();
                 $bookmarked = is_array($user->bookmarked_questions ?? null) 
@@ -556,17 +569,17 @@
             
             <input type="hidden" name="answer_mapping" value="{{ $mappingJson }}">
             
-            <div class="mb-2 sm:mb-4 p-2 sm:p-4 border rounded-lg bg-gray-50 shadow-sm sm:hover:shadow-md sm:transition-shadow sm:duration-300">
-                <div class="mb-2 text-[9px] sm:text-xs text-gray-500 flex items-center gap-1">
+            <div class="mb-2 sm:mb-3 p-2 sm:p-3 border rounded-lg bg-gray-50 shadow-sm sm:hover:shadow-md sm:transition-shadow sm:duration-300">
+                <div class="mb-1 text-[9px] sm:text-[10px] text-gray-500 flex items-center gap-1">
                     <span>ID: {{ $question->id }}</span>
-                    <span class="mx-0.5 sm:mx-2">&middot;</span>
+                    <span class="mx-0.5 sm:mx-1">&middot;</span>
                     <span>Lernabschnitt: {{ $question->lernabschnitt ?? '-' }}.{{ $question->nummer ?? '-' }}</span>
                 </div>
-                <div class="mb-1 sm:mb-2 font-bold text-xs sm:text-sm">Frage:</div>
-                <div class="mb-2 sm:mb-3 text-xs sm:text-sm">{{ $question->frage }}</div>
-                <div class="mb-2 sm:mb-3">
-                    <label class="block mb-1 sm:mb-2 font-semibold text-xs sm:text-sm">Antwortmöglichkeiten:</label>
-                    <div class="flex flex-col gap-1.5 sm:gap-2">
+                <div class="mb-1 font-bold text-xs sm:text-sm">Frage:</div>
+                <div class="mb-2 text-xs sm:text-sm">{{ $question->frage }}</div>
+                <div class="mb-2">
+                    <label class="block mb-1 font-semibold text-xs sm:text-sm">Antwortmöglichkeiten:</label>
+                    <div class="flex flex-col gap-1.5 sm:gap-1.5">
                         @foreach($answers as $index => $answer)
                             @php
                                 $originalLetter = $answer['letter'];
@@ -574,21 +587,21 @@
                                 $isUserAnswer = isset($userAnswer) && $userAnswer->contains($originalLetter);
                                 $isChecked = isset($isCorrect) && $isUserAnswer;
                             @endphp
-                            <label class="inline-flex items-start p-1.5 sm:p-2 rounded-lg hover:bg-gray-50 transition-all duration-200 cursor-pointer">
+                            <label class="inline-flex items-start p-1.5 sm:p-1.5 rounded-lg hover:bg-gray-50 transition-all duration-200 cursor-pointer">
                                 @if(isset($isCorrect))
                                     @if($isCorrectAnswer)
-                                        <span class="mr-1.5 sm:mr-2 text-green-600 text-base sm:text-lg">✅</span>
+                                        <span class="mr-1.5 sm:mr-1.5 text-green-600 text-base sm:text-base">✅</span>
                                     @elseif($isUserAnswer)
-                                        <span class="mr-1.5 sm:mr-2 text-red-600 text-base sm:text-lg">❌</span>
+                                        <span class="mr-1.5 sm:mr-1.5 text-red-600 text-base sm:text-base">❌</span>
                                     @else
-                                        <span class="mr-1.5 sm:mr-2 text-gray-400 text-base sm:text-lg">⚪</span>
+                                        <span class="mr-1.5 sm:mr-1.5 text-gray-400 text-base sm:text-base">⚪</span>
                                     @endif
                                 @endif
                                 <input type="checkbox" name="answer[]" value="{{ $index }}"
                                     @if($isChecked) checked @endif
                                     @if(isset($isCorrect)) disabled @endif
-                                    class="mr-1.5 sm:mr-2 w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2 mt-0.5">
-                                <span class="ml-1 sm:ml-2 text-xs sm:text-sm {{ isset($isCorrect) && $isChecked ? ($isCorrectAnswer ? 'text-green-600 font-semibold' : 'text-red-600 font-semibold') : '' }}">
+                                    class="mr-1.5 sm:mr-1.5 w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2 mt-0.5">
+                                <span class="ml-1 sm:ml-1 text-xs sm:text-sm {{ isset($isCorrect) && $isChecked ? ($isCorrectAnswer ? 'text-green-600 font-semibold' : 'text-red-600 font-semibold') : '' }}">
                                     {{ $answer['text'] }}
                                 </span>
                             </label>
@@ -597,20 +610,20 @@
                 </div>
             </div>
             @if(!isset($isCorrect))
-                <button type="submit" id="submitBtn" class="w-full text-center font-bold text-xs sm:text-sm py-2.5 sm:py-3 px-4 rounded-lg border-none cursor-pointer transition-all duration-300" 
+                <button type="submit" id="submitBtn" class="w-full text-center font-bold text-xs sm:text-base py-2.5 sm:py-2.5 px-4 rounded-lg border-none cursor-pointer transition-all duration-300" 
                         style="background-color: #1e3a8a; color: #fbbf24; box-shadow: 0 0 15px rgba(30, 58, 138, 0.3);" 
                         onmouseover="if(!this.disabled) { this.style.backgroundColor='#fbbf24'; this.style.color='#1e3a8a'; this.style.transform='scale(1.02)'; this.style.boxShadow='0 0 20px rgba(251, 191, 36, 0.4)'; }" 
                         onmouseout="if(!this.disabled) { this.style.backgroundColor='#1e3a8a'; this.style.color='#fbbf24'; this.style.transform='scale(1)'; this.style.boxShadow='0 0 15px rgba(30, 58, 138, 0.3)'; }"
                         disabled>Antwort absenden</button>
                 
             @elseif(isset($isCorrect) && $isCorrect)
-                <a href="{{ route('practice.index') }}" class="w-full block text-center font-bold text-xs sm:text-sm py-2.5 sm:py-3 px-4 rounded-lg no-underline transition-all duration-300" 
+                <a href="{{ route('practice.index') }}" class="w-full block text-center font-bold text-xs sm:text-base py-2.5 sm:py-2.5 px-4 rounded-lg no-underline transition-all duration-300" 
                    style="background-color: #1e3a8a; color: #fbbf24; box-shadow: 0 0 15px rgba(30, 58, 138, 0.3);"
                    onmouseover="this.style.backgroundColor='#fbbf24'; this.style.color='#1e3a8a'; this.style.transform='scale(1.02)'; this.style.boxShadow='0 0 20px rgba(251, 191, 36, 0.4)';"
                    onmouseout="this.style.backgroundColor='#1e3a8a'; this.style.color='#fbbf24'; this.style.transform='scale(1)'; this.style.boxShadow='0 0 15px rgba(30, 58, 138, 0.3)';">Nächste Frage</a>
                 
             @elseif(isset($isCorrect) && !$isCorrect)
-                <a href="{{ route('practice.index', ['skip_id' => $question->id]) }}" class="w-full block text-center font-bold text-xs sm:text-sm py-2.5 sm:py-3 px-4 rounded-lg no-underline transition-all duration-300" 
+                <a href="{{ route('practice.index', ['skip_id' => $question->id]) }}" class="w-full block text-center font-bold text-xs sm:text-base py-2.5 sm:py-2.5 px-4 rounded-lg no-underline transition-all duration-300" 
                    style="background-color: #1e3a8a; color: #fbbf24; box-shadow: 0 0 15px rgba(30, 58, 138, 0.3);"
                    onmouseover="this.style.backgroundColor='#fbbf24'; this.style.color='#1e3a8a'; this.style.transform='scale(1.02)'; this.style.boxShadow='0 0 20px rgba(251, 191, 36, 0.4)';"
                    onmouseout="this.style.backgroundColor='#1e3a8a'; this.style.color='#fbbf24'; this.style.transform='scale(1)'; this.style.boxShadow='0 0 15px rgba(30, 58, 138, 0.3)';">Nächste Frage</a>

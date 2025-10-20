@@ -4,6 +4,7 @@
 @section('description', 'THW-Trainer: Dein kostenloser digitaler Begleiter für die THW-Theorieprüfung. Alle aktuellen Fragen, Prüfungssimulation und Lernfortschritt. Jetzt anonym starten oder kostenlos registrieren!')
 
 @section('content')
+<!-- CACHE BUST v1.0 - COMPACT HOME - 2025-10-20-20:50 -->
 <div class="min-h-screen bg-[#FDFDFC]">
     
     <!-- Account gelöscht Meldung  -->
@@ -71,11 +72,11 @@
         
         <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <!-- Header -->
-            <div class="text-center mb-12 lg:mb-24">
-                <h2 class="text-2xl lg:text-6xl font-bold text-gray-900 mb-4 lg:mb-8 tracking-tight">
+            <div class="text-center mb-12 lg:mb-16">
+                <h2 class="text-2xl lg:text-3xl font-bold text-gray-900 mb-4 lg:mb-6 tracking-tight">
                     🎯 Was bietet der THW-Trainer?
                 </h2>
-                <p class="text-lg lg:text-5xl text-gray-600 max-w-4xl mx-auto leading-relaxed font-light px-4">
+                <p class="text-base lg:text-xl text-gray-600 max-w-4xl mx-auto leading-relaxed font-light px-4">
                     Alles, was du brauchst, um dich optimal auf deine Grundausbildung Theorie-Prüfung im THW vorzubereiten
                 </p>
             </div>
@@ -115,15 +116,15 @@
     </div>
 
     <!-- CTA Section -->
-    <div style="background-color: #00337F; padding: 2rem 0; lg:padding: 4rem 0;">
+    <div style="background-color: #00337F; padding: 2rem 0; lg:padding: 3rem 0;">
         <div class="max-w-6xl mx-auto text-center" style="padding: 0 1rem; lg:padding: 0 3rem;">
-            <h2 class="text-xl lg:text-6xl font-bold text-white mb-4 lg:mb-6 tracking-tight">
+            <h2 class="text-xl lg:text-3xl font-bold text-white mb-4 lg:mb-5 tracking-tight">
                 📑 Bereit zum Lernen?
             </h2>
-            <p class="text-base lg:text-5xl text-white mb-8 lg:mb-16 max-w-4xl mx-auto leading-relaxed font-light px-4">
+            <p class="text-sm lg:text-lg text-white mb-4 lg:mb-6 max-w-4xl mx-auto leading-relaxed font-light px-4">
                 Starte jetzt mit dem THW-Trainer und bereite dich optimal auf deine Grundausbildung Theorie-Prüfung im THW vor. 
             </p>
-            <p class="text-base lg:text-5xl text-white max-w-4xl mx-auto leading-relaxed font-light px-4" style="margin-bottom: 2rem;">
+            <p class="text-sm lg:text-base text-white max-w-4xl mx-auto leading-relaxed font-light px-4" style="margin-bottom: 1.5rem;">
             Registriere dich kostenlos und beginne sofort mit dem Lernen, egal ob Handy, Laptop oder Tablet!
             Ein Account, ein Lernstand!
             </p>
