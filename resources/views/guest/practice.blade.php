@@ -3,7 +3,7 @@
 @section('description', 'Übe THW Theoriefragen sofort und anonym ohne Anmeldung. Perfekt zum schnellen Testen und Lernen. Jederzeit kostenlos verfügbar!')
 @section('content')
 <style>
-    /* CACHE BUST v7.0 - POPUP FIX - 2025-10-20-20:00 */
+    /* CACHE BUST v7.2 - GREEN TRANSPARENT POPUP - 2025-10-20-20:30 */
     @keyframes fadeIn {
         from {
             opacity: 0;
@@ -613,10 +613,10 @@
     <!-- Success Popup (Richtig beantwortet) -->
     @if(isset($isCorrect) && $isCorrect)
         <div id="successPopup" class="gamification-popup hidden">
-            <div style="background: white; border-radius: 16px; padding: 20px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 0 30px rgba(34, 197, 94, 0.4); border: 2px solid #86efac;">
+            <div style="background: rgba(34, 197, 94, 0.95); border-radius: 16px; padding: 20px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 0 30px rgba(34, 197, 94, 0.6); border: 2px solid rgba(34, 197, 94, 0.8);">
                 <div class="flex items-center gap-3 justify-center">
                     <span style="font-size: 40px;">✅</span>
-                    <div style="font-size: 20px; font-weight: bold; color: #15803d;">Richtig beantwortet!</div>
+                    <div style="font-size: 20px; font-weight: bold; color: white;">Richtig beantwortet!</div>
                 </div>
             </div>
         </div>

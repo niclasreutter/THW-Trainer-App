@@ -25,7 +25,7 @@
     }
 @endphp
 <style>
-    /* CACHE BUST v7.0 - POPUP FIX - 2025-10-20-20:00 */
+    /* CACHE BUST v7.2 - GREEN TRANSPARENT POPUP - 2025-10-20-20:30 */
     @keyframes fadeIn {
         from {
             opacity: 0;
@@ -658,25 +658,29 @@
         
         @if($showCorrect)
             <div id="gamificationPopup" class="gamification-popup hidden">
-                <div style="background: white; border-radius: 16px; padding: 20px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 0 30px rgba(34, 197, 94, 0.4);">
+                <div style="background: rgba(34, 197, 94, 0.95); border-radius: 16px; padding: 20px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 0 30px rgba(34, 197, 94, 0.6); border: 2px solid rgba(34, 197, 94, 0.8);">
                     @if($showGamification)
                         <div class="flex items-center gap-2 mb-3">
                             <span style="font-size: 32px;">{{ $celebration['emoji'] }}</span>
                             <div>
-                                <div style="font-size: 20px; font-weight: bold; color: #15803d;">{{ $celebration['text'] }}</div>
-                                <div style="font-size: 18px; color: #16a34a; font-weight: 600;">+{{ $pointsAwarded }} Punkte</div>
+                                <div style="font-size: 20px; font-weight: bold; color: white;">{{ $celebration['text'] }}</div>
+                                <div style="font-size: 18px; color: white; font-weight: 600;">+{{ $pointsAwarded }} Punkte</div>
                             </div>
                         </div>
-                        <div style="font-size: 14px; color: #6b7280; text-align: center;">{{ $reasonText }}</div>
+                        <div style="font-size: 14px; color: white; text-align: center;">{{ $reasonText }}</div>
                     @else
                         <div class="flex items-center gap-2 mb-3">
                             <span style="font-size: 32px;">🎉</span>
                             <div>
-                                <div style="font-size: 20px; font-weight: bold; color: #15803d;">Richtig!</div>
-                                <div style="font-size: 18px; color: #16a34a; font-weight: 600;">+{{ $pointsAwarded ?? 10 }} Punkte</div>
+                                <div style="font-size: 20px; font-weight: bold; color: white;">Richtig!</div>
+                                @if($gamificationResult && isset($gamificationResult['points_awarded']))
+                                    <div style="font-size: 18px; color: white; font-weight: 600;">+{{ $gamificationResult['points_awarded'] }} Punkte</div>
+                                @else
+                                    <div style="font-size: 18px; color: white; font-weight: 600;">Korrekt beantwortet!</div>
+                                @endif
                             </div>
                         </div>
-                        <div style="font-size: 14px; color: #6b7280; text-align: center;">
+                        <div style="font-size: 14px; color: white; text-align: center;">
                             @if(isset($questionProgress) && $questionProgress->consecutive_correct >= 1)
                                 Frage {{ $questionProgress->consecutive_correct }}x richtig beantwortet
                             @else
@@ -686,12 +690,12 @@
                     @endif
                     
                     @if($showMastered)
-                        <div style="margin-top: 12px; padding: 12px; background-color: #dcfce7; border: 2px solid #86efac; border-radius: 12px; text-align: center;">
-                            <div style="font-size: 16px; font-weight: bold; color: #15803d;">✅ Gemeistert!</div>
+                        <div style="margin-top: 12px; padding: 12px; background-color: rgba(255, 255, 255, 0.2); border: 2px solid rgba(255, 255, 255, 0.5); border-radius: 12px; text-align: center;">
+                            <div style="font-size: 16px; font-weight: bold; color: white;">✅ Gemeistert!</div>
                         </div>
                     @elseif($showOneMore)
-                        <div style="margin-top: 12px; padding: 12px; background-color: #dbeafe; border: 2px solid #93c5fd; border-radius: 12px; text-align: center;">
-                            <div style="font-size: 16px; font-weight: bold; color: #1e40af;">💡 Noch <strong>1x richtig</strong> für gemeistert!</div>
+                        <div style="margin-top: 12px; padding: 12px; background-color: rgba(255, 255, 255, 0.2); border: 2px solid rgba(255, 255, 255, 0.5); border-radius: 12px; text-align: center;">
+                            <div style="font-size: 16px; font-weight: bold; color: white;">💡 Noch <strong>1x richtig</strong> für gemeistert!</div>
                         </div>
                     @endif
                 </div>

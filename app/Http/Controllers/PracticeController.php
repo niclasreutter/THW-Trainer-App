@@ -473,25 +473,20 @@ class PracticeController extends Controller
             session(['gamification_result' => $gamificationResult]);
         }
         
+        // WICHTIG: Immer answer_result in Session speichern für Feedback-Anzeige
+        session([
+            'answer_result' => [
+                'question_id' => $question->id,
+                'is_correct' => $isCorrect,
+                'user_answer' => $userAnswer->toArray(),
+                'question_progress' => $progress->consecutive_correct,
+                'answer_mapping' => $mapping // Mapping auch speichern für die Anzeige
+            ]
+        ]);
+        
         // WICHTIG: Immer redirect machen (Post/Redirect/Get Pattern)
         // um zu verhindern, dass bei F5 die Frage doppelt gezählt wird
-        if ($progress->isMastered()) {
-            // Gemeistert: einfach zur nächsten Frage
-            return redirect()->route('practice.index');
-        } else {
-            // Nicht gemeistert: redirect zur gleichen Frage mit Antwort-Details
-            session([
-                'answer_result' => [
-                    'question_id' => $question->id,
-                    'is_correct' => $isCorrect,
-                    'user_answer' => $userAnswer->toArray(),
-                    'question_progress' => $progress->consecutive_correct,
-                    'answer_mapping' => $mapping // Mapping auch speichern für die Anzeige
-                ]
-            ]);
-            
-            return redirect()->route('practice.index');
-        }
+        return redirect()->route('practice.index');
     }
 
     /**
