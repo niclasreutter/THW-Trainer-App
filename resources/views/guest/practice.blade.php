@@ -3,7 +3,7 @@
 @section('description', 'Übe THW Theoriefragen sofort und anonym ohne Anmeldung. Perfekt zum schnellen Testen und Lernen. Jederzeit kostenlos verfügbar!')
 @section('content')
 <style>
-    /* CACHE BUST v6.8 - GUEST VIEW GLEICHGESTELLT MIT LOGIN VIEW - 2025-10-20-20:00 */
+    /* CACHE BUST v6.9 - GAMIFICATION POPUPS FIX - 2025-10-20-19:30 */
     @keyframes fadeIn {
         from {
             opacity: 0;
@@ -250,39 +250,49 @@
             margin-bottom: 4px !important;
         }
         
-        /* Gamification/Meldungen über dem Button */
-        #guestPracticeContainer > form > div.mt-2,
-        #guestPracticeContainer > form > div.animate-fade-in {
-            order: 3 !important;
-            margin-top: 0 !important;
-            margin-bottom: 12px !important;
-        }
-        
         /* Mehr Abstand zwischen Frage und Antworten */
         #guestPracticeContainer .mb-2.sm\:mb-6 > div:last-child {
             margin-top: 24px !important;
         }
         
-        /* Alle Meldungskarten gleich hoch */
-        #guestPracticeContainer > form > div.mt-2,
-        #guestPracticeContainer > form > div.animate-fade-in {
-            min-height: 70px !important;
-            display: flex !important;
-            flex-direction: column !important;
-            justify-content: center !important;
+        /* Gamification Popup Overlay */
+        .gamification-popup {
+            position: fixed !important;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) scale(0.9) !important;
+            z-index: 9999 !important;
+            width: 90% !important;
+            max-width: 400px !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+            transition: all 0.3s ease-out !important;
         }
         
-        /* Falsch-Meldung mit rotem Glow */
-        #guestPracticeContainer > form > div.mt-2:has(> div > div:first-child:contains('❌')) {
-            box-shadow: 0 0 15px rgba(239, 68, 68, 0.4), 
-                        0 0 25px rgba(239, 68, 68, 0.3), 
-                        0 0 35px rgba(239, 68, 68, 0.2) !important;
+        .gamification-popup.show {
+            opacity: 1 !important;
+            transform: translate(-50%, -50%) scale(1) !important;
+            pointer-events: auto !important;
         }
         
-        /* Mehr Abstand zwischen Karten innerhalb eines Containers */
-        #guestPracticeContainer > form > div.mt-2 > div + div,
-        #guestPracticeContainer > form > div.animate-fade-in > div + div {
-            margin-top: 12px !important;
+        /* Error Popup (Falsch-Meldung) */
+        .error-popup {
+            position: fixed !important;
+            bottom: 80px !important;
+            left: 50% !important;
+            transform: translateX(-50%) translateY(20px) !important;
+            z-index: 9999 !important;
+            width: 90% !important;
+            max-width: 400px !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+            transition: all 0.3s ease-out !important;
+        }
+        
+        .error-popup.show {
+            opacity: 1 !important;
+            transform: translateX(-50%) translateY(0) !important;
+            pointer-events: auto !important;
         }
     }
     
@@ -328,26 +338,14 @@
             font-size: 1.1rem !important;
         }
         
-        /* Alle Meldungskarten gleich hoch */
-        #guestPracticeContainer > form > div.mt-2,
-        #guestPracticeContainer > form > div.animate-fade-in {
-            min-height: 80px !important;
-            display: flex !important;
-            flex-direction: column !important;
-            justify-content: center !important;
+        /* Desktop Popup Styling */
+        .gamification-popup {
+            max-width: 500px !important;
         }
         
-        /* Falsch-Meldung mit rotem Glow auch auf Desktop */
-        #guestPracticeContainer > form > div.mt-2 > div[style*="rgba(239, 68, 68"] {
-            box-shadow: 0 0 15px rgba(239, 68, 68, 0.4), 
-                        0 0 25px rgba(239, 68, 68, 0.3), 
-                        0 0 35px rgba(239, 68, 68, 0.2) !important;
-        }
-        
-        /* Mehr Abstand zwischen Karten innerhalb eines Containers auf Desktop */
-        #guestPracticeContainer > form > div.mt-2 > div + div,
-        #guestPracticeContainer > form > div.animate-fade-in > div + div {
-            margin-top: 16px !important;
+        .error-popup {
+            bottom: 100px !important;
+            max-width: 500px !important;
         }
     }
         
@@ -580,60 +578,116 @@
                         onmouseout="if(!this.disabled) { this.style.backgroundColor='#1e3a8a'; this.style.color='#fbbf24'; this.style.transform='scale(1)'; this.style.boxShadow='0 0 15px rgba(30, 58, 138, 0.3)'; }"
                         disabled>Antwort absenden</button>
             @elseif(isset($isCorrect) && $isCorrect)
+                                        disabled>Antwort absenden</button>
+            @elseif(isset($isCorrect) && $isCorrect)
                 <a href="{{ route('guest.practice.index') }}" class="w-full block text-center font-bold py-3 px-4 rounded-lg no-underline transition-all duration-300" 
                    style="background-color: #1e3a8a; color: #fbbf24; box-shadow: 0 0 15px rgba(30, 58, 138, 0.3);"
                    onmouseover="this.style.backgroundColor='#fbbf24'; this.style.color='#1e3a8a'; this.style.transform='scale(1.02)'; this.style.boxShadow='0 0 20px rgba(251, 191, 36, 0.4)';"
                    onmouseout="this.style.backgroundColor='#1e3a8a'; this.style.color='#fbbf24'; this.style.transform='scale(1)'; this.style.boxShadow='0 0 15px rgba(30, 58, 138, 0.3)';">Nächste Frage</a>
-                <div class="mt-2 p-4 rounded-lg font-bold" style="background-color: #f0fdf4; border: 2px solid #86efac; color: #15803d; box-shadow: 0 0 15px rgba(34, 197, 94, 0.4), 0 0 25px rgba(34, 197, 94, 0.3), 0 0 35px rgba(34, 197, 94, 0.2);">
-                    <div class="flex items-center">
-                        <div class="text-2xl mr-3">✅</div>
-                        <span>Richtig beantwortet!</span>
-                    </div>
-                </div>
             @elseif(isset($isCorrect) && !$isCorrect)
                 <a href="{{ route('guest.practice.index', ['skip_id' => $question->id]) }}" class="w-full block text-center font-bold py-3 px-4 rounded-lg no-underline transition-all duration-300" 
                    style="background-color: #1e3a8a; color: #fbbf24; box-shadow: 0 0 15px rgba(30, 58, 138, 0.3);"
                    onmouseover="this.style.backgroundColor='#fbbf24'; this.style.color='#1e3a8a'; this.style.transform='scale(1.02)'; this.style.boxShadow='0 0 20px rgba(251, 191, 36, 0.4)';"
                    onmouseout="this.style.backgroundColor='#1e3a8a'; this.style.color='#fbbf24'; this.style.transform='scale(1)'; this.style.boxShadow='0 0 15px rgba(30, 58, 138, 0.3)';">Nächste Frage</a>
-                <div class="mt-2 p-4 rounded-lg font-bold" style="background-color: rgba(239, 68, 68, 0.1); border: 2px solid rgba(239, 68, 68, 0.3); color: #dc2626; box-shadow: 0 0 15px rgba(239, 68, 68, 0.4), 0 0 25px rgba(239, 68, 68, 0.3), 0 0 35px rgba(239, 68, 68, 0.2);">
-                    <div class="flex items-center">
-                        <div class="text-2xl mr-3">❌</div>
-                        <span>Leider falsch. Die richtigen Antworten sind markiert.</span>
-                    </div>
-                </div>
             @endif
         </form>
+    </div>
+    
+    <!-- Success Popup (Richtig beantwortet) -->
+    @if(isset($isCorrect) && $isCorrect)
+        <div id="successPopup" class="gamification-popup hidden">
+            <div style="background: white; border-radius: 16px; padding: 20px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 0 30px rgba(34, 197, 94, 0.4); border: 2px solid #86efac;">
+                <div class="flex items-center gap-3 justify-center">
+                    <span style="font-size: 40px;">✅</span>
+                    <div style="font-size: 20px; font-weight: bold; color: #15803d;">Richtig beantwortet!</div>
+                </div>
+            </div>
+        </div>
+    @endif
+    
+    <!-- Error Popup (Falsch beantwortet) -->
+    @if(isset($isCorrect) && !$isCorrect)
+        <div id="errorPopup" class="error-popup hidden">
+            <div style="background: rgba(239, 68, 68, 0.95); border-radius: 16px; padding: 16px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 0 30px rgba(239, 68, 68, 0.6); border: 2px solid rgba(239, 68, 68, 0.8);">
+                <div class="flex items-center justify-center gap-2">
+                    <div style="font-size: 24px;">❌</div>
+                    <span style="color: white; font-weight: bold; font-size: 16px;">Falsch. Richtige Antworten markiert.</span>
+                </div>
+            </div>
+        </div>
+    @endif
+    
+    <script>
+        // Mobile Layout Detection & Setup
+        function setupMobileLayout() {
+            const isMobile = window.innerWidth <= 640;
+            const container = document.getElementById('guestPracticeContainer');
+            
+            if (isMobile) {
+                container.style.cssText = 'max-width: 100% !important; margin: 0 !important; padding: 0.75rem !important; border-radius: 0 !important; box-shadow: none !important; min-height: 100vh !important;';
+            } else {
+                container.style.cssText = '';
+                container.className = 'max-w-xl mx-auto mt-0 sm:mt-10 p-3 sm:p-6 bg-white sm:rounded-lg sm:shadow-lg sm:hover:shadow-xl sm:transition-shadow sm:duration-300';
+            }
+        }
         
-        <script>
-            // Mobile Layout Detection & Setup
-            function setupMobileLayout() {
-                const isMobile = window.innerWidth <= 640;
-                const container = document.getElementById('guestPracticeContainer');
-                
-                if (isMobile) {
-                    container.style.cssText = 'max-width: 100% !important; margin: 0 !important; padding: 0.75rem !important; border-radius: 0 !important; box-shadow: none !important; min-height: 100vh !important;';
-                } else {
-                    container.style.cssText = '';
-                    container.className = 'max-w-xl mx-auto mt-0 sm:mt-10 p-3 sm:p-6 bg-white sm:rounded-lg sm:shadow-lg sm:hover:shadow-xl sm:transition-shadow sm:duration-300';
+        setupMobileLayout();
+        window.addEventListener('resize', setupMobileLayout);
+        
+        // Show Success/Error Popups on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Show Success Popup
+            const successPopup = document.getElementById('successPopup');
+            if (successPopup) {
+                setTimeout(() => {
+                    successPopup.classList.remove('hidden');
+                    setTimeout(() => {
+                        successPopup.classList.add('show');
+                    }, 10);
+                    
+                    // Hide after 2.5 seconds
+                    setTimeout(() => {
+                        successPopup.classList.remove('show');
+                        setTimeout(() => {
+                            successPopup.classList.add('hidden');
+                        }, 300);
+                    }, 2500);
+                }, 100);
+            }
+            
+            // Show Error Popup
+            const errorPopup = document.getElementById('errorPopup');
+            if (errorPopup) {
+                setTimeout(() => {
+                    errorPopup.classList.remove('hidden');
+                    setTimeout(() => {
+                        errorPopup.classList.add('show');
+                    }, 10);
+                    
+                    // Hide after 3 seconds
+                    setTimeout(() => {
+                        errorPopup.classList.remove('show');
+                        setTimeout(() => {
+                            errorPopup.classList.add('hidden');
+                        }, 300);
+                    }, 3000);
                 }
-            }
-            
-            setupMobileLayout();
-            window.addEventListener('resize', setupMobileLayout);
-            
-            @if(!isset($isCorrect))
-            // Checkbox logic - nur wenn Frage noch nicht beantwortet
-            const checkboxes = document.querySelectorAll('input[type=checkbox][name="answer[]"]');
-            const submitBtn = document.getElementById('submitBtn');
-            function updateBtn() {
-                let checked = 0;
-                checkboxes.forEach(cb => { if(cb.checked) checked++; });
-                submitBtn.disabled = checked === 0;
-            }
-            checkboxes.forEach(cb => cb.addEventListener('change', updateBtn));
-            updateBtn();
-            @endif
-        </script>
+            });
+        });
+        
+        @if(!isset($isCorrect))
+        // Checkbox logic - nur wenn Frage noch nicht beantwortet
+        const checkboxes = document.querySelectorAll('input[type=checkbox][name="answer[]"]');
+        const submitBtn = document.getElementById('submitBtn');
+        function updateBtn() {
+            let checked = 0;
+            checkboxes.forEach(cb => { if(cb.checked) checked++; });
+            submitBtn.disabled = checked === 0;
+        }
+        checkboxes.forEach(cb => cb.addEventListener('change', updateBtn));
+        updateBtn();
+        @endif
+    </script>
     @else
         <div class="text-center text-lg mb-4">Du hast alle Fragen in diesem Modus bearbeitet! 🎉</div>
         <div class="text-center">

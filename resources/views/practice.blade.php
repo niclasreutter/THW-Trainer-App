@@ -25,7 +25,7 @@
     }
 @endphp
 <style>
-    /* CACHE BUST v6.7 - MOBILE BOOKMARK DIRECT COLOR FIX - 2025-10-20-19:15 */
+    /* CACHE BUST v6.9 - GAMIFICATION POPUPS FIX - 2025-10-20-19:30 */
     @keyframes fadeIn {
         from {
             opacity: 0;
@@ -286,63 +286,49 @@
             margin-bottom: 4px !important;
         }
         
-        /* Gamification/Meldungen über dem Button */
-        #practiceContainer > form > div.mt-2,
-        #practiceContainer > form > div.animate-fade-in {
-            order: 3 !important;
-            margin-top: 0 !important;
-            margin-bottom: 12px !important;
-        }
-        
         /* Mehr Abstand zwischen Frage und Antworten */
         #practiceContainer .mb-2.sm\:mb-3 > div:last-child {
             margin-top: 24px !important;
         }
         
-        /* Alle Meldungskarten gleich hoch */
-        #practiceContainer > form > div.mt-2,
-        #practiceContainer > form > div.animate-fade-in {
-            min-height: 70px !important;
-            display: flex !important;
-            flex-direction: column !important;
-            justify-content: center !important;
+        /* Gamification Popup Overlay */
+        .gamification-popup {
+            position: fixed !important;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) scale(0.9) !important;
+            z-index: 9999 !important;
+            width: 90% !important;
+            max-width: 400px !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+            transition: all 0.3s ease-out !important;
         }
         
-        /* Falsch-Meldung mit rotem Glow */
-        #practiceContainer > form > div.mt-2:has(> div > div:first-child:contains('❌')) {
-            box-shadow: 0 0 15px rgba(239, 68, 68, 0.4), 
-                        0 0 25px rgba(239, 68, 68, 0.3), 
-                        0 0 35px rgba(239, 68, 68, 0.2) !important;
+        .gamification-popup.show {
+            opacity: 1 !important;
+            transform: translate(-50%, -50%) scale(1) !important;
+            pointer-events: auto !important;
         }
         
-        /* Gamification Punkte-Karte mit grünem Glow */
-        #practiceContainer > form > div.mt-2 > div[style*="background-color: #f0fdf4"],
-        #practiceContainer > form > div.animate-fade-in > div[style*="background-color: #f0fdf4"] {
-            box-shadow: 0 0 15px rgba(34, 197, 94, 0.4), 
-                        0 0 25px rgba(34, 197, 94, 0.3), 
-                        0 0 35px rgba(34, 197, 94, 0.2) !important;
+        /* Error Popup (Falsch-Meldung) */
+        .error-popup {
+            position: fixed !important;
+            bottom: 80px !important;
+            left: 50% !important;
+            transform: translateX(-50%) translateY(20px) !important;
+            z-index: 9999 !important;
+            width: 90% !important;
+            max-width: 400px !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+            transition: all 0.3s ease-out !important;
         }
         
-        /* Gemeistert-Karte mit grünem Glow */
-        #practiceContainer > form > div.mt-2 > div[style*="background-color: #dcfce7"],
-        #practiceContainer > form > div.animate-fade-in > div[style*="background-color: #dcfce7"] {
-            box-shadow: 0 0 15px rgba(34, 197, 94, 0.4), 
-                        0 0 25px rgba(34, 197, 94, 0.3), 
-                        0 0 35px rgba(34, 197, 94, 0.2) !important;
-        }
-        
-        /* Noch 1x richtig Karte mit blauem Glow */
-        #practiceContainer > form > div.mt-2 > div[style*="background-color: #dbeafe"],
-        #practiceContainer > form > div.animate-fade-in > div[style*="background-color: #dbeafe"] {
-            box-shadow: 0 0 15px rgba(59, 130, 246, 0.4), 
-                        0 0 25px rgba(59, 130, 246, 0.3), 
-                        0 0 35px rgba(59, 130, 246, 0.2) !important;
-        }
-        
-        /* Mehr Abstand zwischen Karten innerhalb eines Containers */
-        #practiceContainer > form > div.mt-2 > div + div,
-        #practiceContainer > form > div.animate-fade-in > div + div {
-            margin-top: 12px !important;
+        .error-popup.show {
+            opacity: 1 !important;
+            transform: translateX(-50%) translateY(0) !important;
+            pointer-events: auto !important;
         }
     }
     
@@ -388,50 +374,14 @@
             font-size: 1.1rem !important;
         }
         
-        /* Alle Meldungskarten gleich hoch */
-        #practiceContainer > form > div.mt-2,
-        #practiceContainer > form > div.animate-fade-in {
-            min-height: 80px !important;
-            display: flex !important;
-            flex-direction: column !important;
-            justify-content: center !important;
+        /* Desktop Popup Styling */
+        .gamification-popup {
+            max-width: 500px !important;
         }
         
-        /* Falsch-Meldung mit rotem Glow auch auf Desktop */
-        #practiceContainer > form > div.mt-2 > div[style*="rgba(239, 68, 68"] {
-            box-shadow: 0 0 15px rgba(239, 68, 68, 0.4), 
-                        0 0 25px rgba(239, 68, 68, 0.3), 
-                        0 0 35px rgba(239, 68, 68, 0.2) !important;
-        }
-        
-        /* Gamification Punkte-Karte mit grünem Glow auf Desktop */
-        #practiceContainer > form > div.mt-2 > div[style*="background-color: #f0fdf4"],
-        #practiceContainer > form > div.animate-fade-in > div[style*="background-color: #f0fdf4"] {
-            box-shadow: 0 0 15px rgba(34, 197, 94, 0.4), 
-                        0 0 25px rgba(34, 197, 94, 0.3), 
-                        0 0 35px rgba(34, 197, 94, 0.2) !important;
-        }
-        
-        /* Gemeistert-Karte mit grünem Glow auf Desktop */
-        #practiceContainer > form > div.mt-2 > div[style*="background-color: #dcfce7"],
-        #practiceContainer > form > div.animate-fade-in > div[style*="background-color: #dcfce7"] {
-            box-shadow: 0 0 15px rgba(34, 197, 94, 0.4), 
-                        0 0 25px rgba(34, 197, 94, 0.3), 
-                        0 0 35px rgba(34, 197, 94, 0.2) !important;
-        }
-        
-        /* Noch 1x richtig Karte mit blauem Glow auf Desktop */
-        #practiceContainer > form > div.mt-2 > div[style*="background-color: #dbeafe"],
-        #practiceContainer > form > div.animate-fade-in > div[style*="background-color: #dbeafe"] {
-            box-shadow: 0 0 15px rgba(59, 130, 246, 0.4), 
-                        0 0 25px rgba(59, 130, 246, 0.3), 
-                        0 0 35px rgba(59, 130, 246, 0.2) !important;
-        }
-        
-        /* Mehr Abstand zwischen Karten innerhalb eines Containers auf Desktop */
-        #practiceContainer > form > div.mt-2 > div + div,
-        #practiceContainer > form > div.animate-fade-in > div + div {
-            margin-top: 16px !important;
+        .error-popup {
+            bottom: 100px !important;
+            max-width: 500px !important;
         }
     }
 </style>
@@ -636,139 +586,94 @@
                         onmouseout="if(!this.disabled) { this.style.backgroundColor='#1e3a8a'; this.style.color='#fbbf24'; this.style.transform='scale(1)'; this.style.boxShadow='0 0 15px rgba(30, 58, 138, 0.3)'; }"
                         disabled>Antwort absenden</button>
                 
-                <!-- Gamification Anzeige unten (für gemeisterte Fragen aus Session) -->
-                @php
-                    $topGamificationResult = session('gamification_result');
-                    $showTopGamification = $topGamificationResult && isset($topGamificationResult['points_awarded']);
-                    
-                    if ($showTopGamification) {
-                        // Verschiedene Emojis und Texte für Abwechslung
-                        $celebrations = [
-                            ['emoji' => '🥳', 'text' => 'Grandios!'],
-                            ['emoji' => '🎉', 'text' => 'Fantastisch!'],
-                            ['emoji' => '⭐', 'text' => 'Super!'],
-                            ['emoji' => '💪', 'text' => 'Stark!'],
-                            ['emoji' => '🔥', 'text' => 'Mega!'],
-                            ['emoji' => '✨', 'text' => 'Klasse!'],
-                            ['emoji' => '🎯', 'text' => 'Volltreffer!'],
-                            ['emoji' => '🚀', 'text' => 'Genial!'],
-                        ];
-                        
-                        // Wähle basierend auf Fragen-ID eine konsistente Variation
-                        $celebrationIndex = $question->id % count($celebrations);
-                        $topCelebration = $celebrations[$celebrationIndex];
-                        
-                        // Grund-Text basierend auf Punkten
-                        $topPointsAwarded = $topGamificationResult['points_awarded'] ?? 0;
-                        $topReason = $topGamificationResult['reason'] ?? 'Frage beantwortet';
-                        
-                        if ($topPointsAwarded >= 20) {
-                            if (str_contains($topReason, 'Häufig falsche')) {
-                                $topReasonText = 'Häufig falsche Frage gelöst';
-                            } else {
-                                $topReasonText = 'Mit Streak-Bonus';
-                            }
-                        } else {
-                            $topReasonText = $topReason;
-                        }
-                        
-                        // Lösche die Session nach der Anzeige
-                        session()->forget('gamification_result');
-                    }
-                @endphp
-                
-                @if($showTopGamification)
-                    <div class="mt-2 sm:mt-3 animate-fade-in">
-                        <div class="flex items-center gap-1 px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm"
-                             style="background-color: #f0fdf4; border: 1px solid #bbf7d0;">
-                            <span class="text-sm">{{ $topCelebration['emoji'] }}</span>
-                            <span class="font-bold" style="color: #15803d;">{{ $topCelebration['text'] }}</span>
-                            <span style="color: #16a34a;">+{{ $topPointsAwarded }} Pkt</span>
-                            <span class="text-xs hidden sm:inline" style="color: #6b7280;">({{ $topReasonText }})</span>
-                        </div>
-                        <div class="mt-1 sm:mt-2 px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold text-center" 
-                             style="background-color: #dcfce7; border: 1px solid #86efac; color: #15803d;">
-                            ✅ Gemeistert!
-                        </div>
-                    </div>
-                @endif
-                
             @elseif(isset($isCorrect) && $isCorrect)
                 <a href="{{ route('practice.index') }}" class="w-full block text-center font-bold text-xs sm:text-sm py-2.5 sm:py-3 px-4 rounded-lg no-underline transition-all duration-300" 
                    style="background-color: #1e3a8a; color: #fbbf24; box-shadow: 0 0 15px rgba(30, 58, 138, 0.3);"
                    onmouseover="this.style.backgroundColor='#fbbf24'; this.style.color='#1e3a8a'; this.style.transform='scale(1.02)'; this.style.boxShadow='0 0 20px rgba(251, 191, 36, 0.4)';"
                    onmouseout="this.style.backgroundColor='#1e3a8a'; this.style.color='#fbbf24'; this.style.transform='scale(1)'; this.style.boxShadow='0 0 15px rgba(30, 58, 138, 0.3)';">Nächste Frage</a>
                 
-                @php
-                    $showGamification = $gamificationResult && isset($gamificationResult['points_awarded']);
-                    
-                    if ($showGamification) {
-                        // Verschiedene Emojis und Texte für Abwechslung
-                        $celebrations = [
-                            ['emoji' => '🥳', 'text' => 'Grandios!'],
-                            ['emoji' => '🎉', 'text' => 'Fantastisch!'],
-                            ['emoji' => '⭐', 'text' => 'Super!'],
-                            ['emoji' => '💪', 'text' => 'Stark!'],
-                            ['emoji' => '🔥', 'text' => 'Mega!'],
-                            ['emoji' => '✨', 'text' => 'Klasse!'],
-                            ['emoji' => '🎯', 'text' => 'Volltreffer!'],
-                            ['emoji' => '🚀', 'text' => 'Genial!'],
-                        ];
-                        
-                        // Wähle basierend auf Fragen-ID eine konsistente Variation
-                        $celebrationIndex = $question->id % count($celebrations);
-                        $celebration = $celebrations[$celebrationIndex];
-                        
-                        // Grund-Text basierend auf Punkten
-                        $pointsAwarded = $gamificationResult['points_awarded'] ?? 0;
-                        $reason = $gamificationResult['reason'] ?? 'Frage beantwortet';
-                        
-                        if ($pointsAwarded >= 20) {
-                            if (str_contains($reason, 'Häufig falsche')) {
-                                $reasonText = 'Häufig falsche Frage gelöst';
-                            } else {
-                                $reasonText = 'Mit Streak-Bonus';
-                            }
-                        } else {
-                            $reasonText = $reason;
-                        }
-                    }
-                @endphp
-                
-                <!-- Gamification Anzeige -->
-                @if($showGamification)
-                    <div class="mt-2 sm:mt-3 animate-fade-in">
-                        <div class="flex items-center gap-1 px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm"
-                             style="background-color: #f0fdf4; border: 1px solid #bbf7d0;">
-                            <span class="text-sm">{{ $celebration['emoji'] }}</span>
-                            <span class="font-bold" style="color: #15803d;">{{ $celebration['text'] }}</span>
-                            <span style="color: #16a34a;">+{{ $pointsAwarded }} Pkt</span>
-                            <span class="text-xs hidden sm:inline" style="color: #6b7280;">({{ $reasonText }})</span>
-                        </div>
-                        @if(isset($questionProgress) && $questionProgress->consecutive_correct == 1)
-                            <div class="mt-1 sm:mt-2 px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold" 
-                                 style="background-color: #dbeafe; border: 1px solid #93c5fd; color: #1e40af;">
-                                💡 Noch <strong>1x richtig</strong> für gemeistert!
-                            </div>
-                        @endif
-                    </div>
-                @endif
-                
             @elseif(isset($isCorrect) && !$isCorrect)
                 <a href="{{ route('practice.index', ['skip_id' => $question->id]) }}" class="w-full block text-center font-bold text-xs sm:text-sm py-2.5 sm:py-3 px-4 rounded-lg no-underline transition-all duration-300" 
                    style="background-color: #1e3a8a; color: #fbbf24; box-shadow: 0 0 15px rgba(30, 58, 138, 0.3);"
                    onmouseover="this.style.backgroundColor='#fbbf24'; this.style.color='#1e3a8a'; this.style.transform='scale(1.02)'; this.style.boxShadow='0 0 20px rgba(251, 191, 36, 0.4)';"
                    onmouseout="this.style.backgroundColor='#1e3a8a'; this.style.color='#fbbf24'; this.style.transform='scale(1)'; this.style.boxShadow='0 0 15px rgba(30, 58, 138, 0.3)';">Nächste Frage</a>
-                
-                <div class="mt-2 sm:mt-3 p-2 sm:p-3 rounded-lg font-bold text-xs sm:text-sm" style="background-color: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #dc2626; box-shadow: 0 0 15px rgba(239, 68, 68, 0.4), 0 0 25px rgba(239, 68, 68, 0.3), 0 0 35px rgba(239, 68, 68, 0.2);">
-                    <div class="flex items-center">
-                        <div class="text-base sm:text-lg mr-1.5 sm:mr-2">❌</div>
-                        <span>Falsch. Richtige Antworten markiert.</span>
-                    </div>
-                </div>
             @endif
         </form>
         </div>
+        
+        <!-- Gamification Popup (Richtig beantwortet) -->
+        @php
+            $showGamification = isset($isCorrect) && $isCorrect && $gamificationResult && isset($gamificationResult['points_awarded']);
+            
+            if ($showGamification) {
+                $celebrations = [
+                    ['emoji' => '🥳', 'text' => 'Grandios!'],
+                    ['emoji' => '🎉', 'text' => 'Fantastisch!'],
+                    ['emoji' => '⭐', 'text' => 'Super!'],
+                    ['emoji' => '💪', 'text' => 'Stark!'],
+                    ['emoji' => '🔥', 'text' => 'Mega!'],
+                    ['emoji' => '✨', 'text' => 'Klasse!'],
+                    ['emoji' => '🎯', 'text' => 'Volltreffer!'],
+                    ['emoji' => '🚀', 'text' => 'Genial!'],
+                ];
+                
+                $celebrationIndex = $question->id % count($celebrations);
+                $celebration = $celebrations[$celebrationIndex];
+                
+                $pointsAwarded = $gamificationResult['points_awarded'] ?? 0;
+                $reason = $gamificationResult['reason'] ?? 'Frage beantwortet';
+                
+                if ($pointsAwarded >= 20) {
+                    if (str_contains($reason, 'Häufig falsche')) {
+                        $reasonText = 'Häufig falsche Frage gelöst';
+                    } else {
+                        $reasonText = 'Mit Streak-Bonus';
+                    }
+                } else {
+                    $reasonText = $reason;
+                }
+            }
+            
+            $showMastered = isset($questionProgress) && $questionProgress->consecutive_correct == 2;
+            $showOneMore = isset($questionProgress) && $questionProgress->consecutive_correct == 1;
+        @endphp
+        
+        @if($showGamification)
+            <div id="gamificationPopup" class="gamification-popup hidden">
+                <div style="background: white; border-radius: 16px; padding: 20px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 0 30px rgba(34, 197, 94, 0.4);">
+                    <div class="flex items-center gap-2 mb-3">
+                        <span style="font-size: 32px;">{{ $celebration['emoji'] }}</span>
+                        <div>
+                            <div style="font-size: 20px; font-weight: bold; color: #15803d;">{{ $celebration['text'] }}</div>
+                            <div style="font-size: 18px; color: #16a34a; font-weight: 600;">+{{ $pointsAwarded }} Punkte</div>
+                        </div>
+                    </div>
+                    <div style="font-size: 14px; color: #6b7280; text-align: center;">{{ $reasonText }}</div>
+                    
+                    @if($showMastered)
+                        <div style="margin-top: 12px; padding: 12px; background-color: #dcfce7; border: 2px solid #86efac; border-radius: 12px; text-align: center;">
+                            <div style="font-size: 16px; font-weight: bold; color: #15803d;">✅ Gemeistert!</div>
+                        </div>
+                    @elseif($showOneMore)
+                        <div style="margin-top: 12px; padding: 12px; background-color: #dbeafe; border: 2px solid #93c5fd; border-radius: 12px; text-align: center;">
+                            <div style="font-size: 16px; font-weight: bold; color: #1e40af;">💡 Noch <strong>1x richtig</strong> für gemeistert!</div>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        @endif
+        
+        <!-- Error Popup (Falsch beantwortet) -->
+        @if(isset($isCorrect) && !$isCorrect)
+            <div id="errorPopup" class="error-popup hidden">
+                <div style="background: rgba(239, 68, 68, 0.95); border-radius: 16px; padding: 16px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 0 30px rgba(239, 68, 68, 0.6); border: 2px solid rgba(239, 68, 68, 0.8);">
+                    <div class="flex items-center justify-center gap-2">
+                        <div style="font-size: 24px;">❌</div>
+                        <span style="color: white; font-weight: bold; font-size: 16px;">Falsch. Richtige Antworten markiert.</span>
+                    </div>
+                </div>
+            </div>
+        @endif
         
         <script>
             // Mobile Layout Detection & Setup
@@ -790,6 +695,46 @@
             // Setup on load and resize
             setupMobileLayout();
             window.addEventListener('resize', setupMobileLayout);
+            
+            // Show Gamification/Error Popups on page load
+            document.addEventListener('DOMContentLoaded', function() {
+                // Show Gamification Popup
+                const gamificationPopup = document.getElementById('gamificationPopup');
+                if (gamificationPopup) {
+                    setTimeout(() => {
+                        gamificationPopup.classList.remove('hidden');
+                        setTimeout(() => {
+                            gamificationPopup.classList.add('show');
+                        }, 10);
+                        
+                        // Hide after 3 seconds
+                        setTimeout(() => {
+                            gamificationPopup.classList.remove('show');
+                            setTimeout(() => {
+                                gamificationPopup.classList.add('hidden');
+                            }, 300);
+                        }, 3000);
+                    }, 100);
+                }
+                
+                // Show Error Popup
+                const errorPopup = document.getElementById('errorPopup');
+                if (errorPopup) {
+                    setTimeout(() => {
+                        errorPopup.classList.remove('hidden');
+                        setTimeout(() => {
+                            errorPopup.classList.add('show');
+                        }, 10);
+                        
+                        // Hide after 3 seconds
+                        setTimeout(() => {
+                            errorPopup.classList.remove('show');
+                            setTimeout(() => {
+                                errorPopup.classList.add('hidden');
+                            }, 300);
+                        }, 3000);
+                }
+            });
             
             // Initialize Bookmark Icon Colors on Page Load
             document.addEventListener('DOMContentLoaded', function() {
