@@ -735,27 +735,91 @@
                                 $isCorrectAnswer = $solution->contains($originalLetter);
                                 $isUserAnswer = isset($userAnswer) && $userAnswer->contains($originalLetter);
                                 $isChecked = isset($isCorrect) && $isUserAnswer;
+                                
+                                // Farbe bestimmen (wie bei exam)
+                                if (isset($isCorrect)) {
+                                    if ($isCorrectAnswer && $isUserAnswer) {
+                                        // Richtig ausgewählt
+                                        $bgColor = 'bg-green-100';
+                                        $borderColor = 'border-green-400';
+                                        $textColor = 'text-green-900';
+                                        $icon = '✓';
+                                    } elseif ($isCorrectAnswer && !$isUserAnswer) {
+                                        // Nicht ausgewählt aber richtig
+                                        $bgColor = 'bg-green-50';
+                                        $borderColor = 'border-green-300';
+                                        $textColor = 'text-green-800';
+                                        $icon = '✓';
+                                    } elseif (!$isCorrectAnswer && $isUserAnswer) {
+                                        // Falsch ausgewählt
+                                        $bgColor = 'bg-red-100';
+                                        $borderColor = 'border-red-400';
+                                        $textColor = 'text-red-900';
+                                        $icon = '✗';
+                                    } else {
+                                        // Nicht relevant
+                                        $bgColor = 'bg-gray-50';
+                                        $borderColor = 'border-gray-200';
+                                        $textColor = 'text-gray-700';
+                                        $icon = '';
+                                    }
+                                } else {
+                                    $bgColor = '';
+                                    $borderColor = '';
+                                    $textColor = '';
+                                    $icon = '';
+                                }
                             @endphp
-                            <label class="inline-flex items-start p-1.5 sm:p-1.5 rounded-lg hover:bg-gray-50 transition-all duration-200 cursor-pointer">
-                                @if(isset($isCorrect))
-                                    @if($isCorrectAnswer)
-                                        <span class="mr-1.5 sm:mr-1.5 text-green-600 text-base sm:text-base">✅</span>
-                                    @elseif($isUserAnswer)
-                                        <span class="mr-1.5 sm:mr-1.5 text-red-600 text-base sm:text-base">❌</span>
-                                    @else
-                                        <span class="mr-1.5 sm:mr-1.5 text-gray-400 text-base sm:text-base">⚪</span>
+                            
+                            @if(isset($isCorrect))
+                                <!-- Lösung-Anzeige (wie bei exam) -->
+                                <div class="flex items-start p-3 rounded-lg border-2 {{ $bgColor }} {{ $borderColor }}">
+                                    <div class="flex items-center min-w-0 flex-1">
+                                        @if($isUserAnswer)
+                                            <span class="w-5 h-5 mr-3 flex-shrink-0 text-lg">{{ $icon }}</span>
+                                        @else
+                                            <span class="w-5 h-5 mr-3 flex-shrink-0"></span>
+                                        @endif
+                                        <span class="text-sm {{ $textColor }}">
+                                            <span class="font-bold">{{ $originalLetter }}:</span> {{ $answer['text'] }}
+                                        </span>
+                                    </div>
+                                    @if($isCorrectAnswer && !$isUserAnswer)
+                                        <span class="ml-2 text-xs font-semibold text-green-700 bg-green-200 px-2 py-1 rounded flex-shrink-0">
+                                            Richtig
+                                        </span>
                                     @endif
-                                @endif
-                                <input type="checkbox" name="answer[]" value="{{ $index }}"
-                                    @if($isChecked) checked @endif
-                                    @if(isset($isCorrect)) disabled @endif
-                                    class="mr-1.5 sm:mr-1.5 w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2 mt-0.5">
-                                <span class="ml-1 sm:ml-1 text-xs sm:text-sm {{ isset($isCorrect) && $isChecked ? ($isCorrectAnswer ? 'text-green-600 font-semibold' : 'text-red-600 font-semibold') : '' }}">
-                                    {{ $answer['text'] }}
-                                </span>
-                            </label>
+                                </div>
+                            @else
+                                <!-- Normale Antwort-Auswahl -->
+                                <label class="inline-flex items-start p-1.5 sm:p-1.5 rounded-lg hover:bg-gray-50 transition-all duration-200 cursor-pointer">
+                                    <input type="checkbox" name="answer[]" value="{{ $index }}"
+                                        class="mr-1.5 sm:mr-1.5 w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2 mt-0.5">
+                                    <span class="ml-1 sm:ml-1 text-xs sm:text-sm">
+                                        {{ $answer['text'] }}
+                                    </span>
+                                </label>
+                            @endif
                         @endforeach
                     </div>
+                    
+                    @if(isset($isCorrect))
+                        <!-- Zusammenfassung (wie bei exam) -->
+                        <div class="mt-3 pt-3 border-t {{ $isCorrect ? 'border-green-200' : 'border-red-200' }}">
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="{{ $isCorrect ? 'text-green-700' : 'text-red-700' }} font-medium">
+                                    @if($isCorrect)
+                                        ✓ Richtig beantwortet
+                                    @else
+                                        ✗ Falsch beantwortet
+                                    @endif
+                                </span>
+                                <span class="text-gray-600">
+                                    Lösung: {{ $solution->join(', ') }}
+                                </span>
+                            </div>
+                        </div>
+                    @endif
                 </div>
             </div>
             @if(!isset($isCorrect))
