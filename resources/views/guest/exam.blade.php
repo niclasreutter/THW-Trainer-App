@@ -2,7 +2,55 @@
 @section('title', 'THW Prüfungssimulation anonym - 40 Fragen ohne Anmeldung')
 @section('description', 'THW Prüfungssimulation anonym: Teste dich mit 40 zufälligen Fragen in 30 Minuten ohne Anmeldung. Sofortige Auswertung und Ergebnisanzeige!')
 @section('content')
-<div class="max-w-xl mx-auto mt-10 p-6 bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 relative">
+<style>
+    /* CACHE BUST v8.6 - GUEST EXAM MODERNIZED - 2025-10-21-17:30 */
+    
+    /* Desktop: Modernes Kartendesign */
+    @media (min-width: 641px) {
+        /* Nav und Footer bleiben sichtbar */
+        nav, footer {
+            display: block !important;
+        }
+        
+        /* Body als Flexbox für Footer am Rand */
+        body {
+            display: flex !important;
+            flex-direction: column !important;
+            min-height: 100vh !important;
+        }
+        
+        main {
+            flex: 1 0 auto !important;
+            padding-top: 1rem !important;
+            padding-bottom: 1rem !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: flex-start !important;
+        }
+        
+        footer {
+            flex-shrink: 0 !important;
+        }
+        
+        /* Exam Container - OPTIMALE BREITE */
+        #guestExamContainer {
+            max-width: 950px !important;
+            width: 95% !important;
+            margin: 0 auto 1rem auto !important;
+            padding: 2.5rem !important;
+            background: white !important;
+            border-radius: 16px !important;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.05) !important;
+            transition: all 0.3s ease !important;
+        }
+        
+        #guestExamContainer:hover {
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.15), 0 5px 15px rgba(0, 0, 0, 0.08) !important;
+        }
+    }
+</style>
+
+<div class="max-w-xl mx-auto mt-10 p-6 bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 relative" id="guestExamContainer">
     @if(!isset($submitted))
     <div id="exam-timer" class="absolute top-0 right-0 text-lg font-bold text-blue-900 bg-gradient-to-r from-yellow-200 to-yellow-300 px-4 py-2 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300" style="box-shadow: 0 0 10px rgba(251, 191, 36, 0.4), 0 0 20px rgba(251, 191, 36, 0.2);">30:00</div>
     <script>
@@ -131,42 +179,88 @@
                                     $originalLetter = $answer['letter'];
                                     $isCorrectAnswer = $solution->contains($originalLetter);
                                     $isUserAnswer = isset($submitted) && isset($results[$nr]['userAnswer']) && $results[$nr]['userAnswer']->contains($originalLetter);
+                                    
+                                    // Farbe bestimmen (wie bei exam)
+                                    if (isset($submitted)) {
+                                        if ($isCorrectAnswer && $isUserAnswer) {
+                                            // Richtig ausgewählt
+                                            $bgColor = 'bg-green-100';
+                                            $borderColor = 'border-green-400';
+                                            $textColor = 'text-green-900';
+                                            $icon = '✓';
+                                        } elseif ($isCorrectAnswer && !$isUserAnswer) {
+                                            // Nicht ausgewählt aber richtig
+                                            $bgColor = 'bg-green-50';
+                                            $borderColor = 'border-green-300';
+                                            $textColor = 'text-green-800';
+                                            $icon = '✓';
+                                        } elseif (!$isCorrectAnswer && $isUserAnswer) {
+                                            // Falsch ausgewählt
+                                            $bgColor = 'bg-red-100';
+                                            $borderColor = 'border-red-400';
+                                            $textColor = 'text-red-900';
+                                            $icon = '✗';
+                                        } else {
+                                            // Nicht relevant
+                                            $bgColor = 'bg-gray-50';
+                                            $borderColor = 'border-gray-200';
+                                            $textColor = 'text-gray-700';
+                                            $icon = '';
+                                        }
+                                    } else {
+                                        $bgColor = '';
+                                        $borderColor = '';
+                                        $textColor = '';
+                                        $icon = '';
+                                    }
                                 @endphp
-                                <label class="inline-flex items-center p-2 rounded-lg hover:bg-gray-50 transition-all duration-200 cursor-pointer">
-                                <input type="checkbox" name="answer[{{ $nr }}][]" value="{{ $index }}"
-                                    @if($isUserAnswer) checked @endif
-                                    @if(isset($submitted)) disabled @endif
-                                    class="mr-2 w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2">
-                                <span class="ml-2">{{ $answer['text'] }}</span>
-                                    @if(isset($submitted))
-                                        @if($isCorrectAnswer)
-                                            <span class="mr-2 text-green-600 text-lg">✅</span>
-                                        @elseif($isUserAnswer)
-                                            <span class="mr-2 text-red-600 text-lg">❌</span>
-                                        @else
-                                            <span class="mr-2 text-gray-400 text-lg">⚪</span>
+                                
+                                @if(isset($submitted))
+                                    <!-- Lösung-Anzeige mit Farben (wie bei exam) -->
+                                    <div class="flex items-start p-3 rounded-lg border-2 {{ $bgColor }} {{ $borderColor }}">
+                                        <div class="flex items-center min-w-0 flex-1">
+                                            @if($isUserAnswer)
+                                                <span class="w-5 h-5 mr-3 flex-shrink-0 text-lg">{{ $icon }}</span>
+                                            @else
+                                                <span class="w-5 h-5 mr-3 flex-shrink-0"></span>
+                                            @endif
+                                            <span class="text-sm {{ $textColor }}">
+                                                {{ $answer['text'] }}
+                                            </span>
+                                        </div>
+                                        @if($isCorrectAnswer && !$isUserAnswer)
+                                            <span class="ml-2 text-xs font-semibold text-green-700 bg-green-200 px-2 py-1 rounded flex-shrink-0">
+                                                Richtig
+                                            </span>
                                         @endif
-                                    @endif
-                                </label>
+                                    </div>
+                                @else
+                                    <!-- Normale Antwort-Auswahl -->
+                                    <label class="inline-flex items-center p-2 rounded-lg hover:bg-gray-50 transition-all duration-200 cursor-pointer">
+                                        <input type="checkbox" name="answer[{{ $nr }}][]" value="{{ $index }}"
+                                            class="mr-2 w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2">
+                                        <span class="ml-2">{{ $answer['text'] }}</span>
+                                    </label>
+                                @endif
                             @endforeach
                         </div>
                     </div>
                     @if(isset($submitted))
-                        @if($results[$nr]['isCorrect'])
-                            <div class="mt-4 p-4 bg-green-50 border-2 border-green-300 rounded-lg text-green-800 font-bold shadow-lg" style="box-shadow: 0 0 15px rgba(34, 197, 94, 0.3), 0 0 30px rgba(34, 197, 94, 0.1);">
-                                <div class="flex items-center">
-                                    <div class="text-2xl mr-3">✅</div>
-                                    <span>Richtig beantwortet!</span>
-                                </div>
+                        <!-- Zusammenfassung -->
+                        <div class="mt-3 pt-3 border-t {{ $results[$nr]['isCorrect'] ? 'border-green-200' : 'border-red-200' }}">
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="{{ $results[$nr]['isCorrect'] ? 'text-green-700' : 'text-red-700' }} font-medium">
+                                    @if($results[$nr]['isCorrect'])
+                                        ✓ Richtig beantwortet
+                                    @else
+                                        ✗ Falsch beantwortet
+                                    @endif
+                                </span>
+                                <span class="text-gray-600">
+                                    Lösung: {{ $solution->join(', ') }}
+                                </span>
                             </div>
-                        @else
-                            <div class="mt-4 p-4 rounded-lg font-bold shadow-lg" style="background-color: rgba(239, 68, 68, 0.1); border: 2px solid rgba(239, 68, 68, 0.3); color: #dc2626; box-shadow: 0 0 15px rgba(239, 68, 68, 0.3), 0 0 30px rgba(239, 68, 68, 0.1);">
-                                <div class="flex items-center">
-                                    <div class="text-2xl mr-3">❌</div>
-                                    <span>Leider falsch. Die richtigen Antworten sind markiert.</span>
-                                </div>
-                            </div>
-                        @endif
+                        </div>
                     @endif
                 </div>
             @endforeach

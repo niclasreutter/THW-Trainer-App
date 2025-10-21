@@ -3,7 +3,7 @@
 @section('description', 'Übe THW Theoriefragen sofort und anonym ohne Anmeldung. Perfekt zum schnellen Testen und Lernen. Jederzeit kostenlos verfügbar!')
 @section('content')
 <style>
-    /* CACHE BUST v7.8 - REMOVE GLOBAL MOBILE CSS - 2025-10-20-21:10 */
+    /* CACHE BUST v8.6 - GUEST MODERNIZED - 2025-10-21-17:30 */
     @keyframes fadeIn {
         from {
             opacity: 0;
@@ -296,59 +296,164 @@
         }
     }
     
-    /* Desktop: Kompakte Ansicht für alle Bildschirmgrößen */
+    /* Desktop: Modernes Kartendesign wie Mobile */
     @media (min-width: 641px) {
-        main {
-            padding-top: 1rem !important;
-            padding-bottom: 1rem !important;
+        /* Nav und Footer bleiben sichtbar */
+        nav, footer {
+            display: block !important;
+        }
+        
+        /* Body als Flexbox für Footer am Rand - OHNE min-height */
+        body {
+            display: flex !important;
+            flex-direction: column !important;
             min-height: 100vh !important;
         }
         
-        /* Kompaktere Schriften und Abstände auf Desktop */
+        main {
+            flex: 1 0 auto !important;
+            padding-top: 1rem !important;
+            padding-bottom: 1rem !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: flex-start !important;
+        }
+        
+        footer {
+            flex-shrink: 0 !important;
+        }
+        
+        /* Practice Container als schöne Karte - OPTIMALE BREITE */
+        #guestPracticeContainer {
+            max-width: 950px !important;
+            width: 95% !important;
+            margin: 0 auto 1rem auto !important;
+            padding: 2.5rem !important;
+            background: white !important;
+            border-radius: 16px !important;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.05) !important;
+            transition: all 0.3s ease !important;
+        }
+        
+        #guestPracticeContainer:hover {
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.15), 0 5px 15px rgba(0, 0, 0, 0.08) !important;
+        }
+        
+        /* DESKTOP TOUCH OPTIMIERUNG - Modernes Design wie auf Mobile */
+        
+        /* Checkboxen größer mit schönem Design */
+        #guestPracticeContainer input[type="checkbox"] {
+            width: 24px !important;
+            height: 24px !important;
+            min-width: 24px !important;
+            min-height: 24px !important;
+            margin-right: 12px !important;
+            cursor: pointer !important;
+            border: 2.5px solid #cbd5e1 !important;
+            border-radius: 8px !important;
+            transition: all 0.2s ease !important;
+            -webkit-appearance: none !important;
+            appearance: none !important;
+            background-color: white !important;
+            position: relative !important;
+        }
+        
+        #guestPracticeContainer input[type="checkbox"]:checked {
+            background-color: #3b82f6 !important;
+            border-color: #3b82f6 !important;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+        }
+        
+        #guestPracticeContainer input[type="checkbox"]:checked::after {
+            content: '✓' !important;
+            position: absolute !important;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) !important;
+            color: white !important;
+            font-size: 16px !important;
+            font-weight: bold !important;
+        }
+        
+        /* Labels mit schönem Design */
+        #guestPracticeContainer label.inline-flex {
+            padding: 16px 18px !important;
+            min-height: 60px !important;
+            margin-bottom: 12px !important;
+            font-size: 16px !important;
+            line-height: 1.6 !important;
+            cursor: pointer !important;
+            background: white !important;
+            border: 2px solid #e2e8f0 !important;
+            border-radius: 12px !important;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+            transition: all 0.2s ease !important;
+        }
+        
+        #guestPracticeContainer label.inline-flex:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+            border-color: #3b82f6 !important;
+            background: #f0f9ff !important;
+        }
+        
+        #guestPracticeContainer label.inline-flex:active {
+            transform: scale(0.98) !important;
+        }
+        
+        /* Buttons größer und moderner */
+        #guestPracticeContainer button[type="submit"],
+        #guestPracticeContainer a.w-full {
+            padding: 18px 24px !important;
+            font-size: 18px !important;
+            min-height: 60px !important;
+            font-weight: 700 !important;
+            cursor: pointer !important;
+            border-radius: 14px !important;
+            transition: all 0.3s ease !important;
+            box-shadow: 0 4px 12px rgba(30, 58, 138, 0.15), 0 2px 4px rgba(30, 58, 138, 0.1) !important;
+        }
+        
+        #guestPracticeContainer button[type="submit"]:hover,
+        #guestPracticeContainer a.w-full:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 6px 20px rgba(30, 58, 138, 0.25) !important;
+        }
+        
+        #guestPracticeContainer button[type="submit"]:active,
+        #guestPracticeContainer a.w-full:active {
+            transform: translateY(1px) !important;
+        }
+        
+        /* Header modernisieren */
         #guestPracticeContainer h2 {
-            font-size: 1.25rem !important;
-            margin-bottom: 0.75rem !important;
+            font-size: 1.5rem !important;
+            margin-bottom: 1rem !important;
+            font-weight: 700 !important;
+            color: #1e3a8a !important;
+        }
+        
+        /* Frage-Container ohne Karten-in-Karte Design */
+        #guestPracticeContainer > form > div.mb-2 {
+            border: none !important;
+            box-shadow: none !important;
+            background: transparent !important;
+            padding: 0 !important;
+            margin-bottom: 1.5rem !important;
+        }
+        
+        /* Antworten Bereich mit besserem Spacing */
+        #guestPracticeContainer .flex.flex-col.gap-1\.5 {
+            gap: 12px !important;
+        }
+        
+        /* Text lesbarer */
+        #guestPracticeContainer .text-xs {
+            font-size: 0.95rem !important;
         }
         
         #guestPracticeContainer .text-sm {
-            font-size: 0.95rem !important;
-        }
-        
-        #guestPracticeContainer .text-xs {
-            font-size: 0.85rem !important;
-        }
-        
-        #guestPracticeContainer .mb-3 {
-            margin-bottom: 0.75rem !important;
-        }
-        
-        #guestPracticeContainer .mb-2 {
-            margin-bottom: 0.5rem !important;
-        }
-        
-        #guestPracticeContainer label {
-            padding: 0.75rem !important;
-            font-size: 0.95rem !important;
-            line-height: 1.5 !important;
-            margin-bottom: 0.5rem !important;
-        }
-        
-        #guestPracticeContainer button[type="submit"],
-        #guestPracticeContainer a.w-full {
-            padding: 0.75rem 1.25rem !important;
             font-size: 1rem !important;
-            margin-top: 0.75rem !important;
-        }
-        
-        /* Frage-Container kompakter */
-        #guestPracticeContainer > form > div.mb-2 {
-            padding: 1rem !important;
-            margin-bottom: 0.75rem !important;
-        }
-        
-        /* Antworten kompakter stapeln */
-        #guestPracticeContainer .flex.flex-col.gap-1\.5 {
-            gap: 0.5rem !important;
         }
         
         /* Desktop Popup Styling - Oben rechts */
@@ -500,27 +605,91 @@
                                 $isCorrectAnswer = $solution->contains($originalLetter);
                                 $isUserAnswer = isset($userAnswer) && $userAnswer->contains($originalLetter);
                                 $isChecked = isset($isCorrect) && $isUserAnswer;
+                                
+                                // Farbe bestimmen (wie bei exam)
+                                if (isset($isCorrect)) {
+                                    if ($isCorrectAnswer && $isUserAnswer) {
+                                        // Richtig ausgewählt
+                                        $bgColor = 'bg-green-100';
+                                        $borderColor = 'border-green-400';
+                                        $textColor = 'text-green-900';
+                                        $icon = '✓';
+                                    } elseif ($isCorrectAnswer && !$isUserAnswer) {
+                                        // Nicht ausgewählt aber richtig
+                                        $bgColor = 'bg-green-50';
+                                        $borderColor = 'border-green-300';
+                                        $textColor = 'text-green-800';
+                                        $icon = '✓';
+                                    } elseif (!$isCorrectAnswer && $isUserAnswer) {
+                                        // Falsch ausgewählt
+                                        $bgColor = 'bg-red-100';
+                                        $borderColor = 'border-red-400';
+                                        $textColor = 'text-red-900';
+                                        $icon = '✗';
+                                    } else {
+                                        // Nicht relevant
+                                        $bgColor = 'bg-gray-50';
+                                        $borderColor = 'border-gray-200';
+                                        $textColor = 'text-gray-700';
+                                        $icon = '';
+                                    }
+                                } else {
+                                    $bgColor = '';
+                                    $borderColor = '';
+                                    $textColor = '';
+                                    $icon = '';
+                                }
                             @endphp
-                            <label class="inline-flex items-start p-1.5 sm:p-1.5 rounded-lg hover:bg-gray-50 transition-all duration-200 cursor-pointer">
-                                @if(isset($isCorrect))
-                                    @if($isCorrectAnswer)
-                                        <span class="mr-1.5 sm:mr-1.5 text-green-600 text-base sm:text-base">✅</span>
-                                    @elseif($isUserAnswer)
-                                        <span class="mr-1.5 sm:mr-1.5 text-red-600 text-base sm:text-base">❌</span>
-                                    @else
-                                        <span class="mr-1.5 sm:mr-1.5 text-gray-400 text-base sm:text-base">⚪</span>
+                            
+                            @if(isset($isCorrect))
+                                <!-- Lösung-Anzeige (wie bei exam) -->
+                                <div class="flex items-start p-3 rounded-lg border-2 {{ $bgColor }} {{ $borderColor }}">
+                                    <div class="flex items-center min-w-0 flex-1">
+                                        @if($isUserAnswer)
+                                            <span class="w-5 h-5 mr-3 flex-shrink-0 text-lg">{{ $icon }}</span>
+                                        @else
+                                            <span class="w-5 h-5 mr-3 flex-shrink-0"></span>
+                                        @endif
+                                        <span class="text-sm {{ $textColor }}">
+                                            {{ $answer['text'] }}
+                                        </span>
+                                    </div>
+                                    @if($isCorrectAnswer && !$isUserAnswer)
+                                        <span class="ml-2 text-xs font-semibold text-green-700 bg-green-200 px-2 py-1 rounded flex-shrink-0">
+                                            Richtig
+                                        </span>
                                     @endif
-                                @endif
-                                <input type="checkbox" name="answer[]" value="{{ $index }}"
-                                    @if($isChecked) checked @endif
-                                    @if(isset($isCorrect)) disabled @endif
-                                    class="mr-1.5 sm:mr-1.5 w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2 mt-0.5">
-                                <span class="ml-1 sm:ml-1 text-xs sm:text-sm {{ isset($isCorrect) && $isChecked ? ($isCorrectAnswer ? 'text-green-600 font-semibold' : 'text-red-600 font-semibold') : '' }}">
-                                    {{ $answer['text'] }}
-                                </span>
-                            </label>
+                                </div>
+                            @else
+                                <!-- Normale Antwort-Auswahl -->
+                                <label class="inline-flex items-start p-1.5 sm:p-1.5 rounded-lg hover:bg-gray-50 transition-all duration-200 cursor-pointer">
+                                    <input type="checkbox" name="answer[]" value="{{ $index }}"
+                                        class="mr-1.5 sm:mr-1.5 w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2 mt-0.5">
+                                    <span class="ml-1 sm:ml-1 text-xs sm:text-sm">
+                                        {{ $answer['text'] }}
+                                    </span>
+                                </label>
+                            @endif
                         @endforeach
                     </div>
+                    
+                    @if(isset($isCorrect))
+                        <!-- Zusammenfassung (wie bei exam) -->
+                        <div class="mt-3 pt-3 border-t {{ $isCorrect ? 'border-green-200' : 'border-red-200' }}">
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="{{ $isCorrect ? 'text-green-700' : 'text-red-700' }} font-medium">
+                                    @if($isCorrect)
+                                        ✓ Richtig beantwortet
+                                    @else
+                                        ✗ Falsch beantwortet
+                                    @endif
+                                </span>
+                                <span class="text-gray-600">
+                                    Lösung: {{ $solution->join(', ') }}
+                                </span>
+                            </div>
+                        </div>
+                    @endif
                 </div>
             </div>
             @if(!isset($isCorrect))
