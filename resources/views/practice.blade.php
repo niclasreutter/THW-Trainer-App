@@ -904,6 +904,7 @@
                                 btn.classList.remove('scale-110');
                             }, 1000);
                         } else {
+                            console.log('[BOOKMARK] Creating desktop icon...');
                             // Desktop: Icon + Text
                             const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
                             svg.setAttribute('id', 'bookmarkIcon');
@@ -918,6 +919,8 @@
                             path.style.stroke = targetColor;
                             path.style.fill = targetFill;
                             
+                            console.log('[BOOKMARK] Desktop path styles set:', {stroke: path.style.stroke, fill: path.style.fill});
+                            
                             svg.appendChild(path);
                             
                             const span = document.createElement('span');
@@ -929,11 +932,19 @@
                             btn.appendChild(svg);
                             btn.appendChild(span);
                             
-                            // Desktop Feedback
+                            console.log('[BOOKMARK] Desktop icon created and appended');
+                            
+                            // Desktop Feedback mit sichtbarer Animation
+                            btn.style.backgroundColor = data.is_bookmarked ? '#fef3c7' : '#f3f4f6';
+                            btn.classList.add('scale-110');
+                            
                             const textEl = document.getElementById('bookmarkText');
                             const originalText = textEl.textContent;
                             textEl.textContent = data.is_bookmarked ? 'Gespeichert!' : 'Entfernt!';
+                            
                             setTimeout(() => {
+                                btn.style.backgroundColor = '';
+                                btn.classList.remove('scale-110');
                                 textEl.textContent = originalText;
                             }, 1500);
                         }
