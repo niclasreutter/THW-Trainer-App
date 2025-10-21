@@ -276,6 +276,80 @@
                 </div>
                 <span class="text-sm text-gray-600">{{ $examsPercent }}% abgeschlossen</span>
             </div>
+            
+            <!-- Prüfungshistorie (Letzte 5 Prüfungen) -->
+            @if(isset($recentExams) && $recentExams->count() > 0)
+            <div class="mt-6">
+                <h3 class="text-sm font-semibold text-gray-800 mb-3 flex items-center">
+                    <span class="mr-2">📊</span>
+                    Deine letzten Prüfungen
+                </h3>
+                <div class="space-y-2">
+                    @foreach($recentExams as $exam)
+                        @php
+                            $totalQuestions = 40; // Standard Prüfung hat 40 Fragen
+                            $percentage = round(($exam->correct_answers / $totalQuestions) * 100);
+                            $passed = $exam->is_passed;
+                        @endphp
+                        <div class="flex items-center justify-between p-3 rounded-lg border-2 transition-all duration-200 hover:shadow-lg hover:scale-[1.02]
+                                    {{ $passed ? 'bg-green-50 border-green-200 hover:border-green-400' : 'bg-red-50 border-red-200 hover:border-red-400' }}">
+                            <!-- Datum & Status -->
+                            <div class="flex items-center gap-3 flex-1">
+                                <div class="text-2xl">
+                                    {{ $passed ? '✅' : '❌' }}
+                                </div>
+                                <div class="flex-1">
+                                    <div class="text-sm font-medium {{ $passed ? 'text-green-800' : 'text-red-800' }}">
+                                        {{ $exam->created_at->format('d.m.Y') }}
+                                    </div>
+                                    <div class="text-xs text-gray-600">
+                                        {{ $exam->created_at->format('H:i') }} Uhr
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Ergebnis -->
+                            <div class="text-right">
+                                <div class="text-lg font-bold {{ $passed ? 'text-green-700' : 'text-red-700' }}">
+                                    {{ $percentage }}%
+                                </div>
+                                <div class="text-xs text-gray-600">
+                                    {{ $exam->correct_answers }}/{{ $totalQuestions }}
+                                </div>
+                            </div>
+                            
+                            <!-- Status Badge -->
+                            <div class="ml-3">
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full
+                                           {{ $passed ? 'bg-green-200 text-green-800' : 'bg-red-200 text-red-800' }}">
+                                    {{ $passed ? 'Bestanden' : 'Durchgefallen' }}
+                                </span>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+                
+                <!-- Durchschnitt anzeigen -->
+                @if($recentExams->count() > 0)
+                    @php
+                        $avgPercentage = round($recentExams->avg(function($exam) {
+                            return ($exam->correct_answers / 40) * 100;
+                        }));
+                        $passRate = round(($recentExams->where('is_passed', true)->count() / $recentExams->count()) * 100);
+                    @endphp
+                    <div class="mt-3 p-3 bg-blue-50 border-2 border-blue-200 rounded-lg">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-700">📈 Durchschnitt:</span>
+                            <span class="font-bold text-blue-800">{{ $avgPercentage }}%</span>
+                        </div>
+                        <div class="flex justify-between text-sm mt-1">
+                            <span class="text-gray-700">✅ Erfolgsquote:</span>
+                            <span class="font-bold text-blue-800">{{ $passRate }}%</span>
+                        </div>
+                    </div>
+                @endif
+            </div>
+            @endif
             @endif
             
             @php

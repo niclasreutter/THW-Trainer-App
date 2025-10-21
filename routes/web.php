@@ -94,7 +94,14 @@ Route::prefix('guest')->name('guest.')->group(function () {
 
 Route::get('/dashboard', function () {
     $user = auth()->user()->fresh(); // Fresh reload from database
-    return view('dashboard', compact('user'));
+    
+    // Hole die letzten 5 Prüfungsergebnisse
+    $recentExams = \App\Models\ExamStatistic::where('user_id', $user->id)
+        ->orderBy('created_at', 'desc')
+        ->take(5)
+        ->get();
+    
+    return view('dashboard', compact('user', 'recentExams'));
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::post('/dashboard/dismiss-email-consent-banner', function () {
