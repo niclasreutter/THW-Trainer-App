@@ -434,6 +434,7 @@
                         @if(isset($mode))
                             @switch($mode)
                                 @case('unsolved')🎯 @break
+                                @case('failed')🔄 @break
                                 @case('section')📖 LA{{ session('practice_parameter') }} @break
                                 @case('search')🔍 @break
                                 @case('bookmarked')🔖 @break
@@ -469,6 +470,9 @@
                     @switch($mode)
                         @case('unsolved')
                             🎯 Ungelöste Fragen
+                            @break
+                        @case('failed')
+                            🔄 Fehlerwiederholung
                             @break
                         @case('section')
                             📖 Lernabschnitt {{ session('practice_parameter') }}

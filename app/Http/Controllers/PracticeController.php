@@ -107,6 +107,15 @@ class PracticeController extends Controller
     }
 
     /**
+     * Fehlgeschlagene Prüfungsfragen wiederholen
+     */
+    public function failed()
+    {
+        session()->forget(['practice_mode', 'practice_parameter', 'practice_ids', 'practice_skipped']);
+        return $this->practiceMode('failed');
+    }
+
+    /**
      * Lernabschnitt üben
      */
     public function section($section)
@@ -193,6 +202,20 @@ class PracticeController extends Controller
                 shuffle($unsolvedIds);
                 
                 $idsToShow = $unsolvedIds;
+                break;
+                
+            case 'failed':
+                // Nur fehlgeschlagene Prüfungsfragen (aus exam_failed_questions)
+                $failedIds = array_values($failed);
+                
+                if (empty($failedIds)) {
+                    return redirect()->route('practice.menu')->with('info', 'Keine falschen Fragen zum Wiederholen! 🎉');
+                }
+                
+                // Zufällige Sortierung der fehlgeschlagenen Fragen
+                shuffle($failedIds);
+                
+                $idsToShow = $failedIds;
                 break;
                 
             case 'section':

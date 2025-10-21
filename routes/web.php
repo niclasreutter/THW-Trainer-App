@@ -156,8 +156,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/practice', [\App\Http\Controllers\PracticeController::class, 'show'])->name('practice.index');
     Route::post('/practice', [\App\Http\Controllers\PracticeController::class, 'submit'])->name('practice.submit');
     
-    Route::get('/failed', [\App\Http\Controllers\FailedPracticeController::class, 'show'])->name('failed.index');
-    Route::post('/failed', [\App\Http\Controllers\FailedPracticeController::class, 'submit'])->name('failed.submit');
+    // Failed Practice - jetzt über PracticeController (gleiche Logik wie andere Modi)
+    Route::get('/failed', [\App\Http\Controllers\PracticeController::class, 'failed'])->name('failed.index');
+    
     Route::get('/exam', [\App\Http\Controllers\ExamController::class, 'start'])->name('exam.index');
     Route::post('/exam/submit', [\App\Http\Controllers\ExamController::class, 'submit'])->name('exam.submit');
 });
