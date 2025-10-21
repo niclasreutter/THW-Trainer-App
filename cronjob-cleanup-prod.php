@@ -4,8 +4,8 @@
  * Dieses Script kann direkt als PHP-Cronjob in Plesk ausgeführt werden
  */
 
-// Produktions-Pfad
-$laravelPath = '/var/www/vhosts/web22867.bero-web.de/thw-trainer.de';
+// Produktions-Pfad (Script liegt im Laravel-Root)
+$laravelPath = __DIR__;
 
 if (!file_exists($laravelPath . '/artisan')) {
     echo "[" . date('Y-m-d H:i:s') . "] FEHLER: Laravel-Verzeichnis nicht gefunden: $laravelPath\n";

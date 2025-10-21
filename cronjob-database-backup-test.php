@@ -23,6 +23,10 @@ $logMessage = "[" . date('Y-m-d H:i:s') . "] [TEST] Datenbank-Backup gestartet\n
 // Laravel Bootstrap
 require_once __DIR__ . '/vendor/autoload.php';
 $app = require_once __DIR__ . '/bootstrap/app.php';
+
+// Boot Laravel Application
+$app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+
 $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
 
 try {

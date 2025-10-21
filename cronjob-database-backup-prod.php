@@ -1,6 +1,21 @@
 <?php
 /**
- * Datenbank-Backup Cronjob - PRODUKTION
+ * Daten// Logging
+$logFile = __DIR__ . '/storage/logs/database-backup.log';
+$logMessage = "[" . date('Y-m-d H:i:s') . "] Database-Backup gestartet\n";
+
+// Laravel Bootstrap
+require_once __DIR__ . '/vendor/autoload.php';
+$app = require_once __DIR__ . '/bootstrap/app.php';
+
+// Boot Laravel Application
+$app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+
+$kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
+
+try {
+    // Führe Database-Backup aus
+    $exitCode = $kernel->call('backup:database');Cronjob - PRODUKTION
  * Läuft jeden Sonntag um 02:00 Uhr
  * 
  * Plesk Cronjob einrichten:

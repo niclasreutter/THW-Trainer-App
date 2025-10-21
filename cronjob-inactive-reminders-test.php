@@ -5,8 +5,8 @@
  * Empfohlene Ausführungszeit: Täglich um 10:00 Uhr
  */
 
-// Test-Pfad
-$laravelPath = '/var/www/vhosts/web22867.bero-web.de/test.thw-trainer.de';
+// Test-Pfad (Script liegt im Laravel-Root)
+$laravelPath = __DIR__;
 
 if (!file_exists($laravelPath . '/artisan')) {
     echo "[" . date('Y-m-d H:i:s') . "] FEHLER: Laravel-Verzeichnis nicht gefunden: $laravelPath\n";
