@@ -814,11 +814,18 @@
                 const isBookmarked = btn.getAttribute('data-bookmarked') === 'true';
                 
                 if (isBookmarked) {
+                    // DIREKTE FARBE statt currentColor!
                     icon.style.setProperty('color', '#eab308', 'important'); // yellow-500
-                    icon.setAttribute('fill', 'currentColor');
+                    icon.style.setProperty('stroke', '#eab308', 'important');
+                    icon.style.setProperty('fill', '#eab308', 'important');
+                    icon.setAttribute('stroke', '#eab308');
+                    icon.setAttribute('fill', '#eab308');
                     if (text) text.textContent = 'Gespeichert';
                 } else {
                     icon.style.setProperty('color', '#9ca3af', 'important'); // gray-400
+                    icon.style.setProperty('stroke', '#9ca3af', 'important');
+                    icon.style.setProperty('fill', 'none', 'important');
+                    icon.setAttribute('stroke', '#9ca3af');
                     icon.setAttribute('fill', 'none');
                     if (text) text.textContent = 'Speichern';
                 }
