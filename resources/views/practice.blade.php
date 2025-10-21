@@ -25,7 +25,7 @@
     }
 @endphp
 <style>
-    /* CACHE BUST v8.3 - DESKTOP FIXES - 2025-10-21-16:35 */
+    /* CACHE BUST v8.4 - EXTRA WIDE DESKTOP - 2025-10-21-16:45 */
     @keyframes fadeIn {
         from {
             opacity: 0;
@@ -354,11 +354,12 @@
             justify-content: flex-start !important;
         }
         
-        /* Practice Container als schöne Karte - BREITER */
+        /* Practice Container als schöne Karte - EXTRA BREIT */
         #practiceContainer {
-            max-width: 1000px !important;
+            max-width: 1200px !important;
+            width: 95% !important;
             margin: 0 auto !important;
-            padding: 2.5rem !important;
+            padding: 3rem !important;
             background: white !important;
             border-radius: 16px !important;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.05) !important;
