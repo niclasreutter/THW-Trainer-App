@@ -60,16 +60,6 @@
                         <li>Erinnerungen bei längerer Inaktivität (optional)</li>
                     </ul>
                     <p class="mb-4">Die Verarbeitung erfolgt auf Grundlage Ihrer Einwilligung (Art. 6 Abs. 1 lit. a DSGVO). Sie können diese Einwilligung jederzeit in Ihren Profileinstellungen widerrufen.</p>
-                    
-                    <h3 class="text-lg font-medium text-gray-800 mb-2">3.4 Push-Benachrichtigungen (nur in der PWA)</h3>
-                    <p class="mb-4">Wenn Sie unsere Plattform als Progressive Web App (PWA) nutzen, können Sie Push-Benachrichtigungen aktivieren. Hierfür werden folgende Daten verarbeitet:</p>
-                    <ul class="list-disc ml-8 pl-2 mb-4 space-y-1">
-                        <li>Push-Subscription-Endpoint (technische URL zur Zustellung)</li>
-                        <li>Verschlüsselungsschlüssel für sichere Übertragung</li>
-                        <li>Geräte-/Browser-Informationen (automatisch durch Push-Service)</li>
-                    </ul>
-                    <p class="mb-4">Die Abfrage zur Aktivierung von Push-Benachrichtigungen erfolgt ausschließlich, wenn Sie die App im Standalone-Modus (als PWA) nutzen. Die Verarbeitung erfolgt auf Grundlage Ihrer Einwilligung (Art. 6 Abs. 1 lit. a DSGVO). Sie können Push-Benachrichtigungen jederzeit in Ihren Browser- oder Geräteeinstellungen deaktivieren.</p>
-                    <p>Push-Benachrichtigungen werden über die Web Push API versendet und nutzen die Infrastruktur Ihres Browsers bzw. Betriebssystems (z.B. Google Firebase Cloud Messaging für Chrome, Apple Push Notification Service für Safari).</p>
                 </div>
             </section>
 
@@ -107,21 +97,7 @@
                     <p class="mb-4"><strong>Anbieter:</strong> BunnyWay SRL, Strada Tudor Vladimirescu 22, 500036 Brașov, Rumänien</p>
                     <p class="mb-4"><strong>Datenschutzerklärung:</strong> <a href="https://fonts.bunny.net/privacy" class="text-blue-600 hover:text-blue-800 underline" target="_blank" rel="noopener">https://fonts.bunny.net/privacy</a></p>
                     
-                    <h3 class="text-lg font-medium text-gray-800 mb-2">7.2 Push-Dienste (bei Nutzung der PWA)</h3>
-                    <p class="mb-4">Für die Zustellung von Push-Benachrichtigungen nutzen wir die Push-Infrastruktur Ihres Browsers bzw. Betriebssystems:</p>
-                    <ul class="list-disc ml-8 pl-2 mb-4 space-y-1">
-                        <li><strong>Google Chrome/Edge/Opera:</strong> Firebase Cloud Messaging (FCM) von Google LLC</li>
-                        <li><strong>Safari:</strong> Apple Push Notification Service (APNs) von Apple Inc.</li>
-                        <li><strong>Firefox:</strong> Mozilla Push Service von Mozilla Corporation</li>
-                    </ul>
-                    <p class="mb-4">Diese Dienste erhalten beim Versand von Push-Benachrichtigungen den Subscription-Endpoint und die verschlüsselten Benachrichtigungsinhalte. Die Datenverarbeitung erfolgt auf Servern der jeweiligen Anbieter, die sich teilweise außerhalb der EU befinden können (z.B. USA). Es gelten die Datenschutzrichtlinien der jeweiligen Anbieter:</p>
-                    <ul class="list-disc ml-8 pl-2 mb-4 space-y-1">
-                        <li>Google FCM: <a href="https://firebase.google.com/support/privacy" class="text-blue-600 hover:text-blue-800 underline" target="_blank" rel="noopener">https://firebase.google.com/support/privacy</a></li>
-                        <li>Apple APNs: <a href="https://www.apple.com/legal/privacy/" class="text-blue-600 hover:text-blue-800 underline" target="_blank" rel="noopener">https://www.apple.com/legal/privacy/</a></li>
-                        <li>Mozilla Push: <a href="https://www.mozilla.org/privacy/" class="text-blue-600 hover:text-blue-800 underline" target="_blank" rel="noopener">https://www.mozilla.org/privacy/</a></li>
-                    </ul>
-                    
-                    <h3 class="text-lg font-medium text-gray-800 mb-2">7.3 Vite (Build-Tool)</h3>
+                    <h3 class="text-lg font-medium text-gray-800 mb-2">7.2 Vite (Build-Tool)</h3>
                     <p class="mb-4">Für die Entwicklung und den Build-Prozess wird Vite verwendet. Dies hat keine Auswirkungen auf die Datenerhebung bei Endnutzern, da es sich um ein reines Entwicklungs- und Build-Tool handelt.</p>
                 </div>
             </section>

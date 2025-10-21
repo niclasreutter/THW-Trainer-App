@@ -17,11 +17,6 @@ Route::get('/datenschutz', function () {
     return view('datenschutz');
 })->name('datenschutz');
 
-// Debug-Seite für PWA & Push (nur für eingeloggte User)
-Route::get('/push-debug', function () {
-    return view('push-debug');
-})->middleware('auth')->name('push.debug');
-
 // Kontaktformular (öffentlich zugänglich)
 Route::get('/kontakt', [\App\Http\Controllers\ContactController::class, 'index'])->name('contact.index');
 Route::post('/kontakt', [\App\Http\Controllers\ContactController::class, 'store'])
@@ -101,14 +96,6 @@ Route::post('/dashboard/dismiss-email-consent-banner', function () {
     session(['email_consent_banner_dismissed' => true]);
     return response()->json(['success' => true]);
 })->middleware('auth')->name('dashboard.dismiss-email-consent-banner');
-
-// Push Notification Routes
-Route::middleware('auth')->prefix('push')->name('push.')->group(function () {
-    Route::get('/vapid-public-key', [\App\Http\Controllers\PushNotificationController::class, 'getPublicKey'])->name('vapid-key');
-    Route::post('/subscribe', [\App\Http\Controllers\PushNotificationController::class, 'subscribe'])->name('subscribe');
-    Route::post('/unsubscribe', [\App\Http\Controllers\PushNotificationController::class, 'unsubscribe'])->name('unsubscribe');
-    Route::post('/test', [\App\Http\Controllers\PushNotificationController::class, 'sendTest'])->name('test');
-});
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', function() {
