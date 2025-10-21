@@ -92,20 +92,42 @@ class PushNotificationController extends Controller
     public function sendTest(Request $request)
     {
         try {
+            Log::info('=== Push Test Start ===');
+            Log::info('User ID: ' . Auth::id());
+            
             $subscriptions = Auth::user()->pushSubscriptions()->where('is_active', true)->get();
+            Log::info('Found subscriptions: ' . $subscriptions->count());
 
             if ($subscriptions->isEmpty()) {
+                Log::warning('No active push subscriptions found');
                 return response()->json([
                     'success' => false,
                     'message' => 'Keine aktiven Push-Subscriptions gefunden'
                 ], 404);
             }
 
+            // Check VAPID config
+            $vapidSubject = config('webpush.vapid.subject');
+            $vapidPublic = config('webpush.vapid.public_key');
+            $vapidPrivate = config('webpush.vapid.private_key');
+            
+            Log::info('VAPID Subject: ' . ($vapidSubject ?: 'NOT SET'));
+            Log::info('VAPID Public Key: ' . (strlen($vapidPublic) > 0 ? 'SET (' . strlen($vapidPublic) . ' chars)' : 'NOT SET'));
+            Log::info('VAPID Private Key: ' . (strlen($vapidPrivate) > 0 ? 'SET (' . strlen($vapidPrivate) . ' chars)' : 'NOT SET'));
+            
+            if (!$vapidSubject || !$vapidPublic || !$vapidPrivate) {
+                Log::error('VAPID keys not configured properly!');
+                return response()->json([
+                    'success' => false,
+                    'message' => 'VAPID-Keys sind nicht konfiguriert. Bitte .env prüfen!'
+                ], 500);
+            }
+
             $auth = [
                 'VAPID' => [
-                    'subject' => config('webpush.vapid.subject'),
-                    'publicKey' => config('webpush.vapid.public_key'),
-                    'privateKey' => config('webpush.vapid.private_key'),
+                    'subject' => $vapidSubject,
+                    'publicKey' => $vapidPublic,
+                    'privateKey' => $vapidPrivate,
                 ],
             ];
 
@@ -117,26 +139,60 @@ class PushNotificationController extends Controller
                 'icon' => '/logo-thwtrainer.png',
                 'url' => '/dashboard'
             ]);
+            
+            Log::info('Payload: ' . $payload);
+
+            $sentCount = 0;
+            $failedCount = 0;
 
             foreach ($subscriptions as $subscription) {
-                $pushSubscription = Subscription::create([
-                    'endpoint' => $subscription->endpoint,
-                    'publicKey' => $subscription->public_key,
-                    'authToken' => $subscription->auth_token,
-                    'contentEncoding' => $subscription->content_encoding,
-                ]);
+                try {
+                    Log::info('Sending to endpoint: ' . substr($subscription->endpoint, 0, 50) . '...');
+                    
+                    $pushSubscription = Subscription::create([
+                        'endpoint' => $subscription->endpoint,
+                        'publicKey' => $subscription->public_key,
+                        'authToken' => $subscription->auth_token,
+                        'contentEncoding' => $subscription->content_encoding,
+                    ]);
 
-                $webPush->queueNotification($pushSubscription, $payload);
+                    $webPush->queueNotification($pushSubscription, $payload);
+                } catch (\Exception $e) {
+                    Log::error('Failed to queue notification: ' . $e->getMessage());
+                    $failedCount++;
+                }
             }
 
+            Log::info('Flushing notifications...');
             $results = $webPush->flush();
+            
+            // Check results
+            foreach ($results as $result) {
+                if ($result->isSuccess()) {
+                    Log::info('Push sent successfully to: ' . substr($result->getEndpoint(), 0, 50));
+                    $sentCount++;
+                } else {
+                    Log::error('Push failed: ' . $result->getReason() . ' to: ' . substr($result->getEndpoint(), 0, 50));
+                    $failedCount++;
+                }
+            }
+            
+            Log::info('=== Push Test End === Sent: ' . $sentCount . ', Failed: ' . $failedCount);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Test-Benachrichtigung gesendet!'
-            ]);
+            if ($sentCount > 0) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Test-Benachrichtigung gesendet! (' . $sentCount . ' erfolgreich, ' . $failedCount . ' fehlgeschlagen)'
+                ]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Alle Benachrichtigungen fehlgeschlagen. Details im Log.'
+                ], 500);
+            }
         } catch (\Exception $e) {
             Log::error('Push notification send failed: ' . $e->getMessage());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
             return response()->json([
                 'success' => false,
                 'message' => 'Fehler beim Senden: ' . $e->getMessage()
