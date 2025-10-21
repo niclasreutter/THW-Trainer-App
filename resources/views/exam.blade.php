@@ -4,23 +4,32 @@
 
 @push('styles')
 <style>
-    /* CACHE BUST - EXAM VIEW WITH STICKY FOOTER - 2025-10-21-18:00 */
+    /* CACHE BUST - EXAM VIEW NO MOBILE FOOTER - 2025-10-21-19:15 */
     
-    /* Sticky Footer Layout für Exam */
-    body {
-        display: flex !important;
-        flex-direction: column !important;
-        min-height: 100vh !important;
+    /* Sticky Footer Layout für Exam - NUR DESKTOP */
+    @media (min-width: 641px) {
+        body {
+            display: flex !important;
+            flex-direction: column !important;
+            min-height: 100vh !important;
+        }
+        
+        main {
+            flex: 1 0 auto !important;
+            padding-top: 1rem !important;
+            padding-bottom: 1rem !important;
+        }
+        
+        footer {
+            flex-shrink: 0 !important;
+        }
     }
     
-    main {
-        flex: 1 0 auto !important;
-        padding-top: 1rem !important;
-        padding-bottom: 1rem !important;
-    }
-    
-    footer {
-        flex-shrink: 0 !important;
+    /* Mobile: Footer verstecken */
+    @media (max-width: 640px) {
+        footer {
+            display: none !important;
+        }
     }
     
     /* Exam Container - kompakt ohne unnötige Höhe */
