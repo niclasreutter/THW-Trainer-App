@@ -4,12 +4,12 @@
 @section('description', 'THW-Trainer: Dein kostenloser digitaler Begleiter für die THW-Theorieprüfung. Alle aktuellen Fragen, Prüfungssimulation und Lernfortschritt. Jetzt anonym starten oder kostenlos registrieren!')
 
 @section('content')
-<!-- CACHE BUST v1.1 - FIX LAYOUT - 2025-10-21-18:45 -->
-<div class="bg-[#FDFDFC]" style="overflow-x: hidden;">
+<!-- CACHE BUST v1.2 - FIX NAV GAP - 2025-10-21-19:00 -->
+<div style="overflow-x: hidden;">
     
     <!-- Account gelöscht Meldung  -->
     @if (session('status') == 'account-deleted')
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8" style="background: #00337F;">
             <div class="bg-green-50 border-l-4 border-green-400 p-4 rounded-lg shadow-sm">
                 <div class="flex items-start">
                     <div class="flex-shrink-0">
@@ -28,7 +28,7 @@
     @endif
     
     <!-- Blauer Block 50% Bildschirmhöhe -->
-    <div style="height: 50vh; position: relative; background: linear-gradient(to bottom, #00337F 0%, #00337F 20%, rgba(0, 51, 127, 0.8) 40%, rgba(0, 51, 127, 0.4) 60%, rgba(0, 51, 127, 0.1) 80%, transparent 100%); z-index: 1;">
+    <div style="height: 50vh; position: relative; background: linear-gradient(to bottom, #00337F 0%, #00337F 20%, rgba(0, 51, 127, 0.8) 40%, rgba(0, 51, 127, 0.4) 60%, rgba(0, 51, 127, 0.1) 80%, transparent 100%); z-index: 1; margin-top: 0; padding-top: 0;">
         <!-- Inhalt -->
         <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; padding: 0 1rem; width: 100%; max-width: 90%;">
             <!-- Haupttitel -->
