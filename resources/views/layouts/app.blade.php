@@ -62,6 +62,26 @@
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+        
+        <!-- Global Sticky Footer CSS -->
+        <style>
+            /* CACHE BUST v1.0 - GLOBAL STICKY FOOTER - 2025-10-21-17:15 */
+            body {
+                display: flex !important;
+                flex-direction: column !important;
+                min-height: 100vh !important;
+            }
+            
+            main {
+                flex: 1 0 auto !important;
+            }
+            
+            footer {
+                flex-shrink: 0 !important;
+            }
+        </style>
+        
+        @stack('styles')
     </head>
     <body class="font-sans antialiased bg-[#FDFDFC]">
             @include('layouts.navigation')
