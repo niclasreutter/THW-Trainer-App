@@ -1,6 +1,0 @@
-# VAPID Keys für Push-Benachrichtigungen
-VAPID_SUBJECT=mailto:niclas@thw-trainer.de
-VAPID_PUBLIC_KEY=BBbF_AH9rF_1KPspaZ_blQgxkElPP3INrBBErFeNoVw7zyMj6m7Votl-UzPiq3u7Vib0OE02WseQkWfI07IQJ4s
-VAPID_PRIVATE_KEY=ADU_xBryHePpnfumIR87CRNedFnTHrAsjZEGRTbQU50
-
-# Diese Keys bitte zur .env Datei hinzufügen!

@@ -66,14 +66,6 @@ class User extends Authenticatable implements MustVerifyEmail
     }
     
     /**
-     * User hat viele Push-Subscriptions
-     */
-    public function pushSubscriptions()
-    {
-        return $this->hasMany(PushSubscription::class);
-    }
-    
-    /**
      * Override the default email verification notification.
      */
     public function sendEmailVerificationNotification()
