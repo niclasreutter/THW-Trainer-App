@@ -4,24 +4,50 @@
 
 @push('styles')
 <style>
-    /* Navigation und Footer ausblenden - wie bei Practice */
-    nav {
+    /* CACHE BUST - EXAM VIEW FIX - 2025-10-21-16:00 */
+    
+    /* Footer und Navigation ausblenden - HÖCHSTE PRIORITÄT */
+    footer,
+    footer *,
+    .footer,
+    [role="contentinfo"] {
         display: none !important;
         visibility: hidden !important;
         height: 0 !important;
+        max-height: 0 !important;
+        overflow: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        position: absolute !important;
+        left: -9999px !important;
     }
     
-    footer {
+    nav,
+    nav *,
+    header nav,
+    [role="navigation"] {
         display: none !important;
         visibility: hidden !important;
         height: 0 !important;
+        max-height: 0 !important;
+        overflow: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        position: absolute !important;
+        left: -9999px !important;
     }
     
-    /* Body auf Vollbild ohne Scrollen */
+    /* Body auf Vollbild */
     body {
         overflow: hidden !important;
         margin: 0 !important;
         padding: 0 !important;
+        height: 100vh !important;
+    }
+    
+    /* Wrapper div entfernen falls vorhanden */
+    body > div.min-h-screen {
+        min-height: 100vh !important;
         height: 100vh !important;
     }
     
@@ -37,7 +63,7 @@
         position: relative !important;
     }
     
-    /* Exam Container - wie Practice Container */
+    /* Exam Container - Mobile First */
     #examContainer {
         margin: 0 !important;
         margin-top: 0 !important;
@@ -48,15 +74,23 @@
         max-width: 100% !important;
         width: 100% !important;
         min-height: 100vh !important;
+        background: white !important;
     }
     
+    /* Desktop: Container mit Schatten und Rundungen */
     @media (min-width: 641px) {
+        main {
+            padding-top: 1rem !important;
+            padding-bottom: 1rem !important;
+        }
+        
         #examContainer {
             margin: 1rem auto !important;
             padding: 1rem !important;
             border-radius: 0.5rem !important;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
             max-width: 42rem !important;
+            min-height: auto !important;
         }
     }
     
