@@ -25,7 +25,7 @@
     }
 @endphp
 <style>
-    /* CACHE BUST v8.4 - EXTRA WIDE DESKTOP - 2025-10-21-16:45 */
+    /* CACHE BUST v8.5 - FOOTER FIX FINAL - 2025-10-21-17:00 */
     @keyframes fadeIn {
         from {
             opacity: 0;
@@ -343,23 +343,28 @@
         body {
             display: flex !important;
             flex-direction: column !important;
+            min-height: 100vh !important;
         }
         
         main {
-            flex: 1 !important;
-            padding-top: 1.5rem !important;
-            padding-bottom: 1.5rem !important;
+            flex: 1 0 auto !important;
+            padding-top: 1rem !important;
+            padding-bottom: 1rem !important;
             display: flex !important;
             flex-direction: column !important;
             justify-content: flex-start !important;
+        }
+        
+        footer {
+            flex-shrink: 0 !important;
         }
         
         /* Practice Container als schöne Karte - EXTRA BREIT */
         #practiceContainer {
             max-width: 1200px !important;
             width: 95% !important;
-            margin: 0 auto !important;
-            padding: 3rem !important;
+            margin: 0 auto 1rem auto !important;
+            padding: 2.5rem !important;
             background: white !important;
             border-radius: 16px !important;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.05) !important;
