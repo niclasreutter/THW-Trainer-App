@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v1.2';
+const CACHE_VERSION = 'v1.3';
 const CACHE_NAME = `thw-trainer-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `thw-trainer-runtime-${CACHE_VERSION}`;
 const OFFLINE_CACHE = `thw-trainer-offline-${CACHE_VERSION}`;
@@ -13,7 +13,14 @@ const PRECACHE_ASSETS = [
   '/logo-thwtrainer.png',
   '/logo-thwtrainer_w.png',
   '/manifest.json',
-  '/favicon.ico'
+  '/favicon.ico',
+  '/js/offline-db.js',
+  '/js/offline-submit.js'
+];
+
+// API endpoints to cache
+const API_CACHE_ENDPOINTS = [
+  '/api/questions/all'
 ];
 
 // Install event - precache critical assets
@@ -76,8 +83,41 @@ self.addEventListener('fetch', event => {
   // Skip chrome extensions and other non-http(s) requests
   if (!request.url.startsWith('http')) return;
   
-  // Skip API calls (they need fresh data)
-  if (request.url.includes('/api/')) return;
+  // Handle API requests differently
+  if (request.url.includes('/api/')) {
+    // Cache-first for questions API (data changes rarely)
+    if (request.url.includes('/api/questions')) {
+      event.respondWith(
+        caches.match(request).then(cachedResponse => {
+          if (cachedResponse) {
+            // Return cached, update in background
+            fetch(request).then(response => {
+              if (response.status === 200) {
+                caches.open(RUNTIME_CACHE).then(cache => {
+                  cache.put(request, response);
+                });
+              }
+            }).catch(() => {});
+            return cachedResponse;
+          }
+          
+          // Fetch from network and cache
+          return fetch(request).then(response => {
+            if (response.status === 200) {
+              const responseToCache = response.clone();
+              caches.open(RUNTIME_CACHE).then(cache => {
+                cache.put(request, responseToCache);
+              });
+            }
+            return response;
+          });
+        })
+      );
+      return;
+    }
+    // Other API calls: network only
+    return;
+  }
 
   // For navigation requests (HTML pages)
   if (request.mode === 'navigate') {
