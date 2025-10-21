@@ -26,7 +26,7 @@
     }
 @endphp
 <style>
-    /* CACHE BUST v1.0 - COMPACT FAILED PRACTICE - 2025-10-20-21:15 */
+    /* CACHE BUST v2.0 - FAILED PRACTICE COMPLETE - 2025-10-21-22:30 */
     @keyframes fadeIn {
         from {
             opacity: 0;
