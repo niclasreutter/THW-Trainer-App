@@ -896,12 +896,13 @@
                             
                             console.log('[BOOKMARK] Mobile icon created and appended');
                             
-                            // Mobile Feedback mit Hintergrundfarbe
+                            // Mobile Feedback mit Hintergrundfarbe und Scale-Animation
+                            btn.style.transition = 'all 0.3s ease';
                             btn.style.backgroundColor = data.is_bookmarked ? '#fef3c7' : '#f3f4f6';
-                            btn.classList.add('scale-110');
+                            btn.style.transform = 'scale(1.1)';
                             setTimeout(() => {
                                 btn.style.backgroundColor = '';
-                                btn.classList.remove('scale-110');
+                                btn.style.transform = 'scale(1)';
                             }, 1000);
                         } else {
                             console.log('[BOOKMARK] Creating desktop icon...');
@@ -935,8 +936,9 @@
                             console.log('[BOOKMARK] Desktop icon created and appended');
                             
                             // Desktop Feedback mit sichtbarer Animation
+                            btn.style.transition = 'all 0.3s ease';
                             btn.style.backgroundColor = data.is_bookmarked ? '#fef3c7' : '#f3f4f6';
-                            btn.classList.add('scale-110');
+                            btn.style.transform = 'scale(1.1)';
                             
                             const textEl = document.getElementById('bookmarkText');
                             const originalText = textEl.textContent;
@@ -944,7 +946,7 @@
                             
                             setTimeout(() => {
                                 btn.style.backgroundColor = '';
-                                btn.classList.remove('scale-110');
+                                btn.style.transform = 'scale(1)';
                                 textEl.textContent = originalText;
                             }, 1500);
                         }
