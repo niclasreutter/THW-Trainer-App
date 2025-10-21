@@ -15,11 +15,31 @@ class FailedPracticeController extends Controller
         $user = Auth::user();
         $failed = $this->ensureArray($user->exam_failed_questions);
         
-        // Initialisiere Session für Failed Practice
-        if (!session()->has('failed_practice_ids')) {
-            // Erste Runde: Alle Fragen zufällig
+        // WICHTIG: Lösche andere Practice-Sessions um Interferenz zu vermeiden
+        if ($request->has('reset') || !session()->has('failed_practice_ids')) {
+            // Clear andere Practice Sessions
+            session()->forget([
+                'practice_ids', 
+                'practice_mode', 
+                'practice_parameter', 
+                'practice_skipped'
+            ]);
+            
+            // Initialisiere Failed Practice Session
             $failedIds = array_values($failed);
+            
+            if (empty($failedIds)) {
+                return redirect()->route('practice.menu')->with('info', 'Keine falschen Fragen zum Wiederholen! 🎉');
+            }
+            
             shuffle($failedIds);
+            
+            \Log::info('Failed Practice initialized', [
+                'user_id' => $user->id,
+                'failed_count' => count($failedIds),
+                'failed_ids' => $failedIds
+            ]);
+            
             session([
                 'failed_practice_ids' => $failedIds,
                 'failed_practice_round' => 1,
@@ -29,6 +49,11 @@ class FailedPracticeController extends Controller
         
         $practiceIds = session('failed_practice_ids', []);
         
+        \Log::info('Failed Practice show', [
+            'practice_ids' => $practiceIds,
+            'user_failed_questions' => $failed
+        ]);
+        
         if (empty($practiceIds)) {
             // Alle Fragen wurden bearbeitet
             session()->forget(['failed_practice_ids', 'failed_practice_round', 'failed_practice_completed_once']);
@@ -36,6 +61,20 @@ class FailedPracticeController extends Controller
         }
         
         $questionId = $practiceIds[0];
+        
+        // SICHERHEITSCHECK: Ist die Frage wirklich in Failed-Liste?
+        if (!in_array($questionId, $failed)) {
+            \Log::warning('Question not in failed list!', [
+                'question_id' => $questionId,
+                'failed_questions' => $failed,
+                'practice_ids' => $practiceIds
+            ]);
+            
+            // Session neu initialisieren
+            session()->forget(['failed_practice_ids', 'failed_practice_round', 'failed_practice_completed_once']);
+            return redirect()->route('failed.index', ['reset' => 1]);
+        }
+        
         $question = Question::find($questionId);
         
         if (!$question) {
@@ -169,6 +208,15 @@ class FailedPracticeController extends Controller
             'failed_practice_ids' => $practiceIds,
             'failed_practice_completed_once' => $completedOnce,
             'failed_practice_round' => $round
+        ]);
+        
+        \Log::info('Failed Practice submit processed', [
+            'question_id' => $question->id,
+            'is_correct' => $isCorrect,
+            'mastered' => $questionProgress->isMastered(),
+            'remaining_ids' => $practiceIds,
+            'round' => $round,
+            'completed_once_count' => count($completedOnce)
         ]);
         
         // Speichere Antwort-Ergebnisse in Session für Popup-Anzeige
