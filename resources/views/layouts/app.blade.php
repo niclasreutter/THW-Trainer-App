@@ -144,12 +144,6 @@
             </div>
         </div>
 
-        <!-- Offline Database Manager -->
-        <script src="{{ asset('js/offline-db.js') }}"></script>
-        
-        <!-- Offline Submit Handler -->
-        <script src="{{ asset('js/offline-submit.js') }}"></script>
-
         <!-- Service Worker Registration & PWA Install Logic -->
         <script>
             // Service Worker Registration
@@ -273,137 +267,6 @@
                 }
             }
 
-            // Initialize Offline Database & Auto-Sync
-            (async function initOfflineQuestions() {
-                if (!('indexedDB' in window)) {
-                    console.log('❌ IndexedDB not supported');
-                    return;
-                }
-
-                try {
-                    // Wait for OfflineDB to be ready
-                    await window.offlineDB.init();
-                    
-                    // Check if we need to sync
-                    const metadata = await window.offlineDB.getMetadata();
-                    const now = Date.now();
-                    const lastSync = metadata ? new Date(metadata.value).getTime() : 0;
-                    const hoursSinceSync = (now - lastSync) / (1000 * 60 * 60);
-                    
-                    // Sync if: never synced OR more than 24 hours OR less than expected questions
-                    const shouldSync = !metadata || 
-                                     hoursSinceSync > 24 || 
-                                     (metadata.count < 200); // Expected minimum
-                    
-                    if (shouldSync && navigator.onLine) {
-                        console.log('📥 Syncing questions from server...');
-                        showSyncStatus('Fragen werden heruntergeladen...', 'info');
-                        
-                        try {
-                            const response = await fetch('/api/questions/all');
-                            if (!response.ok) {
-                                throw new Error(`HTTP ${response.status}`);
-                            }
-                            
-                            const questions = await response.json();
-                            console.log(`📦 Received ${questions.length} questions`);
-                            
-                            const savedCount = await window.offlineDB.saveQuestions(questions);
-                            console.log(`✅ Synced ${savedCount} questions to IndexedDB`);
-                            
-                            showSyncStatus(`${savedCount} Fragen offline verfügbar!`, 'success');
-                        } catch (error) {
-                            console.error('❌ Sync failed:', error);
-                            showSyncStatus('Sync fehlgeschlagen', 'error');
-                        }
-                    } else {
-                        const count = await window.offlineDB.getQuestionCount();
-                        console.log(`📴 Using ${count} cached questions`);
-                        
-                        if (count > 0 && !navigator.onLine) {
-                            showSyncStatus(`${count} Fragen offline verfügbar`, 'offline');
-                        }
-                    }
-                } catch (error) {
-                    console.error('❌ OfflineDB initialization error:', error);
-                }
-            })();
-
-            /**
-             * Background Sync für Antworten & Fortschritt
-             */
-            async function syncPendingData() {
-                if (!navigator.onLine) {
-                    console.log('⏸️ Offline - sync later');
-                    return;
-                }
-
-                try {
-                    const pendingAnswers = await window.offlineDB.getPendingAnswers();
-                    
-                    if (pendingAnswers.length === 0) {
-                        console.log('✅ No pending answers to sync');
-                        return;
-                    }
-
-                    console.log(`📤 Syncing ${pendingAnswers.length} pending answers...`);
-                    let synced = 0;
-                    let failed = 0;
-
-                    for (const answer of pendingAnswers) {
-                        try {
-                            const response = await fetch(answer.url || '/practice/submit', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'X-CSRF-TOKEN': answer.csrf || document.querySelector('meta[name="csrf-token"]')?.content
-                                },
-                                body: JSON.stringify(answer.data)
-                            });
-
-                            if (response.ok) {
-                                await window.offlineDB.markAnswerSynced(answer.id);
-                                synced++;
-                                console.log(`✅ Synced answer ${answer.id}`);
-                            } else {
-                                failed++;
-                                console.log(`❌ Failed to sync answer ${answer.id}: ${response.status}`);
-                            }
-                        } catch (error) {
-                            failed++;
-                            console.error(`❌ Error syncing answer ${answer.id}:`, error);
-                        }
-                    }
-
-                    if (synced > 0) {
-                        showSyncStatus(`${synced} Antworten synchronisiert!`, 'success');
-                        
-                        // Cleanup old synced answers
-                        await window.offlineDB.cleanupSyncedAnswers();
-                    }
-
-                    if (failed > 0) {
-                        console.log(`⚠️ ${failed} answers failed to sync`);
-                    }
-                } catch (error) {
-                    console.error('❌ Background sync error:', error);
-                }
-            }
-
-            // Sync when coming online
-            window.addEventListener('online', () => {
-                console.log('🌐 Back online - syncing...');
-                setTimeout(syncPendingData, 1000);
-            });
-
-            // Periodic sync check (every 5 minutes)
-            setInterval(syncPendingData, 5 * 60 * 1000);
-
-            // Initial sync check
-            if (navigator.onLine) {
-                setTimeout(syncPendingData, 3000);
-            }
-
             /**
              * Show iOS install instructions
              */
@@ -440,54 +303,6 @@
                 document.body.appendChild(banner);
             }
 
-            /**
-             * Show sync status notification
-             */
-            function showSyncStatus(message, type = 'info') {
-                // Remove existing notifications
-                const existing = document.querySelectorAll('.sync-notification');
-                existing.forEach(el => el.remove());
-                
-                // Don't show on very small screens or if user dismissed
-                if (window.innerWidth < 640 || localStorage.getItem('hide_sync_notifications') === 'true') {
-                    return;
-                }
-                
-                const colors = {
-                    info: 'bg-blue-500',
-                    success: 'bg-green-500',
-                    error: 'bg-red-500',
-                    offline: 'bg-yellow-500'
-                };
-                
-                const icons = {
-                    info: '📥',
-                    success: '✅',
-                    error: '❌',
-                    offline: '📴'
-                };
-                
-                const notification = document.createElement('div');
-                notification.className = `sync-notification fixed top-20 right-4 ${colors[type]} text-white px-4 py-3 rounded-lg shadow-2xl z-40 flex items-center gap-2 animate-fade-in`;
-                notification.innerHTML = `
-                    <span class="text-xl">${icons[type]}</span>
-                    <span class="text-sm font-medium">${message}</span>
-                    <button onclick="this.parentElement.remove()" class="ml-2 hover:text-gray-200">✕</button>
-                `;
-                
-                document.body.appendChild(notification);
-                
-                // Auto-remove after 5 seconds (except for errors)
-                if (type !== 'error') {
-                    setTimeout(() => {
-                        if (notification.parentElement) {
-                            notification.style.opacity = '0';
-                            notification.style.transform = 'translateX(100%)';
-                            setTimeout(() => notification.remove(), 300);
-                        }
-                    }, 5000);
-                }
-            }
         </script>
     </body>
 </html>

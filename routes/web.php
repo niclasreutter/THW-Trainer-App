@@ -22,16 +22,6 @@ Route::get('/offline', function () {
     return view('offline');
 })->name('offline');
 
-// API-Endpoint für Offline-Sync aller Fragen (öffentlich für Gäste, aber throttled)
-Route::get('/api/questions/all', function () {
-    return \App\Models\Question::select('id', 'frage', 'antwort_a', 'antwort_b', 'antwort_c', 
-                                        'richtige_antwort', 'lernabschnitt', 'nummer')
-                                ->orderBy('lernabschnitt')
-                                ->orderBy('nummer')
-                                ->get();
-})->middleware('throttle:10,60') // Max 10 Requests pro Stunde
-  ->name('api.questions.all');
-
 // Kontaktformular (öffentlich zugänglich)
 Route::get('/kontakt', [\App\Http\Controllers\ContactController::class, 'index'])->name('contact.index');
 Route::post('/kontakt', [\App\Http\Controllers\ContactController::class, 'store'])
