@@ -34,14 +34,20 @@
         background: white !important;
     }
     
-    /* Desktop: Container mit Schatten und Rundungen */
+    /* Desktop: Container mit Schatten und Rundungen - GLEICHE BREITE WIE PRACTICE */
     @media (min-width: 641px) {
         #examContainer {
             margin: 1rem auto !important;
-            padding: 1rem !important;
-            border-radius: 0.5rem !important;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
-            max-width: 42rem !important;
+            padding: 2.5rem !important;
+            border-radius: 16px !important;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.05) !important;
+            max-width: 950px !important;
+            width: 95% !important;
+            transition: all 0.3s ease !important;
+        }
+        
+        #examContainer:hover {
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.15), 0 5px 15px rgba(0, 0, 0, 0.08) !important;
         }
     }
 </style>
