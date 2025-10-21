@@ -4,8 +4,8 @@
 @section('description', 'THW-Trainer: Dein kostenloser digitaler Begleiter für die THW-Theorieprüfung. Alle aktuellen Fragen, Prüfungssimulation und Lernfortschritt. Jetzt anonym starten oder kostenlos registrieren!')
 
 @section('content')
-<!-- CACHE BUST v1.0 - COMPACT HOME - 2025-10-20-20:50 -->
-<div class="min-h-screen bg-[#FDFDFC]">
+<!-- CACHE BUST v1.1 - FIX LAYOUT - 2025-10-21-18:45 -->
+<div class="bg-[#FDFDFC]" style="overflow-x: hidden;">
     
     <!-- Account gelöscht Meldung  -->
     @if (session('status') == 'account-deleted')
@@ -28,7 +28,7 @@
     @endif
     
     <!-- Blauer Block 50% Bildschirmhöhe -->
-    <div style="height: 50vh; margin-top: -4px; position: relative; background: linear-gradient(to bottom, #00337F 0%, #00337F 20%, rgba(0, 51, 127, 0.8) 40%, rgba(0, 51, 127, 0.4) 60%, rgba(0, 51, 127, 0.1) 80%, transparent 100%); z-index: 1;">
+    <div style="height: 50vh; position: relative; background: linear-gradient(to bottom, #00337F 0%, #00337F 20%, rgba(0, 51, 127, 0.8) 40%, rgba(0, 51, 127, 0.4) 60%, rgba(0, 51, 127, 0.1) 80%, transparent 100%); z-index: 1;">
         <!-- Inhalt -->
         <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; padding: 0 1rem; width: 100%; max-width: 90%;">
             <!-- Haupttitel -->
@@ -124,27 +124,27 @@
     </div>
 
     <!-- CTA Section -->
-    <div style="background-color: #00337F; padding: 2rem 0; lg:padding: 3rem 0;">
-        <div class="max-w-6xl mx-auto text-center" style="padding: 0 1rem; lg:padding: 0 3rem;">
+    <div style="background-color: #00337F; padding: 2rem 0; overflow-x: hidden;">
+        <div class="max-w-6xl mx-auto text-center px-4 sm:px-6 lg:px-8">
             <h2 class="text-xl lg:text-3xl font-bold text-white mb-4 lg:mb-5 tracking-tight">
                 📑 Bereit zum Lernen?
             </h2>
-            <p class="text-sm lg:text-lg text-white mb-4 lg:mb-6 max-w-4xl mx-auto leading-relaxed font-light px-4">
+            <p class="text-sm lg:text-lg text-white mb-4 lg:mb-6 max-w-4xl mx-auto leading-relaxed font-light">
                 Starte jetzt mit dem THW-Trainer und bereite dich optimal auf deine Grundausbildung Theorie-Prüfung im THW vor. 
             </p>
-            <p class="text-sm lg:text-base text-white max-w-4xl mx-auto leading-relaxed font-light px-4" style="margin-bottom: 1.5rem;">
+            <p class="text-sm lg:text-base text-white max-w-4xl mx-auto leading-relaxed font-light mb-6">
             Registriere dich kostenlos und beginne sofort mit dem Lernen, egal ob Handy, Laptop oder Tablet!
             Ein Account, ein Lernstand!
             </p>
             
-            <div class="grid grid-cols-1 sm:grid-cols-2 max-w-2xl mx-auto" style="gap: 1rem;">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mx-auto">
                 <a href="{{ route('register') }}" 
-                   class="bg-yellow-400 text-blue-900 px-8 py-3 font-bold hover:bg-yellow-300 transition-all duration-300 text-center" style="border-radius: 12px;">
+                   class="bg-yellow-400 text-blue-900 px-8 py-3 rounded-xl font-bold hover:bg-yellow-300 transition-all duration-300 text-center">
                     Jetzt kostenlos anmelden
                 </a>
                 
                 <a href="{{ route('login') }}" 
-                   class="px-8 py-3 font-bold border-2 border-white hover:bg-white hover:text-blue-900 transition-all duration-300 text-center" style="background-color: #FDFDFC; color: #00337F; border-radius: 12px;">
+                   class="bg-white text-blue-900 px-8 py-3 rounded-xl font-bold border-2 border-white hover:bg-gray-100 transition-all duration-300 text-center">
                     Login
                 </a>
             </div>
@@ -289,7 +289,7 @@
     </div>
 
     <!-- Der Kopf Dahinter Section -->
-    <div class="py-12 lg:py-16 bg-[#FDFDFC]">
+    <div class="py-12 lg:py-16 bg-[#FDFDFC]" style="overflow-x: hidden;">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex flex-col lg:flex-row gap-6 lg:gap-12 items-center">
                 <!-- Container links - Bild -->
@@ -299,8 +299,8 @@
                             <source srcset="{{ asset('niclas_compressed.webp') }}" type="image/webp">
                             <img src="{{ asset('niclas_compressed.png') }}" 
                                  alt="Niclas Reutter - Entwickler des THW-Trainers" 
-                                 class="h-auto object-contain block"
-                                 style="max-height: 300px; max-width: 250px; opacity: 1; visibility: visible;"
+                                 class="h-auto object-contain block mx-auto"
+                                 style="max-height: 300px; max-width: 250px;"
                                  loading="lazy"
                                  width="250"
                                  height="300">
@@ -310,7 +310,7 @@
                 
                 <!-- Container rechts - Text -->
                 <div class="flex-1 space-y-4 lg:space-y-6">
-                    <h2 class="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-gray-900 tracking-tight">
+                    <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 tracking-tight">
                         Der Kopf Dahinter
                     </h2>
                     <div class="space-y-4 text-base sm:text-lg text-gray-700 leading-relaxed">
