@@ -64,7 +64,6 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="font-sans antialiased bg-[#FDFDFC]">
-    <div class="min-h-screen">
             @include('layouts.navigation')
 
             <!-- Page Heading -->
@@ -80,7 +79,6 @@
             <main>
                 @yield('content')
             </main>
-        </div>
         
         <!-- Gamification Notifications -->
         @include('components.gamification-notifications')
