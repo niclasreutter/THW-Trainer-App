@@ -4,9 +4,34 @@
 
 @push('styles')
 <style>
-    /* Verhindere Scrollen der gesamten Seite */
+    /* Navigation und Footer ausblenden */
+    nav {
+        display: none !important;
+        visibility: hidden !important;
+        height: 0 !important;
+    }
+    
+    footer {
+        display: none !important;
+        visibility: hidden !important;
+        height: 0 !important;
+    }
+    
+    /* Body auf Vollbild ohne Scrollen */
     body {
-        overflow: hidden;
+        overflow: hidden !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        height: 100vh !important;
+    }
+    
+    /* Main Container auf volle Höhe */
+    main {
+        height: 100vh !important;
+        max-height: 100vh !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        overflow: hidden !important;
     }
     
     /* Container nimmt die volle Viewport-Höhe ein */
