@@ -457,9 +457,10 @@
             <button type="button" class="p-2 hover:bg-gray-100 rounded-lg" id="bookmarkBtnMobile"
                     data-bookmarked="{{ $isBookmarked ? 'true' : 'false' }}"
                     onclick="toggleBookmark({{ $question->id }}, {{ $isBookmarked ? 'true' : 'false' }})">
-                <svg class="w-5 h-5" viewBox="0 0 20 20" stroke="currentColor" id="bookmarkIconMobile" 
-                     fill="{{ $isBookmarked ? 'currentColor' : 'none' }}"
-                     style="color: {{ $isBookmarked ? '#eab308' : '#9ca3af' }} !important;">
+                <svg class="w-5 h-5" viewBox="0 0 20 20" id="bookmarkIconMobile" 
+                     stroke="{{ $isBookmarked ? '#eab308' : '#9ca3af' }}"
+                     fill="{{ $isBookmarked ? '#eab308' : 'none' }}"
+                     style="color: {{ $isBookmarked ? '#eab308' : '#9ca3af' }} !important; stroke: {{ $isBookmarked ? '#eab308' : '#9ca3af' }} !important; fill: {{ $isBookmarked ? '#eab308' : 'none' }} !important;">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h6a2 2 0 012 2v10l-5-3-5 3V5z"></path>
                 </svg>
             </button>
@@ -519,9 +520,10 @@
                     id="bookmarkBtn"
                     data-bookmarked="{{ $isBookmarked ? 'true' : 'false' }}"
                     onclick="toggleBookmark({{ $question->id }}, {{ $isBookmarked ? 'true' : 'false' }})">
-                <svg class="w-4 h-4" viewBox="0 0 20 20" stroke="currentColor" id="bookmarkIcon"
-                     fill="{{ $isBookmarked ? 'currentColor' : 'none' }}"
-                     style="color: {{ $isBookmarked ? '#eab308' : '#9ca3af' }} !important;">
+                <svg class="w-4 h-4" viewBox="0 0 20 20" id="bookmarkIcon"
+                     stroke="{{ $isBookmarked ? '#eab308' : '#9ca3af' }}"
+                     fill="{{ $isBookmarked ? '#eab308' : 'none' }}"
+                     style="color: {{ $isBookmarked ? '#eab308' : '#9ca3af' }} !important; stroke: {{ $isBookmarked ? '#eab308' : '#9ca3af' }} !important; fill: {{ $isBookmarked ? '#eab308' : 'none' }} !important;">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                           d="M5 5a2 2 0 012-2h6a2 2 0 012 2v10l-5-3-5 3V5z"></path>
                 </svg>
@@ -856,14 +858,14 @@
                         
                         // KOMPLETT neues Button-Content erstellen für zuverlässiges Update
                         const targetColor = data.is_bookmarked ? '#eab308' : '#9ca3af';
-                        const targetFill = data.is_bookmarked ? 'currentColor' : 'none';
+                        const targetFill = data.is_bookmarked ? '#eab308' : 'none'; // DIREKTE FARBE statt currentColor!
                         
                         if (isMobile) {
                             // Mobile: Nur Icon, komplett neu erstellen
                             btn.innerHTML = `
                                 <svg id="bookmarkIconMobile" class="w-5 h-5" viewBox="0 0 20 20" 
                                      stroke="${targetColor}" fill="${targetFill}"
-                                     style="color: ${targetColor} !important; stroke: ${targetColor} !important;">
+                                     style="color: ${targetColor} !important; stroke: ${targetColor} !important; fill: ${targetFill} !important;">
                                     <path stroke="${targetColor}" fill="${targetFill}"
                                           stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                                           d="M5 5a2 2 0 012-2h6a2 2 0 012 2v10l-5-3-5 3V5z"></path>
@@ -882,7 +884,7 @@
                             btn.innerHTML = `
                                 <svg id="bookmarkIcon" class="w-4 h-4" viewBox="0 0 20 20" 
                                      stroke="${targetColor}" fill="${targetFill}"
-                                     style="color: ${targetColor} !important; stroke: ${targetColor} !important;">
+                                     style="color: ${targetColor} !important; stroke: ${targetColor} !important; fill: ${targetFill} !important;">
                                     <path stroke="${targetColor}" fill="${targetFill}"
                                           stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                                           d="M5 5a2 2 0 012-2h6a2 2 0 012 2v10l-5-3-5 3V5z"></path>
