@@ -25,41 +25,78 @@ class ExamController extends Controller
             return redirect()->route('dashboard')->with('error', 'Du musst zuerst deine falschen Antworten wiederholen, bevor du eine neue Prüfung starten kannst.');
         }
         
-        // Hole alle verfügbaren Fragen
-        $allQuestionIds = Question::pluck('id')->toArray();
+        // Strategie: Pro Lernabschnitt (1-10) mindestens 1 Frage
+        $selectedIds = [];
         
         // Versuche Fragen zu vermeiden, die in den letzten 3 Prüfungen verwendet wurden
-        $recentQuestions = [];
-        if (session()->has('recent_exam_questions')) {
-            $recentQuestions = session('recent_exam_questions');
+        $recentQuestions = session('recent_exam_questions', []);
+        
+        // 1. Wähle mindestens 1 Frage pro Lernabschnitt (1-10)
+        for ($lernabschnitt = 1; $lernabschnitt <= 10; $lernabschnitt++) {
+            // Hole alle Fragen dieses Lernabschnitts
+            $sectionQuestions = Question::where('lernabschnitt', $lernabschnitt)
+                ->pluck('id')
+                ->toArray();
+            
+            if (empty($sectionQuestions)) {
+                continue; // Falls kein Lernabschnitt existiert, überspringen
+            }
+            
+            // Bevorzuge Fragen, die nicht kürzlich verwendet wurden
+            $availableSectionQuestions = array_diff($sectionQuestions, $recentQuestions);
+            
+            // Falls keine verfügbar, nimm alle aus diesem Abschnitt
+            if (empty($availableSectionQuestions)) {
+                $availableSectionQuestions = $sectionQuestions;
+            }
+            
+            // Wähle zufällig 1 Frage aus diesem Lernabschnitt
+            $randomKey = array_rand($availableSectionQuestions);
+            $selectedIds[] = $availableSectionQuestions[$randomKey];
         }
         
-        // Entferne kürzlich verwendete Fragen aus der Auswahl
-        $availableIds = array_diff($allQuestionIds, $recentQuestions);
+        // 2. Fülle die restlichen Plätze auf 40 Fragen mit zufälligen Fragen auf
+        $remainingCount = 40 - count($selectedIds);
         
-        // Falls nicht genug Fragen verfügbar, verwende alle
-        if (count($availableIds) < 40) {
-            $availableIds = $allQuestionIds;
-        }
-        
-        // Wähle 40 zufällige Fragen aus
-        $randomIds = array_rand(array_flip($availableIds), min(40, count($availableIds)));
-        
-        // Stelle sicher, dass wir ein Array haben
-        if (!is_array($randomIds)) {
-            $randomIds = [$randomIds];
+        if ($remainingCount > 0) {
+            // Hole alle verfügbaren Fragen, die noch nicht ausgewählt wurden
+            $allQuestionIds = Question::pluck('id')->toArray();
+            $availableIds = array_diff($allQuestionIds, $selectedIds);
+            
+            // Bevorzuge Fragen, die nicht kürzlich verwendet wurden
+            $preferredIds = array_diff($availableIds, $recentQuestions);
+            
+            // Falls nicht genug bevorzugte Fragen, nimm alle verfügbaren
+            if (count($preferredIds) < $remainingCount) {
+                $preferredIds = $availableIds;
+            }
+            
+            // Wähle zufällig die restlichen Fragen
+            if (count($preferredIds) >= $remainingCount) {
+                $additionalIds = array_rand(array_flip($preferredIds), $remainingCount);
+                
+                // Stelle sicher, dass es ein Array ist
+                if (!is_array($additionalIds)) {
+                    $additionalIds = [$additionalIds];
+                }
+                
+                $selectedIds = array_merge($selectedIds, $additionalIds);
+            } else {
+                // Falls nicht genug Fragen vorhanden, nimm alle verfügbaren
+                $selectedIds = array_merge($selectedIds, $preferredIds);
+            }
         }
         
         // Speichere diese Fragen als "kürzlich verwendet"
-        $newRecentQuestions = array_merge($recentQuestions, $randomIds);
+        $newRecentQuestions = array_merge($recentQuestions, $selectedIds);
         // Behalte nur die letzten 120 Fragen (3 Prüfungen à 40 Fragen)
         if (count($newRecentQuestions) > 120) {
             $newRecentQuestions = array_slice($newRecentQuestions, -120);
         }
         session(['recent_exam_questions' => $newRecentQuestions]);
         
-        // Hole die Fragen in zufälliger Reihenfolge
-        $fragen = Question::whereIn('id', $randomIds)->get()->shuffle();
+        // Hole die Fragen und mische sie zufällig
+        $fragen = Question::whereIn('id', $selectedIds)->get()->shuffle();
         
         return view('exam', ['fragen' => $fragen]);
     }
