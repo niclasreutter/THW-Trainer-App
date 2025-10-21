@@ -25,7 +25,7 @@
     }
 @endphp
 <style>
-    /* CACHE BUST v7.4 - SMALLER FONT SIZES - 2025-10-20-20:40 */
+    /* CACHE BUST v7.5 - BOOKMARK FIX - 2025-10-21-15:30 */
     @keyframes fadeIn {
         from {
             opacity: 0;
@@ -827,8 +827,10 @@
             
             // Bookmark AJAX Function (unterstützt beide Buttons: Mobile & Desktop)
             function toggleBookmark(questionId, currentlyBookmarked) {
+                console.log('[BOOKMARK] Toggle started', {questionId, currentlyBookmarked});
                 const btn = document.getElementById('bookmarkBtn') || document.getElementById('bookmarkBtnMobile');
                 const isMobile = !document.getElementById('bookmarkText');
+                console.log('[BOOKMARK] Is Mobile:', isMobile);
                 
                 const formData = new FormData();
                 formData.append('question_id', questionId);
@@ -851,6 +853,7 @@
                 })
                 .then(response => response.json())
                 .then(data => {
+                    console.log('[BOOKMARK] Response received:', data);
                     if (data.success) {
                         // Update data-bookmarked attribute
                         btn.setAttribute('data-bookmarked', data.is_bookmarked ? 'true' : 'false');
@@ -860,8 +863,10 @@
                         // KOMPLETT neues Button-Content erstellen für zuverlässiges Update
                         const targetColor = data.is_bookmarked ? '#eab308' : '#9ca3af';
                         const targetFill = data.is_bookmarked ? '#eab308' : 'none'; // DIREKTE FARBE statt currentColor!
+                        console.log('[BOOKMARK] Target colors:', {targetColor, targetFill, isBookmarked: data.is_bookmarked});
                         
                         if (isMobile) {
+                            console.log('[BOOKMARK] Creating mobile icon...');
                             // Mobile: Nur Icon, komplett neu erstellen
                             const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
                             svg.setAttribute('id', 'bookmarkIconMobile');
@@ -876,9 +881,13 @@
                             path.style.stroke = targetColor;
                             path.style.fill = targetFill;
                             
+                            console.log('[BOOKMARK] Path styles set:', {stroke: path.style.stroke, fill: path.style.fill});
+                            
                             svg.appendChild(path);
                             btn.innerHTML = '';
                             btn.appendChild(svg);
+                            
+                            console.log('[BOOKMARK] Mobile icon created and appended');
                             
                             // Mobile Feedback mit Hintergrundfarbe
                             btn.style.backgroundColor = data.is_bookmarked ? '#fef3c7' : '#f3f4f6';
