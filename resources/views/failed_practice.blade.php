@@ -360,9 +360,76 @@
      id="failedContainer">
 
     @if($question)
+        <!-- Mobile: Kompakter Header -->
+        <div class="sm:hidden mb-2 flex items-center justify-between p-2 bg-white border-b">
+            <a href="{{ route('practice.menu') }}" class="p-2 hover:bg-gray-100 rounded-lg">
+                <svg class="w-5 h-5 text-blue-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                </svg>
+            </a>
+            <div class="flex-1 mx-2">
+                <div class="text-xs font-semibold text-gray-700 flex items-center justify-between">
+                    <span>🔥 Fehler</span>
+                    <span class="text-gray-500">{{ $progress }}/{{ $total }}</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-1.5 mt-1">
+                    <div class="bg-yellow-400 h-1.5 rounded-full transition-all" style="width: {{ isset($progressPercent) ? $progressPercent : round(($progress / max($total, 1)) * 100) }}%;"></div>
+                </div>
+            </div>
+            @php
+                $user = Auth::user();
+                $bookmarked = is_array($user->bookmarked_questions ?? null) 
+                    ? $user->bookmarked_questions 
+                    : json_decode($user->bookmarked_questions ?? '[]', true);
+                $isBookmarked = in_array($question->id, $bookmarked);
+            @endphp
+            <button type="button" class="p-2 hover:bg-gray-100 rounded-lg" id="bookmarkBtnMobile"
+                    data-bookmarked="{{ $isBookmarked ? 'true' : 'false' }}"
+                    onclick="toggleBookmark({{ $question->id }}, {{ $isBookmarked ? 'true' : 'false' }})">
+                <svg class="w-5 h-5" viewBox="0 0 20 20" stroke="currentColor" id="bookmarkIconMobile">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h6a2 2 0 012 2v10l-5-3-5 3V5z"></path>
+                </svg>
+            </button>
+        </div>
+
         <!-- Desktop: Normaler Header -->
         <div class="mb-2 hidden sm:block">
             <h2 class="text-lg font-bold mb-1">🔥 Fehler wiederholen</h2>
+        </div>
+        
+        <div class="mb-2 text-xs text-gray-600 hidden sm:block">
+            Fortschritt: {{ $progress }}/{{ $total }} gemeistert
+            <div class="w-full bg-gray-200 rounded-full h-2 mt-0.5 mb-0.5">
+                <div class="bg-yellow-400 h-2 rounded-full transition-all duration-300 shadow-lg" 
+                     style="width: {{ isset($progressPercent) ? $progressPercent : round(($progress / max($total, 1)) * 100) }}%; box-shadow: 0 0 10px rgba(251, 191, 36, 0.6), 0 0 20px rgba(251, 191, 36, 0.4), 0 0 30px rgba(251, 191, 36, 0.2);"></div>
+            </div>
+            <span class="text-[10px] text-gray-500">{{ isset($progressPercent) ? $progressPercent : round(($progress / max($total, 1)) * 100) }}% Gesamt-Fortschritt</span>
+        </div>
+        
+        <!-- Desktop: Bookmark Button -->
+        <div class="mb-2 flex justify-end items-center hidden sm:flex">
+            @php
+                $user = Auth::user();
+                $bookmarked = is_array($user->bookmarked_questions ?? null) 
+                    ? $user->bookmarked_questions 
+                    : json_decode($user->bookmarked_questions ?? '[]', true);
+                $isBookmarked = in_array($question->id, $bookmarked);
+            @endphp
+            
+            <button type="button" 
+                    class="flex items-center gap-1 px-2 py-1 hover:bg-gray-100 hover:shadow-md hover:scale-105 rounded-lg transition-all duration-300 cursor-pointer text-sm"
+                    title="{{ $isBookmarked ? 'Aus Lesezeichen entfernen' : 'Zu Lesezeichen hinzufügen' }}"
+                    id="bookmarkBtn"
+                    data-bookmarked="{{ $isBookmarked ? 'true' : 'false' }}"
+                    onclick="toggleBookmark({{ $question->id }}, {{ $isBookmarked ? 'true' : 'false' }})">
+                <svg class="w-4 h-4" viewBox="0 0 20 20" stroke="currentColor" id="bookmarkIcon">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M5 5a2 2 0 012-2h6a2 2 0 012 2v10l-5-3-5 3V5z"></path>
+                </svg>
+                <span class="text-xs text-gray-600" id="bookmarkText">
+                    {{ $isBookmarked ? 'Gespeichert' : 'Speichern' }}
+                </span>
+            </button>
         </div>
         
         <form method="POST" action="{{ route('failed.submit') }}">
@@ -580,6 +647,109 @@
             checkboxes.forEach(cb => cb.addEventListener('change', updateBtn));
             updateBtn();
             @endif
+        </script>
+        
+        <script>
+            // Helper function to update bookmark icon state
+            function updateBookmarkIconState(iconId, btnId, textId) {
+                const icon = document.getElementById(iconId);
+                const btn = document.getElementById(btnId);
+                const text = textId ? document.getElementById(textId) : null;
+                
+                if (!icon || !btn) return;
+                
+                const isBookmarked = btn.getAttribute('data-bookmarked') === 'true';
+                
+                if (isBookmarked) {
+                    icon.style.setProperty('color', '#eab308', 'important'); // yellow-500
+                    icon.setAttribute('fill', 'currentColor');
+                    if (text) text.textContent = 'Gespeichert';
+                } else {
+                    icon.style.setProperty('color', '#9ca3af', 'important'); // gray-400
+                    icon.setAttribute('fill', 'none');
+                    if (text) text.textContent = 'Speichern';
+                }
+            }
+            
+            // Bookmark AJAX Function (unterstützt beide Buttons: Mobile & Desktop)
+            function toggleBookmark(questionId, currentlyBookmarked) {
+                const btn = document.getElementById('bookmarkBtn') || document.getElementById('bookmarkBtnMobile');
+                const text = document.getElementById('bookmarkText'); // Kann null sein auf Mobile
+                const icon = document.getElementById('bookmarkIcon') || document.getElementById('bookmarkIconMobile');
+                
+                // Loading State
+                btn.disabled = true;
+                btn.classList.add('opacity-50', 'cursor-not-allowed');
+                if (text) text.textContent = 'Speichere...';
+                icon.classList.add('animate-spin');
+                
+                const formData = new FormData();
+                formData.append('question_id', questionId);
+                formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+                
+                fetch('{{ route("bookmarks.toggle") }}', {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update data-bookmarked attribute
+                        btn.setAttribute('data-bookmarked', data.is_bookmarked ? 'true' : 'false');
+                        
+                        // SOFORT Icon-Farbe und Fill setzen
+                        const targetColor = data.is_bookmarked ? '#eab308' : '#9ca3af';
+                        const targetFill = data.is_bookmarked ? 'currentColor' : 'none';
+                        
+                        icon.className = '';
+                        icon.classList.add('w-5', 'h-5');
+                        if (!text) icon.classList.add('w-5', 'h-5');
+                        
+                        icon.setAttribute('fill', targetFill);
+                        icon.setAttribute('stroke', 'currentColor');
+                        icon.style.cssText = `color: ${targetColor} !important; stroke: ${targetColor} !important;`;
+                        
+                        if (text) text.textContent = data.is_bookmarked ? 'Gespeichert' : 'Speichern';
+                        btn.setAttribute('title', data.is_bookmarked ? 'Aus Lesezeichen entfernen' : 'Zu Lesezeichen hinzufügen');
+                        btn.setAttribute('onclick', `toggleBookmark(${questionId}, ${data.is_bookmarked})`);
+                        
+                        btn.classList.add('animate-pulse');
+                        
+                        if (text) {
+                            const originalText = text.textContent;
+                            text.textContent = data.is_bookmarked ? 'Gespeichert!' : 'Entfernt!';
+                            setTimeout(() => {
+                                text.textContent = originalText;
+                                btn.classList.remove('animate-pulse');
+                            }, 1500);
+                        } else {
+                            setTimeout(() => {
+                                btn.classList.remove('animate-pulse');
+                            }, 1500);
+                        }
+                    }
+                    
+                    btn.disabled = false;
+                    btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    icon.classList.remove('animate-spin');
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    btn.disabled = false;
+                    btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    icon.classList.remove('animate-spin');
+                    if (text) text.textContent = currentlyBookmarked ? 'Gespeichert' : 'Speichern';
+                });
+            }
+            
+            // Initialize Bookmark Icon Colors
+            document.addEventListener('DOMContentLoaded', () => {
+                updateBookmarkIconState('bookmarkIconMobile', 'bookmarkBtnMobile', null);
+                updateBookmarkIconState('bookmarkIcon', 'bookmarkBtn', 'bookmarkText');
+            });
         </script>
     @else
         <div class="text-center text-lg mb-4">🎉 Keine Fehler zum Wiederholen!</div>
