@@ -1029,7 +1029,7 @@
             function toggleBookmark(questionId, currentlyBookmarked) {
                 console.log('[BOOKMARK] Toggle started', {questionId, currentlyBookmarked});
                 
-                // Bessere Mobile-Erkennung: Prüfe welcher Button existiert
+                // Beide Buttons finden
                 const btnMobile = document.getElementById('bookmarkBtnMobile');
                 const btnDesktop = document.getElementById('bookmarkBtn');
                 const isMobile = !!btnMobile && window.getComputedStyle(btnMobile).display !== 'none';
@@ -1061,60 +1061,63 @@
                 .then(data => {
                     console.log('[BOOKMARK] Response received:', data);
                     if (data.success) {
-                        // Update data-bookmarked attribute
-                        btn.setAttribute('data-bookmarked', data.is_bookmarked ? 'true' : 'false');
-                        btn.setAttribute('title', data.is_bookmarked ? 'Aus Lesezeichen entfernen' : 'Zu Lesezeichen hinzufügen');
-                        btn.setAttribute('onclick', `toggleBookmark(${questionId}, ${data.is_bookmarked})`);
-                        
-                        // KOMPLETT neues Button-Content erstellen für zuverlässiges Update
                         const targetColor = data.is_bookmarked ? '#eab308' : '#9ca3af';
                         const targetFill = data.is_bookmarked ? '#eab308' : 'none';
-                        console.log('[BOOKMARK] Target colors:', {targetColor, targetFill, isBookmarked: data.is_bookmarked});
                         
-                        // Beide verwenden jetzt das gleiche Design: Nur Icon
-                        console.log('[BOOKMARK] Creating icon...');
-                        const iconId = isMobile ? 'bookmarkIconMobile' : 'bookmarkIcon';
-                        const iconSize = isMobile ? 'w-5 h-5' : 'w-6 h-6';
+                        // BEIDE Buttons aktualisieren (falls beide existieren)
+                        [btnMobile, btnDesktop].forEach((button, index) => {
+                            if (!button) return;
+                            
+                            const isMobileBtn = index === 0;
+                            const iconId = isMobileBtn ? 'bookmarkIconMobile' : 'bookmarkIcon';
+                            const iconSize = isMobileBtn ? 'w-5 h-5' : 'w-6 h-6';
+                            
+                            // Update attributes
+                            button.setAttribute('data-bookmarked', data.is_bookmarked ? 'true' : 'false');
+                            button.setAttribute('title', data.is_bookmarked ? 'Aus Lesezeichen entfernen' : 'Zu Lesezeichen hinzufügen');
+                            button.setAttribute('onclick', `toggleBookmark(${questionId}, ${data.is_bookmarked})`);
+                            
+                            // Erstelle neues SVG Icon
+                            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                            svg.setAttribute('id', iconId);
+                            svg.setAttribute('class', iconSize);
+                            svg.setAttribute('viewBox', '0 0 20 20');
+                            
+                            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                            path.setAttribute('stroke-linecap', 'round');
+                            path.setAttribute('stroke-linejoin', 'round');
+                            path.setAttribute('stroke-width', '2');
+                            path.setAttribute('d', 'M5 5a2 2 0 012-2h6a2 2 0 012 2v10l-5-3-5 3V5z');
+                            path.style.stroke = targetColor;
+                            path.style.fill = targetFill;
+                            
+                            svg.appendChild(path);
+                            button.innerHTML = '';
+                            button.appendChild(svg);
+                            
+                            // Feedback Animation - nur für den aktiven Button
+                            if (button === btn) {
+                                button.style.transition = 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                                button.style.backgroundColor = data.is_bookmarked ? '#fde68a' : '#f3f4f6';
+                                button.style.transform = 'scale(1.15) rotate(5deg)';
+                                
+                                setTimeout(() => {
+                                    button.style.transform = 'scale(1.05)';
+                                }, 150);
+                                
+                                setTimeout(() => {
+                                    button.style.backgroundColor = data.is_bookmarked ? '#fef3c7' : 'transparent';
+                                    button.style.transform = 'scale(1)';
+                                }, 400);
+                                
+                                setTimeout(() => {
+                                    button.style.backgroundColor = '';
+                                    button.style.transform = '';
+                                }, 800);
+                            }
+                        });
                         
-                        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-                        svg.setAttribute('id', iconId);
-                        svg.setAttribute('class', iconSize);
-                        svg.setAttribute('viewBox', '0 0 20 20');
-                        
-                        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                        path.setAttribute('stroke-linecap', 'round');
-                        path.setAttribute('stroke-linejoin', 'round');
-                        path.setAttribute('stroke-width', '2');
-                        path.setAttribute('d', 'M5 5a2 2 0 012-2h6a2 2 0 012 2v10l-5-3-5 3V5z');
-                        path.style.stroke = targetColor;
-                        path.style.fill = targetFill;
-                        
-                        console.log('[BOOKMARK] Path styles set:', {stroke: path.style.stroke, fill: path.style.fill});
-                        
-                        svg.appendChild(path);
-                        btn.innerHTML = '';
-                        btn.appendChild(svg);
-                        
-                        console.log('[BOOKMARK] Icon created and appended');
-                        
-                        // Feedback mit Hintergrundfarbe und Scale-Animation - VERBESSERT
-                        btn.style.transition = 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
-                        btn.style.backgroundColor = data.is_bookmarked ? '#fde68a' : '#f3f4f6';
-                        btn.style.transform = 'scale(1.15) rotate(5deg)';
-                        
-                        setTimeout(() => {
-                            btn.style.transform = 'scale(1.05)';
-                        }, 150);
-                        
-                        setTimeout(() => {
-                            btn.style.backgroundColor = data.is_bookmarked ? '#fef3c7' : 'transparent';
-                            btn.style.transform = 'scale(1)';
-                        }, 400);
-                        
-                        setTimeout(() => {
-                            btn.style.backgroundColor = '';
-                            btn.style.transform = '';
-                        }, 800);
+                        console.log('[BOOKMARK] Both buttons updated successfully');
                     }
                 })
                 .catch(error => {
