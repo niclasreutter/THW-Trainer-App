@@ -17,6 +17,11 @@ Route::get('/datenschutz', function () {
     return view('datenschutz');
 })->name('datenschutz');
 
+// Debug-Seite für PWA & Push (nur für eingeloggte User)
+Route::get('/push-debug', function () {
+    return view('push-debug');
+})->middleware('auth')->name('push.debug');
+
 // Kontaktformular (öffentlich zugänglich)
 Route::get('/kontakt', [\App\Http\Controllers\ContactController::class, 'index'])->name('contact.index');
 Route::post('/kontakt', [\App\Http\Controllers\ContactController::class, 'store'])

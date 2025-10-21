@@ -4,9 +4,29 @@
  * Check if app is running as PWA (standalone mode)
  */
 function isPWA() {
-    return window.matchMedia('(display-mode: standalone)').matches ||
-           window.navigator.standalone === true ||
-           document.referrer.includes('android-app://');
+    // iOS Safari
+    if (window.navigator.standalone === true) {
+        return true;
+    }
+    
+    // Chrome/Edge/Samsung Internet
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+        return true;
+    }
+    
+    // Android WebAPK
+    if (document.referrer.includes('android-app://')) {
+        return true;
+    }
+    
+    // iOS Safari zusätzliche Prüfung
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    const isStandalone = window.navigator.standalone;
+    if (isIOS && isStandalone === true) {
+        return true;
+    }
+    
+    return false;
 }
 
 /**
@@ -174,24 +194,39 @@ async function sendTestPushNotification() {
  * Show push notification prompt (only in PWA mode)
  */
 function showPushPromptIfPWA() {
+    console.log('=== Push Prompt Check ===');
+    console.log('User Agent:', navigator.userAgent);
+    console.log('window.navigator.standalone:', window.navigator.standalone);
+    console.log('Display mode:', window.matchMedia('(display-mode: standalone)').matches);
+    
     // Only show in PWA mode
-    if (!isPWA()) {
+    const isPWAMode = isPWA();
+    console.log('Is PWA:', isPWAMode);
+    
+    if (!isPWAMode) {
         console.log('Not running as PWA, skipping push prompt');
         return;
     }
 
     // Check if push is supported
-    if (!isPushSupported()) {
+    const pushSupported = isPushSupported();
+    console.log('Push supported:', pushSupported);
+    
+    if (!pushSupported) {
         console.log('Push notifications not supported');
         return;
     }
 
     // Check if already granted or denied
+    console.log('Notification permission:', Notification.permission);
+    
     if (Notification.permission === 'granted') {
         console.log('Push already granted');
         // Check if subscribed, if not subscribe
         isSubscribedToPush().then(subscribed => {
+            console.log('Is subscribed:', subscribed);
             if (!subscribed) {
+                console.log('Not subscribed yet, subscribing...');
                 subscribeToPush();
             }
         });
@@ -207,6 +242,7 @@ function showPushPromptIfPWA() {
     const dismissedAt = localStorage.getItem('push_prompt_dismissed_at');
     if (dismissedAt) {
         const daysSinceDismissed = (Date.now() - parseInt(dismissedAt)) / (1000 * 60 * 60 * 24);
+        console.log('Days since dismissed:', daysSinceDismissed);
         if (daysSinceDismissed < 7) {
             console.log('Push prompt dismissed recently');
             return;
@@ -214,6 +250,7 @@ function showPushPromptIfPWA() {
     }
 
     // Show custom prompt
+    console.log('Showing push permission banner in 3 seconds...');
     setTimeout(() => {
         showPushPermissionBanner();
     }, 3000); // Show after 3 seconds
