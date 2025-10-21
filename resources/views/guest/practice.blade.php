@@ -430,7 +430,7 @@
             </div>
         </div>
         
-        <form method="POST" action="{{ route('guest.practice.submit') }}">
+        <form method="POST" action="{{ route('guest.practice.submit') }}" id="guestPracticeForm" onsubmit="if(!navigator.onLine){event.preventDefault();return false;}">
             @csrf
             <input type="hidden" name="question_id" value="{{ $question->id }}">
             

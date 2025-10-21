@@ -15,18 +15,29 @@ function isGuestMode() {
  * Intercept form submissions für offline handling
  */
 function setupOfflineSubmit() {
-    // Find all practice/exam forms
-    const forms = document.querySelectorAll('form[action*="submit"], form[action*="practice"], form[action*="exam"]');
-    
-    forms.forEach(form => {
-        form.addEventListener('submit', async function(e) {
-            // Nur wenn offline
-            if (navigator.onLine) {
-                return true; // Normal submit
-            }
-            
-            // Offline - prevent normal submit
-            e.preventDefault();
+    // Global form submit handler (capture phase - fires first!)
+    document.addEventListener('submit', async function(e) {
+        // Check if it's a practice/exam form
+        const form = e.target;
+        if (!form.action || 
+            (!form.action.includes('submit') && 
+             !form.action.includes('practice') && 
+             !form.action.includes('exam'))) {
+            return; // Not a quiz form, allow normal submit
+        }
+        
+        // Nur wenn offline
+        if (navigator.onLine) {
+            console.log('✅ Online - normal submit');
+            return true; // Normal submit
+        }
+        
+        console.log('📴 OFFLINE detected - preventing submit');
+        
+        // Offline - prevent normal submit
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
             
             try {
                 const formData = new FormData(form);
@@ -75,8 +86,7 @@ function setupOfflineSubmit() {
             }
             
             return false;
-        });
-    });
+    }, true); // Use capture phase!
 }
 
 /**
