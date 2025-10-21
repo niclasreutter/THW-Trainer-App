@@ -25,7 +25,7 @@
     }
 @endphp
 <style>
-    /* CACHE BUST v8.2 - STICKY FOOTER FIX - 2025-10-21-16:20 */
+    /* CACHE BUST v8.3 - DESKTOP FIXES - 2025-10-21-16:35 */
     @keyframes fadeIn {
         from {
             opacity: 0;
@@ -339,11 +339,10 @@
             display: block !important;
         }
         
-        /* Body als Flexbox für Footer am Rand */
+        /* Body als Flexbox für Footer am Rand - OHNE min-height */
         body {
             display: flex !important;
             flex-direction: column !important;
-            min-height: 100vh !important;
         }
         
         main {
@@ -355,11 +354,11 @@
             justify-content: flex-start !important;
         }
         
-        /* Practice Container als schöne Karte */
+        /* Practice Container als schöne Karte - BREITER */
         #practiceContainer {
-            max-width: 800px !important;
+            max-width: 1000px !important;
             margin: 0 auto !important;
-            padding: 2rem !important;
+            padding: 2.5rem !important;
             background: white !important;
             border-radius: 16px !important;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.05) !important;
@@ -479,23 +478,30 @@
                         0 0 30px rgba(251, 191, 36, 0.2) !important;
         }
         
-        /* Bookmark Button moderner - wie auf Mobile */
+        /* Bookmark Button moderner - wie auf Mobile mit Farbanimation */
         #bookmarkBtn {
             min-width: 48px !important;
             min-height: 48px !important;
             padding: 12px !important;
             border-radius: 12px !important;
-            transition: all 0.2s ease !important;
+            transition: all 0.3s ease !important;
+            background-color: transparent !important;
         }
         
         #bookmarkBtn:hover {
-            transform: translateY(-2px) !important;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+            transform: translateY(-2px) scale(1.05) !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
             background-color: #fef3c7 !important;
         }
         
         #bookmarkBtn:active {
             transform: scale(0.95) !important;
+            background-color: #fde68a !important;
+        }
+        
+        /* Bookmark Icon Animation */
+        #bookmarkIcon path {
+            transition: all 0.3s ease !important;
         }
         
         /* Frage-Container ohne Karten-in-Karte Design */
@@ -1021,14 +1027,24 @@
                         
                         console.log('[BOOKMARK] Icon created and appended');
                         
-                        // Feedback mit Hintergrundfarbe und Scale-Animation
-                        btn.style.transition = 'all 0.3s ease';
-                        btn.style.backgroundColor = data.is_bookmarked ? '#fef3c7' : '#f3f4f6';
-                        btn.style.transform = 'scale(1.1)';
+                        // Feedback mit Hintergrundfarbe und Scale-Animation - VERBESSERT
+                        btn.style.transition = 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                        btn.style.backgroundColor = data.is_bookmarked ? '#fde68a' : '#f3f4f6';
+                        btn.style.transform = 'scale(1.15) rotate(5deg)';
+                        
+                        setTimeout(() => {
+                            btn.style.transform = 'scale(1.05)';
+                        }, 150);
+                        
+                        setTimeout(() => {
+                            btn.style.backgroundColor = data.is_bookmarked ? '#fef3c7' : 'transparent';
+                            btn.style.transform = 'scale(1)';
+                        }, 400);
+                        
                         setTimeout(() => {
                             btn.style.backgroundColor = '';
-                            btn.style.transform = 'scale(1)';
-                        }, 1000);
+                            btn.style.transform = '';
+                        }, 800);
                     }
                 })
                 .catch(error => {
