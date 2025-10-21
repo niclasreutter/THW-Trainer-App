@@ -25,7 +25,7 @@
     }
 @endphp
 <style>
-    /* CACHE BUST v8.0 - MODERN DESKTOP DESIGN - 2025-10-21-16:00 */
+    /* CACHE BUST v8.1 - UNIFIED BOOKMARK BUTTON - 2025-10-21-16:15 */
     @keyframes fadeIn {
         from {
             opacity: 0;
@@ -469,18 +469,23 @@
                         0 0 30px rgba(251, 191, 36, 0.2) !important;
         }
         
-        /* Bookmark Button moderner */
+        /* Bookmark Button moderner - wie auf Mobile */
         #bookmarkBtn {
-            padding: 10px 14px !important;
-            border-radius: 10px !important;
+            min-width: 48px !important;
+            min-height: 48px !important;
+            padding: 12px !important;
+            border-radius: 12px !important;
             transition: all 0.2s ease !important;
-            border: 2px solid transparent !important;
         }
         
         #bookmarkBtn:hover {
             transform: translateY(-2px) !important;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
-            border-color: #fbbf24 !important;
+            background-color: #fef3c7 !important;
+        }
+        
+        #bookmarkBtn:active {
+            transform: scale(0.95) !important;
         }
         
         /* Frage-Container ohne Karten-in-Karte Design */
@@ -584,33 +589,56 @@
             </button>
         </div>
 
-        <!-- Desktop: Normaler Header -->
-        <div class="mb-2 hidden sm:block">
-            <h2 class="text-lg font-bold mb-1">
-                @if(isset($mode))
-                    @switch($mode)
-                        @case('unsolved')
-                            🎯 Ungelöste Fragen
-                            @break
-                        @case('failed')
-                            🔄 Fehlerwiederholung
-                            @break
-                        @case('section')
-                            📖 Lernabschnitt {{ session('practice_parameter') }}
-                            @break
-                        @case('search')
-                            🔍 Suche: "{{ session('practice_parameter') }}"
-                            @break
-                        @case('bookmarked')
-                            🔖 Gespeicherte Fragen
-                            @break
-                        @default
-                            📚 Alle Fragen
-                    @endswitch
-                @else
-                    Theorie üben
-                @endif
-            </h2>
+        <!-- Desktop: Normaler Header mit Bookmark -->
+        <div class="mb-3 hidden sm:block">
+            <div class="flex items-center justify-between mb-2">
+                <h2 class="text-lg font-bold mb-0">
+                    @if(isset($mode))
+                        @switch($mode)
+                            @case('unsolved')
+                                🎯 Ungelöste Fragen
+                                @break
+                            @case('failed')
+                                🔄 Fehlerwiederholung
+                                @break
+                            @case('section')
+                                📖 Lernabschnitt {{ session('practice_parameter') }}
+                                @break
+                            @case('search')
+                                🔍 Suche: "{{ session('practice_parameter') }}"
+                                @break
+                            @case('bookmarked')
+                                🔖 Gespeicherte Fragen
+                                @break
+                            @default
+                                📚 Alle Fragen
+                        @endswitch
+                    @else
+                        Theorie üben
+                    @endif
+                </h2>
+                
+                @php
+                    $user = Auth::user();
+                    $bookmarked = is_array($user->bookmarked_questions ?? null) 
+                        ? $user->bookmarked_questions 
+                        : json_decode($user->bookmarked_questions ?? '[]', true);
+                    $isBookmarked = in_array($question->id, $bookmarked);
+                @endphp
+                
+                <button type="button" 
+                        class="p-2 hover:bg-gray-100 rounded-lg transition-all duration-200"
+                        title="{{ $isBookmarked ? 'Aus Lesezeichen entfernen' : 'Zu Lesezeichen hinzufügen' }}"
+                        id="bookmarkBtn"
+                        data-bookmarked="{{ $isBookmarked ? 'true' : 'false' }}"
+                        onclick="toggleBookmark({{ $question->id }}, {{ $isBookmarked ? 'true' : 'false' }})">
+                    <svg class="w-6 h-6" viewBox="0 0 20 20" id="bookmarkIcon">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                              d="M5 5a2 2 0 012-2h6a2 2 0 012 2v10l-5-3-5 3V5z"
+                              style="stroke: {{ $isBookmarked ? '#eab308' : '#9ca3af' }}; fill: {{ $isBookmarked ? '#eab308' : 'none' }};"></path>
+                    </svg>
+                </button>
+            </div>
         </div>
         
         <div class="mb-2 text-xs text-gray-600 hidden sm:block">
@@ -620,33 +648,6 @@
                      style="width: {{ $progressPercent ?? 0 }}%; box-shadow: 0 0 10px rgba(251, 191, 36, 0.6), 0 0 20px rgba(251, 191, 36, 0.4), 0 0 30px rgba(251, 191, 36, 0.2);"></div>
             </div>
             <span class="text-[10px] text-gray-500">{{ $progressPercent ?? 0 }}% Gesamt-Fortschritt (inkl. 1x richtig)</span>
-        </div>
-        
-        <!-- Desktop: Bookmark Button -->
-        <div class="mb-2 flex justify-end items-center hidden sm:flex">
-            @php
-                $user = Auth::user();
-                $bookmarked = is_array($user->bookmarked_questions ?? null) 
-                    ? $user->bookmarked_questions 
-                    : json_decode($user->bookmarked_questions ?? '[]', true);
-                $isBookmarked = in_array($question->id, $bookmarked);
-            @endphp
-            
-            <button type="button" 
-                    class="flex items-center gap-1 px-2 py-1 hover:bg-gray-100 hover:shadow-md hover:scale-105 rounded-lg transition-all duration-300 cursor-pointer text-sm"
-                    title="{{ $isBookmarked ? 'Aus Lesezeichen entfernen' : 'Zu Lesezeichen hinzufügen' }}"
-                    id="bookmarkBtn"
-                    data-bookmarked="{{ $isBookmarked ? 'true' : 'false' }}"
-                    onclick="toggleBookmark({{ $question->id }}, {{ $isBookmarked ? 'true' : 'false' }})">
-                <svg class="w-4 h-4" viewBox="0 0 20 20" id="bookmarkIcon">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                          d="M5 5a2 2 0 012-2h6a2 2 0 012 2v10l-5-3-5 3V5z"
-                          style="stroke: {{ $isBookmarked ? '#eab308' : '#9ca3af' }}; fill: {{ $isBookmarked ? '#eab308' : 'none' }};"></path>
-                </svg>
-                <span class="text-xs text-gray-600" id="bookmarkText">
-                    {{ $isBookmarked ? 'Gespeichert' : 'Speichern' }}
-                </span>
-            </button>
         </div>
         
         <form method="POST" action="{{ route('practice.submit') }}" id="practiceForm">
@@ -912,15 +913,14 @@
                 }
                 
                 // Initialize Bookmark Icon Colors
-                updateBookmarkIconState('bookmarkIconMobile', 'bookmarkBtnMobile', null);
-                updateBookmarkIconState('bookmarkIcon', 'bookmarkBtn', 'bookmarkText');
+                updateBookmarkIconState('bookmarkIconMobile', 'bookmarkBtnMobile');
+                updateBookmarkIconState('bookmarkIcon', 'bookmarkBtn');
             });
             
             // Helper function to update bookmark icon state
-            function updateBookmarkIconState(iconId, btnId, textId) {
+            function updateBookmarkIconState(iconId, btnId) {
                 const icon = document.getElementById(iconId);
                 const btn = document.getElementById(btnId);
-                const text = textId ? document.getElementById(textId) : null;
                 
                 if (!icon || !btn) return;
                 
@@ -933,11 +933,9 @@
                 if (isBookmarked) {
                     pathElement.style.stroke = '#eab308';
                     pathElement.style.fill = '#eab308';
-                    if (text) text.textContent = 'Gespeichert';
                 } else {
                     pathElement.style.stroke = '#9ca3af';
                     pathElement.style.fill = 'none';
-                    if (text) text.textContent = 'Speichern';
                 }
             }
             
@@ -963,11 +961,7 @@
                 formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
                 
                 // Zeige Loading mit Spinner
-                if (isMobile) {
-                    btn.innerHTML = '<svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
-                } else {
-                    document.getElementById('bookmarkText').textContent = 'Speichere...';
-                }
+                btn.innerHTML = '<svg class="w-5 h-5 sm:w-6 sm:h-6 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
                 btn.disabled = true;
                 
                 fetch('{{ route("bookmarks.toggle") }}', {
@@ -988,87 +982,43 @@
                         
                         // KOMPLETT neues Button-Content erstellen für zuverlässiges Update
                         const targetColor = data.is_bookmarked ? '#eab308' : '#9ca3af';
-                        const targetFill = data.is_bookmarked ? '#eab308' : 'none'; // DIREKTE FARBE statt currentColor!
+                        const targetFill = data.is_bookmarked ? '#eab308' : 'none';
                         console.log('[BOOKMARK] Target colors:', {targetColor, targetFill, isBookmarked: data.is_bookmarked});
                         
-                        if (isMobile) {
-                            console.log('[BOOKMARK] Creating mobile icon...');
-                            // Mobile: Nur Icon, komplett neu erstellen
-                            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-                            svg.setAttribute('id', 'bookmarkIconMobile');
-                            svg.setAttribute('class', 'w-5 h-5');
-                            svg.setAttribute('viewBox', '0 0 20 20');
-                            
-                            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                            path.setAttribute('stroke-linecap', 'round');
-                            path.setAttribute('stroke-linejoin', 'round');
-                            path.setAttribute('stroke-width', '2');
-                            path.setAttribute('d', 'M5 5a2 2 0 012-2h6a2 2 0 012 2v10l-5-3-5 3V5z');
-                            path.style.stroke = targetColor;
-                            path.style.fill = targetFill;
-                            
-                            console.log('[BOOKMARK] Path styles set:', {stroke: path.style.stroke, fill: path.style.fill});
-                            
-                            svg.appendChild(path);
-                            btn.innerHTML = '';
-                            btn.appendChild(svg);
-                            
-                            console.log('[BOOKMARK] Mobile icon created and appended');
-                            
-                            // Mobile Feedback mit Hintergrundfarbe und Scale-Animation
-                            btn.style.transition = 'all 0.3s ease';
-                            btn.style.backgroundColor = data.is_bookmarked ? '#fef3c7' : '#f3f4f6';
-                            btn.style.transform = 'scale(1.1)';
-                            setTimeout(() => {
-                                btn.style.backgroundColor = '';
-                                btn.style.transform = 'scale(1)';
-                            }, 1000);
-                        } else {
-                            console.log('[BOOKMARK] Creating desktop icon...');
-                            // Desktop: Icon + Text
-                            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-                            svg.setAttribute('id', 'bookmarkIcon');
-                            svg.setAttribute('class', 'w-4 h-4');
-                            svg.setAttribute('viewBox', '0 0 20 20');
-                            
-                            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                            path.setAttribute('stroke-linecap', 'round');
-                            path.setAttribute('stroke-linejoin', 'round');
-                            path.setAttribute('stroke-width', '2');
-                            path.setAttribute('d', 'M5 5a2 2 0 012-2h6a2 2 0 012 2v10l-5-3-5 3V5z');
-                            path.style.stroke = targetColor;
-                            path.style.fill = targetFill;
-                            
-                            console.log('[BOOKMARK] Desktop path styles set:', {stroke: path.style.stroke, fill: path.style.fill});
-                            
-                            svg.appendChild(path);
-                            
-                            const span = document.createElement('span');
-                            span.setAttribute('class', 'text-xs text-gray-600');
-                            span.setAttribute('id', 'bookmarkText');
-                            span.textContent = data.is_bookmarked ? 'Gespeichert' : 'Speichern';
-                            
-                            btn.innerHTML = '';
-                            btn.appendChild(svg);
-                            btn.appendChild(span);
-                            
-                            console.log('[BOOKMARK] Desktop icon created and appended');
-                            
-                            // Desktop Feedback mit sichtbarer Animation
-                            btn.style.transition = 'all 0.3s ease';
-                            btn.style.backgroundColor = data.is_bookmarked ? '#fef3c7' : '#f3f4f6';
-                            btn.style.transform = 'scale(1.1)';
-                            
-                            const textEl = document.getElementById('bookmarkText');
-                            const originalText = textEl.textContent;
-                            textEl.textContent = data.is_bookmarked ? 'Gespeichert!' : 'Entfernt!';
-                            
-                            setTimeout(() => {
-                                btn.style.backgroundColor = '';
-                                btn.style.transform = 'scale(1)';
-                                textEl.textContent = originalText;
-                            }, 1500);
-                        }
+                        // Beide verwenden jetzt das gleiche Design: Nur Icon
+                        console.log('[BOOKMARK] Creating icon...');
+                        const iconId = isMobile ? 'bookmarkIconMobile' : 'bookmarkIcon';
+                        const iconSize = isMobile ? 'w-5 h-5' : 'w-6 h-6';
+                        
+                        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                        svg.setAttribute('id', iconId);
+                        svg.setAttribute('class', iconSize);
+                        svg.setAttribute('viewBox', '0 0 20 20');
+                        
+                        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                        path.setAttribute('stroke-linecap', 'round');
+                        path.setAttribute('stroke-linejoin', 'round');
+                        path.setAttribute('stroke-width', '2');
+                        path.setAttribute('d', 'M5 5a2 2 0 012-2h6a2 2 0 012 2v10l-5-3-5 3V5z');
+                        path.style.stroke = targetColor;
+                        path.style.fill = targetFill;
+                        
+                        console.log('[BOOKMARK] Path styles set:', {stroke: path.style.stroke, fill: path.style.fill});
+                        
+                        svg.appendChild(path);
+                        btn.innerHTML = '';
+                        btn.appendChild(svg);
+                        
+                        console.log('[BOOKMARK] Icon created and appended');
+                        
+                        // Feedback mit Hintergrundfarbe und Scale-Animation
+                        btn.style.transition = 'all 0.3s ease';
+                        btn.style.backgroundColor = data.is_bookmarked ? '#fef3c7' : '#f3f4f6';
+                        btn.style.transform = 'scale(1.1)';
+                        setTimeout(() => {
+                            btn.style.backgroundColor = '';
+                            btn.style.transform = 'scale(1)';
+                        }, 1000);
                     }
                 })
                 .catch(error => {
