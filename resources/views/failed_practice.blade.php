@@ -594,6 +594,25 @@
         @endif
         
         <script>
+            // Mobile Layout Detection & Setup
+            function setupMobileLayout() {
+                const isMobile = window.innerWidth <= 640;
+                const container = document.getElementById('failedContainer');
+                
+                if (isMobile) {
+                    // Mobile: Die CSS Media Queries übernehmen das Styling
+                    container.style.cssText = 'max-width: 100% !important; margin: 0 !important; padding: 0.75rem !important; border-radius: 0 !important; box-shadow: none !important; min-height: 100vh !important;';
+                } else {
+                    // Desktop: Normal styling
+                    container.style.cssText = '';
+                    container.className = 'max-w-xl mx-auto mt-0 sm:mt-4 p-3 sm:p-4 bg-white sm:rounded-lg sm:shadow-lg sm:hover:shadow-xl sm:transition-shadow sm:duration-300';
+                }
+            }
+            
+            // Setup on load and resize
+            setupMobileLayout();
+            window.addEventListener('resize', setupMobileLayout);
+            
             // Show Gamification/Error Popups on page load
             document.addEventListener('DOMContentLoaded', function() {
                 // Show Gamification Popup
