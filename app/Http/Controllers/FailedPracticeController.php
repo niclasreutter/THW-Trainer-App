@@ -84,9 +84,9 @@ class FailedPracticeController extends Controller
                 'practice_ids' => $practiceIds
             ]);
             
-            // Session neu initialisieren
+            // Session neu initialisieren OHNE reset Parameter
             session()->forget(['failed_practice_ids', 'failed_practice_round', 'failed_practice_completed_once']);
-            return redirect()->route('failed.index', ['reset' => 1]);
+            return redirect()->route('failed.index');
         }
         
         $question = Question::find($questionId);
