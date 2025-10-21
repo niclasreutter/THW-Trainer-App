@@ -165,16 +165,16 @@
                         </div>
                     </div>
                     
-                    <div class="grid grid-cols-4 gap-2">
+                    <div class="grid grid-cols-4 gap-2" style="display: grid !important; grid-template-columns: repeat(4, 1fr) !important;">
                         @for($i = 0; $i < 40; $i++)
                             <button type="button" 
                                     onclick="goToQuestion({{ $i }})"
                                     id="bubble-{{ $i }}"
-                                    class="question-bubble h-10 flex items-center justify-center rounded-lg text-sm font-semibold cursor-pointer transition-all duration-200 hover:scale-105 {{ $i === 0 ? 'current' : 'open' }}"
+                                    class="h-10 flex items-center justify-center rounded-lg text-sm font-semibold cursor-pointer transition-all duration-200 hover:scale-105"
                                     style="background-color: #e5e7eb; color: #374151; border: 2px solid #d1d5db;">
                                 {{ $i + 1 }}
                             </button>
-                        @endfor
+                        @endforeach
                     </div>
                 </div>
             </div>
