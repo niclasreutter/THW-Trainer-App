@@ -858,17 +858,21 @@
                         const targetColor = data.is_bookmarked ? '#eab308' : '#9ca3af';
                         const targetFill = data.is_bookmarked ? 'currentColor' : 'none';
                         const iconSize = text ? 'w-4 h-4' : 'w-5 h-5';
+                        const iconId = text ? 'bookmarkIcon' : 'bookmarkIconMobile';
                         
                         // Komplett neues SVG HTML erstellen (garantiert Update auf allen Geräten!)
+                        // Setze stroke auch direkt als Attribut UND im path-Element
                         const newSvgHtml = `
-                            <svg class="${iconSize}" viewBox="0 0 20 20" stroke="${targetColor}" 
-                                 fill="${targetFill}" style="color: ${targetColor} !important; stroke: ${targetColor} !important;">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                            <svg id="${iconId}" class="${iconSize}" viewBox="0 0 20 20" 
+                                 stroke="${targetColor}" fill="${targetFill}"
+                                 style="color: ${targetColor} !important; stroke: ${targetColor} !important; fill: ${targetFill} !important;">
+                                <path stroke="${targetColor}" fill="${targetFill}" 
+                                      stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                                       d="M5 5a2 2 0 012-2h6a2 2 0 012 2v10l-5-3-5 3V5z"></path>
                             </svg>
                         `;
                         
-                        // Ersetze das Icon komplett durch neues HTML
+                        // Ersetze das Icon komplett durch neues HTML (ID bleibt erhalten!)
                         icon.outerHTML = newSvgHtml;
                         
                         // Update Text und Attribute
