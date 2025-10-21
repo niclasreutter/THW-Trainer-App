@@ -359,9 +359,9 @@
             flex-shrink: 0 !important;
         }
         
-        /* Practice Container als schöne Karte - EXTRA BREIT */
+        /* Practice Container als schöne Karte - OPTIMALE BREITE */
         #practiceContainer {
-            max-width: 1200px !important;
+            max-width: 950px !important;
             width: 95% !important;
             margin: 0 auto 1rem auto !important;
             padding: 2.5rem !important;
