@@ -25,7 +25,23 @@ class FailedPracticeController extends Controller
         $user = Auth::user();
         $failed = $this->ensureArray($user->exam_failed_questions);
         $question = Question::findOrFail($request->question_id);
-        $userAnswer = collect($request->answer ?? []);
+        
+        // Hole das Mapping aus dem Hidden Field (falls vorhanden)
+        $mappingJson = $request->input('answer_mapping');
+        $mapping = $mappingJson ? json_decode($mappingJson, true) : null;
+        
+        // User-Antworten (Positionen 0, 1, 2)
+        $userAnswerPositions = $request->answer ?? [];
+        
+        // Konvertiere Positionen zurück zu Original-Buchstaben
+        if ($mapping) {
+            $userAnswer = collect($userAnswerPositions)->map(function($pos) use ($mapping) {
+                return $mapping[$pos] ?? $pos;
+            });
+        } else {
+            $userAnswer = collect($userAnswerPositions);
+        }
+        
         $solution = collect(explode(',', $question->loesung))->map(fn($s) => trim($s));
         $isCorrect = $userAnswer->sort()->values()->all() === $solution->sort()->values()->all();
         
@@ -61,16 +77,29 @@ class FailedPracticeController extends Controller
             return redirect()->route('failed.index');
         }
         
+        // Gamification: Punkte auch bei nicht-gemeistert
+        $gamificationService = new GamificationService();
+        $gamificationResult = $gamificationService->awardQuestionPoints($user, $isCorrect, $question->id);
+        
+        // Speichere Ergebnisse in Session (wie in PracticeController)
+        session([
+            'answer_result' => [
+                'question_id' => $question->id,
+                'is_correct' => $isCorrect,
+                'user_answer' => $userAnswer->toArray(),
+                'question_progress' => $questionProgress->consecutive_correct,
+                'answer_mapping' => $mapping // Mapping auch speichern für die Anzeige
+            ],
+            'gamification_result' => $gamificationResult
+        ]);
+        
         // Frage noch nicht gemeistert
         $progress = 0;
         $total = count($failed);
         return view('failed_practice', [
             'question' => $question,
-            'isCorrect' => $isCorrect,
-            'userAnswer' => $userAnswer,
             'progress' => $progress,
             'total' => $total,
-            'questionProgress' => $questionProgress, // NEU: Fortschritt anzeigen
         ]);
     }
 
