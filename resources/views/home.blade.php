@@ -65,12 +65,8 @@
     </div>
 
     <!-- Features Section -->
-    <div class="py-16 bg-[#FDFDFC] relative overflow-hidden">
-        <!-- Background Pattern -->
-        <div class="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-yellow-50"></div>
-        <div class="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-transparent to-white"></div>
-        
-        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="py-16 bg-[#FDFDFC]">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <!-- Header -->
             <div class="text-center mb-12 lg:mb-16">
                 <h2 class="text-2xl lg:text-3xl font-bold text-gray-900 mb-4 lg:mb-6 tracking-tight">
@@ -80,12 +76,11 @@
                     Alles, was du brauchst, um dich optimal auf deine Grundausbildung Theorie-Prüfung im THW vorzubereiten
                 </p>
             </div>
-            <br>
             
             <!-- Features Grid -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <!-- Feature 1 -->
-                <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-300">
                     <h3 class="text-xl font-semibold text-blue-800 mb-4">📚 Alle Theoriefragen</h3>
                     <p class="text-gray-700 leading-relaxed">
                         Umfassende Sammlung aller THW-Theoriefragen zum Üben und Lernen. 
@@ -94,7 +89,7 @@
                 </div>
                 
                 <!-- Feature 2 -->
-                <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-300">
                     <h3 class="text-xl font-semibold text-blue-800 mb-4">🎓 Prüfungssimulation</h3>
                     <p class="text-gray-700 leading-relaxed">
                         Realistische Prüfungssimulation verfügbar, sobald alle Fragen bearbeitet wurden. 
@@ -103,7 +98,7 @@
                 </div>
                 
                 <!-- Feature 3 -->
-                <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-300">
                     <h3 class="text-xl font-semibold text-blue-800 mb-4">📊 Lernfortschritt</h3>
                     <p class="text-gray-700 leading-relaxed">
                         Dein Fortschritt wird gespeichert und im persönlichen Dashboard angezeigt. 
@@ -112,13 +107,12 @@
                 </div>
                 
                 <!-- Feature 4 - PWA -->
-                <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-300">
                     <h3 class="text-xl font-semibold text-blue-800 mb-4">📲 Als App installierbar</h3>
                     <p class="text-gray-700 leading-relaxed">
                         Installiere THW Trainer als App auf deinem Smartphone für schnelleren Zugriff vom Homescreen.
                     </p>
                 </div>
-            </div>
             </div>
         </div>
     </div>
