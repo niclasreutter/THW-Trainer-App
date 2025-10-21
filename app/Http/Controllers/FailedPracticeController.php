@@ -49,18 +49,32 @@ class FailedPracticeController extends Controller
         
         $practiceIds = session('failed_practice_ids', []);
         
+        // WICHTIG: Wenn eine Frage gerade beantwortet wurde (answer_result in Session),
+        // zeige diese Frage nochmal (damit die Antwort angezeigt werden kann)
+        $answerResult = session('answer_result');
+        $showAnsweredQuestion = $answerResult && isset($answerResult['question_id']);
+        
         \Log::info('Failed Practice show', [
             'practice_ids' => $practiceIds,
-            'user_failed_questions' => $failed
+            'user_failed_questions' => $failed,
+            'show_answered_question' => $showAnsweredQuestion,
+            'answered_question_id' => $showAnsweredQuestion ? $answerResult['question_id'] : null
         ]);
         
-        if (empty($practiceIds)) {
+        if (!empty($practiceIds)) {
+            if ($showAnsweredQuestion) {
+                // Zeige die gerade beantwortete Frage nochmal
+                $questionId = $answerResult['question_id'];
+                \Log::info('Showing answered question', ['question_id' => $questionId]);
+            } else {
+                // Zeige erste Frage aus Queue
+                $questionId = $practiceIds[0];
+            }
+        } else {
             // Alle Fragen wurden bearbeitet
             session()->forget(['failed_practice_ids', 'failed_practice_round', 'failed_practice_completed_once']);
             return redirect()->route('practice.menu')->with('success', 'Alle falschen Fragen wiederholt! 🎉');
         }
-        
-        $questionId = $practiceIds[0];
         
         // SICHERHEITSCHECK: Ist die Frage wirklich in Failed-Liste?
         if (!in_array($questionId, $failed)) {
