@@ -197,22 +197,26 @@ class FailedPracticeController extends Controller
         }
         
         // WICHTIG: Immer answer_result in Session speichern für Feedback-Anzeige
-        session([
-            'answer_result' => [
-                'question_id' => $question->id,
-                'is_correct' => $isCorrect,
-                'user_answer' => $userAnswer->toArray(),
-                'question_progress' => $progress->consecutive_correct,
-                'answer_mapping' => $mapping // Mapping auch speichern für die Anzeige
-            ]
-        ]);
+        $answerResultData = [
+            'question_id' => $question->id,
+            'is_correct' => $isCorrect,
+            'user_answer' => $userAnswer->toArray(),
+            'question_progress' => $progress->consecutive_correct,
+            'answer_mapping' => $mapping // Mapping auch speichern für die Anzeige
+        ];
         
-        \Log::info('Failed Practice submit', [
+        session(['answer_result' => $answerResultData]);
+        
+        \Log::info('Failed Practice submit - SESSION SET', [
             'question_id' => $question->id,
             'is_correct' => $isCorrect,
             'consecutive_correct' => $progress->consecutive_correct,
             'mastered' => $progress->isMastered(),
-            'has_gamification' => $gamificationResult !== null
+            'has_gamification' => $gamificationResult !== null,
+            'answer_result_set' => $answerResultData,
+            'gamification_result_set' => $gamificationResult,
+            'session_has_answer_result' => session()->has('answer_result'),
+            'session_has_gamification' => session()->has('gamification_result')
         ]);
         
         // WICHTIG: Immer redirect machen (Post/Redirect/Get Pattern)

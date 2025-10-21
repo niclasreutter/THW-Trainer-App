@@ -12,10 +12,25 @@
     // Hole Gamification Result aus Session
     $gamificationResult = session('gamification_result');
     
+    // DEBUG
+    \Log::info('Failed Practice VIEW loaded', [
+        'question_id' => $question->id,
+        'has_answer_result' => $hasAnswerResult,
+        'answer_result' => $answerResult,
+        'has_gamification' => $gamificationResult !== null,
+        'gamification_result' => $gamificationResult
+    ]);
+    
     if ($hasAnswerResult) {
         $isCorrect = $answerResult['is_correct'];
         $userAnswer = collect($answerResult['user_answer']);
         $questionProgress = (object)['consecutive_correct' => $answerResult['question_progress']];
+        
+        \Log::info('Failed Practice - Answer result found', [
+            'is_correct' => $isCorrect,
+            'user_answer' => $userAnswer->toArray(),
+            'consecutive_correct' => $questionProgress->consecutive_correct
+        ]);
         
         // Lösche BEIDE Sessions nach dem Auslesen (sie gehören zusammen)
         session()->forget(['answer_result', 'gamification_result']);
@@ -23,6 +38,8 @@
         $isCorrect = null;
         $userAnswer = null;
         $questionProgress = null;
+        
+        \Log::info('Failed Practice - NO answer result');
     }
 @endphp
 <style>
