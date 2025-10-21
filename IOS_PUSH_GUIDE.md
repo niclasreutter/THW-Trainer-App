@@ -209,6 +209,7 @@ window.pushNotifications.requestPushPermission()
 | "Is PWA: Nein" | App über Safari statt Home-Screen geöffnet | App schließen, über Home-Screen öffnen |
 | "Push API: Nicht unterstützt" | iOS < 16.4 | iOS aktualisieren |
 | "Permission: Blockiert" | User hat Push abgelehnt | iOS-Einstellungen → THW-Trainer → Benachrichtigungen aktivieren |
+| "Keine aktive Push Subscription" | Push wurde noch nicht aktiviert | ERST Push aktivieren, DANN Test senden |
 | Banner erscheint nicht | Bereits dismissed oder granted | localStorage leeren oder im Profil aktivieren |
 | "Service Worker failed" | Installation fehlerhaft | PWA neu installieren |
 

@@ -143,6 +143,21 @@
                 <span class="label">Permission Status:</span>
                 <span class="value" id="permission-status">-</span>
             </div>
+            <div class="info-row">
+                <span class="label">Push Subscription:</span>
+                <span class="value" id="subscription-status">-</span>
+            </div>
+        </div>
+        
+        <div class="info-box" style="background: #fef3c7; border-color: #f59e0b; margin-top: 15px;">
+            <h3 style="color: #d97706; margin-bottom: 10px; font-weight: 600;">📋 Schritte zum Aktivieren</h3>
+            <ol style="margin-left: 20px; color: #92400e;">
+                <li style="margin-bottom: 5px;">App als PWA installieren (Safari → Teilen → Zum Home-Bildschirm)</li>
+                <li style="margin-bottom: 5px;">App über Home-Screen Icon öffnen (NICHT über Safari!)</li>
+                <li style="margin-bottom: 5px;">Auf "🔔 Push-Benachrichtigungen aktivieren" tippen</li>
+                <li style="margin-bottom: 5px;">iOS fragt nach Berechtigung → "Zulassen"</li>
+                <li style="margin-bottom: 5px;">Test-Benachrichtigung senden</li>
+            </ol>
         </div>
         
         <button onclick="requestPushPermission()">🔔 Push-Benachrichtigungen aktivieren</button>
@@ -232,6 +247,16 @@
                 log('Permission Status: ' + permission);
             }
             
+            // Check if subscribed
+            if (swSupport && pushSupport) {
+                window.pushNotifications.isSubscribedToPush().then(subscribed => {
+                    const subsText = subscribed ? '✅ Aktiv' : '❌ Nicht aktiv';
+                    document.getElementById('subscription-status').textContent = subsText;
+                    document.getElementById('subscription-status').className = 'value ' + (subscribed ? 'true' : 'false');
+                    log('Push Subscription: ' + (subscribed ? 'Aktiv' : 'Nicht aktiv'));
+                });
+            }
+            
             // Status Box Color
             const statusBox = document.getElementById('status-box');
             if (isPWAMode && pushSupport) {
@@ -274,6 +299,15 @@
         
         async function testPush() {
             log('🧪 Test-Benachrichtigung wird gesendet...');
+            
+            // Prüfe erst ob subscribed
+            const isSubscribed = await window.pushNotifications.isSubscribedToPush();
+            
+            if (!isSubscribed) {
+                log('❌ FEHLER: Push-Benachrichtigungen sind nicht aktiviert!');
+                alert('❌ Bitte aktiviere zuerst Push-Benachrichtigungen!\n\nKlicke auf "Push-Benachrichtigungen aktivieren" und erlaube die Berechtigung.');
+                return;
+            }
             
             const result = await window.pushNotifications.sendTestPushNotification();
             
