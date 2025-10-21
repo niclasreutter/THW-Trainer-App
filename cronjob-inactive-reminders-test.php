@@ -5,11 +5,21 @@
  * Empfohlene Ausführungszeit: Täglich um 10:00 Uhr
  */
 
-// Test-Pfad (Script liegt im Laravel-Root)
-$laravelPath = __DIR__;
+// Finde Laravel-Root (Script liegt im Root)
+$laravelPath = realpath(__DIR__);
 
 if (!file_exists($laravelPath . '/artisan')) {
-    echo "[" . date('Y-m-d H:i:s') . "] FEHLER: Laravel-Verzeichnis nicht gefunden: $laravelPath\n";
+    // Fallback: Prüfe ob Script als absoluter Pfad aufgerufen wurde
+    $scriptPath = realpath($_SERVER['SCRIPT_FILENAME'] ?? __FILE__);
+    $laravelPath = dirname($scriptPath);
+}
+
+if (!file_exists($laravelPath . '/artisan')) {
+    echo "[" . date('Y-m-d H:i:s') . "] FEHLER: Laravel-Verzeichnis nicht gefunden\n";
+    echo "  Versuchter Pfad: $laravelPath\n";
+    echo "  __DIR__: " . __DIR__ . "\n";
+    echo "  __FILE__: " . __FILE__ . "\n";
+    echo "  SCRIPT_FILENAME: " . ($_SERVER['SCRIPT_FILENAME'] ?? 'N/A') . "\n";
     exit(1);
 }
 
