@@ -16,15 +16,20 @@ class FailedPracticeController extends Controller
         $failed = $this->ensureArray($user->exam_failed_questions);
         
         // WICHTIG: Lösche andere Practice-Sessions um Interferenz zu vermeiden
-        if ($request->has('reset') || !session()->has('failed_practice_ids')) {
-            // Clear andere Practice Sessions
+        if ($request->has('reset')) {
+            // Expliziter Reset: Lösche alle Sessions
             session()->forget([
+                'failed_practice_ids', 
+                'failed_practice_round', 
+                'failed_practice_completed_once',
                 'practice_ids', 
                 'practice_mode', 
                 'practice_parameter', 
                 'practice_skipped'
             ]);
-            
+        }
+        
+        if (!session()->has('failed_practice_ids')) {
             // Initialisiere Failed Practice Session
             $failedIds = array_values($failed);
             
