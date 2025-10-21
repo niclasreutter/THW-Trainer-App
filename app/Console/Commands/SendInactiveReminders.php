@@ -59,8 +59,17 @@ class SendInactiveReminders extends Command
                 $lastActivity = Carbon::parse($user->last_activity_date);
                 $daysInactive = $lastActivity->diffInDays(Carbon::now());
                 
+                $this->info("Sending inactive reminder to: {$user->email} (ID: {$user->id}, {$daysInactive} days inactive)");
+                
                 // Sende E-Mail
                 Mail::to($user->email)->send(new InactiveReminderMail($user, $daysInactive));
+                
+                $this->info("Successfully sent inactive reminder to: {$user->email}");
+                \Log::info('Inactive reminder sent', [
+                    'user_id' => $user->id,
+                    'email' => $user->email,
+                    'days_inactive' => $daysInactive
+                ]);
                 
                 // Markiere dass die Reminder-Mail gesendet wurde
                 $user->inactive_reminder_sent_at = Carbon::now();
@@ -73,6 +82,12 @@ class SendInactiveReminders extends Command
             } catch (\Exception $e) {
                 $errors++;
                 $this->error("Failed to send email to {$user->email}: " . $e->getMessage());
+                \Log::error('Failed to send inactive reminder', [
+                    'user_id' => $user->id,
+                    'email' => $user->email,
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]);
             }
         }
         

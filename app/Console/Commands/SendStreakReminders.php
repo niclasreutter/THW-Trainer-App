@@ -55,8 +55,17 @@ class SendStreakReminders extends Command
                 $lastDailyActivity = $user->daily_questions_date ? Carbon::parse($user->daily_questions_date) : null;
                 
                 if (!$lastDailyActivity || $lastDailyActivity->lt($today)) {
+                    $this->info("Sending streak reminder to: {$user->email} (ID: {$user->id}, Streak: {$user->streak_days} days)");
+                    
                     // Sende E-Mail
                     Mail::to($user->email)->send(new StreakReminderMail($user, $user->streak_days));
+                    
+                    \Log::info('Streak reminder sent', [
+                        'user_id' => $user->id,
+                        'email' => $user->email,
+                        'streak_days' => $user->streak_days
+                    ]);
+                    
                     $emailsSent++;
                     
                     $this->info("Sent reminder to: {$user->name} ({$user->email}) - Streak: {$user->streak_days} days");
@@ -65,6 +74,12 @@ class SendStreakReminders extends Command
             } catch (\Exception $e) {
                 $errors++;
                 $this->error("Failed to send email to {$user->email}: " . $e->getMessage());
+                \Log::error('Failed to send streak reminder', [
+                    'user_id' => $user->id,
+                    'email' => $user->email,
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]);
             }
         }
         

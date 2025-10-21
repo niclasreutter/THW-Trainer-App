@@ -75,6 +75,28 @@ class User extends Authenticatable implements MustVerifyEmail
             now()->addMinutes(5), // 5 Minuten Gültigkeit für E-Mail-Änderungen
             ['id' => $this->getKey(), 'hash' => sha1($this->getEmailForVerification())]
         );
-        \Mail::to($this->email)->send(new \App\Mail\VerifyRegistrationMail($verificationUrl));
+        
+        try {
+            \Log::info('Attempting to send verification email', [
+                'user_id' => $this->id,
+                'email' => $this->email,
+                'name' => $this->name
+            ]);
+            
+            \Mail::to($this->email)->send(new \App\Mail\VerifyRegistrationMail($verificationUrl));
+            
+            \Log::info('Verification email sent successfully', [
+                'user_id' => $this->id,
+                'email' => $this->email
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Failed to send verification email', [
+                'user_id' => $this->id,
+                'email' => $this->email,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            throw $e;
+        }
     }
 }

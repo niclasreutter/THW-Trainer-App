@@ -40,15 +40,33 @@ class NewsletterController extends Controller
         $content = Newsletter::replacePlaceholders($request->content, $user);
 
         try {
+            \Log::info('Sending test newsletter', [
+                'user_id' => $user->id,
+                'email' => $user->email,
+                'subject' => $request->subject
+            ]);
+            
             Mail::to($user->email)->send(
                 new NewsletterMail($user, $request->subject, $content)
             );
+
+            \Log::info('Test newsletter sent successfully', [
+                'user_id' => $user->id,
+                'email' => $user->email
+            ]);
 
             return response()->json([
                 'success' => true,
                 'message' => 'Test-Newsletter erfolgreich an ' . $user->email . ' gesendet!'
             ]);
         } catch (\Exception $e) {
+            \Log::error('Failed to send test newsletter', [
+                'user_id' => $user->id,
+                'email' => $user->email,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
             return response()->json([
                 'success' => false,
                 'message' => 'Fehler beim Senden: ' . $e->getMessage()
@@ -84,6 +102,12 @@ class NewsletterController extends Controller
                 // Platzhalter für jeden User individuell ersetzen
                 $personalizedContent = Newsletter::replacePlaceholders($request->content, $user);
 
+                \Log::info('Sending newsletter', [
+                    'user_id' => $user->id,
+                    'email' => $user->email,
+                    'subject' => $request->subject
+                ]);
+
                 Mail::to($user->email)->send(
                     new NewsletterMail($user, $request->subject, $personalizedContent)
                 );
@@ -91,7 +115,12 @@ class NewsletterController extends Controller
                 $sentCount++;
             } catch (\Exception $e) {
                 $failedCount++;
-                \Log::error('Newsletter send failed for user ' . $user->id . ': ' . $e->getMessage());
+                \Log::error('Newsletter send failed', [
+                    'user_id' => $user->id,
+                    'email' => $user->email,
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]);
             }
         }
 
