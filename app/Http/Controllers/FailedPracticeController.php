@@ -14,10 +14,49 @@ class FailedPracticeController extends Controller
     {
         $user = Auth::user();
         $failed = $this->ensureArray($user->exam_failed_questions);
-        $progress = 0;
-        $total = count($failed);
-        $question = $total ? Question::find($failed[0]) : null;
-        return view('failed_practice', compact('question', 'progress', 'total'));
+        
+        // Initialisiere Session für Failed Practice
+        if (!session()->has('failed_practice_ids')) {
+            // Erste Runde: Alle Fragen zufällig
+            $failedIds = array_values($failed);
+            shuffle($failedIds);
+            session([
+                'failed_practice_ids' => $failedIds,
+                'failed_practice_round' => 1,
+                'failed_practice_completed_once' => [],
+            ]);
+        }
+        
+        $practiceIds = session('failed_practice_ids', []);
+        
+        if (empty($practiceIds)) {
+            // Alle Fragen wurden bearbeitet
+            session()->forget(['failed_practice_ids', 'failed_practice_round', 'failed_practice_completed_once']);
+            return redirect()->route('practice.menu')->with('success', 'Alle falschen Fragen wiederholt! 🎉');
+        }
+        
+        $questionId = $practiceIds[0];
+        $question = Question::find($questionId);
+        
+        if (!$question) {
+            return redirect()->route('practice.menu')->with('error', 'Frage nicht gefunden.');
+        }
+        
+        $totalQuestions = Question::count();
+        $solved = $this->ensureArray($user->solved_questions);
+        $progress = count($solved);
+        $total = $totalQuestions;
+        
+        // Fortschrittsbalken-Logik
+        $progressData = UserQuestionProgress::where('user_id', $user->id)->get();
+        $totalProgressPoints = 0;
+        foreach ($progressData as $prog) {
+            $totalProgressPoints += min($prog->consecutive_correct, 2);
+        }
+        $maxProgressPoints = $total * 2;
+        $progressPercent = $maxProgressPoints > 0 ? round(($totalProgressPoints / $maxProgressPoints) * 100) : 0;
+        
+        return view('failed_practice', compact('question', 'progress', 'total', 'progressPercent'));
     }
 
     public function submit(Request $request)
@@ -56,7 +95,16 @@ class FailedPracticeController extends Controller
         $questionProgress = UserQuestionProgress::getOrCreate($user->id, $question->id);
         $questionProgress->updateProgress($isCorrect);
         
-        // Nur wenn Frage gemeistert (2x richtig in Folge)
+        // Gamification: Punkte vergeben
+        $gamificationService = new GamificationService();
+        $gamificationResult = $gamificationService->awardQuestionPoints($user, $isCorrect, $question->id);
+        
+        // Hole Session-Daten
+        $practiceIds = session('failed_practice_ids', []);
+        $completedOnce = session('failed_practice_completed_once', []);
+        $round = session('failed_practice_round', 1);
+        
+        // Wenn Frage gemeistert (2x richtig in Folge)
         if ($questionProgress->isMastered()) {
             // Zu solved_questions hinzufügen
             $solved = $this->ensureArray($user->solved_questions);
@@ -65,42 +113,68 @@ class FailedPracticeController extends Controller
                 $user->solved_questions = array_unique($solved);
             }
             
-            // Entferne aus exam_failed_questions
+            // Entferne aus exam_failed_questions (permanent)
             $failed = array_diff($failed, [$question->id]);
             $user->exam_failed_questions = array_values($failed);
             $user->save();
             
-            // Gamification: Punkte für richtige Antwort
-            $gamificationService = new GamificationService();
-            $gamificationService->awardQuestionPoints($user, true, $question->id);
+            // Entferne aus Practice-IDs
+            $practiceIds = array_diff($practiceIds, [$question->id]);
+            $practiceIds = array_values($practiceIds);
+        } else {
+            // Frage wurde beantwortet (richtig oder falsch)
+            // Markiere als "einmal beantwortet"
+            if (!in_array($question->id, $completedOnce)) {
+                $completedOnce[] = $question->id;
+            }
             
-            return redirect()->route('failed.index');
+            // Entferne von aktueller Liste (wird später wieder hinzugefügt wenn nötig)
+            $practiceIds = array_diff($practiceIds, [$question->id]);
+            $practiceIds = array_values($practiceIds);
+            
+            // Wenn alle Fragen einmal beantwortet wurden
+            if (count($completedOnce) >= count($failed) && empty($practiceIds)) {
+                // Runde 2: Alle noch nicht gemeisterten Fragen nochmal
+                $notMastered = [];
+                foreach ($failed as $fId) {
+                    $prog = UserQuestionProgress::where('user_id', $user->id)
+                                                ->where('question_id', $fId)
+                                                ->first();
+                    if (!$prog || !$prog->isMastered()) {
+                        $notMastered[] = $fId;
+                    }
+                }
+                
+                if (!empty($notMastered)) {
+                    shuffle($notMastered);
+                    $practiceIds = $notMastered;
+                    $round = 2;
+                    $completedOnce = []; // Reset für nächste Runde
+                }
+            }
         }
         
-        // Gamification: Punkte auch bei nicht-gemeistert
-        $gamificationService = new GamificationService();
-        $gamificationResult = $gamificationService->awardQuestionPoints($user, $isCorrect, $question->id);
+        // Update Session
+        session([
+            'failed_practice_ids' => $practiceIds,
+            'failed_practice_completed_once' => $completedOnce,
+            'failed_practice_round' => $round
+        ]);
         
-        // Speichere Ergebnisse in Session (wie in PracticeController)
+        // Speichere Antwort-Ergebnisse in Session für Popup-Anzeige
         session([
             'answer_result' => [
                 'question_id' => $question->id,
                 'is_correct' => $isCorrect,
                 'user_answer' => $userAnswer->toArray(),
                 'question_progress' => $questionProgress->consecutive_correct,
-                'answer_mapping' => $mapping // Mapping auch speichern für die Anzeige
+                'answer_mapping' => $mapping
             ],
             'gamification_result' => $gamificationResult
         ]);
         
-        // Frage noch nicht gemeistert
-        $progress = 0;
-        $total = count($failed);
-        return view('failed_practice', [
-            'question' => $question,
-            'progress' => $progress,
-            'total' => $total,
-        ]);
+        // Redirect zurück zur Show-Methode (Post/Redirect/Get Pattern)
+        return redirect()->route('failed.index');
     }
 
     /**
