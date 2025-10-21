@@ -25,7 +25,7 @@
     }
 @endphp
 <style>
-    /* CACHE BUST v8.1 - UNIFIED BOOKMARK BUTTON - 2025-10-21-16:15 */
+    /* CACHE BUST v8.2 - STICKY FOOTER FIX - 2025-10-21-16:20 */
     @keyframes fadeIn {
         from {
             opacity: 0;
@@ -339,10 +339,20 @@
             display: block !important;
         }
         
+        /* Body als Flexbox für Footer am Rand */
+        body {
+            display: flex !important;
+            flex-direction: column !important;
+            min-height: 100vh !important;
+        }
+        
         main {
-            padding-top: 2rem !important;
-            padding-bottom: 2rem !important;
-            min-height: calc(100vh - 200px) !important;
+            flex: 1 !important;
+            padding-top: 1.5rem !important;
+            padding-bottom: 1.5rem !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: flex-start !important;
         }
         
         /* Practice Container als schöne Karte */
