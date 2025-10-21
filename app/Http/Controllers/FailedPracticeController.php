@@ -42,18 +42,28 @@ class FailedPracticeController extends Controller
             return redirect()->route('practice.menu')->with('error', 'Frage nicht gefunden.');
         }
         
-        $totalQuestions = Question::count();
-        $solved = $this->ensureArray($user->solved_questions);
-        $progress = count($solved);
-        $total = $totalQuestions;
+        // Fortschritt: Anzahl gemeisterter Failed-Fragen
+        $masteredCount = 0;
+        foreach ($failed as $fId) {
+            $prog = UserQuestionProgress::where('user_id', $user->id)
+                                        ->where('question_id', $fId)
+                                        ->first();
+            if ($prog && $prog->isMastered()) {
+                $masteredCount++;
+            }
+        }
         
-        // Fortschrittsbalken-Logik
+        $progress = $masteredCount;
+        $total = count($failed);
+        
+        // Fortschrittsbalken-Logik (gesamt)
+        $totalQuestions = Question::count();
         $progressData = UserQuestionProgress::where('user_id', $user->id)->get();
         $totalProgressPoints = 0;
         foreach ($progressData as $prog) {
             $totalProgressPoints += min($prog->consecutive_correct, 2);
         }
-        $maxProgressPoints = $total * 2;
+        $maxProgressPoints = $totalQuestions * 2;
         $progressPercent = $maxProgressPoints > 0 ? round(($totalProgressPoints / $maxProgressPoints) * 100) : 0;
         
         return view('failed_practice', compact('question', 'progress', 'total', 'progressPercent'));
