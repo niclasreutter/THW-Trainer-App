@@ -1,0 +1,45 @@
+{
+  "name": "THW Trainer",
+  "short_name": "THW Trainer",
+  "description": "THW Prüfungsvorbereitung - Lerne und übe für deine THW Prüfung",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#003d7a",
+  "theme_color": "#003d7a",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/logo-thwtrainer.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logo-thwtrainer_w.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "categories": ["education", "productivity"],
+  "lang": "de-DE",
+  "dir": "ltr",
+  "prefer_related_applications": false,
+  "shortcuts": [
+    {
+      "name": "Fragen lernen",
+      "short_name": "Lernen",
+      "description": "Starte eine neue Lerneinheit",
+      "url": "/practice",
+      "icons": [{ "src": "/logo-thwtrainer.png", "sizes": "512x512" }]
+    },
+    {
+      "name": "Prüfungssimulation",
+      "short_name": "Prüfung",
+      "description": "Starte eine simulierte Prüfung",
+      "url": "/exam",
+      "icons": [{ "src": "/logo-thwtrainer.png", "sizes": "512x512" }]
+    }
+  ]
+}
