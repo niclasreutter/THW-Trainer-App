@@ -174,7 +174,7 @@
                                     style="background-color: #e5e7eb; color: #374151; border: 2px solid #d1d5db;">
                                 {{ $i + 1 }}
                             </button>
-                        @endforeach
+                        @endfor
                     </div>
                 </div>
             </div>
