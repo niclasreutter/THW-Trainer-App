@@ -4,6 +4,29 @@
 @section('title', 'Dashboard - Dein Lernfortschritt')
 @section('description', 'Dein persönliches THW-Trainer Dashboard: Verfolge deinen Lernfortschritt, wiederhole falsche Fragen und bereite dich optimal auf deine THW-Prüfung vor.')
 
+@push('styles')
+<style>
+    .exam-history-content {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease-out;
+    }
+    
+    .exam-history-content.show {
+        max-height: 2000px;
+        transition: max-height 0.5s ease-in;
+    }
+    
+    .rotate-icon {
+        transition: transform 0.3s ease;
+    }
+    
+    .rotate-icon.rotated {
+        transform: rotate(180deg);
+    }
+</style>
+@endpush
+
 @section('content')
     <div class="max-w-7xl mx-auto p-6">
         <h1 class="text-3xl font-bold text-blue-800 mb-8 text-center">THW-Trainer Dashboard</h1>
@@ -277,14 +300,25 @@
                 <span class="text-sm text-gray-600">{{ $examsPercent }}% abgeschlossen</span>
             </div>
             
-            <!-- Prüfungshistorie (Letzte 5 Prüfungen) -->
+            <!-- Prüfungshistorie (Letzte 5 Prüfungen) - Aufklappbar -->
             @if(isset($recentExams) && $recentExams->count() > 0)
             <div class="mt-6">
-                <h3 class="text-sm font-semibold text-gray-800 mb-3 flex items-center">
-                    <span class="mr-2">📊</span>
-                    Deine letzten Prüfungen
-                </h3>
-                <div class="space-y-2">
+                <!-- Aufklappbarer Header -->
+                <button type="button" 
+                        onclick="toggleExamHistory()"
+                        class="w-full flex items-center justify-between p-3 bg-gradient-to-r from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-200 border-2 border-blue-200 rounded-lg transition-all duration-200 hover:shadow-md">
+                    <div class="flex items-center gap-2">
+                        <span class="text-lg">📊</span>
+                        <span class="text-sm font-semibold text-gray-800">Deine letzten Prüfungen</span>
+                        <span class="text-xs text-gray-600">({{ $recentExams->count() }})</span>
+                    </div>
+                    <svg id="examHistoryIcon" class="w-5 h-5 text-blue-600 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+                
+                <!-- Aufklappbarer Content -->
+                <div id="examHistoryContent" class="hidden mt-2 space-y-2">
                     @foreach($recentExams as $exam)
                         @php
                             $totalQuestions = 40; // Standard Prüfung hat 40 Fragen
@@ -637,6 +671,33 @@
             }).catch(error => {
                 console.log('Banner dismissed (session update failed):', error);
             });
+        }
+        
+        // Toggle Exam History
+        function toggleExamHistory() {
+            const content = document.getElementById('examHistoryContent');
+            const icon = document.getElementById('examHistoryIcon');
+            
+            if (content.classList.contains('hidden')) {
+                // Öffnen
+                content.classList.remove('hidden');
+                icon.style.transform = 'rotate(180deg)';
+                
+                // Smooth scroll animation
+                setTimeout(() => {
+                    content.style.maxHeight = content.scrollHeight + 'px';
+                    content.style.opacity = '1';
+                }, 10);
+            } else {
+                // Schließen
+                content.style.maxHeight = '0';
+                content.style.opacity = '0';
+                icon.style.transform = 'rotate(0deg)';
+                
+                setTimeout(() => {
+                    content.classList.add('hidden');
+                }, 300);
+            }
         }
     </script>
 @endsection
