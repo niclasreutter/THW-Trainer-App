@@ -825,18 +825,19 @@
             // Bookmark AJAX Function (unterstützt beide Buttons: Mobile & Desktop)
             function toggleBookmark(questionId, currentlyBookmarked) {
                 const btn = document.getElementById('bookmarkBtn') || document.getElementById('bookmarkBtnMobile');
-                const text = document.getElementById('bookmarkText'); // Kann null sein auf Mobile
-                const icon = document.getElementById('bookmarkIcon') || document.getElementById('bookmarkIconMobile');
-                
-                // Loading State
-                btn.disabled = true;
-                btn.classList.add('opacity-50', 'cursor-not-allowed');
-                if (text) text.textContent = 'Speichere...';
-                icon.classList.add('animate-spin');
+                const isMobile = !document.getElementById('bookmarkText');
                 
                 const formData = new FormData();
                 formData.append('question_id', questionId);
                 formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+                
+                // Zeige Loading mit Spinner
+                if (isMobile) {
+                    btn.innerHTML = '<svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
+                } else {
+                    document.getElementById('bookmarkText').textContent = 'Speichere...';
+                }
+                btn.disabled = true;
                 
                 fetch('{{ route("bookmarks.toggle") }}', {
                     method: 'POST',
@@ -850,56 +851,53 @@
                     if (data.success) {
                         // Update data-bookmarked attribute
                         btn.setAttribute('data-bookmarked', data.is_bookmarked ? 'true' : 'false');
-                        
-                        // Entferne animate-spin SOFORT
-                        icon.classList.remove('animate-spin');
-                        
-                        // AGGRESSIVE ICON UPDATE für Mobile - SVG komplett neu rendern
-                        const targetColor = data.is_bookmarked ? '#eab308' : '#9ca3af';
-                        const targetFill = data.is_bookmarked ? 'currentColor' : 'none';
-                        const iconSize = text ? 'w-4 h-4' : 'w-5 h-5';
-                        const iconId = text ? 'bookmarkIcon' : 'bookmarkIconMobile';
-                        
-                        // Komplett neues SVG HTML erstellen (garantiert Update auf allen Geräten!)
-                        // Setze stroke auch direkt als Attribut UND im path-Element
-                        const newSvgHtml = `
-                            <svg id="${iconId}" class="${iconSize}" viewBox="0 0 20 20" 
-                                 stroke="${targetColor}" fill="${targetFill}"
-                                 style="color: ${targetColor} !important; stroke: ${targetColor} !important; fill: ${targetFill} !important;">
-                                <path stroke="${targetColor}" fill="${targetFill}" 
-                                      stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                                      d="M5 5a2 2 0 012-2h6a2 2 0 012 2v10l-5-3-5 3V5z"></path>
-                            </svg>
-                        `;
-                        
-                        // Ersetze das Icon komplett durch neues HTML (ID bleibt erhalten!)
-                        icon.outerHTML = newSvgHtml;
-                        
-                        // Update Text und Attribute
-                        if (text) text.textContent = data.is_bookmarked ? 'Gespeichert' : 'Speichern';
                         btn.setAttribute('title', data.is_bookmarked ? 'Aus Lesezeichen entfernen' : 'Zu Lesezeichen hinzufügen');
                         btn.setAttribute('onclick', `toggleBookmark(${questionId}, ${data.is_bookmarked})`);
                         
-                        // VERBESSERTES Feedback mit Animation
-                        btn.classList.add('animate-pulse');
+                        // KOMPLETT neues Button-Content erstellen für zuverlässiges Update
+                        const targetColor = data.is_bookmarked ? '#eab308' : '#9ca3af';
+                        const targetFill = data.is_bookmarked ? 'currentColor' : 'none';
                         
-                        if (text) {
-                            // Desktop: Zeige temporären Feedback-Text
-                            const originalText = text.textContent;
-                            text.textContent = data.is_bookmarked ? 'Gespeichert!' : 'Entfernt!';
-                            setTimeout(() => {
-                                text.textContent = originalText;
-                                btn.classList.remove('animate-pulse');
-                            }, 1500);
-                        } else {
-                            // Mobile: Visuelles Feedback mit Hintergrundfarbe
-                            const originalBg = btn.style.backgroundColor || '';
-                            btn.style.backgroundColor = data.is_bookmarked ? '#fef3c7' : '#f3f4f6'; // yellow-100 oder gray-100
-                            btn.classList.add('scale-110');
+                        if (isMobile) {
+                            // Mobile: Nur Icon, komplett neu erstellen
+                            btn.innerHTML = `
+                                <svg id="bookmarkIconMobile" class="w-5 h-5" viewBox="0 0 20 20" 
+                                     stroke="${targetColor}" fill="${targetFill}"
+                                     style="color: ${targetColor} !important; stroke: ${targetColor} !important;">
+                                    <path stroke="${targetColor}" fill="${targetFill}"
+                                          stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                          d="M5 5a2 2 0 012-2h6a2 2 0 012 2v10l-5-3-5 3V5z"></path>
+                                </svg>
+                            `;
                             
+                            // Mobile Feedback mit Hintergrundfarbe
+                            btn.style.backgroundColor = data.is_bookmarked ? '#fef3c7' : '#f3f4f6';
+                            btn.classList.add('scale-110');
                             setTimeout(() => {
-                                btn.style.backgroundColor = originalBg;
-                                btn.classList.remove('animate-pulse', 'scale-110');
+                                btn.style.backgroundColor = '';
+                                btn.classList.remove('scale-110');
+                            }, 1000);
+                        } else {
+                            // Desktop: Icon + Text
+                            btn.innerHTML = `
+                                <svg id="bookmarkIcon" class="w-4 h-4" viewBox="0 0 20 20" 
+                                     stroke="${targetColor}" fill="${targetFill}"
+                                     style="color: ${targetColor} !important; stroke: ${targetColor} !important;">
+                                    <path stroke="${targetColor}" fill="${targetFill}"
+                                          stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                          d="M5 5a2 2 0 012-2h6a2 2 0 012 2v10l-5-3-5 3V5z"></path>
+                                </svg>
+                                <span class="text-xs text-gray-600" id="bookmarkText">
+                                    ${data.is_bookmarked ? 'Gespeichert' : 'Speichern'}
+                                </span>
+                            `;
+                            
+                            // Desktop Feedback
+                            const textEl = document.getElementById('bookmarkText');
+                            const originalText = textEl.textContent;
+                            textEl.textContent = data.is_bookmarked ? 'Gespeichert!' : 'Entfernt!';
+                            setTimeout(() => {
+                                textEl.textContent = originalText;
                             }, 1500);
                         }
                     }
@@ -909,9 +907,7 @@
                     alert('Fehler beim Speichern der Markierung');
                 })
                 .finally(() => {
-                    // Reset Loading State
                     btn.disabled = false;
-                    btn.classList.remove('opacity-50', 'cursor-not-allowed');
                 });
             }
             
