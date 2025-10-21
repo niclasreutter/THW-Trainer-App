@@ -38,7 +38,9 @@ function setupOfflineSubmit() {
         e.preventDefault();
         e.stopPropagation();
         e.stopImmediatePropagation();
-            
+        
+        // Handle offline submission asynchronously
+        (async function() {
             try {
                 const formData = new FormData(form);
                 const data = {};
@@ -57,60 +59,125 @@ function setupOfflineSubmit() {
                     }
                 }
                 
+                console.log('📦 Form data:', data);
+                
                 // Check if Guest mode
                 const guestMode = isGuestMode();
+                console.log('👤 Guest mode:', guestMode);
                 
-                if (guestMode) {
-                    // Guest: Save locally in IndexedDB (no server sync needed)
-                    await handleGuestOfflineSubmit(data, form);
-                } else {
-                    // Logged-in user: Save for sync
-                    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || 
-                                     document.querySelector('input[name="_token"]')?.value;
-                    
-                    const answerData = {
-                        url: form.action,
-                        method: 'POST',
-                        data: data,
-                        csrf: csrfToken,
-                        userAgent: navigator.userAgent
-                    };
-                    
-                    await window.offlineDB.savePendingAnswer(answerData);
-                    showOfflineSubmitNotification('user');
-                }
+                // ALLE Nutzer (Guest + Eingeloggt) bekommen sofortige Auswertung!
+                console.log('🎯 Evaluating answer offline...');
+                await handleOfflineSubmit(data, form, guestMode);
                 
             } catch (error) {
                 console.error('❌ Failed to save answer offline:', error);
-                alert('Fehler beim Offline-Speichern der Antwort. Bitte versuche es später erneut.');
+                alert('Fehler beim Offline-Speichern der Antwort: ' + error.message);
             }
-            
-            return false;
+        })();
+        
+        return false;
     }, true); // Use capture phase!
 }
 
 /**
- * Handle Guest offline submission
+ * Handle offline submission (für ALLE Nutzer - Guest + Eingeloggt)
  */
-async function handleGuestOfflineSubmit(data, form) {
+async function handleOfflineSubmit(data, form, isGuest) {
+    console.log('🔍 handleOfflineSubmit called - isGuest:', isGuest);
+    
     const questionId = data.question_id;
     const userAnswer = data.answer || data.answers;
+    
+    console.log('📝 Question ID:', questionId);
+    console.log('👉 User Answer:', userAnswer);
     
     // Get the correct answer from the cached question
     const question = await window.offlineDB.getQuestionById(questionId);
     
     if (!question) {
         console.error('❌ Question not found in cache:', questionId);
-        alert('Frage nicht im Cache. Bitte lade die Seite neu wenn du online bist.');
+        alert('Frage nicht im Cache gefunden. Bitte lade die Seite neu wenn du online bist.');
         return;
     }
+    
+    console.log('✅ Question found:', question);
     
     // Check if answer is correct
     const correctAnswer = question.richtige_antwort;
     const userAnswerArray = Array.isArray(userAnswer) ? userAnswer : [userAnswer];
     const correctAnswerArray = Array.isArray(correctAnswer) ? correctAnswer.split(',').map(a => a.trim()) : [correctAnswer];
     
+    console.log('🎯 Correct answer:', correctAnswerArray);
+    console.log('👤 User answer array:', userAnswerArray);
+    
     const isCorrect = arraysEqual(userAnswerArray.sort(), correctAnswerArray.sort());
+    
+    console.log(isCorrect ? '✅ CORRECT!' : '❌ WRONG!');
+    
+    // Save locally
+    if (isGuest) {
+        // Guest: Nur lokal speichern
+        await window.offlineDB.saveGuestAnswer(questionId, userAnswerArray, isCorrect);
+        console.log('✅ Guest answer saved offline');
+    } else {
+        // Eingeloggter User: Für Sync speichern UND lokal auswerten
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || 
+                         document.querySelector('input[name="_token"]')?.value;
+        
+        const answerData = {
+            url: form.action,
+            method: 'POST',
+            data: data,
+            csrf: csrfToken,
+            userAgent: navigator.userAgent,
+            evaluated_offline: true,
+            is_correct: isCorrect
+        };
+        
+        await window.offlineDB.savePendingAnswer(answerData);
+        console.log('✅ User answer saved for sync');
+    }
+    
+    // Show result für ALLE (Guest + User)
+    showOfflineResult(question, userAnswerArray, isCorrect, isGuest);
+    
+    console.log('✅ Answer evaluated offline:', questionId, isCorrect ? 'correct' : 'wrong');
+}
+
+/**
+ * Handle Guest offline submission (DEPRECATED - use handleOfflineSubmit)
+ */
+async function handleGuestOfflineSubmit(data, form) {
+    console.log('🔍 handleGuestOfflineSubmit called with data:', data);
+    
+    const questionId = data.question_id;
+    const userAnswer = data.answer || data.answers;
+    
+    console.log('📝 Question ID:', questionId);
+    console.log('👉 User Answer:', userAnswer);
+    
+    // Get the correct answer from the cached question
+    const question = await window.offlineDB.getQuestionById(questionId);
+    
+    if (!question) {
+        console.error('❌ Question not found in cache:', questionId);
+        alert('Frage nicht im Cache gefunden. Bitte lade die Seite neu wenn du online bist.');
+        return;
+    }
+    
+    console.log('✅ Question found:', question);
+    
+    // Check if answer is correct
+    const correctAnswer = question.richtige_antwort;
+    const userAnswerArray = Array.isArray(userAnswer) ? userAnswer : [userAnswer];
+    const correctAnswerArray = Array.isArray(correctAnswer) ? correctAnswer.split(',').map(a => a.trim()) : [correctAnswer];
+    
+    console.log('🎯 Correct answer:', correctAnswerArray);
+    console.log('👤 User answer array:', userAnswerArray);
+    
+    const isCorrect = arraysEqual(userAnswerArray.sort(), correctAnswerArray.sort());
+    
+    console.log(isCorrect ? '✅ CORRECT!' : '❌ WRONG!');
     
     // Save guest answer locally
     await window.offlineDB.saveGuestAnswer(questionId, userAnswerArray, isCorrect);
@@ -122,32 +189,47 @@ async function handleGuestOfflineSubmit(data, form) {
 }
 
 /**
- * Show guest offline result
+ * Show offline result (für Guest + Eingeloggte User)
  */
-function showGuestOfflineResult(question, userAnswer, isCorrect) {
+function showOfflineResult(question, userAnswer, isCorrect, isGuest) {
     const resultDiv = document.createElement('div');
-    resultDiv.className = `fixed top-20 right-4 ${isCorrect ? 'bg-green-500' : 'bg-red-500'} text-white px-6 py-4 rounded-lg shadow-2xl z-50 max-w-md`;
+    resultDiv.className = `fixed top-20 right-4 ${isCorrect ? 'bg-green-500' : 'bg-red-500'} text-white px-6 py-4 rounded-lg shadow-2xl z-50 max-w-md animate-slide-in`;
+    
+    const syncMessage = isGuest 
+        ? 'Offline gespeichert - nur auf diesem Gerät' 
+        : 'Offline ausgewertet - Wird synchronisiert wenn du online bist';
+    
     resultDiv.innerHTML = `
         <div class="flex items-start gap-3">
             <span class="text-3xl">${isCorrect ? '✅' : '❌'}</span>
             <div class="flex-1">
                 <div class="font-bold text-lg mb-1">${isCorrect ? 'Richtig!' : 'Falsch!'}</div>
-                <div class="text-sm opacity-90 mb-2">Offline gespeichert - nur auf diesem Gerät</div>
-                ${!isCorrect ? `<div class="text-sm">Richtige Antwort: ${question.richtige_antwort}</div>` : ''}
+                <div class="text-sm opacity-90 mb-2">${syncMessage}</div>
+                ${!isCorrect ? `<div class="text-sm mt-2 bg-white bg-opacity-20 p-2 rounded">✓ Richtige Antwort: ${question.richtige_antwort}</div>` : ''}
+                ${isCorrect && !isGuest ? `<div class="text-xs opacity-75 mt-2">📤 Wird für Punkte synchronisiert</div>` : ''}
             </div>
-            <button onclick="this.parentElement.parentElement.remove()" class="text-xl hover:text-gray-200">✕</button>
+            <button onclick="this.parentElement.parentElement.remove()" class="text-xl hover:text-gray-200 leading-none">✕</button>
         </div>
     `;
     
     document.body.appendChild(resultDiv);
     
+    // Auto-remove
     setTimeout(() => {
         if (resultDiv.parentElement) {
             resultDiv.style.opacity = '0';
-            resultDiv.style.transition = 'opacity 0.3s';
+            resultDiv.style.transform = 'translateX(100%)';
+            resultDiv.style.transition = 'all 0.3s';
             setTimeout(() => resultDiv.remove(), 300);
         }
-    }, 5000);
+    }, isCorrect ? 4000 : 6000); // Falsche Antworten länger zeigen
+}
+
+/**
+ * Show guest offline result (DEPRECATED - use showOfflineResult)
+ */
+function showGuestOfflineResult(question, userAnswer, isCorrect) {
+    showOfflineResult(question, userAnswer, isCorrect, true);
 }
 
 /**
