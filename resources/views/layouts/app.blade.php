@@ -122,5 +122,125 @@
                 </div>
             </div>
         </footer>
+
+        <!-- PWA Install Banner (nur Mobile) -->
+        <div id="pwaInstallBanner" class="fixed bottom-0 left-0 right-0 bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-2xl transform translate-y-full transition-transform duration-300 z-50 md:hidden">
+            <div class="p-4 flex items-center justify-between gap-3">
+                <div class="flex items-center gap-3 flex-1">
+                    <img src="{{ asset('logo-thwtrainer_w.png') }}" alt="THW Trainer" class="w-12 h-12 rounded-lg shadow-lg">
+                    <div class="flex-1">
+                        <h3 class="font-bold text-sm">THW Trainer App</h3>
+                        <p class="text-xs opacity-90">Als App installieren für schnelleren Zugriff</p>
+                    </div>
+                </div>
+                <div class="flex gap-2">
+                    <button id="pwaInstallBtn" class="bg-white text-blue-600 px-4 py-2 rounded-lg font-bold text-sm hover:bg-blue-50 transition-colors whitespace-nowrap">
+                        Installieren
+                    </button>
+                    <button id="pwaCloseBanner" class="text-white hover:text-blue-200 px-2 text-lg">
+                        ✕
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Service Worker Registration & PWA Install Logic -->
+        <script>
+            // Service Worker Registration
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', () => {
+                    navigator.serviceWorker.register('/sw.js')
+                        .then(registration => {
+                            console.log('✅ ServiceWorker registered:', registration.scope);
+                            
+                            // Check for updates periodically
+                            setInterval(() => {
+                                registration.update();
+                            }, 1000 * 60 * 60); // Check every hour
+                        })
+                        .catch(error => {
+                            console.log('❌ ServiceWorker registration failed:', error);
+                        });
+                });
+            }
+
+            // PWA Install Banner Logic
+            let deferredPrompt;
+            const installBanner = document.getElementById('pwaInstallBanner');
+            const installBtn = document.getElementById('pwaInstallBtn');
+            const closeBanner = document.getElementById('pwaCloseBanner');
+
+            // Check if already installed or dismissed
+            const pwaInstalled = localStorage.getItem('pwa_installed') === 'true';
+            const pwaDismissed = localStorage.getItem('pwa_banner_dismissed') === 'true';
+            const dismissedTime = parseInt(localStorage.getItem('pwa_banner_dismissed_time') || '0');
+            const daysSinceDismissal = (Date.now() - dismissedTime) / (1000 * 60 * 60 * 24);
+
+            // Listen for the beforeinstallprompt event
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                
+                // Show banner if not installed and not recently dismissed (7 days)
+                if (!pwaInstalled && (!pwaDismissed || daysSinceDismissal > 7)) {
+                    setTimeout(() => {
+                        if (installBanner) {
+                            installBanner.classList.remove('translate-y-full');
+                        }
+                    }, 2000); // Show after 2 seconds
+                }
+            });
+
+            // Install button click
+            if (installBtn) {
+                installBtn.addEventListener('click', async () => {
+                    if (!deferredPrompt) return;
+                    
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    
+                    if (outcome === 'accepted') {
+                        console.log('✅ PWA installed');
+                        localStorage.setItem('pwa_installed', 'true');
+                        if (installBanner) {
+                            installBanner.classList.add('translate-y-full');
+                        }
+                    } else {
+                        console.log('❌ PWA installation dismissed');
+                    }
+                    
+                    deferredPrompt = null;
+                });
+            }
+
+            // Close banner button
+            if (closeBanner) {
+                closeBanner.addEventListener('click', () => {
+                    if (installBanner) {
+                        installBanner.classList.add('translate-y-full');
+                    }
+                    localStorage.setItem('pwa_banner_dismissed', 'true');
+                    localStorage.setItem('pwa_banner_dismissed_time', Date.now().toString());
+                });
+            }
+
+            // Check if app is already installed
+            window.addEventListener('appinstalled', () => {
+                console.log('✅ PWA installed via event');
+                localStorage.setItem('pwa_installed', 'true');
+                if (installBanner) {
+                    installBanner.classList.add('translate-y-full');
+                }
+            });
+
+            // Hide banner when running as PWA
+            if (window.matchMedia('(display-mode: standalone)').matches || 
+                window.navigator.standalone === true) {
+                localStorage.setItem('pwa_installed', 'true');
+                if (installBanner) {
+                    installBanner.remove();
+                }
+            }
+        </script>
     </body>
 </html>

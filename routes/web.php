@@ -17,6 +17,11 @@ Route::get('/datenschutz', function () {
     return view('datenschutz');
 })->name('datenschutz');
 
+// Offline-Seite für PWA
+Route::get('/offline', function () {
+    return view('offline');
+})->name('offline');
+
 // Kontaktformular (öffentlich zugänglich)
 Route::get('/kontakt', [\App\Http\Controllers\ContactController::class, 'index'])->name('contact.index');
 Route::post('/kontakt', [\App\Http\Controllers\ContactController::class, 'store'])

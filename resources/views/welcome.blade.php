@@ -69,6 +69,31 @@
                             <p class="text-gray-600 text-xs sm:text-sm">Adaptive Lernmethoden für optimale Vorbereitung</p>
                         </div>
                     </div>
+                    
+                    <!-- PWA Feature Highlight -->
+                    <div class="mt-6 bg-gradient-to-r from-blue-50 to-purple-50 p-4 sm:p-6 rounded-lg border-2 border-blue-200">
+                        <div class="flex items-center justify-center gap-3 mb-3">
+                            <span class="text-3xl">📲</span>
+                            <h3 class="text-lg sm:text-xl font-bold text-gray-900">Als App installierbar!</h3>
+                        </div>
+                        <p class="text-center text-sm sm:text-base text-gray-700 mb-4">
+                            Installiere THW Trainer als App auf deinem Smartphone oder Tablet für noch schnelleren Zugriff – funktioniert auch offline!
+                        </p>
+                        <div class="grid sm:grid-cols-3 gap-3 text-center text-xs sm:text-sm">
+                            <div class="bg-white p-3 rounded-lg shadow-sm">
+                                <span class="block text-2xl mb-1">⚡</span>
+                                <span class="font-semibold text-gray-800">Schneller Start</span>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg shadow-sm">
+                                <span class="block text-2xl mb-1">📴</span>
+                                <span class="font-semibold text-gray-800">Offline nutzbar</span>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg shadow-sm">
+                                <span class="block text-2xl mb-1">🏠</span>
+                                <span class="font-semibold text-gray-800">Auf Homescreen</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
