@@ -851,6 +851,9 @@
                         const targetColor = data.is_bookmarked ? '#eab308' : '#9ca3af';
                         const targetFill = data.is_bookmarked ? 'currentColor' : 'none';
                         
+                        // Entferne animate-spin SOFORT
+                        icon.classList.remove('animate-spin');
+                        
                         // Entferne alle Klassen die die Farbe beeinflussen könnten
                         icon.className = '';
                         icon.classList.add('w-5', 'h-5');
@@ -866,7 +869,7 @@
                         btn.setAttribute('title', data.is_bookmarked ? 'Aus Lesezeichen entfernen' : 'Zu Lesezeichen hinzufügen');
                         btn.setAttribute('onclick', `toggleBookmark(${questionId}, ${data.is_bookmarked})`);
                         
-                        // Kurzes Feedback mit Animation
+                        // VERBESSERTES Feedback mit Animation
                         btn.classList.add('animate-pulse');
                         
                         if (text) {
@@ -878,9 +881,14 @@
                                 btn.classList.remove('animate-pulse');
                             }, 1500);
                         } else {
-                            // Mobile: Nur Animation
+                            // Mobile: Visuelles Feedback mit Hintergrundfarbe
+                            const originalBg = btn.style.backgroundColor || '';
+                            btn.style.backgroundColor = data.is_bookmarked ? '#fef3c7' : '#f3f4f6'; // yellow-100 oder gray-100
+                            btn.classList.add('scale-110');
+                            
                             setTimeout(() => {
-                                btn.classList.remove('animate-pulse');
+                                btn.style.backgroundColor = originalBg;
+                                btn.classList.remove('animate-pulse', 'scale-110');
                             }, 1500);
                         }
                     }
