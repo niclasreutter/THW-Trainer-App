@@ -457,7 +457,9 @@
             <button type="button" class="p-2 hover:bg-gray-100 rounded-lg" id="bookmarkBtnMobile"
                     data-bookmarked="{{ $isBookmarked ? 'true' : 'false' }}"
                     onclick="toggleBookmark({{ $question->id }}, {{ $isBookmarked ? 'true' : 'false' }})">
-                <svg class="w-5 h-5" viewBox="0 0 20 20" stroke="currentColor" id="bookmarkIconMobile">
+                <svg class="w-5 h-5" viewBox="0 0 20 20" stroke="currentColor" id="bookmarkIconMobile" 
+                     fill="{{ $isBookmarked ? 'currentColor' : 'none' }}"
+                     style="color: {{ $isBookmarked ? '#eab308' : '#9ca3af' }} !important;">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h6a2 2 0 012 2v10l-5-3-5 3V5z"></path>
                 </svg>
             </button>
@@ -517,7 +519,9 @@
                     id="bookmarkBtn"
                     data-bookmarked="{{ $isBookmarked ? 'true' : 'false' }}"
                     onclick="toggleBookmark({{ $question->id }}, {{ $isBookmarked ? 'true' : 'false' }})">
-                <svg class="w-4 h-4" viewBox="0 0 20 20" stroke="currentColor" id="bookmarkIcon">
+                <svg class="w-4 h-4" viewBox="0 0 20 20" stroke="currentColor" id="bookmarkIcon"
+                     fill="{{ $isBookmarked ? 'currentColor' : 'none' }}"
+                     style="color: {{ $isBookmarked ? '#eab308' : '#9ca3af' }} !important;">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                           d="M5 5a2 2 0 012-2h6a2 2 0 012 2v10l-5-3-5 3V5z"></path>
                 </svg>
@@ -847,22 +851,21 @@
                         // Update data-bookmarked attribute
                         btn.setAttribute('data-bookmarked', data.is_bookmarked ? 'true' : 'false');
                         
-                        // SOFORT Icon-Farbe und Fill setzen (KRITISCH für Mobile!)
-                        const targetColor = data.is_bookmarked ? '#eab308' : '#9ca3af';
-                        const targetFill = data.is_bookmarked ? 'currentColor' : 'none';
-                        
                         // Entferne animate-spin SOFORT
                         icon.classList.remove('animate-spin');
                         
-                        // Entferne alle Klassen die die Farbe beeinflussen könnten
-                        icon.className = '';
-                        icon.classList.add('w-5', 'h-5');
-                        if (!text) icon.classList.add('w-5', 'h-5'); // Mobile size
+                        // KRITISCH: Setze Icon-Farbe und Fill SOFORT und DIREKT (wichtig für Mobile!)
+                        const targetColor = data.is_bookmarked ? '#eab308' : '#9ca3af';
+                        const targetFill = data.is_bookmarked ? 'currentColor' : 'none';
                         
-                        // Setze Farbe und Fill DIREKT
+                        // Setze fill und style Attribute DIREKT am SVG-Element
                         icon.setAttribute('fill', targetFill);
                         icon.setAttribute('stroke', 'currentColor');
-                        icon.style.cssText = `color: ${targetColor} !important; stroke: ${targetColor} !important;`;
+                        icon.style.setProperty('color', targetColor, 'important');
+                        icon.style.setProperty('stroke', targetColor, 'important');
+                        
+                        // Force Repaint für Mobile Browser (kritisch!)
+                        void icon.offsetHeight;
                         
                         // Update Text und Attribute
                         if (text) text.textContent = data.is_bookmarked ? 'Gespeichert' : 'Speichern';
