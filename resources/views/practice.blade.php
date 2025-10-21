@@ -25,7 +25,7 @@
     }
 @endphp
 <style>
-    /* CACHE BUST v7.5 - BOOKMARK FIX - 2025-10-21-15:30 */
+    /* CACHE BUST v8.0 - MODERN DESKTOP DESIGN - 2025-10-21-16:00 */
     @keyframes fadeIn {
         from {
             opacity: 0;
@@ -332,59 +332,178 @@
         }
     }
     
-    /* Desktop: Kompakte Ansicht für alle Bildschirmgrößen */
+    /* Desktop: Modernes Kartendesign wie Mobile */
     @media (min-width: 641px) {
-        main {
-            padding-top: 1rem !important;
-            padding-bottom: 1rem !important;
-            min-height: 100vh !important;
+        /* Nav und Footer bleiben sichtbar */
+        nav, footer {
+            display: block !important;
         }
         
-        /* Kompaktere Schriften und Abstände auf Desktop */
+        main {
+            padding-top: 2rem !important;
+            padding-bottom: 2rem !important;
+            min-height: calc(100vh - 200px) !important;
+        }
+        
+        /* Practice Container als schöne Karte */
+        #practiceContainer {
+            max-width: 800px !important;
+            margin: 0 auto !important;
+            padding: 2rem !important;
+            background: white !important;
+            border-radius: 16px !important;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.05) !important;
+            transition: all 0.3s ease !important;
+        }
+        
+        #practiceContainer:hover {
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.15), 0 5px 15px rgba(0, 0, 0, 0.08) !important;
+        }
+        
+        /* DESKTOP TOUCH OPTIMIERUNG - Modernes Design wie auf Mobile */
+        
+        /* Checkboxen größer mit schönem Design */
+        #practiceContainer input[type="checkbox"] {
+            width: 24px !important;
+            height: 24px !important;
+            min-width: 24px !important;
+            min-height: 24px !important;
+            margin-right: 12px !important;
+            cursor: pointer !important;
+            border: 2.5px solid #cbd5e1 !important;
+            border-radius: 8px !important;
+            transition: all 0.2s ease !important;
+            -webkit-appearance: none !important;
+            appearance: none !important;
+            background-color: white !important;
+            position: relative !important;
+        }
+        
+        #practiceContainer input[type="checkbox"]:checked {
+            background-color: #3b82f6 !important;
+            border-color: #3b82f6 !important;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+        }
+        
+        #practiceContainer input[type="checkbox"]:checked::after {
+            content: '✓' !important;
+            position: absolute !important;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) !important;
+            color: white !important;
+            font-size: 16px !important;
+            font-weight: bold !important;
+        }
+        
+        /* Labels mit schönem Design */
+        #practiceContainer label.inline-flex {
+            padding: 16px 18px !important;
+            min-height: 60px !important;
+            margin-bottom: 12px !important;
+            font-size: 16px !important;
+            line-height: 1.6 !important;
+            cursor: pointer !important;
+            background: white !important;
+            border: 2px solid #e2e8f0 !important;
+            border-radius: 12px !important;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+            transition: all 0.2s ease !important;
+        }
+        
+        #practiceContainer label.inline-flex:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+            border-color: #3b82f6 !important;
+            background: #f0f9ff !important;
+        }
+        
+        #practiceContainer label.inline-flex:active {
+            transform: scale(0.98) !important;
+        }
+        
+        /* Buttons größer und moderner */
+        #practiceContainer button[type="submit"],
+        #practiceContainer a.w-full {
+            padding: 18px 24px !important;
+            font-size: 18px !important;
+            min-height: 60px !important;
+            font-weight: 700 !important;
+            cursor: pointer !important;
+            border-radius: 14px !important;
+            transition: all 0.3s ease !important;
+            box-shadow: 0 4px 12px rgba(30, 58, 138, 0.15), 0 2px 4px rgba(30, 58, 138, 0.1) !important;
+        }
+        
+        #practiceContainer button[type="submit"]:hover,
+        #practiceContainer a.w-full:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 6px 20px rgba(30, 58, 138, 0.25) !important;
+        }
+        
+        #practiceContainer button[type="submit"]:active,
+        #practiceContainer a.w-full:active {
+            transform: translateY(1px) !important;
+        }
+        
+        /* Header und Progress Bar modernisieren */
         #practiceContainer h2 {
-            font-size: 1.25rem !important;
-            margin-bottom: 0.75rem !important;
+            font-size: 1.5rem !important;
+            margin-bottom: 1rem !important;
+            font-weight: 700 !important;
+            color: #1e3a8a !important;
+        }
+        
+        /* Progress Bar mit Glow */
+        #practiceContainer .bg-gray-200 {
+            background-color: #e5e7eb !important;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+            border-radius: 10px !important;
+            height: 12px !important;
+        }
+        
+        #practiceContainer .bg-yellow-400 {
+            border-radius: 10px !important;
+            box-shadow: 0 0 10px rgba(251, 191, 36, 0.6), 
+                        0 0 20px rgba(251, 191, 36, 0.4), 
+                        0 0 30px rgba(251, 191, 36, 0.2) !important;
+        }
+        
+        /* Bookmark Button moderner */
+        #bookmarkBtn {
+            padding: 10px 14px !important;
+            border-radius: 10px !important;
+            transition: all 0.2s ease !important;
+            border: 2px solid transparent !important;
+        }
+        
+        #bookmarkBtn:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+            border-color: #fbbf24 !important;
+        }
+        
+        /* Frage-Container ohne Karten-in-Karte Design */
+        #practiceContainer > form > div.mb-2 {
+            border: none !important;
+            box-shadow: none !important;
+            background: transparent !important;
+            padding: 0 !important;
+            margin-bottom: 1.5rem !important;
+        }
+        
+        /* Antworten Bereich mit besserem Spacing */
+        #practiceContainer .flex.flex-col.gap-1\.5 {
+            gap: 12px !important;
+        }
+        
+        /* Text lesbarer */
+        #practiceContainer .text-xs {
+            font-size: 0.95rem !important;
         }
         
         #practiceContainer .text-sm {
-            font-size: 0.95rem !important;
-        }
-        
-        #practiceContainer .text-xs {
-            font-size: 0.85rem !important;
-        }
-        
-        #practiceContainer .mb-3 {
-            margin-bottom: 0.75rem !important;
-        }
-        
-        #practiceContainer .mb-2 {
-            margin-bottom: 0.5rem !important;
-        }
-        
-        #practiceContainer label {
-            padding: 0.75rem !important;
-            font-size: 0.95rem !important;
-            line-height: 1.5 !important;
-            margin-bottom: 0.5rem !important;
-        }
-        
-        #practiceContainer button[type="submit"],
-        #practiceContainer a.w-full {
-            padding: 0.75rem 1.25rem !important;
             font-size: 1rem !important;
-            margin-top: 0.75rem !important;
-        }
-        
-        /* Frage-Container kompakter */
-        #practiceContainer > form > div.mb-2 {
-            padding: 1rem !important;
-            margin-bottom: 0.75rem !important;
-        }
-        
-        /* Antworten kompakter stapeln */
-        #practiceContainer .flex.flex-col.gap-1\.5 {
-            gap: 0.5rem !important;
         }
         
         /* Desktop Popup Styling - Oben rechts */
