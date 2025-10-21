@@ -182,20 +182,45 @@
             const dismissedTime = parseInt(localStorage.getItem('pwa_banner_dismissed_time') || '0');
             const daysSinceDismissal = (Date.now() - dismissedTime) / (1000 * 60 * 60 * 24);
 
+            // Debug: Check PWA capabilities
+            console.log('🔍 PWA Debug:', {
+                userAgent: navigator.userAgent,
+                standalone: window.matchMedia('(display-mode: standalone)').matches,
+                isMobile: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
+                hasBeforeInstallPrompt: 'onbeforeinstallprompt' in window,
+                pwaInstalled: pwaInstalled,
+                pwaDismissed: pwaDismissed
+            });
+
             // Listen for the beforeinstallprompt event
             window.addEventListener('beforeinstallprompt', (e) => {
+                console.log('✅ beforeinstallprompt event fired!');
                 e.preventDefault();
                 deferredPrompt = e;
                 
                 // Show banner if not installed and not recently dismissed (7 days)
                 if (!pwaInstalled && (!pwaDismissed || daysSinceDismissal > 7)) {
+                    console.log('📲 Showing install banner...');
                     setTimeout(() => {
                         if (installBanner) {
                             installBanner.classList.remove('translate-y-full');
                         }
                     }, 2000); // Show after 2 seconds
+                } else {
+                    console.log('⏸️ Banner not shown:', { pwaInstalled, pwaDismissed, daysSinceDismissal });
                 }
             });
+
+            // For iOS/Safari: Show manual install instructions
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            const isInStandaloneMode = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+            
+            if (isIOS && !isInStandaloneMode && !pwaInstalled) {
+                console.log('📱 iOS detected - showing manual install instructions');
+                setTimeout(() => {
+                    showIOSInstallInstructions();
+                }, 3000);
+            }
 
             // Install button click
             if (installBtn) {
@@ -377,6 +402,42 @@
             // Initial sync check
             if (navigator.onLine) {
                 setTimeout(syncPendingData, 3000);
+            }
+
+            /**
+             * Show iOS install instructions
+             */
+            function showIOSInstallInstructions() {
+                const banner = document.createElement('div');
+                banner.id = 'iosInstallBanner';
+                banner.className = 'fixed bottom-0 left-0 right-0 bg-blue-600 text-white shadow-2xl z-50 p-4 md:hidden';
+                banner.innerHTML = `
+                    <div class="max-w-lg mx-auto">
+                        <div class="flex items-start gap-3">
+                            <img src="{{ asset('logo-thwtrainer_w.png') }}" alt="THW Trainer" class="w-12 h-12 rounded-lg">
+                            <div class="flex-1">
+                                <h3 class="font-bold mb-1">THW Trainer als App installieren</h3>
+                                <p class="text-sm opacity-90 mb-2">
+                                    Tippe auf <span class="inline-flex items-center px-2 py-1 bg-white bg-opacity-20 rounded">
+                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/>
+                                        </svg>
+                                    </span> (Safari Menü) und dann auf 
+                                    <strong>"Zum Home-Bildschirm"</strong>
+                                </p>
+                            </div>
+                            <button onclick="this.parentElement.parentElement.parentElement.remove(); localStorage.setItem('ios_install_dismissed', 'true')" 
+                                    class="text-white hover:text-gray-200 text-xl">✕</button>
+                        </div>
+                    </div>
+                `;
+                
+                // Don't show if already dismissed
+                if (localStorage.getItem('ios_install_dismissed') === 'true') {
+                    return;
+                }
+                
+                document.body.appendChild(banner);
             }
 
             /**
