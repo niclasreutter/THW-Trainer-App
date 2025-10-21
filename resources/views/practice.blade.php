@@ -854,18 +854,22 @@
                         // Entferne animate-spin SOFORT
                         icon.classList.remove('animate-spin');
                         
-                        // KRITISCH: Setze Icon-Farbe und Fill SOFORT und DIREKT (wichtig für Mobile!)
+                        // AGGRESSIVE ICON UPDATE für Mobile - SVG komplett neu rendern
                         const targetColor = data.is_bookmarked ? '#eab308' : '#9ca3af';
                         const targetFill = data.is_bookmarked ? 'currentColor' : 'none';
+                        const iconSize = text ? 'w-4 h-4' : 'w-5 h-5';
                         
-                        // Setze fill und style Attribute DIREKT am SVG-Element
-                        icon.setAttribute('fill', targetFill);
-                        icon.setAttribute('stroke', 'currentColor');
-                        icon.style.setProperty('color', targetColor, 'important');
-                        icon.style.setProperty('stroke', targetColor, 'important');
+                        // Komplett neues SVG HTML erstellen (garantiert Update auf allen Geräten!)
+                        const newSvgHtml = `
+                            <svg class="${iconSize}" viewBox="0 0 20 20" stroke="${targetColor}" 
+                                 fill="${targetFill}" style="color: ${targetColor} !important; stroke: ${targetColor} !important;">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                      d="M5 5a2 2 0 012-2h6a2 2 0 012 2v10l-5-3-5 3V5z"></path>
+                            </svg>
+                        `;
                         
-                        // Force Repaint für Mobile Browser (kritisch!)
-                        void icon.offsetHeight;
+                        // Ersetze das Icon komplett durch neues HTML
+                        icon.outerHTML = newSvgHtml;
                         
                         // Update Text und Attribute
                         if (text) text.textContent = data.is_bookmarked ? 'Gespeichert' : 'Speichern';
@@ -904,7 +908,6 @@
                     // Reset Loading State
                     btn.disabled = false;
                     btn.classList.remove('opacity-50', 'cursor-not-allowed');
-                    icon.classList.remove('animate-spin');
                 });
             }
             
