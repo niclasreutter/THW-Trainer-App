@@ -870,11 +870,10 @@
                         if (isMobile) {
                             // Mobile: Nur Icon, komplett neu erstellen
                             btn.innerHTML = `
-                                <svg id="bookmarkIconMobile" class="w-5 h-5" viewBox="0 0 20 20" 
-                                     stroke="${targetColor}" fill="${targetFill}"
-                                     style="color: ${targetColor} !important; stroke: ${targetColor} !important; fill: ${targetFill} !important;">
-                                    <path stroke="${targetColor}" fill="${targetFill}"
-                                          stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                <svg id="bookmarkIconMobile" class="w-5 h-5" viewBox="0 0 20 20">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                          stroke="${targetColor}" fill="${targetFill}"
+                                          style="stroke: ${targetColor} !important; fill: ${targetFill} !important;"
                                           d="M5 5a2 2 0 012-2h6a2 2 0 012 2v10l-5-3-5 3V5z"></path>
                                 </svg>
                             `;
@@ -889,11 +888,10 @@
                         } else {
                             // Desktop: Icon + Text
                             btn.innerHTML = `
-                                <svg id="bookmarkIcon" class="w-4 h-4" viewBox="0 0 20 20" 
-                                     stroke="${targetColor}" fill="${targetFill}"
-                                     style="color: ${targetColor} !important; stroke: ${targetColor} !important; fill: ${targetFill} !important;">
-                                    <path stroke="${targetColor}" fill="${targetFill}"
-                                          stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                <svg id="bookmarkIcon" class="w-4 h-4" viewBox="0 0 20 20">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                          stroke="${targetColor}" fill="${targetFill}"
+                                          style="stroke: ${targetColor} !important; fill: ${targetFill} !important;"
                                           d="M5 5a2 2 0 012-2h6a2 2 0 012 2v10l-5-3-5 3V5z"></path>
                                 </svg>
                                 <span class="text-xs text-gray-600" id="bookmarkText">
