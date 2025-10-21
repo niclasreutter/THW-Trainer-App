@@ -4,7 +4,7 @@
 
 @push('styles')
 <style>
-    /* CACHE BUST - EXAM VIEW FIX - 2025-10-21-16:05 */
+    /* CACHE BUST - EXAM VIEW FIX - 2025-10-21-16:15 */
     
     /* Footer ausblenden */
     footer,
@@ -31,7 +31,6 @@
         max-width: 100% !important;
         width: 100% !important;
         background: white !important;
-        /* KEIN min-height mehr! */
     }
     
     /* Desktop: Container mit Schatten und Rundungen */
@@ -43,77 +42,6 @@
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
             max-width: 42rem !important;
         }
-    }
-    
-    /* Fragenübersicht Grid */
-    .question-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
-        gap: 0.5rem;
-        max-width: 100%;
-    }
-    
-    .question-bubble {
-        width: 40px;
-        height: 40px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 50%;
-        font-size: 0.875rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.2s;
-        border: 2px solid transparent;
-    }
-    
-    .question-bubble:hover {
-        transform: scale(1.1);
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-    
-    /* Status-Farben */
-    .question-bubble.answered {
-        background-color: #10b981;
-        color: white;
-        border-color: #059669;
-    }
-    
-    .question-bubble.open {
-        background-color: #e5e7eb;
-        color: #374151;
-        border-color: #d1d5db;
-    }
-    
-    .question-bubble.marked {
-        background-color: #fbbf24;
-        color: white;
-        border-color: #f59e0b;
-    }
-    
-    .question-bubble.current {
-        border-color: #3b82f6;
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
-    }
-    
-    /* Timer Styling */
-    .timer {
-        font-size: 1.5rem;
-        font-weight: bold;
-        padding: 0.5rem 1rem;
-        border-radius: 0.5rem;
-        background: linear-gradient(to right, #fef3c7, #fde68a);
-        box-shadow: 0 0 10px rgba(251, 191, 36, 0.4);
-    }
-    
-    .timer.warning {
-        background: linear-gradient(to right, #fee2e2, #fecaca);
-        animation: pulse 1s infinite;
-    }
-    
-    @keyframes pulse {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.8; }
     }
 </style>
 @endpush
@@ -237,12 +165,12 @@
                         </div>
                     </div>
                     
-                    <div class="question-grid grid grid-cols-4 gap-2">
+                    <div class="grid grid-cols-4 gap-2">
                         @for($i = 0; $i < 40; $i++)
                             <button type="button" 
                                     onclick="goToQuestion({{ $i }})"
                                     id="bubble-{{ $i }}"
-                                    class="question-bubble w-full h-10 flex items-center justify-center rounded-lg text-sm font-semibold cursor-pointer transition-all duration-200 hover:scale-105 {{ $i === 0 ? 'current' : 'open' }}"
+                                    class="question-bubble h-10 flex items-center justify-center rounded-lg text-sm font-semibold cursor-pointer transition-all duration-200 hover:scale-105 {{ $i === 0 ? 'current' : 'open' }}"
                                     style="background-color: #e5e7eb; color: #374151; border: 2px solid #d1d5db;">
                                 {{ $i + 1 }}
                             </button>
@@ -520,16 +448,119 @@
             
             <div class="text-center mb-4 text-sm text-gray-600">
                 {{ $correctCount }} von {{ $total }} richtig
-                <span class="ml-2 text-xs font-bold" style="color: {{ $percent }}%">{{ $percent }}% erreicht</span>
+                <span class="ml-2 text-xs font-bold">{{ $percent }}% erreicht</span>
             </div>
             
             <!-- Action Buttons -->
-            <div class="mt-6 flex flex-col gap-3">
+            <div class="mb-6 flex flex-col gap-3">
                 <a href="{{ route('dashboard') }}" 
                    class="inline-flex items-center justify-center px-6 py-3 font-bold rounded-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
                    style="background: linear-gradient(to right, #4b5563, #374151); color: white;">
                     🏠 Dashboard
                 </a>
+            </div>
+            
+            <!-- Fragenübersicht mit Auswertung -->
+            <div class="space-y-4">
+                <h3 class="text-lg font-bold text-gray-900 mb-4">📋 Detaillierte Auswertung</h3>
+                
+                @foreach($results as $index => $result)
+                    @php
+                        $frage = $result['frage'];
+                        $userAnswer = $result['userAnswer'];
+                        $solution = $result['solution'];
+                        $isCorrect = $result['isCorrect'];
+                    @endphp
+                    
+                    <div class="border-2 rounded-lg p-4 {{ $isCorrect ? 'border-green-300 bg-green-50' : 'border-red-300 bg-red-50' }}">
+                        <!-- Fragen-Header -->
+                        <div class="flex items-start justify-between mb-3">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="text-2xl">{{ $isCorrect ? '✅' : '❌' }}</span>
+                                    <span class="text-xs font-semibold {{ $isCorrect ? 'text-green-700' : 'text-red-700' }}">
+                                        Frage {{ $index + 1 }} von 40
+                                    </span>
+                                    <span class="text-xs text-gray-500">
+                                        • LA {{ $frage->lernabschnitt ?? '-' }}.{{ $frage->nummer ?? '-' }}
+                                    </span>
+                                </div>
+                                <h4 class="text-sm font-bold text-gray-900">{{ $frage->frage }}</h4>
+                            </div>
+                        </div>
+                        
+                        <!-- Antwortoptionen -->
+                        <div class="space-y-2">
+                            @foreach(['A', 'B', 'C'] as $option)
+                                @php
+                                    $isUserAnswer = $userAnswer->contains($option);
+                                    $isSolution = $solution->contains($option);
+                                    
+                                    // Farbe bestimmen
+                                    if ($isSolution && $isUserAnswer) {
+                                        // Richtig ausgewählt
+                                        $bgColor = 'bg-green-100';
+                                        $borderColor = 'border-green-400';
+                                        $textColor = 'text-green-900';
+                                        $icon = '✓';
+                                    } elseif ($isSolution && !$isUserAnswer) {
+                                        // Nicht ausgewählt aber richtig
+                                        $bgColor = 'bg-green-50';
+                                        $borderColor = 'border-green-300';
+                                        $textColor = 'text-green-800';
+                                        $icon = '✓';
+                                    } elseif (!$isSolution && $isUserAnswer) {
+                                        // Falsch ausgewählt
+                                        $bgColor = 'bg-red-100';
+                                        $borderColor = 'border-red-400';
+                                        $textColor = 'text-red-900';
+                                        $icon = '✗';
+                                    } else {
+                                        // Nicht relevant
+                                        $bgColor = 'bg-gray-50';
+                                        $borderColor = 'border-gray-200';
+                                        $textColor = 'text-gray-700';
+                                        $icon = '';
+                                    }
+                                @endphp
+                                
+                                <div class="flex items-start p-3 rounded-lg border-2 {{ $bgColor }} {{ $borderColor }}">
+                                    <div class="flex items-center min-w-0 flex-1">
+                                        @if($isUserAnswer)
+                                            <span class="w-5 h-5 mr-3 flex-shrink-0 text-lg">{{ $icon }}</span>
+                                        @else
+                                            <span class="w-5 h-5 mr-3 flex-shrink-0"></span>
+                                        @endif
+                                        <span class="text-sm {{ $textColor }}">
+                                            <span class="font-bold">{{ $option }}:</span> {{ $frage['antwort_'.strtolower($option)] }}
+                                        </span>
+                                    </div>
+                                    @if($isSolution && !$isUserAnswer)
+                                        <span class="ml-2 text-xs font-semibold text-green-700 bg-green-200 px-2 py-1 rounded flex-shrink-0">
+                                            Richtig
+                                        </span>
+                                    @endif
+                                </div>
+                            @endforeach
+                        </div>
+                        
+                        <!-- Zusammenfassung -->
+                        <div class="mt-3 pt-3 border-t {{ $isCorrect ? 'border-green-200' : 'border-red-200' }}">
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="{{ $isCorrect ? 'text-green-700' : 'text-red-700' }} font-medium">
+                                    @if($isCorrect)
+                                        ✓ Richtig beantwortet
+                                    @else
+                                        ✗ Falsch beantwortet
+                                    @endif
+                                </span>
+                                <span class="text-gray-600">
+                                    Lösung: {{ $solution->join(', ') }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
             </div>
         </div>
     @endif
