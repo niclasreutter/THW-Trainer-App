@@ -97,6 +97,14 @@ Route::post('/dashboard/dismiss-email-consent-banner', function () {
     return response()->json(['success' => true]);
 })->middleware('auth')->name('dashboard.dismiss-email-consent-banner');
 
+// Push Notification Routes
+Route::middleware('auth')->prefix('push')->name('push.')->group(function () {
+    Route::get('/vapid-public-key', [\App\Http\Controllers\PushNotificationController::class, 'getPublicKey'])->name('vapid-key');
+    Route::post('/subscribe', [\App\Http\Controllers\PushNotificationController::class, 'subscribe'])->name('subscribe');
+    Route::post('/unsubscribe', [\App\Http\Controllers\PushNotificationController::class, 'unsubscribe'])->name('unsubscribe');
+    Route::post('/test', [\App\Http\Controllers\PushNotificationController::class, 'sendTest'])->name('test');
+});
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', function() {
         $user = auth()->user()->fresh(); // Fresh reload from database

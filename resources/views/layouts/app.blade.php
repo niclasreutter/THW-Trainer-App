@@ -57,8 +57,16 @@
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
+        <!-- PWA Manifest -->
+        <link rel="manifest" href="{{ asset('manifest.json') }}">
+
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+        
+        <!-- Push Notifications (only for authenticated users) -->
+        @auth
+        <script src="{{ asset('js/push-notifications.js') }}" defer></script>
+        @endauth
     </head>
     <body class="font-sans antialiased bg-[#FDFDFC]">
     <div class="min-h-screen">
