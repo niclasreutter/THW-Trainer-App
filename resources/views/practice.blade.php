@@ -810,20 +810,17 @@
                 
                 const isBookmarked = btn.getAttribute('data-bookmarked') === 'true';
                 
+                // Finde das path-Element im SVG
+                const pathElement = icon.querySelector('path');
+                if (!pathElement) return;
+                
                 if (isBookmarked) {
-                    // DIREKTE FARBE statt currentColor!
-                    icon.style.setProperty('color', '#eab308', 'important'); // yellow-500
-                    icon.style.setProperty('stroke', '#eab308', 'important');
-                    icon.style.setProperty('fill', '#eab308', 'important');
-                    icon.setAttribute('stroke', '#eab308');
-                    icon.setAttribute('fill', '#eab308');
+                    pathElement.style.stroke = '#eab308';
+                    pathElement.style.fill = '#eab308';
                     if (text) text.textContent = 'Gespeichert';
                 } else {
-                    icon.style.setProperty('color', '#9ca3af', 'important'); // gray-400
-                    icon.style.setProperty('stroke', '#9ca3af', 'important');
-                    icon.style.setProperty('fill', 'none', 'important');
-                    icon.setAttribute('stroke', '#9ca3af');
-                    icon.setAttribute('fill', 'none');
+                    pathElement.style.stroke = '#9ca3af';
+                    pathElement.style.fill = 'none';
                     if (text) text.textContent = 'Speichern';
                 }
             }
