@@ -4,22 +4,23 @@
 
 @push('styles')
 <style>
-    /* CACHE BUST - EXAM VIEW FIX - 2025-10-21-16:15 */
+    /* CACHE BUST - EXAM VIEW WITH STICKY FOOTER - 2025-10-21-18:00 */
     
-    /* Footer ausblenden */
-    footer,
-    footer *,
-    .footer,
-    [role="contentinfo"] {
-        display: none !important;
-        visibility: hidden !important;
-        height: 0 !important;
-        max-height: 0 !important;
-        overflow: hidden !important;
-        opacity: 0 !important;
-        pointer-events: none !important;
-        position: absolute !important;
-        left: -9999px !important;
+    /* Sticky Footer Layout für Exam */
+    body {
+        display: flex !important;
+        flex-direction: column !important;
+        min-height: 100vh !important;
+    }
+    
+    main {
+        flex: 1 0 auto !important;
+        padding-top: 1rem !important;
+        padding-bottom: 1rem !important;
+    }
+    
+    footer {
+        flex-shrink: 0 !important;
     }
     
     /* Exam Container - kompakt ohne unnötige Höhe */
