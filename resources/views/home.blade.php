@@ -111,6 +111,34 @@
                     </p>
                 </div>
             </div>
+            
+            <!-- PWA Feature Highlight -->
+            <div class="mt-12 bg-gradient-to-r from-blue-50 to-purple-50 p-6 lg:p-8 rounded-xl border-2 border-blue-200 shadow-lg">
+                <div class="flex items-center justify-center gap-3 mb-4">
+                    <span class="text-4xl">📲</span>
+                    <h3 class="text-xl lg:text-2xl font-bold text-gray-900">Als App installierbar!</h3>
+                </div>
+                <p class="text-center text-base lg:text-lg text-gray-700 mb-6 max-w-3xl mx-auto">
+                    Installiere THW Trainer als App auf deinem Smartphone oder Tablet für noch schnelleren Zugriff – funktioniert auch offline!
+                </p>
+                <div class="grid sm:grid-cols-3 gap-4 lg:gap-6 text-center">
+                    <div class="bg-white p-4 lg:p-6 rounded-lg shadow-md">
+                        <span class="block text-3xl lg:text-4xl mb-2">⚡</span>
+                        <span class="font-semibold text-gray-800 text-sm lg:text-base">Schneller Start</span>
+                        <p class="text-xs lg:text-sm text-gray-600 mt-1">Direkter Zugriff vom Homescreen</p>
+                    </div>
+                    <div class="bg-white p-4 lg:p-6 rounded-lg shadow-md">
+                        <span class="block text-3xl lg:text-4xl mb-2">📴</span>
+                        <span class="font-semibold text-gray-800 text-sm lg:text-base">Offline nutzbar</span>
+                        <p class="text-xs lg:text-sm text-gray-600 mt-1">Üben ohne Internetverbindung</p>
+                    </div>
+                    <div class="bg-white p-4 lg:p-6 rounded-lg shadow-md">
+                        <span class="block text-3xl lg:text-4xl mb-2">🏠</span>
+                        <span class="font-semibold text-gray-800 text-sm lg:text-base">Auf Homescreen</span>
+                        <p class="text-xs lg:text-sm text-gray-600 mt-1">Wie eine echte App nutzen</p>
+                    </div>
+                </div>
+            </div>
             </div>
         </div>
     </div>
