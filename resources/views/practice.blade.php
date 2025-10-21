@@ -457,11 +457,10 @@
             <button type="button" class="p-2 hover:bg-gray-100 rounded-lg" id="bookmarkBtnMobile"
                     data-bookmarked="{{ $isBookmarked ? 'true' : 'false' }}"
                     onclick="toggleBookmark({{ $question->id }}, {{ $isBookmarked ? 'true' : 'false' }})">
-                <svg class="w-5 h-5" viewBox="0 0 20 20" id="bookmarkIconMobile" 
-                     stroke="{{ $isBookmarked ? '#eab308' : '#9ca3af' }}"
-                     fill="{{ $isBookmarked ? '#eab308' : 'none' }}"
-                     style="color: {{ $isBookmarked ? '#eab308' : '#9ca3af' }} !important; stroke: {{ $isBookmarked ? '#eab308' : '#9ca3af' }} !important; fill: {{ $isBookmarked ? '#eab308' : 'none' }} !important;">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h6a2 2 0 012 2v10l-5-3-5 3V5z"></path>
+                <svg class="w-5 h-5" viewBox="0 0 20 20" id="bookmarkIconMobile">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M5 5a2 2 0 012-2h6a2 2 0 012 2v10l-5-3-5 3V5z"
+                          style="stroke: {{ $isBookmarked ? '#eab308' : '#9ca3af' }}; fill: {{ $isBookmarked ? '#eab308' : 'none' }};"></path>
                 </svg>
             </button>
         </div>
@@ -520,12 +519,10 @@
                     id="bookmarkBtn"
                     data-bookmarked="{{ $isBookmarked ? 'true' : 'false' }}"
                     onclick="toggleBookmark({{ $question->id }}, {{ $isBookmarked ? 'true' : 'false' }})">
-                <svg class="w-4 h-4" viewBox="0 0 20 20" id="bookmarkIcon"
-                     stroke="{{ $isBookmarked ? '#eab308' : '#9ca3af' }}"
-                     fill="{{ $isBookmarked ? '#eab308' : 'none' }}"
-                     style="color: {{ $isBookmarked ? '#eab308' : '#9ca3af' }} !important; stroke: {{ $isBookmarked ? '#eab308' : '#9ca3af' }} !important; fill: {{ $isBookmarked ? '#eab308' : 'none' }} !important;">
+                <svg class="w-4 h-4" viewBox="0 0 20 20" id="bookmarkIcon">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                          d="M5 5a2 2 0 012-2h6a2 2 0 012 2v10l-5-3-5 3V5z"></path>
+                          d="M5 5a2 2 0 012-2h6a2 2 0 012 2v10l-5-3-5 3V5z"
+                          style="stroke: {{ $isBookmarked ? '#eab308' : '#9ca3af' }}; fill: {{ $isBookmarked ? '#eab308' : 'none' }};"></path>
                 </svg>
                 <span class="text-xs text-gray-600" id="bookmarkText">
                     {{ $isBookmarked ? 'Gespeichert' : 'Speichern' }}
@@ -869,14 +866,22 @@
                         
                         if (isMobile) {
                             // Mobile: Nur Icon, komplett neu erstellen
-                            btn.innerHTML = `
-                                <svg id="bookmarkIconMobile" class="w-5 h-5" viewBox="0 0 20 20">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                                          stroke="${targetColor}" fill="${targetFill}"
-                                          style="stroke: ${targetColor} !important; fill: ${targetFill} !important;"
-                                          d="M5 5a2 2 0 012-2h6a2 2 0 012 2v10l-5-3-5 3V5z"></path>
-                                </svg>
-                            `;
+                            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                            svg.setAttribute('id', 'bookmarkIconMobile');
+                            svg.setAttribute('class', 'w-5 h-5');
+                            svg.setAttribute('viewBox', '0 0 20 20');
+                            
+                            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                            path.setAttribute('stroke-linecap', 'round');
+                            path.setAttribute('stroke-linejoin', 'round');
+                            path.setAttribute('stroke-width', '2');
+                            path.setAttribute('d', 'M5 5a2 2 0 012-2h6a2 2 0 012 2v10l-5-3-5 3V5z');
+                            path.style.stroke = targetColor;
+                            path.style.fill = targetFill;
+                            
+                            svg.appendChild(path);
+                            btn.innerHTML = '';
+                            btn.appendChild(svg);
                             
                             // Mobile Feedback mit Hintergrundfarbe
                             btn.style.backgroundColor = data.is_bookmarked ? '#fef3c7' : '#f3f4f6';
@@ -887,17 +892,29 @@
                             }, 1000);
                         } else {
                             // Desktop: Icon + Text
-                            btn.innerHTML = `
-                                <svg id="bookmarkIcon" class="w-4 h-4" viewBox="0 0 20 20">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                          stroke="${targetColor}" fill="${targetFill}"
-                                          style="stroke: ${targetColor} !important; fill: ${targetFill} !important;"
-                                          d="M5 5a2 2 0 012-2h6a2 2 0 012 2v10l-5-3-5 3V5z"></path>
-                                </svg>
-                                <span class="text-xs text-gray-600" id="bookmarkText">
-                                    ${data.is_bookmarked ? 'Gespeichert' : 'Speichern'}
-                                </span>
-                            `;
+                            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                            svg.setAttribute('id', 'bookmarkIcon');
+                            svg.setAttribute('class', 'w-4 h-4');
+                            svg.setAttribute('viewBox', '0 0 20 20');
+                            
+                            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                            path.setAttribute('stroke-linecap', 'round');
+                            path.setAttribute('stroke-linejoin', 'round');
+                            path.setAttribute('stroke-width', '2');
+                            path.setAttribute('d', 'M5 5a2 2 0 012-2h6a2 2 0 012 2v10l-5-3-5 3V5z');
+                            path.style.stroke = targetColor;
+                            path.style.fill = targetFill;
+                            
+                            svg.appendChild(path);
+                            
+                            const span = document.createElement('span');
+                            span.setAttribute('class', 'text-xs text-gray-600');
+                            span.setAttribute('id', 'bookmarkText');
+                            span.textContent = data.is_bookmarked ? 'Gespeichert' : 'Speichern';
+                            
+                            btn.innerHTML = '';
+                            btn.appendChild(svg);
+                            btn.appendChild(span);
                             
                             // Desktop Feedback
                             const textEl = document.getElementById('bookmarkText');
