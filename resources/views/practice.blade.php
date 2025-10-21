@@ -828,9 +828,19 @@
             // Bookmark AJAX Function (unterstützt beide Buttons: Mobile & Desktop)
             function toggleBookmark(questionId, currentlyBookmarked) {
                 console.log('[BOOKMARK] Toggle started', {questionId, currentlyBookmarked});
-                const btn = document.getElementById('bookmarkBtn') || document.getElementById('bookmarkBtnMobile');
-                const isMobile = !document.getElementById('bookmarkText');
-                console.log('[BOOKMARK] Is Mobile:', isMobile);
+                
+                // Bessere Mobile-Erkennung: Prüfe welcher Button existiert
+                const btnMobile = document.getElementById('bookmarkBtnMobile');
+                const btnDesktop = document.getElementById('bookmarkBtn');
+                const isMobile = !!btnMobile && window.getComputedStyle(btnMobile).display !== 'none';
+                const btn = isMobile ? btnMobile : btnDesktop;
+                
+                console.log('[BOOKMARK] Is Mobile:', isMobile, 'Button:', btn ? btn.id : 'none');
+                
+                if (!btn) {
+                    console.error('[BOOKMARK] No button found!');
+                    return;
+                }
                 
                 const formData = new FormData();
                 formData.append('question_id', questionId);
