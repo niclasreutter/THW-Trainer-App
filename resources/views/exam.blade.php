@@ -4,9 +4,9 @@
 
 @push('styles')
 <style>
-    /* CACHE BUST - EXAM VIEW FIX - 2025-10-21-16:00 */
+    /* CACHE BUST - EXAM VIEW FIX - 2025-10-21-16:05 */
     
-    /* Footer und Navigation ausblenden - HÖCHSTE PRIORITÄT */
+    /* Footer ausblenden */
     footer,
     footer *,
     .footer,
@@ -22,75 +22,26 @@
         left: -9999px !important;
     }
     
-    nav,
-    nav *,
-    header nav,
-    [role="navigation"] {
-        display: none !important;
-        visibility: hidden !important;
-        height: 0 !important;
-        max-height: 0 !important;
-        overflow: hidden !important;
-        opacity: 0 !important;
-        pointer-events: none !important;
-        position: absolute !important;
-        left: -9999px !important;
-    }
-    
-    /* Body auf Vollbild */
-    body {
-        overflow: hidden !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        height: 100vh !important;
-    }
-    
-    /* Wrapper div entfernen falls vorhanden */
-    body > div.min-h-screen {
-        min-height: 100vh !important;
-        height: 100vh !important;
-    }
-    
-    /* Main Container auf volle Höhe mit Scroll */
-    main {
-        height: 100vh !important;
-        max-height: 100vh !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        overflow-y: auto !important;
-        overflow-x: hidden !important;
-        -webkit-overflow-scrolling: touch !important;
-        position: relative !important;
-    }
-    
-    /* Exam Container - Mobile First */
+    /* Exam Container - kompakt ohne unnötige Höhe */
     #examContainer {
-        margin: 0 !important;
-        margin-top: 0 !important;
-        margin-bottom: 0 !important;
+        margin: 0 auto !important;
         padding: 0.75rem !important;
         border-radius: 0 !important;
         box-shadow: none !important;
         max-width: 100% !important;
         width: 100% !important;
-        min-height: 100vh !important;
         background: white !important;
+        /* KEIN min-height mehr! */
     }
     
     /* Desktop: Container mit Schatten und Rundungen */
     @media (min-width: 641px) {
-        main {
-            padding-top: 1rem !important;
-            padding-bottom: 1rem !important;
-        }
-        
         #examContainer {
             margin: 1rem auto !important;
             padding: 1rem !important;
             border-radius: 0.5rem !important;
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
             max-width: 42rem !important;
-            min-height: auto !important;
         }
     }
     
@@ -286,12 +237,12 @@
                         </div>
                     </div>
                     
-                    <div class="question-grid grid grid-cols-10 gap-2">
+                    <div class="question-grid grid grid-cols-4 gap-2">
                         @for($i = 0; $i < 40; $i++)
                             <button type="button" 
                                     onclick="goToQuestion({{ $i }})"
                                     id="bubble-{{ $i }}"
-                                    class="question-bubble w-8 h-8 flex items-center justify-center rounded-full text-xs font-semibold cursor-pointer transition-all duration-200 hover:scale-110 {{ $i === 0 ? 'current' : 'open' }}"
+                                    class="question-bubble w-full h-10 flex items-center justify-center rounded-lg text-sm font-semibold cursor-pointer transition-all duration-200 hover:scale-105 {{ $i === 0 ? 'current' : 'open' }}"
                                     style="background-color: #e5e7eb; color: #374151; border: 2px solid #d1d5db;">
                                 {{ $i + 1 }}
                             </button>
@@ -465,7 +416,14 @@
                 const markedCount = marked.filter(m => m).length;
                 const answeredCount = answers.filter(a => a).length;
                 
-                let message = `<div class="text-center p-6">`;
+                // Verstecke alle Fragen
+                document.querySelectorAll('.question-slide').forEach(slide => {
+                    slide.style.display = 'none';
+                });
+                
+                // Erstelle Übersicht in einem neuen Slide
+                let message = `<div class="question-slide" id="submit-overview" style="display: block;">`;
+                message += `<div class="text-center p-6">`;
                 message += `<h2 class="text-xl font-bold mb-4">Prüfung abschließen?</h2>`;
                 message += `<div class="mb-6">`;
                 message += `<p class="text-base mb-2"><strong>${answeredCount} von 40</strong> Fragen beantwortet</p>`;
@@ -481,16 +439,38 @@
                 
                 message += `</div>`;
                 message += `<div class="flex flex-col gap-3">`;
-                message += `<button type="button" onclick="showQuestion(currentQuestion)" class="w-full px-4 py-3 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300">⬅️ Zurück zur Prüfung</button>`;
-                message += `<button type="button" onclick="submitExam()" class="w-full px-4 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700">✓ Prüfung abgeben</button>`;
+                message += `<button type="button" onclick="backToPrüfung()" class="w-full px-4 py-3 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300">⬅️ Zurück zur Prüfung</button>`;
+                message += `<button type="button" onclick="confirmSubmit()" class="w-full px-4 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700">✓ Prüfung abgeben</button>`;
+                message += `</div>`;
                 message += `</div>`;
                 message += `</div>`;
                 
-                document.getElementById('examContainer').innerHTML = message;
+                // Füge Übersicht zum Form hinzu (nicht ersetzen!)
+                const form = document.getElementById('exam-form');
+                const existingOverview = document.getElementById('submit-overview');
+                if (existingOverview) {
+                    existingOverview.remove();
+                }
+                form.insertAdjacentHTML('beforeend', message);
+                
+                // Verstecke Navigation
+                document.querySelector('.border-t.pt-3').style.display = 'none';
             }
             
-            // Prüfung abgeben
-            function submitExam() {
+            // Zurück zur Prüfung
+            function backToPrüfung() {
+                const overview = document.getElementById('submit-overview');
+                if (overview) {
+                    overview.remove();
+                }
+                // Zeige Navigation wieder
+                document.querySelector('.border-t.pt-3').style.display = 'block';
+                // Zeige letzte Frage
+                showQuestion(currentQuestion);
+            }
+            
+            // Prüfung bestätigen und abgeben
+            function confirmSubmit() {
                 document.getElementById('exam-form').submit();
             }
             
