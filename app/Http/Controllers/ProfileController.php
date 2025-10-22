@@ -103,6 +103,29 @@ class ProfileController extends Controller
     }
 
     /**
+     * Dismiss the leaderboard banner and optionally opt-in.
+     */
+    public function dismissLeaderboardBanner(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'accept' => ['boolean'],
+        ]);
+
+        $user = $request->user();
+        $user->leaderboard_banner_dismissed = true;
+        
+        // Wenn der Nutzer zugestimmt hat
+        if ($request->boolean('accept')) {
+            $user->leaderboard_consent = true;
+            $user->leaderboard_consent_at = now();
+        }
+        
+        $user->save();
+
+        return Redirect::route('dashboard')->with('status', 'leaderboard-banner-dismissed');
+    }
+
+    /**
      * Delete the user's account.
      */
     public function destroy(Request $request): RedirectResponse

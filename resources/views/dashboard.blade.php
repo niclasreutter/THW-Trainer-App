@@ -65,6 +65,73 @@
             </div>
         @endif
 
+        <!-- Leaderboard Ankündigung Banner (nur wenn nicht dismissed und nicht zugestimmt) -->
+        @if(!$user->leaderboard_banner_dismissed && !$user->leaderboard_consent)
+            <div id="leaderboard-banner" class="mb-6" style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); border: 3px solid #d97706; border-radius: 16px; padding: 20px; box-shadow: 0 8px 32px rgba(251, 191, 36, 0.4), 0 0 40px rgba(251, 191, 36, 0.2); position: relative; overflow: hidden;">
+                <!-- Decorative Background -->
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 120px; opacity: 0.1; transform: rotate(-15deg); display: none;" class="hidden md:block">🏆</div>
+                
+                <div class="flex flex-col md:flex-row items-start md:items-center gap-4">
+                    <div class="flex-shrink-0 hidden md:block">
+                        <div style="background: rgba(255, 255, 255, 0.2); border-radius: 50%; padding: 16px; backdrop-filter: blur(10px);">
+                            <svg style="width: 48px; height: 48px; color: white;" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    
+                    <div class="flex-1">
+                        <h3 class="text-xl md:text-2xl font-bold text-white mb-2">🎉 Neu: Öffentliches Leaderboard!</h3>
+                        <p class="text-white text-sm md:text-base mb-3" style="text-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                            Messe dich jetzt mit anderen THW-Lernenden! Zeige deine Erfolge und motiviere andere. 
+                            Dein Name, deine Punkte und Position werden im Leaderboard angezeigt.
+                        </p>
+                        <p class="text-xs md:text-sm text-white opacity-90 mb-4">
+                            ℹ️ Du kannst diese Einstellung jederzeit in deinem Profil ändern.
+                        </p>
+                        
+                        <div class="flex flex-col sm:flex-row flex-wrap gap-2 sm:gap-3">
+                            <form action="{{ route('profile.dismiss.leaderboard.banner') }}" method="POST" style="width: 100%;" class="sm:w-auto">
+                                @csrf
+                                <input type="hidden" name="accept" value="1">
+                                <button type="submit" 
+                                        class="w-full sm:w-auto"
+                                        style="background: white; color: #d97706; font-weight: 700; padding: 12px 24px; border-radius: 12px; border: none; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.2);"
+                                        onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(0,0,0,0.3)';"
+                                        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(0,0,0,0.2)';">
+                                    ✅ Ja, ich möchte teilnehmen!
+                                </button>
+                            </form>
+                            
+                            <form action="{{ route('profile.dismiss.leaderboard.banner') }}" method="POST" style="width: 100%;" class="sm:w-auto">
+                                @csrf
+                                <input type="hidden" name="accept" value="0">
+                                <button type="submit" 
+                                        class="w-full sm:w-auto"
+                                        style="background: rgba(255,255,255,0.2); color: white; font-weight: 600; padding: 12px 20px; border-radius: 12px; border: 2px solid rgba(255,255,255,0.5); cursor: pointer; transition: all 0.3s ease; backdrop-filter: blur(10px);"
+                                        onmouseover="this.style.background='rgba(255,255,255,0.3)';"
+                                        onmouseout="this.style.background='rgba(255,255,255,0.2)';">
+                                    ❌ Nein, danke
+                                </button>
+                            </form>
+                            
+                            <a href="{{ route('datenschutz') }}" 
+                               target="_blank"
+                               class="w-full sm:w-auto text-center"
+                               style="background: rgba(255,255,255,0.15); color: white; font-weight: 500; padding: 12px 16px; border-radius: 12px; border: 2px solid rgba(255,255,255,0.3); cursor: pointer; transition: all 0.3s ease; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 4px;"
+                               onmouseover="this.style.background='rgba(255,255,255,0.25)';"
+                               onmouseout="this.style.background='rgba(255,255,255,0.15)';">
+                                <svg style="width: 16px; height: 16px;" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                                </svg>
+                                Datenschutz
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
+
         <!-- Willkommen Sektion -->
         <div class="mb-12 bg-white rounded-lg shadow-md p-6">
             <h2 class="text-xl font-semibold text-blue-800 mb-4">👋 Willkommen {{ Auth::user()->name }}!</h2>

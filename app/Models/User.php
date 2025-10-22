@@ -23,13 +23,16 @@ class User extends Authenticatable implements MustVerifyEmail
         'name',
         'email',
         'password',
-        'deletion_warning_sent_at',
+        'is_admin',
+        'solved_questions',
+        'wrong_answers',
+        'exam_passed_count',
+        'last_activity_at',
         'email_consent',
         'email_consent_at',
         'leaderboard_consent',
         'leaderboard_consent_at',
-        'weekly_points',
-        'weekly_reset_at',
+        'leaderboard_banner_dismissed',
     ];
 
     /**
