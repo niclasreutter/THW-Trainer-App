@@ -48,8 +48,11 @@
                         <li>Prüfungsergebnisse und -zeiten</li>
                         <li>Falsch beantwortete Fragen für gezieltes Üben</li>
                         <li>Anzahl bestandener Prüfungen</li>
+                        <li>Gesammelte Punkte, erreichte Level und Achievements</li>
+                        <li>Lernsträhnen (aufeinanderfolgende Lerntage)</li>
+                        <li>Lesezeichen und als schwierig markierte Fragen</li>
                     </ul>
-                    <p class="mb-4">Diese Daten dienen ausschließlich der Verbesserung Ihres Lernerfolgs und werden nicht an Dritte weitergegeben.</p>
+                    <p class="mb-4">Diese Daten dienen ausschließlich der Verbesserung Ihres Lernerfolgs und werden nicht an Dritte weitergegeben. Die Punktzahlen und Rankings sind nur für Sie sichtbar, es sei denn, Sie stimmen der Teilnahme am öffentlichen Leaderboard zu (siehe 3.4).</p>
                     
                     <h3 class="text-lg font-medium text-gray-800 mb-2">3.3 E-Mail-Benachrichtigungen (Opt-In)</h3>
                     <p class="mb-4">Sie können freiwillig der Zusendung von E-Mail-Benachrichtigungen zustimmen. Diese umfassen:</p>
@@ -60,6 +63,17 @@
                         <li>Erinnerungen bei längerer Inaktivität (optional)</li>
                     </ul>
                     <p class="mb-4">Die Verarbeitung erfolgt auf Grundlage Ihrer Einwilligung (Art. 6 Abs. 1 lit. a DSGVO). Sie können diese Einwilligung jederzeit in Ihren Profileinstellungen widerrufen.</p>
+                    
+                    <h3 class="text-lg font-medium text-gray-800 mb-2">3.4 Öffentliches Leaderboard (Opt-In)</h3>
+                    <p class="mb-4">Sie können freiwillig der Teilnahme am öffentlichen Leaderboard zustimmen. Bei Zustimmung werden folgende Daten für andere registrierte Nutzer sichtbar:</p>
+                    <ul class="list-disc ml-8 pl-2 mb-4 space-y-1">
+                        <li>Ihr Benutzername (Vor- und Nachname)</li>
+                        <li>Ihre Gesamtpunktzahl</li>
+                        <li>Ihre wöchentliche Punktzahl</li>
+                        <li>Ihre Position im Ranking</li>
+                    </ul>
+                    <p class="mb-4">Die Verarbeitung erfolgt auf Grundlage Ihrer Einwilligung (Art. 6 Abs. 1 lit. a DSGVO). Sie können diese Einwilligung jederzeit in Ihren Profileinstellungen widerrufen. Nach dem Widerruf werden Ihre Daten sofort aus dem öffentlichen Leaderboard entfernt.</p>
+                    <p class="mb-4"><strong>Wichtig:</strong> Nur Nutzer, die aktiv zugestimmt haben, erscheinen im Leaderboard. Die Teilnahme ist vollständig freiwillig und kann bei der Registrierung oder später im Profil aktiviert/deaktiviert werden.</p>
                 </div>
             </section>
 
@@ -147,7 +161,8 @@
             </section>
 
             <div class="mt-8 pt-6 border-t border-gray-200">
-                <p class="text-sm text-gray-600">Stand: Oktober 2025</p>
+                <p class="text-sm text-gray-600">Stand: 22. Oktober 2025</p>
+                <p class="text-xs text-gray-500 mt-2">Letzte Änderung: Hinzufügung des öffentlichen Leaderboards (Opt-In)</p>
             </div>
         </div>
     </div>

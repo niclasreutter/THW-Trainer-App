@@ -197,24 +197,17 @@ SET leaderboard_consent = 1,
 - ✅ Art. 17 DSGVO: Recht auf Vergessenwerden (Opt-Out jederzeit möglich)
 
 ### Datenschutzerklärung anpassen
-Folgende Punkte sollten in der Datenschutzerklärung aufgenommen werden:
+✅ **Wurde bereits in die Datenschutzerklärung aufgenommen!**
 
-```
-**Leaderboard-Funktion**
+Die Datenschutzerklärung (`resources/views/datenschutz.blade.php`) wurde aktualisiert mit:
 
-Wenn Sie der Teilnahme am öffentlichen Leaderboard zustimmen, werden folgende Daten 
-für andere registrierte Nutzer sichtbar:
-- Ihr Benutzername
-- Ihre Gesamtpunktzahl
-- Ihre wöchentliche Punktzahl
-- Ihre Position im Ranking
+**Abschnitt 3.4 - Öffentliches Leaderboard (Opt-In):**
+- Erklärung welche Daten sichtbar werden (Name, Punkte, Position)
+- Hinweis auf Freiwilligkeit und jederzeitigen Widerruf
+- Rechtsgrundlage: Art. 6 Abs. 1 lit. a DSGVO (Einwilligung)
+- Betonung: Nur bei aktiver Zustimmung sichtbar
 
-Sie können diese Einwilligung jederzeit in Ihrem Profil unter 
-"Leaderboard-Teilnahme" widerrufen. Nach dem Widerruf werden Ihre Daten 
-sofort aus dem öffentlichen Leaderboard entfernt.
-
-Rechtsgrundlage: Art. 6 Abs. 1 lit. a DSGVO (Einwilligung)
-```
+**Aktualisiert am:** 22. Oktober 2025
 
 ## Support & Troubleshooting
 
