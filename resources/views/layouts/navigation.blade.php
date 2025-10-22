@@ -185,20 +185,23 @@
                         </span>
                         <div class="absolute -bottom-1 left-0 w-0 h-0.5 bg-yellow-400 transition-all duration-200 group-hover:w-full"></div>
                     </button>
-                    <div id="userDropdown" class="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl z-50 hidden border border-gray-200">
+                    <div id="userDropdown" class="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-xl z-50 hidden border border-gray-200">
                         <!-- Gamification Stats im Dropdown -->
                         <div class="px-4 py-3 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-purple-50">
-                            <div class="text-xs font-semibold text-gray-600 mb-3 text-center">Deine Stats</div>
-                            <div class="flex flex-col items-center space-y-2">
-                                <div class="flex items-center justify-center bg-yellow-500 rounded-full px-4 py-2 text-sm font-medium text-white w-full">
-                                    ⭐ Level {{ Auth::user()->level ?? 1 }}
+                            <div class="text-xs font-semibold text-gray-600 mb-2">Deine Stats</div>
+                            <div class="space-y-1.5">
+                                <div class="flex items-center justify-between bg-yellow-500/10 rounded-lg px-3 py-1.5">
+                                    <span class="text-sm font-medium text-gray-700">⭐ Level</span>
+                                    <span class="text-sm font-bold text-yellow-600">{{ Auth::user()->level ?? 1 }}</span>
                                 </div>
-                                <div class="flex items-center justify-center bg-green-500 rounded-full px-4 py-2 text-sm font-medium text-white w-full">
-                                    💎 {{ number_format(Auth::user()->points ?? 0) }} Punkte
+                                <div class="flex items-center justify-between bg-green-500/10 rounded-lg px-3 py-1.5">
+                                    <span class="text-sm font-medium text-gray-700">💎 Punkte</span>
+                                    <span class="text-sm font-bold text-green-600">{{ number_format(Auth::user()->points ?? 0) }}</span>
                                 </div>
                                 @if((Auth::user()->streak_days ?? 0) > 0)
-                                    <div class="flex items-center justify-center bg-orange-500 rounded-full px-4 py-2 text-sm font-medium text-white w-full">
-                                        🔥 {{ Auth::user()->streak_days }} Tage Streak
+                                    <div class="flex items-center justify-between bg-orange-500/10 rounded-lg px-3 py-1.5">
+                                        <span class="text-sm font-medium text-gray-700">🔥 Streak</span>
+                                        <span class="text-sm font-bold text-orange-600">{{ Auth::user()->streak_days }} Tage</span>
                                     </div>
                                 @endif
                             </div>
