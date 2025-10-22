@@ -93,7 +93,10 @@
                                             <span class="text-lg">📬</span>
                                             <span>Kontaktanfragen</span>
                                             @php
-                                                $unreadCount = \App\Models\ContactMessage::where('is_read', false)->count();
+                                                // Cache unread count for 5 minutes
+                                                $unreadCount = cache()->remember('admin_unread_messages_count', 300, function() {
+                                                    return \App\Models\ContactMessage::where('is_read', false)->count();
+                                                });
                                             @endphp
                                             @if($unreadCount > 0)
                                                 <span class="ml-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">{{ $unreadCount }}</span>
@@ -233,7 +236,10 @@
                             <span class="text-lg">📬</span>
                             <span>Kontaktanfragen</span>
                             @php
-                                $unreadCount = \App\Models\ContactMessage::where('is_read', false)->count();
+                                // Cache unread count for 5 minutes
+                                $unreadCount = cache()->remember('admin_unread_messages_count', 300, function() {
+                                    return \App\Models\ContactMessage::where('is_read', false)->count();
+                                });
                             @endphp
                             @if($unreadCount > 0)
                                 <span class="ml-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">{{ $unreadCount }}</span>

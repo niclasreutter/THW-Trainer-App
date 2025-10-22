@@ -66,6 +66,8 @@ class ContactMessageController extends Controller
         // Mark as read
         if (!$contactMessage->is_read) {
             $contactMessage->markAsRead();
+            // Clear cache when message is read
+            cache()->forget('admin_unread_messages_count');
         }
         
         return view('admin.contact-messages.show', compact('contactMessage'));
@@ -77,6 +79,8 @@ class ContactMessageController extends Controller
     public function markAsRead(ContactMessage $contactMessage)
     {
         $contactMessage->markAsRead();
+        // Clear cache
+        cache()->forget('admin_unread_messages_count');
         
         return back()->with('success', '✅ Nachricht als gelesen markiert.');
     }
@@ -90,6 +94,8 @@ class ContactMessageController extends Controller
             'is_read' => false,
             'read_at' => null,
         ]);
+        // Clear cache
+        cache()->forget('admin_unread_messages_count');
         
         return back()->with('success', '✅ Nachricht als ungelesen markiert.');
     }
@@ -100,6 +106,8 @@ class ContactMessageController extends Controller
     public function destroy(ContactMessage $contactMessage)
     {
         $contactMessage->delete();
+        // Clear cache
+        cache()->forget('admin_unread_messages_count');
         
         return back()->with('success', '✅ Nachricht wurde gelöscht.');
     }

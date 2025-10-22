@@ -95,13 +95,18 @@ Route::prefix('guest')->name('guest.')->group(function () {
 Route::get('/dashboard', function () {
     $user = auth()->user()->fresh(); // Fresh reload from database
     
+    // Cache total questions count für 1 Stunde
+    $totalQuestions = cache()->remember('total_questions_count', 3600, function() {
+        return \App\Models\Question::count();
+    });
+    
     // Hole die letzten 5 Prüfungsergebnisse
     $recentExams = \App\Models\ExamStatistic::where('user_id', $user->id)
         ->orderBy('created_at', 'desc')
         ->take(5)
         ->get();
     
-    return view('dashboard', compact('user', 'recentExams'));
+    return view('dashboard', compact('user', 'recentExams', 'totalQuestions'));
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::post('/dashboard/dismiss-email-consent-banner', function () {

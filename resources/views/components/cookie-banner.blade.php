@@ -1,4 +1,4 @@
-<div id="cookie-banner" style="position: fixed !important; bottom: 0 !important; left: 0 !important; right: 0 !important; width: 100% !important; background-color: white !important; border-top: 1px solid #e5e7eb !important; box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1) !important; z-index: 50 !important; display: block !important;">
+<div id="cookie-banner" style="position: fixed !important; bottom: 0 !important; left: 0 !important; right: 0 !important; width: 100% !important; background-color: white !important; border-top: 1px solid #e5e7eb !important; box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1) !important; z-index: 50 !important; display: none !important;">
     <div style="max-width: 72rem; margin: 0 auto; padding: 1.5rem 1rem;">
         <div style="display: flex; flex-direction: column; gap: 1rem; align-items: flex-start;">
             <!-- Cookie Icon und Text -->
@@ -39,9 +39,9 @@
 function showCookieBanner() {
     const banner = document.getElementById('cookie-banner');
     if (!getCookie('cookie_consent')) {
-        banner.style.display = 'block';
+        banner.style.setProperty('display', 'block', 'important');
     } else {
-        banner.style.display = 'none';
+        banner.style.setProperty('display', 'none', 'important');
     }
 }
 
@@ -52,7 +52,7 @@ function acceptCookies() {
 
 function hideCookieBanner() {
     const banner = document.getElementById('cookie-banner');
-    banner.style.display = 'none';
+    banner.style.setProperty('display', 'none', 'important');
 }
 
 function setCookie(name, value, days) {
@@ -72,16 +72,31 @@ function getCookie(name) {
     return null;
 }
 
-// Banner beim Laden der Seite anzeigen
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('Cookie Banner Script geladen');
-    showCookieBanner();
-});
+// Sofort prüfen (synchron, bevor die Seite rendert)
+(function() {
+    // Prüfe Cookie sofort
+    const nameEQ = "cookie_consent=";
+    const ca = document.cookie.split(';');
+    let hasConsent = false;
+    
+    for(let i = 0; i < ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+        if (c.indexOf(nameEQ) === 0) {
+            hasConsent = true;
+            break;
+        }
+    }
+    
+    // Zeige Banner nur wenn kein Consent vorhanden
+    if (!hasConsent) {
+        const banner = document.getElementById('cookie-banner');
+        if (banner) {
+            banner.style.setProperty('display', 'block', 'important');
+        }
+    }
+})();
 
-// Fallback falls DOMContentLoaded bereits ausgelöst wurde
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', showCookieBanner);
-} else {
-    showCookieBanner();
-}
+// Backup für spätes Laden
+document.addEventListener('DOMContentLoaded', showCookieBanner);
 </script>

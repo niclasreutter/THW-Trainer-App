@@ -34,7 +34,7 @@
         @php 
             // Variablen für Dashboard definieren
             $user = Auth::user();
-            $total = \App\Models\Question::count();
+            $total = $totalQuestions ?? \App\Models\Question::count(); // Nutze gecachten Wert vom Controller
             $progressArr = is_array($user->solved_questions ?? null) 
                 ? $user->solved_questions 
                 : (is_string($user->solved_questions) ? json_decode($user->solved_questions, true) ?? [] : []);
