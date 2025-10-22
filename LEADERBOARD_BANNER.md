@@ -1,8 +1,13 @@
-# Leaderboard Dashboard Banner
+# Leaderboard Dashboard Popup Modal
 
 ## Überblick
 
-Dieses Feature zeigt neuen und bestehenden Nutzern ein attraktives Banner auf dem Dashboard, um sie über das neue Leaderboard-Feature zu informieren und zur Teilnahme einzuladen.
+Dieses Feature zeigt neuen und bestehenden Nutzern ein **echtes Modal-Popup** auf dem Dashboard, um sie über das neue Leaderboard-Feature zu informieren und zur Teilnahme einzuladen.
+
+## Unterschied zu Banner
+
+- **Vorher:** Banner (Teil des Contents, scrollbar)
+- **Jetzt:** Modal/Popup (schwebt über Content, blockiert Interaktion mit Hintergrund)
 
 ## Implementierung
 
@@ -30,33 +35,55 @@ Dieses Feature zeigt neuen und bestehenden Nutzern ein attraktives Banner auf de
 
 ### 5. Dashboard View
 - **Datei:** `resources/views/dashboard.blade.php`
-- **Position:** Nach Error-Messages, vor Willkommens-Sektion
-- **Bedingung:** Zeigt Banner nur wenn:
-  - `!$user->leaderboard_banner_dismissed` (Banner noch nicht dismissed)
+- **Position:** Am Anfang des `@section('content')`, **über** allen anderen Inhalten
+- **Bedingung:** Zeigt Modal nur wenn:
+  - `!$user->leaderboard_banner_dismissed` (Modal noch nicht dismissed)
   - `!$user->leaderboard_consent` (Noch keine Zustimmung erteilt)
 
 ## Design
+
+### Modal-Overlay
+- **Full-Screen Overlay:** `position: fixed`, deckt gesamten Viewport ab
+- **Hintergrund:** Dunkles Overlay mit `backdrop-filter: blur(5px)`
+- **Z-Index:** 9999 (über allen anderen Elementen)
+- **Centered:** Modal ist vertikal und horizontal zentriert
+
+### Modal-Box
+- **Größe:** Max-width 600px, responsive auf Mobile
+- **Hintergrund:** Gradient von Amber (#fbbf24) zu Orange (#f59e0b)
+- **Border-Radius:** 24px für moderne Optik
+- **Shadow:** Starke Box-Shadow für Tiefe
+- **Animation:** SlideUp beim Öffnen, FadeOut beim Schließen
 
 ### Farben
 - **Hintergrund:** Gradient von Amber (#fbbf24) zu Orange (#f59e0b)
 - **Border:** #d97706 (Amber-600)
 - **Buttons:**
-  - Ja-Button: Weißer Hintergrund, orangener Text
+  - Ja-Button: Weißer Hintergrund, orangener Text, große Schrift (18px)
   - Nein-Button: Halbtransparenter weißer Hintergrund
   - Datenschutz-Link: Sehr transparenter Hintergrund
+- **Close-Button:** Runder X-Button oben rechts, rotiert beim Hover
 
 ### Responsive Design
-- **Desktop:** Icon links, größerer Text, dekorative Trophäe im Hintergrund
+- **Desktop:** 
+  - Icon oben zentral, großer Text
+  - Dekorative Trophäe im Hintergrund (200px)
+  - Normale Padding (32px)
+  
 - **Mobile:** 
-  - Icon ausgeblendet
-  - Buttons volle Breite (w-full)
-  - Kleinere Schriftgrößen
-  - Gestapeltes Layout
+  - Max-height 90vh mit Scroll bei Bedarf
+  - Kleineres Padding (24px)
+  - Kleinere Trophäe (120px)
+  - Full-width Buttons
 
 ### Features
 - ✅ Hover-Effekte auf allen Buttons
-- ✅ Box-Shadow für Tiefe
-- ✅ Gradient-Hintergrund
+- ✅ Schließen-Button mit Rotation-Animation
+- ✅ ESC-Taste zum Schließen
+- ✅ Backdrop-Blur-Effekt
+- ✅ SlideUp-Animation beim Öffnen
+- ✅ FadeOut-Animation beim Schließen
+- ✅ Click außerhalb schließt NICHT (Nutzer muss entscheiden)
 - ✅ Emoji-Icons für Klarheit
 - ✅ Link zur Datenschutzerklärung
 
