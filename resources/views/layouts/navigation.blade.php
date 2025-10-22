@@ -20,7 +20,7 @@
                         <a href="{{ route('dashboard') }}" 
                            class="inline-flex items-center px-3 py-2 text-sm font-medium text-white hover:text-yellow-400 transition-colors duration-200 relative group {{ request()->routeIs('dashboard') ? 'text-yellow-400' : '' }}">
                             <span class="flex items-center space-x-2">
-                                <span class="text-lg">📊</span>
+                                <span class="text-lg">🏠</span>
                                 <span>Dashboard</span>
                             </span>
                             @if(request()->routeIs('dashboard'))
@@ -29,37 +29,101 @@
                                 <div class="absolute -bottom-1 left-0 w-0 h-0.5 bg-yellow-400 transition-all duration-200 group-hover:w-full"></div>
                             @endif
                         </a>
+
+                        <!-- Lernen Dropdown -->
+                        <div class="relative">
+                            <button onclick="document.getElementById('learningDropdown').classList.toggle('hidden')" class="inline-flex items-center px-3 py-2 text-sm font-medium text-white hover:text-yellow-400 transition-colors duration-200 relative group">
+                                <span class="flex items-center space-x-2">
+                                    <span class="text-lg">📚</span>
+                                    <span>Lernen</span>
+                                    <svg class="ml-1 h-4 w-4 transition-transform duration-200 group-hover:rotate-180" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                                </span>
+                                <div class="absolute -bottom-1 left-0 w-0 h-0.5 bg-yellow-400 transition-all duration-200 group-hover:w-full"></div>
+                            </button>
+                            <div id="learningDropdown" class="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl z-50 hidden border border-gray-200">
+                                <a href="{{ route('practice.menu') }}" class="block px-4 py-3 text-gray-700 hover:bg-blue-900 hover:text-yellow-400 transition-colors duration-200 flex items-center space-x-2">
+                                    <span class="text-lg">📝</span>
+                                    <span>Übungsmenü</span>
+                                </a>
+                                <a href="{{ route('bookmarks.index') }}" class="block px-4 py-3 text-gray-700 hover:bg-blue-900 hover:text-yellow-400 transition-colors duration-200 flex items-center space-x-2">
+                                    <span class="text-lg">🔖</span>
+                                    <span>Gespeicherte Fragen</span>
+                                </a>
+                                @php
+                                    $failedArr = is_array(Auth::user()->exam_failed_questions ?? null) 
+                                        ? Auth::user()->exam_failed_questions 
+                                        : (is_string(Auth::user()->exam_failed_questions) ? json_decode(Auth::user()->exam_failed_questions, true) ?? [] : []);
+                                @endphp
+                                @if($failedArr && count($failedArr) > 0)
+                                    <a href="{{ route('failed.index') }}" class="block px-4 py-3 text-gray-700 hover:bg-blue-900 hover:text-yellow-400 transition-colors duration-200 flex items-center space-x-2">
+                                        <span class="text-lg">🔄</span>
+                                        <span>Fehler wiederholen</span>
+                                        <span class="ml-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">{{ count($failedArr) }}</span>
+                                    </a>
+                                @endif
+                                <a href="{{ route('exam.index') }}" class="block px-4 py-3 text-gray-700 hover:bg-blue-900 hover:text-yellow-400 transition-colors duration-200 flex items-center space-x-2">
+                                    <span class="text-lg">🎓</span>
+                                    <span>Prüfung</span>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Gamification Dropdown -->
+                        <div class="relative">
+                            <button onclick="document.getElementById('gamificationDropdown').classList.toggle('hidden')" class="inline-flex items-center px-3 py-2 text-sm font-medium text-white hover:text-yellow-400 transition-colors duration-200 relative group">
+                                <span class="flex items-center space-x-2">
+                                    <span class="text-lg">🎮</span>
+                                    <span>Gamification</span>
+                                    <svg class="ml-1 h-4 w-4 transition-transform duration-200 group-hover:rotate-180" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                                </span>
+                                <div class="absolute -bottom-1 left-0 w-0 h-0.5 bg-yellow-400 transition-all duration-200 group-hover:w-full"></div>
+                            </button>
+                            <div id="gamificationDropdown" class="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl z-50 hidden border border-gray-200">
+                                <a href="{{ route('gamification.achievements') }}" class="block px-4 py-3 text-gray-700 hover:bg-blue-900 hover:text-yellow-400 transition-colors duration-200 flex items-center space-x-2">
+                                    <span class="text-lg">🏆</span>
+                                    <span>Achievements</span>
+                                </a>
+                                <a href="{{ route('gamification.leaderboard') }}" class="block px-4 py-3 text-gray-700 hover:bg-blue-900 hover:text-yellow-400 transition-colors duration-200 flex items-center space-x-2">
+                                    <span class="text-lg">📊</span>
+                                    <span>Leaderboard</span>
+                                </a>
+                                <a href="{{ route('statistics') }}" class="block px-4 py-3 text-gray-700 hover:bg-blue-900 hover:text-yellow-400 transition-colors duration-200 flex items-center space-x-2">
+                                    <span class="text-lg">📈</span>
+                                    <span>Statistik</span>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Kontakt (nur für eingeloggte User) -->
+                        <a href="{{ route('contact.index') }}" 
+                           class="inline-flex items-center px-3 py-2 text-sm font-medium text-white hover:text-yellow-400 transition-colors duration-200 relative group {{ request()->routeIs('contact.*') ? 'text-yellow-400' : '' }}">
+                            <span class="flex items-center space-x-2">
+                                <span class="text-lg">�</span>
+                                <span>Kontakt</span>
+                            </span>
+                            @if(request()->routeIs('contact.*'))
+                                <div class="absolute -bottom-1 left-0 w-full h-0.5 bg-yellow-400"></div>
+                            @else
+                                <div class="absolute -bottom-1 left-0 w-0 h-0.5 bg-yellow-400 transition-all duration-200 group-hover:w-full"></div>
+                            @endif
+                        </a>
                     @endauth
                     
-                    <!-- Öffentliche Statistik (für alle sichtbar) -->
-                    <a href="{{ route('statistics') }}" 
-                       class="inline-flex items-center px-3 py-2 text-sm font-medium text-white hover:text-yellow-400 transition-colors duration-200 relative group {{ request()->routeIs('statistics') ? 'text-yellow-400' : '' }}">
-                        <span class="flex items-center space-x-2">
-                            <span class="text-lg">📈</span>
-                            <span>Statistik</span>
-                        </span>
-                        @if(request()->routeIs('statistics'))
-                            <div class="absolute -bottom-1 left-0 w-full h-0.5 bg-yellow-400"></div>
-                        @else
-                            <div class="absolute -bottom-1 left-0 w-0 h-0.5 bg-yellow-400 transition-all duration-200 group-hover:w-full"></div>
-                        @endif
-                    </a>
-                    
-                    @auth
-                    <!-- Kontakt (nur für eingeloggte User) -->
-                    <a href="{{ route('contact.index') }}" 
-                       class="inline-flex items-center px-3 py-2 text-sm font-medium text-white hover:text-yellow-400 transition-colors duration-200 relative group {{ request()->routeIs('contact.*') ? 'text-yellow-400' : '' }}">
-                        <span class="flex items-center space-x-2">
-                            <span class="text-lg">📬</span>
-                            <span>Kontakt</span>
-                        </span>
-                        @if(request()->routeIs('contact.*'))
-                            <div class="absolute -bottom-1 left-0 w-full h-0.5 bg-yellow-400"></div>
-                        @else
-                            <div class="absolute -bottom-1 left-0 w-0 h-0.5 bg-yellow-400 transition-all duration-200 group-hover:w-full"></div>
-                        @endif
-                    </a>
-                    @endauth
+                    @guest
+                        <!-- Öffentliche Statistik (für Gäste) -->
+                        <a href="{{ route('statistics') }}" 
+                           class="inline-flex items-center px-3 py-2 text-sm font-medium text-white hover:text-yellow-400 transition-colors duration-200 relative group {{ request()->routeIs('statistics') ? 'text-yellow-400' : '' }}">
+                            <span class="flex items-center space-x-2">
+                                <span class="text-lg">�</span>
+                                <span>Statistik</span>
+                            </span>
+                            @if(request()->routeIs('statistics'))
+                                <div class="absolute -bottom-1 left-0 w-full h-0.5 bg-yellow-400"></div>
+                            @else
+                                <div class="absolute -bottom-1 left-0 w-0 h-0.5 bg-yellow-400 transition-all duration-200 group-hover:w-full"></div>
+                            @endif
+                        </a>
+                    @endguest
                     
                         @auth
                             @if(Auth::user()->useroll === 'admin')
@@ -192,16 +256,61 @@
             @auth
                 <a href="{{ route('dashboard') }}" 
                    class="block px-3 py-2 text-base font-medium text-white hover:text-yellow-400 hover:bg-blue-800 rounded-md transition-colors duration-200 flex items-center space-x-2 {{ request()->routeIs('dashboard') ? 'text-yellow-400 bg-blue-800' : '' }}">
-                    <span class="text-lg">📊</span>
+                    <span class="text-lg">🏠</span>
                     <span>Dashboard</span>
                 </a>
                 
-                <!-- Öffentliche Statistik (für alle sichtbar) -->
-                <a href="{{ route('statistics') }}" 
-                   class="block px-3 py-2 text-base font-medium text-white hover:text-yellow-400 hover:bg-blue-800 rounded-md transition-colors duration-200 flex items-center space-x-2 {{ request()->routeIs('statistics') ? 'text-yellow-400 bg-blue-800' : '' }}">
-                    <span class="text-lg">📈</span>
-                    <span>Statistik</span>
-                </a>
+                <!-- Lernen Section -->
+                <div class="px-3 py-2 text-base font-medium text-white flex items-center space-x-2">
+                    <span class="text-lg">📚</span>
+                    <span>Lernen</span>
+                </div>
+                <div class="ml-6 space-y-1">
+                    <a href="{{ route('practice.menu') }}" class="block px-3 py-2 text-sm text-gray-300 hover:text-yellow-400 hover:bg-blue-800 rounded-md transition-colors duration-200 flex items-center space-x-2">
+                        <span class="text-lg">📝</span>
+                        <span>Übungsmenü</span>
+                    </a>
+                    <a href="{{ route('bookmarks.index') }}" class="block px-3 py-2 text-sm text-gray-300 hover:text-yellow-400 hover:bg-blue-800 rounded-md transition-colors duration-200 flex items-center space-x-2">
+                        <span class="text-lg">🔖</span>
+                        <span>Gespeicherte Fragen</span>
+                    </a>
+                    @php
+                        $failedArr = is_array(Auth::user()->exam_failed_questions ?? null) 
+                            ? Auth::user()->exam_failed_questions 
+                            : (is_string(Auth::user()->exam_failed_questions) ? json_decode(Auth::user()->exam_failed_questions, true) ?? [] : []);
+                    @endphp
+                    @if($failedArr && count($failedArr) > 0)
+                        <a href="{{ route('failed.index') }}" class="block px-3 py-2 text-sm text-gray-300 hover:text-yellow-400 hover:bg-blue-800 rounded-md transition-colors duration-200 flex items-center space-x-2">
+                            <span class="text-lg">🔄</span>
+                            <span>Fehler wiederholen</span>
+                            <span class="ml-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">{{ count($failedArr) }}</span>
+                        </a>
+                    @endif
+                    <a href="{{ route('exam.index') }}" class="block px-3 py-2 text-sm text-gray-300 hover:text-yellow-400 hover:bg-blue-800 rounded-md transition-colors duration-200 flex items-center space-x-2">
+                        <span class="text-lg">🎓</span>
+                        <span>Prüfung</span>
+                    </a>
+                </div>
+                
+                <!-- Gamification Section -->
+                <div class="px-3 py-2 text-base font-medium text-white flex items-center space-x-2">
+                    <span class="text-lg">🎮</span>
+                    <span>Gamification</span>
+                </div>
+                <div class="ml-6 space-y-1">
+                    <a href="{{ route('gamification.achievements') }}" class="block px-3 py-2 text-sm text-gray-300 hover:text-yellow-400 hover:bg-blue-800 rounded-md transition-colors duration-200 flex items-center space-x-2">
+                        <span class="text-lg">🏆</span>
+                        <span>Achievements</span>
+                    </a>
+                    <a href="{{ route('gamification.leaderboard') }}" class="block px-3 py-2 text-sm text-gray-300 hover:text-yellow-400 hover:bg-blue-800 rounded-md transition-colors duration-200 flex items-center space-x-2">
+                        <span class="text-lg">📊</span>
+                        <span>Leaderboard</span>
+                    </a>
+                    <a href="{{ route('statistics') }}" class="block px-3 py-2 text-sm text-gray-300 hover:text-yellow-400 hover:bg-blue-800 rounded-md transition-colors duration-200 flex items-center space-x-2">
+                        <span class="text-lg">📈</span>
+                        <span>Statistik</span>
+                    </a>
+                </div>
                 
                 <!-- Kontakt (nur für eingeloggte User) -->
                 <a href="{{ route('contact.index') }}" 
@@ -249,6 +358,11 @@
                 @endif
             @endauth
             @guest
+                <a href="{{ route('statistics') }}" 
+                   class="block px-3 py-2 text-base font-medium text-white hover:text-yellow-400 hover:bg-blue-800 rounded-md transition-colors duration-200 flex items-center space-x-2 {{ request()->routeIs('statistics') ? 'text-yellow-400 bg-blue-800' : '' }}">
+                    <span class="text-lg">📈</span>
+                    <span>Statistik</span>
+                </a>
                 <a href="{{ route('login') }}" 
                    class="block px-3 py-2 text-base font-medium text-white hover:text-yellow-400 hover:bg-blue-800 rounded-md transition-colors duration-200 flex items-center space-x-2">
                     <span class="text-lg">🔑</span>
@@ -291,3 +405,20 @@
         @endauth
     </div>
 </nav>
+
+<script>
+    // Close all dropdowns when clicking outside
+    document.addEventListener('click', function(event) {
+        const dropdowns = ['adminDropdown', 'userDropdown', 'learningDropdown', 'gamificationDropdown'];
+        
+        dropdowns.forEach(function(dropdownId) {
+            const dropdown = document.getElementById(dropdownId);
+            if (dropdown && !dropdown.classList.contains('hidden')) {
+                const button = dropdown.previousElementSibling;
+                if (!dropdown.contains(event.target) && !button.contains(event.target)) {
+                    dropdown.classList.add('hidden');
+                }
+            }
+        });
+    });
+</script>
