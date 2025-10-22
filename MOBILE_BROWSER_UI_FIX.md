@@ -43,26 +43,31 @@ Mobile Browser wie Brave, Chrome, Safari haben eine dynamische UI, die ein-/ausb
 
 ## Technische Details
 
-### CSS Media Query (Update 2)
+### CSS Media Query (Update 2.1 - Browser-Kompatibilität)
 ```css
 @media (max-width: 640px) {
     /* Practice-Seiten */
     #practiceContainer {
-        padding-bottom: max(180px, calc(120px + env(safe-area-inset-bottom))) !important;
+        padding-bottom: 180px !important; /* Fallback */
+        padding-bottom: calc(120px + env(safe-area-inset-bottom, 60px)) !important;
     }
     
     /* Exam-Seiten */
     main {
-        padding-bottom: max(180px, calc(120px + env(safe-area-inset-bottom))) !important;
+        padding-bottom: 180px !important; /* Fallback */
+        padding-bottom: calc(120px + env(safe-area-inset-bottom, 60px)) !important;
     }
     
     /* Alle Submit-Buttons */
     button[type="submit"],
     a.w-full {
-        margin-bottom: max(48px, calc(24px + env(safe-area-inset-bottom))) !important;
+        margin-bottom: 48px !important; /* Fallback */
+        margin-bottom: calc(24px + env(safe-area-inset-bottom, 24px)) !important;
     }
 }
 ```
+
+**Wichtig:** Die Fallback-Werte (180px, 48px) werden in älteren Browsern verwendet, die `env()` nicht unterstützen.
 
 ### Warum 180px + Safe Area?
 - **Basis-Padding:** Mindestens 180px für Browser-UI

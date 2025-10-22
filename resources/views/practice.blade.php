@@ -25,7 +25,7 @@
     }
 @endphp
 <style>
-    /* CACHE BUST v9.0 - SAFE AREA FIX - 2025-10-22-20:00 */
+    /* CACHE BUST v9.1 - CSS FALLBACK FIX - 2025-10-22-21:00 */
     @keyframes fadeIn {
         from {
             opacity: 0;
@@ -82,7 +82,8 @@
             margin-top: 0 !important;
             margin-bottom: 0 !important;
             padding: 0.75rem !important;
-            padding-bottom: max(180px, calc(120px + env(safe-area-inset-bottom))) !important; /* Extra Platz für Browser-UI + Safe Area */
+            padding-bottom: 180px !important; /* Fallback für ältere Browser */
+            padding-bottom: calc(120px + env(safe-area-inset-bottom, 60px)) !important; /* Extra Platz für Browser-UI + Safe Area */
             border-radius: 0 !important;
             box-shadow: none !important;
             max-width: 100% !important;
@@ -170,7 +171,8 @@
             transition: all 0.3s ease !important;
             -webkit-tap-highlight-color: rgba(251, 191, 36, 0.2) !important;
             box-shadow: 0 4px 12px rgba(30, 58, 138, 0.15), 0 2px 4px rgba(30, 58, 138, 0.1) !important;
-            margin-bottom: max(48px, calc(24px + env(safe-area-inset-bottom))) !important; /* Extra Abstand + Safe Area */
+            margin-bottom: 48px !important; /* Fallback für ältere Browser */
+            margin-bottom: calc(24px + env(safe-area-inset-bottom, 24px)) !important; /* Extra Abstand + Safe Area */
         }
         
         button[type="submit"]:active,
