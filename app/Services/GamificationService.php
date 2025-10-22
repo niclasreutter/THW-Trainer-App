@@ -103,6 +103,10 @@ class GamificationService
         
         $user->points += $points;
         $user->level = $this->calculateLevel($user->points);
+        
+        // Wöchentliche Punkte auch erhöhen
+        $this->updateWeeklyPoints($user, $points);
+        
         $user->save();
 
         $notifications = [];
@@ -431,6 +435,74 @@ class GamificationService
                    ->orderBy('level', 'desc')
                    ->limit($limit)
                    ->get(['name', 'points', 'level', 'streak_days']);
+    }
+
+    /**
+     * Holt das wöchentliche Leaderboard (Montag - Sonntag)
+     */
+    public function getWeeklyLeaderboard(int $limit = 10)
+    {
+        // Reset aller User wenn nötig
+        $this->resetWeeklyPointsIfNeeded();
+        
+        return User::where('weekly_points', '>', 0)
+                   ->orderBy('weekly_points', 'desc')
+                   ->orderBy('points', 'desc')
+                   ->limit($limit)
+                   ->get(['name', 'weekly_points', 'points', 'level', 'streak_days']);
+    }
+
+    /**
+     * Aktualisiert die wöchentlichen Punkte eines Users
+     */
+    private function updateWeeklyPoints(User $user, int $points)
+    {
+        // Prüfe ob die Woche bereits zurückgesetzt wurde
+        $this->resetWeeklyPointsIfNeeded($user);
+        
+        // Füge Punkte hinzu
+        $user->weekly_points += $points;
+    }
+
+    /**
+     * Setzt wöchentliche Punkte zurück wenn eine neue Woche begonnen hat (Montag)
+     */
+    private function resetWeeklyPointsIfNeeded(?User $user = null)
+    {
+        $startOfWeek = Carbon::now()->startOfWeek(Carbon::MONDAY);
+        
+        if ($user) {
+            // Reset für einzelnen User
+            if (!$user->weekly_reset_at || Carbon::parse($user->weekly_reset_at)->lt($startOfWeek)) {
+                $user->weekly_points = 0;
+                $user->weekly_reset_at = $startOfWeek;
+            }
+        } else {
+            // Reset für alle User die noch nicht zurückgesetzt wurden
+            User::where(function($query) use ($startOfWeek) {
+                $query->whereNull('weekly_reset_at')
+                      ->orWhere('weekly_reset_at', '<', $startOfWeek);
+            })
+            ->update([
+                'weekly_points' => 0,
+                'weekly_reset_at' => $startOfWeek
+            ]);
+        }
+    }
+
+    /**
+     * Gibt den Start und Ende der aktuellen Woche zurück (Montag - Sonntag)
+     */
+    public function getCurrentWeekRange()
+    {
+        $startOfWeek = Carbon::now()->startOfWeek(Carbon::MONDAY);
+        $endOfWeek = Carbon::now()->endOfWeek(Carbon::SUNDAY);
+        
+        return [
+            'start' => $startOfWeek,
+            'end' => $endOfWeek,
+            'formatted' => $startOfWeek->format('d.m.Y') . ' - ' . $endOfWeek->format('d.m.Y')
+        ];
     }
 
     /**

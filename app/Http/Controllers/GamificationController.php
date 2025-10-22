@@ -13,11 +13,21 @@ class GamificationController extends Controller
         return view('gamification.achievements');
     }
 
-    public function leaderboard()
+    public function leaderboard(Request $request)
     {
         $gamificationService = new GamificationService();
-        $leaderboard = $gamificationService->getLeaderboard(50);
         
-        return view('gamification.leaderboard', compact('leaderboard'));
+        // Tab auswählen (default: gesamt)
+        $tab = $request->get('tab', 'gesamt');
+        
+        if ($tab === 'woche') {
+            $leaderboard = $gamificationService->getWeeklyLeaderboard(50);
+            $weekRange = $gamificationService->getCurrentWeekRange();
+        } else {
+            $leaderboard = $gamificationService->getLeaderboard(50);
+            $weekRange = null;
+        }
+        
+        return view('gamification.leaderboard', compact('leaderboard', 'tab', 'weekRange'));
     }
 }

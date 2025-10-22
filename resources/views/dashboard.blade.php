@@ -487,9 +487,15 @@
                 </a>
                 
                 <a href="{{ route('gamification.achievements') }}" 
-                   class="block p-4 bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-300 rounded-lg hover:from-blue-100 hover:to-blue-200 hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer">
-                    <div class="text-lg font-medium text-blue-800">🏆 Achievements & Bestenliste</div>
-                    <div class="text-sm text-gray-600">Deine Erfolge und Vergleich mit anderen</div>
+                   class="block p-4 bg-gradient-to-r from-purple-50 to-purple-100 border border-purple-300 rounded-lg hover:from-purple-100 hover:to-purple-200 hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer">
+                    <div class="text-lg font-medium text-blue-800">🏆 Achievements</div>
+                    <div class="text-sm text-gray-600">Deine Erfolge & Fortschritte</div>
+                </a>
+                
+                <a href="{{ route('gamification.leaderboard') }}" 
+                   class="block p-4 bg-gradient-to-r from-yellow-50 to-orange-100 border border-yellow-300 rounded-lg hover:from-yellow-100 hover:to-orange-200 hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer">
+                    <div class="text-lg font-medium text-blue-800">📊 Leaderboard</div>
+                    <div class="text-sm text-gray-600">Wöchentliche & Gesamt-Rangliste</div>
                 </a>
                 
                 @php
