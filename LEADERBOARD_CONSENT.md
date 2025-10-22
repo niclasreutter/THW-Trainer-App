@@ -33,20 +33,42 @@ Das Leaderboard zeigt nun nur noch Nutzer an, die aktiv ihre Zustimmung zur Anze
   - Erklärtext mit Datenschutz-Information
   - Anzeige des Zustimmungsdatums (wenn erteilt)
 
-### 5. Profil-Controller
+### 5. Registrierungs-Seite
+- **Datei:** `resources/views/auth/register.blade.php`
+- **Neue Sektion:** "Öffentliches Leaderboard"
+  - Checkbox für Leaderboard-Zustimmung bei Registrierung
+  - Optional: Nutzer kann sofort zustimmen
+  - Erklärtext: "Erscheine im öffentlichen Leaderboard und messe dich mit anderen Lernenden"
+
+### 6. Profil-Controller
 - **Datei:** `app/Http/Controllers/ProfileController.php`
 - **Änderungen:**
   - Validierung für `leaderboard_consent` hinzugefügt
   - Automatisches Setzen von `leaderboard_consent_at` bei Zustimmung
   - Automatisches Löschen von `leaderboard_consent_at` bei Ablehnung
 
+### 7. Registrierungs-Controller
+- **Datei:** `app/Http/Controllers/Auth/RegisteredUserController.php`
+- **Änderungen:**
+  - Validierung für `leaderboard_consent` hinzugefügt
+  - Speichern von `leaderboard_consent` und `leaderboard_consent_at` bei Registrierung
+  - Nutzer kann direkt bei Registrierung zustimmen
+
 ## Funktionsweise
 
 ### Standard-Einstellung
 - Neue Nutzer: `leaderboard_consent = false` (nicht im Leaderboard sichtbar)
 - Bestehende Nutzer: `leaderboard_consent = false` (müssen aktiv zustimmen)
+- **Bei Registrierung:** Optional kann direkt zugestimmt werden
 
-### Opt-In Prozess
+### Opt-In bei Registrierung (NEU!)
+1. Nutzer füllt Registrierungsformular aus
+2. Aktiviert optional Checkbox "Ich möchte im öffentlichen Leaderboard erscheinen"
+3. Erstellt Account
+4. `leaderboard_consent = true` und `leaderboard_consent_at = NOW()` (falls aktiviert)
+5. Nutzer erscheint direkt nach Registrierung im Leaderboard
+
+### Opt-In über Profil
 1. Nutzer besucht Profil-Seite
 2. Aktiviert Checkbox "Ich möchte im öffentlichen Leaderboard erscheinen"
 3. Speichert Profil

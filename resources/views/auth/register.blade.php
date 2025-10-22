@@ -183,6 +183,31 @@
                 </div>
             </div>
             
+            <!-- Leaderboard-Zustimmung -->
+            <div class="p-4" style="background: linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, rgba(245, 158, 11, 0.1) 100%); border: 2px solid rgba(251, 191, 36, 0.3); box-shadow: 0 0 20px rgba(251, 191, 36, 0.2); border-radius: 12px;">
+                <div class="flex items-start">
+                    <div class="flex-shrink-0">
+                        <svg class="w-5 h-5 mt-1" style="color: #d97706;" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"></path>
+                        </svg>
+                    </div>
+                    <div class="ml-3 flex-1">
+                        <h3 class="text-sm font-medium" style="color: #d97706; margin-bottom: 6px;">🏆 Öffentliches Leaderboard</h3>
+                        <p class="text-xs" style="color: #b45309; margin-bottom: 8px;">
+                            Erscheine im öffentlichen Leaderboard und messe dich mit anderen Lernenden. Du kannst diese Einstellung jederzeit in deinem Profil ändern.
+                        </p>
+                        <div class="flex items-center">
+                            <input type="checkbox" name="leaderboard_consent" id="leaderboard_consent" value="1" 
+                                   {{ old('leaderboard_consent') ? 'checked' : '' }}
+                                   class="h-4 w-4 text-amber-600 focus:ring-amber-500 border-gray-300 rounded">
+                            <label for="leaderboard_consent" class="ml-2 text-xs font-medium" style="color: #b45309;">
+                                Ich möchte im öffentlichen Leaderboard erscheinen
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
             <!-- Register Button -->
             <button type="submit" 
                     class="register-btn w-full text-white font-bold py-3 px-6 text-lg">
