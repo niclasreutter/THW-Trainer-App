@@ -103,6 +103,34 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Leaderboard Consent Section -->
+            <div class="mt-6 p-6 rounded-lg" style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 2px solid #0ea5e9; box-shadow: 0 4px 15px rgba(14, 165, 233, 0.2);">
+                <h3 class="text-lg font-semibold text-blue-800 mb-4">🏆 Leaderboard-Teilnahme</h3>
+                
+                <div class="flex items-start gap-3">
+                    <input type="checkbox" 
+                           name="leaderboard_consent" 
+                           id="leaderboard_consent" 
+                           value="1"
+                           {{ $user->leaderboard_consent ? 'checked' : '' }}
+                           class="mt-1 w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500 focus:ring-2 cursor-pointer">
+                    <div class="flex-1">
+                        <label for="leaderboard_consent" class="font-medium text-gray-800 cursor-pointer">
+                            Ich möchte im öffentlichen Leaderboard erscheinen
+                        </label>
+                        <p class="text-sm text-gray-600 mt-2">
+                            📊 Wenn du diese Option aktivierst, erscheint dein Name im Leaderboard und andere Nutzer können deine Punkte und Position sehen. 
+                            Du kannst diese Einstellung jederzeit ändern.
+                        </p>
+                        @if($user->leaderboard_consent)
+                            <p class="text-sm text-green-600 mt-2 font-medium">
+                                ✅ Zustimmung erteilt am {{ $user->leaderboard_consent_at->format('d.m.Y \u\m H:i') }} Uhr
+                            </p>
+                        @endif
+                    </div>
+                </div>
+            </div>
             
             <button type="submit" 
                     style="width: 100%; background: linear-gradient(to right, #2563eb, #1d4ed8); color: white; font-weight: 600; padding: 12px 24px; border-radius: 8px; border: none; cursor: pointer; transition: all 0.3s ease; transform: scale(1); box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4), 0 0 20px rgba(37, 99, 235, 0.3), 0 0 40px rgba(37, 99, 235, 0.1);"

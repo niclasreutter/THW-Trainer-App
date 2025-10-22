@@ -431,10 +431,11 @@ class GamificationService
 
     public function getLeaderboard(int $limit = 10)
     {
-        return User::orderBy('points', 'desc')
+        return User::where('leaderboard_consent', true)
+                   ->orderBy('points', 'desc')
                    ->orderBy('level', 'desc')
                    ->limit($limit)
-                   ->get(['name', 'points', 'level', 'streak_days']);
+                   ->get(['name', 'points', 'level', 'streak_days', 'leaderboard_consent']);
     }
 
     /**
@@ -445,11 +446,12 @@ class GamificationService
         // Reset aller User wenn nötig
         $this->resetWeeklyPointsIfNeeded();
         
-        return User::where('weekly_points', '>', 0)
+        return User::where('leaderboard_consent', true)
+                   ->where('weekly_points', '>', 0)
                    ->orderBy('weekly_points', 'desc')
                    ->orderBy('points', 'desc')
                    ->limit($limit)
-                   ->get(['name', 'weekly_points', 'points', 'level', 'streak_days']);
+                   ->get(['name', 'weekly_points', 'points', 'level', 'streak_days', 'leaderboard_consent']);
     }
 
     /**

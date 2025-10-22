@@ -34,6 +34,7 @@ class ProfileController extends Controller
         $request->validate([
             'email' => ['required', 'string', 'email', 'max:255'],
             'email_consent' => ['boolean'],
+            'leaderboard_consent' => ['boolean'],
         ]);
         
         $user = $request->user();
@@ -46,6 +47,11 @@ class ProfileController extends Controller
         $emailConsent = $request->has('email_consent');
         $user->email_consent = $emailConsent;
         $user->email_consent_at = $emailConsent ? now() : null;
+        
+        // Leaderboard-Zustimmung verarbeiten
+        $leaderboardConsent = $request->has('leaderboard_consent');
+        $user->leaderboard_consent = $leaderboardConsent;
+        $user->leaderboard_consent_at = $leaderboardConsent ? now() : null;
         
         // Prüfe ob E-Mail geändert wurde
         if ($originalEmail !== $newEmail) {
