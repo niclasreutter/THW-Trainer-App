@@ -30,6 +30,11 @@
         footer {
             display: none !important;
         }
+        
+        /* Extra Padding für Mobile Browser-UI */
+        main {
+            padding-bottom: 120px !important;
+        }
     }
     
     /* Exam Container - kompakt ohne unnötige Höhe */

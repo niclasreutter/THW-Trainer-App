@@ -82,6 +82,7 @@
             margin-top: 0 !important;
             margin-bottom: 0 !important;
             padding: 0.75rem !important;
+            padding-bottom: 120px !important; /* Extra Platz für Browser-UI */
             border-radius: 0 !important;
             box-shadow: none !important;
             max-width: 100% !important;
@@ -169,6 +170,7 @@
             transition: all 0.3s ease !important;
             -webkit-tap-highlight-color: rgba(251, 191, 36, 0.2) !important;
             box-shadow: 0 4px 12px rgba(30, 58, 138, 0.15), 0 2px 4px rgba(30, 58, 138, 0.1) !important;
+            margin-bottom: 24px !important; /* Extra Abstand nach unten */
         }
         
         button[type="submit"]:active,
