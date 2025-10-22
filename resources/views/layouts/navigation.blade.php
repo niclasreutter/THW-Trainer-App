@@ -188,17 +188,17 @@
                     <div id="userDropdown" class="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl z-50 hidden border border-gray-200">
                         <!-- Gamification Stats im Dropdown -->
                         <div class="px-4 py-3 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-purple-50">
-                            <div class="text-xs font-semibold text-gray-600 mb-2">Deine Stats</div>
-                            <div class="flex items-center justify-between space-x-2">
-                                <div class="flex items-center bg-yellow-500 rounded-full px-2 py-1 text-xs font-medium text-white">
+                            <div class="text-xs font-semibold text-gray-600 mb-3 text-center">Deine Stats</div>
+                            <div class="flex flex-col items-center space-y-2">
+                                <div class="flex items-center justify-center bg-yellow-500 rounded-full px-4 py-2 text-sm font-medium text-white w-full">
                                     ⭐ Level {{ Auth::user()->level ?? 1 }}
                                 </div>
-                                <div class="flex items-center bg-green-500 rounded-full px-2 py-1 text-xs font-medium text-white">
-                                    💎 {{ number_format(Auth::user()->points ?? 0) }}
+                                <div class="flex items-center justify-center bg-green-500 rounded-full px-4 py-2 text-sm font-medium text-white w-full">
+                                    💎 {{ number_format(Auth::user()->points ?? 0) }} Punkte
                                 </div>
                                 @if((Auth::user()->streak_days ?? 0) > 0)
-                                    <div class="flex items-center bg-orange-500 rounded-full px-2 py-1 text-xs font-medium text-white">
-                                        🔥 {{ Auth::user()->streak_days }}
+                                    <div class="flex items-center justify-center bg-orange-500 rounded-full px-4 py-2 text-sm font-medium text-white w-full">
+                                        🔥 {{ Auth::user()->streak_days }} Tage Streak
                                     </div>
                                 @endif
                             </div>
