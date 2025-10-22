@@ -33,7 +33,7 @@
         
         /* Extra Padding für Mobile Browser-UI */
         main {
-            padding-bottom: 120px !important;
+            padding-bottom: max(180px, calc(120px + env(safe-area-inset-bottom))) !important;
         }
     }
     
