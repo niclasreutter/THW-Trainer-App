@@ -98,7 +98,7 @@
                         <a href="{{ route('contact.index') }}" 
                            class="inline-flex items-center px-3 py-2 text-sm font-medium text-white hover:text-yellow-400 transition-colors duration-200 relative group {{ request()->routeIs('contact.*') ? 'text-yellow-400' : '' }}">
                             <span class="flex items-center space-x-2">
-                                <span class="text-lg">�</span>
+                                <span class="text-lg">📬</span>
                                 <span>Kontakt</span>
                             </span>
                             @if(request()->routeIs('contact.*'))
@@ -114,7 +114,7 @@
                         <a href="{{ route('statistics') }}" 
                            class="inline-flex items-center px-3 py-2 text-sm font-medium text-white hover:text-yellow-400 transition-colors duration-200 relative group {{ request()->routeIs('statistics') ? 'text-yellow-400' : '' }}">
                             <span class="flex items-center space-x-2">
-                                <span class="text-lg">�</span>
+                                <span class="text-lg">📬</span>
                                 <span>Statistik</span>
                             </span>
                             @if(request()->routeIs('statistics'))
@@ -176,21 +176,7 @@
             <!-- Settings Dropdown -->
             @auth
             <div class="hidden sm:flex sm:items-center sm:ms-6">
-                <!-- Gamification Stats -->
-                <div class="mr-4 flex items-center space-x-2 text-white">
-                    <div class="flex items-center bg-yellow-500 rounded-full px-2 py-1 text-xs font-medium text-white">
-                        ⭐ {{ Auth::user()->level ?? 1 }}
-                    </div>
-                    <div class="flex items-center bg-green-500 rounded-full px-2 py-1 text-xs font-medium text-white">
-                        💎 {{ number_format(Auth::user()->points ?? 0) }}
-                    </div>
-                    @if((Auth::user()->streak_days ?? 0) > 0)
-                        <div class="flex items-center bg-orange-500 rounded-full px-2 py-1 text-xs font-medium text-white">
-                            🔥 {{ Auth::user()->streak_days }}
-                        </div>
-                    @endif
-                </div>
-                <div class="relative ml-4">
+                <div class="relative">
                     <button onclick="document.getElementById('userDropdown').classList.toggle('hidden')" class="inline-flex items-center px-3 py-2 text-sm font-medium text-white hover:text-yellow-400 transition-colors duration-200 relative group">
                         <span class="flex items-center space-x-2">
                             <span class="text-lg">👤</span>
@@ -199,7 +185,25 @@
                         </span>
                         <div class="absolute -bottom-1 left-0 w-0 h-0.5 bg-yellow-400 transition-all duration-200 group-hover:w-full"></div>
                     </button>
-                    <div id="userDropdown" class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl z-50 hidden border border-gray-200">
+                    <div id="userDropdown" class="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl z-50 hidden border border-gray-200">
+                        <!-- Gamification Stats im Dropdown -->
+                        <div class="px-4 py-3 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-purple-50">
+                            <div class="text-xs font-semibold text-gray-600 mb-2">Deine Stats</div>
+                            <div class="flex items-center justify-between space-x-2">
+                                <div class="flex items-center bg-yellow-500 rounded-full px-2 py-1 text-xs font-medium text-white">
+                                    ⭐ Level {{ Auth::user()->level ?? 1 }}
+                                </div>
+                                <div class="flex items-center bg-green-500 rounded-full px-2 py-1 text-xs font-medium text-white">
+                                    💎 {{ number_format(Auth::user()->points ?? 0) }}
+                                </div>
+                                @if((Auth::user()->streak_days ?? 0) > 0)
+                                    <div class="flex items-center bg-orange-500 rounded-full px-2 py-1 text-xs font-medium text-white">
+                                        🔥 {{ Auth::user()->streak_days }}
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                        
                         <a href="{{ route('profile') }}" class="block px-4 py-3 text-gray-700 hover:bg-blue-900 hover:text-yellow-400 transition-colors duration-200 flex items-center space-x-2">
                             <span class="text-lg">⚙️</span>
                             <span>Profil</span>
