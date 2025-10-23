@@ -88,13 +88,15 @@ return [
     | generating more password reset tokens. This prevents the user from
     | quickly generating a very large amount of password reset tokens.
     |
+    | Remember Token Expire: 43200 Minuten = 30 Tage
+    |
     */
 
     'passwords' => [
         'users' => [
             'provider' => 'users',
             'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'password_reset_tokens'),
-            'expire' => 60,
+            'expire' => 43200, // 30 Tage für "Angemeldet bleiben"
             'throttle' => 60,
         ],
     ],
