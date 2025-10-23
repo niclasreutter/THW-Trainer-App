@@ -91,14 +91,6 @@
             min-height: 100vh !important;
         }
         
-        /* PWA Modus: Deutlich weniger Padding, da keine Browser-UI */
-        @media (display-mode: standalone) {
-            #practiceContainer {
-                padding-bottom: 60px !important; /* Noch weniger: 60px in PWA */
-                padding-bottom: calc(20px + env(safe-area-inset-bottom, 40px)) !important;
-            }
-        }
-        
         /* Alle responsive Klassen überschreiben */
         .sm\:mt-4, .sm\:mt-8, .sm\:p-4, .sm\:p-6, 
         .sm\:rounded-lg, .sm\:shadow-lg {
@@ -107,7 +99,17 @@
             border-radius: 0 !important;
             box-shadow: none !important;
         }
-        
+    }
+
+    /* PWA Modus - weniger Padding da keine Browser-UI vorhanden */
+    @media (max-width: 640px) and (display-mode: standalone) {
+        #practiceContainer {
+            padding-bottom: 60px !important;
+            padding-bottom: calc(20px + env(safe-area-inset-bottom, 40px)) !important;
+        }
+    }
+    
+    @media (max-width: 640px) {
         /* MOBILE TOUCH OPTIMIERUNG - Größere Druckflächen & Schickes Design */
         
         /* Checkboxen größer mit schönem Design */

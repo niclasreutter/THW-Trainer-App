@@ -98,7 +98,17 @@
             border-radius: 0 !important;
             box-shadow: none !important;
         }
-        
+    }
+
+    /* PWA Modus - weniger Padding da keine Browser-UI vorhanden */
+    @media (max-width: 640px) and (display-mode: standalone) {
+        #guestPracticeContainer {
+            padding-bottom: 60px !important;
+            padding-bottom: calc(20px + env(safe-area-inset-bottom, 40px)) !important;
+        }
+    }
+    
+    @media (max-width: 640px) {
         /* MOBILE TOUCH OPTIMIERUNG - Größere Druckflächen & Schickes Design */
         
         /* Checkboxen größer mit schönem Design */
