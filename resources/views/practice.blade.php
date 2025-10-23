@@ -94,8 +94,8 @@
         /* PWA Modus: Deutlich weniger Padding, da keine Browser-UI */
         @media (display-mode: standalone) {
             #practiceContainer {
-                padding-bottom: 80px !important; /* Reduziert auf 80px in PWA */
-                padding-bottom: calc(40px + env(safe-area-inset-bottom, 40px)) !important;
+                padding-bottom: 60px !important; /* Noch weniger: 60px in PWA */
+                padding-bottom: calc(20px + env(safe-area-inset-bottom, 40px)) !important;
             }
         }
         
