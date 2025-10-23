@@ -54,22 +54,28 @@
             @method('PATCH')
             
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                <!-- Name (Read-only) -->
+                <!-- Name (Editable) -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Name:</label>
-                    <input type="text" value="{{ Auth::user()->name }}" 
-                           class="w-full border border-gray-300 rounded-lg px-4 py-3 bg-gray-50 text-gray-500" readonly>
-                    <p class="text-xs text-gray-500 mt-1">Der Name kann nicht geändert werden</p>
+                    <label for="name" class="block text-sm font-medium text-gray-700 mb-2">Name:</label>
+                    <input type="text" name="name" id="name" value="{{ old('name', $user->name) }}" 
+                           class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('name') border-red-500 @enderror"
+                           required maxlength="255">
+                    @error('name')
+                        <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                    @else
+                        <p class="text-xs text-gray-500 mt-1">Dieser Name erscheint im Leaderboard</p>
+                    @enderror
                 </div>
                 
                 <!-- Email -->
                 <div>
                     <label for="email" class="block text-sm font-medium text-gray-700 mb-2">E-Mail-Adresse:</label>
                     <input type="email" name="email" id="email" value="{{ old('email', $user->email) }}" 
-                           class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('email') border-red-500 @enderror">
+                           class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('email') border-red-500 @enderror"
+                           required>
                     @error('email')
                         <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
-                    @endif
+                    @enderror
                 </div>
             </div>
             

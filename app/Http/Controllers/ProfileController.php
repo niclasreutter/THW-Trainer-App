@@ -30,18 +30,35 @@ class ProfileController extends Controller
     {
         \Log::info('ProfileController update method reached');
         
-        // Einfache Validierung statt ProfileUpdateRequest
+        $user = $request->user();
+        
+        // Validierung mit unique Check für Name (außer der aktuelle User)
         $request->validate([
+            'name' => ['required', 'string', 'max:255', 'unique:users,name,' . $user->id],
             'email' => ['required', 'string', 'email', 'max:255'],
             'email_consent' => ['boolean'],
             'leaderboard_consent' => ['boolean'],
+        ], [
+            'name.required' => 'Bitte gib einen Namen ein.',
+            'name.unique' => 'Dieser Name wird bereits verwendet. Bitte wähle einen anderen.',
+            'name.max' => 'Der Name darf maximal 255 Zeichen lang sein.',
+            'email.required' => 'Bitte gib eine E-Mail-Adresse ein.',
+            'email.email' => 'Bitte gib eine gültige E-Mail-Adresse ein.',
         ]);
         
-        $user = $request->user();
         $originalEmail = $user->email;
+        $originalName = $user->name;
         $newEmail = $request->input('email');
+        $newName = $request->input('name');
         
         \Log::info('Original email: ' . $originalEmail . ', New email: ' . $newEmail);
+        \Log::info('Original name: ' . $originalName . ', New name: ' . $newName);
+        
+        // Name aktualisieren falls geändert
+        if ($originalName !== $newName) {
+            $user->name = $newName;
+            \Log::info('Name changed to: ' . $newName);
+        }
         
         // E-Mail-Zustimmung verarbeiten
         $emailConsent = $request->has('email_consent');
@@ -75,7 +92,7 @@ class ProfileController extends Controller
         }
 
         $user->save();
-        \Log::info('User email consent updated: ' . ($emailConsent ? 'true' : 'false'));
+        \Log::info('User profile updated successfully');
 
         return Redirect::route('profile')->with('status', 'profile-updated');
     }
