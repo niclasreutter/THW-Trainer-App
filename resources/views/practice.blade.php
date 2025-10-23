@@ -107,6 +107,17 @@
             padding-bottom: 60px !important;
             padding-bottom: calc(20px + env(safe-area-inset-bottom, 40px)) !important;
         }
+        
+        /* Button nicht am untersten Rand kleben lassen */
+        #practiceContainer button[type="submit"],
+        #practiceContainer a.w-full {
+            margin-bottom: 20px !important;
+        }
+        
+        /* Form-Layout anpassen für PWA */
+        #practiceContainer > form {
+            min-height: calc(100vh - 80px) !important;
+        }
     }
     
     @media (max-width: 640px) {
