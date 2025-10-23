@@ -82,11 +82,11 @@
             min-height: 100vh !important;
         }
         
-        /* PWA Modus: Weniger Padding, da keine Browser-UI */
+        /* PWA Modus: Deutlich weniger Padding, da keine Browser-UI */
         @media (display-mode: standalone) {
             #guestPracticeContainer {
-                padding-bottom: 100px !important; /* Weniger Padding in PWA */
-                padding-bottom: calc(60px + env(safe-area-inset-bottom, 40px)) !important;
+                padding-bottom: 80px !important; /* Reduziert auf 80px in PWA */
+                padding-bottom: calc(40px + env(safe-area-inset-bottom, 40px)) !important;
             }
         }
         
