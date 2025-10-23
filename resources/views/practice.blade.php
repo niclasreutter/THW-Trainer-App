@@ -91,6 +91,14 @@
             min-height: 100vh !important;
         }
         
+        /* PWA Modus: Weniger Padding, da keine Browser-UI */
+        @media (display-mode: standalone) {
+            #practiceContainer {
+                padding-bottom: 100px !important; /* Weniger Padding in PWA */
+                padding-bottom: calc(60px + env(safe-area-inset-bottom, 40px)) !important;
+            }
+        }
+        
         /* Alle responsive Klassen überschreiben */
         .sm\:mt-4, .sm\:mt-8, .sm\:p-4, .sm\:p-6, 
         .sm\:rounded-lg, .sm\:shadow-lg {
