@@ -100,26 +100,6 @@
             box-shadow: none !important;
         }
     }
-
-    /* PWA Modus - weniger Padding da keine Browser-UI vorhanden */
-    @media (max-width: 640px) and (display-mode: standalone) {
-        #practiceContainer {
-            padding-bottom: 100px !important;
-            padding-bottom: calc(60px + env(safe-area-inset-bottom, 40px)) !important;
-        }
-        
-        /* Button mit extra Abstand für Safe Area */
-        #practiceContainer button[type="submit"],
-        #practiceContainer a.w-full {
-            margin-bottom: 40px !important;
-            margin-bottom: calc(20px + env(safe-area-inset-bottom, 20px)) !important;
-        }
-        
-        /* Form-Layout anpassen für PWA */
-        #practiceContainer > form {
-            min-height: calc(100vh - 120px) !important;
-        }
-    }
     
     @media (max-width: 640px) {
         /* MOBILE TOUCH OPTIMIERUNG - Größere Druckflächen & Schickes Design */
@@ -355,6 +335,26 @@
             opacity: 1 !important;
             transform: translateX(0) !important;
             pointer-events: auto !important;
+        }
+    }
+    
+    /* PWA Modus - MUSS NACH der allgemeinen Mobile-Query kommen! */
+    @media (max-width: 640px) and (display-mode: standalone) {
+        #practiceContainer {
+            padding-bottom: 120px !important;
+            padding-bottom: calc(80px + env(safe-area-inset-bottom, 40px)) !important;
+        }
+        
+        /* Button mit extra Abstand für Safe Area - überschreibt Mobile-Defaults */
+        #practiceContainer button[type="submit"],
+        #practiceContainer a.w-full {
+            margin-bottom: 60px !important;
+            margin-bottom: calc(40px + env(safe-area-inset-bottom, 20px)) !important;
+        }
+        
+        /* Form-Layout anpassen für PWA */
+        #practiceContainer > form {
+            min-height: calc(100vh - 140px) !important;
         }
     }
     
