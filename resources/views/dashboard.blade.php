@@ -442,6 +442,11 @@
         </div>
 
         <!-- Lehrgänge Sektion -->
+        @php
+            $enrolledLehrgaenge = Auth::user()->enrolledLehrgaenge()->get();
+        @endphp
+
+        @if($enrolledLehrgaenge->isNotEmpty())
         <div class="mb-12">
             <div class="flex items-center justify-between mb-6">
                 <h2 class="text-xl font-semibold text-blue-800">📚 Deine Lehrgänge</h2>
@@ -449,21 +454,6 @@
                     Alle anschauen →
                 </a>
             </div>
-
-            @php
-                $enrolledLehrgaenge = Auth::user()->enrolledLehrgaenge()->get();
-            @endphp
-
-            @if($enrolledLehrgaenge->isEmpty())
-                <div class="bg-white rounded-lg shadow-md p-8 text-center">
-                    <div class="text-4xl mb-4">📖</div>
-                    <p class="text-gray-600 mb-4">{{ __('Du bist noch in keinem Lehrgang eingeschrieben') }}</p>
-                    <a href="{{ route('lehrgaenge.index') }}" 
-                       class="inline-block bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">
-                        {{ __('Jetzt einen Lehrgang wählen') }}
-                    </a>
-                </div>
-            @else
                 @php
                     $count = $enrolledLehrgaenge->count();
                     // Grid-Klassen für Layout
@@ -539,8 +529,8 @@
                         </div>
                     @endforeach
                 </div>
-            @endif
         </div>
+        @endif
 
         @php
             // Nur bei 100% wirklich 100% anzeigen, sonst aufrunden vermeiden
