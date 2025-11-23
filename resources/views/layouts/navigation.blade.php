@@ -145,6 +145,10 @@
                                             <span class="text-lg">❓</span>
                                             <span>Fragen</span>
                                         </a>
+                                        <a href="{{ route('admin.lehrgaenge.index') }}" class="block px-4 py-3 text-gray-700 hover:bg-blue-900 hover:text-yellow-400 transition-colors duration-200 flex items-center space-x-2">
+                                            <span class="text-lg">📚</span>
+                                            <span>Lehrgänge</span>
+                                        </a>
                                         <a href="/admin/users" class="block px-4 py-3 text-gray-700 hover:bg-blue-900 hover:text-yellow-400 transition-colors duration-200 flex items-center space-x-2">
                                             <span class="text-lg">👥</span>
                                             <span>Nutzerverwaltung</span>
@@ -152,6 +156,10 @@
                                         <a href="{{ route('admin.newsletter.create') }}" class="block px-4 py-3 text-gray-700 hover:bg-blue-900 hover:text-yellow-400 transition-colors duration-200 flex items-center space-x-2">
                                             <span class="text-lg">📧</span>
                                             <span>Newsletter</span>
+                                        </a>
+                                        <a href="{{ route('admin.lehrgang-issues.index') }}" class="block px-4 py-3 text-gray-700 hover:bg-blue-900 hover:text-yellow-400 transition-colors duration-200 flex items-center space-x-2">
+                                            <span class="text-lg">🐛</span>
+                                            <span>Fehlermeldungen</span>
                                         </a>
                                         <a href="{{ route('admin.contact-messages.index') }}" class="block px-4 py-3 text-gray-700 hover:bg-blue-900 hover:text-yellow-400 transition-colors duration-200 flex items-center space-x-2">
                                             <span class="text-lg">📬</span>
@@ -339,6 +347,10 @@
                         <a href="/admin/questions" class="block px-3 py-2 text-sm text-gray-300 hover:text-yellow-400 hover:bg-blue-800 rounded-md transition-colors duration-200 flex items-center space-x-2">
                             <span class="text-lg">❓</span>
                             <span>Fragen</span>
+                        </a>
+                        <a href="{{ route('admin.lehrgaenge.index') }}" class="block px-3 py-2 text-sm text-gray-300 hover:text-yellow-400 hover:bg-blue-800 rounded-md transition-colors duration-200 flex items-center space-x-2">
+                            <span class="text-lg">📚</span>
+                            <span>Lehrgänge</span>
                         </a>
                         <a href="/admin/users" class="block px-3 py-2 text-sm text-gray-300 hover:text-yellow-400 hover:bg-blue-800 rounded-md transition-colors duration-200 flex items-center space-x-2">
                             <span class="text-lg">👥</span>

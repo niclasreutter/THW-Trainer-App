@@ -75,6 +75,24 @@ class User extends Authenticatable implements MustVerifyEmail
     }
     
     /**
+     * User ist in vielen Lehrgängen eingeschrieben
+     */
+    public function enrolledLehrgaenge()
+    {
+        return $this->belongsToMany(Lehrgang::class, 'user_lehrgaenge')
+            ->withPivot('punkte', 'completed', 'enrolled_at', 'completed_at')
+            ->withTimestamps();
+    }
+    
+    /**
+     * User hat viele Lehrgang-Fortschritte
+     */
+    public function lehrgangProgress()
+    {
+        return $this->hasMany(UserLehrgangProgress::class);
+    }
+    
+    /**
      * Override the default email verification notification.
      */
     public function sendEmailVerificationNotification()

@@ -165,6 +165,15 @@ Route::middleware('auth')->group(function () {
         return redirect()->route('dashboard')->with('success', 'Test notification triggered');
     })->name('test.notification');
     
+    // Lehrgang Routes (für Kurse)
+    Route::get('/lehrgaenge', [\App\Http\Controllers\LehrgangController::class, 'index'])->name('lehrgaenge.index');
+    Route::get('/lehrgaenge/{slug}', [\App\Http\Controllers\LehrgangController::class, 'show'])->name('lehrgaenge.show');
+    Route::post('/lehrgaenge/{slug}/enroll', [\App\Http\Controllers\LehrgangController::class, 'enroll'])->name('lehrgaenge.enroll');
+    Route::get('/lehrgaenge/{slug}/practice', [\App\Http\Controllers\LehrgangController::class, 'practice'])->name('lehrgaenge.practice');
+    Route::post('/lehrgaenge/{slug}/submit', [\App\Http\Controllers\LehrgangController::class, 'submitAnswer'])->name('lehrgaenge.submit');
+    Route::post('/lehrgaenge/{slug}/unenroll', [\App\Http\Controllers\LehrgangController::class, 'unenroll'])->name('lehrgaenge.unenroll');
+    Route::post('/lehrgaenge/question/{questionId}/report-issue', [\App\Http\Controllers\LehrgangController::class, 'reportIssue'])->name('lehrgaenge.report-issue');
+    
     // Alte Practice Routen (jetzt als Fortsetzung der Session)
     Route::get('/practice', [\App\Http\Controllers\PracticeController::class, 'show'])->name('practice.index');
     Route::post('/practice', [\App\Http\Controllers\PracticeController::class, 'submit'])->name('practice.submit');
@@ -179,6 +188,12 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
     Route::resource('questions', \App\Http\Controllers\Admin\QuestionController::class);
+    Route::resource('lehrgaenge', \App\Http\Controllers\Admin\LehrgangController::class);
+    Route::post('lehrgaenge/{lehrgang}/import-csv', [\App\Http\Controllers\Admin\LehrgangController::class, 'importCSV'])->name('lehrgaenge.import-csv');
+    Route::patch('lehrgaenge/{lehrgang}/question/{question}', [\App\Http\Controllers\Admin\LehrgangController::class, 'updateQuestion'])->name('lehrgaenge.update-question');
+    Route::delete('lehrgaenge/{question}/delete-question', [\App\Http\Controllers\Admin\LehrgangController::class, 'deleteQuestion'])->name('lehrgaenge.delete-question');
+    Route::resource('lehrgang-issues', \App\Http\Controllers\Admin\LehrgangIssueController::class)->only(['index', 'show', 'update', 'destroy']);
+    Route::model('lehrgang_issue', \App\Models\LehrgangQuestionIssue::class);
     Route::get('users', [\App\Http\Controllers\Admin\UserController::class, 'index'])->name('users.index');
     Route::get('users/{id}/edit', [\App\Http\Controllers\Admin\UserController::class, 'edit'])->name('users.edit');
     Route::put('users/{id}', [\App\Http\Controllers\Admin\UserController::class, 'update'])->name('users.update');

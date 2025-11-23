@@ -441,6 +441,107 @@
             @endif
         </div>
 
+        <!-- Lehrgänge Sektion -->
+        <div class="mb-12">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-semibold text-blue-800">📚 Deine Lehrgänge</h2>
+                <a href="{{ route('lehrgaenge.index') }}" class="text-blue-600 hover:text-blue-700 text-sm font-semibold">
+                    Alle anschauen →
+                </a>
+            </div>
+
+            @php
+                $enrolledLehrgaenge = Auth::user()->enrolledLehrgaenge()->get();
+            @endphp
+
+            @if($enrolledLehrgaenge->isEmpty())
+                <div class="bg-white rounded-lg shadow-md p-8 text-center">
+                    <div class="text-4xl mb-4">📖</div>
+                    <p class="text-gray-600 mb-4">{{ __('Du bist noch in keinem Lehrgang eingeschrieben') }}</p>
+                    <a href="{{ route('lehrgaenge.index') }}" 
+                       class="inline-block bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">
+                        {{ __('Jetzt einen Lehrgang wählen') }}
+                    </a>
+                </div>
+            @else
+                @php
+                    $count = $enrolledLehrgaenge->count();
+                    // Grid-Klassen für Layout
+                    $gridClass = match($count) {
+                        1 => 'grid-cols-1 max-w-2xl mx-auto',                        // 1 Lehrgang: ganze Breite, begrenzte max-width
+                        2 => 'grid-cols-1 md:grid-cols-2',                           // 2 Lehrgänge: halbe Breite
+                        default => 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'      // 3+ Lehrgänge: drittel Breite (max 3 pro Zeile)
+                    };
+                @endphp
+                <div class="grid {{ $gridClass }} gap-6">
+                    @foreach($enrolledLehrgaenge as $lehrgang)
+                        @php
+                            // Gleiche Logik wie in lehrgaenge/practice
+                            $solvedCount = \App\Models\UserLehrgangProgress::where('user_id', Auth::id())
+                                ->whereHas('lehrgangQuestion', fn($q) => $q->where('lehrgang_id', $lehrgang->id))
+                                ->where('solved', true)
+                                ->count();
+                            
+                            $totalCount = \App\Models\LehrgangQuestion::where('lehrgang_id', $lehrgang->id)->count();
+                            
+                            // Neue Fortschrittsbalken-Logik: Berücksichtigt auch 1x richtige Antworten
+                            $progressData = \App\Models\UserLehrgangProgress::where('user_id', Auth::id())
+                                ->whereHas('lehrgangQuestion', fn($q) => $q->where('lehrgang_id', $lehrgang->id))
+                                ->get();
+                            
+                            $totalProgressPoints = 0;
+                            foreach ($progressData as $prog) {
+                                $totalProgressPoints += min($prog->consecutive_correct, 2);
+                            }
+                            $maxProgressPoints = $totalCount * 2;
+                            $progressPercent = $maxProgressPoints > 0 ? round(($totalProgressPoints / $maxProgressPoints) * 100) : 0;
+                            
+                            $isCompleted = $progressPercent == 100 && $solvedCount > 0;
+                        @endphp
+                        
+                        <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition overflow-hidden flex flex-col h-full">
+                            <div class="p-6 flex flex-col flex-grow">
+                                <h3 class="text-lg font-bold text-gray-900 mb-2">{{ $lehrgang->lehrgang }}</h3>
+                                <p class="text-sm text-gray-600 mb-4 line-clamp-2">{{ $lehrgang->beschreibung }}</p>
+                                
+                                <!-- Fortschritt mit Animation -->
+                                <div class="mb-4 flex-grow">
+                                    <div class="flex justify-between text-xs text-gray-600 mb-1">
+                                        <span>{{ $solvedCount }}/{{ $totalCount }} Fragen</span>
+                                        <span>{{ $progressPercent }}%</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2">
+                                        <div class="bg-yellow-400 h-2 rounded-full transition-all duration-500" 
+                                             style="width: {{ $progressPercent }}%; box-shadow: 0 0 10px rgba(251, 191, 36, 0.6), 0 0 20px rgba(251, 191, 36, 0.4), 0 0 30px rgba(251, 191, 36, 0.2);"></div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Button -->
+                                @if($isCompleted)
+                                    <!-- Abgeschlossen (Grün mit Glow) -->
+                                    <div class="w-full text-center px-4 py-2 rounded text-sm font-semibold text-white"
+                                         style="background: linear-gradient(to right, #10b981, #059669); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4), 0 0 20px rgba(16, 185, 129, 0.3), 0 0 40px rgba(16, 185, 129, 0.1); transition: all 0.3s ease;"
+                                         onmouseover="this.style.background='linear-gradient(to right, #059669, #047857)'; this.style.boxShadow='0 4px 15px rgba(16, 185, 129, 0.4), 0 0 25px rgba(16, 185, 129, 0.4), 0 0 50px rgba(16, 185, 129, 0.2)'; this.style.transform='scale(1.02)'"
+                                         onmouseout="this.style.background='linear-gradient(to right, #10b981, #059669)'; this.style.boxShadow='0 4px 15px rgba(16, 185, 129, 0.4), 0 0 20px rgba(16, 185, 129, 0.3), 0 0 40px rgba(16, 185, 129, 0.1)'; this.style.transform='scale(1)'">
+                                        ✓ Abgeschlossen
+                                    </div>
+                                @else
+                                    <!-- Weitermachen (Gelb mit Glow) -->
+                                    <a href="{{ route('lehrgaenge.practice', $lehrgang->slug) }}" 
+                                       class="w-full inline-block text-center px-4 py-2 rounded text-sm font-semibold transition"
+                                       style="background: linear-gradient(to right, #facc15, #f59e0b); color: #1e40af; box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4), 0 0 20px rgba(251, 191, 36, 0.3), 0 0 40px rgba(251, 191, 36, 0.1); text-decoration: none;"
+                                       onmouseover="this.style.background='linear-gradient(to right, #f59e0b, #d97706)'; this.style.boxShadow='0 4px 15px rgba(251, 191, 36, 0.4), 0 0 25px rgba(251, 191, 36, 0.4), 0 0 50px rgba(251, 191, 36, 0.2)'; this.style.transform='scale(1.02)'"
+                                       onmouseout="this.style.background='linear-gradient(to right, #facc15, #f59e0b)'; this.style.boxShadow='0 4px 15px rgba(251, 191, 36, 0.4), 0 0 20px rgba(251, 191, 36, 0.3), 0 0 40px rgba(251, 191, 36, 0.1)'; this.style.transform='scale(1)'">
+                                        📚 Weitermachen
+                                    </a>
+                                @endif
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            @endif
+        </div>
+
         @php
             // Nur bei 100% wirklich 100% anzeigen, sonst aufrunden vermeiden
             $masteredPercent = $total > 0 ? ($progress == $total ? 100 : floor($progress / $total * 100)) : 0;
