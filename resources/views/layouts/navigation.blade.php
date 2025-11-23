@@ -160,6 +160,15 @@
                                         <a href="{{ route('admin.lehrgang-issues.index') }}" class="block px-4 py-3 text-gray-700 hover:bg-blue-900 hover:text-yellow-400 transition-colors duration-200 flex items-center space-x-2">
                                             <span class="text-lg">🐛</span>
                                             <span>Fehlermeldungen</span>
+                                            @php
+                                                // Cache open issues count for 5 minutes
+                                                $openIssuesCount = cache()->remember('admin_open_issues_count', 300, function() {
+                                                    return \App\Models\LehrgangQuestionIssue::where('status', 'open')->count();
+                                                });
+                                            @endphp
+                                            @if($openIssuesCount > 0)
+                                                <span class="ml-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">{{ $openIssuesCount }}</span>
+                                            @endif
                                         </a>
                                         <a href="{{ route('admin.contact-messages.index') }}" class="block px-4 py-3 text-gray-700 hover:bg-blue-900 hover:text-yellow-400 transition-colors duration-200 flex items-center space-x-2">
                                             <span class="text-lg">📬</span>
