@@ -7,9 +7,11 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
-        Schema::table('lehrgaenge', function (Blueprint $table) {
-            $table->dropColumn('ziel_punkte');
-        });
+        if (Schema::hasColumn('lehrgaenge', 'ziel_punkte')) {
+            Schema::table('lehrgaenge', function (Blueprint $table) {
+                $table->dropColumn('ziel_punkte');
+            });
+        }
     }
 
     public function down(): void
