@@ -160,16 +160,17 @@
                                         <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-semibold transition shadow-md">
                                             💾 Speichern
                                         </button>
-                                        <form action="{{ route('admin.lehrgaenge.delete-question', $question->id) }}" method="POST" style="display: inline;"
-                                              onsubmit="return confirm('Frage wirklich löschen?');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg font-semibold transition shadow-md">
-                                                🗑️ Löschen
-                                            </button>
-                                        </form>
+                                        <button type="button" onclick="deleteQuestion({{ $question->id }})" class="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg font-semibold transition shadow-md">
+                                            🗑️ Löschen
+                                        </button>
                                     </div>
                                 </div>
+                            </form>
+                            
+                            <!-- Separate Delete Form (hidden) -->
+                            <form id="delete-form-{{ $question->id }}" action="{{ route('admin.lehrgaenge.delete-question', $question->id) }}" method="POST" style="display: none;">
+                                @csrf
+                                @method('DELETE')
                             </form>
                         </div>
                     @endforeach
@@ -190,6 +191,12 @@
 </div>
 
 <script>
+function deleteQuestion(questionId) {
+    if (confirm('Frage wirklich löschen?')) {
+        document.getElementById('delete-form-' + questionId).submit();
+    }
+}
+
 document.querySelectorAll('.question-form').forEach(form => {
     form.addEventListener('submit', async function(e) {
         e.preventDefault();
