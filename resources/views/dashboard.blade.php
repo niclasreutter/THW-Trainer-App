@@ -280,9 +280,6 @@
                 }
                 $maxProgressPoints = $total * 2;
                 $progressPercent = $maxProgressPoints > 0 ? round(($totalProgressPoints / $maxProgressPoints) * 100) : 0;
-                
-                // Debug
-                dd(['progressDataCount' => $progressData->count(), 'totalProgressPoints' => $totalProgressPoints, 'maxProgressPoints' => $maxProgressPoints, 'progressPercent' => $progressPercent]);
             } catch (\Exception $e) {
                 // Fallback bei Fehler
                 $progressPercent = 0;
@@ -502,9 +499,9 @@
                                 $totalProgressPoints += min($prog->consecutive_correct, 2);
                             }
                             $maxProgressPoints = $totalCount * 2;
-                            $progressPercent = $maxProgressPoints > 0 ? round(($totalProgressPoints / $maxProgressPoints) * 100) : 0;
+                            $lehrgangProgressPercent = $maxProgressPoints > 0 ? round(($totalProgressPoints / $maxProgressPoints) * 100) : 0;
                             
-                            $isCompleted = $progressPercent == 100 && $solvedCount > 0;
+                            $isCompleted = $lehrgangProgressPercent == 100 && $solvedCount > 0;
                         @endphp
                         
                         <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition overflow-hidden flex flex-col h-full">
@@ -516,11 +513,11 @@
                                 <div class="mb-4 flex-grow">
                                     <div class="flex justify-between text-xs text-gray-600 mb-1">
                                         <span>{{ $solvedCount }}/{{ $totalCount }} Fragen</span>
-                                        <span>{{ $progressPercent }}%</span>
+                                        <span>{{ $lehrgangProgressPercent }}%</span>
                                     </div>
                                     <div class="w-full bg-gray-200 rounded-full h-2">
                                         <div class="bg-yellow-400 h-2 rounded-full transition-all duration-500" 
-                                             style="width: {{ $progressPercent }}%; box-shadow: 0 0 10px rgba(251, 191, 36, 0.6), 0 0 20px rgba(251, 191, 36, 0.4), 0 0 30px rgba(251, 191, 36, 0.2);"></div>
+                                             style="width: {{ $lehrgangProgressPercent }}%; box-shadow: 0 0 10px rgba(251, 191, 36, 0.6), 0 0 20px rgba(251, 191, 36, 0.4), 0 0 30px rgba(251, 191, 36, 0.2);"></div>
                                     </div>
                                 </div>
                                 
