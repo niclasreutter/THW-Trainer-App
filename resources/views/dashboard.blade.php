@@ -556,23 +556,23 @@
             </div>
             
             <!-- Placeholder Card -->
-            <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg shadow-md border-2 border-dashed border-blue-300 p-8 text-center">
-                <div class="mb-4 text-4xl">🎓</div>
-                <h3 class="text-xl font-bold text-blue-800 mb-2">Willkommen zum neuen Lehrgänge Feature!</h3>
-                <p class="text-gray-700 mb-4 max-w-md mx-auto">
-                    Jetzt neu - teste das innovative Lehrgänge-System! Lerne strukturierte Kurse mit Fragen und Fortschrittsanzeige.
-                </p>
-                <div class="space-y-2 text-sm text-gray-600 mb-6 max-w-md mx-auto">
-                    <p>✨ Mehr Lehrgänge kommen bald!</p>
-                    <p>✍️ Autoren für Fragen gesucht!</p>
+            <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg shadow-md border-2 border-dashed border-blue-300 p-4 text-center">
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                    <div class="text-3xl">🎓</div>
+                    <div class="flex-1">
+                        <h3 class="text-lg font-bold text-blue-800 mb-1">Lehrgänge - Neu & exklusiv!</h3>
+                        <p class="text-sm text-gray-700 mb-2">
+                            Teste das neue Feature! ✨ Mehr Lehrgänge kommen bald. ✍️ Autoren für Fragen gesucht!
+                        </p>
+                    </div>
+                    <a href="{{ route('lehrgaenge.index') }}" 
+                       class="inline-block px-4 py-2 rounded text-xs font-semibold transition whitespace-nowrap"
+                       style="background: linear-gradient(to right, #3b82f6, #2563eb); color: white; text-decoration: none; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4), 0 0 20px rgba(59, 130, 246, 0.3), 0 0 40px rgba(59, 130, 246, 0.1);"
+                       onmouseover="this.style.background='linear-gradient(to right, #2563eb, #1d4ed8)'; this.style.transform='scale(1.05)'; this.style.boxShadow='0 4px 15px rgba(59, 130, 246, 0.4), 0 0 25px rgba(59, 130, 246, 0.4), 0 0 50px rgba(59, 130, 246, 0.2)'"
+                       onmouseout="this.style.background='linear-gradient(to right, #3b82f6, #2563eb)'; this.style.transform='scale(1)'; this.style.boxShadow='0 4px 15px rgba(59, 130, 246, 0.4), 0 0 20px rgba(59, 130, 246, 0.3), 0 0 40px rgba(59, 130, 246, 0.1)'">
+                        🚀 Erkunden
+                    </a>
                 </div>
-                <a href="{{ route('lehrgaenge.index') }}" 
-                   class="inline-block px-6 py-3 rounded text-sm font-semibold transition"
-                   style="background: linear-gradient(to right, #3b82f6, #2563eb); color: white; text-decoration: none; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4); box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4), 0 0 20px rgba(59, 130, 246, 0.3), 0 0 40px rgba(59, 130, 246, 0.1);"
-                   onmouseover="this.style.background='linear-gradient(to right, #2563eb, #1d4ed8)'; this.style.transform='scale(1.05)'; this.style.boxShadow='0 4px 15px rgba(59, 130, 246, 0.4), 0 0 25px rgba(59, 130, 246, 0.4), 0 0 50px rgba(59, 130, 246, 0.2)'"
-                   onmouseout="this.style.background='linear-gradient(to right, #3b82f6, #2563eb)'; this.style.transform='scale(1)'; this.style.boxShadow='0 4px 15px rgba(59, 130, 246, 0.4), 0 0 20px rgba(59, 130, 246, 0.3), 0 0 40px rgba(59, 130, 246, 0.1)'">
-                    🚀 Jetzt Lehrgänge erkunden
-                </a>
             </div>
         </div>
         @endif
