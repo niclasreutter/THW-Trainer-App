@@ -41,6 +41,10 @@
                                 <div class="absolute -bottom-1 left-0 w-0 h-0.5 bg-yellow-400 transition-all duration-200 group-hover:w-full"></div>
                             </button>
                             <div id="learningDropdown" class="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl z-50 hidden border border-gray-200">
+                                <a href="{{ route('lehrgaenge.index') }}" class="block px-4 py-3 text-gray-700 hover:bg-blue-900 hover:text-yellow-400 transition-colors duration-200 flex items-center space-x-2">
+                                    <span class="text-lg">📚</span>
+                                    <span>Lehrgänge</span>
+                                </a>
                                 <a href="{{ route('practice.menu') }}" class="block px-4 py-3 text-gray-700 hover:bg-blue-900 hover:text-yellow-400 transition-colors duration-200 flex items-center space-x-2">
                                     <span class="text-lg">📝</span>
                                     <span>Übungsmenü</span>
