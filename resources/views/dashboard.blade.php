@@ -543,18 +543,21 @@
             $enrolledLehrgaenge = Auth::user()->enrolledLehrgaenge()->count();
         @endphp
         
-        <div class="mb-12 bg-white rounded-lg shadow-md p-6">
+        <div class="bg-white rounded-lg shadow-md p-6 mb-12">
             @if($enrolledLehrgaenge > 0)
                 <!-- Collapse Header wenn eingeschrieben -->
-                <button onclick="toggleProgressSection()" class="w-full flex items-center justify-between hover:opacity-80 transition">
+                <div class="flex items-center justify-between cursor-pointer" onclick="toggleProgress()">
                     <h2 class="text-xl font-semibold text-blue-800">📊 Dein Fortschritt</h2>
-                    <span id="progressToggleIcon" style="font-size: 24px;">▶️</span>
-                </button>
+                    <svg id="progressArrow" class="w-6 h-6 text-blue-800 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </div>
                 
                 <!-- Collapsible Content -->
-                <div id="progressContent" style="display: none; margin-top: 16px;">
+                <div id="progressContent" class="mt-6" style="display: none; max-height: 0; overflow: hidden; opacity: 0; transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;">
             @else
                 <h2 class="text-xl font-semibold text-blue-800 mb-4">📊 Dein Fortschritt</h2>
+                <div>
             @endif
             
             <!-- Info-Karte: 2x richtig Regel -->
@@ -789,9 +792,7 @@
             </div>
             @endif
             
-                @if($enrolledLehrgaenge > 0)
                 </div>
-                @endif
         </div>
 
         <!-- Navigation Sektion -->
@@ -1036,17 +1037,31 @@
             }
         }
         
-        // Toggle Progress Section wenn eingeschrieben
-        function toggleProgressSection() {
+        // Toggle Progress Section
+        function toggleProgress() {
             const content = document.getElementById('progressContent');
-            const icon = document.getElementById('progressToggleIcon');
+            const arrow = document.getElementById('progressArrow');
             
-            if (content.style.display === 'none') {
+            if (content.style.display === 'none' || content.style.maxHeight === '0px') {
+                // Öffnen
+                content.classList.remove('hidden');
                 content.style.display = 'block';
-                icon.textContent = '▼️';
+                arrow.style.transform = 'rotate(180deg)';
+                
+                // Smooth scroll animation
+                setTimeout(() => {
+                    content.style.maxHeight = content.scrollHeight + 'px';
+                    content.style.opacity = '1';
+                }, 10);
             } else {
-                content.style.display = 'none';
-                icon.textContent = '▶️';
+                // Schließen
+                content.style.maxHeight = '0';
+                content.style.opacity = '0';
+                arrow.style.transform = 'rotate(0deg)';
+                
+                setTimeout(() => {
+                    content.classList.add('hidden');
+                }, 300);
             }
         }
     </script>
