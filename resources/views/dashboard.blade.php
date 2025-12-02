@@ -257,9 +257,6 @@
             $user = Auth::user();
             $total = $totalQuestions ?? \App\Models\Question::count(); // Nutze gecachten Wert vom Controller
             
-            // Debug: Zeige $totalQuestions und $total
-            dd(['totalQuestions' => $totalQuestions ?? 'null', 'total' => $total, 'enrolledCount' => $user->enrolledLehrgaenge()->count()]);
-            
             // Sicherstelle dass $total nicht NULL oder 0 ist
             if (empty($total)) {
                 $total = \App\Models\Question::count();
@@ -275,9 +272,6 @@
             try {
                 $progressData = \App\Models\UserQuestionProgress::where('user_id', $user->id)->get();
                 
-                // Debug
-                // dd(['progressDataCount' => $progressData->count(), 'total' => $total, 'totalQuestions' => $totalQuestions ?? 'null']);
-                
                 $totalProgressPoints = 0;
                 if ($progressData && $progressData->count() > 0) {
                     foreach ($progressData as $prog) {
@@ -288,7 +282,7 @@
                 $progressPercent = $maxProgressPoints > 0 ? round(($totalProgressPoints / $maxProgressPoints) * 100) : 0;
                 
                 // Debug
-                // dd(['totalProgressPoints' => $totalProgressPoints, 'maxProgressPoints' => $maxProgressPoints, 'progressPercent' => $progressPercent]);
+                dd(['progressDataCount' => $progressData->count(), 'totalProgressPoints' => $totalProgressPoints, 'maxProgressPoints' => $maxProgressPoints, 'progressPercent' => $progressPercent]);
             } catch (\Exception $e) {
                 // Fallback bei Fehler
                 $progressPercent = 0;
