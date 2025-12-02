@@ -233,23 +233,6 @@
         </div>
     </div>
 
-    <!-- Info Box -->
-    <div class="bg-blue-50 border-l-4 border-blue-500 rounded-r-lg p-6 mb-6">
-        <div class="flex items-start">
-            <i class="fas fa-info-circle text-blue-500 text-xl mr-3 mt-1"></i>
-            <div>
-                <h3 class="font-bold text-blue-800 mb-2">ℹ️ Über diese Statistiken</h3>
-                <p class="text-sm text-blue-700 mb-2">
-                    Diese Statistiken basieren auf anonymen Daten aller Nutzer (angemeldet und Gäste). 
-                    Es werden keine persönlichen Informationen gespeichert - nur ob eine Frage richtig oder falsch beantwortet wurde.
-                </p>
-                <p class="text-sm text-blue-700">
-                    Fragen in den Top-10-Listen benötigen mindestens 5 Versuche, um aussagekräftige Statistiken zu liefern.
-                </p>
-            </div>
-        </div>
-    </div>
-
     <!-- Lehrgang-Statistiken -->
     @if($lehrgangStats->isNotEmpty())
     <div class="bg-white rounded-xl p-6 card-shadow mb-12">
@@ -302,6 +285,23 @@
         </div>
     </div>
     @endif
+
+    <!-- Info Box -->
+    <div class="bg-blue-50 border-l-4 border-blue-500 rounded-r-lg p-6 mb-6">
+        <div class="flex items-start">
+            <i class="fas fa-info-circle text-blue-500 text-xl mr-3 mt-1"></i>
+            <div>
+                <h3 class="font-bold text-blue-800 mb-2">ℹ️ Über diese Statistiken</h3>
+                <p class="text-sm text-blue-700 mb-2">
+                    Diese Statistiken basieren auf anonymen Daten aller Nutzer (angemeldet und Gäste). 
+                    Es werden keine persönlichen Informationen gespeichert - nur ob eine Frage richtig oder falsch beantwortet wurde.
+                </p>
+                <p class="text-sm text-blue-700">
+                    Fragen in den Top-10-Listen benötigen mindestens 5 Versuche, um aussagekräftige Statistiken zu liefern.
+                </p>
+            </div>
+        </div>
+    </div>
 </div>
 @endsection
 
