@@ -28,9 +28,10 @@
                     <div>
                         <h2 class="text-xl font-bold">{{ $lehrgang->lehrgang }}</h2>
                         <p class="text-gray-600 text-sm mt-1">{{ Str::limit($lehrgang->beschreibung, 100) }}</p>
-                        <p class="text-gray-500 text-xs mt-2">
-                            📚 {{ $lehrgang->questions_count }} Fragen
-                        </p>
+                        <div class="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                            <span>📚 {{ $lehrgang->questions_count }} Fragen</span>
+                            <span>👥 {{ $lehrgang->enrolled_users_count ?? 0 }} Nutzer eingeschrieben</span>
+                        </div>
                     </div>
                     <div class="flex gap-2">
                         <a href="{{ url('admin/lehrgaenge/' . $lehrgang->id) }}" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded text-sm">
