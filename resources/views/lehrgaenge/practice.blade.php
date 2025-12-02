@@ -690,7 +690,12 @@
         </div>
         
         <div class="mb-2 text-xs text-gray-600 hidden sm:block">
-            Fortschritt: {{ $progress }}/{{ $total }} gemeistert
+            <div class="flex items-center gap-2">
+                <span>Fortschritt: {{ $progress }}/{{ $total }} gemeistert</span>
+                <span class="text-[10px] text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200" title="Jede Frage muss zweimal hintereinander richtig beantwortet werden">
+                    ℹ️ 2× in Folge richtig
+                </span>
+            </div>
             <div class="w-full bg-gray-200 rounded-full h-2 mt-0.5 mb-0.5">
                 <div class="bg-yellow-400 h-2 rounded-full transition-all duration-300 shadow-lg" 
                      style="width: {{ $progressPercent ?? 0 }}%; box-shadow: 0 0 10px rgba(251, 191, 36, 0.6), 0 0 20px rgba(251, 191, 36, 0.4), 0 0 30px rgba(251, 191, 36, 0.2);"></div>
