@@ -110,6 +110,39 @@ class StatisticsController extends Controller
         $topWrongQuestionIds = $topWrongQuestions->pluck('question_id')->toArray();
         \Cache::put('top_wrong_questions', $topWrongQuestionIds, 3600); // 1 Stunde Cache
         
+        // Lehrgang-Statistiken - anonyme Daten
+        $lehrgangStats = \App\Models\Lehrgang::withCount(['users'])
+            ->with([
+                'questions' => function($q) {
+                    $q->select('id', 'lehrgang_id');
+                }
+            ])
+            ->get()
+            ->map(function($lehrgang) {
+                // Berechne Statistiken für diesen Lehrgang
+                $stats = DB::table('lehrgang_question_statistics')
+                    ->whereIn('lehrgang_question_id', 
+                        \App\Models\LehrgangQuestion::where('lehrgang_id', $lehrgang->id)->pluck('id')
+                    )
+                    ->get();
+                
+                $totalAnswered = $stats->count();
+                $totalCorrect = $stats->where('is_correct', true)->count();
+                $successRate = $totalAnswered > 0 ? round(($totalCorrect / $totalAnswered) * 100, 1) : 0;
+                
+                return (object)[
+                    'id' => $lehrgang->id,
+                    'name' => $lehrgang->lehrgang,
+                    'users_count' => $lehrgang->users_count,
+                    'questions_count' => $lehrgang->questions->count(),
+                    'total_answered' => $totalAnswered,
+                    'total_correct' => $totalCorrect,
+                    'success_rate' => $successRate,
+                ];
+            })
+            ->sortByDesc('total_answered')
+            ->values();
+        
         return view('statistics', compact(
             'totalAnswered',
             'totalAnsweredToday',
@@ -123,7 +156,8 @@ class StatisticsController extends Controller
             'examPassRate',
             'topWrongQuestionsWithDetails',
             'topCorrectQuestionsWithDetails',
-            'sectionStats'
+            'sectionStats',
+            'lehrgangStats'
         ));
     }
 }

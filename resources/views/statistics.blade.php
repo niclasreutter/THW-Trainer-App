@@ -249,6 +249,59 @@
             </div>
         </div>
     </div>
+
+    <!-- Lehrgang-Statistiken -->
+    @if($lehrgangStats->isNotEmpty())
+    <div class="bg-white rounded-xl p-6 card-shadow mb-12">
+        <div class="flex items-center mb-6">
+            <i class="fas fa-graduation-cap text-purple-600 text-2xl mr-3"></i>
+            <h2 class="text-2xl font-bold text-gray-800">Lehrgänge</h2>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            @foreach($lehrgangStats as $lehrgang)
+                <div class="border-2 border-gray-200 rounded-lg p-4 hover:shadow-lg transition">
+                    <h3 class="font-bold text-gray-800 mb-3">{{ $lehrgang->name }}</h3>
+                    
+                    <div class="space-y-2 text-sm">
+                        <!-- Nutzer eingeschrieben -->
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">👥 Nutzer eingeschrieben:</span>
+                            <span class="font-bold text-purple-600">{{ number_format($lehrgang->users_count) }}</span>
+                        </div>
+                        
+                        <!-- Anzahl Fragen -->
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">❓ Fragen:</span>
+                            <span class="font-bold text-blue-600">{{ $lehrgang->questions_count }}</span>
+                        </div>
+                        
+                        <!-- Beantwortet -->
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">📊 Beantwortet:</span>
+                            <span class="font-bold">{{ number_format($lehrgang->total_answered) }}</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Erfolgsrate Progress Bar -->
+                    <div class="mt-4 pt-3 border-t border-gray-200">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-xs text-gray-600">Erfolgsrate</span>
+                            <span class="text-sm font-bold" style="color: {{ $lehrgang->success_rate >= 70 ? '#22c55e' : ($lehrgang->success_rate >= 50 ? '#f59e0b' : '#ef4444') }}">
+                                {{ $lehrgang->success_rate }}%
+                            </span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="h-2 rounded-full transition-all" 
+                                 style="width: {{ $lehrgang->success_rate }}%; background: {{ $lehrgang->success_rate >= 70 ? 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)' : ($lehrgang->success_rate >= 50 ? 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)' : 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)') }};">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    </div>
+    @endif
 </div>
 @endsection
 
