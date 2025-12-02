@@ -256,6 +256,12 @@
             // Variablen für Dashboard definieren
             $user = Auth::user();
             $total = $totalQuestions ?? \App\Models\Question::count(); // Nutze gecachten Wert vom Controller
+            
+            // Sicherstelle dass $total nicht NULL oder 0 ist
+            if (empty($total)) {
+                $total = \App\Models\Question::count();
+            }
+            
             $progressArr = is_array($user->solved_questions ?? null) 
                 ? $user->solved_questions 
                 : (is_string($user->solved_questions) ? json_decode($user->solved_questions, true) ?? [] : []);
@@ -263,13 +269,21 @@
             $exams = $user->exam_passed_count ?? 0;
             
             // Neue Fortschrittsbalken-Logik: Berücksichtigt auch 1x richtige Antworten
-            $progressData = \App\Models\UserQuestionProgress::where('user_id', $user->id)->get();
-            $totalProgressPoints = 0;
-            foreach ($progressData as $prog) {
-                $totalProgressPoints += min($prog->consecutive_correct, 2);
+            try {
+                $progressData = \App\Models\UserQuestionProgress::where('user_id', $user->id)->get();
+                $totalProgressPoints = 0;
+                if ($progressData && $progressData->count() > 0) {
+                    foreach ($progressData as $prog) {
+                        $totalProgressPoints += min($prog->consecutive_correct ?? 0, 2);
+                    }
+                }
+                $maxProgressPoints = $total * 2;
+                $progressPercent = $maxProgressPoints > 0 ? round(($totalProgressPoints / $maxProgressPoints) * 100) : 0;
+            } catch (\Exception $e) {
+                // Fallback bei Fehler
+                $progressPercent = 0;
+                $totalProgressPoints = 0;
             }
-            $maxProgressPoints = $total * 2;
-            $progressPercent = $maxProgressPoints > 0 ? round(($totalProgressPoints / $maxProgressPoints) * 100) : 0;
         @endphp
 
         @if(session('error'))
@@ -540,11 +554,11 @@
 
         <!-- Fortschritt Sektion -->
         @php
-            $enrolledLehrgaenge = Auth::user()->enrolledLehrgaenge()->count();
+            $enrolledLehrgaengeCount = Auth::user()->enrolledLehrgaenge()->count();
         @endphp
         
         <div class="bg-white rounded-lg shadow-md p-6 mb-12">
-            @if($enrolledLehrgaenge > 0)
+            @if($enrolledLehrgaengeCount > 0)
                 <!-- Collapse Header wenn eingeschrieben -->
                 <div class="flex items-center justify-between cursor-pointer" onclick="toggleProgress()">
                     <h2 class="text-xl font-semibold text-blue-800">📊 Dein Fortschritt</h2>
