@@ -30,7 +30,7 @@
                         <p class="text-gray-600 text-sm mt-1">{{ Str::limit($lehrgang->beschreibung, 100) }}</p>
                         <div class="flex items-center gap-4 mt-2 text-xs text-gray-500">
                             <span>📚 {{ $lehrgang->questions_count }} Fragen</span>
-                            <span>👥 {{ $lehrgang->enrolled_users_count ?? 0 }} Nutzer eingeschrieben</span>
+                            <span>👥 {{ $lehrgang->users_count ?? 0 }} Nutzer eingeschrieben</span>
                         </div>
                     </div>
                     <div class="flex gap-2">

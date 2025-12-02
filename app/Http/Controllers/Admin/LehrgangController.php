@@ -14,7 +14,7 @@ class LehrgangController extends \App\Http\Controllers\Controller
      */
     public function index()
     {
-        $lehrgaenge = Lehrgang::withCount(['questions', 'enrolledUsers'])
+        $lehrgaenge = Lehrgang::withCount(['questions', 'users'])
             ->orderBy('created_at', 'desc')
             ->paginate(15);
         
