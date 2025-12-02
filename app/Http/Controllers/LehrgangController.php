@@ -441,6 +441,12 @@ class LehrgangController extends Controller
             $issue->report_count++;
             $issue->latest_message = $message ?? null;
             $issue->reported_by_user_id = $user->id;
+            
+            // Wenn Status nicht "open" ist, setze ihn zurück auf "open"
+            if ($issue->status !== 'open') {
+                $issue->status = 'open';
+            }
+            
             $issue->save();
             $isNew = false;
         } else {
