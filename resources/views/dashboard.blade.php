@@ -539,8 +539,23 @@
         @endphp
 
         <!-- Fortschritt Sektion -->
+        @php
+            $enrolledLehrgaenge = Auth::user()->enrolledLehrgaenge()->count();
+        @endphp
+        
         <div class="mb-12 bg-white rounded-lg shadow-md p-6">
-            <h2 class="text-xl font-semibold text-blue-800 mb-4">📊 Dein Fortschritt</h2>
+            @if($enrolledLehrgaenge > 0)
+                <!-- Collapse Header wenn eingeschrieben -->
+                <button onclick="toggleProgressSection()" class="w-full flex items-center justify-between hover:opacity-80 transition">
+                    <h2 class="text-xl font-semibold text-blue-800">📊 Dein Fortschritt</h2>
+                    <span id="progressToggleIcon" style="font-size: 24px;">▶️</span>
+                </button>
+                
+                <!-- Collapsible Content -->
+                <div id="progressContent" style="display: none; margin-top: 16px;">
+            @else
+                <h2 class="text-xl font-semibold text-blue-800 mb-4">📊 Dein Fortschritt</h2>
+            @endif
             
             <!-- Info-Karte: 2x richtig Regel -->
             <div id="info-2x-rule" style="margin-bottom: 16px; padding: 12px; background-color: #eff6ff; border: 2px solid #3b82f6; border-radius: 8px; box-shadow: 0 0 20px rgba(59, 130, 246, 0.3), 0 0 40px rgba(59, 130, 246, 0.1); position: relative;">
@@ -774,6 +789,9 @@
             </div>
             @endif
             
+                @if($enrolledLehrgaenge > 0)
+                </div>
+                @endif
         </div>
 
         <!-- Navigation Sektion -->
@@ -1015,6 +1033,20 @@
                 setTimeout(() => {
                     content.classList.add('hidden');
                 }, 300);
+            }
+        }
+        
+        // Toggle Progress Section wenn eingeschrieben
+        function toggleProgressSection() {
+            const content = document.getElementById('progressContent');
+            const icon = document.getElementById('progressToggleIcon');
+            
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                icon.textContent = '▼️';
+            } else {
+                content.style.display = 'none';
+                icon.textContent = '▶️';
             }
         }
     </script>
