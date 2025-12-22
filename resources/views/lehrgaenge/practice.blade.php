@@ -753,10 +753,12 @@
             <input type="hidden" name="answer_mapping" value="{{ $mappingJson }}">
             
             <div class="mb-2 sm:mb-3 p-2 sm:p-3 border rounded-lg bg-gray-50 shadow-sm sm:hover:shadow-md sm:transition-shadow sm:duration-300">
-                <div class="mb-1 text-[9px] sm:text-[10px] text-gray-500 flex items-center gap-1">
+                <div class="mb-1 text-[9px] sm:text-[10px] text-gray-500 flex items-center gap-1 flex-wrap">
                     <span>ID: {{ $question->id }}</span>
                     <span class="mx-0.5 sm:mx-1">&middot;</span>
-                    <span>{{ $question->lernabschnitt_name ?? ('Lernabschnitt ' . $question->lernabschnitt) }}.{{ $question->nummer ?? '-' }}</span>
+                    <span>Lernabschnitt: {{ $question->lernabschnitt_name ?? ('Lernabschnitt ' . $question->lernabschnitt) }}</span>
+                    <span class="mx-0.5 sm:mx-1">&middot;</span>
+                    <span>Frage: {{ $question->nummer ?? '-' }}</span>
                 </div>
                 <div class="mb-1 font-bold text-xs sm:text-sm">Frage:</div>
                 <div class="mb-2 text-xs sm:text-sm">{{ $question->frage }}</div>
