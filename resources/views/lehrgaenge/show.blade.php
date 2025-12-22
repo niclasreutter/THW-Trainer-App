@@ -67,14 +67,31 @@
             @else
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                     @foreach($questions as $section => $sectionQuestions)
+                        @php
+                            $progress = $sectionProgress[$section] ?? null;
+                        @endphp
                         <a href="{{ route('lehrgaenge.practice-section', ['slug' => $lehrgang->slug, 'sectionNr' => $section]) }}" class="p-4 sm:p-5 bg-white border border-gray-200 rounded-lg hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer">
-                            <div class="flex items-center justify-between">
-                                <div>
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="flex-1">
                                     <p class="font-bold text-gray-900 text-base sm:text-lg">{{ $lernabschnitte->get($section, 'Lernabschnitt ' . $section) }}</p>
                                     <p class="text-sm text-gray-600 mt-1">{{ $sectionQuestions->count() }} {{ __('Fragen') }}</p>
                                 </div>
                                 <span class="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-semibold">{{ $section }}</span>
                             </div>
+                            
+                            <!-- Fortschrittsbalken (nur wenn eingeschrieben) -->
+                            @if($progress)
+                                <div class="border-t border-gray-100 pt-3">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <p class="text-xs text-gray-600 font-semibold">{{ $progress['solved'] }}/{{ $progress['total'] }} gelöst</p>
+                                        <p class="text-xs text-gray-600 font-semibold">{{ $progress['percentage'] }}%</p>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2">
+                                        <div class="bg-yellow-400 h-2 rounded-full transition-all duration-500" 
+                                             style="width: {{ $progress['percentage'] }}%; box-shadow: 0 0 10px rgba(251, 191, 36, 0.6), 0 0 20px rgba(251, 191, 36, 0.4), 0 0 30px rgba(251, 191, 36, 0.2);"></div>
+                                    </div>
+                                </div>
+                            @endif
                         </a>
                     @endforeach
                 </div>
@@ -129,9 +146,9 @@
             @else
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                     @foreach($questions as $section => $sectionQuestions)
-                        <div class="p-4 sm:p-5 bg-white border border-gray-200 rounded-lg hover:shadow-lg hover:scale-105 transition-all duration-300">
-                            <div class="flex items-center justify-between">
-                                <div>
+                        <div class="p-4 sm:p-5 bg-white border border-gray-200 rounded-lg hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-default">
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="flex-1">
                                     <p class="font-bold text-gray-900 text-base sm:text-lg">{{ $lernabschnitte->get($section, 'Lernabschnitt ' . $section) }}</p>
                                     <p class="text-sm text-gray-600 mt-1">{{ $sectionQuestions->count() }} {{ __('Fragen') }}</p>
                                 </div>

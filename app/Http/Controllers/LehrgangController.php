@@ -80,12 +80,43 @@ class LehrgangController extends Controller
         $lernabschnitte = \App\Models\LehrgangLernabschnitt::where('lehrgang_id', $lehrgang->id)
             ->pluck('lernabschnitt', 'lernabschnitt_nr');
         
+        // Berechne Fortschritt pro Lernabschnitt (nur wenn User eingeschrieben ist)
+        $sectionProgress = [];
+        if ($isEnrolled && $user) {
+            foreach ($questions as $section => $sectionQuestions) {
+                $sectionIds = $sectionQuestions->pluck('id')->toArray();
+                
+                // Hole Fortschrittsdaten für diesen Abschnitt
+                $progressData = UserLehrgangProgress::where('user_id', $user->id)
+                    ->whereIn('lehrgang_question_id', $sectionIds)
+                    ->get();
+                
+                // Berechne Fortschrittsbalken-Logik: Berücksichtigt auch 1x richtige Antworten
+                $totalProgressPoints = 0;
+                foreach ($progressData as $prog) {
+                    $totalProgressPoints += min($prog->consecutive_correct, 2);
+                }
+                $maxProgressPoints = count($sectionIds) * 2;
+                $progressPercent = $maxProgressPoints > 0 ? round(($totalProgressPoints / $maxProgressPoints) * 100) : 0;
+                
+                // Zähle gelöste Fragen in diesem Abschnitt
+                $solvedInSection = $progressData->where('solved', true)->count();
+                
+                $sectionProgress[$section] = [
+                    'solved' => $solvedInSection,
+                    'total' => count($sectionIds),
+                    'percentage' => $progressPercent,
+                ];
+            }
+        }
+        
         return view('lehrgaenge.show', [
             'lehrgang' => $lehrgang,
             'isEnrolled' => $isEnrolled,
             'userProgress' => $userProgress,
             'questions' => $questions,
             'lernabschnitte' => $lernabschnitte,
+            'sectionProgress' => $sectionProgress,
         ]);
     }
 
