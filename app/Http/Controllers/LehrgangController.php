@@ -235,6 +235,128 @@ class LehrgangController extends Controller
     }
 
     /**
+     * Practice für einen bestimmten Lernabschnitt
+     */
+    public function practiceSection($slug, $sectionNr)
+    {
+        $user = auth()->user();
+        $lehrgang = Lehrgang::where('slug', $slug)->firstOrFail();
+        
+        // Check Enrollment
+        $enrollment = $user->enrolledLehrgaenge()
+            ->where('lehrgaenge.id', $lehrgang->id)
+            ->first();
+        
+        if (!$enrollment) {
+            return redirect()->route('lehrgaenge.show', $slug)
+                ->with('error', 'Du musst dich erst einschreiben.');
+        }
+        
+        // Hole offene Fragen aus diesem Lernabschnitt
+        $allQuestions = LehrgangQuestion::where('lehrgang_id', $lehrgang->id)
+            ->where('lernabschnitt', $sectionNr)
+            ->whereNotExists(function($query) use ($user) {
+                $query->select('id')
+                    ->from('user_lehrgang_progress')
+                    ->where('user_id', $user->id)
+                    ->where('lehrgang_question_id', 'lehrgaenge_questions.id')
+                    ->where('solved', true);
+            })
+            ->pluck('id')
+            ->toArray();
+        
+        // Initialisiere Session mit offenen Fragen wenn leer
+        $practiceIds = session("lehrgaenge_{$lehrgang->id}_section_{$sectionNr}_practice_ids", []);
+        
+        if (empty($practiceIds)) {
+            if (empty($allQuestions)) {
+                // Alle Fragen in diesem Abschnitt gelöst!
+                return view('lehrgaenge.complete', [
+                    'lehrgang' => $lehrgang,
+                    'points' => $enrollment->pivot->punkte ?? 0,
+                    'sectionCompleted' => true,
+                    'sectionNr' => $sectionNr,
+                ]);
+            }
+            
+            // Initialisiere mit allen offenen Fragen (geshuffelt)
+            $practiceIds = $allQuestions;
+            shuffle($practiceIds);
+            session(["lehrgaenge_{$lehrgang->id}_section_{$sectionNr}_practice_ids" => $practiceIds]);
+        }
+        
+        // WICHTIG: Wenn gerade eine Frage beantwortet wurde
+        $answerResult = session('answer_result');
+        $showAnsweredQuestion = $answerResult && isset($answerResult['question_id']);
+        
+        if ($showAnsweredQuestion) {
+            $questionId = $answerResult['question_id'];
+        } else {
+            if (empty($practiceIds)) {
+                session()->forget("lehrgaenge_{$lehrgang->id}_section_{$sectionNr}_practice_ids");
+                return redirect()->route('lehrgaenge.practice-section', ['slug' => $slug, 'sectionNr' => $sectionNr])
+                    ->with('success', 'Alle Fragen in diesem Abschnitt bearbeitet! 🎉');
+            }
+            
+            $questionId = reset($practiceIds);
+        }
+        
+        $question = LehrgangQuestion::findOrFail($questionId);
+        
+        // Lade/erstelle Fortschritt
+        $progress = UserLehrgangProgress::firstOrCreate(
+            [
+                'user_id' => $user->id,
+                'lehrgang_question_id' => $question->id,
+            ],
+            [
+                'consecutive_correct' => 0,
+                'solved' => false,
+                'failed' => false,
+            ]
+        );
+        
+        // Berechne Gesamt-Fortschritt für diesen Abschnitt
+        $solvedCount = UserLehrgangProgress::where('user_id', $user->id)
+            ->whereHas('lehrgangQuestion', fn($q) => $q->where('lehrgang_id', $lehrgang->id)->where('lernabschnitt', $sectionNr))
+            ->where('solved', true)
+            ->count();
+        
+        $totalCount = LehrgangQuestion::where('lehrgang_id', $lehrgang->id)->where('lernabschnitt', $sectionNr)->count();
+        
+        // Neue Fortschrittsbalken-Logik
+        $progressData = UserLehrgangProgress::where('user_id', $user->id)
+            ->whereHas('lehrgangQuestion', fn($q) => $q->where('lehrgang_id', $lehrgang->id)->where('lernabschnitt', $sectionNr))
+            ->get();
+        
+        $totalProgressPoints = 0;
+        foreach ($progressData as $prog) {
+            $totalProgressPoints += min($prog->consecutive_correct, 2);
+        }
+        $maxProgressPoints = $totalCount * 2;
+        $progressPercent = $maxProgressPoints > 0 ? round(($totalProgressPoints / $maxProgressPoints) * 100) : 0;
+        
+        // Hole den Lernabschnitt Namen
+        $lernabschnittName = LehrgangLernabschnitt::where('lehrgang_id', $lehrgang->id)
+            ->where('lernabschnitt_nr', $sectionNr)
+            ->value('lernabschnitt') ?? "Lernabschnitt $sectionNr";
+        
+        // Markiere die Frage
+        $question->lehrgang = $lehrgang->lehrgang . " - $lernabschnittName";
+        $question->lehrgang_slug = $slug;
+        $question->is_lehrgang = true;
+        $question->section_nr = $sectionNr;
+        
+        return view('lehrgaenge.practice', [
+            'question' => $question,
+            'progress' => $solvedCount,
+            'total' => $totalCount,
+            'progressPercent' => $progressPercent,
+            'user' => $user,
+        ]);
+    }
+
+    /**
      * Verarbeite Antwort
      */
     public function submitAnswer(Request $request, $slug)
@@ -327,9 +449,16 @@ class LehrgangController extends Controller
                 
                 // Entferne Frage aus der Practice Session (sie ist gelöst!)
                 $practiceIds = session("lehrgaenge_{$lehrgang->id}_practice_ids", []);
+                $sectionPracticeIds = session("lehrgaenge_{$lehrgang->id}_section_{$question->lernabschnitt}_practice_ids", []);
+                
                 if (!empty($practiceIds)) {
                     $practiceIds = array_diff($practiceIds, [$question->id]);
                     session(["lehrgaenge_{$lehrgang->id}_practice_ids" => array_values($practiceIds)]);
+                }
+                
+                if (!empty($sectionPracticeIds)) {
+                    $sectionPracticeIds = array_diff($sectionPracticeIds, [$question->id]);
+                    session(["lehrgaenge_{$lehrgang->id}_section_{$question->lernabschnitt}_practice_ids" => array_values($sectionPracticeIds)]);
                 }
             } else {
                 // Auch beim ersten richtigen Beantworten Punkte vergeben (aber keine Lösung)
@@ -337,12 +466,23 @@ class LehrgangController extends Controller
                 
                 // Frage bleibt in Session aber wird nach hinten verschoben (nicht direkt wiederholt)
                 $practiceIds = session("lehrgaenge_{$lehrgang->id}_practice_ids", []);
+                $sectionPracticeIds = session("lehrgaenge_{$lehrgang->id}_section_{$question->lernabschnitt}_practice_ids", []);
+                
                 if (!empty($practiceIds)) {
                     $currentIndex = array_search($question->id, $practiceIds);
                     if ($currentIndex !== false) {
                         unset($practiceIds[$currentIndex]);
                         $practiceIds[] = $question->id; // Am Ende hinzufügen
                         session(["lehrgaenge_{$lehrgang->id}_practice_ids" => array_values($practiceIds)]);
+                    }
+                }
+                
+                if (!empty($sectionPracticeIds)) {
+                    $currentIndex = array_search($question->id, $sectionPracticeIds);
+                    if ($currentIndex !== false) {
+                        unset($sectionPracticeIds[$currentIndex]);
+                        $sectionPracticeIds[] = $question->id; // Am Ende hinzufügen
+                        session(["lehrgaenge_{$lehrgang->id}_section_{$question->lernabschnitt}_practice_ids" => array_values($sectionPracticeIds)]);
                     }
                 }
             }
@@ -355,12 +495,23 @@ class LehrgangController extends Controller
             
             // Frage nach hinten verschieben (später wieder versuchen)
             $practiceIds = session("lehrgaenge_{$lehrgang->id}_practice_ids", []);
+            $sectionPracticeIds = session("lehrgaenge_{$lehrgang->id}_section_{$question->lernabschnitt}_practice_ids", []);
+            
             if (!empty($practiceIds)) {
                 $currentIndex = array_search($question->id, $practiceIds);
                 if ($currentIndex !== false) {
                     unset($practiceIds[$currentIndex]);
                     $practiceIds[] = $question->id; // Am Ende hinzufügen
                     session(["lehrgaenge_{$lehrgang->id}_practice_ids" => array_values($practiceIds)]);
+                }
+            }
+            
+            if (!empty($sectionPracticeIds)) {
+                $currentIndex = array_search($question->id, $sectionPracticeIds);
+                if ($currentIndex !== false) {
+                    unset($sectionPracticeIds[$currentIndex]);
+                    $sectionPracticeIds[] = $question->id; // Am Ende hinzufügen
+                    session(["lehrgaenge_{$lehrgang->id}_section_{$question->lernabschnitt}_practice_ids" => array_values($sectionPracticeIds)]);
                 }
             }
         }
@@ -384,6 +535,12 @@ class LehrgangController extends Controller
         }
         
         // Redirect (Post/Redirect/Get Pattern um Double-Submit zu vermeiden)
+        $sectionNr = $request->input('section_nr');
+        
+        if ($sectionNr) {
+            return redirect()->route('lehrgaenge.practice-section', ['slug' => $slug, 'sectionNr' => $sectionNr]);
+        }
+        
         return redirect()->route('lehrgaenge.practice', $slug);
     }
 

@@ -170,6 +170,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/lehrgaenge/{slug}', [\App\Http\Controllers\LehrgangController::class, 'show'])->name('lehrgaenge.show');
     Route::post('/lehrgaenge/{slug}/enroll', [\App\Http\Controllers\LehrgangController::class, 'enroll'])->name('lehrgaenge.enroll');
     Route::get('/lehrgaenge/{slug}/practice', [\App\Http\Controllers\LehrgangController::class, 'practice'])->name('lehrgaenge.practice');
+    Route::get('/lehrgaenge/{slug}/practice-section/{sectionNr}', [\App\Http\Controllers\LehrgangController::class, 'practiceSection'])->name('lehrgaenge.practice-section');
     Route::post('/lehrgaenge/{slug}/submit', [\App\Http\Controllers\LehrgangController::class, 'submitAnswer'])->name('lehrgaenge.submit');
     Route::post('/lehrgaenge/{slug}/unenroll', [\App\Http\Controllers\LehrgangController::class, 'unenroll'])->name('lehrgaenge.unenroll');
     Route::post('/lehrgaenge/question/{questionId}/report-issue', [\App\Http\Controllers\LehrgangController::class, 'reportIssue'])->name('lehrgaenge.report-issue');

@@ -67,7 +67,7 @@
             @else
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                     @foreach($questions as $section => $sectionQuestions)
-                        <div class="p-4 sm:p-5 bg-white border border-gray-200 rounded-lg hover:shadow-lg hover:scale-105 transition-all duration-300">
+                        <a href="{{ route('lehrgaenge.practice-section', ['slug' => $lehrgang->slug, 'sectionNr' => $section]) }}" class="p-4 sm:p-5 bg-white border border-gray-200 rounded-lg hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer">
                             <div class="flex items-center justify-between">
                                 <div>
                                     <p class="font-bold text-gray-900 text-base sm:text-lg">{{ $lernabschnitte->get($section, 'Lernabschnitt ' . $section) }}</p>
@@ -75,7 +75,7 @@
                                 </div>
                                 <span class="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-semibold">{{ $section }}</span>
                             </div>
-                        </div>
+                        </a>
                     @endforeach
                 </div>
             @endif

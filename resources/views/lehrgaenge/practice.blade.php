@@ -706,6 +706,9 @@
         <form method="POST" action="{{ route('lehrgaenge.submit', $question->lehrgang_slug) }}" id="practiceForm">
             @csrf
             <input type="hidden" name="question_id" value="{{ $question->id }}">
+            @if(isset($question->section_nr))
+            <input type="hidden" name="section_nr" value="{{ $question->section_nr }}">
+            @endif
             
             @php
                 // Erstelle ein Array mit den Antworten
