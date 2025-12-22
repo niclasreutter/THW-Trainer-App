@@ -362,6 +362,7 @@ class LehrgangController extends Controller
         $question->lehrgang_slug = $slug;
         $question->is_lehrgang = true;
         $question->section_nr = $sectionNr;
+        $question->lernabschnitt_name = $lernabschnittName;
         
         return view('lehrgaenge.practice', [
             'question' => $question,
