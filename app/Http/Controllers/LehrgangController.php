@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Lehrgang;
 use App\Models\LehrgangQuestion;
+use App\Models\LehrgangLernabschnitt;
 use App\Models\UserLehrgangProgress;
 use App\Models\LehrgangQuestionStatistic;
 use App\Models\LehrgangQuestionIssue;
