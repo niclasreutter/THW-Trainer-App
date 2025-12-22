@@ -338,9 +338,15 @@ class LehrgangController extends Controller
         $progressPercent = $maxProgressPoints > 0 ? round(($totalProgressPoints / $maxProgressPoints) * 100) : 0;
         
         // Hole den Lernabschnitt Namen
-        $lernabschnittName = LehrgangLernabschnitt::where('lehrgang_id', $lehrgang->id)
-            ->where('lernabschnitt_nr', $sectionNr)
-            ->value('lernabschnitt') ?? "Lernabschnitt $sectionNr";
+        $sectionNr = (int)$sectionNr; // Stelle sicher, dass es eine Integer ist
+        $lernabschnitt = LehrgangLernabschnitt::where('lehrgang_id', $lehrgang->id)
+            ->where(function($q) use ($sectionNr) {
+                $q->where('lernabschnitt_nr', $sectionNr)
+                  ->orWhere('lernabschnitt_nr', (string)$sectionNr);
+            })
+            ->first();
+        
+        $lernabschnittName = $lernabschnitt?->lernabschnitt ?? "Lernabschnitt $sectionNr";
         
         // Markiere die Frage
         $question->lehrgang = $lehrgang->lehrgang . " - $lernabschnittName";
