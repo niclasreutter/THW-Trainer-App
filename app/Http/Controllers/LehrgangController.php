@@ -259,8 +259,8 @@ class LehrgangController extends Controller
             ->whereNotExists(function($query) use ($user) {
                 $query->select('id')
                     ->from('user_lehrgang_progress')
+                    ->whereColumn('lehrgang_question_id', 'lehrgaenge_questions.id')
                     ->where('user_id', $user->id)
-                    ->where('lehrgang_question_id', 'lehrgaenge_questions.id')
                     ->where('solved', true);
             })
             ->pluck('id')
