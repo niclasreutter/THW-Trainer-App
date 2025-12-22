@@ -464,41 +464,49 @@ class LehrgangController extends Controller
                 }
                 
                 // Entferne Frage aus der Practice Session (sie ist gelöst!)
-                $practiceIds = session("lehrgaenge_{$lehrgang->id}_practice_ids", []);
-                $sectionPracticeIds = session("lehrgaenge_{$lehrgang->id}_section_{$question->lernabschnitt}_practice_ids", []);
+                $sectionNr = $request->input('section_nr');
                 
-                if (!empty($practiceIds)) {
-                    $practiceIds = array_diff($practiceIds, [$question->id]);
-                    session(["lehrgaenge_{$lehrgang->id}_practice_ids" => array_values($practiceIds)]);
-                }
-                
-                if (!empty($sectionPracticeIds)) {
-                    $sectionPracticeIds = array_diff($sectionPracticeIds, [$question->id]);
-                    session(["lehrgaenge_{$lehrgang->id}_section_{$question->lernabschnitt}_practice_ids" => array_values($sectionPracticeIds)]);
+                if ($sectionNr) {
+                    // Section-spezifische Session
+                    $sectionPracticeIds = session("lehrgaenge_{$lehrgang->id}_section_{$sectionNr}_practice_ids", []);
+                    if (!empty($sectionPracticeIds)) {
+                        $sectionPracticeIds = array_diff($sectionPracticeIds, [$question->id]);
+                        session(["lehrgaenge_{$lehrgang->id}_section_{$sectionNr}_practice_ids" => array_values($sectionPracticeIds)]);
+                    }
+                } else {
+                    // Allgemeine Session
+                    $practiceIds = session("lehrgaenge_{$lehrgang->id}_practice_ids", []);
+                    if (!empty($practiceIds)) {
+                        $practiceIds = array_diff($practiceIds, [$question->id]);
+                        session(["lehrgaenge_{$lehrgang->id}_practice_ids" => array_values($practiceIds)]);
+                    }
                 }
             } else {
                 // Auch beim ersten richtigen Beantworten Punkte vergeben (aber keine Lösung)
                 $gamificationResult = $gamification->awardQuestionPoints($user, true, $question->id);
                 
                 // Frage bleibt in Session aber wird nach hinten verschoben (nicht direkt wiederholt)
-                $practiceIds = session("lehrgaenge_{$lehrgang->id}_practice_ids", []);
-                $sectionPracticeIds = session("lehrgaenge_{$lehrgang->id}_section_{$question->lernabschnitt}_practice_ids", []);
+                $sectionNr = $request->input('section_nr');
                 
-                if (!empty($practiceIds)) {
-                    $currentIndex = array_search($question->id, $practiceIds);
-                    if ($currentIndex !== false) {
-                        unset($practiceIds[$currentIndex]);
-                        $practiceIds[] = $question->id; // Am Ende hinzufügen
-                        session(["lehrgaenge_{$lehrgang->id}_practice_ids" => array_values($practiceIds)]);
+                if ($sectionNr) {
+                    $sectionPracticeIds = session("lehrgaenge_{$lehrgang->id}_section_{$sectionNr}_practice_ids", []);
+                    if (!empty($sectionPracticeIds)) {
+                        $currentIndex = array_search($question->id, $sectionPracticeIds);
+                        if ($currentIndex !== false) {
+                            unset($sectionPracticeIds[$currentIndex]);
+                            $sectionPracticeIds[] = $question->id;
+                            session(["lehrgaenge_{$lehrgang->id}_section_{$sectionNr}_practice_ids" => array_values($sectionPracticeIds)]);
+                        }
                     }
-                }
-                
-                if (!empty($sectionPracticeIds)) {
-                    $currentIndex = array_search($question->id, $sectionPracticeIds);
-                    if ($currentIndex !== false) {
-                        unset($sectionPracticeIds[$currentIndex]);
-                        $sectionPracticeIds[] = $question->id; // Am Ende hinzufügen
-                        session(["lehrgaenge_{$lehrgang->id}_section_{$question->lernabschnitt}_practice_ids" => array_values($sectionPracticeIds)]);
+                } else {
+                    $practiceIds = session("lehrgaenge_{$lehrgang->id}_practice_ids", []);
+                    if (!empty($practiceIds)) {
+                        $currentIndex = array_search($question->id, $practiceIds);
+                        if ($currentIndex !== false) {
+                            unset($practiceIds[$currentIndex]);
+                            $practiceIds[] = $question->id;
+                            session(["lehrgaenge_{$lehrgang->id}_practice_ids" => array_values($practiceIds)]);
+                        }
                     }
                 }
             }
@@ -510,24 +518,27 @@ class LehrgangController extends Controller
             $gamificationResult = $gamification->awardQuestionPoints($user, false, $question->id);
             
             // Frage nach hinten verschieben (später wieder versuchen)
-            $practiceIds = session("lehrgaenge_{$lehrgang->id}_practice_ids", []);
-            $sectionPracticeIds = session("lehrgaenge_{$lehrgang->id}_section_{$question->lernabschnitt}_practice_ids", []);
+            $sectionNr = $request->input('section_nr');
             
-            if (!empty($practiceIds)) {
-                $currentIndex = array_search($question->id, $practiceIds);
-                if ($currentIndex !== false) {
-                    unset($practiceIds[$currentIndex]);
-                    $practiceIds[] = $question->id; // Am Ende hinzufügen
-                    session(["lehrgaenge_{$lehrgang->id}_practice_ids" => array_values($practiceIds)]);
+            if ($sectionNr) {
+                $sectionPracticeIds = session("lehrgaenge_{$lehrgang->id}_section_{$sectionNr}_practice_ids", []);
+                if (!empty($sectionPracticeIds)) {
+                    $currentIndex = array_search($question->id, $sectionPracticeIds);
+                    if ($currentIndex !== false) {
+                        unset($sectionPracticeIds[$currentIndex]);
+                        $sectionPracticeIds[] = $question->id;
+                        session(["lehrgaenge_{$lehrgang->id}_section_{$sectionNr}_practice_ids" => array_values($sectionPracticeIds)]);
+                    }
                 }
-            }
-            
-            if (!empty($sectionPracticeIds)) {
-                $currentIndex = array_search($question->id, $sectionPracticeIds);
-                if ($currentIndex !== false) {
-                    unset($sectionPracticeIds[$currentIndex]);
-                    $sectionPracticeIds[] = $question->id; // Am Ende hinzufügen
-                    session(["lehrgaenge_{$lehrgang->id}_section_{$question->lernabschnitt}_practice_ids" => array_values($sectionPracticeIds)]);
+            } else {
+                $practiceIds = session("lehrgaenge_{$lehrgang->id}_practice_ids", []);
+                if (!empty($practiceIds)) {
+                    $currentIndex = array_search($question->id, $practiceIds);
+                    if ($currentIndex !== false) {
+                        unset($practiceIds[$currentIndex]);
+                        $practiceIds[] = $question->id;
+                        session(["lehrgaenge_{$lehrgang->id}_practice_ids" => array_values($practiceIds)]);
+                    }
                 }
             }
         }
