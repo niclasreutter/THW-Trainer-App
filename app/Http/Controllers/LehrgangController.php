@@ -368,6 +368,7 @@ class LehrgangController extends Controller
             'progress' => $solvedCount,
             'total' => $totalCount,
             'progressPercent' => $progressPercent,
+            'currentSectionNr' => $sectionNr,
             'user' => $user,
         ]);
     }
