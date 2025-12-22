@@ -14,7 +14,72 @@ class UserController extends Controller
         $questions = \App\Models\Question::all();
         $solved = is_array($user->solved_questions) ? $user->solved_questions : json_decode($user->solved_questions ?? '[]', true);
         $failed = is_array($user->exam_failed_questions) ? $user->exam_failed_questions : json_decode($user->exam_failed_questions ?? '[]', true);
-        return view('admin.edit_progress', compact('user', 'questions', 'solved', 'failed'));
+        
+        // Lade Lehrgang-Daten
+        $lehrgaenge = $user->enrolledLehrgaenge()->with('questions')->get();
+        $lehrgangProgress = [];
+        
+        foreach ($lehrgaenge as $lehrgang) {
+            // Gruppiere Fragen nach Lernabschnitten
+            $questions_grouped = $lehrgang->questions()
+                ->orderByRaw('CAST(lernabschnitt AS UNSIGNED)')
+                ->orderBy('nummer')
+                ->get()
+                ->groupBy('lernabschnitt');
+            
+            // Berechne Fortschritt pro Lernabschnitt
+            $sectionProgress = [];
+            foreach ($questions_grouped as $section => $sectionQuestions) {
+                $sectionIds = $sectionQuestions->pluck('id')->toArray();
+                
+                // Hole Fortschrittsdaten für diesen Abschnitt
+                $progressData = \App\Models\UserLehrgangProgress::where('user_id', $user->id)
+                    ->whereIn('lehrgang_question_id', $sectionIds)
+                    ->get();
+                
+                // Berechne Fortschrittsbalken-Logik
+                $totalProgressPoints = 0;
+                foreach ($progressData as $prog) {
+                    $totalProgressPoints += min($prog->consecutive_correct, 2);
+                }
+                $maxProgressPoints = count($sectionIds) * 2;
+                $progressPercent = $maxProgressPoints > 0 ? round(($totalProgressPoints / $maxProgressPoints) * 100) : 0;
+                
+                // Zähle gelöste Fragen
+                $solvedInSection = $progressData->where('solved', true)->count();
+                
+                $sectionProgress[$section] = [
+                    'solved' => $solvedInSection,
+                    'total' => count($sectionIds),
+                    'percentage' => $progressPercent,
+                ];
+            }
+            
+            // Gesamtfortschritt für diesen Lehrgang
+            $allQuestions = $lehrgang->questions()->get();
+            $allProgressData = \App\Models\UserLehrgangProgress::where('user_id', $user->id)
+                ->whereIn('lehrgang_question_id', $allQuestions->pluck('id')->toArray())
+                ->get();
+            
+            $totalProgressPoints = 0;
+            foreach ($allProgressData as $prog) {
+                $totalProgressPoints += min($prog->consecutive_correct, 2);
+            }
+            $maxProgressPoints = $allQuestions->count() * 2;
+            $totalPercent = $maxProgressPoints > 0 ? round(($totalProgressPoints / $maxProgressPoints) * 100) : 0;
+            $totalSolved = $allProgressData->where('solved', true)->count();
+            
+            $lehrgangProgress[$lehrgang->id] = [
+                'lehrgang' => $lehrgang,
+                'sectionProgress' => $sectionProgress,
+                'questions_grouped' => $questions_grouped,
+                'totalSolved' => $totalSolved,
+                'totalQuestions' => $allQuestions->count(),
+                'totalPercent' => $totalPercent,
+            ];
+        }
+        
+        return view('admin.edit_progress', compact('user', 'questions', 'solved', 'failed', 'lehrgangProgress'));
     }
 
     public function updateProgress(Request $request, $id)
@@ -34,7 +99,7 @@ class UserController extends Controller
         $user->exam_failed_questions = $failed;
         $user->save();
         
-        // Synchronisiere mit user_question_progress
+        // Synchronisiere mit user_question_progress (Grundausbildung)
         // Für alle als "gelöst" markierten Fragen: setze consecutive_correct = 2
         foreach ($solved as $questionId) {
             \App\Models\UserQuestionProgress::updateOrCreate(
@@ -57,7 +122,49 @@ class UserController extends Controller
                 ->delete();
         }
         
-        return redirect()->route('admin.users.index')->with('success', 'Fortschritt aktualisiert (inkl. 2x-richtig-Logik)');
+        // Verarbeite Lehrgang-Fragen
+        // Hole alle Lehrgänge-Parameter von der Request
+        $allLehrgaenge = $user->enrolledLehrgaenge()->get();
+        
+        foreach ($allLehrgaenge as $lehrgang) {
+            $paramName = 'lehrgang_' . $lehrgang->id . '_solved';
+            $lehrgangSolved = $request->input($paramName, []);
+            
+            // Hole alle Fragen dieses Lehrgangs
+            $allLehrgangQuestions = $lehrgang->questions()->pluck('id')->toArray();
+            
+            // Markiere ausgewählte Fragen als gelöst
+            foreach ($lehrgangSolved as $questionId) {
+                \App\Models\UserLehrgangProgress::updateOrCreate(
+                    [
+                        'user_id' => $user->id,
+                        'lehrgang_question_id' => $questionId,
+                    ],
+                    [
+                        'consecutive_correct' => 2, // Als gemeistert markieren
+                        'solved' => true,
+                        'last_answered_at' => now(),
+                    ]
+                );
+            }
+            
+            // Für Fragen die abgewählt wurden: setze solved = false
+            $removedFromLehrgangSolved = array_diff($allLehrgangQuestions, $lehrgangSolved);
+            foreach ($removedFromLehrgangSolved as $questionId) {
+                $progress = \App\Models\UserLehrgangProgress::where('user_id', $user->id)
+                    ->where('lehrgang_question_id', $questionId)
+                    ->first();
+                
+                if ($progress) {
+                    $progress->update([
+                        'consecutive_correct' => 0,
+                        'solved' => false,
+                    ]);
+                }
+            }
+        }
+        
+        return redirect()->route('admin.users.index')->with('success', 'Fortschritt aktualisiert (Grundausbildung + Lehrgänge)');
     }
     private function abortIfNotAdmin()
     {
