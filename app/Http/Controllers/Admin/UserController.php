@@ -79,6 +79,9 @@ class UserController extends Controller
             ];
         }
         
+        // Konvertiere zu Collection für isEmpty() Support
+        $lehrgangProgress = collect($lehrgangProgress);
+        
         return view('admin.edit_progress', compact('user', 'questions', 'solved', 'failed', 'lehrgangProgress'));
     }
 

@@ -59,7 +59,7 @@
             @endif
             
             <!-- Lehrgänge Sektion -->
-            @if(!$lehrgangProgress->isEmpty())
+            @if($lehrgangProgress && !$lehrgangProgress->isEmpty())
                 <div class="mb-8">
                     <h2 class="text-2xl font-bold text-blue-800 mb-4 flex items-center">
                         <span class="mr-3">📚</span>
@@ -357,7 +357,7 @@
                 </div>
                 
                 <!-- Lehrgänge Bearbeitungssektion -->
-                @if(!$lehrgangProgress->isEmpty())
+                @if($lehrgangProgress && !$lehrgangProgress->isEmpty())
                     <hr class="my-8 border-gray-300">
                     <h2 class="text-2xl font-bold text-blue-800 mb-4 flex items-center">
                         <span class="mr-3">✏️</span>
