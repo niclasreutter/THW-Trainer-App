@@ -70,7 +70,7 @@
                         <div class="p-4 sm:p-5 bg-white border border-gray-200 rounded-lg hover:shadow-lg hover:scale-105 transition-all duration-300">
                             <div class="flex items-center justify-between">
                                 <div>
-                                    <p class="font-bold text-gray-900 text-base sm:text-lg">{{ __('Abschnitt') }} {{ $section }}</p>
+                                    <p class="font-bold text-gray-900 text-base sm:text-lg">{{ $lernabschnitte->get($section, 'Lernabschnitt ' . $section) }}</p>
                                     <p class="text-sm text-gray-600 mt-1">{{ $sectionQuestions->count() }} {{ __('Fragen') }}</p>
                                 </div>
                                 <span class="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-semibold">{{ $section }}</span>
@@ -132,7 +132,7 @@
                         <div class="p-4 sm:p-5 bg-white border border-gray-200 rounded-lg hover:shadow-lg hover:scale-105 transition-all duration-300">
                             <div class="flex items-center justify-between">
                                 <div>
-                                    <p class="font-bold text-gray-900 text-base sm:text-lg">{{ __('Abschnitt') }} {{ $section }}</p>
+                                    <p class="font-bold text-gray-900 text-base sm:text-lg">{{ $lernabschnitte->get($section, 'Lernabschnitt ' . $section) }}</p>
                                     <p class="text-sm text-gray-600 mt-1">{{ $sectionQuestions->count() }} {{ __('Fragen') }}</p>
                                 </div>
                                 <span class="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-semibold">{{ $section }}</span>

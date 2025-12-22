@@ -75,11 +75,16 @@ class LehrgangController extends Controller
             ->get()
             ->groupBy('lernabschnitt');
         
+        // Hole die Lernabschnitte Namen
+        $lernabschnitte = \App\Models\LehrgangLernabschnitt::where('lehrgang_id', $lehrgang->id)
+            ->pluck('lernabschnitt', 'lernabschnitt_nr');
+        
         return view('lehrgaenge.show', [
             'lehrgang' => $lehrgang,
             'isEnrolled' => $isEnrolled,
             'userProgress' => $userProgress,
             'questions' => $questions,
+            'lernabschnitte' => $lernabschnitte,
         ]);
     }
 
