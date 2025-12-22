@@ -71,7 +71,7 @@ class LehrgangController extends Controller
         
         // Gruppiere Fragen nach Lernabschnitten
         $questions = LehrgangQuestion::where('lehrgang_id', $lehrgang->id)
-            ->orderBy('lernabschnitt')
+            ->orderByRaw('CAST(lernabschnitt AS UNSIGNED)')
             ->orderBy('nummer')
             ->get()
             ->groupBy('lernabschnitt');
