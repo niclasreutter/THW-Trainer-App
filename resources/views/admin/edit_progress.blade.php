@@ -58,67 +58,104 @@
                 </div>
             @endif
             
-            <!-- Lehrgänge Sektion -->
-            @if($lehrgangProgress && !$lehrgangProgress->isEmpty())
+            <!-- Lehrgänge Sektion mit Dropdowns -->
+            @if($lehrgangData && !$lehrgangData->isEmpty())
                 <div class="mb-8">
                     <h2 class="text-2xl font-bold text-blue-800 mb-4 flex items-center">
                         <span class="mr-3">📚</span>
-                        Lehrgänge - Fortschrittsübersicht
+                        Lehrgänge - Fortschritt verwalten
                     </h2>
                     
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        @foreach($lehrgangProgress as $lehrgangId => $data)
-                            <div class="bg-white rounded-lg shadow-lg p-6 border border-gray-200">
-                                <!-- Header -->
-                                <div class="mb-4 pb-4 border-b border-gray-200">
-                                    <h3 class="text-xl font-bold text-blue-800 mb-2">{{ $data['lehrgang']->lehrgang }}</h3>
-                                    <p class="text-sm text-gray-600">{{ $data['lehrgang']->beschreibung }}</p>
-                                </div>
-                                
-                                <!-- Gesamt-Statistik -->
-                                <div class="mb-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-100">
-                                    <div class="flex items-center justify-between mb-2">
-                                        <span class="text-sm font-semibold text-gray-700">Gesamtfortschritt</span>
-                                        <span class="text-sm font-bold text-blue-700">{{ $data['totalSolved'] }}/{{ $data['totalQuestions'] }} ({{ $data['totalPercent'] }}%)</span>
-                                    </div>
-                                    <div class="w-full bg-gray-300 rounded-full h-2">
-                                        <div class="bg-yellow-400 h-2 rounded-full transition-all duration-500" 
-                                             style="width: {{ $data['totalPercent'] }}%; box-shadow: 0 0 10px rgba(251, 191, 36, 0.6), 0 0 20px rgba(251, 191, 36, 0.4), 0 0 30px rgba(251, 191, 36, 0.2);"></div>
-                                    </div>
-                                </div>
-                                
-                                <!-- Lernabschnitte -->
-                                @if($data['sectionProgress'])
-                                    <div class="mb-3">
-                                        <p class="text-xs font-bold text-gray-600 uppercase tracking-wide mb-2">Lernabschnitte:</p>
-                                        <div class="space-y-2 max-h-48 overflow-y-auto">
-                                            @foreach($data['sectionProgress'] as $section => $progress)
-                                                <div class="p-3 bg-gray-50 rounded-lg border border-gray-200">
-                                                    <div class="flex items-center justify-between mb-1">
-                                        <span class="text-sm font-semibold text-gray-700">
-                                            Abschnitt {{ $section }}
-                                            <span class="text-xs text-gray-500">({{ $progress['solved'] }}/{{ $progress['total'] }})</span>
+                    @foreach($lehrgangData as $lehrgangId => $data)
+                        <!-- Lehrgang Dropdown -->
+                        <div class="bg-white rounded-lg shadow-md border border-gray-200 mb-4">
+                            <button type="button" 
+                                    onclick="toggleLehrgangDropdown('lehrgang-{{ $lehrgangId }}')"
+                                    class="w-full flex items-center justify-between p-6 hover:bg-gray-50 transition-colors">
+                                <div class="text-left flex-1">
+                                    <h3 class="text-lg font-bold text-blue-800 flex items-center">
+                                        📖 {{ $data['lehrgang']->lehrgang }}
+                                    </h3>
+                                    <div class="flex items-center gap-6 mt-2 text-sm">
+                                        <span class="text-gray-600">
+                                            <strong>{{ $data['totalSolved'] }}/{{ $data['totalQuestions'] }}</strong> Fragen gemeistert
                                         </span>
-                                        <span class="text-xs font-bold text-gray-600">{{ $progress['percentage'] }}%</span>
-                                                    </div>
-                                                    <div class="w-full bg-gray-300 rounded-full h-1.5">
-                                                        <div class="bg-green-500 h-1.5 rounded-full transition-all duration-300" 
-                                                             style="width: {{ $progress['percentage'] }}%;"></div>
-                                                    </div>
-                                                </div>
-                                            @endforeach
+                                        <div class="flex items-center gap-2 flex-1 max-w-xs">
+                                            <div class="w-full bg-gray-300 rounded-full h-2">
+                                                <div class="bg-yellow-400 h-2 rounded-full transition-all duration-500" 
+                                                     style="width: {{ $data['totalPercent'] }}%; box-shadow: 0 0 10px rgba(251, 191, 36, 0.6), 0 0 20px rgba(251, 191, 36, 0.4), 0 0 30px rgba(251, 191, 36, 0.2);"></div>
+                                            </div>
+                                            <span class="text-xs font-bold text-gray-600 min-w-fit">{{ $data['totalPercent'] }}%</span>
                                         </div>
                                     </div>
-                                @endif
-                                
-                                <!-- Info Link -->
-                                <a href="{{ route('lehrgaenge.show', $data['lehrgang']->slug) }}" 
-                                   class="inline-block mt-4 text-xs font-semibold text-blue-600 hover:text-blue-800 hover:underline">
-                                    🔍 Details anzeigen →
-                                </a>
+                                </div>
+                                <svg id="lehrgang-{{ $lehrgangId }}-arrow" class="w-6 h-6 text-gray-400 transform transition-transform ml-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                            </button>
+                            
+                            <!-- Dropdown Content -->
+                            <div id="lehrgang-{{ $lehrgangId }}" class="hidden border-t border-gray-200">
+                                <!-- Gemeisterte Fragen Section -->
+                                <div class="p-6">
+                                    <div class="flex items-center justify-between mb-4">
+                                        <div class="flex items-center">
+                                            <div class="text-2xl mr-3">✅</div>
+                                            <div>
+                                                <h4 class="font-bold text-green-800">Gemeisterte Fragen (2x in Folge gelöst)</h4>
+                                                <p class="text-sm text-gray-600">{{ $data['totalSolved'] }} Fragen</p>
+                                            </div>
+                                        </div>
+                                        <div class="flex gap-2">
+                                            <button type="button" onclick="selectAllLehrgangQuestions('lehrgang-{{ $lehrgangId }}-questions', true)" 
+                                                    style="display: inline-flex; align-items: center; padding: 8px 16px; background-color: #2563eb; color: white; border-radius: 8px; border: none; cursor: pointer; font-weight: 500; transition: all 0.2s; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);"
+                                                    onmouseover="this.style.backgroundColor='#1d4ed8'; this.style.transform='scale(1.05)'"
+                                                    onmouseout="this.style.backgroundColor='#2563eb'; this.style.transform='scale(1)'">
+                                                <svg style="width: 16px; height: 16px; margin-right: 8px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                                </svg>
+                                                Alle auswählen
+                                            </button>
+                                            <button type="button" onclick="selectAllLehrgangQuestions('lehrgang-{{ $lehrgangId }}-questions', false)" 
+                                                    style="display: inline-flex; align-items: center; padding: 8px 16px; background-color: #fbbf24; color: #1e3a8a; border-radius: 8px; border: none; cursor: pointer; font-weight: 500; transition: all 0.2s; box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4);"
+                                                    onmouseover="this.style.backgroundColor='#f59e0b'; this.style.transform='scale(1.05)'"
+                                                    onmouseout="this.style.backgroundColor='#fbbf24'; this.style.transform='scale(1)'">
+                                                <svg style="width: 16px; height: 16px; margin-right: 8px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                                </svg>
+                                                Alle abwählen
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Fragen Grid -->
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3" id="lehrgang-{{ $lehrgangId }}-questions">
+                                        @foreach($data['questions'] as $question)
+                                            @php
+                                                $progress = $data['progressData'][$question->id] ?? null;
+                                                $isSolved = $progress && $progress->solved;
+                                            @endphp
+                                            <label class="flex items-start bg-gray-50 rounded-lg p-3 hover:bg-green-50 transition-colors cursor-pointer border {{ $isSolved ? 'border-green-400 bg-green-50' : 'border-gray-200' }}">
+                                                <input type="checkbox" 
+                                                       name="lehrgang_{{ $lehrgangId }}_solved[]" 
+                                                       value="{{ $question->id }}"
+                                                       @if($isSolved) checked @endif
+                                                       class="mt-1 mr-3 accent-green-600 w-4 h-4">
+                                                <div class="flex-1 min-w-0">
+                                                    <div class="text-sm font-medium text-blue-800">Frage {{ $question->nummer }}</div>
+                                                    <div class="text-xs text-gray-600 truncate">{{ Str::limit($question->frage, 50) }}</div>
+                                                    <div class="text-xs text-gray-500 mt-1">LA: {{ $question->lernabschnitt }}</div>
+                                                    @if($progress)
+                                                        <div class="text-xs text-green-600 font-semibold mt-1">✓ {{ $progress->consecutive_correct }}x richtig</div>
+                                                    @endif
+                                                </div>
+                                            </label>
+                                        @endforeach
+                                    </div>
+                                </div>
                             </div>
-                        @endforeach
-                    </div>
+                        </div>
+                    @endforeach
                 </div>
             @endif
             
@@ -356,74 +393,7 @@
                     </div>
                 </div>
                 
-                <!-- Lehrgänge Bearbeitungssektion -->
-                @if($lehrgangProgress && !$lehrgangProgress->isEmpty())
-                    <hr class="my-8 border-gray-300">
-                    <h2 class="text-2xl font-bold text-blue-800 mb-4 flex items-center">
-                        <span class="mr-3">✏️</span>
-                        Lehrgänge - Fortschritt bearbeiten
-                    </h2>
-                    
-                    @foreach($lehrgangProgress as $lehrgangId => $data)
-                        <div class="bg-white rounded-lg shadow-md border border-gray-200 mb-6">
-                            <div class="p-6">
-                                <div class="flex items-center justify-between mb-4">
-                                    <div>
-                                        <h3 class="text-xl font-bold text-blue-800">{{ $data['lehrgang']->lehrgang }}</h3>
-                                        <p class="text-sm text-gray-600 mt-1">Lernabschnitte: {{ $data['questions_grouped']->count() }}</p>
-                                    </div>
-                                    <span class="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-semibold">{{ $data['totalQuestions'] }} Fragen</span>
-                                </div>
-                            </div>
-                            
-                            <!-- Lernabschnitte mit Fragen -->
-                            <div class="border-t border-gray-200 divide-y divide-gray-200">
-                                @foreach($data['questions_grouped'] as $section => $sectionQuestions)
-                                    <div class="p-6">
-                                        <button type="button" 
-                                                onclick="toggleLehrgangSection('lehrgang-{{ $lehrgangId }}-section-{{ $section }}')"
-                                                class="w-full flex items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200 hover:shadow-lg transition-all">
-                                            <div class="text-left flex-1">
-                                                <p class="font-bold text-blue-800">Lernabschnitt {{ $section }}</p>
-                                                <p class="text-sm text-blue-600 mt-1">{{ $sectionQuestions->count() }} Fragen</p>
-                                            </div>
-                                            <svg id="lehrgang-{{ $lehrgangId }}-section-{{ $section }}-arrow" class="w-5 h-5 text-blue-600 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                                            </svg>
-                                        </button>
-                                        
-                                        <div id="lehrgang-{{ $lehrgangId }}-section-{{ $section }}" class="hidden mt-4">
-                                            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                                                @foreach($sectionQuestions as $question)
-                                                    @php
-                                                        $questionProgress = \App\Models\UserLehrgangProgress::where('user_id', $user->id)
-                                                            ->where('lehrgang_question_id', $question->id)
-                                                            ->first();
-                                                        $isSolved = $questionProgress && $questionProgress->solved;
-                                                    @endphp
-                                                    <label class="flex items-start bg-gray-50 rounded-lg p-3 hover:bg-blue-50 transition-colors cursor-pointer border {{ $isSolved ? 'border-green-400 bg-green-50' : 'border-gray-200' }}">
-                                                        <input type="checkbox" 
-                                                               name="lehrgang_{{ $lehrgangId }}_solved[]" 
-                                                               value="{{ $question->id }}"
-                                                               @if($isSolved) checked @endif
-                                                               class="mt-1 mr-3 accent-green-600 w-4 h-4">
-                                                        <div class="flex-1 min-w-0">
-                                                            <div class="text-sm font-medium text-blue-800">F. {{ $question->nummer }}</div>
-                                                            <div class="text-xs text-gray-600 truncate">{{ Str::limit($question->frage, 40) }}</div>
-                                                            @if($questionProgress)
-                                                                <div class="text-xs text-gray-500 mt-1">✓ {{ $questionProgress->consecutive_correct }}x richtig</div>
-                                                            @endif
-                                                        </div>
-                                                    </label>
-                                                @endforeach
-                                            </div>
-                                        </div>
-                                    </div>
-                                @endforeach
-                            </div>
-                        </div>
-                    @endforeach
-                @endif
+                <!-- (Lehrgang-Bearbeitungssektion entfernt - neue Dropdown-Struktur verwendet) -->
         </form>
     </div>
 
@@ -444,9 +414,9 @@
             }
         }
         
-        function toggleLehrgangSection(sectionId) {
-            const content = document.getElementById(sectionId);
-            const arrow = document.getElementById(sectionId + '-arrow');
+        function toggleLehrgangDropdown(dropdownId) {
+            const content = document.getElementById(dropdownId);
+            const arrow = document.getElementById(dropdownId + '-arrow');
             
             if (content.classList.contains('hidden')) {
                 content.classList.remove('hidden');
@@ -455,6 +425,22 @@
                 content.classList.add('hidden');
                 arrow.style.transform = 'rotate(0deg)';
             }
+        }
+        
+        function selectAllLehrgangQuestions(containerSelector, checked) {
+            const container = document.getElementById(containerSelector);
+            const checkboxes = container.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach(cb => {
+                cb.checked = checked;
+                const label = cb.closest('label');
+                if (checked) {
+                    label.classList.add('border-green-400', 'bg-green-50');
+                    label.classList.remove('border-gray-200', 'bg-gray-50');
+                } else {
+                    label.classList.add('border-gray-200', 'bg-gray-50');
+                    label.classList.remove('border-green-400', 'bg-green-50');
+                }
+            });
         }
         
         function selectAll(name, checked) {

@@ -16,73 +16,47 @@ class UserController extends Controller
         $failed = is_array($user->exam_failed_questions) ? $user->exam_failed_questions : json_decode($user->exam_failed_questions ?? '[]', true);
         
         // Lade Lehrgang-Daten
-        $lehrgaenge = $user->enrolledLehrgaenge()->with('questions')->get();
-        $lehrgangProgress = [];
+        $lehrgaenge = $user->enrolledLehrgaenge()->get();
         
+        // Für jeden Lehrgang: hole alle Fragen und den Fortschritt
+        $lehrgangData = [];
         foreach ($lehrgaenge as $lehrgang) {
-            // Gruppiere Fragen nach Lernabschnitten
-            $questions_grouped = $lehrgang->questions()
+            $allQuestions = $lehrgang->questions()
                 ->orderByRaw('CAST(lernabschnitt AS UNSIGNED)')
                 ->orderBy('nummer')
-                ->get()
-                ->groupBy('lernabschnitt');
-            
-            // Berechne Fortschritt pro Lernabschnitt
-            $sectionProgress = [];
-            foreach ($questions_grouped as $section => $sectionQuestions) {
-                $sectionIds = $sectionQuestions->pluck('id')->toArray();
-                
-                // Hole Fortschrittsdaten für diesen Abschnitt
-                $progressData = \App\Models\UserLehrgangProgress::where('user_id', $user->id)
-                    ->whereIn('lehrgang_question_id', $sectionIds)
-                    ->get();
-                
-                // Berechne Fortschrittsbalken-Logik
-                $totalProgressPoints = 0;
-                foreach ($progressData as $prog) {
-                    $totalProgressPoints += min($prog->consecutive_correct, 2);
-                }
-                $maxProgressPoints = count($sectionIds) * 2;
-                $progressPercent = $maxProgressPoints > 0 ? round(($totalProgressPoints / $maxProgressPoints) * 100) : 0;
-                
-                // Zähle gelöste Fragen
-                $solvedInSection = $progressData->where('solved', true)->count();
-                
-                $sectionProgress[$section] = [
-                    'solved' => $solvedInSection,
-                    'total' => count($sectionIds),
-                    'percentage' => $progressPercent,
-                ];
-            }
-            
-            // Gesamtfortschritt für diesen Lehrgang
-            $allQuestions = $lehrgang->questions()->get();
-            $allProgressData = \App\Models\UserLehrgangProgress::where('user_id', $user->id)
-                ->whereIn('lehrgang_question_id', $allQuestions->pluck('id')->toArray())
                 ->get();
             
+            // Hole Fortschrittsdaten
+            $progressData = \App\Models\UserLehrgangProgress::where('user_id', $user->id)
+                ->whereIn('lehrgang_question_id', $allQuestions->pluck('id')->toArray())
+                ->get()
+                ->keyBy('lehrgang_question_id');
+            
+            // Berechne Gesamt-Fortschritt
             $totalProgressPoints = 0;
-            foreach ($allProgressData as $prog) {
+            $solvedCount = 0;
+            foreach ($progressData as $prog) {
                 $totalProgressPoints += min($prog->consecutive_correct, 2);
+                if ($prog->solved) {
+                    $solvedCount++;
+                }
             }
             $maxProgressPoints = $allQuestions->count() * 2;
             $totalPercent = $maxProgressPoints > 0 ? round(($totalProgressPoints / $maxProgressPoints) * 100) : 0;
-            $totalSolved = $allProgressData->where('solved', true)->count();
             
-            $lehrgangProgress[$lehrgang->id] = [
+            $lehrgangData[$lehrgang->id] = [
                 'lehrgang' => $lehrgang,
-                'sectionProgress' => $sectionProgress,
-                'questions_grouped' => $questions_grouped,
-                'totalSolved' => $totalSolved,
+                'questions' => $allQuestions,
+                'progressData' => $progressData,
+                'totalSolved' => $solvedCount,
                 'totalQuestions' => $allQuestions->count(),
                 'totalPercent' => $totalPercent,
             ];
         }
         
-        // Konvertiere zu Collection für isEmpty() Support
-        $lehrgangProgress = collect($lehrgangProgress);
+        $lehrgangData = collect($lehrgangData);
         
-        return view('admin.edit_progress', compact('user', 'questions', 'solved', 'failed', 'lehrgangProgress'));
+        return view('admin.edit_progress', compact('user', 'questions', 'solved', 'failed', 'lehrgangData'));
     }
 
     public function updateProgress(Request $request, $id)
