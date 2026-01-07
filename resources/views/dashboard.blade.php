@@ -494,8 +494,19 @@
         : (is_string($user->solved_questions) ? json_decode($user->solved_questions, true) ?? [] : []);
     $progress = count($progressArr);
     
-    // Hole bestanden Prüfungen von ExamStatistic statt aus User-Feld
-    $exams = \App\Models\ExamStatistic::where('user_id', $user->id)->where('is_passed', true)->count();
+    // Hole Prüfungs-Streak: Nur aufeinanderfolgende bestandene Prüfungen zählen
+    $allExams = \App\Models\ExamStatistic::where('user_id', $user->id)
+        ->orderBy('created_at', 'desc')
+        ->get();
+    
+    $exams = 0; // Streak-Zähler
+    foreach ($allExams as $exam) {
+        if ($exam->is_passed) {
+            $exams++; // Nur weiterzählen wenn bestanden
+        } else {
+            break; // Bei durchgefallener Prüfung stoppen (Streak unterbrochen)
+        }
+    }
     
     try {
         $progressData = \App\Models\UserQuestionProgress::where('user_id', $user->id)->get();
