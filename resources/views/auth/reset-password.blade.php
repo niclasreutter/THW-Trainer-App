@@ -564,18 +564,6 @@
             margin-bottom: 1.5rem;
         }
 
-        .auth-info-box {
-            padding: 1rem;
-        }
-
-        .auth-info-icon {
-            font-size: 2rem;
-        }
-
-        .auth-info-title {
-            font-size: 1rem;
-        }
-
         .auth-right {
             padding: 1.5rem;
         }

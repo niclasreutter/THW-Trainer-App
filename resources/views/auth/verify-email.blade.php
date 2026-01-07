@@ -338,31 +338,6 @@
             padding: 0.8rem 0.9rem;
         }
     }
-</style>
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        border-radius: 1.2rem;
-        padding: 2rem;
-        text-align: center;
-        max-width: 450px;
-    }
-
-    .auth-info-icon {
-        font-size: 3rem;
-        margin-bottom: 1rem;
-    }
-
-    .auth-info-title {
-        font-size: 1.2rem;
-        font-weight: 700;
-        margin-bottom: 0.8rem;
-    }
-
-    .auth-info-text {
-        font-size: 0.95rem;
-        opacity: 0.9;
-        line-height: 1.5;
-    }
 
     .auth-right {
         flex: 1;
