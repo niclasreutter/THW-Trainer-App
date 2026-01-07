@@ -3,238 +3,339 @@
 @section('title', 'Profil bearbeiten - THW Trainer')
 @section('description', 'Bearbeite dein THW-Trainer Profil: Ändere deine persönlichen Daten, Passwort und verwalte deinen Account. Sicher und einfach.')
 
+@push('styles')
+<style>
+    * { box-sizing: border-box; }
+
+    .profile-wrapper { min-height: 100vh; background: #f3f4f6; position: relative; overflow-x: hidden; }
+
+    .profile-container { max-width: 900px; margin: 0 auto; padding: 2rem; position: relative; z-index: 1; }
+
+    .profile-header { text-align: center; margin-bottom: 3rem; padding-top: 1rem; }
+
+    .profile-header h1 { font-size: 2.5rem; font-weight: 800; color: #00337F; margin-bottom: 0.5rem; line-height: 1.2; }
+
+    .profile-subtitle { font-size: 1.1rem; color: #4b5563; margin-bottom: 0; }
+
+    .alert-box { border-radius: 10px; padding: 1.5rem; margin-bottom: 2rem; display: flex; gap: 1rem; }
+
+    .alert-success { background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(34, 197, 94, 0.05) 100%); border: 1px solid #22c55e; }
+
+    .alert-warning { background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(245, 158, 11, 0.05) 100%); border: 1px solid #f59e0b; }
+
+    .alert-icon { font-size: 1.5rem; flex-shrink: 0; }
+
+    .alert-content h3 { margin: 0 0 0.5rem 0; font-weight: 700; font-size: 1rem; }
+
+    .alert-content p { margin: 0; font-size: 0.95rem; }
+
+    .alert-success .alert-content h3 { color: #16a34a; }
+    .alert-success .alert-content p { color: #16a34a; }
+
+    .alert-warning .alert-content h3 { color: #d97706; }
+    .alert-warning .alert-content p { color: #92400e; }
+
+    .card { background: white; border-radius: 10px; border: 1px solid #e5e7eb; padding: 2rem; margin-bottom: 2rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); }
+
+    .card-title { font-size: 1.5rem; font-weight: 700; color: #00337F; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem; }
+
+    .form-group { margin-bottom: 1.5rem; }
+
+    .form-group-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem; }
+
+    .form-label { display: block; font-weight: 600; color: #1f2937; margin-bottom: 0.5rem; font-size: 0.95rem; }
+
+    .form-input { width: 100%; padding: 0.75rem 1rem; border: 1px solid #d1d5db; border-radius: 8px; font-size: 1rem; transition: all 0.3s; }
+
+    .form-input:focus { outline: none; border-color: #00337F; box-shadow: 0 0 0 3px rgba(0, 51, 127, 0.1); }
+
+    .form-input.error { border-color: #ef4444; box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1); }
+
+    .error-message { color: #dc2626; font-size: 0.85rem; margin-top: 0.4rem; }
+
+    .help-text { color: #6b7280; font-size: 0.85rem; margin-top: 0.4rem; }
+
+    .checkbox-group { display: flex; align-items: flex-start; gap: 0.75rem; }
+
+    .checkbox-input { width: 1.25rem; height: 1.25rem; margin-top: 0.15rem; accent-color: #00337F; cursor: pointer; flex-shrink: 0; }
+
+    .checkbox-label { cursor: pointer; flex: 1; }
+
+    .checkbox-label-text { font-weight: 500; color: #1f2937; margin-bottom: 0.4rem; display: block; }
+
+    .checkbox-description { color: #6b7280; font-size: 0.9rem; margin-bottom: 0.5rem; }
+
+    .checkbox-confirm { color: #16a34a; font-size: 0.85rem; margin-top: 0.5rem; }
+
+    .consent-section { background: linear-gradient(135deg, rgba(0, 51, 127, 0.05) 0%, rgba(0, 63, 153, 0.05) 100%); border: 1px solid #dbeafe; border-radius: 10px; padding: 1.5rem; margin-bottom: 1.5rem; }
+
+    .button { width: 100%; padding: 0.875rem 1.5rem; font-weight: 600; border: none; border-radius: 8px; cursor: pointer; transition: all 0.3s; font-size: 1rem; }
+
+    .button-primary { background: linear-gradient(135deg, #00337F 0%, #003F99 100%); color: white; }
+
+    .button-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0, 51, 127, 0.3); }
+
+    .button-success { background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: white; }
+
+    .button-success:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3); }
+
+    .button-danger { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; }
+
+    .button-danger:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); }
+
+    .password-match-message { font-size: 0.85rem; margin-top: 0.5rem; display: none; }
+
+    .password-match-success { color: #16a34a; }
+
+    .password-match-error { color: #dc2626; }
+
+    @media (max-width: 768px) {
+        .profile-container { padding: 1rem; }
+        .profile-header h1 { font-size: 2rem; }
+        .card { padding: 1.5rem; }
+        .form-group-row { grid-template-columns: 1fr; }
+        .button { padding: 0.75rem 1rem; font-size: 0.95rem; }
+    }
+</style>
+@endpush
+
 @section('content')
-<div class="max-w-7xl mx-auto p-6">
-    <h1 class="text-3xl font-bold text-blue-800 mb-8 text-center">👤 Profil bearbeiten</h1>
-    
-    <!-- Status Messages -->
-    @if (session('status') == 'profile-updated' || session('status') == 'password-updated')
-        <div style="margin-top: 2rem; margin-bottom: 2rem; background-color: #f0fdf4; border: 2px solid #22c55e; border-radius: 12px; padding: 24px; text-align: center; box-shadow: 0 0 20px rgba(34, 197, 94, 0.3), 0 0 40px rgba(34, 197, 94, 0.1);">
-            <div class="flex items-center justify-center">
-                <svg class="w-6 h-6 mr-3" style="color: #16a34a;" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                </svg>
-                <p class="text-base font-medium" style="color: #16a34a; margin: 0;">
-                    @if (session('status') == 'profile-updated')
-                        ✅ Profil erfolgreich aktualisiert!
-                    @else
-                        🔒 Passwort erfolgreich geändert!
-                    @endif
-                </p>
-            </div>
+<div class="profile-wrapper">
+    <div class="profile-container">
+        <!-- Header -->
+        <div class="profile-header">
+            <h1>👤 Profil bearbeiten</h1>
+            <p class="profile-subtitle">Verwalte deine persönlichen Daten und Einstellungen</p>
         </div>
-    @endif
 
-    <!-- E-Mail Verification Warning -->
-    @if (!$user->hasVerifiedEmail())
-        <div style="margin-top: 2rem; margin-bottom: 2rem; background-color: #fffbeb; border: 2px solid #f59e0b; border-radius: 12px; padding: 24px; text-align: center; box-shadow: 0 0 20px rgba(245, 158, 11, 0.3), 0 0 40px rgba(245, 158, 11, 0.1);">
-            <div class="flex items-start">
-                <svg class="w-6 h-6 mr-3 mt-1" style="color: #d97706;" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
-                </svg>
-                <div>
-                    <h3 class="text-lg font-medium" style="color: #d97706; margin-bottom: 8px;">⏰ E-Mail-Bestätigung erforderlich</h3>
-                    <p class="text-sm" style="color: #92400e; margin-bottom: 8px;">
-                        <strong>Wichtig:</strong> Deine E-Mail-Adresse muss <strong>innerhalb von 5 Minuten</strong> bestätigt werden. Bitte überprüfe dein Postfach und klicke auf den Bestätigungslink. Überprüfe auch deinen Spam-Ordner.
-                    </p>
-                    @if (session('status') == 'email-verification-sent')
-                        <p class="text-sm font-medium" style="color: #d97706;">📧 Eine neue Bestätigungs-E-Mail wurde gerade gesendet!</p>
-                    @endif
-                </div>
-            </div>
-        </div>
-    @endif
-
-    <!-- Profile Information -->
-    <div class="bg-white rounded-lg shadow-md p-6" style="margin-bottom: 2rem;">
-        <h2 class="text-xl font-semibold text-blue-800 mb-6">👤 Profildaten</h2>
-        
-        <form method="POST" action="{{ route('profile.update') }}">
-            @csrf
-            @method('PATCH')
-            
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                <!-- Name (Editable) -->
-                <div>
-                    <label for="name" class="block text-sm font-medium text-gray-700 mb-2">Name:</label>
-                    <input type="text" name="name" id="name" value="{{ old('name', $user->name) }}" 
-                           class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('name') border-red-500 @enderror"
-                           required maxlength="255">
-                    @error('name')
-                        <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
-                    @else
-                        <p class="text-xs text-gray-500 mt-1">Dieser Name erscheint im Leaderboard</p>
-                    @enderror
-                </div>
-                
-                <!-- Email -->
-                <div>
-                    <label for="email" class="block text-sm font-medium text-gray-700 mb-2">E-Mail-Adresse:</label>
-                    <input type="email" name="email" id="email" value="{{ old('email', $user->email) }}" 
-                           class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('email') border-red-500 @enderror"
-                           required>
-                    @error('email')
-                        <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
-                    @enderror
-                </div>
-            </div>
-            
-            <!-- E-Mail-Zustimmung -->
-            <div class="mb-6 p-4 rounded-lg" style="background-color: #f0f9ff; border: 2px solid #0ea5e9; box-shadow: 0 0 20px rgba(14, 165, 233, 0.3), 0 0 40px rgba(14, 165, 233, 0.1);">
-                <div class="flex items-start">
-                    <div class="flex-shrink-0">
-                        <svg class="w-6 h-6 mt-1" style="color: #0284c7;" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path>
-                            <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path>
-                        </svg>
-                    </div>
-                    <div class="ml-3 flex-1">
-                        <h3 class="text-lg font-medium" style="color: #0284c7; margin-bottom: 8px;">📧 E-Mail-Benachrichtigungen</h3>
-                        <p class="text-sm" style="color: #0369a1; margin-bottom: 12px;">
-                            Erhalte E-Mails zu deinem Lernfortschritt, neuen Features und wichtigen Systeminformationen.
-                        </p>
-                        <div class="flex items-center">
-                            <input type="checkbox" name="email_consent" id="email_consent" value="1" 
-                                   {{ old('email_consent', $user->email_consent) ? 'checked' : '' }}
-                                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                            <label for="email_consent" class="ml-2 text-sm font-medium" style="color: #0369a1;">
-                                Ich möchte E-Mail-Benachrichtigungen erhalten
-                            </label>
-                        </div>
-                        @if($user->email_consent_at)
-                            <p class="text-xs mt-2" style="color: #0284c7;">
-                                ✅ Zustimmung erteilt am {{ $user->email_consent_at->format('d.m.Y \u\m H:i') }} Uhr
-                            </p>
+        <!-- Status Messages -->
+        @if (session('status') == 'profile-updated' || session('status') == 'password-updated')
+            <div class="alert-box alert-success">
+                <div class="alert-icon">✅</div>
+                <div class="alert-content">
+                    <h3>Erfolgreich aktualisiert!</h3>
+                    <p>
+                        @if (session('status') == 'profile-updated')
+                            Dein Profil wurde erfolgreich aktualisiert.
+                        @else
+                            Dein Passwort wurde erfolgreich geändert.
                         @endif
-                    </div>
+                    </p>
                 </div>
             </div>
+        @endif
 
-            <!-- Leaderboard Consent Section -->
-            <div class="mt-6 p-6 rounded-lg" style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 2px solid #0ea5e9; box-shadow: 0 4px 15px rgba(14, 165, 233, 0.2);">
-                <h3 class="text-lg font-semibold text-blue-800 mb-4">🏆 Leaderboard-Teilnahme</h3>
+        <!-- E-Mail Verification Warning -->
+        @if (!$user->hasVerifiedEmail())
+            <div class="alert-box alert-warning">
+                <div class="alert-icon">⏰</div>
+                <div class="alert-content">
+                    <h3>E-Mail-Bestätigung erforderlich</h3>
+                    <p>
+                        <strong>Wichtig:</strong> Deine E-Mail-Adresse muss <strong>innerhalb von 5 Minuten</strong> bestätigt werden. 
+                        Bitte überprüfe dein Postfach und klicke auf den Bestätigungslink. Überprüfe auch deinen Spam-Ordner.
+                        @if (session('status') == 'email-verification-sent')
+                            <br><strong>📧 Eine neue Bestätigungs-E-Mail wurde gerade gesendet!</strong>
+                        @endif
+                    </p>
+                </div>
+            </div>
+        @endif
+
+        <!-- Profile Information -->
+        <div class="card">
+            <h2 class="card-title">👤 Profildaten</h2>
+            
+            <form method="POST" action="{{ route('profile.update') }}">
+                @csrf
+                @method('PATCH')
                 
-                <div class="flex items-start gap-3">
-                    <input type="checkbox" 
-                           name="leaderboard_consent" 
-                           id="leaderboard_consent" 
-                           value="1"
-                           {{ $user->leaderboard_consent ? 'checked' : '' }}
-                           class="mt-1 w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500 focus:ring-2 cursor-pointer">
-                    <div class="flex-1">
-                        <label for="leaderboard_consent" class="font-medium text-gray-800 cursor-pointer">
-                            Ich möchte im öffentlichen Leaderboard erscheinen
+                <div class="form-group-row">
+                    <div>
+                        <label for="name" class="form-label">Name</label>
+                        <input type="text" name="name" id="name" value="{{ old('name', $user->name) }}" 
+                               class="form-input @error('name') error @enderror" required maxlength="255">
+                        @error('name')
+                            <div class="error-message">{{ $message }}</div>
+                        @else
+                            <p class="help-text">Dieser Name erscheint im Leaderboard</p>
+                        @enderror
+                    </div>
+                    
+                    <div>
+                        <label for="email" class="form-label">E-Mail-Adresse</label>
+                        <input type="email" name="email" id="email" value="{{ old('email', $user->email) }}" 
+                               class="form-input @error('email') error @enderror" required>
+                        @error('email')
+                            <div class="error-message">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+                
+                <!-- E-Mail-Zustimmung -->
+                <div class="consent-section">
+                    <div class="checkbox-group">
+                        <input type="checkbox" name="email_consent" id="email_consent" value="1" 
+                               {{ old('email_consent', $user->email_consent) ? 'checked' : '' }}
+                               class="checkbox-input">
+                        <label for="email_consent" class="checkbox-label">
+                            <span class="checkbox-label-text">📧 E-Mail-Benachrichtigungen</span>
+                            <span class="checkbox-description">
+                                Erhalte E-Mails zu deinem Lernfortschritt, neuen Features und wichtigen Systeminformationen.
+                            </span>
+                            @if($user->email_consent_at)
+                                <span class="checkbox-confirm">
+                                    ✅ Zustimmung erteilt am {{ $user->email_consent_at->format('d.m.Y \u\m H:i') }} Uhr
+                                </span>
+                            @endif
                         </label>
-                        <p class="text-sm text-gray-600 mt-2">
-                            📊 Wenn du diese Option aktivierst, erscheint dein Name im Leaderboard und andere Nutzer können deine Punkte und Position sehen. 
-                            Du kannst diese Einstellung jederzeit ändern.
-                        </p>
-                        @if($user->leaderboard_consent)
-                            <p class="text-sm text-green-600 mt-2 font-medium">
-                                ✅ Zustimmung erteilt am {{ $user->leaderboard_consent_at->format('d.m.Y \u\m H:i') }} Uhr
-                            </p>
+                    </div>
+                </div>
+
+                <!-- Leaderboard Consent -->
+                <div class="consent-section">
+                    <div class="checkbox-group">
+                        <input type="checkbox" name="leaderboard_consent" id="leaderboard_consent" value="1"
+                               {{ $user->leaderboard_consent ? 'checked' : '' }} class="checkbox-input">
+                        <label for="leaderboard_consent" class="checkbox-label">
+                            <span class="checkbox-label-text">🏆 Leaderboard-Teilnahme</span>
+                            <span class="checkbox-description">
+                                Wenn aktiviert, erscheint dein Name im öffentlichen Leaderboard und andere Nutzer können deine Punkte sehen. 
+                                Du kannst diese Einstellung jederzeit ändern.
+                            </span>
+                            @if($user->leaderboard_consent)
+                                <span class="checkbox-confirm">
+                                    ✅ Zustimmung erteilt am {{ $user->leaderboard_consent_at->format('d.m.Y \u\m H:i') }} Uhr
+                                </span>
+                            @endif
+                        </label>
+                    </div>
+                </div>
+                
+                <button type="submit" class="button button-primary">💾 Profil speichern</button>
+            </form>
+        </div>
+
+        <!-- Password Change -->
+        <div class="card">
+            <h2 class="card-title">🔒 Passwort ändern</h2>
+            
+            <form method="POST" action="{{ route('profile.password.update') }}">
+                @csrf
+                @method('PATCH')
+                
+                <div class="form-group-row">
+                    <div>
+                        <label for="current_password" class="form-label">Aktuelles Passwort</label>
+                        <input type="password" name="current_password" id="current_password" 
+                               class="form-input @error('current_password') error @enderror"
+                               placeholder="Aktuelles Passwort">
+                        @error('current_password')
+                            <div class="error-message">{{ $message }}</div>
+                        @endif
+                    </div>
+                    
+                    <div>
+                        <label for="password" class="form-label">Neues Passwort</label>
+                        <input type="password" name="password" id="password" 
+                               class="form-input @error('password') error @enderror"
+                               placeholder="Mindestens 8 Zeichen"
+                               oninput="checkPasswordMatch()">
+                        @error('password')
+                            <div class="error-message">{{ $message }}</div>
+                        @endif
+                    </div>
+                    
+                    <div>
+                        <label for="password_confirmation" class="form-label">Passwort bestätigen</label>
+                        <input type="password" name="password_confirmation" id="password_confirmation" 
+                               class="form-input"
+                               placeholder="Passwort wiederholen"
+                               oninput="checkPasswordMatch()">
+                        <div id="password-match-message" class="password-match-message"></div>
+                    </div>
+                </div>
+                
+                <button type="submit" class="button button-success">🔒 Passwort ändern</button>
+            </form>
+        </div>
+
+        <!-- Account Information -->
+        <div class="card">
+            <h2 class="card-title">ℹ️ Konto-Informationen</h2>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem;">
+                <div style="padding: 1rem; background: #f9fafb; border-radius: 8px; border: 1px solid #e5e7eb;">
+                    <div style="font-size: 0.85rem; font-weight: 600; color: #6b7280; text-transform: uppercase; margin-bottom: 0.5rem;">Beitrittsdatum</div>
+                    <div style="font-size: 1.1rem; font-weight: 700; color: #1f2937;">{{ $user->created_at->format('d.m.Y') }}</div>
+                    <div style="font-size: 0.85rem; color: #9ca3af; margin-top: 0.25rem;">vor {{ $user->created_at->diffInDays(now()) }} Tagen</div>
+                </div>
+                
+                <div style="padding: 1rem; background: #f9fafb; border-radius: 8px; border: 1px solid #e5e7eb;">
+                    <div style="font-size: 0.85rem; font-weight: 600; color: #6b7280; text-transform: uppercase; margin-bottom: 0.5rem;">Konto-Status</div>
+                    <div style="font-size: 1.1rem; font-weight: 700; color: #1f2937;">
+                        @if($user->hasVerifiedEmail())
+                            ✅ Bestätigt
+                        @else
+                            ⏳ Ausstehend
+                        @endif
+                    </div>
+                    <div style="font-size: 0.85rem; color: #9ca3af; margin-top: 0.25rem;">E-Mail {{ $user->hasVerifiedEmail() ? 'verifiziert' : 'nicht verifiziert' }}</div>
+                </div>
+                
+                <div style="padding: 1rem; background: #f9fafb; border-radius: 8px; border: 1px solid #e5e7eb;">
+                    <div style="font-size: 0.85rem; font-weight: 600; color: #6b7280; text-transform: uppercase; margin-bottom: 0.5rem;">Zuletzt angemeldet</div>
+                    <div style="font-size: 1.1rem; font-weight: 700; color: #1f2937;">
+                        @if($user->last_login_at)
+                            {{ $user->last_login_at->format('d.m.Y H:i') }}
+                        @else
+                            Gerade eben
+                        @endif
+                    </div>
+                    <div style="font-size: 0.85rem; color: #9ca3af; margin-top: 0.25rem;">
+                        @if($user->last_login_at)
+                            vor {{ $user->last_login_at->diffForHumans() }}
+                        @else
+                            Erste Anmeldung
                         @endif
                     </div>
                 </div>
             </div>
-            
-            <button type="submit" 
-                    style="width: 100%; background: linear-gradient(to right, #2563eb, #1d4ed8); color: white; font-weight: 600; padding: 12px 24px; border-radius: 8px; border: none; cursor: pointer; transition: all 0.3s ease; transform: scale(1); box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4), 0 0 20px rgba(37, 99, 235, 0.3), 0 0 40px rgba(37, 99, 235, 0.1);"
-                    onmouseover="this.style.background='linear-gradient(to right, #1d4ed8, #1e40af)'; this.style.transform='scale(1.02)'; this.style.boxShadow='0 4px 15px rgba(37, 99, 235, 0.4), 0 0 25px rgba(37, 99, 235, 0.4), 0 0 50px rgba(37, 99, 235, 0.2)'"
-                    onmouseout="this.style.background='linear-gradient(to right, #2563eb, #1d4ed8)'; this.style.transform='scale(1)'; this.style.boxShadow='0 4px 15px rgba(37, 99, 235, 0.4), 0 0 20px rgba(37, 99, 235, 0.3), 0 0 40px rgba(37, 99, 235, 0.1)'">
-                💾 Profil speichern
-            </button>
-        </form>
-    </div>
+        </div>
 
-    <!-- Password Change -->
-    <div class="bg-white rounded-lg shadow-md p-6" style="margin-bottom: 2rem;">
-        <h2 class="text-xl font-semibold text-blue-800 mb-6">🔒 Passwort ändern</h2>
-        
-        <form method="POST" action="{{ route('profile.password.update') }}">
-            @csrf
-            @method('PATCH')
+        <!-- Account Management -->
+        <div class="card">
+            <h2 class="card-title" style="color: #dc2626;">⚠️ Account-Verwaltung</h2>
             
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
-                <div>
-                    <label for="current_password" class="block text-sm font-medium text-gray-700 mb-2">Aktuelles Passwort:</label>
-                    <input type="password" name="current_password" id="current_password" 
-                           class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('current_password') border-red-500 @enderror"
-                           placeholder="Aktuelles Passwort">
-                    @error('current_password')
-                        <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
-                    @endif
-                </div>
-                
-                <div>
-                    <label for="password" class="block text-sm font-medium text-gray-700 mb-2">Neues Passwort:</label>
-                    <input type="password" name="password" id="password" 
-                           class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('password') border-red-500 @enderror"
-                           placeholder="Mindestens 8 Zeichen"
-                           oninput="checkPasswordMatch()">
-                    @error('password')
-                        <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
-                    @endif
-                </div>
-                
-                <div>
-                    <label for="password_confirmation" class="block text-sm font-medium text-gray-700 mb-2">Passwort bestätigen:</label>
-                    <input type="password" name="password_confirmation" id="password_confirmation" 
-                           class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                           placeholder="Passwort wiederholen"
-                           oninput="checkPasswordMatch()">
-                    <div id="password-match-message" class="text-sm mt-1" style="display: none;"></div>
-                </div>
-            </div>
-            
-            <button type="submit" 
-                    style="width: 100%; background: linear-gradient(to right, #16a34a, #15803d); color: white; font-weight: 600; padding: 12px 24px; border-radius: 8px; border: none; cursor: pointer; transition: all 0.3s ease; transform: scale(1); box-shadow: 0 4px 15px rgba(22, 163, 74, 0.4), 0 0 20px rgba(22, 163, 74, 0.3), 0 0 40px rgba(22, 163, 74, 0.1);"
-                    onmouseover="this.style.background='linear-gradient(to right, #15803d, #166534)'; this.style.transform='scale(1.02)'; this.style.boxShadow='0 4px 15px rgba(22, 163, 74, 0.4), 0 0 25px rgba(22, 163, 74, 0.4), 0 0 50px rgba(22, 163, 74, 0.2)'"
-                    onmouseout="this.style.background='linear-gradient(to right, #16a34a, #15803d)'; this.style.transform='scale(1)'; this.style.boxShadow='0 4px 15px rgba(22, 163, 74, 0.4), 0 0 20px rgba(22, 163, 74, 0.3), 0 0 40px rgba(22, 163, 74, 0.1)'">
-                🔒 Passwort ändern
-            </button>
-        </form>
-    </div>
-
-    <!-- Account Management -->
-    <div class="bg-white rounded-lg shadow-md p-6" style="margin-bottom: 2rem;">
-        <h2 class="text-xl font-semibold text-red-800 mb-6">⚠️ Account-Verwaltung</h2>
-        
-        <div class="mb-6 p-4 rounded-lg" style="background-color: #fef2f2; border: 2px solid #ef4444; box-shadow: 0 0 20px rgba(239, 68, 68, 0.3), 0 0 40px rgba(239, 68, 68, 0.1);">
-            <div class="flex items-start">
-                <svg class="w-6 h-6 mr-3 mt-1" style="color: #dc2626;" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
-                </svg>
-                <div>
-                    <h3 class="text-lg font-medium" style="color: #dc2626; margin-bottom: 8px;">Account löschen</h3>
-                    <p class="text-sm" style="color: #991b1b; margin-bottom: 0;">
-                        <strong>Achtung:</strong> Diese Aktion kann nicht rückgängig gemacht werden. Alle deine Daten, einschließlich Lernfortschritt und Prüfungsergebnisse, werden permanent gelöscht.
+            <div class="alert-box" style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(239, 68, 68, 0.05) 100%); border: 1px solid #ef4444; margin-bottom: 1.5rem;">
+                <div class="alert-icon">⚠️</div>
+                <div class="alert-content">
+                    <h3 style="color: #dc2626;">Account löschen</h3>
+                    <p style="color: #991b1b;">
+                        <strong>Achtung:</strong> Diese Aktion kann nicht rückgängig gemacht werden. Alle deine Daten, einschließlich Lernfortschritt 
+                        und Prüfungsergebnisse, werden permanent gelöscht.
                     </p>
                 </div>
             </div>
+            
+            <form method="POST" action="{{ route('profile.destroy') }}" 
+                  onsubmit="return confirm('Bist du dir absolut sicher? Diese Aktion kann nicht rückgängig gemacht werden. Alle deine Daten werden permanent gelöscht.')">
+                @csrf
+                @method('DELETE')
+                
+                <div class="form-group">
+                    <label for="password_delete" class="form-label">Bestätige mit deinem Passwort</label>
+                    <input type="password" name="password" id="password_delete" 
+                           class="form-input @error('password', 'userDeletion') error @enderror"
+                           placeholder="Gib dein Passwort ein um den Account zu löschen">
+                    @error('password', 'userDeletion')
+                        <div class="error-message">{{ $message }}</div>
+                    @endif
+                </div>
+                
+                <button type="submit" class="button button-danger">🗑️ Account permanent löschen</button>
+            </form>
         </div>
-        
-        <form method="POST" action="{{ route('profile.destroy') }}" onsubmit="return confirm('Bist du dir absolut sicher? Diese Aktion kann nicht rückgängig gemacht werden. Alle deine Daten werden permanent gelöscht.')">
-            @csrf
-            @method('DELETE')
-            
-            <div class="mb-4">
-                <label for="password_delete" class="block text-sm font-medium text-gray-700 mb-2">Bestätige mit deinem Passwort:</label>
-                <input type="password" name="password" id="password_delete" 
-                       class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-red-500 focus:border-red-500 @error('password', 'userDeletion') border-red-500 @enderror"
-                       placeholder="Gib dein Passwort ein um den Account zu löschen">
-                @error('password', 'userDeletion')
-                    <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
-                @endif
-            </div>
-            
-            <button type="submit" 
-                    style="width: 100%; background: linear-gradient(to right, #dc2626, #b91c1c); color: white; font-weight: 600; padding: 12px 24px; border-radius: 8px; border: none; cursor: pointer; transition: all 0.3s ease; transform: scale(1); box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4), 0 0 20px rgba(220, 38, 38, 0.3), 0 0 40px rgba(220, 38, 38, 0.1);"
-                    onmouseover="this.style.background='linear-gradient(to right, #b91c1c, #991b1b)'; this.style.transform='scale(1.02)'; this.style.boxShadow='0 4px 15px rgba(220, 38, 38, 0.4), 0 0 25px rgba(220, 38, 38, 0.4), 0 0 50px rgba(220, 38, 38, 0.2)'"
-                    onmouseout="this.style.background='linear-gradient(to right, #dc2626, #b91c1c)'; this.style.transform='scale(1)'; this.style.boxShadow='0 4px 15px rgba(220, 38, 38, 0.4), 0 0 20px rgba(220, 38, 38, 0.3), 0 0 40px rgba(220, 38, 38, 0.1)'">
-                🗑️ Account permanent löschen
-            </button>
-        </form>
     </div>
 </div>
 
@@ -244,37 +345,34 @@
         const passwordConfirmation = document.getElementById('password_confirmation').value;
         const messageDiv = document.getElementById('password-match-message');
         
-        // Nur prüfen wenn beide Felder ausgefüllt sind
         if (password && passwordConfirmation) {
             if (password === passwordConfirmation) {
-                // Passwörter stimmen überein - Grüner Glow
-                document.getElementById('password').style.boxShadow = '0 0 0 3px rgba(34, 197, 94, 0.3), 0 0 0 1px rgba(34, 197, 94, 0.5)';
-                document.getElementById('password_confirmation').style.boxShadow = '0 0 0 3px rgba(34, 197, 94, 0.3), 0 0 0 1px rgba(34, 197, 94, 0.5)';
                 document.getElementById('password').style.borderColor = '#22c55e';
+                document.getElementById('password').style.boxShadow = '0 0 0 3px rgba(34, 197, 94, 0.1)';
                 document.getElementById('password_confirmation').style.borderColor = '#22c55e';
+                document.getElementById('password_confirmation').style.boxShadow = '0 0 0 3px rgba(34, 197, 94, 0.1)';
                 
-                messageDiv.style.display = 'block';
-                messageDiv.style.color = '#16a34a';
+                messageDiv.className = 'password-match-message password-match-success';
                 messageDiv.innerHTML = '✅ Passwörter stimmen überein';
-            } else {
-                // Passwörter stimmen nicht überein - Roter Glow
-                document.getElementById('password').style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.3), 0 0 0 1px rgba(239, 68, 68, 0.5)';
-                document.getElementById('password_confirmation').style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.3), 0 0 0 1px rgba(239, 68, 68, 0.5)';
-                document.getElementById('password').style.borderColor = '#ef4444';
-                document.getElementById('password_confirmation').style.borderColor = '#ef4444';
-                
                 messageDiv.style.display = 'block';
-                messageDiv.style.color = '#dc2626';
+            } else {
+                document.getElementById('password').style.borderColor = '#ef4444';
+                document.getElementById('password').style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.1)';
+                document.getElementById('password_confirmation').style.borderColor = '#ef4444';
+                document.getElementById('password_confirmation').style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.1)';
+                
+                messageDiv.className = 'password-match-message password-match-error';
                 messageDiv.innerHTML = '❌ Passwörter stimmen nicht überein';
+                messageDiv.style.display = 'block';
             }
         } else {
-            // Felder zurücksetzen wenn nicht beide ausgefüllt
-            document.getElementById('password').style.boxShadow = '';
-            document.getElementById('password_confirmation').style.boxShadow = '';
             document.getElementById('password').style.borderColor = '';
+            document.getElementById('password').style.boxShadow = '';
             document.getElementById('password_confirmation').style.borderColor = '';
+            document.getElementById('password_confirmation').style.boxShadow = '';
             messageDiv.style.display = 'none';
         }
     }
+</script>
 </script>
 @endsection

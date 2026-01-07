@@ -3,315 +3,354 @@
 @section('title', 'Admin Dashboard - THW Trainer')
 @section('description', 'Übersicht über System-Status, Benutzerstatistiken und Lernfortschritt')
 
-@section('content')
+@push('styles')
 <style>
-    .gradient-blue { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-    .gradient-green { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
-    .gradient-purple { background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); }
-    .gradient-orange { background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); }
-    .card-shadow { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
-    .hover-scale { transition: transform 0.2s ease-in-out; }
-    .hover-scale:hover { transform: scale(1.02); }
-    
-    /* Runde Ecken für alle Karten */
-    .rounded-xl { border-radius: 0.75rem !important; }
-    .bg-white { border-radius: 0.75rem !important; }
-    
-    /* Spezifische runde Ecken für Admin Dashboard Karten */
-    .admin-card { border-radius: 12px !important; }
-    .admin-kpi-card { border-radius: 12px !important; }
-    .admin-detail-card { border-radius: 12px !important; }
-    .admin-action-card { border-radius: 12px !important; }
+    * { box-sizing: border-box; }
+
+    .admin-wrapper { min-height: 100vh; background: #f3f4f6; position: relative; overflow-x: hidden; }
+
+    .admin-container { max-width: 1200px; margin: 0 auto; padding: 2rem; position: relative; z-index: 1; }
+
+    .admin-header { text-align: center; margin-bottom: 3rem; }
+
+    .admin-header h1 { font-size: 2.5rem; font-weight: 800; color: #00337F; margin-bottom: 0.5rem; line-height: 1.2; }
+
+    .admin-subtitle { font-size: 1.1rem; color: #4b5563; margin: 0; }
+
+    .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+
+    .stat-card { background: white; border: 1px solid #e5e7eb; border-radius: 10px; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); transition: all 0.3s; }
+
+    .stat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
+
+    .stat-card.system-status { background: white; padding: 1rem; }
+
+    .stat-label { font-size: 0.85rem; color: #6b7280; margin-bottom: 0.5rem; font-weight: 500; }
+
+    .stat-value { font-size: 1.75rem; font-weight: 800; color: #1f2937; margin-bottom: 0.25rem; }
+
+    .stat-subtext { font-size: 0.8rem; color: #9ca3af; }
+
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+
+    .kpi-card { background: white; border: 1px solid #e5e7eb; border-radius: 10px; padding: 2rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); display: flex; align-items: center; justify-content: space-between; transition: all 0.3s; }
+
+    .kpi-card:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); }
+
+    .kpi-content h3 { font-size: 0.9rem; color: #6b7280; margin: 0 0 0.5rem 0; font-weight: 500; }
+
+    .kpi-value { font-size: 2.5rem; font-weight: 800; color: #00337F; margin: 0; }
+
+    .kpi-sub { font-size: 0.8rem; color: #9ca3af; margin: 0.3rem 0 0 0; }
+
+    .kpi-icon { width: 70px; height: 70px; background: linear-gradient(135deg, rgba(0, 51, 127, 0.1) 0%, rgba(0, 51, 127, 0.05) 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 2rem; }
+
+    .card { background: white; border: 1px solid #e5e7eb; border-radius: 10px; padding: 2rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); }
+
+    .card h3 { font-size: 1.25rem; font-weight: 700; color: #1f2937; margin: 0 0 1.5rem 0; display: flex; align-items: center; gap: 0.75rem; }
+
+    .card-icon { font-size: 1.3rem; color: #00337F; }
+
+    .stat-row { display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; border-bottom: 1px solid #f3f4f6; }
+
+    .stat-row:last-child { border-bottom: none; }
+
+    .stat-label-col { color: #6b7280; font-size: 0.95rem; }
+
+    .stat-value-col { font-weight: 700; color: #1f2937; font-size: 1rem; }
+
+    .stat-value-col.success { color: #22c55e; }
+
+    .stat-value-col.warning { color: #f59e0b; }
+
+    .stat-value-col.primary { color: #00337F; }
+
+    .leaderboard-item { display: flex; align-items: center; justify-content: space-between; padding: 1rem; border-radius: 8px; margin-bottom: 0.75rem; background: #f9fafb; border: 1px solid #e5e7eb; transition: all 0.3s; }
+
+    .leaderboard-item:hover { background: #ffffff; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); }
+
+    .leaderboard-item.top-rank { background: linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, rgba(245, 158, 11, 0.05) 100%); border: 1px solid rgba(251, 191, 36, 0.3); }
+
+    .medal { font-size: 1.5rem; margin-right: 1rem; }
+
+    .user-info { flex: 1; }
+
+    .user-name { font-weight: 700; color: #1f2937; font-size: 0.95rem; }
+
+    .user-level { font-size: 0.8rem; color: #9ca3af; }
+
+    .user-stats { text-align: right; }
+
+    .user-score { font-weight: 700; color: #00337F; font-size: 1rem; }
+
+    .user-details { font-size: 0.8rem; color: #9ca3af; }
+
+    .action-buttons { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+
+    .action-btn { display: flex; align-items: center; gap: 0.75rem; padding: 1.25rem; border-radius: 10px; text-decoration: none; color: white; font-weight: 600; transition: all 0.3s; border: none; cursor: pointer; }
+
+    .action-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2); }
+
+    .action-btn.primary { background: linear-gradient(135deg, #00337F 0%, #003F99 100%); }
+
+    .action-btn.success { background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); }
+
+    .action-btn.warning { background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: #1f2937; }
+
+    .action-btn.info { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+
+    .section-title { font-size: 1.3rem; font-weight: 700; color: #1f2937; margin: 2rem 0 1.5rem 0; }
+
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
+
+    .status-indicator { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+
+    .status-ok { background: #22c55e; }
+
+    .status-error { background: #ef4444; }
+
+    .status-warning { background: #f59e0b; }
+
+    @media (max-width: 768px) {
+        .admin-container { padding: 1rem; }
+        .admin-header h1 { font-size: 1.75rem; }
+        .stat-grid { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; }
+        .kpi-grid { grid-template-columns: 1fr; }
+        .kpi-card { flex-direction: column; text-align: center; }
+        .kpi-icon { margin-top: 1rem; }
+        .action-buttons { grid-template-columns: 1fr; }
+        .card { padding: 1.5rem; }
+    }
 </style>
+@endpush
 
-<div class="max-w-7xl mx-auto p-6">
-    <h1 class="text-3xl font-bold text-blue-800 mb-8 text-center">Admin Dashboard</h1>
-            <!-- System Status -->
-            <div class="mb-12">
-                <div class="flex items-center mb-4">
-                    <i class="fas fa-wrench text-gray-600 mr-2"></i>
-                    <h2 class="text-xl font-semibold text-gray-800">System Status</h2>
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
-                    <!-- Database Status -->
-                    <div class="bg-white admin-card p-4 card-shadow flex items-center justify-between">
-                        <div>
-                            <p class="text-sm font-medium text-gray-600">Datenbank</p>
-                            <p class="text-xs text-gray-500">{{ $systemStatus['database']['message'] }}</p>
-                        </div>
-                        <div class="w-3 h-3 rounded-full {{ $systemStatus['database']['status'] === 'ok' ? 'bg-green-500' : 'bg-red-500' }}"></div>
-                    </div>
-                    
-                    <!-- Cache Status -->
-                    <div class="bg-white admin-card p-4 card-shadow flex items-center justify-between">
-                        <div>
-                            <p class="text-sm font-medium text-gray-600">Cache</p>
-                            <p class="text-xs text-gray-500">{{ $systemStatus['cache']['message'] }}</p>
-                        </div>
-                        <div class="w-3 h-3 rounded-full {{ $systemStatus['cache']['status'] === 'ok' ? 'bg-green-500' : 'bg-red-500' }}"></div>
-                    </div>
-                    
-                    <!-- Storage Status -->
-                    <div class="bg-white admin-card p-4 card-shadow flex items-center justify-between">
-                        <div>
-                            <p class="text-sm font-medium text-gray-600">Storage</p>
-                            <p class="text-xs text-gray-500">{{ $systemStatus['storage']['message'] }}</p>
-                        </div>
-                        <div class="w-3 h-3 rounded-full {{ $systemStatus['storage']['status'] === 'ok' ? 'bg-green-500' : 'bg-red-500' }}"></div>
-                    </div>
-                    
-                    <!-- Backup Status -->
-                    <div class="bg-white admin-card p-4 card-shadow flex items-center justify-between">
-                        <div>
-                            <p class="text-sm font-medium text-gray-600">Backup</p>
-                            <p class="text-xs text-gray-500">{{ $systemStatus['backup'] }}</p>
-                        </div>
-                        <div class="w-3 h-3 rounded-full bg-blue-500"></div>
-                    </div>
-                </div>
-            </div>
+@section('content')
 
-            <!-- KPI Cards -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
-                <!-- Gesamt Benutzer -->
-                <div class="admin-kpi-card p-6 text-white hover-scale cursor-pointer" 
-                     style="background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4), 0 0 20px rgba(37, 99, 235, 0.3), 0 0 40px rgba(37, 99, 235, 0.1);">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-blue-100 text-sm font-medium">Gesamt Benutzer</p>
-                            <p class="text-3xl font-bold">{{ $totalUsers }}</p>
-                            <p class="text-blue-100 text-sm">+{{ $newUsersToday }} heute</p>
-                        </div>
-                        <div class="bg-white bg-opacity-20 rounded-full p-3">
-                            <i class="fas fa-users text-2xl"></i>
-                        </div>
-                    </div>
-                </div>
+<div class="admin-wrapper">
+    <div class="admin-container">
+        <!-- Header -->
+        <div class="admin-header">
+            <h1>⚙️ Admin Dashboard</h1>
+            <p class="admin-subtitle">Übersicht über System-Status, Benutzer und Lernfortschritt</p>
+        </div>
 
-                <!-- E-Mail bestätigt -->
-                <div class="admin-kpi-card p-6 text-white hover-scale cursor-pointer"
-                     style="background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); box-shadow: 0 4px 15px rgba(34, 197, 94, 0.4), 0 0 20px rgba(34, 197, 94, 0.3), 0 0 40px rgba(34, 197, 94, 0.1);">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-green-100 text-sm font-medium">E-Mail bestätigt</p>
-                            <p class="text-3xl font-bold">{{ $verifiedUsers }}</p>
-                            <p class="text-green-100 text-sm">{{ $verificationRate }}% Rate</p>
-                        </div>
-                        <div class="bg-white bg-opacity-20 rounded-full p-3">
-                            <i class="fas fa-check-circle text-2xl"></i>
-                        </div>
-                    </div>
+        <!-- System Status -->
+        <div class="section-title">🔧 System Status</div>
+        <div class="stat-grid">
+            <div class="stat-card system-status">
+                <div class="stat-label">Datenbank</div>
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <span class="status-indicator {{ $systemStatus['database']['status'] === 'ok' ? 'status-ok' : 'status-error' }}"></span>
+                    <span class="stat-value" style="margin: 0; font-size: 1rem;">{{ ucfirst($systemStatus['database']['status']) }}</span>
                 </div>
-
-                <!-- Gesamt Fragen -->
-                <div class="admin-kpi-card p-6 text-white hover-scale cursor-pointer"
-                     style="background: linear-gradient(135deg, #facc15 0%, #f59e0b 100%); color: #1e40af; box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4), 0 0 20px rgba(251, 191, 36, 0.3), 0 0 40px rgba(251, 191, 36, 0.1);">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-blue-800 text-sm font-medium">Gesamt Fragen</p>
-                            <p class="text-3xl font-bold">{{ $totalQuestions }}</p>
-                            <p class="text-blue-800 text-sm">{{ $learningSections }} Lernabschnitte</p>
-                        </div>
-                        <div class="bg-blue-800 bg-opacity-20 rounded-full p-3">
-                            <i class="fas fa-question-circle text-2xl text-blue-800"></i>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Beantwortete Fragen -->
-                <div class="admin-kpi-card p-6 text-white hover-scale cursor-pointer"
-                     style="background: linear-gradient(135deg, #00337F 0%, #002a66 100%); box-shadow: 0 4px 15px rgba(0, 51, 127, 0.4), 0 0 20px rgba(0, 51, 127, 0.3), 0 0 40px rgba(0, 51, 127, 0.1);">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-blue-100 text-sm font-medium">Beantwortete Fragen</p>
-                            <p class="text-3xl font-bold">{{ number_format($totalAnsweredQuestions) }}</p>
-                            <p class="text-blue-100 text-sm">{{ $wrongAnswerRate }}% Falsch</p>
-                        </div>
-                        <div class="bg-white bg-opacity-20 rounded-full p-3">
-                            <i class="fas fa-chart-bar text-2xl"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Detailed Information Cards -->
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-12">
-                <!-- Fragen-Statistik Details -->
-                <div class="bg-white rounded-xl p-6 card-shadow">
-                    <div class="flex items-center mb-4">
-                        <i class="fas fa-chart-pie text-gray-600 mr-2"></i>
-                        <h3 class="text-lg font-semibold text-gray-800">Fragen-Statistik</h3>
-                    </div>
-                    <div class="space-y-4">
-                        <div class="flex justify-between items-center">
-                            <span class="text-gray-600">Gesamt beantwortet</span>
-                            <span class="font-semibold text-gray-900">{{ number_format($totalAnsweredQuestions) }}</span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-gray-600">Richtig</span>
-                            <span class="font-semibold text-green-600">{{ number_format($totalCorrectAnswers) }}</span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-gray-600">Falsch</span>
-                            <span class="font-semibold text-red-600">{{ number_format($totalWrongAnswers) }}</span>
-                        </div>
-                        <div class="mt-4 pt-4 border-t border-gray-200">
-                            <div class="flex justify-between items-center">
-                                <span class="text-gray-600 font-medium">Erfolgsrate</span>
-                                <span class="font-bold text-blue-600">{{ $totalAnsweredQuestions > 0 ? round((($totalCorrectAnswers / $totalAnsweredQuestions) * 100), 1) : 0 }}%</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            
-                <!-- Benutzer-Aktivität -->
-                <div class="bg-white rounded-xl p-6 card-shadow">
-                    <div class="flex items-center mb-4">
-                        <i class="fas fa-chart-line text-gray-600 mr-2"></i>
-                        <h3 class="text-lg font-semibold text-gray-800">Benutzer-Aktivität (30 Tage)</h3>
-                    </div>
-                    <div class="space-y-4">
-                        <div class="flex justify-between items-center">
-                            <span class="text-gray-600">Heute</span>
-                            <span class="font-semibold text-gray-900">{{ $userActivity['today'] }}</span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-gray-600">Diese Woche</span>
-                            <span class="font-semibold text-gray-900">{{ $userActivity['this_week'] }}</span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-gray-600">Diesen Monat</span>
-                            <span class="font-semibold text-gray-900">{{ $userActivity['this_month'] }}</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Lernfortschritt -->
-                <div class="bg-white rounded-xl p-6 card-shadow">
-                    <div class="flex items-center mb-4">
-                        <i class="fas fa-graduation-cap text-gray-600 mr-2"></i>
-                        <h3 class="text-lg font-semibold text-gray-800">Lernfortschritt</h3>
-                    </div>
-                    <div class="space-y-4">
-                        <div class="flex justify-between items-center">
-                            <span class="text-gray-600">Gesamt Punkte</span>
-                            <span class="font-semibold text-orange-500">{{ number_format($learningProgress['total_points']) }}</span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-gray-600">Benutzer mit Erfolgen</span>
-                            <span class="font-semibold text-gray-900">{{ $learningProgress['users_with_achievements'] }}</span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-gray-600">Durchschnittlicher Fortschritt</span>
-                            <span class="font-semibold text-blue-500">{{ $learningProgress['average_progress'] }}%</span>
-                        </div>
-                    </div>
-                </div>
+                <p class="stat-subtext">{{ $systemStatus['database']['message'] }}</p>
             </div>
             
-            <!-- Leaderboard Section -->
-            <div class="grid grid-cols-1 gap-6 mb-12">
-                <!-- Leaderboard Top-10 -->
-                <div class="bg-white rounded-xl p-6 card-shadow">
-                    <div class="flex items-center mb-4">
-                        <i class="fas fa-trophy text-gray-600 mr-2"></i>
-                        <h3 class="text-lg font-semibold text-gray-800">Leaderboard Top-10</h3>
-                    </div>
-                    <div class="space-y-3 max-h-80 overflow-y-auto">
-                        @forelse($leaderboard as $index => $user)
-                            @php
-                                $position = $index + 1;
-                                $medal = match($position) {
-                                    1 => '🥇',
-                                    2 => '🥈', 
-                                    3 => '🥉',
-                                    default => $position . '.'
-                                };
-                            @endphp
-                            <div class="flex items-center justify-between p-3 rounded-xl {{ $position <= 3 ? 'bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200' : 'bg-gray-50' }} hover:shadow-md transition-all duration-200">
-                                <div class="flex items-center space-x-3">
-                                    <span class="text-lg font-bold {{ $position <= 3 ? 'text-yellow-600' : 'text-gray-600' }}">{{ $medal }}</span>
-                                    <div>
-                                        <div class="font-semibold text-gray-900 text-sm">{{ $user['name'] }}</div>
-                                        <div class="text-xs text-gray-500">Level {{ $user['level'] }}</div>
-                                    </div>
-                                </div>
-                                <div class="text-right">
-                                    <div class="font-bold text-gray-900 text-sm">{{ number_format($user['score']) }}</div>
-                                    <div class="text-xs text-gray-500">
-                                        {{ $user['solved_questions'] }} Fragen • {{ $user['exam_passed'] }} Prüfungen
-                                    </div>
-                                </div>
-                            </div>
-                        @empty
-                            <div class="text-center py-8 text-gray-500">
-                                <i class="fas fa-users text-4xl mb-2"></i>
-                                <p>Noch keine Benutzer-Daten verfügbar</p>
-                            </div>
-                        @endforelse
-                    </div>
+            <div class="stat-card system-status">
+                <div class="stat-label">Cache</div>
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <span class="status-indicator {{ $systemStatus['cache']['status'] === 'ok' ? 'status-ok' : 'status-error' }}"></span>
+                    <span class="stat-value" style="margin: 0; font-size: 1rem;">{{ ucfirst($systemStatus['cache']['status']) }}</span>
+                </div>
+                <p class="stat-subtext">{{ $systemStatus['cache']['message'] }}</p>
+            </div>
+            
+            <div class="stat-card system-status">
+                <div class="stat-label">Storage</div>
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <span class="status-indicator {{ $systemStatus['storage']['status'] === 'ok' ? 'status-ok' : 'status-error' }}"></span>
+                    <span class="stat-value" style="margin: 0; font-size: 1rem;">{{ ucfirst($systemStatus['storage']['status']) }}</span>
+                </div>
+                <p class="stat-subtext">{{ $systemStatus['storage']['message'] }}</p>
+            </div>
+            
+            <div class="stat-card system-status">
+                <div class="stat-label">Backup</div>
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <span class="status-indicator status-warning"></span>
+                    <span class="stat-value" style="margin: 0; font-size: 0.9rem;">Aktiv</span>
+                </div>
+                <p class="stat-subtext">{{ $systemStatus['backup'] }}</p>
+            </div>
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="section-title">📊 Wichtige Kennzahlen</div>
+        <div class="kpi-grid">
+            <!-- Gesamt Benutzer -->
+            <div class="kpi-card">
+                <div class="kpi-content">
+                    <h3>Gesamt Benutzer</h3>
+                    <p class="kpi-value">{{ $totalUsers }}</p>
+                    <p class="kpi-sub">+{{ $newUsersToday }} heute</p>
+                </div>
+                <div class="kpi-icon">👥</div>
+            </div>
+
+            <!-- E-Mail bestätigt -->
+            <div class="kpi-card">
+                <div class="kpi-content">
+                    <h3>E-Mail bestätigt</h3>
+                    <p class="kpi-value">{{ $verifiedUsers }}</p>
+                    <p class="kpi-sub">{{ $verificationRate }}% Rate</p>
+                </div>
+                <div class="kpi-icon">✅</div>
+            </div>
+
+            <!-- Gesamt Fragen -->
+            <div class="kpi-card">
+                <div class="kpi-content">
+                    <h3>Gesamt Fragen</h3>
+                    <p class="kpi-value">{{ $totalQuestions }}</p>
+                    <p class="kpi-sub">{{ $learningSections }} Lernabschnitte</p>
+                </div>
+                <div class="kpi-icon">❓</div>
+            </div>
+
+            <!-- Beantwortete Fragen -->
+            <div class="kpi-card">
+                <div class="kpi-content">
+                    <h3>Beantwortete Fragen</h3>
+                    <p class="kpi-value">{{ number_format($totalAnsweredQuestions) }}</p>
+                    <p class="kpi-sub">{{ $wrongAnswerRate }}% Falsch</p>
+                </div>
+                <div class="kpi-icon">📊</div>
+            </div>
+        </div>
+
+        <!-- Detail Cards -->
+        <div class="section-title">📈 Detaillierte Statistiken</div>
+        <div class="grid-2">
+            <!-- Fragen-Statistik -->
+            <div class="card">
+                <h3><span class="card-icon">📉</span> Fragen-Statistik</h3>
+                <div class="stat-row">
+                    <span class="stat-label-col">Gesamt beantwortet</span>
+                    <span class="stat-value-col">{{ number_format($totalAnsweredQuestions) }}</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label-col">Richtig</span>
+                    <span class="stat-value-col success">{{ number_format($totalCorrectAnswers) }}</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label-col">Falsch</span>
+                    <span class="stat-value-col" style="color: #ef4444;">{{ number_format($totalWrongAnswers) }}</span>
+                </div>
+                <div class="stat-row" style="border-bottom: 2px solid #e5e7eb; padding: 1.5rem 0;">
+                    <span class="stat-label-col" style="font-weight: 700; color: #1f2937;">Erfolgsrate</span>
+                    <span class="stat-value-col primary" style="font-size: 1.25rem;">{{ $totalAnsweredQuestions > 0 ? round((($totalCorrectAnswers / $totalAnsweredQuestions) * 100), 1) : 0 }}%</span>
                 </div>
             </div>
 
-            <!-- Quick Actions -->
-            <div class="bg-white rounded-xl p-6 card-shadow">
-                <h3 class="text-lg font-semibold text-gray-800 mb-4">Schnellaktionen</h3>
-                <div class="flex flex-wrap gap-4">
-                    <a href="{{ route('admin.questions.index') }}" 
-                       class="flex items-center p-4 rounded-lg transition-all duration-300 hover:scale-105 flex-1 min-w-[200px]"
-                       style="background: linear-gradient(to right, #facc15, #f59e0b); color: #1e40af; box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4), 0 0 20px rgba(251, 191, 36, 0.3), 0 0 40px rgba(251, 191, 36, 0.1);">
-                        <i class="fas fa-question-circle mr-3"></i>
-                        <span class="font-medium">Fragen verwalten</span>
-                    </a>
-                    <a href="{{ route('admin.users.index') }}" 
-                       class="flex items-center p-4 rounded-lg transition-all duration-300 hover:scale-105 flex-1 min-w-[200px]"
-                       style="background: linear-gradient(to right, #2563eb, #1d4ed8); color: white; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4), 0 0 20px rgba(37, 99, 235, 0.3), 0 0 40px rgba(37, 99, 235, 0.1);">
-                        <i class="fas fa-users mr-3"></i>
-                        <span class="font-medium">Benutzer verwalten</span>
-                    </a>
-                    <a href="{{ route('admin.newsletter.create') }}" 
-                       class="flex items-center p-4 rounded-lg transition-all duration-300 hover:scale-105 flex-1 min-w-[200px]"
-                       style="background: linear-gradient(to right, #10b981, #059669); color: white; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4), 0 0 20px rgba(16, 185, 129, 0.3), 0 0 40px rgba(16, 185, 129, 0.1);">
-                        <i class="fas fa-envelope mr-3"></i>
-                        <span class="font-medium">Newsletter senden</span>
-                    </a>
-                    <a href="{{ route('admin.contact-messages.index') }}" 
-                       class="flex items-center p-4 rounded-lg transition-all duration-300 hover:scale-105 flex-1 min-w-[200px]"
-                       style="background: linear-gradient(to right, #f59e0b, #d97706); color: white; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4), 0 0 20px rgba(245, 158, 11, 0.3), 0 0 40px rgba(245, 158, 11, 0.1);">
-                        <i class="fas fa-inbox mr-3"></i>
-                        <span class="font-medium">Kontaktanfragen</span>
-                        @php
-                            $unreadCount = \App\Models\ContactMessage::where('is_read', false)->count();
-                        @endphp
-                        @if($unreadCount > 0)
-                            <span class="ml-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">{{ $unreadCount }}</span>
-                        @endif
-                    </a>
-                    <a href="{{ route('dashboard') }}" 
-                       class="flex items-center p-4 rounded-lg transition-all duration-300 hover:scale-105 flex-1 min-w-[200px]"
-                       style="background: linear-gradient(to right, #00337F, #002a66); color: white; box-shadow: 0 4px 15px rgba(0, 51, 127, 0.4), 0 0 20px rgba(0, 51, 127, 0.3), 0 0 40px rgba(0, 51, 127, 0.1);">
-                        <i class="fas fa-arrow-left mr-3"></i>
-                        <span class="font-medium">Zurück zum Dashboard</span>
-                    </a>
+            <!-- Benutzer-Aktivität -->
+            <div class="card">
+                <h3><span class="card-icon">📈</span> Benutzer-Aktivität (30 Tage)</h3>
+                <div class="stat-row">
+                    <span class="stat-label-col">Heute</span>
+                    <span class="stat-value-col">{{ $userActivity['today'] }}</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label-col">Diese Woche</span>
+                    <span class="stat-value-col">{{ $userActivity['this_week'] }}</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label-col">Diesen Monat</span>
+                    <span class="stat-value-col">{{ $userActivity['this_month'] }}</span>
+                </div>
+            </div>
+
+            <!-- Lernfortschritt -->
+            <div class="card">
+                <h3><span class="card-icon">🎓</span> Lernfortschritt</h3>
+                <div class="stat-row">
+                    <span class="stat-label-col">Gesamt Punkte</span>
+                    <span class="stat-value-col warning">{{ number_format($learningProgress['total_points']) }}</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label-col">Mit Erfolgen</span>
+                    <span class="stat-value-col">{{ $learningProgress['users_with_achievements'] }}</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label-col">Ø Fortschritt</span>
+                    <span class="stat-value-col primary">{{ $learningProgress['average_progress'] }}%</span>
                 </div>
             </div>
         </div>
+
+        <!-- Leaderboard Section -->
+        <div class="section-title">🏆 Leaderboard Top-10</div>
+        <div class="card">
+            <div style="max-height: 400px; overflow-y: auto;">
+                @forelse($leaderboard as $index => $user)
+                    @php
+                        $position = $index + 1;
+                        $medal = match($position) {
+                            1 => '🥇',
+                            2 => '🥈', 
+                            3 => '🥉',
+                            default => ''
+                        };
+                    @endphp
+                    <div class="leaderboard-item {{ $position <= 3 ? 'top-rank' : '' }}">
+                        <div style="display: flex; align-items: center; flex: 1;">
+                            <span class="medal">{{ $medal ?: $position . '.' }}</span>
+                            <div class="user-info">
+                                <div class="user-name">{{ $user['name'] }}</div>
+                                <div class="user-level">Level {{ $user['level'] }}</div>
+                            </div>
+                        </div>
+                        <div class="user-stats">
+                            <div class="user-score">{{ number_format($user['score']) }} Punkte</div>
+                            <div class="user-details">{{ $user['solved_questions'] }} Fragen • {{ $user['exam_passed'] }} Prüfungen</div>
+                        </div>
+                    </div>
+                @empty
+                    <div style="text-align: center; padding: 3rem 1rem; color: #9ca3af;">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">👥</div>
+                        <p>Noch keine Benutzer-Daten verfügbar</p>
+                    </div>
+                @endforelse
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="section-title">⚡ Schnellaktionen</div>
+        <div class="action-buttons">
+            <a href="{{ route('admin.questions.index') }}" class="action-btn warning">
+                <span>❓</span>
+                <span>Fragen verwalten</span>
+            </a>
+            <a href="{{ route('admin.users.index') }}" class="action-btn primary">
+                <span>👥</span>
+                <span>Benutzer verwalten</span>
+            </a>
+            <a href="{{ route('admin.newsletter.create') }}" class="action-btn success">
+                <span>📧</span>
+                <span>Newsletter senden</span>
+            </a>
+            <a href="{{ route('admin.contact-messages.index') }}" class="action-btn info">
+                <span>💬</span>
+                <span>Kontaktanfragen</span>
+                @php
+                    $unreadCount = \App\Models\ContactMessage::where('is_read', false)->count();
+                @endphp
+                @if($unreadCount > 0)
+                    <span style="margin-left: auto; background: #ef4444; color: white; font-size: 0.8rem; font-weight: 700; padding: 0.25rem 0.75rem; border-radius: 9999px;">{{ $unreadCount }}</span>
+                @endif
+            </a>
+            <a href="{{ route('dashboard') }}" class="action-btn primary">
+                <span>←</span>
+                <span>Zurück zum Dashboard</span>
+            </a>
+        </div>
     </div>
-
-    <script>
-        function takeScreenshot() {
-            // Einfache Screenshot-Funktion
-            if (navigator.userAgent.indexOf('Chrome') > -1) {
-                alert('Verwenden Sie Strg+Shift+P und "Screenshot" für einen Screenshot');
-            } else {
-                alert('Verwenden Sie die Screenshot-Funktion Ihres Browsers');
-            }
-        }
-
-        // Auto-refresh alle 30 Sekunden
-        setInterval(function() {
-            location.reload();
-        }, 30000);
-    </script>
 </div>
+
+<script>
+    // Auto-refresh alle 30 Sekunden
+    setInterval(function() {
+        location.reload();
+    }, 30000);
+</script>
+
 @endsection

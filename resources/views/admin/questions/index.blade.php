@@ -1,450 +1,910 @@
 @extends('layouts.app')
 @section('title', 'Fragenverwaltung - THW Trainer Admin')
+@section('description', 'Verwalte alle Fragen, Lernabschnitte und Antworten im THW Trainer System.')
+
+@push('styles')
+<style>
+    /* RESPONSIVE ADMIN DESIGN */
+    body { background: #f3f4f6 !important; }
+    
+    .admin-wrapper { 
+        background: #f3f4f6; 
+        padding: 2rem; 
+        min-height: 100vh;
+    }
+    
+    .admin-container { 
+        max-width: 1400px; 
+        margin: 0 auto; 
+    }
+    
+    .page-header { 
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center; 
+        margin-bottom: 2rem; 
+        flex-wrap: wrap; 
+        gap: 1rem; 
+    }
+    
+    .page-title { 
+        font-size: 2rem; 
+        font-weight: 800; 
+        color: #00337F; 
+        margin: 0; 
+    }
+    
+    .btn { 
+        display: inline-flex; 
+        align-items: center; 
+        gap: 0.5rem; 
+        padding: 0.75rem 1.5rem; 
+        border-radius: 8px; 
+        font-weight: 600; 
+        text-decoration: none; 
+        transition: all 0.2s;
+        cursor: pointer;
+    }
+
+    .btn-primary { 
+        background: linear-gradient(135deg, #00337F 0%, #003F99 100%); 
+        color: white; 
+        border: none;
+    }
+
+    .btn-secondary { 
+        background: white; 
+        color: #6b7280; 
+        border: 1px solid #d1d5db; 
+    }
+    
+    /* Desktop Table (768px+ screens) */
+    @media (min-width: 768px) {
+        .desktop-table {
+            display: block !important;
+        }
+        .mobile-cards {
+            display: none !important;
+        }
+    }
+
+    /* Mobile Cards (under 768px) */
+    @media (max-width: 767px) {
+        .admin-wrapper {
+            padding: 0.5rem;
+        }
+        
+        .desktop-table {
+            display: none !important;
+        }
+        .mobile-cards {
+            display: block !important;
+        }
+
+        .page-header {
+            flex-direction: column;
+            align-items: stretch;
+            text-align: center;
+        }
+        
+        .page-title {
+            font-size: 1.5rem;
+        }
+
+        .btn {
+            padding: 1rem 1.5rem;
+            font-size: 1rem;
+            justify-content: center;
+        }
+    }
+
+    /* Touch-optimized inputs on mobile */
+    @media (max-width: 767px) {
+        input, textarea, button {
+            font-size: 16px !important; /* Prevents zoom on iOS */
+        }
+        
+        button[type="button"] {
+            min-height: 48px; /* Better touch targets */
+        }
+    } 
+        padding: 0.75rem 1.5rem; 
+        border-radius: 8px; 
+        text-decoration: none; 
+        font-weight: 600; 
+    }
+    
+    .btn-primary { 
+        background: #00337F; 
+        color: white; 
+    }
+    
+    .btn-secondary { 
+        background: #e5e7eb; 
+        color: #374151; 
+    }
+</style>
+@endpush
+
 
 @section('content')
-    <div class="max-w-7xl mx-auto p-4 lg:p-6">
+<div class="admin-wrapper">
+    <div class="admin-container">
         <!-- Header -->
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-6 lg:mb-8 gap-4">
-            <h1 class="text-2xl lg:text-3xl font-bold text-blue-800">📝 Fragenverwaltung</h1>
-            <div class="flex flex-col sm:flex-row gap-2 lg:gap-4">
-                <a href="{{ route('admin.users.index') }}" 
-                   class="inline-flex items-center justify-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm">
-                    👥 Nutzerverwaltung
-                </a>
-                <a href="{{ route('dashboard') }}" 
-                   class="inline-flex items-center justify-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors text-sm">
-                    ← Zurück zum Dashboard
-                </a>
+        <div class="page-header">
+            <h1 class="page-title">📝 Fragenverwaltung</h1>
+            <div style="display: flex; gap: 1rem;">
+                <a href="{{ route('admin.dashboard') }}" class="btn btn-secondary">← Admin Dashboard</a>
+                <a href="{{ route('admin.users.index') }}" class="btn btn-primary">👥 Benutzer</a>
             </div>
         </div>
-        
+
         <!-- Status Messages -->
         @if(session('success'))
-            <div class="mb-6 p-4 bg-green-100 border border-green-300 text-green-700 rounded-lg">
-                {{ session('success') }}
+            <div style="background: rgba(34, 197, 94, 0.1); border: 1px solid #22c55e; border-radius: 10px; padding: 1.5rem; margin-bottom: 2rem; display: flex; gap: 1rem;">
+                <span>✅</span>
+                <div>
+                    <strong style="color: #16a34a;">Erfolg!</strong>
+                    <p style="color: #16a34a; margin: 0;">{{ session('success') }}</p>
+                </div>
             </div>
         @endif
-        
-        @if(session('error'))
-            <div class="mb-6 p-4 bg-red-100 border border-red-300 text-red-700 rounded-lg">
-                {{ session('error') }}
+
+        @if($errors->any())
+            <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; border-radius: 10px; padding: 1.5rem; margin-bottom: 2rem; display: flex; gap: 1rem;">
+                <span>❌</span>
+                <div>
+                    <strong style="color: #dc2626;">Fehler!</strong>
+                    <ul style="color: #dc2626; margin: 0; padding-left: 1rem;">
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
             </div>
         @endif
-        
+
         <!-- Statistiken -->
-        <div class="mb-6 lg:mb-8 grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-6">
-            <div class="bg-white rounded-lg shadow-md p-4 lg:p-6">
-                <div class="flex items-center">
-                    <div class="text-2xl lg:text-3xl">📝</div>
-                    <div class="ml-3 lg:ml-4">
-                        <div class="text-lg lg:text-2xl font-bold text-blue-800">{{ $questions->count() }}</div>
-                        <div class="text-xs lg:text-sm text-gray-600">Gesamt Fragen</div>
+        <div style="margin-bottom: 2rem;">
+            <h2 style="font-size: 1.3rem; font-weight: 700; color: #1f2937; margin-bottom: 1.5rem;">📊 Statistiken</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
+                <div style="background: white; border: 1px solid #e5e7eb; border-radius: 10px; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); display: flex; gap: 1rem; align-items: center;">
+                    <div style="font-size: 2rem;">📝</div>
+                    <div>
+                        <h3 style="margin: 0 0 0.5rem 0; color: #6b7280; font-size: 0.9rem; font-weight: 500;">Gesamt Fragen</h3>
+                        <p style="font-size: 1.75rem; font-weight: 800; color: #00337F; margin: 0;">{{ $questions->count() }}</p>
                     </div>
                 </div>
-            </div>
-            
-            <div class="bg-white rounded-lg shadow-md p-4 lg:p-6">
-                <div class="flex items-center">
-                    <div class="text-2xl lg:text-3xl">📚</div>
-                    <div class="ml-3 lg:ml-4">
-                        <div class="text-lg lg:text-2xl font-bold text-blue-800">{{ $questions->pluck('lernabschnitt')->unique()->count() }}</div>
-                        <div class="text-xs lg:text-sm text-gray-600">Lernabschnitte</div>
+
+                <div style="background: white; border: 1px solid #e5e7eb; border-radius: 10px; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); display: flex; gap: 1rem; align-items: center;">
+                    <div style="font-size: 2rem;">📚</div>
+                    <div>
+                        <h3 style="margin: 0 0 0.5rem 0; color: #6b7280; font-size: 0.9rem; font-weight: 500;">Lernabschnitte</h3>
+                        <p style="font-size: 1.75rem; font-weight: 800; color: #00337F; margin: 0;">{{ $questions->pluck('lernabschnitt')->unique()->count() }}</p>
                     </div>
                 </div>
-            </div>
-            
-            <div class="bg-white rounded-lg shadow-md p-4 lg:p-6">
-                <div class="flex items-center">
-                    <div class="text-2xl lg:text-3xl">🏆</div>
-                    <div class="ml-3 lg:ml-4">
-                        <div class="text-lg lg:text-2xl font-bold text-blue-800">{{ $questions->where('lernabschnitt', $questions->groupBy('lernabschnitt')->keys()->first())->count() }}</div>
-                        <div class="text-xs lg:text-sm text-gray-600">Größter Abschnitt</div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="bg-white rounded-lg shadow-md p-4 lg:p-6">
-                <div class="flex items-center">
-                    <div class="text-2xl lg:text-3xl">🎯</div>
-                    <div class="ml-3 lg:ml-4">
-                        <div class="text-lg lg:text-2xl font-bold text-blue-800">{{ $questions->max('id') ?? '0' }}</div>
-                        <div class="text-xs lg:text-sm text-gray-600">Höchste ID</div>
+
+                <div style="background: white; border: 1px solid #e5e7eb; border-radius: 10px; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); display: flex; gap: 1rem; align-items: center;">
+                    <div style="font-size: 2rem;">🏆</div>
+                    <div>
+                        <h3 style="margin: 0 0 0.5rem 0; color: #6b7280; font-size: 0.9rem; font-weight: 500;">Höchste ID</h3>
+                        <p style="font-size: 1.75rem; font-weight: 800; color: #00337F; margin: 0;">{{ $questions->max('id') ?? 0 }}</p>
                     </div>
                 </div>
             </div>
         </div>
-        
+
         <!-- Neue Frage hinzufügen -->
-        <div class="mb-6 lg:mb-8 bg-white rounded-lg shadow-md p-4 lg:p-6">
-            <h2 class="text-lg lg:text-xl font-semibold text-blue-800 mb-4">➕ Neue Frage hinzufügen</h2>
-            <form action="{{ route('admin.questions.store') }}" method="POST" class="space-y-4">
+        <div style="background: white; border: 1px solid #e5e7eb; border-radius: 10px; padding: 2rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); margin-bottom: 2rem;">
+            <h3 style="font-size: 1.3rem; font-weight: 700; color: #1f2937; margin: 0 0 1.5rem 0;">➕ Neue Frage hinzufügen</h3>
+            
+            <form method="POST" action="{{ route('admin.questions.store') }}">
                 @csrf
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Lernabschnitt</label>
-                        <input type="text" name="lernabschnitt" 
-                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                               placeholder="z.B. 1" required />
+                        <label style="font-weight: 600; color: #1f2937; margin-bottom: 0.5rem; font-size: 0.95rem; display: block;">
+                            Lernabschnitt <span style="color: #ef4444;">*</span>
+                        </label>
+                        <input type="text" name="lernabschnitt" value="{{ old('lernabschnitt') }}" 
+                               placeholder="z.B. 1" required
+                               style="width: 100%; padding: 0.75rem 1rem; border: 1px solid #d1d5db; border-radius: 8px; font-size: 1rem;">
                     </div>
+                    
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Nummer</label>
-                        <input type="number" name="nummer" 
-                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                               placeholder="z.B. 1" />
+                        <label style="font-weight: 600; color: #1f2937; margin-bottom: 0.5rem; font-size: 0.95rem; display: block;">
+                            Nummer <span style="color: #ef4444;">*</span>
+                        </label>
+                        <input type="text" name="nummer" value="{{ old('nummer') }}" 
+                               placeholder="z.B. 1.1" required
+                               style="width: 100%; padding: 0.75rem 1rem; border: 1px solid #d1d5db; border-radius: 8px; font-size: 1rem;">
                     </div>
+                    
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Lösung</label>
-                        <select name="loesung" 
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" required>
-                            <option value="">Lösung wählen</option>
-                            <option value="A">A</option>
-                            <option value="B">B</option>
-                            <option value="C">C</option>
-                            <option value="A,B">A,B</option>
-                            <option value="A,C">A,C</option>
-                            <option value="B,C">B,C</option>
-                            <option value="A,B,C">A,B,C</option>
-                        </select>
-                    </div>
-                    <div class="flex items-end">
-                        <button type="submit" 
-                                class="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors text-sm">
-                            <span class="flex items-center justify-center">
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                                </svg>
-                                Hinzufügen
-                            </span>
-                        </button>
+                        <label style="font-weight: 600; color: #1f2937; margin-bottom: 0.5rem; font-size: 0.95rem; display: block;">
+                            Lösung(en) <span style="color: #ef4444;">*</span>
+                            <small style="color: #6b7280; font-weight: 400; display: block;">Mehrere Antworten möglich</small>
+                        </label>
+                        <div style="display: flex; gap: 0.75rem; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 8px; background: white;">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; padding: 0.5rem; border-radius: 6px; transition: background 0.2s;" 
+                                   onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='transparent'">
+                                <input type="checkbox" name="loesung[]" value="A" 
+                                       {{ is_array(old('loesung')) && in_array('A', old('loesung')) ? 'checked' : '' }}
+                                       style="width: 18px; height: 18px;">
+                                <span style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: #1e40af; padding: 0.25rem 0.75rem; border-radius: 6px; font-weight: 700; font-size: 1rem;">A</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; padding: 0.5rem; border-radius: 6px; transition: background 0.2s;"
+                                   onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='transparent'">
+                                <input type="checkbox" name="loesung[]" value="B"
+                                       {{ is_array(old('loesung')) && in_array('B', old('loesung')) ? 'checked' : '' }}
+                                       style="width: 18px; height: 18px;">
+                                <span style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: #1e40af; padding: 0.25rem 0.75rem; border-radius: 6px; font-weight: 700; font-size: 1rem;">B</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; padding: 0.5rem; border-radius: 6px; transition: background 0.2s;"
+                                   onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='transparent'">
+                                <input type="checkbox" name="loesung[]" value="C"
+                                       {{ is_array(old('loesung')) && in_array('C', old('loesung')) ? 'checked' : '' }}
+                                       style="width: 18px; height: 18px;">
+                                <span style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: #1e40af; padding: 0.25rem 0.75rem; border-radius: 6px; font-weight: 700; font-size: 1rem;">C</span>
+                            </label>
+                        </div>
                     </div>
                 </div>
-                
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Frage</label>
-                    <textarea name="frage" rows="2" 
-                              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                              placeholder="Fragentext eingeben..." required></textarea>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="font-weight: 600; color: #1f2937; margin-bottom: 0.5rem; font-size: 0.95rem; display: block;">
+                        Frage <span style="color: #ef4444;">*</span>
+                    </label>
+                    <textarea name="frage" required placeholder="Fragentext eingeben..." 
+                              style="width: 100%; padding: 0.75rem 1rem; border: 1px solid #d1d5db; border-radius: 8px; font-size: 1rem; resize: vertical; min-height: 80px;">{{ old('frage') }}</textarea>
                 </div>
-                
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Antwort A</label>
-                        <textarea name="antwort_a" rows="2" 
-                                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                                  placeholder="Antwort A eingeben..." required></textarea>
+                        <label style="font-weight: 600; color: #1f2937; margin-bottom: 0.5rem; font-size: 0.95rem; display: block;">
+                            Antwort A <span style="color: #ef4444;">*</span>
+                        </label>
+                        <textarea name="antwort_a" required placeholder="Antwort A..." 
+                                  style="width: 100%; padding: 0.75rem 1rem; border: 1px solid #d1d5db; border-radius: 8px; font-size: 1rem; resize: vertical; min-height: 60px;">{{ old('antwort_a') }}</textarea>
                     </div>
+                    
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Antwort B</label>
-                        <textarea name="antwort_b" rows="2" 
-                                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                                  placeholder="Antwort B eingeben..." required></textarea>
+                        <label style="font-weight: 600; color: #1f2937; margin-bottom: 0.5rem; font-size: 0.95rem; display: block;">
+                            Antwort B <span style="color: #ef4444;">*</span>
+                        </label>
+                        <textarea name="antwort_b" required placeholder="Antwort B..." 
+                                  style="width: 100%; padding: 0.75rem 1rem; border: 1px solid #d1d5db; border-radius: 8px; font-size: 1rem; resize: vertical; min-height: 60px;">{{ old('antwort_b') }}</textarea>
                     </div>
+                    
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Antwort C</label>
-                        <textarea name="antwort_c" rows="2" 
-                                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                                  placeholder="Antwort C eingeben..." required></textarea>
+                        <label style="font-weight: 600; color: #1f2937; margin-bottom: 0.5rem; font-size: 0.95rem; display: block;">
+                            Antwort C <span style="color: #ef4444;">*</span>
+                        </label>
+                        <textarea name="antwort_c" required placeholder="Antwort C..." 
+                                  style="width: 100%; padding: 0.75rem 1rem; border: 1px solid #d1d5db; border-radius: 8px; font-size: 1rem; resize: vertical; min-height: 60px;">{{ old('antwort_c') }}</textarea>
                     </div>
                 </div>
+
+                <button type="submit" class="btn btn-primary" 
+                        style="background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: white; padding: 0.75rem 1.5rem;">
+                    💾 Frage speichern
+                </button>
             </form>
         </div>
-        
-        <!-- View Toggle -->
-        <div class="mb-4 flex justify-between items-center">
-            <h2 class="text-lg lg:text-xl font-semibold text-blue-800">Vorhandene Fragen bearbeiten</h2>
-            <div class="flex bg-gray-100 rounded-lg p-1">
-                <button id="cardViewBtn" class="px-3 py-1 text-sm font-medium text-gray-700 bg-white rounded-md shadow-sm transition-all lg:hidden">
-                    📱 Karten
-                </button>
-                <button id="tableViewBtn" class="px-3 py-1 text-sm font-medium text-gray-700 transition-all hidden lg:block lg:bg-white lg:rounded-md lg:shadow-sm">
-                    📊 Tabelle
-                </button>
-            </div>
-        </div>
-        
-        <!-- Mobile Card View -->
-        <div id="cardView" class="space-y-6 lg:hidden">
-            @foreach($questions as $q)
-            <div class="bg-white rounded-lg shadow-md p-4 lg:p-6 hover:shadow-lg transition-shadow duration-200">
-                <form action="{{ route('admin.questions.update', $q) }}" method="POST">
-                    @csrf
-                    @method('PATCH')
-                    
-                    <!-- Header -->
-                    <div class="flex justify-between items-start mb-4">
-                        <div class="flex flex-col space-y-2">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 w-fit">
-                                ID: {{ $q->id }}
-                            </span>
-                            <div class="flex space-x-4">
+
+        <!-- Fragen-Liste -->
+        <div style="background: white; border: 1px solid #e5e7eb; border-radius: 10px; padding: 2rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);">
+            <h3 style="font-size: 1.3rem; font-weight: 700; color: #1f2937; margin: 0 0 1.5rem 0;">📋 Alle Fragen ({{ $questions->count() }})</h3>
+            
+            @if($questions->count() > 0)
+                <!-- Desktop Tabelle (versteckt auf mobil) -->
+                <div style="overflow-x: auto; display: block;" class="desktop-table">
+                    <table style="width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden;">
+                        <thead style="background: linear-gradient(135deg, #00337F 0%, #003F99 100%);">
+                            <tr>
+                                <th style="color: white; padding: 1rem; text-align: left; font-weight: 600;">ID</th>
+                                <th style="color: white; padding: 1rem; text-align: left; font-weight: 600;">Lernabschnitt</th>
+                                <th style="color: white; padding: 1rem; text-align: left; font-weight: 600;">Nummer</th>
+                                <th style="color: white; padding: 1rem; text-align: left; font-weight: 600;">Frage</th>
+                                <th style="color: white; padding: 1rem; text-align: left; font-weight: 600;">Lösung</th>
+                                <th style="color: white; padding: 1rem; text-align: left; font-weight: 600;">Aktionen</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($questions as $question)
+                                <tr style="border-bottom: 1px solid #e5e7eb;" id="question-{{ $question->id }}">
+                                    <td style="padding: 1rem; font-weight: 600;">{{ $question->id }}</td>
+                                    
+                                    <!-- Lernabschnitt - Inline editierbar -->
+                                    <td style="padding: 1rem;">
+                                        <input type="text" 
+                                               value="{{ $question->lernabschnitt }}" 
+                                               data-field="lernabschnitt" 
+                                               data-id="{{ $question->id }}"
+                                               onchange="updateQuestion(this)"
+                                               style="border: 1px solid #e5e7eb; background: #f9fafb; width: 100%; padding: 0.5rem; border-radius: 6px; font-size: 1rem; transition: all 0.2s;"
+                                               onfocus="this.style.background='white'; this.style.borderColor='#00337F'; this.style.boxShadow='0 0 0 2px rgba(0, 51, 127, 0.1)';"
+                                               onblur="this.style.background='#f9fafb'; this.style.borderColor='#e5e7eb'; this.style.boxShadow='none';">
+                                    </td>
+                                    
+                                    <!-- Nummer - Inline editierbar -->
+                                    <td style="padding: 1rem;">
+                                        <input type="text" 
+                                               value="{{ $question->nummer }}" 
+                                               data-field="nummer" 
+                                               data-id="{{ $question->id }}"
+                                               onchange="updateQuestion(this)"
+                                               style="border: 1px solid #e5e7eb; background: #f9fafb; width: 100%; padding: 0.5rem; border-radius: 6px; font-size: 1rem; transition: all 0.2s;"
+                                               onfocus="this.style.background='white'; this.style.borderColor='#00337F'; this.style.boxShadow='0 0 0 2px rgba(0, 51, 127, 0.1)';"
+                                               onblur="this.style.background='#f9fafb'; this.style.borderColor='#e5e7eb'; this.style.boxShadow='none';">
+                                    </td>
+                                    
+                                    <!-- Frage - Inline editierbar -->
+                                    <td style="padding: 1rem; max-width: 400px;">
+                                        <textarea data-field="frage" 
+                                                  data-id="{{ $question->id }}"
+                                                  onchange="updateQuestion(this)"
+                                                  style="border: 1px solid #e5e7eb; background: #f9fafb; width: 100%; min-height: 80px; padding: 0.5rem; border-radius: 6px; font-size: 1rem; resize: vertical; font-family: inherit; transition: all 0.2s;"
+                                                  onfocus="this.style.background='white'; this.style.borderColor='#00337F'; this.style.boxShadow='0 0 0 2px rgba(0, 51, 127, 0.1)';"
+                                                  onblur="this.style.background='#f9fafb'; this.style.borderColor='#e5e7eb'; this.style.boxShadow='none';">{{ $question->frage }}</textarea>
+                                    </td>
+                                    
+                                    <!-- Lösung - Kompakte Buttons für Mehrfachauswahl -->
+                                    <td style="padding: 1rem;">
+                                        <div data-field="loesung" data-id="{{ $question->id }}" style="display: flex; gap: 0.25rem; flex-wrap: wrap;">
+                                            @php
+                                                $solutions = explode(',', $question->loesung);
+                                            @endphp
+                                            <button type="button"
+                                                    data-value="A" 
+                                                    onclick="toggleSolution(this)"
+                                                    style="border: 2px solid {{ in_array('A', $solutions) ? '#16a34a' : '#d1d5db' }}; 
+                                                           background: {{ in_array('A', $solutions) ? 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)' : 'white' }}; 
+                                                           color: {{ in_array('A', $solutions) ? 'white' : '#6b7280' }}; 
+                                                           padding: 0.25rem 0.5rem; 
+                                                           border-radius: 6px; 
+                                                           font-weight: 600; 
+                                                           font-size: 0.9rem; 
+                                                           cursor: pointer; 
+                                                           min-width: 32px;
+                                                           transition: all 0.2s;">A</button>
+                                            <button type="button"
+                                                    data-value="B" 
+                                                    onclick="toggleSolution(this)"
+                                                    style="border: 2px solid {{ in_array('B', $solutions) ? '#16a34a' : '#d1d5db' }}; 
+                                                           background: {{ in_array('B', $solutions) ? 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)' : 'white' }}; 
+                                                           color: {{ in_array('B', $solutions) ? 'white' : '#6b7280' }}; 
+                                                           padding: 0.25rem 0.5rem; 
+                                                           border-radius: 6px; 
+                                                           font-weight: 600; 
+                                                           font-size: 0.9rem; 
+                                                           cursor: pointer; 
+                                                           min-width: 32px;
+                                                           transition: all 0.2s;">B</button>
+                                            <button type="button"
+                                                    data-value="C" 
+                                                    onclick="toggleSolution(this)"
+                                                    style="border: 2px solid {{ in_array('C', $solutions) ? '#16a34a' : '#d1d5db' }}; 
+                                                           background: {{ in_array('C', $solutions) ? 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)' : 'white' }}; 
+                                                           color: {{ in_array('C', $solutions) ? 'white' : '#6b7280' }}; 
+                                                           padding: 0.25rem 0.5rem; 
+                                                           border-radius: 6px; 
+                                                           font-weight: 600; 
+                                                           font-size: 0.9rem; 
+                                                           cursor: pointer; 
+                                                           min-width: 32px;
+                                                           transition: all 0.2s;">C</button>
+                                        </div>
+                                    </td>
+                                    
+                                    <td style="padding: 1rem;">
+                                        <div style="display: flex; gap: 0.5rem; align-items: center;">
+                                            <!-- Status Indicator -->
+                                            <div id="status-{{ $question->id }}" style="width: 8px; height: 8px; border-radius: 50%; background: #22c55e;"></div>
+                                            
+                                            <!-- Antworten bearbeiten Button -->
+                                            <button onclick="toggleAnswers({{ $question->id }})" 
+                                                    style="background: #00337F; color: white; padding: 0.5rem 0.75rem; border-radius: 6px; border: none; font-size: 0.8rem; cursor: pointer;">
+                                                📝 Antworten
+                                            </button>
+                                            
+                                            <!-- Löschen Button -->
+                                            <form method="POST" action="{{ route('admin.questions.destroy', $question->id) }}" 
+                                                  style="display: inline;" 
+                                                  onsubmit="return confirm('Frage wirklich löschen?')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" 
+                                                        style="background: #ef4444; color: white; padding: 0.5rem 0.75rem; border-radius: 6px; border: none; font-size: 0.8rem; cursor: pointer;">
+                                                    🗑️
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                
+                                <!-- Antworten Row (versteckt by default) -->
+                                <tr id="answers-{{ $question->id }}" style="display: none; background: #f8fafc; border-bottom: 1px solid #e5e7eb;">
+                                    <td colspan="6" style="padding: 1rem;">
+                                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                                            <div>
+                                                <label style="font-weight: 600; color: #1f2937; margin-bottom: 0.5rem; font-size: 0.9rem; display: block;">Antwort A:</label>
+                                                <textarea data-field="antwort_a" 
+                                                          data-id="{{ $question->id }}"
+                                                          onchange="updateQuestion(this)"
+                                                          style="width: 100%; padding: 0.75rem; border: 1px solid #e5e7eb; background: #f9fafb; border-radius: 6px; font-size: 0.9rem; resize: vertical; min-height: 80px; transition: all 0.2s;"
+                                                          onfocus="this.style.background='white'; this.style.borderColor='#00337F'; this.style.boxShadow='0 0 0 2px rgba(0, 51, 127, 0.1)';"
+                                                          onblur="this.style.background='#f9fafb'; this.style.borderColor='#e5e7eb'; this.style.boxShadow='none';">{{ $question->antwort_a }}</textarea>
+                                            </div>
+                                            <div>
+                                                <label style="font-weight: 600; color: #1f2937; margin-bottom: 0.5rem; font-size: 0.9rem; display: block;">Antwort B:</label>
+                                                <textarea data-field="antwort_b" 
+                                                          data-id="{{ $question->id }}"
+                                                          onchange="updateQuestion(this)"
+                                                          style="width: 100%; padding: 0.75rem; border: 1px solid #e5e7eb; background: #f9fafb; border-radius: 6px; font-size: 0.9rem; resize: vertical; min-height: 80px; transition: all 0.2s;"
+                                                          onfocus="this.style.background='white'; this.style.borderColor='#00337F'; this.style.boxShadow='0 0 0 2px rgba(0, 51, 127, 0.1)';"
+                                                          onblur="this.style.background='#f9fafb'; this.style.borderColor='#e5e7eb'; this.style.boxShadow='none';">{{ $question->antwort_b }}</textarea>
+                                            </div>
+                                            <div>
+                                                <label style="font-weight: 600; color: #1f2937; margin-bottom: 0.5rem; font-size: 0.9rem; display: block;">Antwort C:</label>
+                                                <textarea data-field="antwort_c" 
+                                                          data-id="{{ $question->id }}"
+                                                          onchange="updateQuestion(this)"
+                                                          style="width: 100%; padding: 0.75rem; border: 1px solid #e5e7eb; background: #f9fafb; border-radius: 6px; font-size: 0.9rem; resize: vertical; min-height: 80px; transition: all 0.2s;"
+                                                          onfocus="this.style.background='white'; this.style.borderColor='#00337F'; this.style.boxShadow='0 0 0 2px rgba(0, 51, 127, 0.1)';"
+                                                          onblur="this.style.background='#f9fafb'; this.style.borderColor='#e5e7eb'; this.style.boxShadow='none';">{{ $question->antwort_c }}</textarea>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Mobile Cards (versteckt auf Desktop) -->
+                <div style="display: none;" class="mobile-cards">
+                    @foreach($questions as $question)
+                        <div style="background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 10px; padding: 1.5rem; margin-bottom: 1rem; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);" id="question-card-{{ $question->id }}">
+                            <!-- Header mit ID und Status -->
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                <h4 style="margin: 0; color: #1f2937; font-weight: 700; font-size: 1.1rem;">Frage #{{ $question->id }}</h4>
+                                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <div id="status-mobile-{{ $question->id }}" style="width: 10px; height: 10px; border-radius: 50%; background: #22c55e;"></div>
+                                    <form method="POST" action="{{ route('admin.questions.destroy', $question->id) }}" 
+                                          style="display: inline;" 
+                                          onsubmit="return confirm('Frage wirklich löschen?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" 
+                                                style="background: #ef4444; color: white; padding: 0.5rem; border-radius: 8px; border: none; cursor: pointer; font-size: 1.2rem;">
+                                            🗑️
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+
+                            <!-- Lernabschnitt und Nummer -->
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
                                 <div>
-                                    <label class="block text-xs font-medium text-gray-700 mb-1">Lernabschnitt</label>
-                                    <input type="text" name="lernabschnitt" value="{{ $q->lernabschnitt }}" 
-                                           class="w-16 px-2 py-1 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                    <label style="font-weight: 600; color: #1f2937; margin-bottom: 0.5rem; font-size: 0.9rem; display: block;">Lernabschnitt:</label>
+                                    <input type="text" 
+                                           value="{{ $question->lernabschnitt }}" 
+                                           data-field="lernabschnitt" 
+                                           data-id="{{ $question->id }}"
+                                           onchange="updateQuestionMobile(this)"
+                                           style="border: 1px solid #e5e7eb; background: #f9fafb; width: 100%; padding: 0.75rem; border-radius: 8px; font-size: 1rem; transition: all 0.2s;"
+                                           onfocus="this.style.background='white'; this.style.borderColor='#00337F'; this.style.boxShadow='0 0 0 2px rgba(0, 51, 127, 0.1)';"
+                                           onblur="this.style.background='#f9fafb'; this.style.borderColor='#e5e7eb'; this.style.boxShadow='none';">
                                 </div>
                                 <div>
-                                    <label class="block text-xs font-medium text-gray-700 mb-1">Nummer</label>
-                                    <input type="number" name="nummer" value="{{ $q->nummer }}" 
-                                           class="w-16 px-2 py-1 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                    <label style="font-weight: 600; color: #1f2937; margin-bottom: 0.5rem; font-size: 0.9rem; display: block;">Nummer:</label>
+                                    <input type="text" 
+                                           value="{{ $question->nummer }}" 
+                                           data-field="nummer" 
+                                           data-id="{{ $question->id }}"
+                                           onchange="updateQuestionMobile(this)"
+                                           style="border: 1px solid #e5e7eb; background: #f9fafb; width: 100%; padding: 0.75rem; border-radius: 8px; font-size: 1rem; transition: all 0.2s;"
+                                           onfocus="this.style.background='white'; this.style.borderColor='#00337F'; this.style.boxShadow='0 0 0 2px rgba(0, 51, 127, 0.1)';"
+                                           onblur="this.style.background='#f9fafb'; this.style.borderColor='#e5e7eb'; this.style.boxShadow='none';">
+                                </div>
+                            </div>
+
+                            <!-- Frage -->
+                            <div style="margin-bottom: 1rem;">
+                                <label style="font-weight: 600; color: #1f2937; margin-bottom: 0.5rem; font-size: 0.9rem; display: block;">Frage:</label>
+                                <textarea data-field="frage" 
+                                          data-id="{{ $question->id }}"
+                                          onchange="updateQuestionMobile(this)"
+                                          style="border: 1px solid #e5e7eb; background: #f9fafb; width: 100%; min-height: 100px; padding: 0.75rem; border-radius: 8px; font-size: 1rem; resize: vertical; font-family: inherit; transition: all 0.2s;"
+                                          onfocus="this.style.background='white'; this.style.borderColor='#00337F'; this.style.boxShadow='0 0 0 2px rgba(0, 51, 127, 0.1)';"
+                                          onblur="this.style.background='#f9fafb'; this.style.borderColor='#e5e7eb'; this.style.boxShadow='none';">{{ $question->frage }}</textarea>
+                            </div>
+
+                            <!-- Lösungen -->
+                            <div style="margin-bottom: 1rem;">
+                                <label style="font-weight: 600; color: #1f2937; margin-bottom: 0.5rem; font-size: 0.9rem; display: block;">Lösung(en):</label>
+                                <div data-field="loesung" data-id="{{ $question->id }}" style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                                    @php
+                                        $solutions = explode(',', $question->loesung);
+                                    @endphp
+                                    <button type="button"
+                                            data-value="A" 
+                                            onclick="toggleSolutionMobile(this)"
+                                            style="border: 2px solid {{ in_array('A', $solutions) ? '#16a34a' : '#d1d5db' }}; 
+                                                   background: {{ in_array('A', $solutions) ? 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)' : 'white' }}; 
+                                                   color: {{ in_array('A', $solutions) ? 'white' : '#6b7280' }}; 
+                                                   padding: 0.75rem 1rem; 
+                                                   border-radius: 8px; 
+                                                   font-weight: 700; 
+                                                   font-size: 1.1rem; 
+                                                   cursor: pointer; 
+                                                   min-width: 48px;
+                                                   transition: all 0.2s;">A</button>
+                                    <button type="button"
+                                            data-value="B" 
+                                            onclick="toggleSolutionMobile(this)"
+                                            style="border: 2px solid {{ in_array('B', $solutions) ? '#16a34a' : '#d1d5db' }}; 
+                                                   background: {{ in_array('B', $solutions) ? 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)' : 'white' }}; 
+                                                   color: {{ in_array('B', $solutions) ? 'white' : '#6b7280' }}; 
+                                                   padding: 0.75rem 1rem; 
+                                                   border-radius: 8px; 
+                                                   font-weight: 700; 
+                                                   font-size: 1.1rem; 
+                                                   cursor: pointer; 
+                                                   min-width: 48px;
+                                                   transition: all 0.2s;">B</button>
+                                    <button type="button"
+                                            data-value="C" 
+                                            onclick="toggleSolutionMobile(this)"
+                                            style="border: 2px solid {{ in_array('C', $solutions) ? '#16a34a' : '#d1d5db' }}; 
+                                                   background: {{ in_array('C', $solutions) ? 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)' : 'white' }}; 
+                                                   color: {{ in_array('C', $solutions) ? 'white' : '#6b7280' }}; 
+                                                   padding: 0.75rem 1rem; 
+                                                   border-radius: 8px; 
+                                                   font-weight: 700; 
+                                                   font-size: 1.1rem; 
+                                                   cursor: pointer; 
+                                                   min-width: 48px;
+                                                   transition: all 0.2s;">C</button>
+                                </div>
+                            </div>
+
+                            <!-- Antworten Button -->
+                            <button onclick="toggleAnswersMobile({{ $question->id }})" 
+                                    style="background: #00337F; color: white; padding: 0.75rem 1.5rem; border-radius: 8px; border: none; font-size: 1rem; cursor: pointer; width: 100%; margin-bottom: 1rem;">
+                                📝 Antworten bearbeiten
+                            </button>
+
+                            <!-- Antworten (versteckt by default) -->
+                            <div id="answers-mobile-{{ $question->id }}" style="display: none;">
+                                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                                    <div>
+                                        <label style="font-weight: 600; color: #1f2937; margin-bottom: 0.5rem; font-size: 0.9rem; display: block;">Antwort A:</label>
+                                        <textarea data-field="antwort_a" 
+                                                  data-id="{{ $question->id }}"
+                                                  onchange="updateQuestionMobile(this)"
+                                                  style="width: 100%; padding: 0.75rem; border: 1px solid #e5e7eb; background: #f9fafb; border-radius: 8px; font-size: 1rem; resize: vertical; min-height: 100px; transition: all 0.2s;"
+                                                  onfocus="this.style.background='white'; this.style.borderColor='#00337F'; this.style.boxShadow='0 0 0 2px rgba(0, 51, 127, 0.1)';"
+                                                  onblur="this.style.background='#f9fafb'; this.style.borderColor='#e5e7eb'; this.style.boxShadow='none';">{{ $question->antwort_a }}</textarea>
+                                    </div>
+                                    <div>
+                                        <label style="font-weight: 600; color: #1f2937; margin-bottom: 0.5rem; font-size: 0.9rem; display: block;">Antwort B:</label>
+                                        <textarea data-field="antwort_b" 
+                                                  data-id="{{ $question->id }}"
+                                                  onchange="updateQuestionMobile(this)"
+                                                  style="width: 100%; padding: 0.75rem; border: 1px solid #e5e7eb; background: #f9fafb; border-radius: 8px; font-size: 1rem; resize: vertical; min-height: 100px; transition: all 0.2s;"
+                                                  onfocus="this.style.background='white'; this.style.borderColor='#00337F'; this.style.boxShadow='0 0 0 2px rgba(0, 51, 127, 0.1)';"
+                                                  onblur="this.style.background='#f9fafb'; this.style.borderColor='#e5e7eb'; this.style.boxShadow='none';">{{ $question->antwort_b }}</textarea>
+                                    </div>
+                                    <div>
+                                        <label style="font-weight: 600; color: #1f2937; margin-bottom: 0.5rem; font-size: 0.9rem; display: block;">Antwort C:</label>
+                                        <textarea data-field="antwort_c" 
+                                                  data-id="{{ $question->id }}"
+                                                  onchange="updateQuestionMobile(this)"
+                                                  style="width: 100%; padding: 0.75rem; border: 1px solid #e5e7eb; background: #f9fafb; border-radius: 8px; font-size: 1rem; resize: vertical; min-height: 100px; transition: all 0.2s;"
+                                                  onfocus="this.style.background='white'; this.style.borderColor='#00337F'; this.style.boxShadow='0 0 0 2px rgba(0, 51, 127, 0.1)';"
+                                                  onblur="this.style.background='#f9fafb'; this.style.borderColor='#e5e7eb'; this.style.boxShadow='none';">{{ $question->antwort_c }}</textarea>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        
-                    </div>
-                    
-                    <!-- Question -->
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Frage</label>
-                        <textarea name="frage" rows="3" 
-                                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">{{ $q->frage }}</textarea>
-                    </div>
-                    
-                    <!-- Answers -->
-                    <div class="space-y-4 mb-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Antwort A</label>
-                            <textarea name="antwort_a" rows="2" 
-                                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">{{ $q->antwort_a }}</textarea>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Antwort B</label>
-                            <textarea name="antwort_b" rows="2" 
-                                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">{{ $q->antwort_b }}</textarea>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Antwort C</label>
-                            <textarea name="antwort_c" rows="2" 
-                                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">{{ $q->antwort_c }}</textarea>
-                        </div>
-                    </div>
-                    
-                    <!-- Solution and Actions -->
-                    <div class="pt-4 border-t border-gray-200 space-y-4">
-                        <div class="flex items-center space-x-2">
-                            <label class="text-sm font-medium text-gray-700">Lösung</label>
-                            <select name="loesung" class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
-                                <option value="A" @if($q->loesung === 'A') selected @endif>A</option>
-                                <option value="B" @if($q->loesung === 'B') selected @endif>B</option>
-                                <option value="C" @if($q->loesung === 'C') selected @endif>C</option>
-                                <option value="A,B" @if($q->loesung === 'A,B') selected @endif>A,B</option>
-                                <option value="A,C" @if($q->loesung === 'A,C') selected @endif>A,C</option>
-                                <option value="B,C" @if($q->loesung === 'B,C') selected @endif>B,C</option>
-                                <option value="A,B,C" @if($q->loesung === 'A,B,C') selected @endif>A,B,C</option>
-                            </select>
-                        </div>
-                        
-                        <!-- Action Buttons -->
-                        <div class="flex justify-end gap-6">
-                            <button type="submit" 
-                                    class="inline-flex items-center px-4 py-2 text-white text-sm font-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors shadow-sm"
-                                    style="background-color: #16a34a; border: none; margin-right: 12px;"
-                                    onmouseover="this.style.backgroundColor='#15803d'"
-                                    onmouseout="this.style.backgroundColor='#16a34a'"
-                                    title="Änderungen speichern">
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                </svg>
-                                Speichern
-                            </button>
-                </form>
-                            <form action="{{ route('admin.questions.destroy', $q) }}" method="POST" class="inline">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" 
-                                        class="inline-flex items-center px-4 py-2 text-white text-sm font-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors shadow-sm"
-                                        style="background-color: #dc2626; border: none; margin-left: 0;"
-                                        onmouseover="this.style.backgroundColor='#b91c1c'"
-                                        onmouseout="this.style.backgroundColor='#dc2626'"
-                                        title="Frage löschen"
-                                        onclick="return confirm('Frage {{ $q->id }} wirklich löschen?')">
-                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                    </svg>
-                                    Löschen
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-            </div>
-            @endforeach
-        </div>
-        
-        <!-- Desktop Table View -->
-        <div id="tableView" class="hidden bg-white rounded-lg shadow-md overflow-hidden">
-            <div class="px-6 py-4 bg-blue-800 text-white">
-                <h3 class="text-xl font-semibold">Fragenliste</h3>
-            </div>
-            
-            <div class="overflow-x-auto">
-                <table class="w-full">
-                    <thead class="bg-gray-50 border-b">
-                        <tr>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">LA</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nr</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Frage</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Antwort A</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Antwort B</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Antwort C</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lösung</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aktionen</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        @foreach($questions as $q)
-                        <tr class="hover:bg-gray-50 transition-colors">
-                            <form action="{{ route('admin.questions.update', $q) }}" method="POST" class="contents">
-                                @csrf
-                                @method('PATCH')
-                                <td class="px-4 py-3 whitespace-nowrap text-sm">
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                        {{ $q->id }}
-                                    </span>
-                                </td>
-                                <td class="px-4 py-3 whitespace-nowrap">
-                                    <input type="text" name="lernabschnitt" value="{{ $q->lernabschnitt }}" 
-                                           class="w-16 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500" />
-                                </td>
-                                <td class="px-4 py-3 whitespace-nowrap">
-                                    <input type="number" name="nummer" value="{{ $q->nummer }}" 
-                                           class="w-16 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500" />
-                                </td>
-                                <td class="px-4 py-3">
-                                    <textarea name="frage" rows="2" 
-                                              class="w-full min-w-[200px] px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500">{{ $q->frage }}</textarea>
-                                </td>
-                                <td class="px-4 py-3">
-                                    <textarea name="antwort_a" rows="2" 
-                                              class="w-full min-w-[150px] px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500">{{ $q->antwort_a }}</textarea>
-                                </td>
-                                <td class="px-4 py-3">
-                                    <textarea name="antwort_b" rows="2" 
-                                              class="w-full min-w-[150px] px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500">{{ $q->antwort_b }}</textarea>
-                                </td>
-                                <td class="px-4 py-3">
-                                    <textarea name="antwort_c" rows="2" 
-                                              class="w-full min-w-[150px] px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500">{{ $q->antwort_c }}</textarea>
-                                </td>
-                                <td class="px-4 py-3 whitespace-nowrap">
-                                    <select name="loesung" class="w-20 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500">
-                                        <option value="A" @if($q->loesung === 'A') selected @endif>A</option>
-                                        <option value="B" @if($q->loesung === 'B') selected @endif>B</option>
-                                        <option value="C" @if($q->loesung === 'C') selected @endif>C</option>
-                                        <option value="A,B" @if($q->loesung === 'A,B') selected @endif>A,B</option>
-                                        <option value="A,C" @if($q->loesung === 'A,C') selected @endif>A,C</option>
-                                        <option value="B,C" @if($q->loesung === 'B,C') selected @endif>B,C</option>
-                                        <option value="A,B,C" @if($q->loesung === 'A,B,C') selected @endif>A,B,C</option>
-                                    </select>
-                                </td>
-                                <td class="px-4 py-3 whitespace-nowrap text-sm font-medium">
-                                    <div class="flex items-center gap-2">
-                                        <button type="submit" 
-                                                class="inline-flex items-center px-2 py-1 border border-transparent text-xs leading-4 font-medium rounded text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors"
-                                                title="Änderungen speichern">
-                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                            </svg>
-                                        </button>
-                            </form>
-                                        
-                                        <form action="{{ route('admin.questions.destroy', $q) }}" method="POST" class="inline">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" 
-                                                    class="inline-flex items-center px-2 py-1 border border-transparent text-xs leading-4 font-medium rounded text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
-                                                    title="Frage löschen"
-                                                    onclick="return confirm('Frage {{ $q->id }} wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden!')">
-                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                                </svg>
-                                            </button>
-                                        </form>
-                                    </div>
-                                </td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        
-        <!-- Footer Info -->
-        <div class="mt-6 lg:mt-8 text-center text-sm text-gray-600">
-            Gesamt: {{ $questions->count() }} Fragen in {{ $questions->pluck('lernabschnitt')->unique()->count() }} Lernabschnitten
+                    @endforeach
+                </div>
+            @else
+                <div style="text-align: center; padding: 3rem 1rem; color: #9ca3af;">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">📝</div>
+                    <p>Noch keine Fragen vorhanden. Erstelle deine erste Frage!</p>
+                </div>
+            @endif
         </div>
     </div>
+</div>
 
-    <!-- JavaScript für View Toggle -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const cardView = document.getElementById('cardView');
-            const tableView = document.getElementById('tableView');
-            const cardViewBtn = document.getElementById('cardViewBtn');
-            const tableViewBtn = document.getElementById('tableViewBtn');
+<script>
+// CSRF Token für AJAX-Requests
+const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || 
+                  '{{ csrf_token() }}';
+
+// Mobile Funktionen
+function updateQuestionMobile(element) {
+    const questionId = element.dataset.id;
+    const field = element.dataset.field;
+    const value = element.value;
+    const statusIndicator = document.getElementById(`status-mobile-${questionId}`);
+    
+    // Status auf "wird gespeichert" setzen
+    statusIndicator.style.background = '#fbbf24';
+    
+    // AJAX Request zum Speichern
+    fetch(`/admin/questions/${questionId}/update-field`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrfToken,
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+            field: field,
+            value: value
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            statusIndicator.style.background = '#22c55e';
+        } else {
+            statusIndicator.style.background = '#ef4444';
+            alert('Fehler beim Speichern: ' + (data.message || 'Unbekannter Fehler'));
+        }
+    })
+    .catch(error => {
+        statusIndicator.style.background = '#ef4444';
+        alert('Netzwerk-Fehler beim Speichern. Bitte versuchen Sie es erneut.');
+    });
+}
+
+function toggleSolutionMobile(button) {
+    const container = button.closest('[data-field="loesung"]');
+    const questionId = container.dataset.id;
+    const value = button.dataset.value;
+    const statusIndicator = document.getElementById(`status-mobile-${questionId}`);
+    
+    // Toggle visual state
+    const isActive = button.style.background.includes('22c55e') || button.style.background.includes('#22c55e');
+    
+    if (isActive) {
+        button.style.border = '2px solid #d1d5db';
+        button.style.background = 'white';
+        button.style.color = '#6b7280';
+    } else {
+        button.style.border = '2px solid #16a34a';
+        button.style.background = 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)';
+        button.style.color = 'white';
+    }
+    
+    const allButtons = container.querySelectorAll('button');
+    const activeSolutions = [];
+    
+    allButtons.forEach(btn => {
+        if (btn.style.background.includes('22c55e') || btn.style.background.includes('#22c55e')) {
+            activeSolutions.push(btn.dataset.value);
+        }
+    });
+    
+    if (activeSolutions.length === 0) {
+        button.style.border = '2px solid #16a34a';
+        button.style.background = 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)';
+        button.style.color = 'white';
+        alert('Mindestens eine Lösung muss ausgewählt sein!');
+        return;
+    }
+    
+    const solutionValue = activeSolutions.join(',');
+    statusIndicator.style.background = '#fbbf24';
+    
+    fetch(`/admin/questions/${questionId}/update-field`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrfToken,
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+            field: 'loesung',
+            value: solutionValue
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            statusIndicator.style.background = '#22c55e';
+        } else {
+            statusIndicator.style.background = '#ef4444';
+            alert('Fehler beim Speichern: ' + (data.message || 'Unbekannter Fehler'));
+            location.reload();
+        }
+    })
+    .catch(error => {
+        statusIndicator.style.background = '#ef4444';
+        alert('Netzwerk-Fehler beim Speichern. Seite wird neu geladen.');
+        location.reload();
+    });
+}
+
+function toggleAnswersMobile(questionId) {
+    const answersDiv = document.getElementById(`answers-mobile-${questionId}`);
+    const button = event.target;
+    
+    if (answersDiv.style.display === 'none' || answersDiv.style.display === '') {
+        answersDiv.style.display = 'block';
+        button.textContent = '🔼 Antworten verstecken';
+        button.style.background = '#dc2626';
+    } else {
+        answersDiv.style.display = 'none';
+        button.textContent = '📝 Antworten bearbeiten';
+        button.style.background = '#00337F';
+    }
+}
+
+// Toggle-Button für Lösungen (Desktop)
+function toggleSolution(button) {
+    const container = button.closest('[data-field="loesung"]');
+    const questionId = container.dataset.id;
+    const value = button.dataset.value;
+    const statusIndicator = document.getElementById(`status-${questionId}`);
+    
+    // Toggle visual state
+    const isActive = button.style.background.includes('22c55e') || button.style.background.includes('#22c55e');
+    
+    if (isActive) {
+        // Deactivate
+        button.style.border = '2px solid #d1d5db';
+        button.style.background = 'white';
+        button.style.color = '#6b7280';
+    } else {
+        // Activate
+        button.style.border = '2px solid #16a34a';
+        button.style.background = 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)';
+        button.style.color = 'white';
+    }
+    
+    // Get all active buttons
+    const allButtons = container.querySelectorAll('button');
+    const activeSolutions = [];
+    
+    allButtons.forEach(btn => {
+        if (btn.style.background.includes('22c55e') || btn.style.background.includes('#22c55e')) {
+            activeSolutions.push(btn.dataset.value);
+        }
+    });
+    
+    // Mindestens eine Lösung muss ausgewählt sein
+    if (activeSolutions.length === 0) {
+        // Revert button state
+        button.style.border = '2px solid #16a34a';
+        button.style.background = 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)';
+        button.style.color = 'white';
+        alert('Mindestens eine Lösung muss ausgewählt sein!');
+        return;
+    }
+    
+    const solutionValue = activeSolutions.join(',');
+    
+    // Status auf "wird gespeichert" setzen
+    statusIndicator.style.background = '#fbbf24';
+    
+    // AJAX Request zum Speichern
+    fetch(`/admin/questions/${questionId}/update-field`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrfToken,
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+            field: 'loesung',
+            value: solutionValue
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Erfolgreich gespeichert - grüner Status
+            statusIndicator.style.background = '#22c55e';
+            console.log(`Lösung für Frage ${questionId} gespeichert: ${solutionValue}`);
+        } else {
+            // Fehler - roter Status und Revert
+            statusIndicator.style.background = '#ef4444';
+            console.error('Fehler beim Speichern:', data.message);
+            alert('Fehler beim Speichern: ' + (data.message || 'Unbekannter Fehler'));
+            // Revert button state on error
+            location.reload();
+        }
+    })
+    .catch(error => {
+        console.error('Netzwerk-Fehler:', error);
+        statusIndicator.style.background = '#ef4444';
+        alert('Netzwerk-Fehler beim Speichern. Seite wird neu geladen.');
+        location.reload();
+    });
+}
+
+// Inline-Bearbeitung von Fragen (für andere Felder)
+function updateQuestion(element) {
+    const questionId = element.dataset.id;
+    const field = element.dataset.field;
+    const value = element.value;
+    const statusIndicator = document.getElementById(`status-${questionId}`);
+    
+    // Status auf "wird gespeichert" setzen
+    statusIndicator.style.background = '#fbbf24';
+    
+    // AJAX Request zum Speichern
+    fetch(`/admin/questions/${questionId}/update-field`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrfToken,
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+            field: field,
+            value: value
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Erfolgreich gespeichert - grüner Status
+            statusIndicator.style.background = '#22c55e';
             
-            // Default: Show appropriate view based on screen size
-            function updateView() {
-                if (window.innerWidth >= 1024) { // lg breakpoint
-                    // Desktop: Show table by default
-                    cardView.classList.add('hidden');
-                    tableView.classList.remove('hidden');
-                    if (tableViewBtn) {
-                        tableViewBtn.classList.add('bg-white', 'rounded-md', 'shadow-sm');
-                        tableViewBtn.classList.remove('text-gray-500');
-                    }
-                    if (cardViewBtn) {
-                        cardViewBtn.classList.remove('bg-white', 'rounded-md', 'shadow-sm');
-                        cardViewBtn.classList.add('text-gray-500');
-                    }
-                } else {
-                    // Mobile: Show cards by default
-                    cardView.classList.remove('hidden');
-                    tableView.classList.add('hidden');
-                    if (cardViewBtn) {
-                        cardViewBtn.classList.add('bg-white', 'rounded-md', 'shadow-sm');
-                        cardViewBtn.classList.remove('text-gray-500');
-                    }
-                    if (tableViewBtn) {
-                        tableViewBtn.classList.remove('bg-white', 'rounded-md', 'shadow-sm');
-                        tableViewBtn.classList.add('text-gray-500');
-                    }
-                }
-            }
+            // Nach 2 Sekunden wieder normal
+            setTimeout(() => {
+                statusIndicator.style.background = '#22c55e';
+            }, 2000);
+        } else {
+            // Fehler - roter Status
+            statusIndicator.style.background = '#ef4444';
+            console.error('Fehler beim Speichern:', data.message);
             
-            // Toggle functions
-            if (cardViewBtn) {
-                cardViewBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    // Force show cards, hide table
-                    cardView.classList.remove('hidden');
-                    tableView.classList.add('hidden');
-                    cardViewBtn.classList.add('bg-white', 'rounded-md', 'shadow-sm');
-                    cardViewBtn.classList.remove('text-gray-500');
-                    if (tableViewBtn) {
-                        tableViewBtn.classList.remove('bg-white', 'rounded-md', 'shadow-sm');
-                        tableViewBtn.classList.add('text-gray-500');
-                    }
-                });
-            }
-            
-            if (tableViewBtn) {
-                tableViewBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    // Force show table, hide cards
-                    cardView.classList.add('hidden');
-                    tableView.classList.remove('hidden');
-                    tableViewBtn.classList.add('bg-white', 'rounded-md', 'shadow-sm');
-                    tableViewBtn.classList.remove('text-gray-500');
-                    if (cardViewBtn) {
-                        cardViewBtn.classList.remove('bg-white', 'rounded-md', 'shadow-sm');
-                        cardViewBtn.classList.add('text-gray-500');
-                    }
-                });
-            }
-            
-            // Initial setup and resize handler
-            updateView();
-            window.addEventListener('resize', updateView);
-        });
-    </script>
+            // Alert für Benutzer
+            alert('Fehler beim Speichern: ' + (data.message || 'Unbekannter Fehler'));
+        }
+    })
+    .catch(error => {
+        console.error('Netzwerk-Fehler:', error);
+        statusIndicator.style.background = '#ef4444';
+        alert('Netzwerk-Fehler beim Speichern. Bitte versuchen Sie es erneut.');
+    });
+}
+
+// Toggle Antworten anzeigen/verstecken
+function toggleAnswers(questionId) {
+    const answersRow = document.getElementById(`answers-${questionId}`);
+    const button = event.target;
+    
+    if (answersRow.style.display === 'none' || answersRow.style.display === '') {
+        answersRow.style.display = 'table-row';
+        button.textContent = '🔼 Verstecken';
+        button.style.background = '#dc2626';
+    } else {
+        answersRow.style.display = 'none';
+        button.textContent = '📝 Antworten';
+        button.style.background = '#00337F';
+    }
+}
+
+// Automatisches Speichern bei Enter (nicht bei Textareas)
+document.addEventListener('keypress', function(e) {
+    if (e.target.tagName === 'INPUT' && e.key === 'Enter') {
+        e.target.blur(); // Trigger onchange
+    }
+});
+
+// Zeige Anzahl aller Fragen im Header
+document.addEventListener('DOMContentLoaded', function() {
+    const questionCount = {{ $questions->count() }};
+    console.log(`Alle ${questionCount} Fragen geladen und inline-editierbar!`);
+});
+</script>
 @endsection

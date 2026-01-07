@@ -1,179 +1,368 @@
 @extends('layouts.app')
 @section('title', 'Leaderboard - THW Trainer')
 
+@push('styles')
+<style>
+.leaderboard-page { background: #f3f4f6; min-height: 100vh; }
+
+.leaderboard-wrapper { min-height: 100vh; background: #f3f4f6; position: relative; overflow-x: hidden; }
+
+.leaderboard-container { max-width: 1200px; margin: 0 auto; padding: 2rem; position: relative; z-index: 1; }
+
+.leaderboard-header { text-align: center; margin-bottom: 3rem; padding-top: 1rem; }
+
+.leaderboard-header h1 { font-size: 2.5rem; font-weight: 800; color: #00337F; margin-bottom: 0.5rem; line-height: 1.2; }
+
+.leaderboard-subtitle { font-size: 1.1rem; color: #4b5563; margin-bottom: 0; }
+
+.leaderboard-container { max-width: 80rem; margin: 0 auto; padding: 0 1rem 3rem 1rem; }
+
+.tab-nav { display: flex; gap: 1rem; margin-bottom: 2rem; background: white; padding: 0.5rem; border-radius: 10px; border: 1px solid #e5e7eb; }
+
+.tab-link { padding: 0.75rem 1.5rem; border: none; border-radius: 8px; background: transparent; color: #6b7280; font-weight: 600; cursor: pointer; text-decoration: none; transition: all 0.3s; }
+
+.tab-link.active { background: linear-gradient(135deg, #00337F 0%, #003F99 100%); color: white; }
+
+.week-info { background: linear-gradient(135deg, rgba(0, 51, 127, 0.1) 0%, rgba(0, 63, 153, 0.1) 100%); border-left: 4px solid #00337F; border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem; display: flex; gap: 1rem; }
+
+.week-info-icon { font-size: 2rem; }
+
+.week-info-content h3 { font-weight: 600; color: #00337F; margin: 0 0 0.5rem 0; }
+
+.week-info-content p { color: #6b7280; margin: 0; font-size: 0.9rem; }
+
+.leaderboard-card { background: white; border-radius: 10px; border: 1px solid #e5e7eb; overflow: hidden; }
+
+.table-wrapper { overflow-x: auto; }
+
+table { width: 100%; border-collapse: collapse; }
+
+thead th { background: #f9fafb; padding: 1.25rem; text-align: left; font-weight: 600; color: #6b7280; font-size: 0.85rem; text-transform: uppercase; border-bottom: 2px solid #e5e7eb; }
+
+tbody td { padding: 1rem 1.25rem; border-bottom: 1px solid #f3f4f6; }
+
+tbody tr { transition: all 0.3s; }
+
+tbody tr:hover { background: #fafafa; }
+
+.leaderboard-card-mobile { display: none; }
+
+.leaderboard-card-desktop { display: block; }
+
+@media (max-width: 768px) {
+    .leaderboard-card-desktop { display: none; }
+    .leaderboard-card-mobile { display: block; }
+    
+    .leaderboard-card-mobile .leaderboard-item {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        padding: 1.25rem;
+        margin-bottom: 1rem;
+        display: flex;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+    
+    .leaderboard-card-mobile .leaderboard-item.rank-1 { background: linear-gradient(135deg, #fef3c7 0%, #fef3c7 100%); }
+    .leaderboard-card-mobile .leaderboard-item.rank-2 { background: linear-gradient(135deg, #f3f4f6 0%, #f3f4f6 100%); }
+    .leaderboard-card-mobile .leaderboard-item.rank-3 { background: linear-gradient(135deg, #fed7aa 0%, #fed7aa 100%); }
+    .leaderboard-card-mobile .leaderboard-item.current-user { background: linear-gradient(135deg, #dbeafe 0%, #dbeafe 100%); border-left: 4px solid #00337F; }
+    
+    .leaderboard-card-mobile .rank-section {
+        flex-shrink: 0;
+        text-align: center;
+    }
+    
+    .leaderboard-card-mobile .rank-medal {
+        font-size: 2rem;
+        margin-bottom: 0.25rem;
+    }
+    
+    .leaderboard-card-mobile .rank-number {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #00337F;
+    }
+    
+    .leaderboard-card-mobile .user-section {
+        flex: 1;
+    }
+    
+    .leaderboard-card-mobile .user-info {
+        margin-bottom: 1rem;
+    }
+    
+    .leaderboard-card-mobile .user-info-name {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #1f2937;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .leaderboard-card-mobile .stat-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 0.5rem 0;
+    }
+    
+    .leaderboard-card-mobile .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.9rem;
+    }
+    
+    .leaderboard-card-mobile .stat-label {
+        color: #6b7280;
+        font-weight: 500;
+    }
+    
+    .leaderboard-card-mobile .stat-value {
+        color: #1f2937;
+        font-weight: 600;
+    }
+}
+
+.rank-1 { background: linear-gradient(to right, #fef3c7 0%, #fef3c7 100%); }
+.rank-2 { background: linear-gradient(to right, #f3f4f6 0%, #f3f4f6 100%); }
+.rank-3 { background: linear-gradient(to right, #fed7aa 0%, #fed7aa 100%); }
+.current-user { background: linear-gradient(to right, #dbeafe 0%, #dbeafe 100%); border-left: 4px solid #00337F; }
+
+.medal { font-size: 1.5rem; margin-right: 0.5rem; }
+
+.rank-badge { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background: white; border-radius: 6px; }
+
+.badge-value { font-weight: 700; color: #1f2937; }
+
+.user-name { font-weight: 600; color: #1f2937; }
+
+.you-badge { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.3rem 0.6rem; background: #dbeafe; color: #1e40af; border-radius: 6px; font-size: 0.75rem; font-weight: 600; margin-left: 0.5rem; }
+
+.stat-col { display: flex; align-items: center; gap: 0.5rem; }
+
+.stat-icon { font-size: 1.25rem; }
+
+.stat-text { font-weight: 500; color: #1f2937; }
+
+.info-box { background: linear-gradient(135deg, rgba(0, 51, 127, 0.08) 0%, rgba(0, 63, 153, 0.08) 100%); border: 1px solid #dbeafe; border-radius: 10px; padding: 1.5rem; margin-top: 2rem; }
+
+.info-box h3 { font-weight: 700; color: #00337F; margin: 0 0 1rem 0; display: flex; align-items: center; gap: 0.5rem; }
+
+.info-box ul { list-style: none; padding: 0; margin: 0; }
+
+.info-box li { padding: 0.5rem 0; color: #4b5563; font-size: 0.95rem; }
+
+.user-rank-card { background: white; border: 2px solid #fbbf24; border-radius: 10px; padding: 2rem; margin-top: 2rem; display: flex; justify-content: space-between; align-items: center; }
+
+.rank-number { font-size: 2rem; font-weight: 700; color: #00337F; }
+
+.rank-details { font-size: 0.9rem; color: #6b7280; margin-top: 0.5rem; }
+
+.empty-state { text-align: center; padding: 3rem 1rem; color: #9ca3af; }
+
+.empty-state-icon { font-size: 3rem; margin-bottom: 1rem; }
+
+@media (max-width: 768px) {
+    .leaderboard-header { flex-direction: column; align-items: flex-start; }
+    .tab-nav { flex-direction: column; }
+    .tab-link { width: 100%; text-align: center; }
+    table { font-size: 0.85rem; }
+    thead th, tbody td { padding: 0.75rem; }
+    .user-rank-card { flex-direction: column; text-align: center; gap: 1rem; }
+}
+</style>
+@endpush
+
 @section('content')
-    <div class="max-w-7xl mx-auto p-6">
+<div class="leaderboard-wrapper">
+    <div class="leaderboard-container">
         <!-- Header -->
-        <div class="flex items-center justify-between mb-8">
-            <h1 class="text-3xl font-bold text-blue-800">🏆 Leaderboard</h1>
-            <a href="{{ route('dashboard') }}" 
-               class="inline-flex items-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
-                ← Zurück zum Dashboard
-            </a>
+        <div class="leaderboard-header">
+            <h1>🏆 Leaderboard</h1>
+            <p class="leaderboard-subtitle">Zeige dein Können und klettere die Rangliste hinauf</p>
         </div>
 
         <!-- Tab Navigation -->
-        <div class="mb-6 bg-white rounded-lg shadow-md p-2 inline-flex">
-            <a href="{{ route('gamification.leaderboard', ['tab' => 'gesamt']) }}" 
-               class="px-6 py-3 rounded-lg font-medium transition-all duration-200 {{ $tab === 'gesamt' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-600 hover:bg-gray-100' }}">
-                🌍 Gesamt-Rangliste
-            </a>
-            <a href="{{ route('gamification.leaderboard', ['tab' => 'woche']) }}" 
-               class="ml-2 px-6 py-3 rounded-lg font-medium transition-all duration-200 {{ $tab === 'woche' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-600 hover:bg-gray-100' }}">
-                📅 Diese Woche
-            </a>
+        <div class="tab-nav">
+            <a href="{{ route('gamification.leaderboard', ['tab' => 'gesamt']) }}" class="tab-link {{ $tab === 'gesamt' ? 'active' : '' }}">🌍 Gesamt-Rangliste</a>
+            <a href="{{ route('gamification.leaderboard', ['tab' => 'woche']) }}" class="tab-link {{ $tab === 'woche' ? 'active' : '' }}">📅 Diese Woche</a>
         </div>
 
         @if($tab === 'woche' && $weekRange)
-            <!-- Wocheninfo -->
-            <div class="mb-6 bg-blue-50 border-l-4 border-blue-500 p-4 rounded-lg">
-                <div class="flex items-center">
-                    <div class="text-2xl mr-3">📆</div>
-                    <div>
-                        <div class="font-semibold text-blue-900">Aktuelle Woche</div>
-                        <div class="text-sm text-blue-700">{{ $weekRange['formatted'] }} (Montag - Sonntag)</div>
-                    </div>
+            <div class="week-info">
+                <div class="week-info-icon">📆</div>
+                <div class="week-info-content">
+                    <h3>Aktuelle Woche</h3>
+                    <p>{{ $weekRange['formatted'] }} (Montag - Sonntag)</p>
                 </div>
             </div>
         @endif
 
-        <!-- Leaderboard Tabelle -->
-        <div class="bg-white rounded-lg shadow-md overflow-hidden">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gradient-to-r from-blue-600 to-blue-700">
-                    <tr>
-                        <th scope="col" class="px-6 py-4 text-left text-xs font-medium text-white uppercase tracking-wider">
-                            Rang
-                        </th>
-                        <th scope="col" class="px-6 py-4 text-left text-xs font-medium text-white uppercase tracking-wider">
-                            Name
-                        </th>
-                        @if($tab === 'woche')
-                            <th scope="col" class="px-6 py-4 text-left text-xs font-medium text-white uppercase tracking-wider">
-                                Punkte (diese Woche)
-                            </th>
-                        @else
-                            <th scope="col" class="px-6 py-4 text-left text-xs font-medium text-white uppercase tracking-wider">
-                                Punkte (gesamt)
-                            </th>
-                        @endif
-                        <th scope="col" class="px-6 py-4 text-left text-xs font-medium text-white uppercase tracking-wider">
-                            Level
-                        </th>
-                        <th scope="col" class="px-6 py-4 text-left text-xs font-medium text-white uppercase tracking-wider">
-                            Streak
-                        </th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                    @forelse($leaderboard as $index => $user)
-                        @php
-                            $rank = $index + 1;
-                            $isCurrentUser = Auth::check() && Auth::user()->name === $user->name;
-                            
-                            // Medal Emojis für Top 3
-                            $medal = '';
-                            if ($rank === 1) $medal = '🥇';
-                            elseif ($rank === 2) $medal = '🥈';
-                            elseif ($rank === 3) $medal = '🥉';
-                            
-                            // Rang-Background-Color
-                            $bgClass = '';
-                            if ($rank === 1) $bgClass = 'bg-yellow-50';
-                            elseif ($rank === 2) $bgClass = 'bg-gray-50';
-                            elseif ($rank === 3) $bgClass = 'bg-orange-50';
-                            elseif ($isCurrentUser) $bgClass = 'bg-blue-50 border-l-4 border-blue-500';
-                        @endphp
-                        
-                        <tr class="{{ $bgClass }} {{ $isCurrentUser ? 'font-bold' : '' }} hover:bg-gray-50 transition-colors">
-                            <!-- Rang -->
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <span class="text-2xl mr-2">{{ $medal }}</span>
-                                    <span class="text-lg font-semibold {{ $rank <= 3 ? 'text-blue-800' : 'text-gray-700' }}">
-                                        #{{ $rank }}
-                                    </span>
-                                </div>
-                            </td>
-                            
-                            <!-- Name -->
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="text-sm font-medium text-gray-900">
-                                        {{ $user->name }}
-                                        @if($isCurrentUser)
-                                            <span class="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">Du</span>
-                                        @endif
-                                    </div>
-                                </div>
-                            </td>
-                            
-                            <!-- Punkte -->
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <span class="text-xl mr-2">💎</span>
-                                    <span class="text-sm font-semibold text-gray-900">
-                                        @if($tab === 'woche')
-                                            {{ number_format($user->weekly_points) }} Punkte
-                                        @else
-                                            {{ number_format($user->points) }} Punkte
-                                        @endif
-                                    </span>
-                                </div>
-                            </td>
-                            
-                            <!-- Level -->
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <span class="text-xl mr-2">⭐</span>
-                                    <span class="text-sm font-medium text-gray-900">Level {{ $user->level }}</span>
-                                </div>
-                            </td>
-                            
-                            <!-- Streak -->
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <span class="text-xl mr-2">🔥</span>
-                                    <span class="text-sm font-medium text-gray-900">{{ $user->streak_days }} Tage</span>
-                                </div>
-                            </td>
-                        </tr>
-                    @empty
+        <!-- Leaderboard Table -->
+        <div class="leaderboard-card leaderboard-card-desktop">
+            <div class="table-wrapper">
+                <table>
+                    <thead>
                         <tr>
-                            <td colspan="5" class="px-6 py-8 text-center text-gray-500">
-                                <div class="text-4xl mb-2">🏆</div>
-                                @if($tab === 'woche')
-                                    <p class="font-medium">Noch keine Aktivität diese Woche!</p>
-                                    <p class="text-sm mt-1">Sei der Erste und sammle Punkte!</p>
-                                @else
-                                    <p class="font-medium">Noch keine Einträge im Leaderboard</p>
-                                @endif
-                            </td>
+                            <th>Rang</th>
+                            <th>Name</th>
+                            <th>{{ $tab === 'woche' ? 'Punkte (diese Woche)' : 'Punkte (gesamt)' }}</th>
+                            <th>Level</th>
+                            <th>Streak</th>
                         </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Info Box -->
-        <div class="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <div class="flex items-start">
-                <div class="text-2xl mr-3">💡</div>
-                <div>
-                    <h3 class="font-semibold text-blue-900 mb-2">So sammelst du Punkte:</h3>
-                    <ul class="text-sm text-blue-800 space-y-1">
-                        <li>✅ <strong>+10 Punkte</strong> pro richtig beantwortete Frage</li>
-                        <li>🎓 <strong>+100 Punkte</strong> für bestandene Prüfungen</li>
-                        <li>🔥 <strong>Streak-Bonus</strong> bei täglichem Lernen</li>
-                        @if($tab === 'woche')
-                            <li>📅 <strong>Wöchentliche Rangliste</strong> wird jeden Montag zurückgesetzt</li>
-                        @endif
-                    </ul>
-                </div>
+                    </thead>
+                    <tbody>
+                        @forelse($leaderboard as $index => $user)
+                            @php
+                                $rank = $index + 1;
+                                $isCurrentUser = Auth::check() && Auth::user()->name === $user->name;
+                                $medal = match($rank) {
+                                    1 => '🥇',
+                                    2 => '🥈',
+                                    3 => '🥉',
+                                    default => $rank . '.'
+                                };
+                                $rowClass = match($rank) {
+                                    1 => 'rank-1',
+                                    2 => 'rank-2',
+                                    3 => 'rank-3',
+                                    default => ''
+                                };
+                                if ($isCurrentUser) $rowClass = 'current-user';
+                            @endphp
+                            
+                            <tr class="{{ $rowClass }}">
+                                <td>
+                                    <div class="rank-badge">
+                                        <span class="medal">{{ $medal }}</span>
+                                        <span class="badge-value">#{{ $rank }}</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="user-name">{{ $user->name }}</span>
+                                    @if($isCurrentUser)
+                                        <span class="you-badge">👤 Du</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    <div class="stat-col">
+                                        <span class="stat-icon">💎</span>
+                                        <span class="stat-text">{{ number_format($tab === 'woche' ? $user->weekly_points : $user->points) }}</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="stat-col">
+                                        <span class="stat-icon">⭐</span>
+                                        <span class="stat-text">{{ $user->level }}</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="stat-col">
+                                        <span class="stat-icon">🔥</span>
+                                        <span class="stat-text">{{ $user->streak_days }} Tage</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="5">
+                                    <div class="empty-state">
+                                        <div class="empty-state-icon">🏆</div>
+                                        <p style="font-weight: 600;">{{ $tab === 'woche' ? 'Noch keine Aktivität diese Woche!' : 'Noch keine Einträge im Leaderboard' }}</p>
+                                        <p style="font-size: 0.9rem; margin-top: 0.5rem;">{{ $tab === 'woche' ? 'Sei der Erste und sammle Punkte!' : '' }}</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
         </div>
 
-        <!-- Eigener Rang (wenn nicht in Top 50) -->
+        <!-- Leaderboard Mobile Cards -->
+        <div class="leaderboard-card-mobile">
+            @forelse($leaderboard as $index => $user)
+                @php
+                    $rank = $index + 1;
+                    $isCurrentUser = Auth::check() && Auth::user()->name === $user->name;
+                    $medal = match($rank) {
+                        1 => '🥇',
+                        2 => '🥈',
+                        3 => '🥉',
+                        default => $rank . '.'
+                    };
+                    $rowClass = match($rank) {
+                        1 => 'rank-1',
+                        2 => 'rank-2',
+                        3 => 'rank-3',
+                        default => ''
+                    };
+                    if ($isCurrentUser) $rowClass = 'current-user';
+                @endphp
+                
+                <div class="leaderboard-item {{ $rowClass }}">
+                    <div class="rank-section">
+                        <div class="rank-medal">{{ $medal }}</div>
+                        <div class="rank-number">#{{ $rank }}</div>
+                    </div>
+                    <div class="user-section">
+                        <div class="user-info">
+                            <div class="user-info-name">
+                                {{ $user->name }}
+                                @if($isCurrentUser)
+                                    <span class="you-badge">👤</span>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="stat-row">
+                            <div class="stat-item">
+                                <span>💎</span>
+                                <span class="stat-label">Punkte:</span>
+                                <span class="stat-value">{{ number_format($tab === 'woche' ? $user->weekly_points : $user->points) }}</span>
+                            </div>
+                        </div>
+                        <div class="stat-row">
+                            <div class="stat-item">
+                                <span>⭐</span>
+                                <span class="stat-label">Level:</span>
+                                <span class="stat-value">{{ $user->level }}</span>
+                            </div>
+                            <div class="stat-item">
+                                <span>🔥</span>
+                                <span class="stat-label">Streak:</span>
+                                <span class="stat-value">{{ $user->streak_days }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @empty
+                <div class="empty-state" style="margin: 2rem 0;">
+                    <div class="empty-state-icon">🏆</div>
+                    <p style="font-weight: 600;">{{ $tab === 'woche' ? 'Noch keine Aktivität diese Woche!' : 'Noch keine Einträge im Leaderboard' }}</p>
+                    <p style="font-size: 0.9rem; margin-top: 0.5rem;">{{ $tab === 'woche' ? 'Sei der Erste und sammle Punkte!' : '' }}</p>
+                </div>
+            @endforelse
+        </div>
+
+        <!-- Info Box -->
+        <div class="info-box">
+            <h3>💡 So sammelst du Punkte:</h3>
+            <ul>
+                <li>✅ <strong>+10 Punkte</strong> pro richtig beantwortete Frage</li>
+                <li>🎓 <strong>+100 Punkte</strong> für bestandene Prüfungen</li>
+                <li>🔥 <strong>Streak-Bonus</strong> bei täglichem Lernen</li>
+                @if($tab === 'woche')
+                    <li>📅 <strong>Wöchentliche Rangliste</strong> wird jeden Montag zurückgesetzt</li>
+                @endif
+            </ul>
+        </div>
+
+        <!-- Current User Rank (if not in Top 50) -->
         @if(Auth::check())
             @php
                 $currentUser = Auth::user();
@@ -189,26 +378,26 @@
             @endphp
             
             @if(!$isInTop50)
-                <div class="mt-6 bg-white border-2 border-blue-500 rounded-lg p-6 shadow-md">
-                    <h3 class="text-lg font-semibold text-blue-900 mb-3">📍 Deine Platzierung</h3>
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <div class="text-2xl font-bold text-blue-800">Rang #{{ $userRank }}</div>
-                            <div class="text-sm text-gray-600">
-                                @if($tab === 'woche')
-                                    {{ number_format($currentUser->weekly_points) }} Punkte diese Woche
-                                @else
-                                    {{ number_format($currentUser->points) }} Punkte gesamt
-                                @endif
-                            </div>
+                <div class="user-rank-card">
+                    <div>
+                        <h3 style="font-size: 1.25rem; font-weight: 700; color: #00337F; margin: 0;">📍 Deine Platzierung</h3>
+                        <div class="rank-number">Rang #{{ $userRank }}</div>
+                        <div class="rank-details">
+                            @if($tab === 'woche')
+                                {{ number_format($currentUser->weekly_points) }} Punkte diese Woche
+                            @else
+                                {{ number_format($currentUser->points) }} Punkte gesamt
+                            @endif
                         </div>
-                        <div class="text-right">
-                            <div class="text-sm text-gray-600">Level {{ $currentUser->level }}</div>
-                            <div class="text-sm text-gray-600">🔥 {{ $currentUser->streak_days }} Tage Streak</div>
-                        </div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div class="rank-details">Level {{ $currentUser->level }}</div>
+                        <div class="rank-details">🔥 {{ $currentUser->streak_days }} Tage Streak</div>
                     </div>
                 </div>
             @endif
         @endif
     </div>
+</div>
+
 @endsection
