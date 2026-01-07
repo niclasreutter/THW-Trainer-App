@@ -1,160 +1,423 @@
 @extends('layouts.app')
 @section('title', 'Übungsmenü - THW Trainer')
 
+@push('styles')
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    .practice-wrapper {
+        min-height: 100vh;
+        background: #f3f4f6;
+        position: relative;
+        overflow-x: hidden;
+    }
+
+    .practice-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .practice-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+        padding-top: 1rem;
+    }
+
+    .practice-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: #00337F;
+        margin-bottom: 0.5rem;
+        line-height: 1.2;
+    }
+
+    .practice-subtitle {
+        font-size: 1.1rem;
+        color: #4b5563;
+    }
+
+    .section-card {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 1.25rem;
+        padding: 1.75rem;
+        margin-bottom: 1.75rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .section-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #00337F;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .section-description {
+        font-size: 0.95rem;
+        color: #6b7280;
+        margin-bottom: 1.25rem;
+    }
+
+    /* Search Form */
+    .search-form {
+        display: flex;
+        gap: 1rem;
+    }
+
+    @media (max-width: 640px) {
+        .search-form { flex-direction: column; }
+    }
+
+    .search-input {
+        flex: 1;
+        padding: 0.875rem 1.25rem;
+        border: 2px solid #e5e7eb;
+        border-radius: 0.75rem;
+        font-size: 1rem;
+        transition: all 0.2s ease;
+        outline: none;
+    }
+
+    .search-input:focus {
+        border-color: #00337F;
+        box-shadow: 0 0 0 3px rgba(0, 51, 127, 0.1);
+    }
+
+    .search-btn {
+        padding: 0.875rem 1.75rem;
+        background: linear-gradient(135deg, #00337F 0%, #002a66 100%);
+        color: white;
+        font-weight: 600;
+        border: none;
+        border-radius: 0.75rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 15px rgba(0, 51, 127, 0.2);
+    }
+
+    .search-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 51, 127, 0.3);
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .stats-grid { grid-template-columns: 1fr; }
+    }
+
+    .stat-item {
+        background: #f9fafb;
+        border: 1px solid #e5e7eb;
+        border-radius: 1rem;
+        padding: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        transition: all 0.2s ease;
+    }
+
+    .stat-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+    }
+
+    .stat-item.failed { border-color: rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.05); }
+    .stat-item.unsolved { border-color: rgba(59, 130, 246, 0.3); background: rgba(59, 130, 246, 0.05); }
+    .stat-item.solved { border-color: rgba(34, 197, 94, 0.3); background: rgba(34, 197, 94, 0.05); }
+
+    .stat-icon { font-size: 1.75rem; flex-shrink: 0; }
+    .stat-content { flex: 1; min-width: 0; }
+    .stat-value { font-size: 1.5rem; font-weight: 800; line-height: 1; margin-bottom: 0.25rem; }
+    .stat-item.failed .stat-value { color: #dc2626; }
+    .stat-item.unsolved .stat-value { color: #2563eb; }
+    .stat-item.solved .stat-value { color: #16a34a; }
+    .stat-label { font-size: 0.8rem; color: #6b7280; font-weight: 500; }
+
+    .stat-progress {
+        width: 100%;
+        height: 4px;
+        background: #e5e7eb;
+        border-radius: 2px;
+        margin-top: 0.5rem;
+        overflow: hidden;
+    }
+
+    .stat-progress-fill { height: 100%; border-radius: 2px; transition: width 0.8s ease-out; }
+    .stat-item.failed .stat-progress-fill { background: linear-gradient(90deg, #ef4444, #dc2626); }
+    .stat-item.unsolved .stat-progress-fill { background: linear-gradient(90deg, #3b82f6, #2563eb); }
+    .stat-item.solved .stat-progress-fill { background: linear-gradient(90deg, #22c55e, #16a34a); }
+
+    .priority-hint {
+        font-size: 0.9rem;
+        color: #4b5563;
+        margin-bottom: 1.25rem;
+        padding: 0.75rem 1rem;
+        background: rgba(0, 51, 127, 0.05);
+        border-radius: 0.75rem;
+        border: 1px solid rgba(0, 51, 127, 0.1);
+    }
+
+    .priority-hint strong { color: #00337F; }
+
+    /* Start Training Button */
+    .start-training-btn {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1.5rem;
+        background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+        border-radius: 1rem;
+        text-decoration: none;
+        color: #1e40af;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(251, 191, 36, 0.3);
+        max-width: 450px;
+        margin: 0 auto;
+    }
+
+    .start-training-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 30px rgba(251, 191, 36, 0.4);
+    }
+
+    .start-training-icon { font-size: 2rem; }
+    .start-training-content { flex: 1; }
+    .start-training-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .start-training-subtitle { font-size: 0.85rem; opacity: 0.9; }
+
+    /* Section Grid */
+    .sections-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+
+    @media (max-width: 768px) {
+        .sections-grid { grid-template-columns: 1fr; }
+    }
+
+    .section-link {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1.25rem;
+        background: #f9fafb;
+        border: 1px solid #e5e7eb;
+        border-radius: 1rem;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    .section-link:hover {
+        background: white;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+        border-color: #00337F;
+    }
+
+    .section-number {
+        width: 48px;
+        height: 48px;
+        background: linear-gradient(135deg, #00337F 0%, #002a66 100%);
+        color: white;
+        font-size: 1.25rem;
+        font-weight: 800;
+        border-radius: 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .section-info { flex: 1; min-width: 0; }
+    .section-name { font-size: 0.95rem; font-weight: 600; color: #1f2937; margin-bottom: 0.25rem; line-height: 1.3; }
+    .section-stats { font-size: 0.8rem; color: #6b7280; margin-bottom: 0.5rem; }
+
+    .section-progress {
+        width: 100%;
+        height: 4px;
+        background: #e5e7eb;
+        border-radius: 2px;
+        overflow: hidden;
+    }
+
+    .section-progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #fbbf24, #f59e0b);
+        border-radius: 2px;
+        transition: width 1s ease-out;
+    }
+
+    .section-percent {
+        font-size: 0.75rem;
+        color: #6b7280;
+        margin-top: 0.25rem;
+    }
+
+    /* Back Button */
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 0.75rem;
+        color: #4b5563;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    .back-link:hover {
+        background: #f9fafb;
+        border-color: #00337F;
+        color: #00337F;
+    }
+
+    .text-center { text-align: center; }
+    .mt-8 { margin-top: 2rem; }
+
+    @media (max-width: 640px) {
+        .practice-container { padding: 1rem; }
+        .practice-title { font-size: 1.75rem; }
+        .section-card { padding: 1.25rem; }
+    }
+</style>
+@endpush
+
 @section('content')
-    <div class="max-w-7xl mx-auto p-4 sm:p-6">
-        <h1 class="text-2xl sm:text-3xl font-bold text-blue-800 mb-6 sm:mb-8 text-center">Übungsmenü</h1>
-        
+<div class="practice-wrapper">
+    <div class="practice-container">
+        <header class="practice-header">
+            <h1 class="practice-title">📚 Übungsmenü</h1>
+            <p class="practice-subtitle">Wähle deinen Lernmodus und verbessere dein Wissen</p>
+        </header>
+
         <!-- Suchfeld -->
-        <div class="mb-8 sm:mb-12 bg-white rounded-lg shadow-md p-4 sm:p-6">
-            <h2 class="text-lg sm:text-xl font-semibold text-blue-800 mb-4">🔍 Fragen suchen</h2>
-            <form action="{{ route('practice.search') }}" method="GET" class="flex flex-col sm:flex-row gap-3 sm:gap-4">
+        <div class="section-card">
+            <h2 class="section-title">🔍 Fragen suchen</h2>
+            <form action="{{ route('practice.search') }}" method="GET" class="search-form">
                 <input type="text" name="search" value="{{ request('search') }}" 
                        placeholder="Suchbegriff eingeben..." 
-                       class="flex-1 px-4 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base">
-                <button type="submit" 
-                        class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm sm:text-base"
-                        style="background-color: #2563eb; color: white; padding: 0.5rem 1.5rem; border-radius: 0.5rem; border: none; cursor: pointer;">
-                    Suchen
-                </button>
+                       class="search-input">
+                <button type="submit" class="search-btn">Suchen</button>
             </form>
         </div>
 
         <!-- Alle Fragen Modus -->
-        <div class="mb-8 sm:mb-12 bg-white rounded-lg shadow-md p-4 sm:p-6">
-            <h2 class="text-lg sm:text-xl font-semibold text-blue-800 mb-4">📚 Alle Fragen</h2>
+        <div class="section-card">
+            <h2 class="section-title">📖 Alle Fragen</h2>
             
-            <!-- Statistiken anzeigen -->
-            <div class="mb-4 sm:mb-6">
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4">
-                    <!-- Fehlgeschlagene Fragen -->
-                    <div class="flex items-center bg-gradient-to-r from-red-100 to-pink-100 rounded-lg px-3 py-2 sm:py-3 hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer border border-red-200">
-                        <div class="text-lg sm:text-xl mr-3 flex-shrink-0">❌</div>
-                        <div class="min-w-0 flex-1">
-                            <div class="text-lg sm:text-xl font-bold text-red-800">{{ $failedCount }}</div>
-                            <div class="text-xs sm:text-sm text-red-600 font-medium">Fehlgeschlagen</div>
-                            <!-- Progress Bar -->
-                            @php
-                                $failedProgressPercent = $totalQuestions > 0 ? ($failedCount / $totalQuestions) * 100 : 0;
-                            @endphp
-                            <div class="w-full bg-red-200 rounded-full h-1 mt-1">
-                                <div class="bg-red-500 h-1 rounded-full transition-all duration-500" style="width: {{ $failedProgressPercent }}%"></div>
-                            </div>
-                        </div>
+            <!-- Statistiken -->
+            <div class="stats-grid">
+                <div class="stat-item failed">
+                    <div class="stat-icon">❌</div>
+                    <div class="stat-content">
+                        <div class="stat-value">{{ $failedCount }}</div>
+                        <div class="stat-label">Fehlgeschlagen</div>
+                        @php $failedProgressPercent = $totalQuestions > 0 ? ($failedCount / $totalQuestions) * 100 : 0; @endphp
+                        <div class="stat-progress"><div class="stat-progress-fill" style="width: {{ $failedProgressPercent }}%"></div></div>
                     </div>
+                </div>
 
-                    <!-- Ungelöste Fragen -->
-                    <div class="flex items-center bg-gradient-to-r from-blue-100 to-indigo-100 rounded-lg px-3 py-2 sm:py-3 hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer border border-blue-200">
-                        <div class="text-lg sm:text-xl mr-3 flex-shrink-0">❓</div>
-                        <div class="min-w-0 flex-1">
-                            <div class="text-lg sm:text-xl font-bold text-blue-800">{{ $unsolvedCount }}</div>
-                            <div class="text-xs sm:text-sm text-blue-600 font-medium">Ungelöst</div>
-                            <!-- Progress Bar -->
-                            @php
-                                $unsolvedProgressPercent = $totalQuestions > 0 ? ($unsolvedCount / $totalQuestions) * 100 : 0;
-                            @endphp
-                            <div class="w-full bg-blue-200 rounded-full h-1 mt-1">
-                                <div class="bg-blue-500 h-1 rounded-full transition-all duration-500" style="width: {{ $unsolvedProgressPercent }}%"></div>
-                            </div>
-                        </div>
+                <div class="stat-item unsolved">
+                    <div class="stat-icon">❓</div>
+                    <div class="stat-content">
+                        <div class="stat-value">{{ $unsolvedCount }}</div>
+                        <div class="stat-label">Ungelöst</div>
+                        @php $unsolvedProgressPercent = $totalQuestions > 0 ? ($unsolvedCount / $totalQuestions) * 100 : 0; @endphp
+                        <div class="stat-progress"><div class="stat-progress-fill" style="width: {{ $unsolvedProgressPercent }}%"></div></div>
                     </div>
+                </div>
 
-                    <!-- Gelöste Fragen -->
-                    <div class="flex items-center bg-gradient-to-r from-green-100 to-emerald-100 rounded-lg px-3 py-2 sm:py-3 hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer border border-green-200">
-                        <div class="text-lg sm:text-xl mr-3 flex-shrink-0">✅</div>
-                        <div class="min-w-0 flex-1">
-                            <div class="text-lg sm:text-xl font-bold text-green-800">{{ $solvedCount }}</div>
-                            <div class="text-xs sm:text-sm text-green-600 font-medium">Gemeistert</div>
-                            <!-- Progress Bar (zeigt Gesamt-Fortschritt inkl. 1x richtige) -->
-                            <div class="w-full bg-green-200 rounded-full h-1 mt-1">
-                                <div class="bg-green-500 h-1 rounded-full transition-all duration-500" style="width: {{ $progressPercentage }}%"></div>
-                            </div>
-                        </div>
+                <div class="stat-item solved">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-content">
+                        <div class="stat-value">{{ $solvedCount }}</div>
+                        <div class="stat-label">Gemeistert</div>
+                        <div class="stat-progress"><div class="stat-progress-fill" style="width: {{ $progressPercentage }}%"></div></div>
                     </div>
                 </div>
             </div>
             
             @if($failedCount > 0 || $unsolvedCount > 0)
-                <p class="text-gray-600 mb-4">
-                    <strong>Intelligente Priorisierung:</strong> 
-                    @if($failedCount > 0)
-                        Zuerst werden {{ $failedCount }} fehlgeschlagene Fragen geübt, 
-                    @endif
-                    @if($unsolvedCount > 0)
-                        dann {{ $unsolvedCount }} ungelöste Fragen.
-                    @endif
-                </p>
+            <div class="priority-hint">
+                <strong>Intelligente Priorisierung:</strong> 
+                @if($failedCount > 0)
+                    Zuerst werden {{ $failedCount }} fehlgeschlagene Fragen geübt{{ $unsolvedCount > 0 ? ',' : '.' }}
+                @endif
+                @if($unsolvedCount > 0)
+                    {{ $failedCount > 0 ? 'dann' : 'Zuerst werden' }} {{ $unsolvedCount }} ungelöste Fragen.
+                @endif
+            </div>
             @else
-                <p class="text-gray-600 mb-4">
-                    <strong>Alle Fragen gemeistert!</strong> Jetzt kannst du alle Fragen in zufälliger Reihenfolge wiederholen.
-                </p>
+            <div class="priority-hint">
+                <strong>Alle Fragen gemeistert!</strong> Jetzt kannst du alle Fragen in zufälliger Reihenfolge wiederholen.
+            </div>
             @endif
             
-            <div class="max-w-md mx-auto">
-                <a href="{{ route('practice.all') }}" 
-                   class="block p-6 bg-white border border-blue-200 rounded-lg hover:bg-blue-50 hover:shadow-lg hover:scale-105 transition-all duration-300"
-                   style="background: linear-gradient(to right, #facc15, #f59e0b); color: #1e40af; box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4), 0 0 20px rgba(251, 191, 36, 0.3), 0 0 40px rgba(251, 191, 36, 0.1);">
-                    <div class="flex items-center">
-                        <div class="text-2xl mr-3">🎯</div>
-                        <div class="flex-1">
-                            <div class="text-lg font-bold">
-                                @if($failedCount > 0 || $unsolvedCount > 0)
-                                    Prioritäts-Training starten
-                                @else
-                                    Alle Fragen wiederholen
-                                @endif
-                            </div>
-                            <div class="text-sm opacity-90">
-                                @if($failedCount > 0)
-                                    Schwierige Fragen zuerst
-                                @elseif($unsolvedCount > 0)
-                                    Ungelöste Fragen zuerst
-                                @else
-                                    Zufällige Reihenfolge
-                                @endif
-                            </div>
-                        </div>
+            <a href="{{ route('practice.all') }}" class="start-training-btn">
+                <div class="start-training-icon">🎯</div>
+                <div class="start-training-content">
+                    <div class="start-training-title">
+                        @if($failedCount > 0 || $unsolvedCount > 0)
+                            Prioritäts-Training starten
+                        @else
+                            Alle Fragen wiederholen
+                        @endif
                     </div>
-                </a>
-            </div>
+                    <div class="start-training-subtitle">
+                        @if($failedCount > 0)
+                            Schwierige Fragen zuerst
+                        @elseif($unsolvedCount > 0)
+                            Ungelöste Fragen zuerst
+                        @else
+                            Zufällige Reihenfolge
+                        @endif
+                    </div>
+                </div>
+            </a>
         </div>
 
         <!-- Lernabschnitte -->
-        <div class="bg-white rounded-lg shadow-md p-6">
-            <div class="mb-6">
-                <h2 class="text-xl font-semibold text-blue-800 mb-2">📖 Lernabschnitte</h2>
-                <p class="text-gray-600">Übe gezielt nach Themengebieten strukturiert.</p>
-            </div>
+        <div class="section-card">
+            <h2 class="section-title">📚 Lernabschnitte</h2>
+            <p class="section-description">Übe gezielt nach Themengebieten strukturiert.</p>
             
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div class="sections-grid">
                 @foreach(range(1, 10) as $section)
                     @php
-                        $totalQuestions = $sectionStats[$section]['total'] ?? 0;
-                        $solvedQuestions = $sectionStats[$section]['solved'] ?? 0;
-                        $progressPercent = $totalQuestions > 0 ? round(($solvedQuestions / $totalQuestions) * 100) : 0;
-                        
-                        // Lernabschnittsname aus Controller
+                        $sectionTotal = $sectionStats[$section]['total'] ?? 0;
+                        $sectionSolved = $sectionStats[$section]['solved'] ?? 0;
+                        $sectionPercent = $sectionTotal > 0 ? round(($sectionSolved / $sectionTotal) * 100) : 0;
                         $sectionName = $sectionNames[$section] ?? "Abschnitt $section";
                     @endphp
                     
-                    <a href="{{ route('practice.section', $section) }}" 
-                       class="block p-4 bg-white border border-blue-200 rounded-lg hover:bg-blue-50 hover:shadow-lg hover:scale-105 transition-all duration-300">
-                        <div class="flex items-center">
-                            <div class="text-2xl font-bold text-blue-800 mr-4 flex-shrink-0">{{ $section }}</div>
-                            <div class="min-w-0 flex-1">
-                                <div class="text-sm font-medium text-blue-700 mb-1 leading-tight">{{ $sectionName }}</div>
-                                <div class="text-xs text-gray-600 mb-2">
-                                    {{ $solvedQuestions }}/{{ $totalQuestions }} Fragen
-                                </div>
-                                
-                                <!-- Fortschrittsbalken mit Glow-Effekt wie im Dashboard -->
-                                <div class="w-full bg-gray-200 rounded-full h-1 mt-1">
-                                    <div id="progressBar{{ $section }}" class="h-1 rounded-full shadow-lg" 
-                                         style="width: 0%; background-color: #facc15; box-shadow: 0 0 10px rgba(251, 191, 36, 0.6), 0 0 20px rgba(251, 191, 36, 0.4), 0 0 30px rgba(251, 191, 36, 0.2);"></div>
-                                </div>
-                                
-                                <div class="text-xs text-gray-500 mt-1">{{ $progressPercent }}%</div>
+                    <a href="{{ route('practice.section', $section) }}" class="section-link">
+                        <div class="section-number">{{ $section }}</div>
+                        <div class="section-info">
+                            <div class="section-name">{{ $sectionName }}</div>
+                            <div class="section-stats">{{ $sectionSolved }}/{{ $sectionTotal }} Fragen</div>
+                            <div class="section-progress">
+                                <div class="section-progress-fill" id="progressBar{{ $section }}" style="width: 0%"></div>
                             </div>
+                            <div class="section-percent">{{ $sectionPercent }}%</div>
                         </div>
                     </a>
                 @endforeach
@@ -162,38 +425,31 @@
         </div>
 
         <!-- Zurück zum Dashboard -->
-        <div class="mt-8 text-center">
-            <a href="{{ route('dashboard') }}" 
-               class="inline-flex items-center px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
+        <div class="text-center mt-8">
+            <a href="{{ route('dashboard') }}" class="back-link">
                 ← Zurück zum Dashboard
             </a>
         </div>
     </div>
+</div>
 
-    <script>
-        // Fortschrittsbalken Animation wie im Dashboard
-        document.addEventListener('DOMContentLoaded', function() {
-            // Alle Lernabschnitt-Fortschrittsbalken animieren
-            @foreach(range(1, 10) as $section)
-                @php
-                    $totalQuestions = $sectionStats[$section]['total'] ?? 0;
-                    $solvedQuestions = $sectionStats[$section]['solved'] ?? 0;
-                    $progressPercent = $totalQuestions > 0 ? round(($solvedQuestions / $totalQuestions) * 100) : 0;
-                @endphp
-                
-                const progressBar{{ $section }} = document.getElementById('progressBar{{ $section }}');
-                const targetProgress{{ $section }} = {{ $progressPercent }};
-                
-                // Berechne die Animationsdauer proportional zur Zielbreite
-                const animationDuration{{ $section }} = (targetProgress{{ $section }} / 100) * 1.5;
-                
-                // Animation startet nach 200ms Verzögerung + Stagger-Effekt
-                setTimeout(() => {
-                    progressBar{{ $section }}.style.transition = `width ${animationDuration{{ $section }}}s ease-out`;
-                    progressBar{{ $section }}.style.width = targetProgress{{ $section }} + '%';
-                }, 200 + ({{ $section }} * 100)); // Stagger-Effekt: 100ms pro Abschnitt
-            @endforeach
-        });
-    </script>
-
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    @foreach(range(1, 10) as $section)
+        @php
+            $sectionTotal = $sectionStats[$section]['total'] ?? 0;
+            $sectionSolved = $sectionStats[$section]['solved'] ?? 0;
+            $sectionPercent = $sectionTotal > 0 ? round(($sectionSolved / $sectionTotal) * 100) : 0;
+        @endphp
+        
+        setTimeout(() => {
+            const bar{{ $section }} = document.getElementById('progressBar{{ $section }}');
+            if (bar{{ $section }}) {
+                bar{{ $section }}.style.transition = 'width 0.8s ease-out';
+                bar{{ $section }}.style.width = '{{ $sectionPercent }}%';
+            }
+        }, 200 + ({{ $section }} * 80));
+    @endforeach
+});
+</script>
 @endsection
