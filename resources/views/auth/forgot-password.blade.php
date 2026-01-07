@@ -331,23 +331,6 @@
             font-size: 1rem;
         }
 
-        .auth-info-box {
-            padding: 1.5rem;
-        }
-
-        .auth-info-icon {
-            font-size: 2.5rem;
-            margin-bottom: 0.8rem;
-        }
-
-        .auth-info-title {
-            font-size: 1.1rem;
-        }
-
-        .auth-info-text {
-            font-size: 0.9rem;
-        }
-
         .auth-right {
             padding: 2rem;
             min-height: auto;

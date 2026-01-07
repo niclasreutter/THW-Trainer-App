@@ -534,23 +534,6 @@
             font-size: 1rem;
         }
 
-        .auth-info-box {
-            padding: 1.5rem;
-        }
-
-        .auth-info-icon {
-            font-size: 2.5rem;
-            margin-bottom: 0.8rem;
-        }
-
-        .auth-info-title {
-            font-size: 1.1rem;
-        }
-
-        .auth-info-text {
-            font-size: 0.9rem;
-        }
-
         .auth-right {
             padding: 2rem;
             min-height: auto;
@@ -610,14 +593,41 @@
 </style>
 
 <div class="auth-container">
-    <!-- Left Panel: Security Info -->
+    <!-- Left Panel: Brand & Info -->
     <div class="auth-left">
-        <img src="{{ asset('logo-thwtrainer_w.png') }}" alt="THW-Trainer Logo" class="auth-logo">
-        
-        <div class="auth-info-box">
-            <div class="auth-info-icon">🔐</div>
-            <div class="auth-info-title">Sicheres Passwort</div>
-            <p class="auth-info-text">Wähle ein starkes Passwort mit mindestens 8 Zeichen, bestehend aus Großbuchstaben, Kleinbuchstaben und Zahlen.</p>
+        <div class="auth-left-content">
+            <div class="auth-brand">
+                <div class="auth-brand-text">THW-Trainer</div>
+            </div>
+
+            <div class="auth-headline">
+                <h1>Lerne smarter.<br><span>Werde besser.</span></h1>
+                <p>Bereite dich optimal auf deine THW-Prüfung vor – mit intelligenten Lernmethoden und Fortschrittstracking.</p>
+            </div>
+
+            <div class="auth-stats">
+                <div class="auth-stat">
+                    <div class="auth-stat-number">200+</div>
+                    <div class="auth-stat-label">User</div>
+                </div>
+                <div class="auth-stat">
+                    <div class="auth-stat-number">1.000+</div>
+                    <div class="auth-stat-label">Fragen</div>
+                </div>
+                <div class="auth-stat">
+                    <div class="auth-stat-number">100%</div>
+                    <div class="auth-stat-label">Kostenlos</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="auth-footer">
+            © 2026 THW-Trainer
+            <span class="auth-footer-divider">•</span>
+            <a href="{{ route('datenschutz') }}">Datenschutz</a>
+            <span class="auth-footer-divider">•</span>
+            <a href="{{ route('impressum') }}">Impressum</a>
         </div>
     </div>
 
