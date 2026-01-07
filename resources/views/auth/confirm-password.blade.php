@@ -1,27 +1,642 @@
-<x-guest-layout>
-    <div class="mb-4 text-sm text-gray-600 dark:text-gray-400">
-        {{ __('This is a secure area of the application. Please confirm your password before continuing.') }}
+@extends('layouts.auth')
+
+@section('title', 'Passwort bestätigen - THW Trainer')
+@section('content')
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    .auth-container {
+        display: flex;
+        min-height: 100vh;
+        background: white;
+    }
+
+    .auth-left {
+        flex: 1.5;
+        background: linear-gradient(160deg, #00337F 0%, #001d4a 100%);
+        padding: 3rem 4rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .auth-left::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -30%;
+        width: 80%;
+        height: 150%;
+        background: radial-gradient(circle, rgba(255,255,255,0.03) 0%, transparent 70%);
+        pointer-events: none;
+    }
+
+    .auth-left::after {
+        content: '';
+        position: absolute;
+        bottom: -20%;
+        left: -20%;
+        width: 60%;
+        height: 60%;
+        background: radial-gradient(circle, rgba(255,255,255,0.02) 0%, transparent 60%);
+        pointer-events: none;
+    }
+
+    .auth-left-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        position: relative;
+        z-index: 1;
+    }
+
+    .auth-brand {
+        margin-bottom: 3rem;
+    }
+
+    .auth-brand-text {
+        font-size: 1.2rem;
+        font-weight: 700;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        opacity: 0.9;
+    }
+
+    .auth-headline {
+        margin-bottom: 2rem;
+    }
+
+    .auth-headline h1 {
+        font-size: 3.5rem;
+        font-weight: 800;
+        line-height: 1.1;
+        margin-bottom: 1.5rem;
+    }
+
+    .auth-headline h1 span {
+        display: block;
+        background: linear-gradient(90deg, #fbbf24, #f59e0b);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .auth-headline p {
+        font-size: 1.15rem;
+        opacity: 0.85;
+        line-height: 1.7;
+        max-width: 400px;
+    }
+
+    .auth-stats {
+        display: flex;
+        gap: 3rem;
+        margin-top: 2rem;
+    }
+
+    .auth-stat {
+        text-align: left;
+    }
+
+    .auth-stat-number {
+        font-size: 2.5rem;
+        font-weight: 800;
+        line-height: 1;
+        margin-bottom: 0.3rem;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .auth-stat-label {
+        font-size: 0.85rem;
+        opacity: 0.7;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .auth-footer {
+        position: relative;
+        z-index: 1;
+        padding-top: 2rem;
+        font-size: 0.85rem;
+        opacity: 0.6;
+    }
+
+    .auth-footer a {
+        color: white;
+        text-decoration: none;
+        transition: opacity 0.2s ease;
+    }
+
+    .auth-footer a:hover {
+        opacity: 1;
+    }
+
+    .auth-footer-divider {
+        display: inline-block;
+        margin: 0 0.75rem;
+    }
+
+    .auth-right {
+        flex: 1;
+        background: #f3f4f6;
+        padding: 3rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        overflow-y: auto;
+    }
+
+    .auth-form-container {
+        width: 100%;
+        max-width: 450px;
+    }
+
+    .auth-form-container h2 {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: #00337F;
+        margin-bottom: 0.5rem;
+        text-align: left;
+    }
+
+    .auth-form-container > p {
+        text-align: left;
+        color: #666;
+        margin-bottom: 2rem;
+        font-size: 0.95rem;
+    }
+
+    .error-box {
+        background: rgba(239, 68, 68, 0.1);
+        border: 2px solid rgba(239, 68, 68, 0.3);
+        border-radius: 1rem;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 0 20px rgba(239, 68, 68, 0.2);
+    }
+
+    .error-box h3 {
+        color: #991b1b;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        font-size: 0.95rem;
+    }
+
+    .error-box ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .error-box li {
+        color: #7f1d1d;
+        font-size: 0.9rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .form-row .form-group {
+        margin-bottom: 0;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 1rem 1.2rem;
+        border: 1px solid #e5e7eb;
+        border-radius: 0.75rem;
+        font-size: 1rem;
+        background: white;
+        color: #333;
+        transition: all 0.2s ease;
+        font-family: inherit;
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: #00337F;
+        box-shadow: 0 0 0 3px rgba(0, 51, 127, 0.1);
+        background: white;
+    }
+
+    .form-input::placeholder {
+        color: #9ca3af;
+    }
+
+    .auth-btn {
+        width: 100%;
+        padding: 0.9rem 1rem;
+        background: linear-gradient(135deg, #00337F 0%, #002a66 100%);
+        color: white;
+        border: none;
+        border-radius: 0.8rem;
+        font-size: 1rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0, 51, 127, 0.3);
+        margin-bottom: 1rem;
+    }
+
+    .auth-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 51, 127, 0.4);
+    }
+
+    .auth-btn:active {
+        transform: translateY(0);
+    }
+
+    .auth-divider {
+        border-top: 2px solid #e5e7eb;
+        margin: 1.5rem 0;
+    }
+
+    .auth-back-link {
+        text-align: center;
+        font-size: 0.95rem;
+        color: #666;
+    }
+
+    .auth-back-link a {
+        color: #00337F;
+        font-weight: 600;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+    @media (max-width: 768px) {
+        .auth-container {
+            flex-direction: column;
+        }
+
+        .auth-left {
+            display: none;
+        }
+
+        .auth-right {
+            flex: 1;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        .auth-form-container {
+            max-width: 100%;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .auth-left {
+            padding: 1.5rem;
+        }
+
+        .auth-headline h1 {
+            font-size: 2rem;
+        }
+
+        .auth-headline p {
+            font-size: 0.9rem;
+        }
+
+        .auth-stats {
+            flex-direction: column;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+
+        .auth-stat-number {
+            font-size: 1.8rem;
+        }
+
+        .auth-right {
+            padding: 1.5rem;
+        }
+
+        .auth-form-container h2 {
+            font-size: 1.5rem;
+        }
+
+        .form-input,
+        .auth-btn,
+        .auth-secondary-btn {
+            font-size: 0.95rem;
+            padding: 0.8rem 0.9rem;
+        }
+    }
+</style>
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 1.2rem;
+        padding: 2rem;
+        text-align: center;
+        max-width: 450px;
+    }
+
+    .auth-info-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+
+    .auth-info-title {
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin-bottom: 0.8rem;
+    }
+
+    .auth-info-text {
+        font-size: 0.95rem;
+        opacity: 0.9;
+        line-height: 1.5;
+    }
+
+    .auth-right {
+        flex: 1;
+        background: white;
+        padding: 3rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .auth-form-container {
+        width: 100%;
+        max-width: 400px;
+    }
+
+    .auth-form-container h2 {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: #00337F;
+        margin-bottom: 0.5rem;
+        text-align: center;
+    }
+
+    .auth-form-container > p {
+        text-align: center;
+        color: #666;
+        margin-bottom: 2rem;
+        font-size: 0.95rem;
+    }
+
+    .error-box {
+        background: rgba(239, 68, 68, 0.1);
+        border: 2px solid rgba(239, 68, 68, 0.3);
+        border-radius: 1rem;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 0 15px rgba(239, 68, 68, 0.1);
+    }
+
+    .error-box h3 {
+        color: #991b1b;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        font-size: 0.95rem;
+    }
+
+    .error-box ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .error-box li {
+        color: #7f1d1d;
+        font-size: 0.9rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        display: block;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #00337F;
+        margin-bottom: 0.6rem;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 0.9rem 1rem;
+        border: 2px solid #e5e7eb;
+        border-radius: 0.8rem;
+        font-size: 1rem;
+        background: white;
+        color: #333;
+        transition: all 0.3s ease;
+        font-family: inherit;
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: #00337F;
+        box-shadow: 0 0 0 3px rgba(0, 51, 127, 0.1), 0 0 15px rgba(0, 51, 127, 0.2);
+        background: white;
+    }
+
+    .form-input::placeholder {
+        color: #999;
+    }
+
+    .auth-btn {
+        width: 100%;
+        padding: 0.9rem 1rem;
+        background: linear-gradient(135deg, #00337F 0%, #002a66 100%);
+        color: white;
+        border: none;
+        border-radius: 0.8rem;
+        font-size: 1rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0, 51, 127, 0.3);
+        margin-bottom: 1rem;
+    }
+
+    .auth-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 51, 127, 0.4);
+    }
+
+    .auth-btn:active {
+        transform: translateY(0);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .auth-container {
+            flex-direction: column;
+        }
+
+        .auth-left {
+            padding: 2rem;
+            min-height: auto;
+            text-align: center;
+        }
+
+        .auth-left h1 {
+            font-size: 2rem;
+        }
+
+        .auth-left p {
+            font-size: 1rem;
+        }
+
+        .auth-info-box {
+            padding: 1.5rem;
+        }
+
+        .auth-info-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .auth-info-title {
+            font-size: 1.1rem;
+        }
+
+        .auth-info-text {
+            font-size: 0.9rem;
+        }
+
+        .auth-right {
+            padding: 2rem;
+            min-height: auto;
+        }
+
+        .auth-form-container {
+            max-width: 100%;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .auth-left {
+            padding: 1.5rem;
+            align-items: center;
+            text-align: center;
+        }
+
+        .auth-logo {
+            max-width: 140px;
+        }
+
+        .auth-left h1 {
+            font-size: 1.5rem;
+        }
+
+        .auth-left p {
+            font-size: 0.95rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .auth-info-box {
+            padding: 1rem;
+        }
+
+        .auth-info-icon {
+            font-size: 2rem;
+        }
+
+        .auth-info-title {
+            font-size: 1rem;
+        }
+
+        .auth-right {
+            padding: 1.5rem;
+        }
+
+        .auth-form-container h2 {
+            font-size: 1.5rem;
+        }
+
+        .form-input,
+        .auth-btn {
+            font-size: 0.95rem;
+            padding: 0.8rem 0.9rem;
+        }
+    }
+</style>
+
+<div class="auth-container">
+    <!-- Left Panel: Security Info -->
+    <div class="auth-left">
+        <img src="{{ asset('logo-thwtrainer_w.png') }}" alt="THW-Trainer Logo" class="auth-logo">
+        
+        <div class="auth-info-box">
+            <div class="auth-info-icon">🔐</div>
+            <div class="auth-info-title">Sicherheitsbestätigung</div>
+            <p class="auth-info-text">Dies ist ein sicherer Bereich der Anwendung. Bitte bestätige dein Passwort um fortzufahren.</p>
+        </div>
     </div>
 
-    <form method="POST" action="{{ route('password.confirm') }}">
-        @csrf
+    <!-- Right Panel: Password Confirmation Form -->
+    <div class="auth-right">
+        <div class="auth-form-container">
+            <h2>🔑 Passwort bestätigen</h2>
+            <p>Gib dein aktuelles Passwort ein</p>
 
-        <!-- Password -->
-        <div>
-            <x-input-label for="password" :value="__('Password')" />
+            @if ($errors->any())
+                <div class="error-box">
+                    <h3>❌ Fehler</h3>
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
 
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="current-password" />
+            <form method="POST" action="{{ route('password.confirm') }}">
+                @csrf
 
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
+                <!-- Password Field -->
+                <div class="form-group">
+                    <label for="password">🔒 Passwort</label>
+                    <input id="password"
+                           type="password"
+                           name="password"
+                           required
+                           autocomplete="current-password"
+                           class="form-input"
+                           placeholder="Dein Passwort">
+                </div>
+
+                <!-- Confirm Button -->
+                <button type="submit" class="auth-btn">✅ Bestätigen</button>
+            </form>
         </div>
-
-        <div class="flex justify-end mt-4">
-            <x-primary-button>
-                {{ __('Confirm') }}
-            </x-primary-button>
-        </div>
-    </form>
-</x-guest-layout>
+    </div>
+</div>
+@endsection

@@ -1,119 +1,531 @@
-@extends('layouts.app')
+@extends('layouts.auth')
 
 @section('title', 'Passwort vergessen - THW Trainer')
 @section('description', 'Passwort vergessen? Setze dein THW-Trainer Passwort zurück und erhalte einen sicheren Reset-Link per E-Mail.')
 
 @section('content')
 <style>
-    .gradient-bg {
-        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    * {
+        box-sizing: border-box;
+    }
+
+    .auth-container {
+        display: flex;
         min-height: 100vh;
+        background: white;
     }
-    .reset-card {
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        box-shadow: 0 8px 32px rgba(0, 51, 127, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.05);
-        border-radius: 20px;
+
+    .auth-left {
+        flex: 1.5;
+        background: linear-gradient(160deg, #00337F 0%, #001d4a 100%);
+        padding: 3rem 4rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        color: white;
+        position: relative;
+        overflow: hidden;
     }
+
+    .auth-left::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -30%;
+        width: 80%;
+        height: 150%;
+        background: radial-gradient(circle, rgba(255,255,255,0.03) 0%, transparent 70%);
+        pointer-events: none;
+    }
+
+    .auth-left::after {
+        content: '';
+        position: absolute;
+        bottom: -20%;
+        left: -20%;
+        width: 60%;
+        height: 60%;
+        background: radial-gradient(circle, rgba(255,255,255,0.02) 0%, transparent 60%);
+        pointer-events: none;
+    }
+
+    .auth-left-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        position: relative;
+        z-index: 1;
+    }
+
+    .auth-brand {
+        margin-bottom: 3rem;
+    }
+
+    .auth-brand-text {
+        font-size: 1.2rem;
+        font-weight: 700;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        opacity: 0.9;
+    }
+
+    .auth-headline {
+        margin-bottom: 2rem;
+    }
+
+    .auth-headline h1 {
+        font-size: 3.5rem;
+        font-weight: 800;
+        line-height: 1.1;
+        margin-bottom: 1.5rem;
+    }
+
+    .auth-headline h1 span {
+        display: block;
+        background: linear-gradient(90deg, #fbbf24, #f59e0b);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .auth-headline p {
+        font-size: 1.15rem;
+        opacity: 0.85;
+        line-height: 1.7;
+        max-width: 400px;
+    }
+
+    .auth-stats {
+        display: flex;
+        gap: 3rem;
+        margin-top: 2rem;
+    }
+
+    .auth-stat {
+        text-align: left;
+    }
+
+    .auth-stat-number {
+        font-size: 2.5rem;
+        font-weight: 800;
+        line-height: 1;
+        margin-bottom: 0.3rem;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .auth-stat-label {
+        font-size: 0.85rem;
+        opacity: 0.7;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .auth-footer {
+        position: relative;
+        z-index: 1;
+        padding-top: 2rem;
+        font-size: 0.85rem;
+        opacity: 0.6;
+    }
+
+    .auth-footer a {
+        color: white;
+        text-decoration: none;
+        transition: opacity 0.2s ease;
+    }
+
+    .auth-footer a:hover {
+        opacity: 1;
+    }
+
+    .auth-footer-divider {
+        display: inline-block;
+        margin: 0 0.75rem;
+    }
+
+    .auth-right {
+        flex: 1;
+        background: #f3f4f6;
+        padding: 3rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        overflow-y: auto;
+    }
+
+    .auth-form-container {
+        width: 100%;
+        max-width: 450px;
+    }
+
+    .auth-form-container h2 {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: #00337F;
+        margin-bottom: 0.5rem;
+        text-align: left;
+    }
+
+    .auth-form-container > p {
+        text-align: center;
+        color: #666;
+        margin-bottom: 2rem;
+        font-size: 0.95rem;
+    }
+
+    .success-box {
+        background: rgba(34, 197, 94, 0.1);
+        border: 2px solid rgba(34, 197, 94, 0.3);
+        border-radius: 1rem;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 0 15px rgba(34, 197, 94, 0.1);
+    }
+
+    .success-box h3 {
+        color: #166534;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        font-size: 0.95rem;
+    }
+
+    .success-box p {
+        color: #15803d;
+        font-size: 0.9rem;
+        margin: 0;
+    }
+
+    .error-box {
+        background: rgba(239, 68, 68, 0.1);
+        border: 2px solid rgba(239, 68, 68, 0.3);
+        border-radius: 1rem;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 0 15px rgba(239, 68, 68, 0.1);
+    }
+
+    .error-box h3 {
+        color: #991b1b;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        font-size: 0.95rem;
+    }
+
+    .error-box ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .error-box li {
+        color: #7f1d1d;
+        font-size: 0.9rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        display: block;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #00337F;
+        margin-bottom: 0.6rem;
+    }
+
     .form-input {
-        background: rgba(255, 255, 255, 0.9);
-        border: 2px solid rgba(0, 51, 127, 0.1);
-        border-radius: 12px;
+        width: 100%;
+        padding: 0.9rem 1rem;
+        border: 2px solid #e5e7eb;
+        border-radius: 0.8rem;
+        font-size: 1rem;
+        background: white;
+        color: #333;
         transition: all 0.3s ease;
+        font-family: inherit;
     }
+
     .form-input:focus {
+        outline: none;
         border-color: #00337F;
-        box-shadow: 0 0 0 3px rgba(0, 51, 127, 0.1), 0 0 20px rgba(0, 51, 127, 0.2);
-        background: rgba(255, 255, 255, 1);
+        box-shadow: 0 0 0 3px rgba(0, 51, 127, 0.1), 0 0 15px rgba(0, 51, 127, 0.2);
+        background: white;
     }
-    .reset-btn {
+
+    .form-input::placeholder {
+        color: #999;
+    }
+
+    .form-help {
+        font-size: 0.85rem;
+        color: #666;
+        margin-top: 0.5rem;
+    }
+
+    .auth-btn {
+        width: 100%;
+        padding: 0.9rem 1rem;
         background: linear-gradient(135deg, #00337F 0%, #002a66 100%);
-        border-radius: 12px;
+        color: white;
+        border: none;
+        border-radius: 0.8rem;
+        font-size: 1rem;
+        font-weight: 700;
+        cursor: pointer;
         transition: all 0.3s ease;
         box-shadow: 0 4px 15px rgba(0, 51, 127, 0.3);
+        margin-bottom: 1rem;
     }
-    .reset-btn:hover {
+
+    .auth-btn:hover {
         transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(0, 51, 127, 0.4);
+        box-shadow: 0 6px 20px rgba(0, 51, 127, 0.4);
+    }
+
+    .auth-btn:active {
+        transform: translateY(0);
+    }
+
+    .auth-back-link {
+        text-align: center;
+        font-size: 0.95rem;
+        color: #666;
+    }
+
+    .auth-back-link a {
+        color: #00337F;
+        font-weight: 600;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+    .auth-back-link a:hover {
+        color: #002a66;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .auth-container {
+            flex-direction: column;
+        }
+
+        .auth-left {
+            padding: 2rem;
+            min-height: auto;
+            text-align: center;
+        }
+
+        .auth-left h1 {
+            font-size: 2rem;
+        }
+
+        .auth-left p {
+            font-size: 1rem;
+        }
+
+        .auth-info-box {
+            padding: 1.5rem;
+        }
+
+        .auth-info-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .auth-info-title {
+            font-size: 1.1rem;
+        }
+
+        .auth-info-text {
+            font-size: 0.9rem;
+        }
+
+        .auth-right {
+            padding: 2rem;
+            min-height: auto;
+        }
+
+        .auth-form-container {
+            max-width: 100%;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .auth-left {
+            padding: 1.5rem;
+            align-items: center;
+            text-align: center;
+        }
+
+        .auth-logo {
+            max-width: 140px;
+        }
+
+        .auth-left h1 {
+            font-size: 1.5rem;
+        }
+
+        .auth-left p {
+            font-size: 0.95rem;
+            margin-bottom: 1.5rem;
+        }
+
+    @media (max-width: 768px) {
+        .auth-container {
+            flex-direction: column;
+        }
+
+        .auth-left {
+            display: none;
+        }
+
+        .auth-right {
+            flex: 1;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        .auth-form-container {
+            max-width: 100%;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .auth-left {
+            padding: 1.5rem;
+        }
+
+        .auth-headline h1 {
+            font-size: 2rem;
+        }
+
+        .auth-headline p {
+            font-size: 0.9rem;
+        }
+
+        .auth-stats {
+            flex-direction: column;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+
+        .auth-stat-number {
+            font-size: 1.8rem;
+        }
+
+        .auth-right {
+            padding: 1.5rem;
+        }
+
+        .auth-form-container h2 {
+            font-size: 1.5rem;
+        }
+
+        .form-input,
+        .auth-btn,
+        .auth-secondary-btn {
+            font-size: 0.95rem;
+            padding: 0.8rem 0.9rem;
+        }
     }
 </style>
 
-<div class="gradient-bg flex flex-col justify-center items-center py-12 px-4">
-    <!-- THW Logo -->
-    <div class="text-center mb-8">
-        <div class="mb-4">
-            <img src="{{ asset('logo-thwtrainer.png') }}" alt="THW-Trainer Logo" class="h-16 w-auto mx-auto">
+<div class="auth-container">
+    <!-- Left Panel: Brand & Info -->
+    <div class="auth-left">
+        <div class="auth-left-content">
+            <div class="auth-brand">
+                <div class="auth-brand-text">THW-Trainer</div>
+            </div>
+
+            <div class="auth-headline">
+                <h1>Lerne smarter.<br><span>Werde besser.</span></h1>
+                <p>Bereite dich optimal auf deine THW-Prüfung vor – mit intelligenten Lernmethoden und Fortschrittstracking.</p>
+            </div>
+
+            <div class="auth-stats">
+                <div class="auth-stat">
+                    <div class="auth-stat-number">200+</div>
+                    <div class="auth-stat-label">User</div>
+                </div>
+                <div class="auth-stat">
+                    <div class="auth-stat-number">1.000+</div>
+                    <div class="auth-stat-label">Fragen</div>
+                </div>
+                <div class="auth-stat">
+                    <div class="auth-stat-number">100%</div>
+                    <div class="auth-stat-label">Kostenlos</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="auth-footer">
+            © 2026 THW-Trainer
+            <span class="auth-footer-divider">•</span>
+            <a href="{{ route('datenschutz') }}">Datenschutz</a>
+            <span class="auth-footer-divider">•</span>
+            <a href="{{ route('impressum') }}">Impressum</a>
         </div>
     </div>
 
-    <!-- Reset Card -->
-    <div class="reset-card w-full p-8" style="max-width: 600px; margin: 0 auto;">
-        <div class="text-center mb-6">
-            <h2 class="text-2xl font-bold text-blue-900 mb-2">🔑 Passwort zurücksetzen</h2>
-            <p class="text-gray-600">Gib deine E-Mail-Adresse ein, um einen Reset-Link zu erhalten</p>
-        </div>
+    <!-- Right Panel: Reset Form -->
+    <div class="auth-right">
+        <div class="auth-form-container">
+            <h2>🔑 Passwort zurücksetzen</h2>
+            <p>Gib deine E-Mail-Adresse ein</p>
 
-        @if (session('status'))
-            <div class="mb-6 p-4 rounded-xl" style="background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(22, 163, 74, 0.1) 100%); border: 2px solid rgba(34, 197, 94, 0.3);">
-                <div class="flex items-center mb-2">
-                    <svg class="w-5 h-5 text-green-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                    </svg>
-                    <span class="font-semibold text-green-800">E-Mail gesendet</span>
+            @if (session('status'))
+                <div class="success-box">
+                    <h3>✅ E-Mail gesendet</h3>
+                    <p>{{ session('status') }}</p>
                 </div>
-                <p class="text-green-700 text-sm">{{ session('status') }}</p>
-            </div>
-        @endif
+            @endif
 
-        @if ($errors->any())
-            <div class="mb-6 p-4" style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.1) 100%); border: 2px solid rgba(239, 68, 68, 0.3); border-radius: 12px; box-shadow: 0 0 20px rgba(239, 68, 68, 0.2), 0 0 40px rgba(239, 68, 68, 0.1);">
-                <div class="flex items-center mb-2">
-                    <svg class="w-5 h-5 text-red-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
-                    </svg>
-                    <span class="font-semibold text-red-800">Fehler beim Senden</span>
+            @if ($errors->any())
+                <div class="error-box">
+                    <h3>❌ Fehler beim Senden</h3>
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
                 </div>
-                @foreach ($errors->all() as $error)
-                    <p class="text-red-700 text-sm">{{ $error }}</p>
-                @endforeach
+            @endif
+
+            <form method="POST" action="{{ route('password.email') }}">
+                @csrf
+
+                <!-- Email Field -->
+                <div class="form-group">
+                    <label for="email">📧 E-Mail-Adresse</label>
+                    <input id="email"
+                           type="email"
+                           name="email"
+                           value="{{ old('email') }}"
+                           required
+                           autofocus
+                           class="form-input"
+                           placeholder="deine@email.de">
+                    <p class="form-help">Sollte ein Account mit dieser E-Mail existieren, senden wir dir einen Reset-Link.</p>
+                </div>
+
+                <!-- Reset Button -->
+                <button type="submit" class="auth-btn">🔗 Reset-Link senden</button>
+            </form>
+
+            <!-- Back to Login -->
+            <div class="auth-back-link">
+                <a href="{{ route('login') }}">← Zurück zum Login</a>
             </div>
-        @endif
-
-        <form method="POST" action="{{ route('password.email') }}" class="space-y-6">
-            @csrf
-            
-            <!-- Email Field -->
-            <div>
-                <label for="email" class="block text-sm font-semibold text-blue-900 mb-2">
-                    📧 E-Mail-Adresse
-                </label>
-                <input id="email" 
-                       type="email" 
-                       name="email" 
-                       value="{{ old('email') }}" 
-                       required 
-                       autofocus 
-                       class="form-input w-full px-4 py-3 text-blue-900 placeholder-gray-400"
-                       placeholder="deine@email.de">
-                <p class="text-xs text-gray-600 mt-2">
-                    Sollte ein Account mit dieser E-Mail existieren, senden wir dir einen Reset-Link.
-                </p>
-            </div>
-
-            <!-- Reset Button -->
-            <button type="submit" 
-                    class="reset-btn w-full text-white font-bold py-3 px-6 text-lg">
-                🔗 Reset-Link senden
-            </button>
-        </form>
-
-        <!-- Back to Login -->
-        <div class="mt-8 text-center">
-            <a href="{{ route('login') }}" 
-               class="text-blue-600 hover:text-blue-800 font-semibold transition-colors">
-                ← Zurück zum Login
-            </a>
         </div>
     </div>
 </div>

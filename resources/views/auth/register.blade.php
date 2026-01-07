@@ -1,242 +1,601 @@
 
-@extends('layouts.app')
+@extends('layouts.auth')
 
 @section('title', 'Registrierung - THW Trainer')
 @section('description', 'Erstelle deinen kostenlosen THW-Trainer Account und starte sofort mit dem Lernen. Verfolge deinen Fortschritt und bereite dich optimal auf deine THW-Prüfung vor.')
 
 @section('content')
 <style>
-    .gradient-bg {
-        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    * {
+        box-sizing: border-box;
+    }
+
+    .auth-container {
+        display: flex;
         min-height: 100vh;
+        background: white;
     }
-    .register-card {
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        box-shadow: 0 8px 32px rgba(0, 51, 127, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.05);
-        border-radius: 20px;
+
+    .auth-left {
+        flex: 1.5;
+        background: linear-gradient(160deg, #00337F 0%, #001d4a 100%);
+        padding: 3rem 4rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        color: white;
+        position: relative;
+        overflow: hidden;
     }
-    .form-input {
-        background: rgba(255, 255, 255, 0.9);
-        border: 2px solid rgba(0, 51, 127, 0.1);
-        border-radius: 12px;
-        transition: all 0.3s ease;
+
+    .auth-left::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -30%;
+        width: 80%;
+        height: 150%;
+        background: radial-gradient(circle, rgba(255,255,255,0.03) 0%, transparent 70%);
+        pointer-events: none;
     }
-    .form-input:focus {
-        border-color: #00337F;
-        box-shadow: 0 0 0 3px rgba(0, 51, 127, 0.1), 0 0 20px rgba(0, 51, 127, 0.2);
-        background: rgba(255, 255, 255, 1);
+
+    .auth-left::after {
+        content: '';
+        position: absolute;
+        bottom: -20%;
+        left: -20%;
+        width: 60%;
+        height: 60%;
+        background: radial-gradient(circle, rgba(255,255,255,0.02) 0%, transparent 60%);
+        pointer-events: none;
     }
-    .register-btn {
-        background: linear-gradient(135deg, #00337F 0%, #002a66 100%);
-        border-radius: 12px;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(0, 51, 127, 0.3);
+
+    .auth-left-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        position: relative;
+        z-index: 1;
     }
-    .register-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(0, 51, 127, 0.4);
+
+    .auth-brand {
+        margin-bottom: 3rem;
     }
-    .floating-icon {
-        animation: float 3s ease-in-out infinite;
+
+    .auth-brand-text {
+        font-size: 1.2rem;
+        font-weight: 700;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        opacity: 0.9;
     }
-    @keyframes float {
-        0%, 100% { transform: translateY(0px); }
-        50% { transform: translateY(-10px); }
+
+    .auth-headline {
+        margin-bottom: 2rem;
     }
-    .thw-logo {
-        background: linear-gradient(135deg, #00337F 0%, #002a66 100%);
+
+    .auth-headline h1 {
+        font-size: 3.5rem;
+        font-weight: 800;
+        line-height: 1.1;
+        margin-bottom: 1.5rem;
+    }
+
+    .auth-headline h1 span {
+        display: block;
+        background: linear-gradient(90deg, #fbbf24, #f59e0b);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
     }
-    .benefits-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1rem;
+
+    .auth-headline p {
+        font-size: 1.15rem;
+        opacity: 0.85;
+        line-height: 1.7;
+        max-width: 400px;
     }
-    .benefit-item {
-        background: linear-gradient(135deg, rgba(0, 51, 127, 0.05) 0%, rgba(0, 42, 102, 0.05) 100%);
-        border: 1px solid rgba(0, 51, 127, 0.1);
-        border-radius: 12px;
+
+    .auth-stats {
+        display: flex;
+        gap: 3rem;
+        margin-top: 2rem;
+    }
+
+    .auth-stat {
+        text-align: left;
+    }
+
+    .auth-stat-number {
+        font-size: 2.5rem;
+        font-weight: 800;
+        line-height: 1;
+        margin-bottom: 0.3rem;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .auth-stat-label {
+        font-size: 0.85rem;
+        opacity: 0.7;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .auth-footer {
+        position: relative;
+        z-index: 1;
+        padding-top: 2rem;
+        font-size: 0.85rem;
+        opacity: 0.6;
+    }
+
+    .auth-footer a {
+        color: white;
+        text-decoration: none;
+        transition: opacity 0.2s ease;
+    }
+
+    .auth-footer a:hover {
+        opacity: 1;
+    }
+
+    .auth-footer-divider {
+        display: inline-block;
+        margin: 0 0.75rem;
+    }
+
+    .auth-right {
+        flex: 1;
+        background: #f3f4f6;
+        padding: 3rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        overflow-y: auto;
+    }
+
+    .auth-form-container {
+        width: 100%;
+        max-width: 450px;
+    }
+
+    .auth-form-container h2 {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: #00337F;
+        margin-bottom: 0.5rem;
+        text-align: left;
+    }
+
+    .auth-form-container > p {
+        text-align: left;
+        color: #666;
+        margin-bottom: 2rem;
+        font-size: 0.95rem;
+    }
+
+    .error-box {
+        background: rgba(239, 68, 68, 0.1);
+        border: 2px solid rgba(239, 68, 68, 0.3);
+        border-radius: 1rem;
         padding: 1rem;
-        text-align: center;
-        transition: all 0.3s ease;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 0 20px rgba(239, 68, 68, 0.2);
     }
-    .benefit-item:hover {
+
+    .error-box h3 {
+        color: #991b1b;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        font-size: 0.95rem;
+    }
+
+    .error-box ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .error-box li {
+        color: #7f1d1d;
+        font-size: 0.9rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .form-row .form-group {
+        margin-bottom: 0;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 1rem 1.2rem;
+        border: 1px solid #e5e7eb;
+        border-radius: 0.75rem;
+        font-size: 1rem;
+        background: white;
+        color: #333;
+        transition: all 0.2s ease;
+        font-family: inherit;
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: #00337F;
+        box-shadow: 0 0 0 3px rgba(0, 51, 127, 0.1);
+        background: white;
+    }
+
+    .form-input::placeholder {
+        color: #9ca3af;
+    }
+
+    .consent-box {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 0.75rem;
+        padding: 1rem 1.2rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .consent-checkbox {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+
+    .consent-checkbox input[type="checkbox"] {
+        width: 1.2rem;
+        height: 1.2rem;
+        cursor: pointer;
+        margin-top: 0.1rem;
+        accent-color: #00337F;
+        flex-shrink: 0;
+    }
+
+    .consent-checkbox-content {
+        flex: 1;
+    }
+
+    .consent-checkbox label {
+        cursor: pointer;
+        margin: 0;
+        font-weight: 600;
+        color: #1f2937;
+        font-size: 0.9rem;
+        display: block;
+        margin-bottom: 0.25rem;
+    }
+
+    .consent-description {
+        font-size: 0.8rem;
+        color: #6b7280;
+        line-height: 1.4;
+        margin: 0;
+    }
+
+    .auth-btn {
+        width: 100%;
+        padding: 0.9rem 1rem;
+        background: linear-gradient(135deg, #00337F 0%, #002a66 100%);
+        color: white;
+        border: none;
+        border-radius: 0.8rem;
+        font-size: 1rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0, 51, 127, 0.3);
+        margin-bottom: 1rem;
+    }
+
+    .auth-btn:hover {
         transform: translateY(-2px);
-        box-shadow: 0 4px 15px rgba(0, 51, 127, 0.1);
+        box-shadow: 0 6px 20px rgba(0, 51, 127, 0.4);
+    }
+
+    .auth-btn:active {
+        transform: translateY(0);
+    }
+
+    .auth-secondary-btn {
+        display: block;
+        width: 100%;
+        padding: 0.9rem 1rem;
+        background: white;
+        color: #00337F;
+        border: 2px solid #00337F;
+        border-radius: 0.8rem;
+        font-size: 1rem;
+        font-weight: 700;
+        text-decoration: none;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-bottom: 1rem;
+    }
+
+    .auth-secondary-btn:hover {
+        background: #00337F;
+        color: white;
+    }
+
+    .auth-divider {
+        border-top: 2px solid #e5e7eb;
+        margin: 1.5rem 0;
+    }
+
+    .auth-signup-link {
+        text-align: center;
+        font-size: 0.95rem;
+        color: #666;
+        margin-bottom: 1rem;
+    }
+
+    .auth-signup-link a {
+        color: #00337F;
+        font-weight: 600;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+    @media (max-width: 768px) {
+        .auth-container {
+            flex-direction: column;
+        }
+
+        .auth-left {
+            display: none;
+        }
+
+        .auth-right {
+            flex: 1;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        .auth-form-container {
+            max-width: 100%;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .auth-left {
+            padding: 1.5rem;
+        }
+
+        .auth-headline h1 {
+            font-size: 2rem;
+        }
+
+        .auth-headline p {
+            font-size: 0.9rem;
+        }
+
+        .auth-stats {
+            flex-direction: column;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+
+        .auth-stat-number {
+            font-size: 1.8rem;
+        }
+
+        .auth-right {
+            padding: 1.5rem;
+        }
+
+        .auth-form-container h2 {
+            font-size: 1.5rem;
+        }
+
+        .form-input,
+        .auth-btn,
+        .auth-secondary-btn {
+            font-size: 0.95rem;
+            padding: 0.8rem 0.9rem;
+        }
     }
 </style>
 
-<div class="gradient-bg flex flex-col justify-center items-center py-12 px-4">
-    <!-- THW Logo -->
-    <div class="text-center mb-8">
-        <div class="mb-4">
-            <img src="{{ asset('logo-thwtrainer.png') }}" alt="THW-Trainer Logo" class="h-16 w-auto mx-auto">
+<div class="auth-container">
+    <!-- Left Panel: Brand & Info -->
+    <div class="auth-left">
+        <div class="auth-left-content">
+            <div class="auth-brand">
+                <div class="auth-brand-text">THW-Trainer</div>
+            </div>
+
+            <div class="auth-headline">
+                <h1>Lerne smarter.<br><span>Werde besser.</span></h1>
+                <p>Bereite dich optimal auf deine THW-Prüfung vor – mit intelligenten Lernmethoden und Fortschrittstracking.</p>
+            </div>
+
+            <div class="auth-stats">
+                <div class="auth-stat">
+                    <div class="auth-stat-number">200+</div>
+                    <div class="auth-stat-label">User</div>
+                </div>
+                <div class="auth-stat">
+                    <div class="auth-stat-number">1.000+</div>
+                    <div class="auth-stat-label">Fragen</div>
+                </div>
+                <div class="auth-stat">
+                    <div class="auth-stat-number">100%</div>
+                    <div class="auth-stat-label">Kostenlos</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="auth-footer">
+            © 2026 THW-Trainer
+            <span class="auth-footer-divider">•</span>
+            <a href="{{ route('datenschutz') }}">Datenschutz</a>
+            <span class="auth-footer-divider">•</span>
+            <a href="{{ route('impressum') }}">Impressum</a>
         </div>
     </div>
 
-    <!-- Register Card -->
-    <div class="register-card w-full p-8" style="max-width: 600px; margin: 0 auto;">
-        <div class="text-center mb-6">
-            <h2 class="text-2xl font-bold text-blue-900 mb-2">✨ Kostenlos registrieren</h2>
-            <p class="text-gray-600">Erstelle deinen Account in wenigen Sekunden</p>
-        </div>
+    <!-- Right Panel: Registration Form -->
+    <div class="auth-right">
+        <div class="auth-form-container">
+            <h2>Konto erstellen 🚀</h2>
+            <p>Starte jetzt mit dem THW-Trainer.</p>
 
-        @if ($errors->any())
-            <div class="mb-6 p-4" style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.1) 100%); border: 2px solid rgba(239, 68, 68, 0.3); border-radius: 12px; box-shadow: 0 0 20px rgba(239, 68, 68, 0.2), 0 0 40px rgba(239, 68, 68, 0.1);">
-                <div class="flex items-center mb-2">
-                    <svg class="w-5 h-5 text-red-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
-                    </svg>
-                    <span class="font-semibold text-red-800">Fehler bei der Registrierung</span>
+            @if ($errors->any())
+                <div class="error-box">
+                    <h3>❌ Fehler bei der Registrierung</h3>
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
                 </div>
-                @foreach ($errors->all() as $error)
-                    <p class="text-red-700 text-sm">{{ $error }}</p>
-                @endforeach
-            </div>
-        @endif
+            @endif
 
-        <form method="POST" action="{{ route('register') }}" class="space-y-6">
-            @csrf
-            
-            <!-- Name Field -->
-            <div>
-                <label for="name" class="block text-sm font-semibold text-blue-900 mb-2">
-                    👤 Vollständiger Name
-                </label>
-                <input id="name" 
-                       type="text" 
-                       name="name" 
-                       value="{{ old('name') }}" 
-                       required 
-                       autofocus 
-                       class="form-input w-full px-4 py-3 text-blue-900 placeholder-gray-400"
-                       placeholder="Max Mustermann">
-            </div>
+            <form method="POST" action="{{ route('register') }}">
+                @csrf
 
-            <!-- Email Field -->
-            <div>
-                <label for="email" class="block text-sm font-semibold text-blue-900 mb-2">
-                    📧 E-Mail-Adresse
-                </label>
-                <input id="email" 
-                       type="email" 
-                       name="email" 
-                       value="{{ old('email') }}" 
-                       required 
-                       class="form-input w-full px-4 py-3 text-blue-900 placeholder-gray-400"
-                       placeholder="max@beispiel.de">
-            </div>
+                <!-- Name Field -->
+                <div class="form-group">
+                    <label for="name">Vollständiger Name</label>
+                    <input id="name"
+                           type="text"
+                           name="name"
+                           value="{{ old('name') }}"
+                           required
+                           autofocus
+                           class="form-input"
+                           placeholder="Max Mustermann">
+                </div>
 
-            <!-- Password Field -->
-            <div>
-                <label for="password" class="block text-sm font-semibold text-blue-900 mb-2">
-                    🔒 Passwort
-                </label>
-                <input id="password" 
-                       type="password" 
-                       name="password" 
-                       required 
-                       class="form-input w-full px-4 py-3 text-blue-900 placeholder-gray-400"
-                       placeholder="Mindestens 8 Zeichen">
-            </div>
+                <!-- Email Field -->
+                <div class="form-group">
+                    <label for="email">E-Mail-Adresse</label>
+                    <input id="email"
+                           type="email"
+                           name="email"
+                           value="{{ old('email') }}"
+                           required
+                           class="form-input"
+                           placeholder="max@beispiel.de">
+                </div>
 
-            <!-- Password Confirmation Field -->
-            <div>
-                <label for="password_confirmation" class="block text-sm font-semibold text-blue-900 mb-2">
-                    🔒 Passwort bestätigen
-                </label>
-                <input id="password_confirmation" 
-                       type="password" 
-                       name="password_confirmation" 
-                       required 
-                       class="form-input w-full px-4 py-3 text-blue-900 placeholder-gray-400"
-                       placeholder="Passwort wiederholen">
-            </div>
-            
-            <!-- E-Mail-Zustimmung -->
-            <div class="p-4" style="background: linear-gradient(135deg, rgba(14, 165, 233, 0.1) 0%, rgba(2, 132, 199, 0.1) 100%); border: 2px solid rgba(14, 165, 233, 0.3); box-shadow: 0 0 20px rgba(14, 165, 233, 0.2); border-radius: 12px;">
-                <div class="flex items-start">
-                    <div class="flex-shrink-0">
-                        <svg class="w-5 h-5 mt-1" style="color: #0284c7;" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path>
-                            <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path>
-                        </svg>
+                <!-- Password Fields - Side by Side -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="password">Passwort</label>
+                        <input id="password"
+                               type="password"
+                               name="password"
+                               required
+                               class="form-input"
+                               placeholder="Mindestens 8 Zeichen">
                     </div>
-                    <div class="ml-3 flex-1">
-                        <h3 class="text-sm font-medium" style="color: #0284c7; margin-bottom: 6px;">📧 E-Mail-Benachrichtigungen</h3>
-                        <p class="text-xs" style="color: #0369a1; margin-bottom: 8px;">
-                            Erhalte E-Mails zu deinem Lernfortschritt, neuen Features und wichtigen Systeminformationen.
-                        </p>
-                        <div class="flex items-center">
-                            <input type="checkbox" name="email_consent" id="email_consent" value="1" 
-                                   {{ old('email_consent') ? 'checked' : '' }}
-                                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                            <label for="email_consent" class="ml-2 text-xs font-medium" style="color: #0369a1;">
-                                Ich möchte E-Mail-Benachrichtigungen erhalten
-                            </label>
+
+                    <div class="form-group">
+                        <label for="password_confirmation">Bestätigen</label>
+                        <input id="password_confirmation"
+                               type="password"
+                               name="password_confirmation"
+                               required
+                               class="form-input"
+                               placeholder="Passwort wiederholen">
+                    </div>
+                </div>
+
+                <!-- Email Consent -->
+                <div class="consent-box">
+                    <div class="consent-checkbox">
+                        <input type="checkbox" name="email_consent" id="email_consent" value="1"
+                               {{ old('email_consent') ? 'checked' : '' }}>
+                        <div class="consent-checkbox-content">
+                            <label for="email_consent">E-Mail-Benachrichtigungen</label>
+                            <p class="consent-description">Erhalte Mails zu deinem Lernfortschritt und neuen Features</p>
                         </div>
                     </div>
                 </div>
-            </div>
-            
-            <!-- Leaderboard-Zustimmung -->
-            <div class="p-4" style="background: linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, rgba(245, 158, 11, 0.1) 100%); border: 2px solid rgba(251, 191, 36, 0.3); box-shadow: 0 0 20px rgba(251, 191, 36, 0.2); border-radius: 12px;">
-                <div class="flex items-start">
-                    <div class="flex-shrink-0">
-                        <svg class="w-5 h-5 mt-1" style="color: #d97706;" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"></path>
-                        </svg>
-                    </div>
-                    <div class="ml-3 flex-1">
-                        <h3 class="text-sm font-medium" style="color: #d97706; margin-bottom: 6px;">🏆 Öffentliches Leaderboard</h3>
-                        <p class="text-xs" style="color: #b45309; margin-bottom: 8px;">
-                            Erscheine im öffentlichen Leaderboard und messe dich mit anderen Lernenden. Du kannst diese Einstellung jederzeit in deinem Profil ändern.
-                        </p>
-                        <div class="flex items-center">
-                            <input type="checkbox" name="leaderboard_consent" id="leaderboard_consent" value="1" 
-                                   {{ old('leaderboard_consent') ? 'checked' : '' }}
-                                   class="h-4 w-4 text-amber-600 focus:ring-amber-500 border-gray-300 rounded">
-                            <label for="leaderboard_consent" class="ml-2 text-xs font-medium" style="color: #b45309;">
-                                Ich möchte im öffentlichen Leaderboard erscheinen
-                            </label>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Register Button -->
-            <button type="submit" 
-                    class="register-btn w-full text-white font-bold py-3 px-6 text-lg">
-                🚀 Account erstellen
-            </button>
-        </form>
 
-        <!-- Login Link -->
-        <div class="mt-8 text-center">
-            <p class="text-gray-600 text-sm">
-                Bereits registriert? 
-                <a href="{{ route('login') }}" 
-                   class="text-blue-600 hover:text-blue-800 font-semibold transition-colors">
-                    Jetzt anmelden →
-                </a>
-            </p>
-        </div>
+                <!-- Register Button -->
+                <button type="submit" class="auth-btn">🚀 Account erstellen</button>
+            </form>
 
-        <!-- Guest Access -->
-        <div class="mt-6 pt-6 border-t border-gray-200">
-            <p class="text-center text-gray-600 text-sm mb-3">
-                Oder lerne direkt ohne Anmeldung:
-            </p>
-            <a href="{{ route('guest.practice.menu') }}" 
-               class="block w-full text-center py-2 px-4 border-2 border-blue-600 text-blue-600 rounded-lg font-medium hover:bg-blue-600 hover:text-white transition-all duration-200">
-                🎯 Als Gast üben
-            </a>
+            <!-- Guest Access Button -->
+            <a href="{{ route('guest.practice.menu') }}" class="auth-secondary-btn">🎯 Als Gast üben</a>
+
+            <!-- Divider -->
+            <div class="auth-divider"></div>
+
+            <!-- Login Link -->
+            <div class="auth-signup-link">
+                Bereits registriert? <a href="{{ route('login') }}">Jetzt anmelden →</a>
+            </div>
         </div>
     </div>
-
 </div>
+
+<script>
+    function animateCounter(element, target, duration = 2000) {
+        const startTime = Date.now();
+        const startValue = 0;
+        
+        const isPercentage = target === 100;
+        const displayTarget = isPercentage ? 100 : target;
+        
+        function update() {
+            const elapsed = Date.now() - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            
+            // Easing function for smooth animation
+            const easeOutQuad = 1 - Math.pow(1 - progress, 2);
+            const currentValue = Math.floor(easeOutQuad * displayTarget);
+            
+            if (isPercentage) {
+                element.textContent = currentValue + '%';
+            } else {
+                element.textContent = currentValue.toLocaleString('de-DE') + '+';
+            }
+            
+            if (progress < 1) {
+                requestAnimationFrame(update);
+            }
+        }
+        
+        update();
+    }
+    
+    // Start animation when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        const stats = document.querySelectorAll('.auth-stat-number');
+        const targets = [200, 1000, 100];
+        
+        stats.forEach((stat, index) => {
+            animateCounter(stat, targets[index]);
+        });
+    });
+</script>
 @endsection
