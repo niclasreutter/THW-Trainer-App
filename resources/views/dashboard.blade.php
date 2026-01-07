@@ -493,7 +493,9 @@
         ? $user->solved_questions 
         : (is_string($user->solved_questions) ? json_decode($user->solved_questions, true) ?? [] : []);
     $progress = count($progressArr);
-    $exams = $user->exam_passed_count ?? 0;
+    
+    // Hole bestanden Prüfungen von ExamStatistic statt aus User-Feld
+    $exams = \App\Models\ExamStatistic::where('user_id', $user->id)->where('is_passed', true)->count();
     
     try {
         $progressData = \App\Models\UserQuestionProgress::where('user_id', $user->id)->get();
@@ -720,6 +722,51 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') dismi
                 @endif
             </div>
         </div>
+
+        @if(!empty($recentExams) && $recentExams->count() > 0)
+        <div style="background: white; border: 1px solid #e5e7eb; border-radius: 1.25rem; padding: 1.75rem; margin-bottom: 1.75rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);">
+            <h2 class="section-title">📊 Deine letzten Prüfungen</h2>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+                @php
+                    $totalPercentage = 0;
+                    $passedCount = 0;
+                    $totalQuestionsPerExam = 40; // Standard: immer 40 Fragen pro Prüfung
+                @endphp
+                @foreach($recentExams as $exam)
+                    @php
+                        $percentage = round(($exam->correct_answers / $totalQuestionsPerExam) * 100);
+                        $totalPercentage += $percentage;
+                        if ($exam->is_passed) $passedCount++;
+                    @endphp
+                    <div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 1rem; padding: 1.25rem; transition: all 0.2s ease; display: flex; flex-direction: column;">
+                        <div style="display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1rem;">
+                            <div>
+                                <div style="font-size: 0.85rem; color: #6b7280; margin-bottom: 0.25rem;">{{ $exam->created_at->format('d.m.Y H:i') }} Uhr</div>
+                                <div style="font-size: 1.5rem; font-weight: 800; color: #00337F;">{{ $percentage }}%</div>
+                            </div>
+                            <div style="font-size: 1.5rem;">{{ $exam->is_passed ? '✅' : '❌' }}</div>
+                        </div>
+                        <div style="font-size: 0.85rem; color: #6b7280; margin-bottom: 0.75rem;">{{ $exam->correct_answers }}/{{ $totalQuestionsPerExam }} richtig</div>
+                        <span style="font-size: 0.8rem; font-weight: 700; padding: 0.35rem 0.75rem; border-radius: 0.5rem; text-align: center; background: {{ $exam->is_passed ? 'rgba(34, 197, 94, 0.15); color: #16a34a;' : 'rgba(239, 68, 68, 0.15); color: #dc2626;' }}">
+                            {{ $exam->is_passed ? '✓ BESTANDEN' : 'NICHT BESTANDEN' }}
+                        </span>
+                    </div>
+                @endforeach
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; border-top: 1px solid #e5e7eb; padding-top: 1rem;">
+                <div>
+                    <div style="font-size: 0.8rem; color: #6b7280; margin-bottom: 0.25rem;">Durchschnitt</div>
+                    <div style="font-size: 1.75rem; font-weight: 800; color: #00337F;">{{ round($totalPercentage / $recentExams->count()) }}%</div>
+                </div>
+                <div>
+                    <div style="font-size: 0.8rem; color: #6b7280; margin-bottom: 0.25rem;">Erfolgsrate</div>
+                    <div style="font-size: 1.75rem; font-weight: 800; color: {{ $passedCount >= 3 ? '#16a34a' : '#dc2626' }};">{{ round(($passedCount / $recentExams->count()) * 100) }}%</div>
+                </div>
+            </div>
+        </div>
+        @endif
 
         <div class="section-header">
             <h2 class="section-title">📚 Deine Lehrgänge</h2>
