@@ -264,27 +264,27 @@
         <div class="stats-grid">
             <div class="stat-card">
                 <div class="stat-icon">👥</div>
-                <div class="stat-value">{{ $stats['total_members'] }}</div>
+                <div class="stat-value">{{ $stats['total_members'] ?? 0 }}</div>
                 <div class="stat-label">Mitglieder</div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon">✅</div>
-                <div class="stat-value">{{ $stats['active_members'] }}</div>
+                <div class="stat-value">{{ $stats['active_members'] ?? 0 }}</div>
                 <div class="stat-label">Aktiv (7 Tage)</div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon">📚</div>
-                <div class="stat-value">{{ $stats['avg_theory'] }}%</div>
+                <div class="stat-value">{{ $stats['avg_theory'] ?? 0 }}%</div>
                 <div class="stat-label">Ø Theorie</div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon">🎯</div>
-                <div class="stat-value">{{ $stats['avg_exams'] }}</div>
+                <div class="stat-value">{{ $stats['avg_exams'] ?? 0 }}</div>
                 <div class="stat-label">Ø Prüfungen</div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon">🔥</div>
-                <div class="stat-value">{{ $stats['avg_streak'] }}</div>
+                <div class="stat-value">{{ $stats['avg_streak'] ?? 0 }}</div>
                 <div class="stat-label">Ø Streak</div>
             </div>
         </div>

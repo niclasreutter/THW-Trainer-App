@@ -195,7 +195,8 @@ class Ortsverband extends Model
                 'avg_theory' => 0,
                 'avg_exams' => 0,
                 'avg_streak' => 0,
-                'total_members' => 0
+                'total_members' => 0,
+                'active_members' => 0
             ];
         }
         
