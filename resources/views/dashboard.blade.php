@@ -814,6 +814,7 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') dismi
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.0/dist/confetti.browser.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     setTimeout(() => {
@@ -821,6 +822,17 @@ document.addEventListener('DOMContentLoaded', function() {
         const examBar = document.getElementById('examProgressBar');
         if (theoryBar) { theoryBar.style.transition = 'width 1s ease-out'; theoryBar.style.width = '{{ $progressPercent }}%'; }
         if (examBar) { examBar.style.transition = 'width 1s ease-out'; examBar.style.width = '{{ min(100, $exams * 20) }}%'; }
+        
+        // Konfetti wenn Theorie Lernen 100% hat
+        @if($progressPercent == 100)
+        setTimeout(() => {
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 }
+            });
+        }, 1500);
+        @endif
     }, 200);
     
     @if($exams >= 5)

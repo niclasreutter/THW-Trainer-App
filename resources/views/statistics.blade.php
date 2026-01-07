@@ -3,300 +3,563 @@
 @section('title', 'Statistiken - THW Trainer')
 @section('description', 'Öffentliche Statistiken über alle beantworteten Fragen im THW-Trainer. Sehen Sie, welche Fragen am häufigsten richtig oder falsch beantwortet wurden.')
 
-@section('content')
+@push('styles')
 <style>
-    .gradient-blue { background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); }
-    .gradient-green { background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); }
-    .gradient-red { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
-    .gradient-yellow { background: linear-gradient(135deg, #facc15 0%, #f59e0b 100%); }
-    .card-shadow { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
-    .hover-scale { transition: transform 0.2s ease-in-out; }
-    .hover-scale:hover { transform: scale(1.02); }
+    * { box-sizing: border-box; }
+
+    .statistics-wrapper {
+        min-height: 100vh;
+        background: #f3f4f6;
+        position: relative;
+        overflow-x: hidden;
+    }
+
+    .statistics-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .statistics-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+        padding-top: 1rem;
+    }
+
+    .statistics-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: #00337F;
+        margin-bottom: 0.5rem;
+        line-height: 1.2;
+    }
+
+    .statistics-subtitle {
+        font-size: 1.1rem;
+        color: #4b5563;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2.5rem;
+    }
+
+    .stat-card {
+        border-radius: 1.25rem;
+        padding: 1.75rem;
+        color: white;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    .stat-card.blue { background: linear-gradient(135deg, #00337F 0%, #002a66 100%); }
+    .stat-card.green { background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); }
+    .stat-card.red { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
+    .stat-card.orange { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+
+    .stat-card-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+
+    .stat-card-info {
+        flex: 1;
+    }
+
+    .stat-label {
+        font-size: 0.85rem;
+        opacity: 0.9;
+        margin-bottom: 0.25rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 800;
+        line-height: 1;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-subtext {
+        font-size: 0.85rem;
+        opacity: 0.85;
+    }
+
+    .stat-icon {
+        font-size: 3rem;
+        opacity: 0.3;
+        flex-shrink: 0;
+    }
+
+    .section-card {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 1.25rem;
+        padding: 2rem;
+        margin-bottom: 2.5rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: #1f2937;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .section-title-icon {
+        font-size: 1.75rem;
+    }
+
+    .section-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1rem;
+    }
+
+    .stat-item {
+        border: 1px solid #e5e7eb;
+        border-radius: 1rem;
+        padding: 1.25rem;
+        transition: all 0.2s ease;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .stat-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    }
+
+    .stat-item-name {
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 0.75rem;
+        font-size: 0.95rem;
+        line-height: 1.3;
+    }
+
+    .stat-item-row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.85rem;
+        color: #6b7280;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-item-row:last-of-type { margin-bottom: 0.75rem; }
+
+    .stat-item-count { font-weight: 600; }
+    .stat-item-correct { color: #22c55e; }
+    .stat-item-wrong { color: #ef4444; }
+
+    .stat-item > div:nth-child(2) {
+        flex: 1;
+    }
+
+    .stat-item > div:last-child {
+        margin-top: auto;
+    }
+
+    .progress-bar {
+        width: 100%;
+        height: 6px;
+        background: #e5e7eb;
+        border-radius: 3px;
+        overflow: hidden;
+        display: flex;
+        margin-bottom: 0.5rem;
+    }
+
+    .progress-correct {
+        height: 100%;
+        background: linear-gradient(90deg, #22c55e, #16a34a);
+        transition: width 0.5s ease;
+    }
+
+    .progress-wrong {
+        height: 100%;
+        background: linear-gradient(90deg, #ef4444, #dc2626);
+        transition: width 0.5s ease;
+    }
+
+    .progress-label {
+        font-size: 0.75rem;
+        color: #6b7280;
+        margin-top: 0.25rem;
+    }
+
+    .questions-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        gap: 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .questions-grid { grid-template-columns: 1fr; }
+    }
+
+    .question-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .question-item {
+        border-left: 4px solid;
+        border-radius: 0.75rem;
+        padding: 1.25rem;
+        background: #f9fafb;
+        transition: all 0.2s ease;
+    }
+
+    .question-item:hover {
+        transform: translateX(4px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    }
+
+    .question-item.wrong {
+        border-left-color: #ef4444;
+    }
+
+    .question-item.correct {
+        border-left-color: #22c55e;
+    }
+
+    .question-rank {
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: #1f2937;
+        display: inline-block;
+        width: 32px;
+        margin-right: 0.5rem;
+    }
+
+    .question-text {
+        font-size: 0.9rem;
+        color: #1f2937;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+    }
+
+    .question-section {
+        font-size: 0.75rem;
+        color: #6b7280;
+        margin-bottom: 0.75rem;
+    }
+
+    .question-stats {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.85rem;
+        color: #6b7280;
+        margin-bottom: 0.75rem;
+    }
+
+    .question-rate {
+        font-size: 1.25rem;
+        font-weight: 800;
+        text-align: right;
+        min-width: 80px;
+    }
+
+    .question-rate.wrong { color: #ef4444; }
+    .question-rate.correct { color: #22c55e; }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+        color: #6b7280;
+    }
+
+    .empty-icon { font-size: 2rem; margin-bottom: 1rem; }
+
+    .info-banner {
+        background: rgba(59, 130, 246, 0.1);
+        border-left: 4px solid #00337F;
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        margin-top: 2rem;
+    }
+
+    .info-banner-title {
+        font-weight: 700;
+        color: #00337F;
+        margin-bottom: 0.5rem;
+    }
+
+    .info-banner-text {
+        font-size: 0.9rem;
+        color: #4b5563;
+        line-height: 1.5;
+    }
+
+    @media (max-width: 640px) {
+        .statistics-container { padding: 1rem; }
+        .statistics-title { font-size: 1.75rem; }
+        .section-stats-grid { grid-template-columns: 1fr; }
+    }
 </style>
+@endpush
 
-<div class="max-w-7xl mx-auto p-6">
-    <div class="text-center mb-8">
-        <h1 class="text-4xl font-bold text-blue-800 mb-2">📊 THW-Trainer Statistiken</h1>
-        <p class="text-gray-600">Anonyme Statistiken über alle beantworteten Fragen</p>
-    </div>
-
-    <!-- Gesamt-Statistiken KPI Karten -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
-        <!-- Gesamt beantwortet -->
-        <div class="rounded-xl p-6 text-white hover-scale cursor-pointer"
-             style="background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4), 0 0 20px rgba(37, 99, 235, 0.3), 0 0 40px rgba(37, 99, 235, 0.1); border-radius: 12px;">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-blue-100 text-sm font-medium">Gesamt beantwortet</p>
-                    <p class="text-3xl font-bold">{{ number_format($totalAnswered) }}</p>
-                    <p class="text-blue-100 text-sm">{{ number_format($totalAnsweredToday) }} Heute</p>
-                </div>
-                <div class="bg-white bg-opacity-20 rounded-full p-3">
-                    <i class="fas fa-chart-bar text-2xl"></i>
-                </div>
-            </div>
+@section('content')
+<div class="statistics-wrapper">
+    <div class="statistics-container">
+        <div class="statistics-header">
+            <h1 class="statistics-title">📊 THW-Trainer Statistiken</h1>
+            <p class="statistics-subtitle">Anonyme Statistiken über alle beantworteten Fragen</p>
         </div>
 
-        <!-- Richtig beantwortet -->
-        <div class="rounded-xl p-6 text-white hover-scale cursor-pointer"
-             style="background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); box-shadow: 0 4px 15px rgba(34, 197, 94, 0.6), 0 0 25px rgba(34, 197, 94, 0.4), 0 0 50px rgba(34, 197, 94, 0.2); border-radius: 12px;">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-green-100 text-sm font-medium">Richtig beantwortet</p>
-                    <p class="text-3xl font-bold">{{ number_format($totalCorrect) }}</p>
-                    <p class="text-green-100 text-sm">{{ $successRate }}% Erfolgsrate</p>
-                </div>
-                <div class="bg-white bg-opacity-20 rounded-full p-3">
-                    <i class="fas fa-check-circle text-2xl"></i>
-                </div>
-            </div>
-        </div>
-
-        <!-- Falsch beantwortet -->
-        <div class="rounded-xl p-6 text-white hover-scale cursor-pointer"
-             style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4), 0 0 20px rgba(239, 68, 68, 0.3), 0 0 40px rgba(239, 68, 68, 0.1); border-radius: 12px;">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-red-100 text-sm font-medium">Falsch beantwortet</p>
-                    <p class="text-3xl font-bold">{{ number_format($totalWrong) }}</p>
-                    <p class="text-red-100 text-sm">{{ $errorRate }}% Fehlerrate</p>
-                </div>
-                <div class="bg-white bg-opacity-20 rounded-full p-3">
-                    <i class="fas fa-times-circle text-2xl"></i>
-                </div>
-            </div>
-        </div>
-
-        <!-- Prüfungen -->
-        <div class="rounded-xl p-6 text-white hover-scale cursor-pointer"
-             style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4), 0 0 20px rgba(245, 158, 11, 0.3), 0 0 40px rgba(245, 158, 11, 0.1); border-radius: 12px;">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-orange-100 text-sm font-medium">Prüfungen</p>
-                    <p class="text-3xl font-bold">{{ number_format($totalExams) }}</p>
-                    <p class="text-orange-100 text-sm">{{ number_format($passedExams) }} bestanden ({{ $examPassRate }}%)</p>
-                </div>
-                <div class="bg-white bg-opacity-20 rounded-full p-3">
-                    <i class="fas fa-clipboard-check text-2xl"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Lernabschnitt-Statistiken -->
-    @if($sectionStats->isNotEmpty())
-    <div class="bg-white rounded-xl p-6 card-shadow mb-12">
-        <div class="flex items-center mb-6">
-            <i class="fas fa-book text-blue-600 text-2xl mr-3"></i>
-            <h2 class="text-2xl font-bold text-gray-800">Statistik nach Lernabschnitten</h2>
-        </div>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            @foreach($sectionStats as $stat)
-                @php
-                    $sectionNames = [
-                        1 => 'Das THW im Gefüge des Zivil- und Katastrophenschutzes',
-                        2 => 'Arbeitssicherheit und Gesundheitsschutz', 
-                        3 => 'Arbeiten mit Leinen, Drahtseilen, Ketten, Rund- und Bandschlingen',
-                        4 => 'Arbeiten mit Leitern',
-                        5 => 'Stromerzeugung und Beleuchtung',
-                        6 => 'Metall-, Holz- und Steinbearbeitung',
-                        7 => 'Bewegen von Lasten',
-                        8 => 'Arbeiten am und auf dem Wasser',
-                        9 => 'Einsatzgrundlagen',
-                        10 => 'Grundlagen der Rettung und Bergung'
-                    ];
-                    $sectionName = $sectionNames[$stat->lernabschnitt] ?? 'Unbekannt';
-                @endphp
-                <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all duration-200">
-                    <div class="flex items-start justify-between mb-2">
-                        <div class="flex-1">
-                            <h3 class="font-semibold text-gray-800 text-sm">{{ $stat->lernabschnitt }}. {{ $sectionName }}</h3>
-                        </div>
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card blue">
+                <div class="stat-card-content">
+                    <div class="stat-card-info">
+                        <div class="stat-label">Gesamt beantwortet</div>
+                        <div class="stat-value">{{ number_format($totalAnswered) }}</div>
+                        <div class="stat-subtext">{{ number_format($totalAnsweredToday) }} heute</div>
                     </div>
-                    <div class="flex items-center justify-between text-xs text-gray-600 mb-2">
-                        <span>{{ number_format($stat->total_attempts) }} Versuche</span>
-                        <div class="flex gap-3">
-                            <span class="text-green-600 font-semibold">✓ {{ number_format($stat->correct_count) }}</span>
-                            <span class="text-red-600 font-semibold">✗ {{ number_format($stat->wrong_count) }}</span>
-                        </div>
-                    </div>
-                    <!-- Stacked Progress Bar (Grün/Rot Verteilung) -->
-                    <div class="w-full bg-gray-200 rounded-full h-3 flex" style="overflow: visible; position: relative;">
-                        <div class="h-3 transition-all duration-500" 
-                             style="width: {{ $stat->success_rate }}%; 
-                                    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); 
-                                    box-shadow: 0 0 6px rgba(34, 197, 94, 0.5), 0 0 12px rgba(34, 197, 94, 0.2);
-                                    border: 1px solid rgba(34, 197, 94, 0.3);
-                                    border-radius: {{ $stat->success_rate == 100 ? '12px' : '12px 0 0 12px' }};"
-                             title="Richtig: {{ $stat->success_rate }}%"></div>
-                        <div class="h-3 transition-all duration-500" 
-                             style="width: {{ 100 - $stat->success_rate }}%; 
-                                    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); 
-                                    box-shadow: 0 0 6px rgba(239, 68, 68, 0.5), 0 0 12px rgba(239, 68, 68, 0.2);
-                                    border: 1px solid rgba(239, 68, 68, 0.3);
-                                    border-radius: {{ $stat->success_rate == 0 ? '12px' : '0 12px 12px 0' }};"
-                             title="Falsch: {{ 100 - $stat->success_rate }}%"></div>
-                    </div>
+                    <div class="stat-icon">📊</div>
                 </div>
-            @endforeach
-        </div>
-    </div>
-    @endif
-
-    <!-- Top 10 Schwierigste Fragen -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-12">
-        <!-- Top 10 Falsch -->
-        <div class="bg-white rounded-xl p-6 card-shadow">
-            <div class="flex items-center mb-6">
-                <i class="fas fa-exclamation-triangle text-red-500 text-2xl mr-3"></i>
-                <h2 class="text-2xl font-bold text-gray-800">Top 10 Schwierigste Fragen</h2>
             </div>
+
+            <div class="stat-card green">
+                <div class="stat-card-content">
+                    <div class="stat-card-info">
+                        <div class="stat-label">Richtig beantwortet</div>
+                        <div class="stat-value">{{ number_format($totalCorrect) }}</div>
+                        <div class="stat-subtext">{{ $successRate }}% Erfolgsrate</div>
+                    </div>
+                    <div class="stat-icon">✓</div>
+                </div>
+            </div>
+
+            <div class="stat-card red">
+                <div class="stat-card-content">
+                    <div class="stat-card-info">
+                        <div class="stat-label">Falsch beantwortet</div>
+                        <div class="stat-value">{{ number_format($totalWrong) }}</div>
+                        <div class="stat-subtext">{{ $errorRate }}% Fehlerrate</div>
+                    </div>
+                    <div class="stat-icon">✗</div>
+                </div>
+            </div>
+
+            <div class="stat-card orange">
+                <div class="stat-card-content">
+                    <div class="stat-card-info">
+                        <div class="stat-label">Prüfungen</div>
+                        <div class="stat-value">{{ number_format($totalExams) }}</div>
+                        <div class="stat-subtext">{{ number_format($passedExams) }} bestanden ({{ $examPassRate }}%)</div>
+                    </div>
+                    <div class="stat-icon">🏆</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lernabschnitt-Statistiken -->
+        @if($sectionStats->isNotEmpty())
+        <div class="section-card">
+            <h2 class="section-title">
+                <span class="section-title-icon">📚</span>
+                Statistik nach Lernabschnitten
+            </h2>
             
-            @if($topWrongQuestionsWithDetails->isEmpty())
-                <div class="text-center py-8 text-gray-500">
-                    <i class="fas fa-chart-line text-4xl mb-2"></i>
-                    <p>Noch nicht genügend Daten verfügbar</p>
-                    <p class="text-sm">(mindestens 5 Versuche pro Frage erforderlich)</p>
-                </div>
-            @else
-                <div class="space-y-3">
-                    @foreach($topWrongQuestionsWithDetails as $index => $item)
-                        <div class="border-l-4 border-red-500 bg-red-50 rounded-r-lg p-4 hover:shadow-md transition-all duration-200">
-                            <div class="flex items-start justify-between mb-2">
-                                <div class="flex items-start space-x-3 flex-1">
-                                    <span class="font-bold text-red-600 text-lg">{{ $index + 1 }}.</span>
-                                    <div class="flex-1">
-                                        <p class="text-sm text-gray-800 font-medium">{{ Str::limit($item['question']->frage, 120) }}</p>
-                                        <p class="text-xs text-gray-500 mt-1">Lernabschnitt {{ $item['question']->lernabschnitt }}</p>
-                                    </div>
-                                </div>
-                                <div class="ml-2 text-right">
-                                    <div class="font-bold text-xl text-red-600">{{ $item['error_rate'] }}%</div>
-                                    <div class="text-xs text-gray-500">Fehlerrate</div>
-                                </div>
-                            </div>
-                            <div class="flex items-center justify-between text-xs text-gray-600 mt-2">
-                                <span>{{ number_format($item['total_attempts']) }} Versuche</span>
-                                <div class="flex gap-2">
-                                    <span class="text-red-600">✗ {{ number_format($item['wrong_count']) }}</span>
-                                    <span class="text-green-600">✓ {{ number_format($item['correct_count']) }}</span>
-                                </div>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-            @endif
-        </div>
-
-        <!-- Top 10 Richtig -->
-        <div class="bg-white rounded-xl p-6 card-shadow">
-            <div class="flex items-center mb-6">
-                <i class="fas fa-star text-green-500 text-2xl mr-3"></i>
-                <h2 class="text-2xl font-bold text-gray-800">Top 10 Einfachste Fragen</h2>
-            </div>
-            
-            @if($topCorrectQuestionsWithDetails->isEmpty())
-                <div class="text-center py-8 text-gray-500">
-                    <i class="fas fa-chart-line text-4xl mb-2"></i>
-                    <p>Noch nicht genügend Daten verfügbar</p>
-                    <p class="text-sm">(mindestens 5 Versuche pro Frage erforderlich)</p>
-                </div>
-            @else
-                <div class="space-y-3">
-                    @foreach($topCorrectQuestionsWithDetails as $index => $item)
-                        <div class="border-l-4 border-green-500 bg-green-50 rounded-r-lg p-4 hover:shadow-md transition-all duration-200">
-                            <div class="flex items-start justify-between mb-2">
-                                <div class="flex items-start space-x-3 flex-1">
-                                    <span class="font-bold text-green-600 text-lg">{{ $index + 1 }}.</span>
-                                    <div class="flex-1">
-                                        <p class="text-sm text-gray-800 font-medium">{{ Str::limit($item['question']->frage, 120) }}</p>
-                                        <p class="text-xs text-gray-500 mt-1">Lernabschnitt {{ $item['question']->lernabschnitt }}</p>
-                                    </div>
-                                </div>
-                                <div class="ml-2 text-right">
-                                    <div class="font-bold text-xl text-green-600">{{ $item['success_rate'] }}%</div>
-                                    <div class="text-xs text-gray-500">Erfolgsrate</div>
-                                </div>
-                            </div>
-                            <div class="flex items-center justify-between text-xs text-gray-600 mt-2">
-                                <span>{{ number_format($item['total_attempts']) }} Versuche</span>
-                                <div class="flex gap-2">
-                                    <span class="text-green-600">✓ {{ number_format($item['correct_count']) }}</span>
-                                    <span class="text-red-600">✗ {{ number_format($item['wrong_count']) }}</span>
-                                </div>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-            @endif
-        </div>
-    </div>
-
-    <!-- Lehrgang-Statistiken -->
-    @if($lehrgangStats->isNotEmpty())
-    <div class="bg-white rounded-xl p-6 card-shadow mb-12">
-        <div class="flex items-center mb-6">
-            <i class="fas fa-graduation-cap text-purple-600 text-2xl mr-3"></i>
-            <h2 class="text-2xl font-bold text-gray-800">Lehrgänge</h2>
-        </div>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            @foreach($lehrgangStats as $lehrgang)
-                <div class="border-2 border-gray-200 rounded-lg p-4 hover:shadow-lg transition">
-                    <h3 class="font-bold text-gray-800 mb-3">{{ $lehrgang->name }}</h3>
-                    
-                    <div class="space-y-2 text-sm">
-                        <!-- Nutzer eingeschrieben -->
-                        <div class="flex justify-between items-center">
-                            <span class="text-gray-600">👥 Nutzer eingeschrieben:</span>
-                            <span class="font-bold text-purple-600">{{ number_format($lehrgang->users_count) }}</span>
+            <div class="section-stats-grid">
+                @foreach($sectionStats as $stat)
+                    @php
+                        $sectionNames = [
+                            1 => 'Das THW im Gefüge des Zivil- und Katastrophenschutzes',
+                            2 => 'Arbeitssicherheit und Gesundheitsschutz', 
+                            3 => 'Arbeiten mit Leinen, Drahtseilen, Ketten, Rund- und Bandschlingen',
+                            4 => 'Arbeiten mit Leitern',
+                            5 => 'Stromerzeugung und Beleuchtung',
+                            6 => 'Metall-, Holz- und Steinbearbeitung',
+                            7 => 'Bewegen von Lasten',
+                            8 => 'Arbeiten am und auf dem Wasser',
+                            9 => 'Einsatzgrundlagen',
+                            10 => 'Grundlagen der Rettung und Bergung'
+                        ];
+                        $sectionName = $sectionNames[$stat->lernabschnitt] ?? 'Unbekannt';
+                    @endphp
+                    <div class="stat-item">
+                        <div class="stat-item-name">{{ $stat->lernabschnitt }}. {{ $sectionName }}</div>
+                        
+                        <div class="stat-item-row">
+                            <span>Versuche:</span>
+                            <span class="stat-item-count">{{ number_format($stat->total_attempts) }}</span>
                         </div>
                         
-                        <!-- Anzahl Fragen -->
-                        <div class="flex justify-between items-center">
-                            <span class="text-gray-600">❓ Fragen:</span>
-                            <span class="font-bold text-blue-600">{{ $lehrgang->questions_count }}</span>
+                        <div class="stat-item-row">
+                            <span class="stat-item-correct">✓ Richtig</span>
+                            <span class="stat-item-count stat-item-correct">{{ number_format($stat->correct_count) }}</span>
                         </div>
                         
-                        <!-- Beantwortet -->
-                        <div class="flex justify-between items-center">
-                            <span class="text-gray-600">📊 Beantwortet:</span>
-                            <span class="font-bold">{{ number_format($lehrgang->total_answered) }}</span>
+                        <div class="stat-item-row">
+                            <span class="stat-item-wrong">✗ Falsch</span>
+                            <span class="stat-item-count stat-item-wrong">{{ number_format($stat->wrong_count) }}</span>
                         </div>
+                        
+                        <div class="progress-bar">
+                            <div class="progress-correct" style="width: {{ $stat->success_rate }}%"></div>
+                            <div class="progress-wrong" style="width: {{ 100 - $stat->success_rate }}%"></div>
+                        </div>
+                        
+                        <div class="progress-label">{{ $stat->success_rate }}% Erfolgsrate</div>
                     </div>
-                    
-                    <!-- Erfolgsrate Progress Bar -->
-                    <div class="mt-4 pt-3 border-t border-gray-200">
-                        <div class="flex justify-between items-center mb-2">
-                            <span class="text-xs text-gray-600">Erfolgsrate</span>
-                            <span class="text-sm font-bold" style="color: {{ $lehrgang->success_rate >= 70 ? '#22c55e' : ($lehrgang->success_rate >= 50 ? '#f59e0b' : '#ef4444') }}">
-                                {{ $lehrgang->success_rate }}%
-                            </span>
+                @endforeach
+            </div>
+        </div>
+        @endif
+
+        <!-- Top 10 Questions -->
+        <div class="questions-grid">
+            <!-- Top 10 Schwierigste Fragen -->
+            <div class="section-card">
+                <h2 class="section-title">
+                    <span class="section-title-icon">⚠️</span>
+                    Top 10 Schwierigste Fragen
+                </h2>
+                
+                @if($topWrongQuestionsWithDetails->isEmpty())
+                    <div class="empty-state">
+                        <div class="empty-icon">📊</div>
+                        <p>Noch nicht genügend Daten verfügbar</p>
+                        <p style="font-size: 0.8rem;">(mindestens 5 Versuche pro Frage erforderlich)</p>
+                    </div>
+                @else
+                    <div class="question-list">
+                        @foreach($topWrongQuestionsWithDetails as $index => $item)
+                            <div class="question-item wrong">
+                                <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem;">
+                                    <div style="flex: 1;">
+                                        <div style="display: flex; align-items: baseline; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                            <span class="question-rank">{{ $index + 1 }}.</span>
+                                            <div class="question-text">{{ Str::limit($item['question']->frage, 120) }}</div>
+                                        </div>
+                                        <div class="question-section">Lernabschnitt {{ $item['question']->lernabschnitt }}</div>
+                                        <div class="question-stats">
+                                            <span>{{ number_format($item['total_attempts']) }} Versuche</span>
+                                            <span><span class="stat-item-correct">✓ {{ number_format($item['correct_count']) }}</span> | <span class="stat-item-wrong">✗ {{ number_format($item['wrong_count']) }}</span></span>
+                                        </div>
+                                    </div>
+                                    <div class="question-rate wrong">{{ $item['error_rate'] }}%</div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+
+            <!-- Top 10 Einfachste Fragen -->
+            <div class="section-card">
+                <h2 class="section-title">
+                    <span class="section-title-icon">⭐</span>
+                    Top 10 Einfachste Fragen
+                </h2>
+                
+                @if($topCorrectQuestionsWithDetails->isEmpty())
+                    <div class="empty-state">
+                        <div class="empty-icon">📊</div>
+                        <p>Noch nicht genügend Daten verfügbar</p>
+                        <p style="font-size: 0.8rem;">(mindestens 5 Versuche pro Frage erforderlich)</p>
+                    </div>
+                @else
+                    <div class="question-list">
+                        @foreach($topCorrectQuestionsWithDetails as $index => $item)
+                            <div class="question-item correct">
+                                <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem;">
+                                    <div style="flex: 1;">
+                                        <div style="display: flex; align-items: baseline; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                            <span class="question-rank">{{ $index + 1 }}.</span>
+                                            <div class="question-text">{{ Str::limit($item['question']->frage, 120) }}</div>
+                                        </div>
+                                        <div class="question-section">Lernabschnitt {{ $item['question']->lernabschnitt }}</div>
+                                        <div class="question-stats">
+                                            <span>{{ number_format($item['total_attempts']) }} Versuche</span>
+                                            <span><span class="stat-item-correct">✓ {{ number_format($item['correct_count']) }}</span> | <span class="stat-item-wrong">✗ {{ number_format($item['wrong_count']) }}</span></span>
+                                        </div>
+                                    </div>
+                                    <div class="question-rate correct">{{ $item['success_rate'] }}%</div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+        </div>
+
+        <!-- Lehrgang-Statistiken -->
+        @if($lehrgangStats->isNotEmpty())
+        <div class="section-card">
+            <h2 class="section-title">
+                <span class="section-title-icon">🎓</span>
+                Lehrgänge
+            </h2>
+            
+            <div class="section-stats-grid">
+                @foreach($lehrgangStats as $lehrgang)
+                    <div class="stat-item">
+                        <div class="stat-item-name">{{ $lehrgang->name }}</div>
+                        
+                        <div class="stat-item-row">
+                            <span>👥 Nutzer eingeschrieben:</span>
+                            <span class="stat-item-count">{{ number_format($lehrgang->users_count) }}</span>
                         </div>
-                        <div class="w-full bg-gray-200 rounded-full h-2">
-                            <div class="h-2 rounded-full transition-all" 
-                                 style="width: {{ $lehrgang->success_rate }}%; background: {{ $lehrgang->success_rate >= 70 ? 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)' : ($lehrgang->success_rate >= 50 ? 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)' : 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)') }};">
+                        
+                        <div class="stat-item-row">
+                            <span>❓ Fragen:</span>
+                            <span class="stat-item-count">{{ $lehrgang->questions_count }}</span>
+                        </div>
+                        
+                        <div class="stat-item-row">
+                            <span>📊 Beantwortet:</span>
+                            <span class="stat-item-count">{{ number_format($lehrgang->total_answered) }}</span>
+                        </div>
+                        
+                        <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #e5e7eb;">
+                            <div class="stat-item-row" style="margin-bottom: 0.5rem;">
+                                <span>Erfolgsrate</span>
+                                <span class="stat-item-count" style="color: {{ $lehrgang->success_rate >= 70 ? '#22c55e' : ($lehrgang->success_rate >= 50 ? '#f59e0b' : '#ef4444') }}">
+                                    {{ $lehrgang->success_rate }}%
+                                </span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-correct" style="width: {{ $lehrgang->success_rate }}%; background: {{ $lehrgang->success_rate >= 70 ? 'linear-gradient(90deg, #22c55e, #16a34a)' : ($lehrgang->success_rate >= 50 ? 'linear-gradient(90deg, #f59e0b, #d97706)' : 'linear-gradient(90deg, #ef4444, #dc2626)') }}"></div>
                             </div>
                         </div>
                     </div>
-                </div>
-            @endforeach
+                @endforeach
+            </div>
         </div>
-    </div>
-    @endif
+        @endif
 
-    <!-- Info Box -->
-    <div class="bg-blue-50 border-l-4 border-blue-500 rounded-r-lg p-6 mb-6">
-        <div class="flex items-start">
-            <i class="fas fa-info-circle text-blue-500 text-xl mr-3 mt-1"></i>
-            <div>
-                <h3 class="font-bold text-blue-800 mb-2">ℹ️ Über diese Statistiken</h3>
-                <p class="text-sm text-blue-700 mb-2">
+        <!-- Info Banner -->
+        <div class="info-banner">
+            <div class="info-banner-title">ℹ️ Über diese Statistiken</div>
+            <div class="info-banner-text">
+                <p style="margin-bottom: 0.5rem;">
                     Diese Statistiken basieren auf anonymen Daten aller Nutzer (angemeldet und Gäste). 
                     Es werden keine persönlichen Informationen gespeichert - nur ob eine Frage richtig oder falsch beantwortet wurde.
                 </p>
-                <p class="text-sm text-blue-700">
+                <p>
                     Fragen in den Top-10-Listen benötigen mindestens 5 Versuche, um aussagekräftige Statistiken zu liefern.
                 </p>
             </div>
