@@ -779,6 +779,78 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') dismi
         </div>
         @endif
 
+        {{-- Ortsverband-Karte: Nur für Ausbilder mit erweiterten Infos --}}
+        @php
+            $userOV = auth()->user()->ortsverbände->first();
+            $isAusbilder = false;
+            $ovStats = null;
+            
+            if ($userOV) {
+                $memberPivot = $userOV->members()->where('user_id', auth()->id())->first();
+                $isAusbilder = $memberPivot && $memberPivot->pivot->role === 'ausbildungsbeauftragter';
+                
+                if ($isAusbilder) {
+                    // Hole Statistiken für Ausbilder - NUR normale Mitglieder zählen (keine Ausbilder)
+                    $regularMembers = $userOV->members()->wherePivot('role', 'member')->get();
+                    $memberCount = $regularMembers->count();
+                    $memberProgress = $userOV->getMemberProgress()->filter(fn($m) => $m['role'] === 'member');
+                    $avgProgress = $memberProgress->avg('theory_progress_percent') ?? 0;
+                    $needHelpCount = $memberProgress->filter(fn($m) => $m['theory_progress_percent'] < 25)->count();
+                    $ovStats = [
+                        'members' => $memberCount,
+                        'avg_progress' => round($avgProgress),
+                        'need_help' => $needHelpCount
+                    ];
+                }
+            }
+        @endphp
+
+        @if($isAusbilder && $userOV)
+        {{-- Ausbilder-Karte mit Statistiken --}}
+        <div class="action-card">
+            <div class="action-card-header">
+                <div class="action-card-icon" style="background: linear-gradient(135deg, #00337F 0%, #0047b3 100%);">🏠</div>
+                <span class="action-card-badge" style="background: rgba(0, 51, 127, 0.15); color: #00337F;">Ausbilder</span>
+            </div>
+            <h3 class="action-card-title">{{ $userOV->name }}</h3>
+            
+            @if($ovStats['members'] > 0)
+            {{-- Statistik-Grid für Ausbilder --}}
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin-bottom: 1rem;">
+                <div style="background: #f3f4f6; border-radius: 0.75rem; padding: 0.75rem; text-align: center;">
+                    <div style="font-size: 1.25rem; font-weight: 800; color: #00337F;">{{ $ovStats['members'] }}</div>
+                    <div style="font-size: 0.7rem; color: #6b7280; text-transform: uppercase;">Mitglieder</div>
+                </div>
+                <div style="background: #f3f4f6; border-radius: 0.75rem; padding: 0.75rem; text-align: center;">
+                    <div style="font-size: 1.25rem; font-weight: 800; color: {{ $ovStats['avg_progress'] >= 50 ? '#16a34a' : '#f59e0b' }};">{{ $ovStats['avg_progress'] }}%</div>
+                    <div style="font-size: 0.7rem; color: #6b7280; text-transform: uppercase;">Ø Fortschritt</div>
+                </div>
+                <div style="background: {{ $ovStats['need_help'] > 0 ? '#fef3c7' : '#f3f4f6' }}; border-radius: 0.75rem; padding: 0.75rem; text-align: center;">
+                    <div style="font-size: 1.25rem; font-weight: 800; color: {{ $ovStats['need_help'] > 0 ? '#d97706' : '#16a34a' }};">{{ $ovStats['need_help'] }}</div>
+                    <div style="font-size: 0.7rem; color: #6b7280; text-transform: uppercase;">{{ $ovStats['need_help'] > 0 ? 'Brauchen Hilfe' : 'Alle gut!' }}</div>
+                </div>
+            </div>
+
+            <div class="action-card-progress">
+                <div class="action-card-progress-header">
+                    <span class="action-card-progress-label">Team-Fortschritt</span>
+                    <span class="action-card-progress-value">{{ $ovStats['avg_progress'] }}%</span>
+                </div>
+                <div class="action-card-progress-bar"><div class="action-card-progress-fill blue" style="width: {{ $ovStats['avg_progress'] }}%"></div></div>
+            </div>
+            @else
+            <p style="color: #6b7280; margin-bottom: 1rem; font-size: 0.9rem;">
+                👋 Noch keine Mitglieder im Ortsverband. Lade Helfer über einen Einladungslink ein!
+            </p>
+            @endif
+
+            <a href="{{ route('ortsverband.index') }}" class="action-card-btn primary" style="text-decoration: none;">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                Mitglieder verwalten
+            </a>
+        </div>
+        @endif
+
         <div class="section-header">
             <h2 class="section-title">📚 Deine Lehrgänge</h2>
             <a href="{{ route('lehrgaenge.index') }}" class="section-link">Alle anzeigen <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></a>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\OrtsverbandInvitation;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -17,7 +18,7 @@ class RegisteredUserController extends Controller
     /**
      * Display the registration view.
      */
-    public function create(): View
+    public function create(Request $request): View
     {
         return view('auth.register');
     }
@@ -35,6 +36,7 @@ class RegisteredUserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'email_consent' => ['boolean'],
             'leaderboard_consent' => ['boolean'],
+            'invitation_code' => ['nullable', 'string'],
         ]);
 
         $user = User::create([
@@ -50,6 +52,25 @@ class RegisteredUserController extends Controller
         event(new Registered($user));
 
         Auth::login($user);
+        
+        // Verarbeite Einladungscode falls vorhanden
+        if ($request->invitation_code) {
+            $invitation = OrtsverbandInvitation::findByCode($request->invitation_code);
+            
+            if ($invitation && $invitation->isValid()) {
+                try {
+                    $invitation->use($user);
+                    session()->flash('success', 'Erfolgreich dem Ortsverband "' . $invitation->ortsverband->name . '" beigetreten!');
+                } catch (\Exception $e) {
+                    // Fehler beim Beitritt ignorieren, User ist bereits registriert
+                    \Log::warning('Failed to use invitation during registration', [
+                        'user_id' => $user->id,
+                        'invitation_code' => $request->invitation_code,
+                        'error' => $e->getMessage()
+                    ]);
+                }
+            }
+        }
 
         return redirect(route('dashboard', absolute: false));
     }

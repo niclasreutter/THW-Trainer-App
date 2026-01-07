@@ -93,6 +93,40 @@ class User extends Authenticatable implements MustVerifyEmail
     }
     
     /**
+     * Ortsverband den der User erstellt hat (als Ausbildungsbeauftragter)
+     */
+    public function ownedOrtsverband()
+    {
+        return $this->hasOne(Ortsverband::class, 'created_by');
+    }
+    
+    /**
+     * Ortsverbände in denen der User Mitglied ist
+     */
+    public function ortsverbände()
+    {
+        return $this->belongsToMany(Ortsverband::class, 'ortsverband_members')
+                    ->withPivot('role', 'joined_at')
+                    ->withTimestamps();
+    }
+    
+    /**
+     * Ortsverbände in denen der User Mitglied ist (Alias ohne Umlaut)
+     */
+    public function ortsverbande()
+    {
+        return $this->ortsverbände();
+    }
+    
+    /**
+     * Prüft ob User Ausbildungsbeauftragter eines Ortsverbands ist
+     */
+    public function isAusbildungsbeauftragter(Ortsverband $ortsverband): bool
+    {
+        return $ortsverband->isAusbildungsbeauftragter($this);
+    }
+    
+    /**
      * Override the default email verification notification.
      */
     public function sendEmailVerificationNotification()

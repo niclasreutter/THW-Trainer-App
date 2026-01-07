@@ -111,6 +111,20 @@
                                 <div class="absolute -bottom-1 left-0 w-0 h-0.5 bg-yellow-400 transition-all duration-200 group-hover:w-full"></div>
                             @endif
                         </a>
+
+                        <!-- Ortsverband -->
+                        <a href="{{ route('ortsverband.index') }}" 
+                           class="inline-flex items-center px-3 py-2 text-sm font-medium text-white hover:text-yellow-400 transition-colors duration-200 relative group {{ request()->routeIs('ortsverband.*') ? 'text-yellow-400' : '' }}">
+                            <span class="flex items-center space-x-2">
+                                <span class="text-lg">🏠</span>
+                                <span>Ortsverband</span>
+                            </span>
+                            @if(request()->routeIs('ortsverband.*'))
+                                <div class="absolute -bottom-1 left-0 w-full h-0.5 bg-yellow-400"></div>
+                            @else
+                                <div class="absolute -bottom-1 left-0 w-0 h-0.5 bg-yellow-400 transition-all duration-200 group-hover:w-full"></div>
+                            @endif
+                        </a>
                     @endauth
                     
                     @guest
@@ -345,6 +359,13 @@
                    class="block px-3 py-2 text-base font-medium text-white hover:text-yellow-400 hover:bg-blue-800 rounded-md transition-colors duration-200 flex items-center space-x-2 {{ request()->routeIs('contact.*') ? 'text-yellow-400 bg-blue-800' : '' }}">
                     <span class="text-lg">📬</span>
                     <span>Kontakt & Feedback</span>
+                </a>
+
+                <!-- Ortsverband -->
+                <a href="{{ route('ortsverband.index') }}" 
+                   class="block px-3 py-2 text-base font-medium text-white hover:text-yellow-400 hover:bg-blue-800 rounded-md transition-colors duration-200 flex items-center space-x-2 {{ request()->routeIs('ortsverband.*') ? 'text-yellow-400 bg-blue-800' : '' }}">
+                    <span class="text-lg">🏠</span>
+                    <span>Ortsverband</span>
                 </a>
                 
                 @if(Auth::user()->useroll === 'admin')

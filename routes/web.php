@@ -184,6 +184,46 @@ Route::middleware('auth')->group(function () {
     
     Route::get('/exam', [\App\Http\Controllers\ExamController::class, 'start'])->name('exam.index');
     Route::post('/exam/submit', [\App\Http\Controllers\ExamController::class, 'submit'])->name('exam.submit');
+    
+    // Ortsverband Routes
+    Route::prefix('ortsverband')->name('ortsverband.')->group(function () {
+        // Übersicht & Erstellen
+        Route::get('/', [\App\Http\Controllers\OrtsverbandController::class, 'index'])->name('index');
+        Route::get('/create', [\App\Http\Controllers\OrtsverbandController::class, 'create'])->name('create');
+        Route::post('/store', [\App\Http\Controllers\OrtsverbandController::class, 'store'])->name('store');
+        
+        // Beitreten per Code (für eingeloggte User)
+        Route::post('/join', [\App\Http\Controllers\OrtsverbandInvitationController::class, 'joinByCode'])->name('join.code');
+        
+        // Einzelner Ortsverband (für alle Mitglieder)
+        Route::get('/{ortsverband}', [\App\Http\Controllers\OrtsverbandController::class, 'show'])->name('show');
+        Route::delete('/{ortsverband}/leave', [\App\Http\Controllers\OrtsverbandController::class, 'leave'])->name('leave');
+        
+        // Nur für Ausbildungsbeauftragte
+        Route::middleware(['ortsverband.ausbildungsbeauftragter'])->group(function () {
+            Route::get('/{ortsverband}/edit', [\App\Http\Controllers\OrtsverbandController::class, 'edit'])->name('edit');
+            Route::put('/{ortsverband}', [\App\Http\Controllers\OrtsverbandController::class, 'update'])->name('update');
+            Route::delete('/{ortsverband}', [\App\Http\Controllers\OrtsverbandController::class, 'destroy'])->name('destroy');
+            
+            // Mitglieder verwalten
+            Route::get('/{ortsverband}/members', [\App\Http\Controllers\OrtsverbandController::class, 'members'])->name('members');
+            Route::delete('/{ortsverband}/members/{user}', [\App\Http\Controllers\OrtsverbandController::class, 'removeMember'])->name('members.remove');
+            Route::put('/{ortsverband}/members/{user}/role', [\App\Http\Controllers\OrtsverbandController::class, 'changeRole'])->name('members.role');
+            
+            // Dashboard & Statistiken
+            Route::get('/{ortsverband}/dashboard', [\App\Http\Controllers\OrtsverbandController::class, 'dashboard'])->name('dashboard');
+            Route::get('/{ortsverband}/stats', [\App\Http\Controllers\OrtsverbandController::class, 'stats'])->name('stats');
+            
+            // Einladungen
+            Route::get('/{ortsverband}/invitations', [\App\Http\Controllers\OrtsverbandInvitationController::class, 'index'])->name('invitations.index');
+            Route::post('/{ortsverband}/invitations', [\App\Http\Controllers\OrtsverbandInvitationController::class, 'store'])->name('invitations.store');
+            Route::delete('/invitations/{invitation}', [\App\Http\Controllers\OrtsverbandInvitationController::class, 'destroy'])->name('invitations.destroy');
+            Route::put('/invitations/{invitation}/toggle', [\App\Http\Controllers\OrtsverbandInvitationController::class, 'toggle'])->name('invitations.toggle');
+        });
+    });
+    
+    // Beitritt über Einladungslink (außerhalb Auth)
+    Route::get('/join/{code}', [\App\Http\Controllers\OrtsverbandInvitationController::class, 'join'])->name('ortsverband.join');
 });
 
 Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix('admin')->name('admin.')->group(function () {

@@ -466,6 +466,32 @@
             <h2>Konto erstellen 🚀</h2>
             <p>Starte jetzt mit dem THW-Trainer.</p>
 
+@php
+            $inviteCode = request('code') ?? request('invite');
+            $inviteInfo = null;
+            if ($inviteCode) {
+                $inviteInfo = \App\Models\OrtsverbandInvitation::where('code', $inviteCode)->with('ortsverband', 'creator')->first();
+            }
+            @endphp
+
+            @if($inviteInfo && $inviteInfo->isValid())
+            <div style="background: linear-gradient(135deg, #00337F 0%, #0047b3 100%); color: white; padding: 0.75rem 1rem; border-radius: 0.75rem; margin-bottom: 1rem; font-size: 0.9rem;">
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <span style="font-size: 1.25rem;">🚨</span>
+                    <div>
+                        <strong>Einladung:</strong> {{ $inviteInfo->ortsverband->name }}
+                        <span style="opacity: 0.8; font-size: 0.8rem;">• Du trittst automatisch bei</span>
+                    </div>
+                </div>
+            </div>
+            @endif
+
+            @if(session('error'))
+            <div class="error-box">
+                <h3>❌ {{ session('error') }}</h3>
+            </div>
+            @endif
+
             @if ($errors->any())
                 <div class="error-box">
                     <h3>❌ Fehler bei der Registrierung</h3>
@@ -527,6 +553,22 @@
                                placeholder="Passwort wiederholen">
                     </div>
                 </div>
+
+                <!-- OV-Code (Optional) - nur anzeigen wenn kein gültiger Code in URL -->
+                @if(!($inviteInfo && $inviteInfo->isValid()))
+                <div class="form-group">
+                    <label for="invitation_code">OV-Code (optional)</label>
+                    <input id="invitation_code"
+                           type="text"
+                           name="invitation_code"
+                           value="{{ old('invitation_code', request('code') ?? request('invite') ?? '') }}"
+                           class="form-input"
+                           placeholder="z.B. THW-XXXXXXXX">
+                    <p style="font-size: 0.8rem; color: #6b7280; margin-top: 0.5rem;">Hast du einen Einladungscode von deinem Ortsverband erhalten?</p>
+                </div>
+                @else
+                <input type="hidden" name="invitation_code" value="{{ $inviteInfo->code }}">
+                @endif
 
                 <!-- Email Consent -->
                 <div class="consent-box">
