@@ -545,27 +545,50 @@
             font-size: 1.5rem;
         }
 
-        .auth-btn,
-        .auth-secondary-btn {
-            font-size: 0.95rem;
-            padding: 0.8rem 0.9rem;
         }
     }
 </style>
 
 <div class="auth-container">
-    <!-- Left Panel: Email Verification Info -->
+    <!-- Left Panel: Brand & Info -->
     <div class="auth-left">
-        <img src="{{ asset('logo-thwtrainer_w.png') }}" alt="THW-Trainer Logo" class="auth-logo">
-        
-        <div class="auth-info-box">
-            <div class="auth-info-icon">📧</div>
-            <div class="auth-info-title">E-Mail bestätigen</div>
-            <p class="auth-info-text">Wir haben dir eine E-Mail mit einem Bestätigungslink gesendet. Klicke auf den Link um dein Konto zu aktivieren.</p>
+        <div class="auth-left-content">
+            <div class="auth-brand">
+                <div class="auth-brand-text">THW-Trainer</div>
+            </div>
+
+            <div class="auth-headline">
+                <h1>Lerne smarter.<br><span>Werde besser.</span></h1>
+                <p>Bereite dich optimal auf deine THW-Prüfung vor – mit intelligenten Lernmethoden und Fortschrittstracking.</p>
+            </div>
+
+            <div class="auth-stats">
+                <div class="auth-stat">
+                    <div class="auth-stat-number">200+</div>
+                    <div class="auth-stat-label">User</div>
+                </div>
+                <div class="auth-stat">
+                    <div class="auth-stat-number">1.000+</div>
+                    <div class="auth-stat-label">Fragen</div>
+                </div>
+                <div class="auth-stat">
+                    <div class="auth-stat-number">100%</div>
+                    <div class="auth-stat-label">Kostenlos</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="auth-footer">
+            © 2026 THW-Trainer
+            <span class="auth-footer-divider">•</span>
+            <a href="{{ route('datenschutz') }}">Datenschutz</a>
+            <span class="auth-footer-divider">•</span>
+            <a href="{{ route('impressum') }}">Impressum</a>
         </div>
     </div>
 
-    <!-- Right Panel: Verification Actions -->
+    <!-- Right Panel: Email Verification -->
     <div class="auth-right">
         <div class="auth-form-container">
             <h2>✨ E-Mail Bestätigung</h2>

@@ -350,24 +350,51 @@
         }
     }
 </style>
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        border-radius: 1.2rem;
-        padding: 2rem;
-        text-align: center;
-        max-width: 450px;
-    }
 
-    .auth-info-icon {
-        font-size: 3rem;
-        margin-bottom: 1rem;
-    }
+<div class="auth-container">
+    <!-- Left Panel: Brand & Info -->
+    <div class="auth-left">
+        <div class="auth-left-content">
+            <div class="auth-brand">
+                <div class="auth-brand-text">THW-Trainer</div>
+            </div>
 
-    .auth-info-title {
-        font-size: 1.2rem;
-        font-weight: 700;
-        margin-bottom: 0.8rem;
-    }
+            <div class="auth-headline">
+                <h1>Lerne smarter.<br><span>Werde besser.</span></h1>
+                <p>Bereite dich optimal auf deine THW-Prüfung vor – mit intelligenten Lernmethoden und Fortschrittstracking.</p>
+            </div>
+
+            <div class="auth-stats">
+                <div class="auth-stat">
+                    <div class="auth-stat-number">200+</div>
+                    <div class="auth-stat-label">User</div>
+                </div>
+                <div class="auth-stat">
+                    <div class="auth-stat-number">1.000+</div>
+                    <div class="auth-stat-label">Fragen</div>
+                </div>
+                <div class="auth-stat">
+                    <div class="auth-stat-number">100%</div>
+                    <div class="auth-stat-label">Kostenlos</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="auth-footer">
+            © 2026 THW-Trainer
+            <span class="auth-footer-divider">•</span>
+            <a href="{{ route('datenschutz') }}">Datenschutz</a>
+            <span class="auth-footer-divider">•</span>
+            <a href="{{ route('impressum') }}">Impressum</a>
+        </div>
+    </div>
+
+    <!-- Right Panel: Confirm Password -->
+    <div class="auth-right">
+        <div class="auth-form-container">
+            <h2>🔐 Passwort bestätigen</h2>
+            <p>Gib dein Passwort ein um fortzufahren</p>
 
     .auth-info-text {
         font-size: 0.95rem;

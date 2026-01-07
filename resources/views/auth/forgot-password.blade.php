@@ -358,26 +358,6 @@
         }
     }
 
-    @media (max-width: 480px) {
-        .auth-left {
-            padding: 1.5rem;
-            align-items: center;
-            text-align: center;
-        }
-
-        .auth-logo {
-            max-width: 140px;
-        }
-
-        .auth-left h1 {
-            font-size: 1.5rem;
-        }
-
-        .auth-left p {
-            font-size: 0.95rem;
-            margin-bottom: 1.5rem;
-        }
-
     @media (max-width: 768px) {
         .auth-container {
             flex-direction: column;
