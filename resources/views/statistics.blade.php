@@ -115,11 +115,21 @@
         display: flex;
         flex-direction: column;
         height: 100%;
+        min-width: 0;
+        overflow: hidden;
     }
 
     .section-card:hover {
         box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
         transform: translateY(-2px);
+    }
+
+    @media (max-width: 768px) {
+        .section-card {
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+            border-radius: 1rem;
+        }
     }
 
     .section-title {
@@ -130,6 +140,13 @@
         display: flex;
         align-items: center;
         gap: 0.75rem;
+    }
+
+    @media (max-width: 768px) {
+        .section-title {
+            font-size: 1.25rem;
+            margin-bottom: 1.25rem;
+        }
     }
 
     .section-title-icon {
@@ -221,15 +238,47 @@
         gap: 2rem;
     }
 
+    @media (max-width: 1024px) {
+        .questions-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
     @media (max-width: 768px) {
-        .questions-grid { grid-template-columns: 1fr; }
+        .questions-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            min-width: 0;
+            overflow-x: hidden;
+        }
+        
+        .section-card {
+            padding: 1rem;
+            min-width: 0;
+            overflow: hidden;
+        }
+        
         .question-item {
+            padding: 1rem;
+            display: flex;
             flex-direction: column;
             gap: 1rem;
+            min-width: 0;
+            overflow: hidden;
         }
+        
+        .question-item > div {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            min-width: 0;
+            width: 100%;
+        }
+        
         .question-rate {
             align-self: flex-end;
-            margin-top: 1rem;
+            margin-top: 0.5rem;
+            min-width: auto;
         }
     }
 
@@ -283,6 +332,15 @@
         margin-bottom: 0.5rem;
         font-weight: 600;
         line-height: 1.4;
+        word-break: break-word;
+        overflow-wrap: break-word;
+    }
+
+    @media (max-width: 768px) {
+        .question-text {
+            font-size: 0.9rem;
+            line-height: 1.3;
+        }
     }
 
     .question-section {
@@ -300,6 +358,15 @@
         font-size: 0.8rem;
         color: #6b7280;
         margin-bottom: 0;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .question-stats {
+            font-size: 0.75rem;
+            flex-direction: column;
+        }
     }
 
     .question-rate {
