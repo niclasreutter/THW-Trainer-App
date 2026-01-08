@@ -436,9 +436,9 @@
             <div class="sections-grid">
                 @foreach($sections as $section)
                     @php
-                        $sectionQuestionCount = $lehrgang->questions()->where('lernabschnitt', $section->lernabschnitt)->count();
+                        $sectionQuestionCount = $lehrgang->questions()->where('lernabschnitt', $section->lernabschnitt_nr)->count();
                         $sectionSolvedCount = \App\Models\UserLehrgangProgress::where('user_id', auth()->id())
-                            ->whereHas('lehrgangQuestion', fn($q) => $q->where('lehrgang_id', $lehrgang->id)->where('lernabschnitt', $section->lernabschnitt))
+                            ->whereHas('lehrgangQuestion', fn($q) => $q->where('lehrgang_id', $lehrgang->id)->where('lernabschnitt', $section->lernabschnitt_nr))
                             ->where('solved', true)
                             ->count();
                         $sectionProgress = $sectionQuestionCount > 0 ? round(($sectionSolvedCount / $sectionQuestionCount) * 100) : 0;
@@ -496,7 +496,7 @@
             <div class="sections-grid">
                 @foreach($sections as $section)
                     @php
-                        $sectionQuestionCount = $lehrgang->questions()->where('lernabschnitt', $section->lernabschnitt)->count();
+                        $sectionQuestionCount = $lehrgang->questions()->where('lernabschnitt', $section->lernabschnitt_nr)->count();
                     @endphp
                     <div class="section-card">
                         <div class="section-info">
