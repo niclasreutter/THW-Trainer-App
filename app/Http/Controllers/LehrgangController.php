@@ -76,37 +76,30 @@ class LehrgangController extends Controller
             ->get()
             ->groupBy('lernabschnitt');
         
-        // Hole die Lernabschnitte mit Namen aus der Tabelle
-        // Zuerst versuchen wir für diesen Lehrgang, dann global (für Legacy-Support)
-        $sectionsFromDb = LehrgangLernabschnitt::where('lehrgang_id', $lehrgang->id)
-            ->orderBy('lernabschnitt_nr')
+        // Hole alle Lernabschnitt-Namen für diesen Lehrgang
+        // Key = lernabschnitt_nr (als String für einfachen Zugriff)
+        $lernabschnitteNamen = LehrgangLernabschnitt::where('lehrgang_id', $lehrgang->id)
             ->get()
-            ->keyBy('lernabschnitt_nr');
+            ->mapWithKeys(function ($item) {
+                return [(string)$item->lernabschnitt_nr => $item->lernabschnitt];
+            });
         
-        // Fallback: Wenn keine Sections für diesen Lehrgang gefunden, suche global
-        if ($sectionsFromDb->isEmpty()) {
-            $sectionsFromDb = LehrgangLernabschnitt::orderBy('lernabschnitt_nr')
-                ->get()
-                ->unique('lernabschnitt_nr')
-                ->keyBy('lernabschnitt_nr');
-        }
-        
-        // Erstelle ein Map für Lernabschnitt-Namen
-        $lernabschnitte = $sectionsFromDb->pluck('lernabschnitt', 'lernabschnitt_nr');
-        
-        // Erstelle Sections-Collection mit Namen (Fallback auf "Lernabschnitt X" wenn kein Name gefunden)
+        // Erstelle Sections-Collection basierend auf den vorhandenen Fragen
         $sections = collect();
         foreach ($questions->keys()->sort(function($a, $b) {
             return (int)$a - (int)$b;
         }) as $sectionNr) {
-            $sectionNrInt = (int)$sectionNr;
-            $sectionName = $lernabschnitte->get($sectionNrInt) ?? $lernabschnitte->get($sectionNr) ?? "Lernabschnitt {$sectionNr}";
+            // Suche den Namen für diese Abschnittsnummer
+            $sectionName = $lernabschnitteNamen->get((string)$sectionNr, "Lernabschnitt {$sectionNr}");
             
             $sections->push((object)[
                 'lernabschnitt_nr' => $sectionNr,
                 'lernabschnitt' => $sectionName,
             ]);
         }
+        
+        // Für Kompatibilität: Map von Nummer zu Name
+        $lernabschnitte = $lernabschnitteNamen;
         
         // Berechne Fortschritt pro Lernabschnitt (nur wenn User eingeschrieben ist)
         $sectionProgress = [];
