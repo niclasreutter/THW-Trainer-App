@@ -76,9 +76,13 @@ class LehrgangController extends Controller
             ->get()
             ->groupBy('lernabschnitt');
         
-        // Hole die Lernabschnitte Namen
-        $lernabschnitte = \App\Models\LehrgangLernabschnitt::where('lehrgang_id', $lehrgang->id)
-            ->pluck('lernabschnitt', 'lernabschnitt_nr');
+        // Hole die Lernabschnitte mit Namen
+        $sections = LehrgangLernabschnitt::where('lehrgang_id', $lehrgang->id)
+            ->orderBy('lernabschnitt_nr')
+            ->get();
+        
+        // Erstelle ein Map für Lernabschnitt-Namen (für Fallback)
+        $lernabschnitte = $sections->pluck('lernabschnitt', 'lernabschnitt_nr');
         
         // Berechne Fortschritt pro Lernabschnitt (nur wenn User eingeschrieben ist)
         $sectionProgress = [];
@@ -115,6 +119,7 @@ class LehrgangController extends Controller
             'isEnrolled' => $isEnrolled,
             'userProgress' => $userProgress,
             'questions' => $questions,
+            'sections' => $sections,
             'lernabschnitte' => $lernabschnitte,
             'sectionProgress' => $sectionProgress,
         ]);
