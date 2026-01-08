@@ -499,8 +499,12 @@
                 <strong>DEBUG:</strong><br>
                 Lehrgang ID: {{ $lehrgang->id }}<br>
                 Sections count: {{ $sections->count() }}<br>
+                Sections type: {{ get_class($sections->first()) ?? 'empty' }}<br>
                 @foreach($sections as $s)
-                    Section: nr={{ $s->lernabschnitt_nr }}, name={{ $s->lernabschnitt }}<br>
+                    @php
+                        $sData = (array)$s;
+                    @endphp
+                    Section RAW: {{ json_encode($sData) }}<br>
                 @endforeach
             </div>
             {{-- END DEBUG --}}
