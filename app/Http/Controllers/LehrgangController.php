@@ -76,13 +76,37 @@ class LehrgangController extends Controller
             ->get()
             ->groupBy('lernabschnitt');
         
-        // Hole die Lernabschnitte mit Namen
-        $sections = LehrgangLernabschnitt::where('lehrgang_id', $lehrgang->id)
+        // Hole die Lernabschnitte mit Namen aus der Tabelle
+        // Zuerst versuchen wir für diesen Lehrgang, dann global (für Legacy-Support)
+        $sectionsFromDb = LehrgangLernabschnitt::where('lehrgang_id', $lehrgang->id)
             ->orderBy('lernabschnitt_nr')
-            ->get();
+            ->get()
+            ->keyBy('lernabschnitt_nr');
         
-        // Erstelle ein Map für Lernabschnitt-Namen (für Fallback)
-        $lernabschnitte = $sections->pluck('lernabschnitt', 'lernabschnitt_nr');
+        // Fallback: Wenn keine Sections für diesen Lehrgang gefunden, suche global
+        if ($sectionsFromDb->isEmpty()) {
+            $sectionsFromDb = LehrgangLernabschnitt::orderBy('lernabschnitt_nr')
+                ->get()
+                ->unique('lernabschnitt_nr')
+                ->keyBy('lernabschnitt_nr');
+        }
+        
+        // Erstelle ein Map für Lernabschnitt-Namen
+        $lernabschnitte = $sectionsFromDb->pluck('lernabschnitt', 'lernabschnitt_nr');
+        
+        // Erstelle Sections-Collection mit Namen (Fallback auf "Lernabschnitt X" wenn kein Name gefunden)
+        $sections = collect();
+        foreach ($questions->keys()->sort(function($a, $b) {
+            return (int)$a - (int)$b;
+        }) as $sectionNr) {
+            $sectionNrInt = (int)$sectionNr;
+            $sectionName = $lernabschnitte->get($sectionNrInt) ?? $lernabschnitte->get($sectionNr) ?? "Lernabschnitt {$sectionNr}";
+            
+            $sections->push((object)[
+                'lernabschnitt_nr' => $sectionNr,
+                'lernabschnitt' => $sectionName,
+            ]);
+        }
         
         // Berechne Fortschritt pro Lernabschnitt (nur wenn User eingeschrieben ist)
         $sectionProgress = [];
