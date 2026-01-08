@@ -217,8 +217,8 @@ Route::middleware('auth')->group(function () {
             // Einladungen
             Route::get('/{ortsverband}/invitations', [\App\Http\Controllers\OrtsverbandInvitationController::class, 'index'])->name('invitations.index');
             Route::post('/{ortsverband}/invitations', [\App\Http\Controllers\OrtsverbandInvitationController::class, 'store'])->name('invitations.store');
-            Route::delete('/invitations/{invitation}', [\App\Http\Controllers\OrtsverbandInvitationController::class, 'destroy'])->name('invitations.destroy');
-            Route::put('/invitations/{invitation}/toggle', [\App\Http\Controllers\OrtsverbandInvitationController::class, 'toggle'])->name('invitations.toggle');
+            Route::delete('/{ortsverband}/invitations/{invitation}', [\App\Http\Controllers\OrtsverbandInvitationController::class, 'destroy'])->name('invitations.destroy');
+            Route::put('/{ortsverband}/invitations/{invitation}/toggle', [\App\Http\Controllers\OrtsverbandInvitationController::class, 'toggle'])->name('invitations.toggle');
         });
     });
     
