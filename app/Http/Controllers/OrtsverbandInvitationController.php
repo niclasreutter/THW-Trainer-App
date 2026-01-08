@@ -60,7 +60,7 @@ class OrtsverbandInvitationController extends Controller
     /**
      * Löscht eine Einladung
      */
-    public function destroy(OrtsverbandInvitation $invitation)
+    public function destroy(Ortsverband $ortsverband, OrtsverbandInvitation $invitation)
     {
         $user = Auth::user();
         
@@ -76,7 +76,7 @@ class OrtsverbandInvitationController extends Controller
     /**
      * Aktiviert/Deaktiviert eine Einladung
      */
-    public function toggle(OrtsverbandInvitation $invitation)
+    public function toggle(Ortsverband $ortsverband, OrtsverbandInvitation $invitation)
     {
         $user = Auth::user();
         
