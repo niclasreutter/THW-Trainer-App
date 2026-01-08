@@ -201,6 +201,10 @@
                                                 <span class="ml-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">{{ $unreadCount }}</span>
                                             @endif
                                         </a>
+                                        <a href="{{ route('admin.ortsverband.index') }}" class="block px-4 py-3 text-gray-700 hover:bg-blue-900 hover:text-yellow-400 transition-colors duration-200 flex items-center space-x-2">
+                                            <span class="text-lg">🏢</span>
+                                            <span>Ortsverbände</span>
+                                        </a>
                                     </div>
                                 </div>
                             @endif
@@ -406,6 +410,10 @@
                             @if($unreadCount > 0)
                                 <span class="ml-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">{{ $unreadCount }}</span>
                             @endif
+                        </a>
+                        <a href="{{ route('admin.ortsverband.index') }}" class="block px-3 py-2 text-sm text-gray-300 hover:text-yellow-400 hover:bg-blue-800 rounded-md transition-colors duration-200 flex items-center space-x-2">
+                            <span class="text-lg">🏢</span>
+                            <span>Ortsverbände</span>
                         </a>
                     </div>
                 @endif

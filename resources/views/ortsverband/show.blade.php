@@ -204,6 +204,9 @@
         background: rgba(34, 197, 94, 0.1);
         border: 1px solid rgba(34, 197, 94, 0.3);
         color: #166534;
+        padding: 1rem;
+        border-radius: 0.75rem;
+        margin-bottom: 1.5rem;
     }
 
     @media (max-width: 480px) {
@@ -223,6 +226,18 @@
                 <p class="dashboard-subtitle">{{ $ortsverband->description }}</p>
             @endif
         </div>
+
+        @if($isAdminViewing)
+        <div class="alert alert-success" style="background: #dbeafe; border: 1px solid rgba(59,130,246,0.3); color: #1e40af; display: flex; justify-content: space-between; align-items: center;">
+            <span>🔍 Du betrachtest diesen Ortsverband als Admin. Einige Funktionen sind beschränkt.</span>
+            <form method="POST" action="{{ route('admin.ortsverband.exit-view') }}" style="margin: 0;">
+                @csrf
+                <button type="submit" style="background: #dbeafe; color: #1e40af; border: none; cursor: pointer; font-weight: 600; text-decoration: underline;">
+                    ← Admin-View beenden
+                </button>
+            </form>
+        </div>
+        @endif
 
         @if(session('success'))
         <div class="alert alert-success">

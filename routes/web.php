@@ -257,6 +257,12 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix
     Route::patch('contact-messages/{contactMessage}/mark-unread', [\App\Http\Controllers\Admin\ContactMessageController::class, 'markAsUnread'])->name('contact-messages.mark-unread');
     Route::delete('contact-messages/{contactMessage}', [\App\Http\Controllers\Admin\ContactMessageController::class, 'destroy'])->name('contact-messages.destroy');
     Route::delete('contact-messages', [\App\Http\Controllers\Admin\ContactMessageController::class, 'bulkDelete'])->name('contact-messages.bulk-delete');
+
+    // Ortsverband Routes (Admin) - Nur View und Delete
+    Route::get('ortsverband', [\App\Http\Controllers\Admin\OrtsverbandController::class, 'index'])->name('ortsverband.index');
+    Route::post('ortsverband/{ortsverband}/view-as', [\App\Http\Controllers\Admin\OrtsverbandController::class, 'viewAs'])->name('ortsverband.view-as');
+    Route::post('ortsverband/exit-view', [\App\Http\Controllers\Admin\OrtsverbandController::class, 'exitView'])->name('ortsverband.exit-view');
+    Route::delete('ortsverband/{ortsverband}', [\App\Http\Controllers\Admin\OrtsverbandController::class, 'destroy'])->name('ortsverband.destroy');
 });
 
 // Test Routes für Error Pages (nur für Development/Testing)

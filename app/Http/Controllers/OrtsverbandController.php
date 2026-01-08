@@ -90,12 +90,15 @@ class OrtsverbandController extends Controller
     {
         $user = Auth::user();
         
-        // Prüfe ob User Mitglied ist
-        if (!$ortsverband->isMember($user)) {
+        // Admin kann alle Ortsverbände sehen (via Session check)
+        $isAdminViewing = session('admin_viewing_ortsverband_id') === $ortsverband->id;
+        
+        // Prüfe ob User Mitglied ist oder Admin ist
+        if (!$ortsverband->isMember($user) && !$isAdminViewing && !$user->is_admin) {
             abort(403, 'Du bist kein Mitglied dieses Ortsverbands.');
         }
         
-        $isAusbildungsbeauftragter = $ortsverband->isAusbildungsbeauftragter($user);
+        $isAusbildungsbeauftragter = $ortsverband->isAusbildungsbeauftragter($user) && !$isAdminViewing;
         
         // Statistiken nur für Ausbildungsbeauftragte
         $stats = null;
@@ -103,7 +106,7 @@ class OrtsverbandController extends Controller
             $stats = $ortsverband->getAverageStats();
         }
         
-        return view('ortsverband.show', compact('ortsverband', 'isAusbildungsbeauftragter', 'stats'));
+        return view('ortsverband.show', compact('ortsverband', 'isAusbildungsbeauftragter', 'stats', 'isAdminViewing'));
     }
 
     /**
