@@ -433,12 +433,26 @@
 
             <!-- Sections -->
             <h2 class="sections-title">📚 Lernabschnitte</h2>
+            
+            @php
+                // Lade Lernabschnitt-Namen direkt aus der DB (Cache-Bust Workaround)
+                $lernabschnittNamen = \App\Models\LehrgangLernabschnitt::where('lehrgang_id', $lehrgang->id)
+                    ->pluck('lernabschnitt', 'lernabschnitt_nr')
+                    ->toArray();
+            @endphp
+            
             <div class="sections-grid">
                 @foreach($sections as $section)
                     @php
-                        $sectionQuestionCount = $lehrgang->questions()->where('lernabschnitt', $section->lernabschnitt_nr)->count();
+                        // Hole die Nummer (kompatibel mit altem und neuem Code)
+                        $sectionNr = $section->lernabschnitt_nr ?? $section->lernabschnitt ?? null;
+                        
+                        // Suche den Namen in der DB-Map
+                        $sectionName = $lernabschnittNamen[(int)$sectionNr] ?? $lernabschnittNamen[$sectionNr] ?? "Lernabschnitt {$sectionNr}";
+                        
+                        $sectionQuestionCount = $lehrgang->questions()->where('lernabschnitt', $sectionNr)->count();
                         $sectionSolvedCount = \App\Models\UserLehrgangProgress::where('user_id', auth()->id())
-                            ->whereHas('lehrgangQuestion', fn($q) => $q->where('lehrgang_id', $lehrgang->id)->where('lernabschnitt', $section->lernabschnitt_nr))
+                            ->whereHas('lehrgangQuestion', fn($q) => $q->where('lehrgang_id', $lehrgang->id)->where('lernabschnitt', $sectionNr))
                             ->where('solved', true)
                             ->count();
                         $sectionProgress = $sectionQuestionCount > 0 ? round(($sectionSolvedCount / $sectionQuestionCount) * 100) : 0;
@@ -446,7 +460,7 @@
                     @endphp
                     <div class="section-card">
                         <div class="section-info">
-                            <h3 class="section-name">{{ $section->lernabschnitt }}</h3>
+                            <h3 class="section-name">{{ $sectionName }}</h3>
                             <div class="section-meta">
                                 <span>{{ $sectionQuestionCount }} Fragen</span>
                                 <span>{{ $sectionSolvedCount }} gelöst</span>
@@ -494,29 +508,27 @@
             <!-- Preview Sections -->
             <h2 class="sections-title">📚 Lernabschnitte (Vorschau)</h2>
             
-            {{-- DEBUG --}}
-            <div style="background: #fee; padding: 1rem; margin: 1rem 0; border-radius: 0.5rem; font-size: 0.8rem;">
-                <strong>DEBUG:</strong><br>
-                Lehrgang ID: {{ $lehrgang->id }}<br>
-                Sections count: {{ $sections->count() }}<br>
-                Sections type: {{ get_class($sections->first()) ?? 'empty' }}<br>
-                @foreach($sections as $s)
-                    @php
-                        $sData = (array)$s;
-                    @endphp
-                    Section RAW: {{ json_encode($sData) }}<br>
-                @endforeach
-            </div>
-            {{-- END DEBUG --}}
+            @php
+                // Lade Lernabschnitt-Namen direkt aus der DB (Cache-Bust Workaround)
+                $lernabschnittNamen = \App\Models\LehrgangLernabschnitt::where('lehrgang_id', $lehrgang->id)
+                    ->pluck('lernabschnitt', 'lernabschnitt_nr')
+                    ->toArray();
+            @endphp
             
             <div class="sections-grid">
                 @foreach($sections as $section)
                     @php
-                        $sectionQuestionCount = $lehrgang->questions()->where('lernabschnitt', $section->lernabschnitt_nr)->count();
+                        // Hole die Nummer (kompatibel mit altem und neuem Code)
+                        $sectionNr = $section->lernabschnitt_nr ?? $section->lernabschnitt ?? null;
+                        
+                        // Suche den Namen in der DB-Map
+                        $sectionName = $lernabschnittNamen[(int)$sectionNr] ?? $lernabschnittNamen[$sectionNr] ?? "Lernabschnitt {$sectionNr}";
+                        
+                        $sectionQuestionCount = $lehrgang->questions()->where('lernabschnitt', $sectionNr)->count();
                     @endphp
                     <div class="section-card">
                         <div class="section-info">
-                            <h3 class="section-name">{{ $section->lernabschnitt }}</h3>
+                            <h3 class="section-name">{{ $sectionName }}</h3>
                             <div class="section-meta">
                                 <span>{{ $sectionQuestionCount }} Fragen</span>
                             </div>

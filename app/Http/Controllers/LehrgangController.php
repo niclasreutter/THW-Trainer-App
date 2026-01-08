@@ -84,11 +84,6 @@ class LehrgangController extends Controller
                 return [(string)$item->lernabschnitt_nr => $item->lernabschnitt];
             });
         
-        // DEBUG: Log was aus der DB kommt
-        \Log::info('Lehrgang ID: ' . $lehrgang->id);
-        \Log::info('LernabschnitteNamen count: ' . $lernabschnitteNamen->count());
-        \Log::info('LernabschnitteNamen: ' . json_encode($lernabschnitteNamen->toArray()));
-        
         // Erstelle Sections-Collection basierend auf den vorhandenen Fragen
         $sections = collect();
         foreach ($questions->keys()->sort(function($a, $b) {
@@ -96,8 +91,6 @@ class LehrgangController extends Controller
         }) as $sectionNr) {
             // Suche den Namen für diese Abschnittsnummer
             $sectionName = $lernabschnitteNamen->get((string)$sectionNr, "Lernabschnitt {$sectionNr}");
-            
-            \Log::info("Section {$sectionNr}: Name aus DB = " . ($lernabschnitteNamen->get((string)$sectionNr) ?? 'NULL') . ", Final = {$sectionName}");
             
             $sections->push((object)[
                 'lernabschnitt_nr' => $sectionNr,
