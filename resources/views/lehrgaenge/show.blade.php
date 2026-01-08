@@ -493,6 +493,18 @@
 
             <!-- Preview Sections -->
             <h2 class="sections-title">📚 Lernabschnitte (Vorschau)</h2>
+            
+            {{-- DEBUG --}}
+            <div style="background: #fee; padding: 1rem; margin: 1rem 0; border-radius: 0.5rem; font-size: 0.8rem;">
+                <strong>DEBUG:</strong><br>
+                Lehrgang ID: {{ $lehrgang->id }}<br>
+                Sections count: {{ $sections->count() }}<br>
+                @foreach($sections as $s)
+                    Section: nr={{ $s->lernabschnitt_nr }}, name={{ $s->lernabschnitt }}<br>
+                @endforeach
+            </div>
+            {{-- END DEBUG --}}
+            
             <div class="sections-grid">
                 @foreach($sections as $section)
                     @php
