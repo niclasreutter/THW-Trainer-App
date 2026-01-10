@@ -3,6 +3,7 @@
 namespace App\Policies;
 
 use App\Models\User;
+use App\Models\Ortsverband;
 use App\Models\OrtsverbandLernpool;
 
 class OrtsverbandLernpoolPolicy
@@ -10,7 +11,7 @@ class OrtsverbandLernpoolPolicy
     /**
      * Determine whether the user can view any models.
      */
-    public function viewAny(User $user): bool
+    public function viewAny(User $user, Ortsverband $ortsverband = null): bool
     {
         return true;
     }
@@ -26,10 +27,10 @@ class OrtsverbandLernpoolPolicy
     /**
      * Determine whether the user can create models.
      */
-    public function create(User $user): bool
+    public function create(User $user, Ortsverband $ortsverband): bool
     {
-        // Nur OV-Admins können Lernpools erstellen
-        return $user->is_admin || $user->ortsverband_id !== null;
+        // Nur OV-Admins des gleichen Ortsverbands können Lernpools erstellen
+        return $user->is_admin || ($user->ortsverband_id === $ortsverband->id && $user->is_admin);
     }
 
     /**
