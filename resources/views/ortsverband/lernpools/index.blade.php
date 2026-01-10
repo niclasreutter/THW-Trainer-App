@@ -739,10 +739,12 @@
             }
         });
 
-        modalTriggers.forEach(trigger => {
-            trigger.addEventListener('click', function(e) {
+        // Use event delegation for modal triggers (für dynamisch geladene Inhalte)
+        document.addEventListener('click', function(e) {
+            const trigger = e.target.closest('.modal-trigger');
+            if (trigger) {
                 e.preventDefault();
-                const url = this.href;
+                const url = trigger.href;
                 
                 fetch(url, {
                     headers: {
@@ -760,7 +762,7 @@
                     genericModal.innerHTML = '<div class="modal"><div class="modal-header"><h2>Fehler</h2><button class="modal-close" onclick="this.closest(\'#genericModalBackdrop\').classList.remove(\'active\')">✕</button></div><div class="modal-body"><p>Fehler beim Laden des Inhalts.</p></div></div>';
                     genericModalBackdrop.classList.add('active');
                 });
-            });
+            }
         });
     });
 </script>
