@@ -586,7 +586,6 @@
                             </div>
 
                             <div class="pool-card-actions">
-                            <div class="pool-card-actions">
                                 <a href="{{ route('ortsverband.lernpools.show', [$ortsverband, $pool]) }}" class="action-link modal-trigger" data-modal-type="show">
                                     👁️ Details
                                 </a>
