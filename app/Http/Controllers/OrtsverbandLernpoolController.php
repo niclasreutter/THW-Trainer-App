@@ -75,10 +75,14 @@ class OrtsverbandLernpoolController extends Controller
         $questions = $lernpool->questions()->with('creator')->get();
         $enrollments = $lernpool->enrollments()->with('user')->get();
         
+        // Gruppiere Fragen nach Lernabschnitt
+        $questionsBySection = $questions->groupBy('learning_section')->toArray();
+        
         return view('ortsverband.lernpools.show', [
             'ortsverband' => $ortsverband,
             'lernpool' => $lernpool,
             'questions' => $questions,
+            'questionsBySection' => $questionsBySection,
             'enrollments' => $enrollments,
         ]);
     }
