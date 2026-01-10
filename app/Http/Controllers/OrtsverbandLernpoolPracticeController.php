@@ -103,24 +103,27 @@ class OrtsverbandLernpoolPracticeController extends Controller
             ->first();
 
         if (!$enrollment) {
-            return response()->json(['error' => 'Nicht eingeschrieben'], 403);
+            return redirect()
+                ->back()
+                ->with('error', 'Du bist nicht in diesem Lernpool eingeschrieben.');
         }
 
         $validated = $request->validate([
             'question_id' => 'required|exists:ortsverband_lernpool_questions,id',
-            'answers' => 'required|array',
-            'answers.*' => 'string',
+            'answer' => 'required|string|in:a,b,c',
         ]);
 
         $question = OrtsverbandLernpoolQuestion::findOrFail($validated['question_id']);
 
         // Prüfe ob Frage zu diesem Lernpool gehört
         if ($question->lernpool_id !== $lernpool->id) {
-            return response()->json(['error' => 'Ungültige Frage'], 403);
+            return redirect()
+                ->back()
+                ->with('error', 'Ungültige Frage.');
         }
 
         // Prüfe Antwort
-        $isCorrect = $question->isCorrectAnswer($validated['answers']);
+        $isCorrect = $question->loesung === $validated['answer'];
 
         // Aktualisiere Fortschritt
         $progress = OrtsverbandLernpoolProgress::firstOrCreate(
@@ -156,13 +159,9 @@ class OrtsverbandLernpoolPracticeController extends Controller
             $this->gamificationService->updateStreak($user);
         }
 
-        return response()->json([
-            'success' => true,
-            'isCorrect' => $isCorrect,
-            'isSolved' => $progress->solved,
-            'consecutiveCorrect' => $progress->consecutive_correct,
-            'points' => $points,
-        ]);
+        return redirect()
+            ->back()
+            ->with('success', $isCorrect ? 'Richtig! 🎉' : 'Leider falsch. Versuche es nochmal!');
     }
 
     /**

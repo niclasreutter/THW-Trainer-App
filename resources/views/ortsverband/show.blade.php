@@ -273,6 +273,85 @@
             $ausbilder = $ortsverband->members()->wherePivot('role', 'ausbildungsbeauftragter')->get();
         @endphp
 
+        <!-- Lernpools Sektion -->
+        <div class="info-card" style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 1px solid #bae6fd;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h2 class="info-title" style="color: #0369a1; margin: 0;">📚 Lernpools</h2>
+                @if($userIsAusbilder)
+                    <a href="{{ route('ortsverband.lernpools.index', $ortsverband) }}" 
+                       style="background: #3b82f6; color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; text-decoration: none; font-size: 0.9rem; font-weight: 600;">
+                        Verwalten →
+                    </a>
+                @endif
+            </div>
+
+            @php
+                $activeLernpools = $ortsverband->activeLernpools;
+                $userEnrollments = auth()->user()->lernpoolEnrollments->pluck('ortsverband_lernpool_id')->toArray();
+            @endphp
+
+            @if($activeLernpools->count() > 0)
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1rem;">
+                    @foreach($activeLernpools as $pool)
+                        @php
+                            $isEnrolled = in_array($pool->id, $userEnrollments);
+                            $totalQuestions = $pool->getQuestionCount();
+                            $enrollment = auth()->user()->lernpoolEnrollments()->where('ortsverband_lernpool_id', $pool->id)->first();
+                            $progress = $enrollment ? $enrollment->getProgress() : 0;
+                        @endphp
+                        <div style="background: white; padding: 1.25rem; border-radius: 0.75rem; border: 1px solid #e5e7eb; display: flex; flex-direction: column;">
+                            <h3 style="font-size: 1.1rem; font-weight: 600; color: #0369a1; margin: 0 0 0.5rem 0;">{{ $pool->name }}</h3>
+                            <p style="font-size: 0.85rem; color: #6b7280; margin: 0 0 1rem 0;">{{ Str::limit($pool->description, 80) }}</p>
+                            
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin: 1rem 0; font-size: 0.85rem;">
+                                <div style="background: #f3f4f6; padding: 0.75rem; border-radius: 0.5rem; text-align: center;">
+                                    <div style="font-weight: 600; color: #0369a1;">{{ $totalQuestions }}</div>
+                                    <div style="color: #6b7280;">Fragen</div>
+                                </div>
+                                <div style="background: #f3f4f6; padding: 0.75rem; border-radius: 0.5rem; text-align: center;">
+                                    <div style="font-weight: 600; color: #0369a1;">{{ round($progress) }}%</div>
+                                    <div style="color: #6b7280;">Fortschritt</div>
+                                </div>
+                            </div>
+
+                            <div style="margin-bottom: 1rem;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; font-size: 0.8rem;">
+                                    <span style="color: #6b7280;">Lernfortschritt</span>
+                                    <span style="color: #0369a1; font-weight: 600;">{{ round($progress) }}%</span>
+                                </div>
+                                <div style="width: 100%; height: 6px; background: #e5e7eb; border-radius: 3px; overflow: hidden;">
+                                    <div style="height: 100%; background: linear-gradient(90deg, #3b82f6, #0369a1); width: {{ $progress }}%; transition: width 0.3s ease;"></div>
+                                </div>
+                            </div>
+
+                            @if($isEnrolled)
+                                <a href="{{ route('ortsverband.lernpools.practice.show', [$ortsverband, $pool]) }}" 
+                                   style="background: #10b981; color: white; padding: 0.65rem; border-radius: 0.5rem; text-align: center; text-decoration: none; font-weight: 600; font-size: 0.9rem; margin-top: auto;">
+                                    ✓ Weitermachen
+                                </a>
+                            @else
+                                <form action="{{ route('ortsverband.lernpools.enroll', [$ortsverband, $pool]) }}" method="POST" style="margin-top: auto;">
+                                    @csrf
+                                    <button type="submit" style="width: 100%; background: #3b82f6; color: white; padding: 0.65rem; border: none; border-radius: 0.5rem; font-weight: 600; font-size: 0.9rem; cursor: pointer;">
+                                        + Beitreten
+                                    </button>
+                                </form>
+                            @endif
+                        </div>
+                    @endforeach
+                </div>
+            @else
+                <p style="color: #6b7280; text-align: center; padding: 2rem 0; margin: 0;">
+                    Noch keine Lernpools verfügbar.
+                    @if($userIsAusbilder)
+                        <a href="{{ route('ortsverband.lernpools.index', $ortsverband) }}" style="color: #3b82f6; text-decoration: none; font-weight: 600;">
+                            Erstelle jetzt einen →
+                        </a>
+                    @endif
+                </p>
+            @endif
+        </div>
+
         @if($userIsAusbilder)
         <!-- Ausbilder sieht alle Mitglieder -->
         <div class="info-card">
