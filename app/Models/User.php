@@ -160,4 +160,27 @@ class User extends Authenticatable implements MustVerifyEmail
             throw $e;
         }
     }
+
+    /**
+     * Lernpool Relationships
+     */
+    public function lernpoolEnrollments()
+    {
+        return $this->hasMany(OrtsverbandLernpoolEnrollment::class);
+    }
+
+    public function enrolledLernpools()
+    {
+        return $this->belongsToMany(
+            OrtsverbandLernpool::class,
+            'ortsverband_lernpool_enrollments',
+            'user_id',
+            'lernpool_id'
+        )->withPivot('enrolled_at', 'completed_at');
+    }
+
+    public function lernpoolProgress()
+    {
+        return $this->hasMany(OrtsverbandLernpoolProgress::class);
+    }
 }
