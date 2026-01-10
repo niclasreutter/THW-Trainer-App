@@ -304,6 +304,176 @@
         margin-bottom: 1.5rem;
     }
 
+    /* Modal Styles */
+    .modal-backdrop {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+        z-index: 1000;
+        animation: fadeIn 0.3s ease;
+    }
+
+    .modal-backdrop.active {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    .modal {
+        background: white;
+        border-radius: 1.5rem;
+        box-shadow: 0 20px 60px rgba(15, 23, 42, 0.15);
+        width: 90%;
+        max-width: 600px;
+        max-height: 90vh;
+        overflow-y: auto;
+        animation: slideUp 0.3s ease;
+        position: relative;
+    }
+
+    @keyframes slideUp {
+        from { transform: translateY(30px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+
+    .modal-header {
+        padding: 2rem;
+        border-bottom: 1px solid #e5e7eb;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .modal-header h2 {
+        margin: 0;
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #00337F;
+    }
+
+    .modal-close {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: #6b7280;
+        transition: color 0.2s;
+        padding: 0;
+        width: 2rem;
+        height: 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal-close:hover {
+        color: #1f2937;
+    }
+
+    .modal-body {
+        padding: 2rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        display: block;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #00337F;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-label .required {
+        color: #dc2626;
+    }
+
+    .form-input, .form-textarea {
+        width: 100%;
+        padding: 0.75rem;
+        border: 2px solid #e5e7eb;
+        border-radius: 0.75rem;
+        font-size: 0.95rem;
+        transition: border-color 0.2s;
+        font-family: inherit;
+    }
+
+    .form-input:focus, .form-textarea:focus {
+        outline: none;
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .form-input.error, .form-textarea.error {
+        border-color: #dc2626;
+    }
+
+    .form-textarea {
+        resize: vertical;
+    }
+
+    .form-checkbox {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .form-checkbox input {
+        width: 1.25rem;
+        height: 1.25rem;
+        cursor: pointer;
+    }
+
+    .form-checkbox label {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #00337F;
+        cursor: pointer;
+        margin: 0;
+    }
+
+    .form-error {
+        color: #dc2626;
+        font-size: 0.85rem;
+        margin-top: 0.25rem;
+    }
+
+    .modal-footer {
+        padding: 1.5rem 2rem;
+        border-top: 1px solid #e5e7eb;
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .modal-footer .btn {
+        flex: 1;
+        min-width: 120px;
+        justify-content: center;
+    }
+
+    .btn-modal-close {
+        background: #f3f4f6;
+        color: #00337F;
+        border: 1px solid #e5e7eb;
+    }
+
+    .btn-modal-close:hover {
+        background: #e5e7eb;
+    }
+
     @media (max-width: 480px) {
         .dashboard-container { padding: 1rem; }
         .info-card { padding: 1.25rem; }
@@ -363,9 +533,9 @@
             </div>
 
             <div class="button-group">
-                <a href="{{ route('ortsverband.lernpools.create', $ortsverband) }}" class="btn btn-primary">
+                <button id="openCreateModal" class="btn btn-primary">
                     ➕ Neuer Lernpool
-                </a>
+                </button>
                 <a href="{{ route('ortsverband.show', $ortsverband) }}" class="btn btn-secondary">
                     ← Zurück zum Ortsverband
                 </a>
@@ -446,4 +616,137 @@
         </div>
     </div>
 </div>
+
+<!-- Modal für neuen Lernpool -->
+<div id="createModal" class="modal-backdrop">
+    <div class="modal">
+        <div class="modal-header">
+            <h2>Neuer Lernpool</h2>
+            <button id="closeCreateModal" class="modal-close">✕</button>
+        </div>
+        <form id="createLernpoolForm" action="{{ route('ortsverband.lernpools.store', $ortsverband) }}" method="POST">
+            @csrf
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="name" class="form-label">
+                        Name <span class="required">*</span>
+                    </label>
+                    <input type="text" name="name" id="name" class="form-input" 
+                           placeholder="z.B. Grundlagen Erste Hilfe" required>
+                    <p class="form-error" id="nameError" style="display: none;"></p>
+                </div>
+
+                <div class="form-group">
+                    <label for="description" class="form-label">
+                        Beschreibung <span class="required">*</span>
+                    </label>
+                    <textarea name="description" id="description" rows="5" class="form-textarea" 
+                              placeholder="Beschreibung des Lernpools..." required></textarea>
+                    <p class="form-error" id="descriptionError" style="display: none;"></p>
+                </div>
+
+                <div class="form-group">
+                    <div class="form-checkbox">
+                        <input type="checkbox" name="is_active" id="is_active" value="1" checked>
+                        <label for="is_active">Sofort aktivieren</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" id="cancelCreateModal" class="btn btn-modal-close">
+                    Abbrechen
+                </button>
+                <button type="submit" class="btn btn-primary">
+                    ✓ Erstellen
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const modal = document.getElementById('createModal');
+        const openBtn = document.getElementById('openCreateModal');
+        const closeBtn = document.getElementById('closeCreateModal');
+        const cancelBtn = document.getElementById('cancelCreateModal');
+        const form = document.getElementById('createLernpoolForm');
+
+        // Open Modal
+        openBtn.addEventListener('click', function() {
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+
+        // Close Modal
+        function closeModal() {
+            modal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+            form.reset();
+            document.getElementById('nameError').style.display = 'none';
+            document.getElementById('descriptionError').style.display = 'none';
+        }
+
+        closeBtn.addEventListener('click', closeModal);
+        cancelBtn.addEventListener('click', closeModal);
+
+        // Close on backdrop click
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+
+        // Close on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && modal.classList.contains('active')) {
+                closeModal();
+            }
+        });
+
+        // Form submission
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(form);
+            
+            fetch(form.action, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok && response.status !== 422) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.text();
+            })
+            .then(data => {
+                if (data.includes('success') || data.includes('Lernpool erfolgreich erstellt')) {
+                    // Reload page on success
+                    window.location.reload();
+                } else {
+                    // Show validation errors
+                    const nameInput = document.getElementById('name');
+                    const descriptionInput = document.getElementById('description');
+                    
+                    if (data.includes('name') && nameInput.value === '') {
+                        document.getElementById('nameError').textContent = 'Name ist erforderlich';
+                        document.getElementById('nameError').style.display = 'block';
+                    }
+                    if (data.includes('description') && descriptionInput.value === '') {
+                        document.getElementById('descriptionError').textContent = 'Beschreibung ist erforderlich';
+                        document.getElementById('descriptionError').style.display = 'block';
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    });
+</script>
 @endsection
