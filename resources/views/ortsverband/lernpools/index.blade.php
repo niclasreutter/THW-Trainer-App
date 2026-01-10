@@ -540,10 +540,9 @@
                     ← Zurück zum Ortsverband
                 </a>
             </div>
-        </div>
 
-        @if($lernpools->count() > 0)
-            <div class="pool-grid">
+            @if($lernpools->count() > 0)
+                <div class="pool-grid">
                     @foreach($lernpools as $pool)
                         @php
                             $progress = round($pool->getAverageProgress());
@@ -615,8 +614,6 @@
                 </div>
             @endif
         </div>
-    </div>
-</div>
 
 <!-- Modal für neuen Lernpool -->
 <div id="createModal" class="modal-backdrop">
