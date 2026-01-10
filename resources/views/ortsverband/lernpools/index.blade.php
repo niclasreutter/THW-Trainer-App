@@ -540,9 +540,10 @@
                     ← Zurück zum Ortsverband
                 </a>
             </div>
+        </div>
 
-            @if($lernpools->count() > 0)
-                <div class="pool-grid">
+        @if($lernpools->count() > 0)
+            <div class="pool-grid">
                     @foreach($lernpools as $pool)
                         @php
                             $progress = round($pool->getAverageProgress());
