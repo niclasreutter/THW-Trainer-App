@@ -705,47 +705,10 @@
             }
         });
 
-        // Form submission
+        // Form submission - just submit normally (page will reload on redirect)
         form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const formData = new FormData(form);
-            
-            fetch(form.action, {
-                method: 'POST',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                },
-                body: formData
-            })
-            .then(response => {
-                if (!response.ok && response.status !== 422) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.text();
-            })
-            .then(data => {
-                if (data.includes('success') || data.includes('Lernpool erfolgreich erstellt')) {
-                    // Reload page on success
-                    window.location.reload();
-                } else {
-                    // Show validation errors
-                    const nameInput = document.getElementById('name');
-                    const descriptionInput = document.getElementById('description');
-                    
-                    if (data.includes('name') && nameInput.value === '') {
-                        document.getElementById('nameError').textContent = 'Name ist erforderlich';
-                        document.getElementById('nameError').style.display = 'block';
-                    }
-                    if (data.includes('description') && descriptionInput.value === '') {
-                        document.getElementById('descriptionError').textContent = 'Beschreibung ist erforderlich';
-                        document.getElementById('descriptionError').style.display = 'block';
-                    }
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
+            // Allow normal form submission - no preventDefault
+            // Laravel will redirect after successful creation
         });
     });
 </script>
