@@ -585,13 +585,14 @@
                             </div>
 
                             <div class="pool-card-actions">
-                                <a href="{{ route('ortsverband.lernpools.show', [$ortsverband, $pool]) }}" class="action-link">
+                            <div class="pool-card-actions">
+                                <a href="{{ route('ortsverband.lernpools.show', [$ortsverband, $pool]) }}" class="action-link modal-trigger" data-modal-type="show">
                                     👁️ Details
                                 </a>
-                                <a href="{{ route('ortsverband.lernpools.edit', [$ortsverband, $pool]) }}" class="action-link">
+                                <a href="{{ route('ortsverband.lernpools.edit', [$ortsverband, $pool]) }}" class="action-link modal-trigger" data-modal-type="edit">
                                     ✏️ Bearbeiten
                                 </a>
-                                <a href="{{ route('ortsverband.lernpools.questions.index', [$ortsverband, $pool]) }}" class="action-link">
+                                <a href="{{ route('ortsverband.lernpools.questions.index', [$ortsverband, $pool]) }}" class="action-link modal-trigger" data-modal-type="questions">
                                     ❓ Fragen
                                 </a>
                                 <form action="{{ route('ortsverband.lernpools.destroy', [$ortsverband, $pool]) }}" method="POST" style="display: inline;" onsubmit="return confirm('Lernpool wirklich löschen?');">
@@ -711,5 +712,65 @@
             // Laravel will redirect after successful creation
         });
     });
+
+    // Generic Modal Loader für Show/Edit/Fragen
+    document.addEventListener('DOMContentLoaded', function() {
+        const genericModal = document.getElementById('genericModal');
+        const genericModalBackdrop = document.getElementById('genericModalBackdrop');
+        const closeGenericModalBtn = document.getElementById('closeGenericModal');
+        const cancelGenericModalBtn = document.getElementById('cancelGenericModal');
+        const modalTriggers = document.querySelectorAll('.modal-trigger');
+
+        function closeGenericModal() {
+            genericModalBackdrop.classList.remove('active');
+            document.body.style.overflow = 'auto';
+            genericModal.innerHTML = '';
+        }
+
+        closeGenericModalBtn.addEventListener('click', closeGenericModal);
+        cancelGenericModalBtn.addEventListener('click', closeGenericModal);
+
+        genericModalBackdrop.addEventListener('click', function(e) {
+            if (e.target === genericModalBackdrop) {
+                closeGenericModal();
+            }
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && genericModalBackdrop.classList.contains('active')) {
+                closeGenericModal();
+            }
+        });
+
+        modalTriggers.forEach(trigger => {
+            trigger.addEventListener('click', function(e) {
+                e.preventDefault();
+                const url = this.href;
+                
+                fetch(url, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.text())
+                .then(html => {
+                    genericModal.innerHTML = html;
+                    genericModalBackdrop.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                })
+                .catch(error => {
+                    console.error('Error loading modal:', error);
+                    genericModal.innerHTML = '<div class="modal"><div class="modal-header"><h2>Fehler</h2><button class="modal-close" onclick="this.closest(\'#genericModalBackdrop\').classList.remove(\'active\')">✕</button></div><div class="modal-body"><p>Fehler beim Laden des Inhalts.</p></div></div>';
+                    genericModalBackdrop.classList.add('active');
+                });
+            });
+        });
+    });
 </script>
+
+<!-- Generisches Modal für Show/Edit/Fragen -->
+<div id="genericModalBackdrop" class="modal-backdrop">
+    <div id="genericModal"></div>
+</div>
+
 @endsection
