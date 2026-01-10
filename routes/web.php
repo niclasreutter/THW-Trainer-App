@@ -219,6 +219,16 @@ Route::middleware('auth')->group(function () {
             Route::post('/{ortsverband}/invitations', [\App\Http\Controllers\OrtsverbandInvitationController::class, 'store'])->name('invitations.store');
             Route::delete('/{ortsverband}/invitations/{invitation}', [\App\Http\Controllers\OrtsverbandInvitationController::class, 'destroy'])->name('invitations.destroy');
             Route::put('/{ortsverband}/invitations/{invitation}/toggle', [\App\Http\Controllers\OrtsverbandInvitationController::class, 'toggle'])->name('invitations.toggle');
+            
+            // Lernpools für Mitglieder (Einschreiben & Lernen)
+            Route::post('/{ortsverband}/lernpools/{lernpool}/enroll', [\App\Http\Controllers\OrtsverbandLernpoolController::class, 'enroll'])->name('lernpools.enroll');
+            Route::get('/{ortsverband}/lernpools/{lernpool}/practice', [\App\Http\Controllers\OrtsverbandLernpoolPracticeController::class, 'show'])->name('lernpools.practice');
+            Route::post('/{ortsverband}/lernpools/{lernpool}/answer', [\App\Http\Controllers\OrtsverbandLernpoolPracticeController::class, 'answer'])->name('lernpools.answer');
+            Route::post('/{ortsverband}/lernpools/{lernpool}/unenroll', [\App\Http\Controllers\OrtsverbandLernpoolPracticeController::class, 'unenroll'])->name('lernpools.unenroll');
+            
+            // Lernpools für Ausbilder (CRUD)
+            Route::resource('/{ortsverband}/lernpools', \App\Http\Controllers\OrtsverbandLernpoolController::class)->names('lernpools');
+            Route::resource('/{ortsverband}/lernpools/{lernpool}/questions', \App\Http\Controllers\OrtsverbandLernpoolQuestionController::class)->names('lernpools.questions');
         });
     });
     

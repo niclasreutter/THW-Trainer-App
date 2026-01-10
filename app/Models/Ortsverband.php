@@ -214,4 +214,21 @@ class Ortsverband extends Model
             })->count()
         ];
     }
+
+    /**
+     * Alle Lernpools dieses Ortsverbands
+     */
+    public function lernpools(): HasMany
+    {
+        return $this->hasMany(OrtsverbandLernpool::class);
+    }
+
+    /**
+     * Aktive Lernpools
+     */
+    public function activeLernpools(): HasMany
+    {
+        return $this->lernpools()->where('is_active', true);
+    }
 }
+
