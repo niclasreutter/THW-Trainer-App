@@ -5,11 +5,14 @@ namespace App\Http\Controllers;
 use App\Models\Ortsverband;
 use App\Models\OrtsverbandLernpool;
 use App\Models\OrtsverbandLernpoolEnrollment;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 class OrtsverbandLernpoolController extends Controller
 {
+    use AuthorizesRequests;
+
     /**
      * Zeige alle Lernpools eines Ortsverbands (Ausbilder-View)
      */

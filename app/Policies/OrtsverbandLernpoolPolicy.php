@@ -29,8 +29,8 @@ class OrtsverbandLernpoolPolicy
      */
     public function create(User $user, Ortsverband $ortsverband): bool
     {
-        // Nur OV-Admins des gleichen Ortsverbands können Lernpools erstellen
-        return $user->is_admin || ($user->ortsverband_id === $ortsverband->id && $user->is_admin);
+        // Global-Admin oder Ausbildungsbeauftragter des Ortsverbands
+        return $user->is_admin || $ortsverband->isAusbildungsbeauftragter($user);
     }
 
     /**
