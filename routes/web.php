@@ -22,6 +22,9 @@ Route::get('/offline', function () {
     return view('offline');
 })->name('offline');
 
+// Sitemap für SEO
+Route::get('/sitemap.xml', [\App\Http\Controllers\SitemapController::class, 'index'])->name('sitemap');
+
 // Kontaktformular (öffentlich zugänglich)
 Route::get('/kontakt', [\App\Http\Controllers\ContactController::class, 'index'])->name('contact.index');
 Route::post('/kontakt', [\App\Http\Controllers\ContactController::class, 'store'])

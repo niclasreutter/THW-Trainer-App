@@ -60,9 +60,30 @@
         <!-- PWA Manifest -->
         <link rel="manifest" href="{{ asset('manifest.json') }}">
 
+        <!-- Schema.org EducationalOrganization Markup -->
+        <script type="application/ld+json">
+        {
+            "@@context": "https://schema.org",
+            "@@type": "EducationalOrganization",
+            "name": "THW-Trainer",
+            "url": "{{ url('/') }}",
+            "logo": "{{ asset('logo-thwtrainer.png') }}",
+            "description": "Kostenlose THW Theorie Prüfungsvorbereitung für die Grundausbildung im Technischen Hilfswerk",
+            "educationalCredentialAwarded": "THW Grundausbildung Theorie",
+            "areaServed": "DE",
+            "availableLanguage": "de",
+            "offers": {
+                "@@type": "Offer",
+                "price": "0",
+                "priceCurrency": "EUR",
+                "description": "Kostenlose THW Theoriefragen und Prüfungssimulation"
+            }
+        }
+        </script>
+
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
-        
+
         <!-- Global Sticky Footer CSS -->
         <style>
             /* CACHE BUST v1.0 - GLOBAL STICKY FOOTER - 2025-10-21-17:15 */

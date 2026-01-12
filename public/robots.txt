@@ -1,0 +1,37 @@
+# robots.txt für THW-Trainer
+# Generiert: 2026-01-12
+
+User-agent: *
+Allow: /
+
+# Sitemap (wird dynamisch über Route generiert)
+Sitemap: https://thw-trainer.de/sitemap.xml
+
+# Private Bereiche blockieren
+Disallow: /dashboard
+Disallow: /profile
+Disallow: /exam
+Disallow: /practice
+Disallow: /admin
+Disallow: /api
+Disallow: /ortsverband/*/lernpools/*/practice
+
+# Assets erlauben
+Allow: /css/
+Allow: /js/
+Allow: /images/
+Allow: /build/
+
+# Anonym-Bereiche ERLAUBEN (für SEO wichtig!)
+Allow: /guest/
+Allow: /guest/practice
+Allow: /guest/exam
+
+# System-Dateien blockieren
+Disallow: /*.env
+Disallow: /*.git
+Disallow: /vendor/
+Disallow: /storage/
+
+# Crawl-Delay für Bots (optional)
+Crawl-delay: 1

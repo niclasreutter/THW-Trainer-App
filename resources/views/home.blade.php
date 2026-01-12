@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'THW-Trainer - Kostenlos THW Theorie üben')
-@section('description', 'THW-Trainer: Dein kostenloser digitaler Begleiter für die THW-Theorieprüfung. Alle aktuellen Fragen, Prüfungssimulation und Lernfortschritt. Jetzt anonym starten oder kostenlos registrieren!')
+@section('title', 'THW Theorie lernen kostenlos | THW-Trainer Prüfungsvorbereitung')
+@section('description', 'THW Theorie kostenlos lernen mit 400+ Prüfungsfragen! ✓ Grundausbildung ✓ Prüfungssimulation ✓ Lernfortschritt tracken. Jetzt ohne Anmeldung starten!')
 
 @section('content')
 <!-- CACHE BUST v1.2 - FIX NAV GAP - 2025-10-21-19:00 -->
@@ -33,12 +33,12 @@
         <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; padding: 0 1rem; width: 100%; max-width: 90%;">
             <!-- Haupttitel -->
             <h1 style="font-size: clamp(2rem, 8vw, 3rem); font-weight: bold; color: white; margin-bottom: 1rem; letter-spacing: -0.025em;">
-                THW-Trainer
+                THW Theorie kostenlos üben
             </h1>
-            
+
             <!-- Untertitel -->
             <p style="font-size: clamp(1rem, 4vw, 1.5rem); color: #dbeafe; margin-bottom: 2rem; max-width: 48rem; margin-left: auto; margin-right: auto; font-weight: 300; line-height: 1.4;">
-                Dein digitaler Begleiter in der Grundausbildung zum Üben der THW-Theorie!
+                Dein digitaler Begleiter für die THW Grundausbildung - Jetzt kostenlos starten!
             </p>
             
             <!-- CTA Button -->
@@ -427,6 +427,80 @@ document.addEventListener('DOMContentLoaded', function() {
         icon.style.transition = 'transform 0.3s ease';
     });
 });
+</script>
+
+<!-- Schema.org FAQPage Markup für Rich Snippets -->
+<script type="application/ld+json">
+{
+    "@@context": "https://schema.org",
+    "@@type": "FAQPage",
+    "mainEntity": [
+        {
+            "@@type": "Question",
+            "name": "Was ist die THW Grundausbildung?",
+            "acceptedAnswer": {
+                "@@type": "Answer",
+                "text": "Die THW Grundausbildung ist die erste Ausbildungsstufe im Technischen Hilfswerk. Sie vermittelt die grundlegenden Kenntnisse und Fähigkeiten für alle THW-Helfer. Die Theorie-Prüfung ist ein wichtiger Bestandteil dieser Ausbildung und umfasst Themen wie Rechtsgrundlagen, Organisation des THW, Einsatzgrundlagen und technisches Wissen."
+            }
+        },
+        {
+            "@@type": "Question",
+            "name": "Wie bereite ich mich auf die THW Grundausbildung Theorie vor?",
+            "acceptedAnswer": {
+                "@@type": "Answer",
+                "text": "Der THW-Trainer bietet dir alle aktuelle THW-Theoriefragen zur optimalen Vorbereitung. Übe systematisch alle Themenbereiche, nutze die Prüfungssimulation und verfolge deinen Lernfortschritt. Die App funktioniert auf allen Geräten, sodass du auch unterwegs lernen kannst."
+            }
+        },
+        {
+            "@@type": "Question",
+            "name": "Ist der THW-Trainer kostenlos?",
+            "acceptedAnswer": {
+                "@@type": "Answer",
+                "text": "Ja, der THW-Trainer ist komplett kostenlos! Du kannst sofort mit dem Lernen beginnen, ohne jegliche Kosten. Auch eine Anmeldung ist nicht zwingend erforderlich - du kannst anonym üben oder dich kostenlos registrieren, um deinen Lernfortschritt zu speichern."
+            }
+        },
+        {
+            "@@type": "Question",
+            "name": "Wie viele Fragen gibt es im THW-Trainer?",
+            "acceptedAnswer": {
+                "@@type": "Answer",
+                "text": "Der THW-Trainer enthält alle aktuelle THW-Theoriefragen aus allen relevanten Bereichen der Grundausbildung. Die Fragen werden regelmäßig aktualisiert und spiegeln den aktuellen Stand der THW-Ausbildung wider."
+            }
+        },
+        {
+            "@@type": "Question",
+            "name": "Welche Themen werden in der THW Grundausbildung abgefragt?",
+            "acceptedAnswer": {
+                "@@type": "Answer",
+                "text": "Die THW Grundausbildung umfasst Themen wie: Rechtsgrundlagen, Organisation des THW, Einsatzgrundlagen, Gefahren der Einsatzstelle, Technische Hilfe, Einsatzablauf, Führung und Kommunikation."
+            }
+        },
+        {
+            "@@type": "Question",
+            "name": "Funktioniert der THW-Trainer auf dem Handy?",
+            "acceptedAnswer": {
+                "@@type": "Answer",
+                "text": "Ja, der THW-Trainer ist vollständig responsive und funktioniert optimal auf Smartphones, Tablets und Desktop-Computern. Du kannst überall und jederzeit lernen - egal ob zu Hause, unterwegs oder in der Pause."
+            }
+        },
+        {
+            "@@type": "Question",
+            "name": "Wie schwer ist die THW Grundausbildung Theorie-Prüfung?",
+            "acceptedAnswer": {
+                "@@type": "Answer",
+                "text": "Mit der richtigen Vorbereitung ist die THW Grundausbildung Theorie-Prüfung gut zu schaffen. Der THW-Trainer hilft dir dabei, alle wichtigen Themen zu verstehen und zu üben. Nutze die Prüfungssimulation, um dich unter realistischen Bedingungen zu testen."
+            }
+        },
+        {
+            "@@type": "Question",
+            "name": "Ist der THW-Trainer offiziell vom THW?",
+            "acceptedAnswer": {
+                "@@type": "Answer",
+                "text": "Der THW-Trainer ist eine private Initiative eines aktiven THW-Mitglieds und nicht offiziell vom THW herausgegeben. Die Fragen basieren jedoch auf den offiziellen Ausbildungsunterlagen und werden regelmäßig aktualisiert, um den aktuellen Stand der THW-Ausbildung zu reflektieren."
+            }
+        }
+    ]
+}
 </script>
 
 @endsection
