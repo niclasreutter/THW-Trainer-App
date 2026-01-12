@@ -61,7 +61,7 @@ class OrtsverbandLernpoolController extends Controller
         ]);
 
         return redirect()
-            ->route('ortsverband.lernpools.show', [$ortsverband, $lernpool])
+            ->route('ortsverband.lernpools.index', $ortsverband)
             ->with('success', 'Lernpool erfolgreich erstellt!');
     }
 
