@@ -402,6 +402,10 @@
                 <div class="quick-action-icon">👥</div>
                 <div class="quick-action-label">Mitglieder</div>
             </a>
+            <a href="{{ route('ortsverband.lernpools.index', $ortsverband) }}" class="quick-action">
+                <div class="quick-action-icon">📚</div>
+                <div class="quick-action-label">Lernpools</div>
+            </a>
             <a href="{{ route('ortsverband.invitations.index', $ortsverband) }}" class="quick-action">
                 <div class="quick-action-icon">🔗</div>
                 <div class="quick-action-label">Einladungen</div>
