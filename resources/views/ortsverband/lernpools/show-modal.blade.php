@@ -34,7 +34,7 @@
     
     .user-stats-item {
         background: #f9fafb;
-        padding: 1rem;
+        padding: 0.75rem;
         border-radius: 0.75rem;
         margin-bottom: 0.75rem;
         cursor: pointer;
@@ -60,22 +60,64 @@
         display: flex;
         align-items: center;
         gap: 0.5rem;
+        font-size: 0.9rem;
     }
     
     .user-stat-row {
         display: flex;
         justify-content: space-between;
-        font-size: 0.85rem;
+        font-size: 0.75rem;
         margin-bottom: 0.25rem;
     }
     
     .stat-label {
         color: #6b7280;
+        font-size: 0.75rem;
     }
     
     .stat-value {
         font-weight: 600;
         color: #00337F;
+        font-size: 0.85rem;
+    }
+    
+    .question-stat-row {
+        display: grid;
+        grid-template-columns: 1fr auto auto;
+        gap: 0.5rem;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #e5e7eb;
+        font-size: 0.75rem;
+    }
+    
+    .question-stat-row:last-child {
+        border-bottom: none;
+    }
+    
+    .question-name {
+        color: #1f2937;
+        font-weight: 500;
+        word-break: break-word;
+    }
+    
+    .question-stats {
+        display: flex;
+        gap: 1rem;
+    }
+    
+    .question-stat {
+        text-align: right;
+    }
+    
+    .question-stat-label {
+        color: #6b7280;
+        font-size: 0.7rem;
+    }
+    
+    .question-stat-value {
+        font-weight: 600;
+        color: #00337F;
+        font-size: 0.8rem;
     }
     
     .user-details-content {
@@ -91,7 +133,7 @@
     
     .detail-section {
         background: #f0f9ff;
-        padding: 1rem;
+        padding: 0.75rem;
         border-radius: 0.75rem;
         border: 1px solid #bae6fd;
     }
@@ -99,8 +141,9 @@
     .detail-section h4 {
         font-weight: 600;
         color: #0369a1;
-        margin-bottom: 1rem;
+        margin-bottom: 0.75rem;
         margin-top: 0;
+        font-size: 0.85rem;
     }
 </style>
 
@@ -116,19 +159,19 @@
     <div class="grid grid-cols-2 gap-3 mb-6">
         <div class="bg-gray-50 p-4 rounded-lg">
             <p class="text-xs font-medium text-gray-600">Gesamt Fragen</p>
-            <p class="text-2xl font-bold text-blue-600">{{ $lernpool->getQuestionCount() }}</p>
+            <p class="text-xl font-bold text-blue-600">{{ $lernpool->getQuestionCount() }}</p>
         </div>
         <div class="bg-gray-50 p-4 rounded-lg">
             <p class="text-xs font-medium text-gray-600">Teilnehmer</p>
-            <p class="text-2xl font-bold text-green-600">{{ $lernpool->getEnrollmentCount() }}</p>
+            <p class="text-xl font-bold text-green-600">{{ $lernpool->getEnrollmentCount() }}</p>
         </div>
         <div class="bg-gray-50 p-4 rounded-lg">
             <p class="text-xs font-medium text-gray-600">Ø Fortschritt</p>
-            <p class="text-2xl font-bold text-yellow-600">{{ round($lernpool->getAverageProgress()) }}%</p>
+            <p class="text-xl font-bold text-yellow-600">{{ round($lernpool->getAverageProgress()) }}%</p>
         </div>
         <div class="bg-gray-50 p-4 rounded-lg">
             <p class="text-xs font-medium text-gray-600">Status</p>
-            <p class="text-lg font-bold {{ $lernpool->is_active ? 'text-green-600' : 'text-gray-600' }}">
+            <p class="text-sm font-bold {{ $lernpool->is_active ? 'text-green-600' : 'text-gray-600' }}">
                 {{ $lernpool->is_active ? '✓ Aktiv' : '✗ Inaktiv' }}
             </p>
         </div>
@@ -141,21 +184,41 @@
 
     <!-- Tab: Übersicht -->
     <div id="overview" class="tab-content active">
-        <!-- Fragenübersicht -->
-        <h3 style="font-weight: 600; color: #1f2937; margin-bottom: 1rem; font-size: 0.95rem;">📚 Lernabschnitte</h3>
-        <div class="space-y-3 mb-6">
-            @forelse($questionsBySection as $section => $sectionQuestions)
-                <div>
-                    <h4 class="font-semibold text-sm text-gray-800 mb-1">{{ $section }}</h4>
-                    <p class="text-xs text-gray-600">{{ count($sectionQuestions) }} Fragen</p>
-                </div>
-            @empty
-                <p class="text-gray-600 text-sm">Noch keine Fragen hinzugefügt</p>
-            @endforelse
-        </div>
+        <!-- Fragenübersicht mit Statistiken -->
+        <h3 style="font-weight: 600; color: #1f2937; margin-bottom: 1rem; font-size: 0.9rem;">📚 Fragen ({{ count($questions) }})</h3>
+        @if($questions->isNotEmpty())
+            <div style="background: #f9fafb; padding: 0.75rem; border-radius: 0.75rem; margin-bottom: 1.5rem;">
+                @foreach($questions as $question)
+                    @php
+                        $lernpoolId = $lernpool->id;
+                        $correctCount = \App\Models\OrtsverbandLernpoolProgress::whereHas('question', function($q) use ($lernpoolId) {
+                            $q->where('lernpool_id', $lernpoolId);
+                        })
+                        ->where('question_id', $question->id)
+                        ->where('correct_attempts', '>', 0)
+                        ->distinct('user_id')
+                        ->count('DISTINCT user_id');
+                        
+                        $totalAttempts = \App\Models\OrtsverbandLernpoolProgress::where('question_id', $question->id)->sum('total_attempts');
+                        $totalUsers = $enrollments->count();
+                    @endphp
+                    <div class="question-stat-row">
+                        <div class="question-name">{{ Str::limit($question->frage, 50) }}</div>
+                        <div class="question-stat">
+                            <div class="question-stat-label">Richtig</div>
+                            <div class="question-stat-value">{{ $correctCount }}/{{ $totalUsers }}</div>
+                        </div>
+                        <div class="question-stat">
+                            <div class="question-stat-label">Versuche</div>
+                            <div class="question-stat-value">{{ $totalAttempts }}</div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        @endif
 
         <!-- Teilnehmerliste -->
-        <h3 style="font-weight: 600; color: #1f2937; margin-bottom: 1rem; font-size: 0.95rem;">👥 Teilnehmer ({{ $lernpool->getEnrollmentCount() }})</h3>
+        <h3 style="font-weight: 600; color: #1f2937; margin-bottom: 1rem; font-size: 0.9rem;">👥 Teilnehmer ({{ $lernpool->getEnrollmentCount() }})</h3>
         @forelse($enrollments as $enrollment)
             @php
                 $user = $enrollment->user;
@@ -202,19 +265,19 @@
                     <div class="detail-section">
                         <h4>📊 Detaillierte Statistiken</h4>
                         
-                        <div class="user-stat-row" style="margin-bottom: 0.75rem;">
+                        <div class="user-stat-row" style="margin-bottom: 0.5rem;">
                             <span class="stat-label">Gesamt Versuche:</span>
                             <span class="stat-value">{{ $totalAttempts }}</span>
                         </div>
-                        <div class="user-stat-row" style="margin-bottom: 0.75rem;">
+                        <div class="user-stat-row" style="margin-bottom: 0.5rem;">
                             <span class="stat-label">Richtige Versuche:</span>
                             <span class="stat-value">{{ $correctAttempts }}</span>
                         </div>
-                        <div class="user-stat-row" style="margin-bottom: 0.75rem;">
+                        <div class="user-stat-row" style="margin-bottom: 0.5rem;">
                             <span class="stat-label">Erfolgsquote:</span>
                             <span class="stat-value">{{ $successRate }}%</span>
                         </div>
-                        <div class="user-stat-row" style="margin-bottom: 0.75rem;">
+                        <div class="user-stat-row" style="margin-bottom: 0.5rem;">
                             <span class="stat-label">Gemeisterte Fragen:</span>
                             <span class="stat-value">{{ $solvedCount }}/{{ $questionCount }}</span>
                         </div>
