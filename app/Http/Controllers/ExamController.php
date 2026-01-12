@@ -104,8 +104,31 @@ class ExamController extends Controller
     // Wertet die abgegebene Prüfung aus und zeigt das Ergebnis
     public function submit(Request $request)
     {
-    $fragen = collect($request->fragen_ids ?? [])->map(fn($id) => Question::find($id));
-        $userAnswers = $request->input('answer', []);
+        // 🔒 SECURITY: Validate input before processing
+        $validated = $request->validate([
+            'fragen_ids' => 'required|array|size:40',
+            'fragen_ids.*' => 'required|integer|exists:questions,id',
+            'answer' => 'nullable|array',
+            'answer.*' => 'nullable|array',
+            'answer.*.*' => 'string|in:A,B,C',
+        ]);
+
+        // Load questions securely (only validated IDs)
+        $fragen = Question::whereIn('id', $validated['fragen_ids'])
+            ->get()
+            ->keyBy('id')
+            ->sortBy(function ($question) use ($validated) {
+                return array_search($question->id, $validated['fragen_ids']);
+            })
+            ->values();
+
+        // Verify we got exactly 40 questions
+        if ($fragen->count() !== 40) {
+            return redirect()->route('exam.start')
+                ->with('error', 'Ungültige Prüfung. Bitte starte eine neue Prüfung.');
+        }
+
+        $userAnswers = $validated['answer'] ?? [];
         $results = [];
         $correctCount = 0;
         $failed = [];
