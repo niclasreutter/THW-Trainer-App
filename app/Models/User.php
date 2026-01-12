@@ -23,16 +23,25 @@ class User extends Authenticatable implements MustVerifyEmail
         'name',
         'email',
         'password',
-        'is_admin',
-        'solved_questions',
-        'wrong_answers',
-        'exam_passed_count',
         'last_activity_at',
         'email_consent',
         'email_consent_at',
         'leaderboard_consent',
         'leaderboard_consent_at',
         'leaderboard_banner_dismissed',
+    ];
+
+    /**
+     * The attributes that are not mass assignable (security-critical fields).
+     *
+     * @var list<string>
+     */
+    protected $guarded = [
+        'id',
+        'is_admin',
+        'exam_passed_count',
+        'solved_questions',
+        'wrong_answers',
     ];
 
     /**
