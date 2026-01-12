@@ -36,26 +36,33 @@ class PracticeController extends Controller
         // Defensive Programmierung für Legacy-Daten
         $solved = $this->ensureArray($user->solved_questions);
         $failed = $this->ensureArray($user->exam_failed_questions);
-        
-        // Statistiken für jeden Lernabschnitt berechnen
+
+        // ⚡ PERFORMANCE-OPTIMIERUNG: Eine Query statt 20+
+        // Lade ALLE Fragen einmal und gruppiere nach Lernabschnitt
+        $questionsBySection = Question::select('id', 'lernabschnitt')
+            ->get()
+            ->groupBy('lernabschnitt');
+
+        // Statistiken für jeden Lernabschnitt berechnen (ohne weitere Queries)
         $sectionStats = [];
         for ($i = 1; $i <= 10; $i++) {
-            $totalQuestions = Question::where('lernabschnitt', $i)->count();
-            $sectionQuestionIds = Question::where('lernabschnitt', $i)->pluck('id')->toArray();
+            $sectionQuestions = $questionsBySection->get($i, collect());
+            $sectionQuestionIds = $sectionQuestions->pluck('id')->toArray();
+            $totalQuestions = count($sectionQuestionIds);
             $solvedInSection = count(array_intersect($solved, $sectionQuestionIds));
-            
+
             $sectionStats[$i] = [
                 'total' => $totalQuestions,
                 'solved' => $solvedInSection
             ];
         }
-        
-        // Allgemeine Statistiken
-        $totalQuestions = Question::count();
+
+        // Allgemeine Statistiken (aus bereits geladenen Daten)
+        $totalQuestions = $questionsBySection->flatten()->count();
         $solvedCount = count($solved);
         $failedCount = count($failed);
         $unsolvedCount = $totalQuestions - $solvedCount;
-        
+
         // Neue Fortschrittsbalken-Logik: Berücksichtigt auch 1x richtige Antworten
         $progressData = UserQuestionProgress::where('user_id', $user->id)->get();
         $totalProgressPoints = 0;
@@ -64,7 +71,7 @@ class PracticeController extends Controller
         }
         $maxProgressPoints = $totalQuestions * 2;
         $progressPercentage = $maxProgressPoints > 0 ? round(($totalProgressPoints / $maxProgressPoints) * 100) : 0;
-        
+
         $sectionNames = self::SECTION_NAMES;
         return view('practice-menu', compact('sectionStats', 'totalQuestions', 'solvedCount', 'failedCount', 'unsolvedCount', 'sectionNames', 'progressPercentage'));
     }
