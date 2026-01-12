@@ -484,6 +484,37 @@
         background: #e5e7eb;
     }
 
+    /* Loading Animation */
+    .modal-loading {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 3rem 2rem;
+        text-align: center;
+    }
+
+    .spinner {
+        width: 50px;
+        height: 50px;
+        border: 4px solid #e5e7eb;
+        border-top: 4px solid #2563eb;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+        margin-bottom: 1rem;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .modal-loading-text {
+        color: #6b7280;
+        font-size: 1rem;
+        font-weight: 500;
+    }
+
     @media (max-width: 480px) {
         .dashboard-container { padding: 1rem; }
         .info-card { padding: 1.25rem; }
@@ -756,8 +787,8 @@
                 const cacheBuster = '_t=' + Date.now();
                 const url = baseUrl + (baseUrl.includes('?') ? '&' : '?') + 'ajax=1&' + cacheBuster;
                 
-                // WICHTIG: Modal-Inhalt sofort leeren
-                genericModal.innerHTML = '<div class="modal"><div class="modal-body"><p style="text-align: center; padding: 2rem;">Lädt...</p></div></div>';
+                // WICHTIG: Modal-Inhalt sofort leeren und Loading-Animation zeigen
+                genericModal.innerHTML = '<div class="modal"><div class="modal-body modal-loading"><div class="spinner"></div><div class="modal-loading-text">Lädt...</div></div></div>';
                 genericModalBackdrop.classList.add('active');
                 
                 fetch(url, {

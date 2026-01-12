@@ -703,6 +703,45 @@ return redirect()->route('ortsverband.lernpools.practice', [$ortsverband, $lernp
    git commit -m "🎨 Mobile Ansicht verbessert"
 ```
 
+#### Modern Dashboard Design Pattern
+
+**WICHTIG: Verwende dieses Design-Pattern für alle Dashboard/Admin-Seiten:**
+
+```html
+<!-- Moderne Überschrift mit Farbverlauf -->
+<div class="dashboard-header">
+    <h1 class="dashboard-greeting">📚 <span>Überschrift</span></h1>
+    <p class="dashboard-subtitle">Beschreibung</p>
+</div>
+```
+
+```css
+/* CSS für Farbverlauf in der Überschrift */
+.dashboard-greeting {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #00337F;
+    margin-bottom: 0.5rem;
+    line-height: 1.2;
+}
+
+.dashboard-greeting span {
+    display: inline-block;
+    background: linear-gradient(90deg, #fbbf24, #f59e0b);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+```
+
+**Wichtige Design-Elemente:**
+- **Gradient-Text**: Verwende `<span>` um den Haupttext mit goldenem Farbverlauf (#fbbf24 → #f59e0b)
+- **Emoji-Icons**: Füge passende Emojis VOR dem Text hinzu (nicht im span)
+- **Statistik-Karten**: Mit Hover-Effekten und Icons
+- **Moderne Buttons**: Mit Gradient-Hintergründen und Hover-Animationen
+- **Info-Cards**: Mit abgerundeten Ecken und Schatten
+- **Responsive**: Mobile-first Ansatz mit Media Queries
+
 ### Task 5: Optimizing Database Queries
 
 **Example: N+1 query problem in Lernpool index**
