@@ -200,30 +200,20 @@ class OrtsverbandLernpoolPracticeController extends Controller
         
         $progress->save();
 
-        // Gamification: Punkte & XP
-        $pointsAwarded = 0;
-        $reason = '';
+        // Gamification: Punkte & XP über awardQuestionPoints
+        $gamificationResult = $this->gamificationService->awardQuestionPoints($user, $isCorrect, $question->id);
+        $pointsAwarded = $gamificationResult['points'] ?? 10;
+        $reason = $gamificationResult['reason'] ?? 'Frage beantwortet';
         
+        // Zusatzbonus bei Meisterung (2x hintereinander richtig)
+        if ($isCorrect && $progress->solved && $progress->consecutive_correct == 2) {
+            $pointsAwarded += 15;
+            $reason = 'Frage gemeistert!';
+        }
+        
+        // Streak Update bei richtiger Antwort
         if ($isCorrect) {
-            $pointsAwarded = 10; // Base Punkte pro richtige Antwort
-            $reason = 'Frage richtig beantwortet';
-            
-            // Bonus wenn gemeistert
-            if ($progress->solved && $progress->consecutive_correct == 2) {
-                $pointsAwarded += 15;
-                $reason = 'Frage gemeistert!';
-                $this->gamificationService->addXP($user, 25, 'lernpool_question_solved');
-            } else {
-                $this->gamificationService->addXP($user, 10, 'lernpool_question_correct');
-            }
-            
-            // Aktualisiere Punkte
-            $user->increment('punkte', $pointsAwarded);
-            
-            // Aktualisiere Streak
             $this->gamificationService->updateStreak($user);
-        } else {
-            $this->gamificationService->addXP($user, 2, 'lernpool_question_attempted');
         }
 
         // Session-Daten für Anzeige (wie in PracticeController)
