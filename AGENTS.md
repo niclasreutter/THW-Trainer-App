@@ -351,13 +351,13 @@ git add -A && git commit -m "EMOJI: Beschreibung (max 4 Wörter)"
 
 **Commit Message Format:**
 - Emoji am Anfang: ✨ (Feature), 🐛 (Bug), 📝 (Docs), 🎨 (UI/UX), ⚡ (Performance), ♻️ (Refactor)
-- Beschreibung: Maximal 4 Wörter, prägnant
+- Beschreibung: Maximal 4 Wörter, prägnant, **AUF DEUTSCH**
 - **Beispiele:**
-  - ✨ Add Lernpool Practice
-  - 🐛 Fix Answer Mapping Bug
-  - 📝 Update AGENTS Documentation
-  - 🎨 Redesign Practice View
-  - ⚡ Optimize Database Queries
+  - ✨ Lernpool Practice hinzugefügt
+  - 🐛 Answer Mapping Bug behoben
+  - 📝 AGENTS Dokumentation aktualisiert
+  - 🎨 Practice View redesigned
+  - ⚡ Datenbankabfragen optimiert
 
 
 ### Deployment Checklist:

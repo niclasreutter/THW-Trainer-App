@@ -485,7 +485,16 @@
                             $enrollment = auth()->user()->lernpoolEnrollments()->where('lernpool_id', $pool->id)->first();
                             $progress = $enrollment ? $enrollment->getProgress() : 0;
                         @endphp
-                        <div class="lernpool-card">
+                        <div class="lernpool-card" style="position: relative;">
+                            @if($isEnrolled)
+                                <form action="{{ route('ortsverband.lernpools.unenroll', [$ortsverband, $pool]) }}" method="POST" style="position: absolute; top: 0.75rem; right: 0.75rem; margin: 0;">
+                                    @csrf
+                                    <button type="submit" class="btn" style="background: #ef4444; color: white; width: 2rem; height: 2rem; padding: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; line-height: 1; cursor: pointer; border: none;" title="Verlassen" onclick="return confirm('Möchtest du diesen Lernpool wirklich verlassen?')">
+                                        ×
+                                    </button>
+                                </form>
+                            @endif
+                            
                             <div class="lernpool-name">{{ $pool->name }}</div>
                             <div class="lernpool-description">{{ Str::limit($pool->description, 80) }}</div>
                             
@@ -505,7 +514,7 @@
                             </div>
 
                             @if($isEnrolled)
-                                <a href="{{ route('ortsverband.lernpools.practice', [$ortsverband, $pool]) }}" class="btn btn-success">
+                                <a href="{{ route('ortsverband.lernpools.practice', [$ortsverband, $pool]) }}" class="btn btn-success" style="width: 100%;">
                                     ✓ Weitermachen
                                 </a>
                             @else
