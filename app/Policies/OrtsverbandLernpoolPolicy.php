@@ -68,7 +68,7 @@ class OrtsverbandLernpoolPolicy
     {
         // Benutzer muss angemeldet sein
         return $user->lernpoolEnrollments()
-            ->where('ortsverband_lernpool_id', $lernpool->id)
+            ->where('lernpool_id', $lernpool->id)
             ->exists();
     }
 
@@ -78,7 +78,7 @@ class OrtsverbandLernpoolPolicy
     public function unenroll(User $user, OrtsverbandLernpool $lernpool): bool
     {
         return $user->lernpoolEnrollments()
-            ->where('ortsverband_lernpool_id', $lernpool->id)
+            ->where('lernpool_id', $lernpool->id)
             ->exists();
     }
 }

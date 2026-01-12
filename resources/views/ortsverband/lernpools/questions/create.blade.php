@@ -15,11 +15,18 @@
             <div class="grid grid-cols-2 gap-6 mb-6">
                 <div>
                     <label for="lernabschnitt" class="block text-sm font-semibold text-gray-900 mb-2">
-                        Lernabschnitt <span class="text-red-600">*</span>
+                        Lernabschnitt <span style="font-weight: normal; color: #6b7280;">(optional)</span>
                     </label>
                     <input type="text" name="lernabschnitt" id="lernabschnitt" value="{{ old('lernabschnitt') }}" 
                            class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none @error('lernabschnitt') border-red-500 @enderror" 
-                           placeholder="z.B. 1.1" required>
+                           placeholder="z.B. 1.1"
+                           list="lernabschnitt-suggestions"
+                           onchange="updateNummer()">
+                    <datalist id="lernabschnitt-suggestions">
+                        @foreach($existingSections as $section)
+                            <option value="{{ $section }}">
+                        @endforeach
+                    </datalist>
                     @error('lernabschnitt')
                         <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                     @enderror
@@ -29,9 +36,9 @@
                     <label for="nummer" class="block text-sm font-semibold text-gray-900 mb-2">
                         Fragenummer <span class="text-red-600">*</span>
                     </label>
-                    <input type="number" name="nummer" id="nummer" value="{{ old('nummer') }}" 
+                    <input type="number" name="nummer" id="nummer" value="{{ old('nummer', $nextNumber) }}" 
                            class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none @error('nummer') border-red-500 @enderror" 
-                           required>
+                           min="1" required>
                     @error('nummer')
                         <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                     @enderror
@@ -89,21 +96,40 @@
             </div>
 
             <div class="mb-6 p-4 bg-blue-50 border-l-4 border-blue-500 rounded">
-                <label for="loesung" class="block text-sm font-semibold text-gray-900 mb-2">
-                    Korrekte Antwort <span class="text-red-600">*</span>
+                <label class="block text-sm font-semibold text-gray-900 mb-2">
+                    Korrekte Antwort(en) <span class="text-red-600">*</span>
                 </label>
-                <select name="loesung" id="loesung" 
-                        class="w-full px-4 py-2 border-2 border-blue-300 rounded-lg focus:border-blue-500 focus:outline-none @error('loesung') border-red-500 @enderror" 
-                        required>
-                    <option value="">-- Bitte wählen --</option>
-                    <option value="a" {{ old('loesung') === 'a' ? 'selected' : '' }}>A</option>
-                    <option value="b" {{ old('loesung') === 'b' ? 'selected' : '' }}>B</option>
-                    <option value="c" {{ old('loesung') === 'c' ? 'selected' : '' }}>C</option>
-                </select>
+                <p style="font-size: 0.875rem; color: #6b7280; margin-bottom: 0.75rem;">Wähle eine oder mehrere richtige Antworten</p>
+                <div style="display: flex; gap: 0.5rem;">
+                    <label class="answer-toggle" style="flex: 1; cursor: pointer;">
+                        <input type="checkbox" name="loesung[]" value="a" style="display: none;">
+                        <span class="answer-btn" style="display: block; text-align: center; padding: 0.75rem 1rem; border: 2px solid #d1d5db; border-radius: 0.5rem; font-weight: 600; background: white; transition: all 0.2s;">A</span>
+                    </label>
+                    <label class="answer-toggle" style="flex: 1; cursor: pointer;">
+                        <input type="checkbox" name="loesung[]" value="b" style="display: none;">
+                        <span class="answer-btn" style="display: block; text-align: center; padding: 0.75rem 1rem; border: 2px solid #d1d5db; border-radius: 0.5rem; font-weight: 600; background: white; transition: all 0.2s;">B</span>
+                    </label>
+                    <label class="answer-toggle" style="flex: 1; cursor: pointer;">
+                        <input type="checkbox" name="loesung[]" value="c" style="display: none;">
+                        <span class="answer-btn" style="display: block; text-align: center; padding: 0.75rem 1rem; border: 2px solid #d1d5db; border-radius: 0.5rem; font-weight: 600; background: white; transition: all 0.2s;">C</span>
+                    </label>
+                </div>
                 @error('loesung')
                     <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                 @enderror
             </div>
+
+            <style>
+            .answer-toggle input:checked + .answer-btn {
+                background: #00337F !important;
+                color: white !important;
+                border-color: #00337F !important;
+            }
+            .answer-btn:hover {
+                border-color: #00337F;
+                background: #f0f4ff;
+            }
+            </style>
 
             <div class="flex gap-4">
                 <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors">
@@ -117,4 +143,19 @@
         </form>
     </div>
 </div>
+
+<script>
+const sectionNumbers = @json($sectionNumbers);
+
+function updateNummer() {
+    const section = document.getElementById('lernabschnitt').value;
+    const nummerInput = document.getElementById('nummer');
+    
+    if (section && sectionNumbers[section]) {
+        nummerInput.value = sectionNumbers[section] + 1;
+    } else {
+        nummerInput.value = {{ $nextNumber }};
+    }
+}
+</script>
 @endsection

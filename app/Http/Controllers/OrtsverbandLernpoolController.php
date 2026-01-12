@@ -78,13 +78,25 @@ class OrtsverbandLernpoolController extends Controller
         // Gruppiere Fragen nach Lernabschnitt
         $questionsBySection = $questions->groupBy('learning_section')->toArray();
         
-        return view('ortsverband.lernpools.show', [
+        $data = [
             'ortsverband' => $ortsverband,
             'lernpool' => $lernpool,
             'questions' => $questions,
             'questionsBySection' => $questionsBySection,
             'enrollments' => $enrollments,
-        ]);
+        ];
+        
+        // Wenn AJAX-Request, gib nur Modal-Inhalt zurück
+        $isAjax = request()->ajax() || 
+                  request()->header('X-Requested-With') === 'XMLHttpRequest' || 
+                  request()->query('ajax') === '1' ||
+                  request()->input('ajax') === '1';
+        
+        if ($isAjax) {
+            return view('ortsverband.lernpools.show-modal', $data);
+        }
+        
+        return view('ortsverband.lernpools.show', $data);
     }
 
     /**
@@ -94,10 +106,22 @@ class OrtsverbandLernpoolController extends Controller
     {
         $this->authorize('update', [$lernpool, $ortsverband]);
         
-        return view('ortsverband.lernpools.edit', [
+        $data = [
             'ortsverband' => $ortsverband,
             'lernpool' => $lernpool,
-        ]);
+        ];
+        
+        // Wenn AJAX-Request, gib nur Modal-Inhalt zurück
+        $isAjax = request()->ajax() || 
+                  request()->header('X-Requested-With') === 'XMLHttpRequest' || 
+                  request()->query('ajax') === '1' ||
+                  request()->input('ajax') === '1';
+        
+        if ($isAjax) {
+            return view('ortsverband.lernpools.edit-modal', $data);
+        }
+        
+        return view('ortsverband.lernpools.edit', $data);
     }
 
     /**
@@ -116,7 +140,7 @@ class OrtsverbandLernpoolController extends Controller
         $lernpool->update($validated);
 
         return redirect()
-            ->route('ortsverband.lernpools.show', [$ortsverband, $lernpool])
+            ->route('ortsverband.lernpools.index', $ortsverband)
             ->with('success', 'Lernpool aktualisiert!');
     }
 

@@ -341,6 +341,16 @@
         position: relative;
     }
 
+    #genericModal {
+        width: 90%;
+        max-width: 600px;
+    }
+
+    #genericModal .modal {
+        width: 100%;
+        max-width: 100%;
+    }
+
     @keyframes slideUp {
         from { transform: translateY(30px); opacity: 0; }
         to { transform: translateY(0); opacity: 1; }
@@ -714,9 +724,6 @@
     document.addEventListener('DOMContentLoaded', function() {
         const genericModal = document.getElementById('genericModal');
         const genericModalBackdrop = document.getElementById('genericModalBackdrop');
-        const closeGenericModalBtn = document.getElementById('closeGenericModal');
-        const cancelGenericModalBtn = document.getElementById('cancelGenericModal');
-        const modalTriggers = document.querySelectorAll('.modal-trigger');
 
         function closeGenericModal() {
             genericModalBackdrop.classList.remove('active');
@@ -724,15 +731,14 @@
             genericModal.innerHTML = '';
         }
 
-        closeGenericModalBtn.addEventListener('click', closeGenericModal);
-        cancelGenericModalBtn.addEventListener('click', closeGenericModal);
-
+        // Close on backdrop click
         genericModalBackdrop.addEventListener('click', function(e) {
             if (e.target === genericModalBackdrop) {
                 closeGenericModal();
             }
         });
 
+        // Close on Escape key
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape' && genericModalBackdrop.classList.contains('active')) {
                 closeGenericModal();
@@ -742,26 +748,40 @@
         // Use event delegation for modal triggers (für dynamisch geladene Inhalte)
         document.addEventListener('click', function(e) {
             const trigger = e.target.closest('.modal-trigger');
-            if (trigger) {
+            if (trigger && trigger.href) {
                 e.preventDefault();
-                const url = trigger.href;
+                e.stopPropagation();
+                // Füge ajax=1 und Cache-Buster Parameter hinzu
+                const baseUrl = trigger.href;
+                const cacheBuster = '_t=' + Date.now();
+                const url = baseUrl + (baseUrl.includes('?') ? '&' : '?') + 'ajax=1&' + cacheBuster;
+                
+                // WICHTIG: Modal-Inhalt sofort leeren
+                genericModal.innerHTML = '<div class="modal"><div class="modal-body"><p style="text-align: center; padding: 2rem;">Lädt...</p></div></div>';
+                genericModalBackdrop.classList.add('active');
                 
                 fetch(url, {
+                    method: 'GET',
                     headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'text/html',
+                        'Cache-Control': 'no-cache, no-store, must-revalidate',
+                        'Pragma': 'no-cache'
+                    },
+                    credentials: 'same-origin',
+                    cache: 'no-store'
                 })
                 .then(response => response.text())
                 .then(html => {
-                    genericModal.innerHTML = html;
-                    genericModalBackdrop.classList.add('active');
+                    // Ersetze komplett den Modal-Inhalt
+                    genericModal.innerHTML = '<div class="modal">' + html + '</div>';
                     document.body.style.overflow = 'hidden';
                 })
                 .catch(error => {
                     console.error('Error loading modal:', error);
-                    genericModal.innerHTML = '<div class="modal"><div class="modal-header"><h2>Fehler</h2><button class="modal-close" onclick="this.closest(\'#genericModalBackdrop\').classList.remove(\'active\')">✕</button></div><div class="modal-body"><p>Fehler beim Laden des Inhalts.</p></div></div>';
-                    genericModalBackdrop.classList.add('active');
+                    genericModal.innerHTML = '<div class="modal"><div class="modal-header"><h2>Fehler</h2><button class="modal-close" onclick="document.getElementById(\'genericModalBackdrop\').classList.remove(\'active\')">✕</button></div><div class="modal-body"><p>Fehler beim Laden des Inhalts.</p></div></div>';
                 });
+                return false;
             }
         });
     });

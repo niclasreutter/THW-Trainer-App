@@ -5,10 +5,13 @@ namespace App\Http\Controllers;
 use App\Models\Ortsverband;
 use App\Models\OrtsverbandLernpool;
 use App\Models\OrtsverbandLernpoolQuestion;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 
 class OrtsverbandLernpoolQuestionController extends Controller
 {
+    use AuthorizesRequests;
+
     /**
      * Zeige alle Fragen eines Lernpools
      */
@@ -18,11 +21,23 @@ class OrtsverbandLernpoolQuestionController extends Controller
         
         $questions = $lernpool->questions()->with('creator')->get();
         
-        return view('ortsverband.lernpools.questions.index', [
+        $data = [
             'ortsverband' => $ortsverband,
             'lernpool' => $lernpool,
             'questions' => $questions,
-        ]);
+        ];
+        
+        // Wenn AJAX-Request, gib nur Modal-Inhalt zurück
+        $isAjax = request()->ajax() || 
+                  request()->header('X-Requested-With') === 'XMLHttpRequest' || 
+                  request()->query('ajax') === '1' ||
+                  request()->input('ajax') === '1';
+        
+        if ($isAjax) {
+            return view('ortsverband.lernpools.questions.index-modal', $data);
+        }
+        
+        return view('ortsverband.lernpools.questions.index', $data);
     }
 
     /**
@@ -32,10 +47,39 @@ class OrtsverbandLernpoolQuestionController extends Controller
     {
         $this->authorize('update', [$lernpool, $ortsverband]);
         
-        return view('ortsverband.lernpools.questions.create', [
+        // Hole alle existierenden Fragen für Nummerierung
+        $questions = $lernpool->questions()->get();
+        
+        // Existierende Lernabschnitte für Autocomplete
+        $existingSections = $questions->pluck('lernabschnitt')->unique()->filter()->values();
+        
+        // Höchste Nummer pro Lernabschnitt
+        $sectionNumbers = $questions->groupBy('lernabschnitt')
+            ->map(fn($q) => $q->max('nummer'))
+            ->toArray();
+        
+        // Nächste globale Nummer
+        $nextNumber = $questions->max('nummer') ? $questions->max('nummer') + 1 : 1;
+        
+        $data = [
             'ortsverband' => $ortsverband,
             'lernpool' => $lernpool,
-        ]);
+            'existingSections' => $existingSections,
+            'sectionNumbers' => $sectionNumbers,
+            'nextNumber' => $nextNumber,
+        ];
+        
+        // Wenn AJAX-Request, gib nur Modal-Inhalt zurück
+        $isAjax = request()->ajax() || 
+                  request()->header('X-Requested-With') === 'XMLHttpRequest' || 
+                  request()->query('ajax') === '1' ||
+                  request()->input('ajax') === '1';
+        
+        if ($isAjax) {
+            return view('ortsverband.lernpools.questions.create-modal', $data);
+        }
+        
+        return view('ortsverband.lernpools.questions.create', $data);
     }
 
     /**
@@ -47,13 +91,17 @@ class OrtsverbandLernpoolQuestionController extends Controller
         
         $validated = $request->validate([
             'lernabschnitt' => 'nullable|string|max:255',
-            'nummer' => 'nullable|integer|min:1',
+            'nummer' => 'required|integer|min:1',
             'frage' => 'required|string|max:1000',
             'antwort_a' => 'required|string|max:255',
             'antwort_b' => 'required|string|max:255',
             'antwort_c' => 'required|string|max:255',
-            'loesung' => 'required|string|max:10', // z.B. "A,C"
+            'loesung' => 'required|array|min:1', // Array von Lösungen
+            'loesung.*' => 'in:a,b,c',
         ]);
+        
+        // Konvertiere Array zu String (z.B. "a,b")
+        $validated['loesung'] = implode(',', $validated['loesung']);
 
         OrtsverbandLernpoolQuestion::create([
             'lernpool_id' => $lernpool->id,
@@ -62,7 +110,7 @@ class OrtsverbandLernpoolQuestionController extends Controller
         ]);
 
         return redirect()
-            ->route('ortsverband.lernpools.questions.index', [$ortsverband, $lernpool])
+            ->route('ortsverband.lernpools.index', $ortsverband)
             ->with('success', 'Frage hinzugefügt!');
     }
 

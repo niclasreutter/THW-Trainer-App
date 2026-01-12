@@ -287,7 +287,7 @@
 
             @php
                 $activeLernpools = $ortsverband->activeLernpools;
-                $userEnrollments = auth()->user()->lernpoolEnrollments->pluck('ortsverband_lernpool_id')->toArray();
+                $userEnrollments = auth()->user()->lernpoolEnrollments->pluck('lernpool_id')->toArray();
             @endphp
 
             @if($activeLernpools->count() > 0)
@@ -296,7 +296,7 @@
                         @php
                             $isEnrolled = in_array($pool->id, $userEnrollments);
                             $totalQuestions = $pool->getQuestionCount();
-                            $enrollment = auth()->user()->lernpoolEnrollments()->where('ortsverband_lernpool_id', $pool->id)->first();
+                            $enrollment = auth()->user()->lernpoolEnrollments()->where('lernpool_id', $pool->id)->first();
                             $progress = $enrollment ? $enrollment->getProgress() : 0;
                         @endphp
                         <div style="background: white; padding: 1.25rem; border-radius: 0.75rem; border: 1px solid #e5e7eb; display: flex; flex-direction: column;">
@@ -325,7 +325,7 @@
                             </div>
 
                             @if($isEnrolled)
-                                <a href="{{ route('ortsverband.lernpools.practice.show', [$ortsverband, $pool]) }}" 
+                                <a href="{{ route('ortsverband.lernpools.practice', [$ortsverband, $pool]) }}" 
                                    style="background: #10b981; color: white; padding: 0.65rem; border-radius: 0.5rem; text-align: center; text-decoration: none; font-weight: 600; font-size: 0.9rem; margin-top: auto;">
                                     ✓ Weitermachen
                                 </a>
