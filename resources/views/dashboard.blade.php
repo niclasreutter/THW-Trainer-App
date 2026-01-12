@@ -894,6 +894,52 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') dismi
         @endif
 
 
+        <div class="section-header">
+            <h2 class="section-title">📚 Deine Lernpools</h2>
+            <a href="{{ route('ortsverband.index') }}" class="section-link">Zu Ortsverbänden <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></a>
+        </div>
+
+        @php
+            $enrolledLernpools = auth()->user()->enrolledLernpools()->where('is_active', true)->get();
+        @endphp
+
+        @if($enrolledLernpools->isNotEmpty())
+        <div class="lehrgaenge-grid">
+            @foreach($enrolledLernpools->take(3) as $lernpool)
+                @php
+                    $solvedCount = auth()->user()->lernpoolProgress()
+                        ->whereHas('question', fn($q) => $q->where('lernpool_id', $lernpool->id))
+                        ->where('solved', true)
+                        ->count();
+                    $totalCount = $lernpool->getQuestionCount();
+                    $lernpoolProgress = $totalCount > 0 ? round(($solvedCount / $totalCount) * 100) : 0;
+                    $isCompleted = $lernpoolProgress == 100 && $solvedCount > 0;
+                @endphp
+                <div class="lehrgang-card">
+                    <h4 class="lehrgang-card-title">{{ $lernpool->name }}</h4>
+                    <p class="lehrgang-card-description">{{ $lernpool->description }}</p>
+                    <div class="lehrgang-card-progress">
+                        <div class="lehrgang-card-progress-header"><span>{{ $solvedCount }}/{{ $totalCount }} Fragen</span><span>{{ $lernpoolProgress }}%</span></div>
+                        <div class="lehrgang-card-progress-bar"><div class="lehrgang-card-progress-fill {{ $isCompleted ? 'complete' : '' }}" style="width: {{ $lernpoolProgress }}%"></div></div>
+                    </div>
+                    @if($isCompleted)
+                        <span class="lehrgang-card-btn complete">✓ Gemeistert</span>
+                    @else
+                        <a href="{{ route('ortsverband.lernpools.practice', [$lernpool->ortsverband_id, $lernpool->id]) }}" class="lehrgang-card-btn">📖 Weitermachen</a>
+                    @endif
+                </div>
+            @endforeach
+        </div>
+        @else
+        <div class="empty-state-card">
+            <div class="empty-state-icon">🏠</div>
+            <h3 class="empty-state-title">Entdecke Lernpools!</h3>
+            <p class="empty-state-description">Tritt einem Ortsverband bei und starte mit Lernpools, die dein Ausbilder erstellt hat.</p>
+            <a href="{{ route('ortsverband.index') }}" class="empty-state-btn">🚀 Ortsverbände erkunden</a>
+        </div>
+        @endif
+
+
     </div>
 </div>
 
