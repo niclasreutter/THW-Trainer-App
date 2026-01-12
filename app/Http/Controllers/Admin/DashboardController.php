@@ -67,7 +67,7 @@ class DashboardController extends Controller
             'database' => $this->checkDatabase(),
             'cache' => $this->checkCache(),
             'storage' => $this->checkStorage(),
-            'backup' => $this->getLastBackup()
+            'online_users' => $this->getOnlineUsers()
         ];
     }
     
@@ -118,11 +118,17 @@ class DashboardController extends Controller
         }
     }
     
-    private function getLastBackup()
+    private function getOnlineUsers()
     {
-        // Hier könnte man den letzten Backup-Zeitpunkt aus der Datenbank oder einer Datei lesen
-        // Für jetzt verwenden wir das aktuelle Datum
-        return now()->format('d.m.Y H:i');
+        // Zähle Nutzer, die in den letzten 5 Minuten aktiv waren
+        // Nutze updated_at als Proxy für Aktivität (wird bei jeder Aktion aktualisiert)
+        $onlineCount = User::where('updated_at', '>=', now()->subMinutes(5))->count();
+
+        return [
+            'count' => $onlineCount,
+            'status' => $onlineCount > 0 ? 'ok' : 'warning',
+            'message' => $onlineCount . ($onlineCount === 1 ? ' Nutzer' : ' Nutzer') . ' (letzte 5 Min)'
+        ];
     }
     
     private function getUserActivity()

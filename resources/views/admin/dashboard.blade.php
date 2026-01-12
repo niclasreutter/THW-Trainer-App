@@ -165,12 +165,12 @@
             </div>
             
             <div class="stat-card system-status">
-                <div class="stat-label">Backup</div>
+                <div class="stat-label">Nutzer Online</div>
                 <div style="display: flex; align-items: center; gap: 0.75rem;">
-                    <span class="status-indicator status-warning"></span>
-                    <span class="stat-value" style="margin: 0; font-size: 0.9rem;">Aktiv</span>
+                    <span class="status-indicator {{ $systemStatus['online_users']['status'] === 'ok' ? 'status-ok' : 'status-warning' }}"></span>
+                    <span class="stat-value" style="margin: 0; font-size: 1.5rem;">{{ $systemStatus['online_users']['count'] }}</span>
                 </div>
-                <p class="stat-subtext">{{ $systemStatus['backup'] }}</p>
+                <p class="stat-subtext">{{ $systemStatus['online_users']['message'] }}</p>
             </div>
         </div>
 
