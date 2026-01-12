@@ -137,6 +137,9 @@ class OrtsverbandLernpoolController extends Controller
             'is_active' => 'boolean',
         ]);
 
+        // Stelle sicher, dass is_active als boolean behandelt wird
+        $validated['is_active'] = (bool) $validated['is_active'];
+
         $lernpool->update($validated);
 
         return redirect()

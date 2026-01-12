@@ -30,6 +30,7 @@
 
         <div class="form-group">
             <div class="form-checkbox">
+                <input type="hidden" name="is_active" value="0">
                 <input type="checkbox" name="is_active" id="is_active" value="1" 
                        {{ old('is_active', $lernpool->is_active) ? 'checked' : '' }}>
                 <label for="is_active">Aktiv</label>
