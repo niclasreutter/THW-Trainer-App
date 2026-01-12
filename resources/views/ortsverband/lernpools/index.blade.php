@@ -521,6 +521,28 @@
         .dashboard-greeting { font-size: 1.75rem; }
         .pool-grid { grid-template-columns: 1fr; }
         .pool-card-stats { grid-template-columns: 1fr; }
+        
+        .modal {
+            width: 95%;
+            max-height: 95vh;
+            border-radius: 1rem;
+        }
+        
+        .modal-header {
+            padding: 1.5rem;
+        }
+        
+        .modal-header h2 {
+            font-size: 1.5rem;
+        }
+        
+        .modal-body {
+            padding: 1.5rem;
+        }
+        
+        .modal-footer {
+            padding: 1rem 1.5rem;
+        }
     }
 </style>
 @endpush
@@ -649,9 +671,9 @@
             @else
                 <div class="empty-state">
                     <p>📭 Noch keine Lernpools erstellt</p>
-                    <a href="{{ route('ortsverband.lernpools.create', $ortsverband) }}" class="btn btn-primary">
+                    <button id="openCreateModalEmpty" class="btn btn-primary">
                         ➕ Neuen Lernpool erstellen
-                    </a>
+                    </button>
                 </div>
             @endif
         </div>
@@ -708,15 +730,24 @@
     document.addEventListener('DOMContentLoaded', function() {
         const modal = document.getElementById('createModal');
         const openBtn = document.getElementById('openCreateModal');
+        const openBtnEmpty = document.getElementById('openCreateModalEmpty');
         const closeBtn = document.getElementById('closeCreateModal');
         const cancelBtn = document.getElementById('cancelCreateModal');
         const form = document.getElementById('createLernpoolForm');
 
-        // Open Modal
-        openBtn.addEventListener('click', function() {
+        // Function to open modal
+        function openModal() {
             modal.classList.add('active');
             document.body.style.overflow = 'hidden';
-        });
+        }
+
+        // Open Modal
+        if (openBtn) {
+            openBtn.addEventListener('click', openModal);
+        }
+        if (openBtnEmpty) {
+            openBtnEmpty.addEventListener('click', openModal);
+        }
 
         // Close Modal
         function closeModal() {
