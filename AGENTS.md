@@ -253,14 +253,17 @@ app/Models/
 app/Policies/
 └── OrtsverbandLernpoolPolicy.php              ← Wichtig: lernpool_id nicht ortsverband_lernpool_id!
 
-resources/views/ortsverband/lernpools/
-├── index.blade.php                           ← Dashboard mit Modals
-├── practice.blade.php                        ← Practice-View (1:1 wie practice.blade.php)
-├── show-modal.blade.php
-├── edit-modal.blade.php
-└── questions/
-    ├── create-modal.blade.php                ← Button-UI für Lösungen!
-    └── index-modal.blade.php
+resources/views/ortsverband/
+├── show.blade.php                            ← Ortsverband Show-Ansicht (konsistent mit Dashboard!)
+├── dashboard.blade.php                       ← Ortsverband Dashboard
+└── lernpools/
+    ├── index.blade.php                       ← Dashboard mit Modals
+    ├── practice.blade.php                    ← Practice-View (1:1 wie practice.blade.php)
+    ├── show-modal.blade.php
+    ├── edit-modal.blade.php
+    └── questions/
+        ├── create-modal.blade.php            ← Button-UI für Lösungen!
+        └── index-modal.blade.php
 
 resources/views/
 └── practice.blade.php                        ← Template/Referenz (DO NOT MODIFY!)
@@ -324,8 +327,9 @@ routes/web.php                                ← Alle Routes unter `ortsverband
 
 ### Design-Richtlinien:
 - **WICHTIG:** Alle Seiten nach dem Login orientieren sich am Design von:
-  - `/dashboard` (User-Dashboard)
-  - `/ortsverband/1/dashboard` (Ortsverband-Dashboard)
+  - [resources/views/dashboard.blade.php](resources/views/dashboard.blade.php) (User-Dashboard)
+  - [resources/views/ortsverband/dashboard.blade.php](resources/views/ortsverband/dashboard.blade.php) (Ortsverband-Dashboard)
+  - [resources/views/ortsverband/show.blade.php](resources/views/ortsverband/show.blade.php) (Ortsverband Show-Ansicht)
 - **Konsistenz:** Einheitliche Navbar, Colors, Spacing, Buttons, Cards
 - **Mobile-First:** Alle Views müssen vollständig responsive sein (<640px Optimierung)
 - **Accessibility:** Kontraste, Font-Größen, Touch-Targets (mind. 48x48px auf Mobile)
