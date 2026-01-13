@@ -291,7 +291,19 @@
 
         {{-- Rangliste --}}
         <div class="section-card">
-            <h2 class="section-title">🏆 Rangliste</h2>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h2 class="section-title" style="margin-bottom: 0;">🏆 Rangliste</h2>
+                <form action="{{ route('ortsverband.toggle-ranking', $ortsverband) }}" method="POST" style="margin: 0;">
+                    @csrf
+                    <button type="submit" class="btn" style="padding: 0.5rem 1rem; font-size: 0.85rem; {{ $ortsverband->ranking_visible ? 'background: #10b981; color: white;' : 'background: #f3f4f6; color: #374151; border: 1px solid #e5e7eb;' }}">
+                        @if($ortsverband->ranking_visible)
+                            👁️ Für alle sichtbar
+                        @else
+                            🔒 Nur für Ausbilder
+                        @endif
+                    </button>
+                </form>
+            </div>
             
             @forelse($memberProgress->take(10) as $index => $member)
             <div class="member-item">

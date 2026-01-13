@@ -576,6 +576,48 @@
             @endif
         </div>
 
+        {{-- Rangliste (wenn sichtbar) --}}
+        @if($ortsverband->ranking_visible && $memberProgress)
+        <div class="section-card">
+            <h2 class="section-title">🏆 Rangliste</h2>
+
+            @forelse($memberProgress as $index => $member)
+            <div class="member-item" style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: #f9fafb; border-radius: 1rem; margin-bottom: 0.75rem; transition: all 0.3s ease;">
+                <div style="display: flex; align-items: center; gap: 1rem; flex: 1;">
+                    <div style="min-width: 50px; text-align: center; font-size: 1.5rem;">
+                        @if($index === 0) 🥇
+                        @elseif($index === 1) 🥈
+                        @elseif($index === 2) 🥉
+                        @else <span style="color: #9ca3af; font-weight: 700;">{{ $index + 1 }}</span>
+                        @endif
+                    </div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 700; color: #00337F; margin-bottom: 0.25rem;">
+                            {{ $member['user']->name }}
+                            @if($member['role'] === 'ausbildungsbeauftragter')
+                                <span style="display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; background: rgba(0, 51, 127, 0.1); color: #00337F;">👨‍🏫</span>
+                            @endif
+                        </div>
+                        <div style="display: flex; gap: 1rem; font-size: 0.85rem; color: #6b7280; flex-wrap: wrap;">
+                            <span>📚 {{ $member['theory_progress_percent'] }}%</span>
+                            <span>🎯 {{ $member['exams_passed'] }}/5</span>
+                            <span>🔥 {{ $member['streak'] }} Tage</span>
+                            <span>⚡ Lvl {{ $member['level'] }}</span>
+                        </div>
+                        <div style="width: 100%; height: 8px; background: #e5e7eb; border-radius: 4px; overflow: hidden; margin-top: 0.5rem;">
+                            <div style="height: 100%; background: linear-gradient(90deg, #00337F, #0047b3); transition: width 0.5s ease; width: {{ $member['theory_progress_percent'] }}%;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @empty
+            <div class="empty-state">
+                <p>Noch keine Mitglieder vorhanden.</p>
+            </div>
+            @endforelse
+        </div>
+        @endif
+
         @if($userIsAusbilder)
         <!-- Ausbilder sieht alle Mitglieder -->
         <div class="section-card">
