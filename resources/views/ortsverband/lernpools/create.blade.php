@@ -220,6 +220,20 @@
                     <label for="tags" class="form-label">
                         Schlagwörter / Tags
                     </label>
+                    @if($existingTags->isNotEmpty())
+                        <div style="margin-bottom: 0.75rem;">
+                            <p style="font-size: 0.85rem; color: #6b7280; margin-bottom: 0.5rem;">
+                                Vorhandene Tags (zum Hinzufügen anklicken):
+                            </p>
+                            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                @foreach($existingTags as $tag)
+                                    <button type="button" onclick="addTag('{{ $tag }}')" class="tag-suggestion" style="background: #e0f2fe; color: #0c4a6e; padding: 0.35rem 0.75rem; border-radius: 999px; font-size: 0.8rem; font-weight: 600; border: 1px solid #7dd3fc; cursor: pointer; transition: all 0.2s;">
+                                        + {{ $tag }}
+                                    </button>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
                     <input type="text" name="tags" id="tags" value="{{ old('tags') }}"
                            class="form-input @error('tags') error @enderror"
                            placeholder="z.B. ZTR, B FGr, N FGr (mit Komma trennen)">
@@ -230,6 +244,38 @@
                         <p class="form-error">{{ $message }}</p>
                     @enderror
                 </div>
+
+                <style>
+                    .tag-suggestion:hover {
+                        background: #0ea5e9 !important;
+                        color: white !important;
+                        transform: translateY(-2px);
+                        box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+                    }
+                </style>
+
+                <script>
+                    function addTag(tag) {
+                        const input = document.getElementById('tags');
+                        const currentValue = input.value.trim();
+
+                        // Prüfe ob Tag bereits vorhanden ist
+                        const existingTags = currentValue.split(',').map(t => t.trim());
+                        if (existingTags.includes(tag)) {
+                            return; // Tag bereits vorhanden
+                        }
+
+                        // Füge Tag hinzu
+                        if (currentValue === '') {
+                            input.value = tag;
+                        } else {
+                            input.value = currentValue + ', ' + tag;
+                        }
+
+                        // Fokussiere Input
+                        input.focus();
+                    }
+                </script>
 
                 <div class="form-group">
                     <div class="form-checkbox">

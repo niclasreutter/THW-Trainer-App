@@ -86,27 +86,40 @@ class OrtsverbandController extends Controller
     /**
      * Zeigt Details eines Ortsverbands
      */
-    public function show(Ortsverband $ortsverband)
+    public function show(Request $request, Ortsverband $ortsverband)
     {
         $user = Auth::user();
-        
+
         // Admin kann alle Ortsverbände sehen (via Session check)
         $isAdminViewing = session('admin_viewing_ortsverband_id') === $ortsverband->id;
-        
+
         // Prüfe ob User Mitglied ist oder Admin ist
         if (!$ortsverband->isMember($user) && !$isAdminViewing && !$user->is_admin) {
             abort(403, 'Du bist kein Mitglied dieses Ortsverbands.');
         }
-        
+
         $isAusbildungsbeauftragter = $ortsverband->isAusbildungsbeauftragter($user) && !$isAdminViewing;
-        
+
         // Statistiken nur für Ausbildungsbeauftragte
         $stats = null;
         if ($isAusbildungsbeauftragter) {
             $stats = $ortsverband->getAverageStats();
         }
-        
-        return view('ortsverband.show', compact('ortsverband', 'isAusbildungsbeauftragter', 'stats', 'isAdminViewing'));
+
+        // Sammle alle verfügbaren Tags für den Filter
+        $allTags = $ortsverband->lernpools()
+            ->where('is_active', true)
+            ->whereNotNull('tags')
+            ->get()
+            ->pluck('tags')
+            ->flatten()
+            ->unique()
+            ->sort()
+            ->values();
+
+        $selectedTag = $request->get('tag');
+
+        return view('ortsverband.show', compact('ortsverband', 'isAusbildungsbeauftragter', 'stats', 'isAdminViewing', 'allTags', 'selectedTag'));
     }
 
     /**
