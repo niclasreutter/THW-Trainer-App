@@ -616,7 +616,7 @@
                     <span class="text-gray-500">{{ $progress }}/{{ $total }}</span>
                 </div>
                 <div class="w-full bg-gray-200 rounded-full h-1.5 mt-1">
-                    <div id="progressBarMobile" class="bg-yellow-400 h-1.5 rounded-full transition-all" style="width: {{ $progressPercent ?? 0 }}%;"></div>
+                    <div id="progressBarMobile" class="bg-yellow-400 h-full rounded-full transition-all" style="width: {{ $progressPercent ?? 0 }}%;"></div>
                 </div>
             </div>
             @php
@@ -692,7 +692,7 @@
         <div class="mb-2 text-xs text-gray-600 hidden sm:block">
             Fortschritt: {{ $progress }}/{{ $total }} gemeistert
             <div class="w-full bg-gray-200 rounded-full h-2 mt-0.5 mb-0.5">
-                <div id="progressBarDesktop" class="bg-yellow-400 h-2 rounded-full transition-all duration-300 shadow-lg"
+                <div id="progressBarDesktop" class="bg-yellow-400 h-full rounded-full transition-all duration-300 shadow-lg"
                      style="width: {{ $progressPercent ?? 0 }}%; box-shadow: 0 0 10px rgba(251, 191, 36, 0.6), 0 0 20px rgba(251, 191, 36, 0.4), 0 0 30px rgba(251, 191, 36, 0.2);"></div>
             </div>
             <span class="text-[10px] text-gray-500">{{ $progressPercent ?? 0 }}% Gesamt-Fortschritt (inkl. 1x richtig)</span>
