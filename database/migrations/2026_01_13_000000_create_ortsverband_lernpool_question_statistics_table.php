@@ -14,14 +14,20 @@ return new class extends Migration
         Schema::create('ortsverband_lernpool_question_statistics', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('lernpool_question_id')->constrained('ortsverband_lernpool_questions')->onDelete('cascade');
+            $table->unsignedBigInteger('lernpool_question_id');
             $table->boolean('is_correct')->default(false);
             $table->timestamps();
 
+            // Foreign Key mit kurzem Namen
+            $table->foreign('lernpool_question_id', 'ov_lp_q_stats_lp_q_id_fk')
+                ->references('id')
+                ->on('ortsverband_lernpool_questions')
+                ->onDelete('cascade');
+
             // Index für schnelle Abfragen
-            $table->index(['user_id', 'lernpool_question_id']);
-            $table->index(['lernpool_question_id']);
-            $table->index(['is_correct']);
+            $table->index(['user_id', 'lernpool_question_id'], 'ov_lp_q_stats_user_lp_q_idx');
+            $table->index(['lernpool_question_id'], 'ov_lp_q_stats_lp_q_idx');
+            $table->index(['is_correct'], 'ov_lp_q_stats_correct_idx');
         });
     }
 
