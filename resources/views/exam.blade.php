@@ -333,11 +333,41 @@
                 }
             }
             
-            // Fortschritt aktualisieren
+            // Fortschritt aktualisieren mit Meilenstein-Erkennung
             function updateProgress() {
                 const answeredCount = answers.filter(a => a).length;
                 const percent = (answeredCount / totalQuestions) * 100;
-                
+
+                // Vorherigen Fortschritt abrufen
+                const previousPercent = parseFloat(sessionStorage.getItem('examProgressPercent') || '0');
+
+                // Meilensteine: 25%, 50%, 75%, 100%
+                const milestones = [25, 50, 75, 100];
+                let triggeredMilestone = null;
+
+                // Prüfen ob ein Meilenstein überschritten wurde
+                for (const milestone of milestones) {
+                    if (previousPercent < milestone && percent >= milestone) {
+                        triggeredMilestone = milestone;
+                        break;
+                    }
+                }
+
+                // Glow-Burst Effekt triggern
+                if (triggeredMilestone !== null) {
+                    const progressBar = document.getElementById('progress-bar');
+                    if (progressBar) {
+                        progressBar.classList.add('progress-milestone');
+                        setTimeout(() => {
+                            progressBar.classList.remove('progress-milestone');
+                        }, 800);
+                    }
+                    console.log(`🎉 Prüfungs-Meilenstein erreicht: ${triggeredMilestone}%`);
+                }
+
+                // Aktuellen Fortschritt speichern
+                sessionStorage.setItem('examProgressPercent', percent.toString());
+
                 document.getElementById('progress-text').textContent = `${answeredCount}/40 beantwortet`;
                 document.getElementById('progress-bar').style.width = `${percent}%`;
             }

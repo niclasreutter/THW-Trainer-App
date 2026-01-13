@@ -616,7 +616,7 @@
                     <span class="text-gray-500">{{ $progress }}/{{ $total }}</span>
                 </div>
                 <div class="w-full bg-gray-200 rounded-full h-1.5 mt-1">
-                    <div class="bg-yellow-400 h-1.5 rounded-full transition-all" style="width: {{ $progressPercent ?? 0 }}%;"></div>
+                    <div id="progressBarMobile" class="bg-yellow-400 h-1.5 rounded-full transition-all" style="width: {{ $progressPercent ?? 0 }}%;"></div>
                 </div>
             </div>
             @php
@@ -692,7 +692,7 @@
         <div class="mb-2 text-xs text-gray-600 hidden sm:block">
             Fortschritt: {{ $progress }}/{{ $total }} gemeistert
             <div class="w-full bg-gray-200 rounded-full h-2 mt-0.5 mb-0.5">
-                <div class="bg-yellow-400 h-2 rounded-full transition-all duration-300 shadow-lg" 
+                <div id="progressBarDesktop" class="bg-yellow-400 h-2 rounded-full transition-all duration-300 shadow-lg"
                      style="width: {{ $progressPercent ?? 0 }}%; box-shadow: 0 0 10px rgba(251, 191, 36, 0.6), 0 0 20px rgba(251, 191, 36, 0.4), 0 0 30px rgba(251, 191, 36, 0.2);"></div>
             </div>
             <span class="text-[10px] text-gray-500">{{ $progressPercent ?? 0 }}% Gesamt-Fortschritt (inkl. 1x richtig)</span>
@@ -984,8 +984,51 @@
             setupMobileLayout();
             window.addEventListener('resize', setupMobileLayout);
             
+            // Progress Bar Milestone Detection
+            function checkProgressMilestone() {
+                const currentProgress = {{ $progressPercent ?? 0 }};
+                const previousProgress = parseFloat(localStorage.getItem('lastProgressPercent') || '0');
+
+                // Meilensteine: 25%, 50%, 75%, 100%
+                const milestones = [25, 50, 75, 100];
+                let triggeredMilestone = null;
+
+                // Prüfen ob ein Meilenstein überschritten wurde
+                for (const milestone of milestones) {
+                    if (previousProgress < milestone && currentProgress >= milestone) {
+                        triggeredMilestone = milestone;
+                        break;
+                    }
+                }
+
+                // Glow-Burst Effekt triggern
+                if (triggeredMilestone !== null) {
+                    const progressBarMobile = document.getElementById('progressBarMobile');
+                    const progressBarDesktop = document.getElementById('progressBarDesktop');
+
+                    [progressBarMobile, progressBarDesktop].forEach(bar => {
+                        if (bar) {
+                            bar.classList.add('progress-milestone');
+                            setTimeout(() => {
+                                bar.classList.remove('progress-milestone');
+                            }, 800);
+                        }
+                    });
+
+                    console.log(`🎉 Meilenstein erreicht: ${triggeredMilestone}%`);
+                }
+
+                // Aktuellen Fortschritt speichern
+                localStorage.setItem('lastProgressPercent', currentProgress.toString());
+            }
+
             // Show Gamification/Error Popups on page load
             document.addEventListener('DOMContentLoaded', function() {
+                // Check for progress milestones first
+                @if($showGamification)
+                    checkProgressMilestone();
+                @endif
+
                 // Show Gamification Popup
                 const gamificationPopup = document.getElementById('gamificationPopup');
                 if (gamificationPopup) {

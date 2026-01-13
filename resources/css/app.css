@@ -39,3 +39,17 @@
   pointer-events: none;
   animation: floatUp 1.5s ease-out forwards;
 }
+
+/* Glow-Burst Animation für Progress Bar Meilensteine */
+@keyframes glow-burst {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(251, 191, 36, 1), 0 0 50px rgba(251, 191, 36, 0.7);
+  }
+}
+
+.progress-milestone {
+  animation: glow-burst 0.8s ease-out;
+}
