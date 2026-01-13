@@ -127,7 +127,7 @@ class Ortsverband extends Model
                 'last_activity' => $member->last_activity_date,
                 'role' => $member->pivot->role
             ];
-        })->sortByDesc('theory_progress_percent')->values();
+        })->sortByDesc('points')->values();
     }
 
     /**
