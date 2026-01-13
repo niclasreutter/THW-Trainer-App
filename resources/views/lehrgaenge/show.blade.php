@@ -302,6 +302,18 @@
         color: #00337F;
     }
 
+    .action-btn.danger {
+        background: white;
+        border: 2px solid #fecaca;
+        color: #dc2626;
+    }
+
+    .action-btn.danger:hover {
+        background: #fee2e2;
+        border-color: #dc2626;
+        color: #b91c1c;
+    }
+
     .enroll-section {
         background: white;
         border: 2px dashed #e5e7eb;
@@ -488,6 +500,18 @@
                 <a href="{{ route('lehrgaenge.index') }}" class="action-btn outline">
                     ← Alle Lehrgänge
                 </a>
+            </div>
+
+            <!-- Unenroll Button -->
+            <div style="text-align: center; margin-top: 2rem; padding-top: 2rem; border-top: 1px solid #e5e7eb;">
+                <form action="{{ route('lehrgaenge.unenroll', $lehrgang->slug) }}" method="POST" style="display: inline-block;"
+                      onsubmit="return confirm('Möchtest du diesen Lehrgang wirklich verlassen? Dein Fortschritt bleibt gespeichert.');">
+                    @csrf
+                    <button type="submit" class="action-btn danger" style="max-width: 300px;">
+                        🚪 Lehrgang verlassen
+                    </button>
+                </form>
+                <p style="font-size: 0.8rem; color: #6b7280; margin-top: 0.5rem;">Dein Fortschritt bleibt erhalten</p>
             </div>
         @else
             <!-- Enroll Section -->
