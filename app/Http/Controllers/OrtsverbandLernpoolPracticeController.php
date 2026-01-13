@@ -25,7 +25,7 @@ class OrtsverbandLernpoolPracticeController extends Controller
     public function show(Ortsverband $ortsverband, OrtsverbandLernpool $lernpool)
     {
         $user = auth()->user();
-        
+
         // Prüfe ob User eingeschrieben ist
         $enrollment = $user->lernpoolEnrollments()
             ->where('lernpool_id', $lernpool->id)
@@ -72,6 +72,26 @@ class OrtsverbandLernpoolPracticeController extends Controller
         // Zähle gemeisterte Fragen (2x richtig)
         $solvedCount = $userProgress->where('solved', true)->count();
         $totalCount = $allQuestions->count();
+
+        // WICHTIG: Prüfe ob wir gerade eine Frage beantwortet haben
+        // Falls ja, zeige dieselbe Frage nochmal (für Lösungsanzeige)
+        $answerResult = session('answer_result');
+        if ($answerResult && isset($answerResult['question_id'])) {
+            $answeredQuestion = OrtsverbandLernpoolQuestion::find($answerResult['question_id']);
+
+            // Prüfe ob Frage zu diesem Lernpool gehört
+            if ($answeredQuestion && $answeredQuestion->lernpool_id === $lernpool->id) {
+                return view('ortsverband.lernpools.practice', [
+                    'ortsverband' => $ortsverband,
+                    'lernpool' => $lernpool,
+                    'enrollment' => $enrollment,
+                    'question' => $answeredQuestion,
+                    'total' => $totalCount,
+                    'progress' => $solvedCount,
+                    'progressPercent' => $progressPercent,
+                ]);
+            }
+        }
 
         // Intelligente Priorisierung für nächste Frage:
         // 1. Ungelöste Fragen (noch nicht 2x richtig)
