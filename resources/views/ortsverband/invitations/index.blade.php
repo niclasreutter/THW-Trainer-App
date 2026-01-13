@@ -367,11 +367,12 @@
 
                     <div class="form-group">
                         <label for="expires_at" class="form-label">Gültig bis (optional)</label>
-                        <input type="date" 
-                               id="expires_at" 
-                               name="expires_at" 
+                        <input type="date"
+                               id="expires_at"
+                               name="expires_at"
                                class="form-input"
-                               min="{{ date('Y-m-d') }}">
+                               min="{{ date('Y-m-d') }}"
+                               max="{{ now()->addYears(10)->format('Y-m-d') }}">
                     </div>
                 </div>
 

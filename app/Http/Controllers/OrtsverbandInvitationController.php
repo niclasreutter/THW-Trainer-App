@@ -42,7 +42,7 @@ class OrtsverbandInvitationController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'max_uses' => 'nullable|integer|min:1|max:100',
-            'expires_at' => 'nullable|date|after:now',
+            'expires_at' => 'nullable|date|after:now|before:' . now()->addYears(10)->format('Y-m-d'),
         ]);
         
         $invitation = OrtsverbandInvitation::create([
