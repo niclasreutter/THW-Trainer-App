@@ -6,6 +6,7 @@ use App\Models\Ortsverband;
 use App\Models\OrtsverbandLernpool;
 use App\Models\OrtsverbandLernpoolQuestion;
 use App\Models\OrtsverbandLernpoolProgress;
+use App\Models\OrtsverbandLernpoolQuestionStatistic;
 use App\Services\GamificationService;
 use Illuminate\Http\Request;
 
@@ -196,6 +197,13 @@ class OrtsverbandLernpoolPracticeController extends Controller
         
         // Prüfe ob korrekt
         $isCorrect = $userAnswerLetters === $correctAnswers;
+
+        // Speichere Statistik in separater Tabelle (wichtig für Auswertungen!)
+        OrtsverbandLernpoolQuestionStatistic::create([
+            'user_id' => $user->id,
+            'lernpool_question_id' => $question->id,
+            'is_correct' => $isCorrect,
+        ]);
 
         // Aktualisiere Fortschritt
         $progress = OrtsverbandLernpoolProgress::firstOrCreate(
