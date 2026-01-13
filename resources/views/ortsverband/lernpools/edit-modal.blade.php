@@ -39,7 +39,7 @@
                     </p>
                     <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
                         @foreach($existingTags as $tag)
-                            <button type="button" onclick="addTagModal('{{ $tag }}')" class="tag-suggestion-modal" style="background: #e0f2fe; color: #0c4a6e; padding: 0.35rem 0.75rem; border-radius: 999px; font-size: 0.8rem; font-weight: 600; border: 1px solid #7dd3fc; cursor: pointer; transition: all 0.2s;">
+                            <button type="button" onclick="addTagToModal('{{ $tag }}')" class="tag-suggestion-modal" style="background: #e0f2fe; color: #0c4a6e; padding: 0.35rem 0.75rem; border-radius: 999px; font-size: 0.8rem; font-weight: 600; border: 1px solid #7dd3fc; cursor: pointer; transition: all 0.2s;">
                                 + {{ $tag }}
                             </button>
                         @endforeach
@@ -65,29 +65,6 @@
                 box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
             }
         </style>
-
-        <script>
-            function addTagModal(tag) {
-                const input = document.getElementById('tags');
-                const currentValue = input.value.trim();
-
-                // Prüfe ob Tag bereits vorhanden ist
-                const existingTags = currentValue.split(',').map(t => t.trim());
-                if (existingTags.includes(tag)) {
-                    return; // Tag bereits vorhanden
-                }
-
-                // Füge Tag hinzu
-                if (currentValue === '') {
-                    input.value = tag;
-                } else {
-                    input.value = currentValue + ', ' + tag;
-                }
-
-                // Fokussiere Input
-                input.focus();
-            }
-        </script>
 
         <div class="form-group">
             <div class="form-checkbox">
