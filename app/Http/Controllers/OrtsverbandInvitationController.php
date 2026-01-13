@@ -178,16 +178,19 @@ class OrtsverbandInvitationController extends Controller
         // Logo-Pfad
         $logoPath = public_path('logo-thwtrainer.png');
 
-        // QR-Code mit Logo generieren
+        // QR-Code mit ausgespartem Bereich für Logo generieren
         $qrCode = QrCode::format('png')
-            ->size(400)
-            ->errorCorrection('H') // Hohe Fehlerkorrektur für Logo
-            ->margin(2)
-            ->merge($logoPath, 0.3, true) // Logo in der Mitte (30% Größe)
+            ->size(500) // Größer für bessere Qualität
+            ->errorCorrection('H') // Hohe Fehlerkorrektur (30% kann beschädigt sein)
+            ->margin(1)
+            ->style('square') // Quadratische Pixel
+            ->eye('square') // Quadratische Ecken
+            ->merge($logoPath, 0.25, true) // Logo 25% Größe mit weißem Rand
             ->generate($url);
 
         return response($qrCode)
             ->header('Content-Type', 'image/png')
-            ->header('Content-Disposition', 'inline; filename="qr-code-' . $invitation->code . '.png"');
+            ->header('Content-Disposition', 'inline; filename="qr-code-' . $invitation->code . '.png"')
+            ->header('Cache-Control', 'no-cache, no-store, must-revalidate');
     }
 }
