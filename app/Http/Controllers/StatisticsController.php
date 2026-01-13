@@ -5,24 +5,30 @@ namespace App\Http\Controllers;
 use App\Models\Question;
 use App\Models\QuestionStatistic;
 use App\Models\LehrgangQuestionStatistic;
+use App\Models\OrtsverbandLernpoolQuestionStatistic;
 use App\Models\ExamStatistic;
 use Illuminate\Support\Facades\DB;
 
 class StatisticsController extends Controller
 {
     /**
-     * Zeige öffentliche Statistiken basierend auf question_statistics und lehrgang_question_statistics
+     * Zeige öffentliche Statistiken basierend auf question_statistics, lehrgang_question_statistics und lernpool_question_statistics
      */
     public function index()
     {
-        // Gesamt-Statistiken (normalen Fragen + Lehrgang-Fragen kombinieren)
-        $totalAnswered = QuestionStatistic::count() + LehrgangQuestionStatistic::count();
-        $totalAnsweredToday = QuestionStatistic::whereDate('created_at', today())->count() + 
-                              LehrgangQuestionStatistic::whereDate('created_at', today())->count();
-        $totalCorrect = QuestionStatistic::where('is_correct', true)->count() + 
-                        LehrgangQuestionStatistic::where('is_correct', true)->count();
-        $totalWrong = QuestionStatistic::where('is_correct', false)->count() + 
-                      LehrgangQuestionStatistic::where('is_correct', false)->count();
+        // Gesamt-Statistiken (Grundausbildung + Lehrgänge + Lernpools kombinieren)
+        $totalAnswered = QuestionStatistic::count() +
+                         LehrgangQuestionStatistic::count() +
+                         OrtsverbandLernpoolQuestionStatistic::count();
+        $totalAnsweredToday = QuestionStatistic::whereDate('created_at', today())->count() +
+                              LehrgangQuestionStatistic::whereDate('created_at', today())->count() +
+                              OrtsverbandLernpoolQuestionStatistic::whereDate('created_at', today())->count();
+        $totalCorrect = QuestionStatistic::where('is_correct', true)->count() +
+                        LehrgangQuestionStatistic::where('is_correct', true)->count() +
+                        OrtsverbandLernpoolQuestionStatistic::where('is_correct', true)->count();
+        $totalWrong = QuestionStatistic::where('is_correct', false)->count() +
+                      LehrgangQuestionStatistic::where('is_correct', false)->count() +
+                      OrtsverbandLernpoolQuestionStatistic::where('is_correct', false)->count();
         $successRate = $totalAnswered > 0 ? round(($totalCorrect / $totalAnswered) * 100, 1) : 0;
         $errorRate = $totalAnswered > 0 ? round(($totalWrong / $totalAnswered) * 100, 1) : 0;
         
