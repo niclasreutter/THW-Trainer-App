@@ -3,6 +3,7 @@
 .env
 .env.backup
 .env.production
+.env.local
 .phpactor.json
 .phpunit.result.cache
 /.fleet
@@ -23,3 +24,23 @@ Homestead.json
 Homestead.yaml
 Thumbs.db
 /temp
+
+# Sensible Dateien
+*.pem
+*.key
+*.pfx
+*.p12
+*_rsa
+*_dsa
+*.ppk
+VAPID_KEYS.txt
+*secret*
+*credential*
+
+# Backups und Dumps
+*.sql
+*.db
+*.sqlite
+*.dump
+backup/
+backups/
