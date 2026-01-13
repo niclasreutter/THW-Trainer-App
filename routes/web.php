@@ -201,34 +201,34 @@ Route::middleware('auth')->group(function () {
         // Einzelner Ortsverband (für alle Mitglieder)
         Route::get('/{ortsverband}', [\App\Http\Controllers\OrtsverbandController::class, 'show'])->name('show');
         Route::delete('/{ortsverband}/leave', [\App\Http\Controllers\OrtsverbandController::class, 'leave'])->name('leave');
-        
+
+        // Lernpools für Mitglieder (Einschreiben & Lernen) - für alle Mitglieder
+        Route::post('/{ortsverband}/lernpools/{lernpool}/enroll', [\App\Http\Controllers\OrtsverbandLernpoolController::class, 'enroll'])->name('lernpools.enroll');
+        Route::get('/{ortsverband}/lernpools/{lernpool}/practice', [\App\Http\Controllers\OrtsverbandLernpoolPracticeController::class, 'show'])->name('lernpools.practice');
+        Route::post('/{ortsverband}/lernpools/{lernpool}/answer', [\App\Http\Controllers\OrtsverbandLernpoolPracticeController::class, 'answer'])->name('lernpools.answer');
+        Route::post('/{ortsverband}/lernpools/{lernpool}/unenroll', [\App\Http\Controllers\OrtsverbandLernpoolPracticeController::class, 'unenroll'])->name('lernpools.unenroll');
+
         // Nur für Ausbildungsbeauftragte
         Route::middleware(['ortsverband.ausbildungsbeauftragter'])->group(function () {
             Route::get('/{ortsverband}/edit', [\App\Http\Controllers\OrtsverbandController::class, 'edit'])->name('edit');
             Route::put('/{ortsverband}', [\App\Http\Controllers\OrtsverbandController::class, 'update'])->name('update');
             Route::delete('/{ortsverband}', [\App\Http\Controllers\OrtsverbandController::class, 'destroy'])->name('destroy');
-            
+
             // Mitglieder verwalten
             Route::get('/{ortsverband}/members', [\App\Http\Controllers\OrtsverbandController::class, 'members'])->name('members');
             Route::delete('/{ortsverband}/members/{user}', [\App\Http\Controllers\OrtsverbandController::class, 'removeMember'])->name('members.remove');
             Route::put('/{ortsverband}/members/{user}/role', [\App\Http\Controllers\OrtsverbandController::class, 'changeRole'])->name('members.role');
-            
+
             // Dashboard & Statistiken
             Route::get('/{ortsverband}/dashboard', [\App\Http\Controllers\OrtsverbandController::class, 'dashboard'])->name('dashboard');
             Route::get('/{ortsverband}/stats', [\App\Http\Controllers\OrtsverbandController::class, 'stats'])->name('stats');
-            
+
             // Einladungen
             Route::get('/{ortsverband}/invitations', [\App\Http\Controllers\OrtsverbandInvitationController::class, 'index'])->name('invitations.index');
             Route::post('/{ortsverband}/invitations', [\App\Http\Controllers\OrtsverbandInvitationController::class, 'store'])->name('invitations.store');
             Route::delete('/{ortsverband}/invitations/{invitation}', [\App\Http\Controllers\OrtsverbandInvitationController::class, 'destroy'])->name('invitations.destroy');
             Route::put('/{ortsverband}/invitations/{invitation}/toggle', [\App\Http\Controllers\OrtsverbandInvitationController::class, 'toggle'])->name('invitations.toggle');
-            
-            // Lernpools für Mitglieder (Einschreiben & Lernen)
-            Route::post('/{ortsverband}/lernpools/{lernpool}/enroll', [\App\Http\Controllers\OrtsverbandLernpoolController::class, 'enroll'])->name('lernpools.enroll');
-            Route::get('/{ortsverband}/lernpools/{lernpool}/practice', [\App\Http\Controllers\OrtsverbandLernpoolPracticeController::class, 'show'])->name('lernpools.practice');
-            Route::post('/{ortsverband}/lernpools/{lernpool}/answer', [\App\Http\Controllers\OrtsverbandLernpoolPracticeController::class, 'answer'])->name('lernpools.answer');
-            Route::post('/{ortsverband}/lernpools/{lernpool}/unenroll', [\App\Http\Controllers\OrtsverbandLernpoolPracticeController::class, 'unenroll'])->name('lernpools.unenroll');
-            
+
             // Lernpools für Ausbilder (CRUD)
             Route::resource('/{ortsverband}/lernpools', \App\Http\Controllers\OrtsverbandLernpoolController::class)->names('lernpools');
             Route::resource('/{ortsverband}/lernpools/{lernpool}/questions', \App\Http\Controllers\OrtsverbandLernpoolQuestionController::class)->names('lernpools.questions');

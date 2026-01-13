@@ -166,8 +166,10 @@ class OrtsverbandLernpoolController extends Controller
      */
     public function enroll(Request $request, Ortsverband $ortsverband, OrtsverbandLernpool $lernpool)
     {
+        $this->authorize('enroll', $lernpool);
+
         $user = auth()->user();
-        
+
         // Prüfe ob User bereits eingeschrieben ist
         $existing = OrtsverbandLernpoolEnrollment::where('user_id', $user->id)
             ->where('lernpool_id', $lernpool->id)
