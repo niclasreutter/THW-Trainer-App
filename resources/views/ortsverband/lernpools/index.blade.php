@@ -817,11 +817,11 @@
                 const baseUrl = trigger.href;
                 const cacheBuster = '_t=' + Date.now();
                 const url = baseUrl + (baseUrl.includes('?') ? '&' : '?') + 'ajax=1&' + cacheBuster;
-                
+
                 // WICHTIG: Modal-Inhalt sofort leeren und Loading-Animation zeigen
                 genericModal.innerHTML = '<div class="modal"><div class="modal-body modal-loading"><div class="spinner"></div><div class="modal-loading-text">Lädt...</div></div></div>';
                 genericModalBackdrop.classList.add('active');
-                
+
                 fetch(url, {
                     method: 'GET',
                     headers: {
@@ -846,6 +846,157 @@
                 return false;
             }
         });
+
+        // Event-Delegation für dynamisch geladene Submit-Buttons im Modal
+        document.addEventListener('click', function(e) {
+            // Prüfe ob es ein Submit-Button im Fragen-Formular ist
+            const submitBtn = e.target.closest('#submitFinishBtn, #submitContinueBtn');
+            if (!submitBtn) return;
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            const action = submitBtn.id === 'submitContinueBtn' ? 'continue' : 'finish';
+            console.log('Submit Button geklickt:', action);
+
+            const form = document.getElementById('createQuestionForm');
+            if (!form) {
+                console.error('Form nicht gefunden');
+                alert('Fehler: Formular nicht gefunden!');
+                return;
+            }
+
+            // Prüfe ob mindestens eine Lösung ausgewählt ist
+            const loesungCheckboxes = form.querySelectorAll('input[name="loesung[]"]:checked');
+            if (loesungCheckboxes.length === 0) {
+                alert('Bitte wähle mindestens eine richtige Antwort aus (A, B oder C)!');
+                return;
+            }
+
+            // Prüfe required Felder
+            const requiredInputs = form.querySelectorAll('[required]');
+            let allValid = true;
+            requiredInputs.forEach(input => {
+                if (!input.value.trim()) {
+                    allValid = false;
+                    input.focus();
+                    input.reportValidity();
+                }
+            });
+
+            if (!allValid) {
+                console.log('Validierung fehlgeschlagen');
+                return;
+            }
+
+            console.log('Validierung OK, sende Formular...');
+
+            const formData = new FormData(form);
+            const buttons = form.querySelectorAll('#submitFinishBtn, #submitContinueBtn');
+
+            // Disable buttons während Submit
+            buttons.forEach(btn => {
+                btn.disabled = true;
+                btn.style.opacity = '0.6';
+            });
+
+            fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                },
+                credentials: 'same-origin'
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Response:', data);
+                if (data.success) {
+                    showToastNotification('✓ ' + data.message, 'success');
+
+                    if (action === 'continue') {
+                        console.log('Lade neues Formular...');
+                        // Lade Modal neu mit leerem Formular
+                        const createUrl = form.action.replace('/store', '/create') + '?ajax=1&_t=' + Date.now();
+                        fetch(createUrl, {
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'Cache-Control': 'no-cache'
+                            }
+                        })
+                        .then(response => response.text())
+                        .then(html => {
+                            genericModal.innerHTML = '<div class="modal">' + html + '</div>';
+                            console.log('Neues Formular geladen');
+                        });
+                    } else {
+                        console.log('Schließe Modal...');
+                        // Schließe Modal und lade Seite neu
+                        genericModalBackdrop.classList.remove('active');
+                        setTimeout(() => {
+                            location.reload();
+                        }, 300);
+                    }
+                } else {
+                    showToastNotification('✗ ' + (data.message || 'Fehler beim Speichern'), 'error');
+                    buttons.forEach(btn => {
+                        btn.disabled = false;
+                        btn.style.opacity = '1';
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToastNotification('✗ Fehler beim Speichern der Frage', 'error');
+                buttons.forEach(btn => {
+                    btn.disabled = false;
+                    btn.style.opacity = '1';
+                });
+            });
+        });
+
+        // Toast-Benachrichtigung Funktion
+        window.showToastNotification = function(message, type) {
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 16px 24px;
+                background: ${type === 'success' ? '#10b981' : '#ef4444'};
+                color: white;
+                border-radius: 8px;
+                font-weight: 600;
+                z-index: 10000;
+                box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+                animation: slideInRight 0.3s ease-out;
+            `;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.animation = 'slideOutRight 0.3s ease-in';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        };
+
+        // Animation CSS hinzufügen (falls noch nicht vorhanden)
+        if (!document.getElementById('toast-animations')) {
+            const style = document.createElement('style');
+            style.id = 'toast-animations';
+            style.textContent = `
+                @keyframes slideInRight {
+                    from { transform: translateX(100%); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+                @keyframes slideOutRight {
+                    from { transform: translateX(0); opacity: 1; }
+                    to { transform: translateX(100%); opacity: 0; }
+                }
+            `;
+            document.head.appendChild(style);
+        }
     });
 </script>
 
