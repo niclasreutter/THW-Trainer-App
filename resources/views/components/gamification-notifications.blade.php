@@ -52,7 +52,20 @@
                     if (notification{{ $loop->index }}) {
                         notification{{ $loop->index }}.classList.remove('translate-x-full');
                         notification{{ $loop->index }}.classList.add('translate-x-0');
-                        
+
+                        // Trigger confetti animation kurz nach dem Einblenden
+                        setTimeout(() => {
+                            @if($notification['type'] === 'level_up')
+                                if (typeof window.triggerLevelUpConfetti === 'function') {
+                                    window.triggerLevelUpConfetti();
+                                }
+                            @else
+                                if (typeof window.triggerAchievementConfetti === 'function') {
+                                    window.triggerAchievementConfetti();
+                                }
+                            @endif
+                        }, 200);
+
                         // Auto-hide after 6 seconds
                         setTimeout(() => {
                             hideNotification({{ $loop->index }});

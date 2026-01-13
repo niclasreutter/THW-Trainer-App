@@ -21,19 +21,26 @@ function showAchievementPopup(icon, title) {
     const popup = document.getElementById('achievementPopup');
     const iconEl = document.getElementById('achievementIcon');
     const titleEl = document.getElementById('achievementTitle');
-    
+
     iconEl.textContent = icon;
     titleEl.textContent = title;
-    
+
     // Zeige den Popup
     popup.classList.remove('hidden');
-    
+
     // Warte kurz, dann slide-in Animation
     setTimeout(() => {
         popup.classList.remove('translate-x-full');
         popup.classList.add('translate-x-0');
+
+        // Trigger confetti animation nach dem Einblenden
+        setTimeout(() => {
+            if (typeof window.triggerAchievementConfetti === 'function') {
+                window.triggerAchievementConfetti();
+            }
+        }, 200);
     }, 10);
-    
+
     // Auto-hide nach 5 Sekunden
     setTimeout(() => {
         hideAchievementPopup();
