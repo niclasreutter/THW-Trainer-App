@@ -3,7 +3,7 @@
     <h2>Neue Frage erstellen</h2>
     <button class="modal-close" onclick="document.getElementById('genericModalBackdrop').classList.remove('active')">✕</button>
 </div>
-<form action="{{ route('ortsverband.lernpools.questions.store', [$ortsverband, $lernpool]) }}" method="POST">
+<form id="createQuestionForm" action="{{ route('ortsverband.lernpools.questions.store', [$ortsverband, $lernpool]) }}" method="POST" onsubmit="return false;">
     @csrf
     <div class="modal-body">
         <p class="text-sm text-gray-600 mb-4">Frage für <strong>{{ $lernpool->name }}</strong></p>
@@ -134,73 +134,97 @@ function updateNummer() {
 }
 
 // AJAX Form Submit für nahtloses Hinzufügen mehrerer Fragen
-document.querySelector('form').addEventListener('submit', function(e) {
-    e.preventDefault();
+(function() {
+    const form = document.getElementById('createQuestionForm');
+    if (!form) {
+        console.error('Form #createQuestionForm nicht gefunden');
+        return;
+    }
 
-    const form = this;
-    const formData = new FormData(form);
-    const action = e.submitter?.value || 'finish'; // Welcher Button wurde geklickt?
-
-    // Disable buttons während Submit
-    const buttons = form.querySelectorAll('button[type="submit"]');
-    buttons.forEach(btn => {
-        btn.disabled = true;
-        btn.style.opacity = '0.6';
+    // Verhindere normales Submit komplett
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
     });
 
-    fetch(form.action, {
-        method: 'POST',
-        body: formData,
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-            'Accept': 'application/json'
-        },
-        credentials: 'same-origin'
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Zeige Erfolgs-Nachricht
-            showToast('✓ ' + data.message, 'success');
+    // Handler für Submit-Buttons
+    const buttons = form.querySelectorAll('button[type="submit"]');
+    buttons.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
 
-            if (action === 'continue') {
-                // Lade Modal neu mit leerem Formular
-                const createUrl = '{{ route("ortsverband.lernpools.questions.create", [$ortsverband, $lernpool]) }}?ajax=1&_t=' + Date.now();
-                fetch(createUrl, {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Cache-Control': 'no-cache'
-                    }
-                })
-                .then(response => response.text())
-                .then(html => {
-                    document.getElementById('genericModal').innerHTML = '<div class="modal">' + html + '</div>';
-                });
+            const action = this.value; // 'continue' oder 'finish'
+            submitForm(action);
+
+            return false;
+        });
+    });
+
+    function submitForm(action) {
+        const formData = new FormData(form);
+
+        // Disable buttons während Submit
+        buttons.forEach(btn => {
+            btn.disabled = true;
+            btn.style.opacity = '0.6';
+        });
+
+        fetch(form.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            },
+            credentials: 'same-origin'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Zeige Erfolgs-Nachricht
+                showToast('✓ ' + data.message, 'success');
+
+                if (action === 'continue') {
+                    // Lade Modal neu mit leerem Formular
+                    const createUrl = '{{ route("ortsverband.lernpools.questions.create", [$ortsverband, $lernpool]) }}?ajax=1&_t=' + Date.now();
+                    fetch(createUrl, {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Cache-Control': 'no-cache'
+                        }
+                    })
+                    .then(response => response.text())
+                    .then(html => {
+                        document.getElementById('genericModal').innerHTML = '<div class="modal">' + html + '</div>';
+                    });
+                } else {
+                    // Schließe Modal und lade Seite neu
+                    document.getElementById('genericModalBackdrop').classList.remove('active');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 300);
+                }
             } else {
-                // Schließe Modal und lade Seite neu
-                document.getElementById('genericModalBackdrop').classList.remove('active');
-                setTimeout(() => {
-                    location.reload();
-                }, 300);
+                // Zeige Fehler
+                showToast('✗ ' + (data.message || 'Fehler beim Speichern'), 'error');
+                buttons.forEach(btn => {
+                    btn.disabled = false;
+                    btn.style.opacity = '1';
+                });
             }
-        } else {
-            // Zeige Fehler
-            showToast('✗ ' + (data.message || 'Fehler beim Speichern'), 'error');
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('✗ Fehler beim Speichern der Frage', 'error');
             buttons.forEach(btn => {
                 btn.disabled = false;
                 btn.style.opacity = '1';
             });
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showToast('✗ Fehler beim Speichern der Frage', 'error');
-        buttons.forEach(btn => {
-            btn.disabled = false;
-            btn.style.opacity = '1';
         });
-    });
-});
+    }
+})();
 
 function showToast(message, type) {
     const toast = document.createElement('div');
