@@ -87,10 +87,10 @@
         <button type="button" class="btn btn-modal-close" onclick="document.getElementById('genericModalBackdrop').classList.remove('active')">
             Abbrechen
         </button>
-        <button type="button" id="submitFinishBtn" name="action" value="finish" class="btn btn-secondary" style="background: #6b7280; color: white;">
+        <button type="button" id="submitFinishBtn" class="btn btn-secondary" style="background: #6b7280; color: white;">
             ✓ Speichern & Fertig
         </button>
-        <button type="button" id="submitContinueBtn" name="action" value="continue" class="btn btn-primary">
+        <button type="button" id="submitContinueBtn" class="btn btn-primary">
             ✓ Speichern & Weitere hinzufügen
         </button>
     </div>

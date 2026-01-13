@@ -894,13 +894,17 @@
             const formData = new FormData(form);
             const buttons = form.querySelectorAll('#submitFinishBtn, #submitContinueBtn');
 
+            // WICHTIG: getAttribute verwenden, nicht form.action (wegen name="action" Konflikt)
+            const formAction = form.getAttribute('action');
+            console.log('Form Action URL:', formAction);
+
             // Disable buttons während Submit
             buttons.forEach(btn => {
                 btn.disabled = true;
                 btn.style.opacity = '0.6';
             });
 
-            fetch(form.action, {
+            fetch(formAction, {
                 method: 'POST',
                 body: formData,
                 headers: {
@@ -918,7 +922,7 @@
                     if (action === 'continue') {
                         console.log('Lade neues Formular...');
                         // Lade Modal neu mit leerem Formular
-                        const createUrl = form.action.replace('/store', '/create') + '?ajax=1&_t=' + Date.now();
+                        const createUrl = formAction.replace('/store', '/create') + '?ajax=1&_t=' + Date.now();
                         fetch(createUrl, {
                             headers: {
                                 'X-Requested-With': 'XMLHttpRequest',
