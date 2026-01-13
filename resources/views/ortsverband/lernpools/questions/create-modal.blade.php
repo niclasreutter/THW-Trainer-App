@@ -87,10 +87,10 @@
         <button type="button" class="btn btn-modal-close" onclick="document.getElementById('genericModalBackdrop').classList.remove('active')">
             Abbrechen
         </button>
-        <button type="button" name="action" value="finish" class="btn btn-secondary" style="background: #6b7280; color: white;" onclick="handleSubmit('finish')">
+        <button type="button" id="submitFinishBtn" name="action" value="finish" class="btn btn-secondary" style="background: #6b7280; color: white;">
             ✓ Speichern & Fertig
         </button>
-        <button type="button" name="action" value="continue" class="btn btn-primary" onclick="handleSubmit('continue')">
+        <button type="button" id="submitContinueBtn" name="action" value="continue" class="btn btn-primary">
             ✓ Speichern & Weitere hinzufügen
         </button>
     </div>
@@ -133,115 +133,146 @@ function updateNummer() {
     }
 }
 
-// Globale Funktion für Button-Clicks
-window.handleSubmit = function(action) {
-    console.log('handleSubmit aufgerufen mit action:', action);
+// Script wird direkt beim Laden ausgeführt
+(function() {
+    console.log('Script wird geladen...');
 
-    const form = document.getElementById('createQuestionForm');
-    if (!form) {
-        console.error('Form nicht gefunden');
-        alert('Fehler: Formular nicht gefunden!');
-        return;
-    }
-    console.log('Form gefunden:', form);
+    // Warte kurz, bis DOM vollständig geladen ist
+    setTimeout(function() {
+        const submitFinishBtn = document.getElementById('submitFinishBtn');
+        const submitContinueBtn = document.getElementById('submitContinueBtn');
 
-    // Prüfe ob mindestens eine Lösung ausgewählt ist
-    const loesungCheckboxes = form.querySelectorAll('input[name="loesung[]"]:checked');
-    if (loesungCheckboxes.length === 0) {
-        alert('Bitte wähle mindestens eine richtige Antwort aus (A, B oder C)!');
-        return;
-    }
+        console.log('submitFinishBtn:', submitFinishBtn);
+        console.log('submitContinueBtn:', submitContinueBtn);
 
-    // Prüfe Browser-Validierung für required Felder
-    const requiredInputs = form.querySelectorAll('[required]');
-    let allValid = true;
-    requiredInputs.forEach(input => {
-        if (!input.value.trim()) {
-            allValid = false;
-            input.focus();
-            input.reportValidity();
+        if (!submitFinishBtn || !submitContinueBtn) {
+            console.error('Buttons nicht gefunden!');
+            return;
         }
-    });
 
-    if (!allValid) {
-        console.log('Validierung fehlgeschlagen');
-        return;
-    }
+        function handleSubmit(action) {
+            console.log('handleSubmit aufgerufen mit action:', action);
 
-    console.log('Validierung erfolgreich, sende Daten...');
-
-    const formData = new FormData(form);
-    const buttons = form.querySelectorAll('button[name="action"]');
-
-    // Debug: Zeige FormData
-    for (let pair of formData.entries()) {
-        console.log(pair[0] + ': ' + pair[1]);
-    }
-
-    // Disable buttons während Submit
-    buttons.forEach(btn => {
-        btn.disabled = true;
-        btn.style.opacity = '0.6';
-    });
-
-    fetch(form.action, {
-        method: 'POST',
-        body: formData,
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-            'Accept': 'application/json'
-        },
-        credentials: 'same-origin'
-    })
-    .then(response => {
-        console.log('Response erhalten:', response);
-        return response.json();
-    })
-    .then(data => {
-        console.log('Data:', data);
-        if (data.success) {
-            showToast('✓ ' + data.message, 'success');
-
-            if (action === 'continue') {
-                console.log('Lade neues Formular...');
-                // Lade Modal neu mit leerem Formular
-                const createUrl = '{{ route("ortsverband.lernpools.questions.create", [$ortsverband, $lernpool]) }}?ajax=1&_t=' + Date.now();
-                fetch(createUrl, {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Cache-Control': 'no-cache'
-                    }
-                })
-                .then(response => response.text())
-                .then(html => {
-                    document.getElementById('genericModal').innerHTML = '<div class="modal">' + html + '</div>';
-                    console.log('Neues Formular geladen');
-                });
-            } else {
-                console.log('Schließe Modal...');
-                // Schließe Modal und lade Seite neu
-                document.getElementById('genericModalBackdrop').classList.remove('active');
-                setTimeout(() => {
-                    location.reload();
-                }, 300);
+            const form = document.getElementById('createQuestionForm');
+            if (!form) {
+                console.error('Form nicht gefunden');
+                alert('Fehler: Formular nicht gefunden!');
+                return;
             }
-        } else {
-            showToast('✗ ' + (data.message || 'Fehler beim Speichern'), 'error');
+            console.log('Form gefunden:', form);
+
+            // Prüfe ob mindestens eine Lösung ausgewählt ist
+            const loesungCheckboxes = form.querySelectorAll('input[name="loesung[]"]:checked');
+            if (loesungCheckboxes.length === 0) {
+                alert('Bitte wähle mindestens eine richtige Antwort aus (A, B oder C)!');
+                return;
+            }
+
+            // Prüfe Browser-Validierung für required Felder
+            const requiredInputs = form.querySelectorAll('[required]');
+            let allValid = true;
+            requiredInputs.forEach(input => {
+                if (!input.value.trim()) {
+                    allValid = false;
+                    input.focus();
+                    input.reportValidity();
+                }
+            });
+
+            if (!allValid) {
+                console.log('Validierung fehlgeschlagen');
+                return;
+            }
+
+            console.log('Validierung erfolgreich, sende Daten...');
+
+            const formData = new FormData(form);
+            const buttons = form.querySelectorAll('button[name="action"]');
+
+            // Debug: Zeige FormData
+            for (let pair of formData.entries()) {
+                console.log(pair[0] + ': ' + pair[1]);
+            }
+
+            // Disable buttons während Submit
             buttons.forEach(btn => {
-                btn.disabled = false;
-                btn.style.opacity = '1';
+                btn.disabled = true;
+                btn.style.opacity = '0.6';
+            });
+
+            fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                },
+                credentials: 'same-origin'
+            })
+            .then(response => {
+                console.log('Response erhalten:', response);
+                return response.json();
+            })
+            .then(data => {
+                console.log('Data:', data);
+                if (data.success) {
+                    showToast('✓ ' + data.message, 'success');
+
+                    if (action === 'continue') {
+                        console.log('Lade neues Formular...');
+                        // Lade Modal neu mit leerem Formular
+                        const createUrl = '{{ route("ortsverband.lernpools.questions.create", [$ortsverband, $lernpool]) }}?ajax=1&_t=' + Date.now();
+                        fetch(createUrl, {
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'Cache-Control': 'no-cache'
+                            }
+                        })
+                        .then(response => response.text())
+                        .then(html => {
+                            document.getElementById('genericModal').innerHTML = '<div class="modal">' + html + '</div>';
+                            console.log('Neues Formular geladen');
+                        });
+                    } else {
+                        console.log('Schließe Modal...');
+                        // Schließe Modal und lade Seite neu
+                        document.getElementById('genericModalBackdrop').classList.remove('active');
+                        setTimeout(() => {
+                            location.reload();
+                        }, 300);
+                    }
+                } else {
+                    showToast('✗ ' + (data.message || 'Fehler beim Speichern'), 'error');
+                    buttons.forEach(btn => {
+                        btn.disabled = false;
+                        btn.style.opacity = '1';
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('✗ Fehler beim Speichern der Frage', 'error');
+                buttons.forEach(btn => {
+                    btn.disabled = false;
+                    btn.style.opacity = '1';
+                });
             });
         }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showToast('✗ Fehler beim Speichern der Frage', 'error');
-        buttons.forEach(btn => {
-            btn.disabled = false;
-            btn.style.opacity = '1';
+
+        // Event-Listener hinzufügen
+        submitFinishBtn.addEventListener('click', function() {
+            console.log('Finish Button geklickt');
+            handleSubmit('finish');
         });
-    });
-};
+
+        submitContinueBtn.addEventListener('click', function() {
+            console.log('Continue Button geklickt');
+            handleSubmit('continue');
+        });
+
+        console.log('Event-Listener registriert!');
+    }, 50);
+})();
 
 function showToast(message, type) {
     const toast = document.createElement('div');
