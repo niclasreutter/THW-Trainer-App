@@ -41,44 +41,54 @@
         </div>
 
         <div class="form-group">
-            <label for="antwort_a" class="form-label">
-                Antwort A <span class="required">*</span>
+            <label class="form-label" style="margin-bottom: 0.75rem;">
+                Antworten <span class="required">*</span>
             </label>
-            <input type="text" name="antwort_a" id="antwort_a" class="form-input" required>
+            <p style="font-size: 0.75rem; color: #6b7280; margin-bottom: 0.75rem;">Wähle die korrekten Antworten mit dem Häkchen</p>
         </div>
 
         <div class="form-group">
-            <label for="antwort_b" class="form-label">
-                Antwort B <span class="required">*</span>
-            </label>
-            <input type="text" name="antwort_b" id="antwort_b" class="form-input" required>
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <label class="answer-checkbox-toggle">
+                    <input type="checkbox" name="loesung[]" value="a" class="answer-checkbox">
+                    <span class="checkbox-custom"></span>
+                </label>
+                <div style="flex: 1;">
+                    <label for="antwort_a" class="form-label" style="margin-bottom: 0.25rem;">
+                        Antwort A <span class="required">*</span>
+                    </label>
+                    <input type="text" name="antwort_a" id="antwort_a" class="form-input" required>
+                </div>
+            </div>
         </div>
 
         <div class="form-group">
-            <label for="antwort_c" class="form-label">
-                Antwort C <span class="required">*</span>
-            </label>
-            <input type="text" name="antwort_c" id="antwort_c" class="form-input" required>
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <label class="answer-checkbox-toggle">
+                    <input type="checkbox" name="loesung[]" value="b" class="answer-checkbox">
+                    <span class="checkbox-custom"></span>
+                </label>
+                <div style="flex: 1;">
+                    <label for="antwort_b" class="form-label" style="margin-bottom: 0.25rem;">
+                        Antwort B <span class="required">*</span>
+                    </label>
+                    <input type="text" name="antwort_b" id="antwort_b" class="form-input" required>
+                </div>
+            </div>
         </div>
 
-        <div class="form-group" style="background: #eff6ff; padding: 1rem; border-radius: 0.5rem; border-left: 4px solid #3b82f6;">
-            <label class="form-label">
-                Korrekte Antwort(en) <span class="required">*</span>
-            </label>
-            <p style="font-size: 0.75rem; color: #6b7280; margin-bottom: 0.75rem;">Wähle eine oder mehrere richtige Antworten</p>
-            <div style="display: flex; gap: 0.5rem;">
-                <label class="answer-toggle" style="flex: 1;">
-                    <input type="checkbox" name="loesung[]" value="a" style="display: none;">
-                    <span class="answer-btn">A</span>
+        <div class="form-group">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <label class="answer-checkbox-toggle">
+                    <input type="checkbox" name="loesung[]" value="c" class="answer-checkbox">
+                    <span class="checkbox-custom"></span>
                 </label>
-                <label class="answer-toggle" style="flex: 1;">
-                    <input type="checkbox" name="loesung[]" value="b" style="display: none;">
-                    <span class="answer-btn">B</span>
-                </label>
-                <label class="answer-toggle" style="flex: 1;">
-                    <input type="checkbox" name="loesung[]" value="c" style="display: none;">
-                    <span class="answer-btn">C</span>
-                </label>
+                <div style="flex: 1;">
+                    <label for="antwort_c" class="form-label" style="margin-bottom: 0.25rem;">
+                        Antwort C <span class="required">*</span>
+                    </label>
+                    <input type="text" name="antwort_c" id="antwort_c" class="form-input" required>
+                </div>
             </div>
         </div>
     </div>
@@ -97,25 +107,50 @@
 </form>
 
 <style>
-.answer-toggle input:checked + .answer-btn {
-    background: #00337F;
-    color: white;
-    border-color: #00337F;
-}
-.answer-btn {
-    display: block;
-    text-align: center;
-    padding: 0.75rem 1rem;
-    border: 2px solid #d1d5db;
-    border-radius: 0.5rem;
-    font-weight: 600;
+.answer-checkbox-toggle {
+    position: relative;
     cursor: pointer;
-    transition: all 0.2s;
-    background: white;
+    min-width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
-.answer-btn:hover {
+
+.answer-checkbox {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.checkbox-custom {
+    width: 28px;
+    height: 28px;
+    border: 2.5px solid #d1d5db;
+    border-radius: 0.5rem;
+    background: white;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.answer-checkbox-toggle:hover .checkbox-custom {
     border-color: #00337F;
     background: #f0f4ff;
+}
+
+.answer-checkbox:checked + .checkbox-custom {
+    background: #00337F;
+    border-color: #00337F;
+}
+
+.answer-checkbox:checked + .checkbox-custom::after {
+    content: '✓';
+    color: white;
+    font-size: 1.2rem;
+    font-weight: bold;
+    line-height: 1;
 }
 </style>
 
