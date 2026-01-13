@@ -419,14 +419,17 @@
                 </div>
 
                 <div class="copy-box">
-                    <input type="text" 
-                           class="copy-input" 
-                           value="{{ $invitation->code }}" 
-                           readonly 
+                    <input type="text"
+                           class="copy-input"
+                           value="{{ $invitation->code }}"
+                           readonly
                            id="code-{{ $invitation->id }}"
                            style="font-weight: bold;">
                     <button type="button" class="copy-btn" onclick="copyToClipboard('code-{{ $invitation->id }}', this)">
                         📋 Code kopieren
+                    </button>
+                    <button type="button" class="copy-btn" onclick="showQRCode({{ $invitation->id }}, '{{ route('ortsverband.invitations.qrcode', [$ortsverband, $invitation]) }}')" style="background: #f59e0b;">
+                        📱 QR-Code
                     </button>
                 </div>
 
@@ -483,22 +486,106 @@
     </div>
 </div>
 
+<!-- QR-Code Modal -->
+<div id="qr-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center;">
+    <div style="background: white; border-radius: 1.5rem; padding: 2rem; max-width: 500px; width: 90%; text-align: center; position: relative;">
+        <button onclick="closeQRModal()" style="position: absolute; top: 1rem; right: 1rem; background: #f3f4f6; border: none; border-radius: 0.5rem; width: 2.5rem; height: 2.5rem; cursor: pointer; font-size: 1.5rem; color: #6b7280;">
+            ×
+        </button>
+
+        <h3 style="color: #00337F; margin-bottom: 1rem; font-size: 1.5rem; font-weight: 700;">
+            📱 QR-Code Einladung
+        </h3>
+
+        <p style="color: #6b7280; margin-bottom: 1.5rem; font-size: 0.9rem;">
+            Scannen Sie diesen QR-Code, um direkt zur Registrierungsseite zu gelangen.
+        </p>
+
+        <div id="qr-code-container" style="display: flex; justify-content: center; margin-bottom: 1.5rem;">
+            <img id="qr-code-image" src="" alt="QR Code" style="max-width: 100%; height: auto; border-radius: 1rem; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+        </div>
+
+        <div style="display: flex; gap: 0.5rem; justify-content: center;">
+            <button onclick="downloadQRCode()" class="btn btn-primary btn-small">
+                💾 Herunterladen
+            </button>
+            <button onclick="printQRCode()" class="btn btn-small" style="background: #f59e0b; color: white;">
+                🖨️ Drucken
+            </button>
+        </div>
+    </div>
+</div>
+
 <script>
+let currentQRCodeUrl = '';
+
 function copyToClipboard(inputId, button) {
     const input = document.getElementById(inputId);
     input.select();
     input.setSelectionRange(0, 99999);
-    
+
     navigator.clipboard.writeText(input.value).then(() => {
         const originalText = button.innerHTML;
         button.innerHTML = '✓ Kopiert!';
         button.classList.add('copied');
-        
+
         setTimeout(() => {
             button.innerHTML = originalText;
             button.classList.remove('copied');
         }, 2000);
     });
 }
+
+function showQRCode(invitationId, qrCodeUrl) {
+    currentQRCodeUrl = qrCodeUrl;
+    const modal = document.getElementById('qr-modal');
+    const img = document.getElementById('qr-code-image');
+
+    img.src = qrCodeUrl;
+    modal.style.display = 'flex';
+
+    // Schließen bei Klick außerhalb
+    modal.onclick = function(e) {
+        if (e.target === modal) {
+            closeQRModal();
+        }
+    };
+}
+
+function closeQRModal() {
+    const modal = document.getElementById('qr-modal');
+    modal.style.display = 'none';
+}
+
+function downloadQRCode() {
+    const link = document.createElement('a');
+    link.href = currentQRCodeUrl;
+    link.download = 'thw-trainer-einladung-qr-code.png';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+function printQRCode() {
+    const img = document.getElementById('qr-code-image');
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write('<html><head><title>THW-Trainer QR-Code</title>');
+    printWindow.document.write('<style>body { display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; } img { max-width: 80%; height: auto; }</style>');
+    printWindow.document.write('</head><body>');
+    printWindow.document.write('<img src="' + img.src + '" />');
+    printWindow.document.write('</body></html>');
+    printWindow.document.close();
+    printWindow.focus();
+    setTimeout(() => {
+        printWindow.print();
+    }, 250);
+}
+
+// ESC-Taste zum Schließen
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeQRModal();
+    }
+});
 </script>
 @endsection

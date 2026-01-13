@@ -6,6 +6,7 @@ use App\Models\Ortsverband;
 use App\Models\OrtsverbandInvitation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class OrtsverbandInvitationController extends Controller
 {
@@ -136,27 +137,57 @@ class OrtsverbandInvitationController extends Controller
         $request->validate([
             'code' => 'required|string'
         ]);
-        
+
         $code = trim($request->code);
         $invitation = OrtsverbandInvitation::findByCode($code);
-        
+
         if (!$invitation) {
             return back()->with('error', 'Einladungscode ungültig. Bitte überprüfe den Code.');
         }
-        
+
         if (!$invitation->isValid()) {
             return back()->with('error', 'Diese Einladung ist nicht mehr gültig oder abgelaufen.');
         }
-        
+
         $user = Auth::user();
-        
+
         try {
             $invitation->use($user);
-            
+
             return redirect()->route('ortsverband.show', $invitation->ortsverband)
                            ->with('success', 'Erfolgreich dem Ortsverband "' . $invitation->ortsverband->name . '" beigetreten!');
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
         }
+    }
+
+    /**
+     * Generiert QR-Code mit THW-Trainer Logo für Einladung
+     */
+    public function qrcode(Ortsverband $ortsverband, OrtsverbandInvitation $invitation)
+    {
+        $user = Auth::user();
+
+        if (!$invitation->ortsverband->isAusbildungsbeauftragter($user)) {
+            abort(403, 'Keine Berechtigung.');
+        }
+
+        // URL für die Einladung
+        $url = route('register', ['code' => $invitation->code]);
+
+        // Logo-Pfad
+        $logoPath = public_path('logo-thwtrainer.png');
+
+        // QR-Code mit Logo generieren
+        $qrCode = QrCode::format('png')
+            ->size(400)
+            ->errorCorrection('H') // Hohe Fehlerkorrektur für Logo
+            ->margin(2)
+            ->merge($logoPath, 0.3, true) // Logo in der Mitte (30% Größe)
+            ->generate($url);
+
+        return response($qrCode)
+            ->header('Content-Type', 'image/png')
+            ->header('Content-Disposition', 'inline; filename="qr-code-' . $invitation->code . '.png"');
     }
 }

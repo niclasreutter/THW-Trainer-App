@@ -228,6 +228,7 @@ Route::middleware('auth')->group(function () {
             Route::post('/{ortsverband}/invitations', [\App\Http\Controllers\OrtsverbandInvitationController::class, 'store'])->name('invitations.store');
             Route::delete('/{ortsverband}/invitations/{invitation}', [\App\Http\Controllers\OrtsverbandInvitationController::class, 'destroy'])->name('invitations.destroy');
             Route::put('/{ortsverband}/invitations/{invitation}/toggle', [\App\Http\Controllers\OrtsverbandInvitationController::class, 'toggle'])->name('invitations.toggle');
+            Route::get('/{ortsverband}/invitations/{invitation}/qrcode', [\App\Http\Controllers\OrtsverbandInvitationController::class, 'qrcode'])->name('invitations.qrcode');
 
             // Lernpools für Ausbilder (CRUD)
             Route::resource('/{ortsverband}/lernpools', \App\Http\Controllers\OrtsverbandLernpoolController::class)->names('lernpools');
