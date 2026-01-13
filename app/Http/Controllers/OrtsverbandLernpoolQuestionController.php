@@ -133,12 +133,24 @@ class OrtsverbandLernpoolQuestionController extends Controller
     {
         $this->authorize('update', [$lernpool, $ortsverband]);
         $this->authorize('view', $question);
-        
-        return view('ortsverband.lernpools.questions.edit', [
+
+        $data = [
             'ortsverband' => $ortsverband,
             'lernpool' => $lernpool,
             'question' => $question,
-        ]);
+        ];
+
+        // Wenn AJAX-Request, gib nur Modal-Inhalt zurück
+        $isAjax = request()->ajax() ||
+                  request()->header('X-Requested-With') === 'XMLHttpRequest' ||
+                  request()->query('ajax') === '1' ||
+                  request()->input('ajax') === '1';
+
+        if ($isAjax) {
+            return view('ortsverband.lernpools.questions.edit-modal', $data);
+        }
+
+        return view('ortsverband.lernpools.questions.edit', $data);
     }
 
     /**
@@ -156,10 +168,27 @@ class OrtsverbandLernpoolQuestionController extends Controller
             'antwort_a' => 'required|string|max:255',
             'antwort_b' => 'required|string|max:255',
             'antwort_c' => 'required|string|max:255',
-            'loesung' => 'required|string|max:10',
+            'loesung' => 'required', // Array oder String
         ]);
 
+        // Falls loesung ein Array ist, konvertiere zu String
+        if (is_array($validated['loesung'])) {
+            $validated['loesung'] = implode(',', $validated['loesung']);
+        }
+
         $question->update($validated);
+
+        // Bei AJAX-Request: JSON zurückgeben
+        $isAjax = $request->ajax() ||
+                  $request->header('X-Requested-With') === 'XMLHttpRequest' ||
+                  $request->expectsJson();
+
+        if ($isAjax) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Frage erfolgreich aktualisiert!'
+            ]);
+        }
 
         return redirect()
             ->route('ortsverband.lernpools.questions.index', [$ortsverband, $lernpool])

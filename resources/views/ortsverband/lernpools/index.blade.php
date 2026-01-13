@@ -976,6 +976,142 @@
             });
         });
 
+        // Event-Delegation für Update-Button im Edit-Modal
+        document.addEventListener('click', function(e) {
+            const updateBtn = e.target.closest('#updateQuestionBtn');
+            if (!updateBtn) return;
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            console.log('Update Button geklickt');
+
+            const form = document.getElementById('editQuestionForm');
+            if (!form) {
+                console.error('Edit Form nicht gefunden');
+                alert('Fehler: Formular nicht gefunden!');
+                return;
+            }
+
+            // Prüfe ob mindestens eine Lösung ausgewählt ist
+            const loesungCheckboxes = form.querySelectorAll('input[name="loesung[]"]:checked');
+            if (loesungCheckboxes.length === 0) {
+                alert('Bitte wähle mindestens eine richtige Antwort aus (A, B oder C)!');
+                return;
+            }
+
+            // Prüfe required Felder
+            const requiredInputs = form.querySelectorAll('[required]');
+            let allValid = true;
+            requiredInputs.forEach(input => {
+                if (!input.value.trim()) {
+                    allValid = false;
+                    input.focus();
+                    input.reportValidity();
+                }
+            });
+
+            if (!allValid) {
+                console.log('Validierung fehlgeschlagen');
+                return;
+            }
+
+            console.log('Validierung OK, sende Update...');
+
+            const formData = new FormData(form);
+            const formAction = form.getAttribute('action');
+
+            updateBtn.disabled = true;
+            updateBtn.style.opacity = '0.6';
+
+            fetch(formAction, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                },
+                credentials: 'same-origin'
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Update Response:', data);
+                if (data.success) {
+                    showToastNotification('✓ ' + data.message, 'success');
+                    // Schließe Modal und lade Seite neu
+                    genericModalBackdrop.classList.remove('active');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 300);
+                } else {
+                    showToastNotification('✗ ' + (data.message || 'Fehler beim Aktualisieren'), 'error');
+                    updateBtn.disabled = false;
+                    updateBtn.style.opacity = '1';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToastNotification('✗ Fehler beim Aktualisieren der Frage', 'error');
+                updateBtn.disabled = false;
+                updateBtn.style.opacity = '1';
+            });
+        });
+
+        // Event-Delegation für Delete-Buttons
+        document.addEventListener('click', function(e) {
+            const deleteBtn = e.target.closest('.btn-icon-delete');
+            if (!deleteBtn) return;
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            const questionId = deleteBtn.getAttribute('data-question-id');
+            const deleteUrl = deleteBtn.getAttribute('data-delete-url');
+
+            if (!confirm('Möchtest du diese Frage wirklich löschen? Dies kann nicht rückgängig gemacht werden.')) {
+                return;
+            }
+
+            console.log('Lösche Frage:', questionId);
+
+            // CSRF Token aus Meta-Tag holen
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+
+            deleteBtn.disabled = true;
+            deleteBtn.style.opacity = '0.5';
+
+            fetch(deleteUrl, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    _method: 'DELETE'
+                }),
+                credentials: 'same-origin'
+            })
+            .then(response => {
+                if (response.ok) {
+                    showToastNotification('✓ Frage erfolgreich gelöscht', 'success');
+                    // Reload nach kurzer Verzögerung
+                    setTimeout(() => {
+                        location.reload();
+                    }, 500);
+                } else {
+                    throw new Error('Fehler beim Löschen');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToastNotification('✗ Fehler beim Löschen der Frage', 'error');
+                deleteBtn.disabled = false;
+                deleteBtn.style.opacity = '1';
+            });
+        });
+
         // Toast-Benachrichtigung Funktion
         window.showToastNotification = function(message, type) {
             const toast = document.createElement('div');
