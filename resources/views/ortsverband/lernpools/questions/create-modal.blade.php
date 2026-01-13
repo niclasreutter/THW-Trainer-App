@@ -87,8 +87,11 @@
         <button type="button" class="btn btn-modal-close" onclick="document.getElementById('genericModalBackdrop').classList.remove('active')">
             Abbrechen
         </button>
-        <button type="submit" class="btn btn-primary">
-            ✓ Frage erstellen
+        <button type="submit" name="action" value="finish" class="btn btn-secondary" style="background: #6b7280; color: white;">
+            ✓ Speichern & Fertig
+        </button>
+        <button type="submit" name="action" value="continue" class="btn btn-primary">
+            ✓ Speichern & Weitere hinzufügen
         </button>
     </div>
 </form>
@@ -122,11 +125,118 @@ const sectionNumbers = @json($sectionNumbers);
 function updateNummer() {
     const section = document.getElementById('lernabschnitt').value;
     const nummerInput = document.getElementById('nummer');
-    
+
     if (section && sectionNumbers[section]) {
         nummerInput.value = sectionNumbers[section] + 1;
     } else {
         nummerInput.value = {{ $nextNumber }};
     }
 }
+
+// AJAX Form Submit für nahtloses Hinzufügen mehrerer Fragen
+document.querySelector('form').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const form = this;
+    const formData = new FormData(form);
+    const action = e.submitter?.value || 'finish'; // Welcher Button wurde geklickt?
+
+    // Disable buttons während Submit
+    const buttons = form.querySelectorAll('button[type="submit"]');
+    buttons.forEach(btn => {
+        btn.disabled = true;
+        btn.style.opacity = '0.6';
+    });
+
+    fetch(form.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json'
+        },
+        credentials: 'same-origin'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Zeige Erfolgs-Nachricht
+            showToast('✓ ' + data.message, 'success');
+
+            if (action === 'continue') {
+                // Lade Modal neu mit leerem Formular
+                const createUrl = '{{ route("ortsverband.lernpools.questions.create", [$ortsverband, $lernpool]) }}?ajax=1&_t=' + Date.now();
+                fetch(createUrl, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Cache-Control': 'no-cache'
+                    }
+                })
+                .then(response => response.text())
+                .then(html => {
+                    document.getElementById('genericModal').innerHTML = '<div class="modal">' + html + '</div>';
+                });
+            } else {
+                // Schließe Modal und lade Seite neu
+                document.getElementById('genericModalBackdrop').classList.remove('active');
+                setTimeout(() => {
+                    location.reload();
+                }, 300);
+            }
+        } else {
+            // Zeige Fehler
+            showToast('✗ ' + (data.message || 'Fehler beim Speichern'), 'error');
+            buttons.forEach(btn => {
+                btn.disabled = false;
+                btn.style.opacity = '1';
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('✗ Fehler beim Speichern der Frage', 'error');
+        buttons.forEach(btn => {
+            btn.disabled = false;
+            btn.style.opacity = '1';
+        });
+    });
+});
+
+function showToast(message, type) {
+    const toast = document.createElement('div');
+    toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 16px 24px;
+        background: ${type === 'success' ? '#10b981' : '#ef4444'};
+        color: white;
+        border-radius: 8px;
+        font-weight: 600;
+        z-index: 10000;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        animation: slideInRight 0.3s ease-out;
+    `;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+        toast.style.animation = 'slideOutRight 0.3s ease-in';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+// Animation CSS hinzufügen
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideInRight {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes slideOutRight {
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(100%); opacity: 0; }
+    }
+`;
+document.head.appendChild(style);
 </script>

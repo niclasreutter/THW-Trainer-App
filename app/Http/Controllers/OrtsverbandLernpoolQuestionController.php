@@ -88,7 +88,7 @@ class OrtsverbandLernpoolQuestionController extends Controller
     public function store(Request $request, Ortsverband $ortsverband, OrtsverbandLernpool $lernpool)
     {
         $this->authorize('update', [$lernpool, $ortsverband]);
-        
+
         $validated = $request->validate([
             'lernabschnitt' => 'nullable|string|max:255',
             'nummer' => 'required|integer|min:1',
@@ -99,7 +99,7 @@ class OrtsverbandLernpoolQuestionController extends Controller
             'loesung' => 'required|array|min:1', // Array von Lösungen
             'loesung.*' => 'in:a,b,c',
         ]);
-        
+
         // Konvertiere Array zu String (z.B. "a,b")
         $validated['loesung'] = implode(',', $validated['loesung']);
 
@@ -108,6 +108,18 @@ class OrtsverbandLernpoolQuestionController extends Controller
             'created_by' => auth()->id(),
             ...$validated,
         ]);
+
+        // Bei AJAX-Request: JSON zurückgeben
+        $isAjax = $request->ajax() ||
+                  $request->header('X-Requested-With') === 'XMLHttpRequest' ||
+                  $request->expectsJson();
+
+        if ($isAjax) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Frage erfolgreich hinzugefügt!'
+            ]);
+        }
 
         return redirect()
             ->route('ortsverband.lernpools.index', $ortsverband)
