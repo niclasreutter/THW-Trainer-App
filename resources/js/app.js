@@ -85,4 +85,30 @@ window.showFloatingPoints = function(x, y, points) {
     }, 1500);
 };
 
+// Number Counter Animation
+window.animateCounter = function(element, from, to, duration = 800) {
+    const start = performance.now();
+    const diff = to - from;
+
+    function update(currentTime) {
+        const elapsed = currentTime - start;
+        const progress = Math.min(elapsed / duration, 1);
+
+        // Ease-out cubic for smooth deceleration
+        const easeOut = 1 - Math.pow(1 - progress, 3);
+
+        const currentValue = Math.floor(from + diff * easeOut);
+        element.textContent = currentValue;
+
+        if (progress < 1) {
+            requestAnimationFrame(update);
+        } else {
+            // Ensure final value is exact
+            element.textContent = to;
+        }
+    }
+
+    requestAnimationFrame(update);
+};
+
 Alpine.start();

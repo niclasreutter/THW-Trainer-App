@@ -963,12 +963,66 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') dismi
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.0/dist/confetti.browser.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Number Counter Animation für Stat-Cards
+    const statCards = document.querySelectorAll('.stat-value');
+    if (typeof window.animateCounter === 'function') {
+        statCards.forEach((element, index) => {
+            const finalValue = element.textContent.trim();
+
+            // Parse den finalen Wert (kann "10/20" oder "5" sein)
+            const match = finalValue.match(/^(\d+)/);
+            if (match) {
+                const targetValue = parseInt(match[1]);
+
+                // Stagger: Jede Karte startet mit kleiner Verzögerung
+                setTimeout(() => {
+                    // Setze initialen Wert auf 0
+                    const originalContent = element.textContent;
+
+                    // Wenn Format "X/Y" ist, behalte "/Y" Teil
+                    if (finalValue.includes('/')) {
+                        const parts = finalValue.split('/');
+                        element.textContent = '0/' + parts[1];
+
+                        // Animiere nur den ersten Teil
+                        window.animateCounter({
+                            textContent: targetValue
+                        }, 0, targetValue, 800);
+
+                        // Update mit Custom-Logik
+                        const start = performance.now();
+                        const duration = 800;
+
+                        function update(currentTime) {
+                            const elapsed = currentTime - start;
+                            const progress = Math.min(elapsed / duration, 1);
+                            const easeOut = 1 - Math.pow(1 - progress, 3);
+                            const currentValue = Math.floor(targetValue * easeOut);
+                            element.textContent = currentValue + '/' + parts[1];
+
+                            if (progress < 1) {
+                                requestAnimationFrame(update);
+                            } else {
+                                element.textContent = originalContent;
+                            }
+                        }
+                        requestAnimationFrame(update);
+                    } else {
+                        // Einfache Zahl
+                        element.textContent = '0';
+                        window.animateCounter(element, 0, targetValue, 800);
+                    }
+                }, index * 100); // Stagger: 100ms zwischen jeder Card
+            }
+        });
+    }
+
     setTimeout(() => {
         const theoryBar = document.getElementById('theoryProgressBar');
         const examBar = document.getElementById('examProgressBar');
         if (theoryBar) { theoryBar.style.transition = 'width 1s ease-out'; theoryBar.style.width = '{{ $progressPercent }}%'; }
         if (examBar) { examBar.style.transition = 'width 1s ease-out'; examBar.style.width = '{{ min(100, $exams * 20) }}%'; }
-        
+
         // Konfetti wenn Theorie Lernen 100% hat
         @if($progressPercent == 100)
         setTimeout(() => {
