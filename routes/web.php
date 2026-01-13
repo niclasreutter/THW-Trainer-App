@@ -222,6 +222,7 @@ Route::middleware('auth')->group(function () {
             // Dashboard & Statistiken
             Route::get('/{ortsverband}/dashboard', [\App\Http\Controllers\OrtsverbandController::class, 'dashboard'])->name('dashboard');
             Route::get('/{ortsverband}/stats', [\App\Http\Controllers\OrtsverbandController::class, 'stats'])->name('stats');
+            Route::post('/{ortsverband}/toggle-ranking', [\App\Http\Controllers\OrtsverbandController::class, 'toggleRankingVisibility'])->name('toggle-ranking');
 
             // Einladungen
             Route::get('/{ortsverband}/invitations', [\App\Http\Controllers\OrtsverbandInvitationController::class, 'index'])->name('invitations.index');

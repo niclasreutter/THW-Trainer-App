@@ -16,7 +16,8 @@ class Ortsverband extends Model
         'name',
         'description',
         'created_by',
-        'logo'
+        'logo',
+        'ranking_visible'
     ];
 
     /**

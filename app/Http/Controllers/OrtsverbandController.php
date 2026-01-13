@@ -119,7 +119,13 @@ class OrtsverbandController extends Controller
 
         $selectedTag = $request->get('tag');
 
-        return view('ortsverband.show', compact('ortsverband', 'isAusbildungsbeauftragter', 'stats', 'isAdminViewing', 'allTags', 'selectedTag'));
+        // Mitglieder-Fortschritt für Rangliste
+        $memberProgress = null;
+        if ($ortsverband->ranking_visible) {
+            $memberProgress = $ortsverband->getMemberProgress()->take(10);
+        }
+
+        return view('ortsverband.show', compact('ortsverband', 'isAusbildungsbeauftragter', 'stats', 'isAdminViewing', 'allTags', 'selectedTag', 'memberProgress'));
     }
 
     /**
@@ -285,12 +291,12 @@ class OrtsverbandController extends Controller
     public function leave(Ortsverband $ortsverband)
     {
         $user = Auth::user();
-        
+
         // Prüfe ob User Mitglied ist
         if (!$ortsverband->isMember($user)) {
             abort(403, 'Du bist kein Mitglied dieses Ortsverbands.');
         }
-        
+
         // Prüfe ob User der einzige Ausbildungsbeauftragte ist
         if ($ortsverband->isAusbildungsbeauftragter($user)) {
             $ausbilderCount = $ortsverband->members()->wherePivot('role', 'ausbildungsbeauftragter')->count();
@@ -298,11 +304,32 @@ class OrtsverbandController extends Controller
                 return back()->with('error', 'Du bist der einzige Ausbildungsbeauftragte. Ernenne zuerst einen anderen Ausbilder oder lösche den Ortsverband.');
             }
         }
-        
+
         // Mitgliedschaft entfernen
         $ortsverband->members()->detach($user->id);
-        
+
         return redirect()->route('ortsverband.index')
                        ->with('success', 'Du hast den Ortsverband "' . $ortsverband->name . '" verlassen.');
+    }
+
+    /**
+     * Toggle Ranglisten-Sichtbarkeit
+     */
+    public function toggleRankingVisibility(Ortsverband $ortsverband)
+    {
+        $user = Auth::user();
+
+        if (!$ortsverband->isAusbildungsbeauftragter($user)) {
+            abort(403, 'Keine Berechtigung.');
+        }
+
+        $ortsverband->ranking_visible = !$ortsverband->ranking_visible;
+        $ortsverband->save();
+
+        $message = $ortsverband->ranking_visible
+            ? 'Rangliste ist jetzt für alle Mitglieder sichtbar!'
+            : 'Rangliste ist jetzt nur noch für Ausbilder sichtbar.';
+
+        return back()->with('success', $message);
     }
 }
