@@ -75,27 +75,46 @@ class OrtsverbandLernpoolPracticeController extends Controller
         // Intelligente Priorisierung für nächste Frage:
         // 1. Ungelöste Fragen (noch nicht 2x richtig)
         // 2. Wenn alle gelöst: alle Fragen zufällig
+        // WICHTIG: Tracke bereits gestellte Fragen in Session, um Duplikate zu vermeiden
 
-        $idsToShow = [];
-        
+        // Session Key für bereits gestellte Fragen (pro Lernpool)
+        $sessionKey = 'lernpool_asked_' . $lernpool->id;
+        $askedQuestionIds = session($sessionKey, []);
+
         // 1. Ungelöste Fragen (nach Lernabschnitt sortiert)
         $unsolvedQuestions = $allQuestions->filter(function($q) use ($userProgress) {
             $p = $userProgress->get($q->id);
             return !$p || !$p->solved;
         });
 
-        if ($unsolvedQuestions->isNotEmpty()) {
-            $idsToShow = $unsolvedQuestions->pluck('id')->toArray();
-            shuffle($idsToShow);
-        } else {
-            // Alle gelöst - alle Fragen zufällig zum Wiederholen
-            $idsToShow = $allQuestions->pluck('id')->toArray();
-            shuffle($idsToShow);
+        // Bestimme Pool von verfügbaren Fragen
+        $questionPool = $unsolvedQuestions->isNotEmpty() ? $unsolvedQuestions : $allQuestions;
+
+        // Filtere bereits gestellte Fragen aus
+        $availableQuestions = $questionPool->filter(function($q) use ($askedQuestionIds) {
+            return !in_array($q->id, $askedQuestionIds);
+        });
+
+        // Wenn keine Fragen mehr verfügbar -> Session zurücksetzen (neuer Durchgang)
+        if ($availableQuestions->isEmpty() && $questionPool->isNotEmpty()) {
+            session()->forget($sessionKey);
+            $askedQuestionIds = [];
+            $availableQuestions = $questionPool;
         }
+
+        // Shuffle verfügbare Fragen und erste nehmen
+        $idsToShow = $availableQuestions->pluck('id')->toArray();
+        shuffle($idsToShow);
 
         // Erste Frage aus der Liste holen
         $questionId = $idsToShow[0] ?? null;
         $question = $questionId ? OrtsverbandLernpoolQuestion::find($questionId) : null;
+
+        // Speichere gezeigte Frage in Session, um Duplikate zu vermeiden
+        if ($questionId) {
+            $askedQuestionIds[] = $questionId;
+            session([$sessionKey => $askedQuestionIds]);
+        }
 
         if (!$question) {
             return view('ortsverband.lernpools.practice', [
