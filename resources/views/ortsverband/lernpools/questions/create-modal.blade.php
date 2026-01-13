@@ -87,10 +87,10 @@
         <button type="button" class="btn btn-modal-close" onclick="document.getElementById('genericModalBackdrop').classList.remove('active')">
             Abbrechen
         </button>
-        <button type="submit" name="action" value="finish" class="btn btn-secondary" style="background: #6b7280; color: white;">
+        <button type="button" name="action" value="finish" class="btn btn-secondary" style="background: #6b7280; color: white;" onclick="handleSubmit('finish')">
             ✓ Speichern & Fertig
         </button>
-        <button type="submit" name="action" value="continue" class="btn btn-primary">
+        <button type="button" name="action" value="continue" class="btn btn-primary" onclick="handleSubmit('continue')">
             ✓ Speichern & Weitere hinzufügen
         </button>
     </div>
@@ -133,98 +133,80 @@ function updateNummer() {
     }
 }
 
-// AJAX Form Submit für nahtloses Hinzufügen mehrerer Fragen
-(function() {
+// Globale Funktion für Button-Clicks
+function handleSubmit(action) {
     const form = document.getElementById('createQuestionForm');
     if (!form) {
-        console.error('Form #createQuestionForm nicht gefunden');
+        console.error('Form nicht gefunden');
         return;
     }
 
-    // Verhindere normales Submit komplett
-    form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        return false;
-    });
+    // Prüfe Browser-Validierung
+    if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+    }
 
-    // Handler für Submit-Buttons
-    const buttons = form.querySelectorAll('button[type="submit"]');
+    const formData = new FormData(form);
+    const buttons = form.querySelectorAll('button[name="action"]');
+
+    // Disable buttons während Submit
     buttons.forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-
-            const action = this.value; // 'continue' oder 'finish'
-            submitForm(action);
-
-            return false;
-        });
+        btn.disabled = true;
+        btn.style.opacity = '0.6';
     });
 
-    function submitForm(action) {
-        const formData = new FormData(form);
+    fetch(form.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json'
+        },
+        credentials: 'same-origin'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToast('✓ ' + data.message, 'success');
 
-        // Disable buttons während Submit
-        buttons.forEach(btn => {
-            btn.disabled = true;
-            btn.style.opacity = '0.6';
-        });
-
-        fetch(form.action, {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'Accept': 'application/json'
-            },
-            credentials: 'same-origin'
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Zeige Erfolgs-Nachricht
-                showToast('✓ ' + data.message, 'success');
-
-                if (action === 'continue') {
-                    // Lade Modal neu mit leerem Formular
-                    const createUrl = '{{ route("ortsverband.lernpools.questions.create", [$ortsverband, $lernpool]) }}?ajax=1&_t=' + Date.now();
-                    fetch(createUrl, {
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest',
-                            'Cache-Control': 'no-cache'
-                        }
-                    })
-                    .then(response => response.text())
-                    .then(html => {
-                        document.getElementById('genericModal').innerHTML = '<div class="modal">' + html + '</div>';
-                    });
-                } else {
-                    // Schließe Modal und lade Seite neu
-                    document.getElementById('genericModalBackdrop').classList.remove('active');
-                    setTimeout(() => {
-                        location.reload();
-                    }, 300);
-                }
-            } else {
-                // Zeige Fehler
-                showToast('✗ ' + (data.message || 'Fehler beim Speichern'), 'error');
-                buttons.forEach(btn => {
-                    btn.disabled = false;
-                    btn.style.opacity = '1';
+            if (action === 'continue') {
+                // Lade Modal neu mit leerem Formular
+                const createUrl = '{{ route("ortsverband.lernpools.questions.create", [$ortsverband, $lernpool]) }}?ajax=1&_t=' + Date.now();
+                fetch(createUrl, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Cache-Control': 'no-cache'
+                    }
+                })
+                .then(response => response.text())
+                .then(html => {
+                    document.getElementById('genericModal').innerHTML = '<div class="modal">' + html + '</div>';
                 });
+            } else {
+                // Schließe Modal und lade Seite neu
+                document.getElementById('genericModalBackdrop').classList.remove('active');
+                setTimeout(() => {
+                    location.reload();
+                }, 300);
             }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showToast('✗ Fehler beim Speichern der Frage', 'error');
+        } else {
+            showToast('✗ ' + (data.message || 'Fehler beim Speichern'), 'error');
             buttons.forEach(btn => {
                 btn.disabled = false;
                 btn.style.opacity = '1';
             });
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('✗ Fehler beim Speichern der Frage', 'error');
+        buttons.forEach(btn => {
+            btn.disabled = false;
+            btn.style.opacity = '1';
         });
-    }
-})();
+    });
+}
 
 function showToast(message, type) {
     const toast = document.createElement('div');
