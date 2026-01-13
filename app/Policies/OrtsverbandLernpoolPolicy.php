@@ -38,9 +38,10 @@ class OrtsverbandLernpoolPolicy
      */
     public function update(User $user, OrtsverbandLernpool $lernpool): bool
     {
-        // Nur der Ersteller oder OV-Admin des Ortsverbands
-        return $user->id === $lernpool->created_by || 
-               ($user->ortsverband_id === $lernpool->ortsverband_id && $user->is_admin);
+        // Nur der Ersteller, globaler Admin oder Ausbildungsbeauftragter des Ortsverbands
+        return $user->id === $lernpool->created_by ||
+               $user->is_admin ||
+               $lernpool->ortsverband->isAusbildungsbeauftragter($user);
     }
 
     /**
@@ -48,8 +49,10 @@ class OrtsverbandLernpoolPolicy
      */
     public function delete(User $user, OrtsverbandLernpool $lernpool): bool
     {
-        return $user->id === $lernpool->created_by || 
-               ($user->ortsverband_id === $lernpool->ortsverband_id && $user->is_admin);
+        // Nur der Ersteller, globaler Admin oder Ausbildungsbeauftragter des Ortsverbands
+        return $user->id === $lernpool->created_by ||
+               $user->is_admin ||
+               $lernpool->ortsverband->isAusbildungsbeauftragter($user);
     }
 
     /**
@@ -57,8 +60,8 @@ class OrtsverbandLernpoolPolicy
      */
     public function enroll(User $user, OrtsverbandLernpool $lernpool): bool
     {
-        // Benutzer muss im gleichen Ortsverband sein
-        return $user->ortsverband_id === $lernpool->ortsverband_id;
+        // Benutzer muss Mitglied des Ortsverbands sein
+        return $user->ortsverbände()->where('ortsverbände.id', $lernpool->ortsverband_id)->exists();
     }
 
     /**
