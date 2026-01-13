@@ -741,6 +741,20 @@
                     <label for="tags" class="form-label">
                         Schlagwörter / Tags
                     </label>
+                    @if($allTags->isNotEmpty())
+                        <div style="margin-bottom: 0.75rem;">
+                            <p style="font-size: 0.85rem; color: #6b7280; margin-bottom: 0.5rem;">
+                                Vorhandene Tags (zum Hinzufügen anklicken):
+                            </p>
+                            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                @foreach($allTags as $tag)
+                                    <button type="button" onclick="addTagToModal('{{ $tag }}')" class="tag-suggestion-index" style="background: #e0f2fe; color: #0c4a6e; padding: 0.35rem 0.75rem; border-radius: 999px; font-size: 0.8rem; font-weight: 600; border: 1px solid #7dd3fc; cursor: pointer; transition: all 0.2s;">
+                                        + {{ $tag }}
+                                    </button>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
                     <input type="text" name="tags" id="tags" class="form-input"
                            placeholder="z.B. ZTR, B FGr, N FGr (mit Komma trennen)">
                     <p style="font-size: 0.85rem; color: #6b7280; margin-top: 0.25rem;">
@@ -769,7 +783,38 @@
     </div>
 </div>
 
+<style>
+    .tag-suggestion-index:hover {
+        background: #0ea5e9 !important;
+        color: white !important;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+    }
+</style>
+
 <script>
+    // Tag-Suggestion Funktionalität
+    function addTagToModal(tag) {
+        const input = document.getElementById('tags');
+        const currentValue = input.value.trim();
+
+        // Prüfe ob Tag bereits vorhanden ist
+        const existingTags = currentValue.split(',').map(t => t.trim());
+        if (existingTags.includes(tag)) {
+            return; // Tag bereits vorhanden
+        }
+
+        // Füge Tag hinzu
+        if (currentValue === '') {
+            input.value = tag;
+        } else {
+            input.value = currentValue + ', ' + tag;
+        }
+
+        // Fokussiere Input
+        input.focus();
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
         const modal = document.getElementById('createModal');
         const openBtn = document.getElementById('openCreateModal');

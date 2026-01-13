@@ -56,9 +56,20 @@ class OrtsverbandLernpoolController extends Controller
     public function create(Ortsverband $ortsverband)
     {
         $this->authorize('create', [OrtsverbandLernpool::class, $ortsverband]);
-        
+
+        // Sammle alle vorhandenen Tags für Vorschläge
+        $existingTags = $ortsverband->lernpools()
+            ->whereNotNull('tags')
+            ->get()
+            ->pluck('tags')
+            ->flatten()
+            ->unique()
+            ->sort()
+            ->values();
+
         return view('ortsverband.lernpools.create', [
             'ortsverband' => $ortsverband,
+            'existingTags' => $existingTags,
         ]);
     }
 
@@ -136,22 +147,33 @@ class OrtsverbandLernpoolController extends Controller
     public function edit(Ortsverband $ortsverband, OrtsverbandLernpool $lernpool)
     {
         $this->authorize('update', [$lernpool, $ortsverband]);
-        
+
+        // Sammle alle vorhandenen Tags für Vorschläge
+        $existingTags = $ortsverband->lernpools()
+            ->whereNotNull('tags')
+            ->get()
+            ->pluck('tags')
+            ->flatten()
+            ->unique()
+            ->sort()
+            ->values();
+
         $data = [
             'ortsverband' => $ortsverband,
             'lernpool' => $lernpool,
+            'existingTags' => $existingTags,
         ];
-        
+
         // Wenn AJAX-Request, gib nur Modal-Inhalt zurück
-        $isAjax = request()->ajax() || 
-                  request()->header('X-Requested-With') === 'XMLHttpRequest' || 
+        $isAjax = request()->ajax() ||
+                  request()->header('X-Requested-With') === 'XMLHttpRequest' ||
                   request()->query('ajax') === '1' ||
                   request()->input('ajax') === '1';
-        
+
         if ($isAjax) {
             return view('ortsverband.lernpools.edit-modal', $data);
         }
-        
+
         return view('ortsverband.lernpools.edit', $data);
     }
 

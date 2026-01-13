@@ -471,8 +471,33 @@
                 @endif
             </div>
 
+            <!-- Tags-Filter -->
+            @if($allTags->isNotEmpty())
+                <div style="margin-bottom: 1.5rem; padding: 1rem; background: white; border-radius: 0.75rem; border: 1px solid #bae6fd;">
+                    <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+                        <span style="font-weight: 600; color: #0369a1; white-space: nowrap;">🏷️ Filter:</span>
+                        <a href="{{ route('ortsverband.show', $ortsverband) }}"
+                           style="padding: 0.5rem 1rem; border-radius: 0.5rem; font-size: 0.85rem; font-weight: 600; text-decoration: none; transition: all 0.2s; {{ !$selectedTag ? 'background: #3b82f6; color: white;' : 'background: white; color: #0369a1; border: 1px solid #bae6fd;' }}">
+                            Alle
+                        </a>
+                        @foreach($allTags as $tag)
+                            <a href="{{ route('ortsverband.show', ['ortsverband' => $ortsverband, 'tag' => $tag]) }}"
+                               style="padding: 0.5rem 1rem; border-radius: 0.5rem; font-size: 0.85rem; font-weight: 600; text-decoration: none; transition: all 0.2s; {{ $selectedTag === $tag ? 'background: #3b82f6; color: white;' : 'background: white; color: #0369a1; border: 1px solid #bae6fd;' }}">
+                                {{ $tag }}
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+
             @php
+                // Filter Lernpools nach ausgewähltem Tag
                 $activeLernpools = $ortsverband->activeLernpools;
+                if ($selectedTag) {
+                    $activeLernpools = $activeLernpools->filter(function($pool) use ($selectedTag) {
+                        return $pool->tags && in_array($selectedTag, $pool->tags);
+                    });
+                }
                 $userEnrollments = auth()->user()->lernpoolEnrollments->pluck('lernpool_id')->toArray();
             @endphp
 
@@ -494,8 +519,19 @@
                                     </button>
                                 </form>
                             @endif
-                            
+
                             <div class="lernpool-name">{{ $pool->name }}</div>
+
+                            @if($pool->tags && count($pool->tags) > 0)
+                                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.75rem;">
+                                    @foreach($pool->tags as $tag)
+                                        <span style="background: #dbeafe; color: #1e40af; padding: 0.25rem 0.6rem; border-radius: 999px; font-size: 0.7rem; font-weight: 600;">
+                                            🏷️ {{ $tag }}
+                                        </span>
+                                    @endforeach
+                                </div>
+                            @endif
+
                             <div class="lernpool-description">{{ Str::limit($pool->description, 80) }}</div>
                             
                             <div class="lernpool-stats">
