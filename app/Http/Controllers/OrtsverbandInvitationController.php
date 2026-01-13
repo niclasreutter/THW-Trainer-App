@@ -178,17 +178,73 @@ class OrtsverbandInvitationController extends Controller
         // Logo-Pfad
         $logoPath = public_path('logo-thwtrainer.png');
 
-        // QR-Code mit ausgespartem Bereich für Logo generieren
-        $qrCode = QrCode::format('png')
-            ->size(500) // Größer für bessere Qualität
-            ->errorCorrection('H') // Hohe Fehlerkorrektur (30% kann beschädigt sein)
-            ->margin(1)
-            ->style('square') // Quadratische Pixel
-            ->eye('square') // Quadratische Ecken
-            ->merge($logoPath, 0.25, true) // Logo 25% Größe mit weißem Rand
+        // QR-Code generieren mit höherer Fehlerkorrektur
+        $qrCodeBase = QrCode::format('png')
+            ->size(600)
+            ->errorCorrection('H') // 30% Fehlertoleranz
+            ->margin(2)
+            ->style('square')
+            ->eye('square')
             ->generate($url);
 
-        return response($qrCode)
+        // QR-Code und Logo kombinieren mit GD
+        $qrImage = imagecreatefromstring($qrCodeBase);
+        $logo = imagecreatefrompng($logoPath);
+
+        if (!$qrImage || !$logo) {
+            return response($qrCodeBase)
+                ->header('Content-Type', 'image/png');
+        }
+
+        // Dimensionen
+        $qrWidth = imagesx($qrImage);
+        $qrHeight = imagesy($qrImage);
+        $logoWidth = imagesx($logo);
+        $logoHeight = imagesy($logo);
+
+        // Logo-Größe (20% des QR-Codes)
+        $logoTargetWidth = $qrWidth * 0.20;
+        $logoTargetHeight = $logoHeight * ($logoTargetWidth / $logoWidth);
+
+        // Position (zentriert)
+        $logoX = ($qrWidth - $logoTargetWidth) / 2;
+        $logoY = ($qrHeight - $logoTargetHeight) / 2;
+
+        // Weißer Hintergrund für Logo (Aussparung)
+        $white = imagecolorallocate($qrImage, 255, 255, 255);
+        $padding = 15;
+        imagefilledrectangle(
+            $qrImage,
+            $logoX - $padding,
+            $logoY - $padding,
+            $logoX + $logoTargetWidth + $padding,
+            $logoY + $logoTargetHeight + $padding,
+            $white
+        );
+
+        // Logo einfügen
+        imagecopyresampled(
+            $qrImage,
+            $logo,
+            $logoX,
+            $logoY,
+            0,
+            0,
+            $logoTargetWidth,
+            $logoTargetHeight,
+            $logoWidth,
+            $logoHeight
+        );
+
+        // Ausgabe
+        ob_start();
+        imagepng($qrImage, null, 9);
+        $output = ob_get_clean();
+
+        imagedestroy($qrImage);
+        imagedestroy($logo);
+
+        return response($output)
             ->header('Content-Type', 'image/png')
             ->header('Content-Disposition', 'inline; filename="qr-code-' . $invitation->code . '.png"')
             ->header('Cache-Control', 'no-cache, no-store, must-revalidate');
