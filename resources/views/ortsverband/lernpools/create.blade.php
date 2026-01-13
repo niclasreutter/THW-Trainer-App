@@ -208,8 +208,8 @@
                     <label for="description" class="form-label">
                         Beschreibung <span class="required">*</span>
                     </label>
-                    <textarea name="description" id="description" rows="5" 
-                              class="form-textarea @error('description') error @enderror" 
+                    <textarea name="description" id="description" rows="5"
+                              class="form-textarea @error('description') error @enderror"
                               placeholder="Beschreibung des Lernpools..." required>{{ old('description') }}</textarea>
                     @error('description')
                         <p class="form-error">{{ $message }}</p>
@@ -217,8 +217,23 @@
                 </div>
 
                 <div class="form-group">
+                    <label for="tags" class="form-label">
+                        Schlagwörter / Tags
+                    </label>
+                    <input type="text" name="tags" id="tags" value="{{ old('tags') }}"
+                           class="form-input @error('tags') error @enderror"
+                           placeholder="z.B. ZTR, B FGr, N FGr (mit Komma trennen)">
+                    <p style="font-size: 0.85rem; color: #6b7280; margin-top: 0.25rem;">
+                        Mehrere Tags mit Komma trennen (z.B. "ZTR, B FGr, N FGr")
+                    </p>
+                    @error('tags')
+                        <p class="form-error">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div class="form-group">
                     <div class="form-checkbox">
-                        <input type="checkbox" name="is_active" id="is_active" value="1" 
+                        <input type="checkbox" name="is_active" id="is_active" value="1"
                                {{ old('is_active', true) ? 'checked' : '' }}>
                         <label for="is_active">Sofort aktivieren</label>
                     </div>

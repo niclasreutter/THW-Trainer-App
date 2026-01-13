@@ -16,15 +16,37 @@ class OrtsverbandLernpoolController extends Controller
     /**
      * Zeige alle Lernpools eines Ortsverbands (Ausbilder-View)
      */
-    public function index(Ortsverband $ortsverband)
+    public function index(Request $request, Ortsverband $ortsverband)
     {
         $this->authorize('viewAny', [OrtsverbandLernpool::class, $ortsverband]);
-        
-        $lernpools = $ortsverband->lernpools()->with('creator', 'enrollments')->get();
-        
+
+        $query = $ortsverband->lernpools()->with('creator', 'enrollments');
+
+        // Filter nach Tags
+        if ($request->has('tag') && !empty($request->tag)) {
+            $tag = $request->tag;
+            $query->where(function($q) use ($tag) {
+                $q->where('tags', 'like', '%"' . $tag . '"%');
+            });
+        }
+
+        $lernpools = $query->get();
+
+        // Alle verfügbaren Tags sammeln für den Filter
+        $allTags = $ortsverband->lernpools()
+            ->whereNotNull('tags')
+            ->get()
+            ->pluck('tags')
+            ->flatten()
+            ->unique()
+            ->sort()
+            ->values();
+
         return view('ortsverband.lernpools.index', [
             'ortsverband' => $ortsverband,
             'lernpools' => $lernpools,
+            'allTags' => $allTags,
+            'selectedTag' => $request->tag,
         ]);
     }
 
@@ -46,11 +68,19 @@ class OrtsverbandLernpoolController extends Controller
     public function store(Request $request, Ortsverband $ortsverband)
     {
         $this->authorize('create', [OrtsverbandLernpool::class, $ortsverband]);
-        
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string|max:1000',
+            'tags' => 'nullable|string|max:500',
         ]);
+
+        // Parse Tags: Komma-separierter String zu Array
+        $tagsArray = null;
+        if (!empty($validated['tags'])) {
+            $tagsArray = array_map('trim', explode(',', $validated['tags']));
+            $tagsArray = array_filter($tagsArray); // Leere Einträge entfernen
+        }
 
         $lernpool = OrtsverbandLernpool::create([
             'ortsverband_id' => $ortsverband->id,
@@ -58,6 +88,7 @@ class OrtsverbandLernpoolController extends Controller
             'name' => $validated['name'],
             'slug' => Str::slug($validated['name']) . '-' . time(),
             'description' => $validated['description'] ?? null,
+            'tags' => $tagsArray,
         ]);
 
         return redirect()
@@ -130,15 +161,24 @@ class OrtsverbandLernpoolController extends Controller
     public function update(Request $request, Ortsverband $ortsverband, OrtsverbandLernpool $lernpool)
     {
         $this->authorize('update', [$lernpool, $ortsverband]);
-        
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string|max:1000',
+            'tags' => 'nullable|string|max:500',
             'is_active' => 'boolean',
         ]);
 
+        // Parse Tags: Komma-separierter String zu Array
+        $tagsArray = null;
+        if (!empty($validated['tags'])) {
+            $tagsArray = array_map('trim', explode(',', $validated['tags']));
+            $tagsArray = array_filter($tagsArray); // Leere Einträge entfernen
+        }
+
         // Stelle sicher, dass is_active als boolean behandelt wird
         $validated['is_active'] = (bool) $validated['is_active'];
+        $validated['tags'] = $tagsArray;
 
         $lernpool->update($validated);
 
@@ -195,19 +235,43 @@ class OrtsverbandLernpoolController extends Controller
     /**
      * Zeige Lernpools auf OV-Seite für Mitglieder
      */
-    public function listForOv(Ortsverband $ortsverband)
+    public function listForOv(Request $request, Ortsverband $ortsverband)
     {
         $user = auth()->user();
-        $lernpools = $ortsverband->lernpools()->where('is_active', true)->get();
-        
-        $enrolledIds = $user 
+
+        $query = $ortsverband->lernpools()->where('is_active', true);
+
+        // Filter nach Tags
+        if ($request->has('tag') && !empty($request->tag)) {
+            $tag = $request->tag;
+            $query->where(function($q) use ($tag) {
+                $q->where('tags', 'like', '%"' . $tag . '"%');
+            });
+        }
+
+        $lernpools = $query->get();
+
+        $enrolledIds = $user
             ? $user->enrolledLernpools()->pluck('lernpool_id')->toArray()
             : [];
+
+        // Alle verfügbaren Tags sammeln für den Filter
+        $allTags = $ortsverband->lernpools()
+            ->where('is_active', true)
+            ->whereNotNull('tags')
+            ->get()
+            ->pluck('tags')
+            ->flatten()
+            ->unique()
+            ->sort()
+            ->values();
 
         return view('ortsverband.lernpools.list', [
             'ortsverband' => $ortsverband,
             'lernpools' => $lernpools,
             'enrolledIds' => $enrolledIds,
+            'allTags' => $allTags,
+            'selectedTag' => $request->tag,
         ]);
     }
 }
