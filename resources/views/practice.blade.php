@@ -1001,29 +1001,6 @@
                                 window.showFloatingPoints(x, y, points);
                             }
                         }, 400);
-
-                        // Trigger Number Counter Animation for Gamification Stats
-                        // Animate points in popup
-                        setTimeout(() => {
-                            const pointsElement = gamificationPopup.querySelector('div[style*="font-size: 18px"]');
-                            if (pointsElement && typeof window.animateCounter === 'function') {
-                                const currentPoints = {{ Auth::user()->points ?? 0 }};
-                                const oldPoints = Math.max(0, currentPoints - points);
-
-                                // Create a temporary span for the number
-                                const numberMatch = pointsElement.textContent.match(/\d+/);
-                                if (numberMatch) {
-                                    const numberSpan = document.createElement('span');
-                                    numberSpan.textContent = oldPoints;
-                                    pointsElement.innerHTML = pointsElement.textContent.replace(/\d+/, '<span id="animatedPoints">' + oldPoints + '</span>');
-
-                                    const animTarget = document.getElementById('animatedPoints');
-                                    if (animTarget) {
-                                        window.animateCounter(animTarget, oldPoints, points, 800);
-                                    }
-                                }
-                            }
-                        }, 500);
                     @endif
 
                     setTimeout(() => {
