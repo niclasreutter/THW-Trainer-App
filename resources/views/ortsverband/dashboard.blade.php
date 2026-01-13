@@ -291,18 +291,34 @@
 
         {{-- Rangliste --}}
         <div class="section-card">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
                 <h2 class="section-title" style="margin-bottom: 0;">🏆 Rangliste</h2>
-                <form action="{{ route('ortsverband.toggle-ranking', $ortsverband) }}" method="POST" style="margin: 0;">
-                    @csrf
-                    <button type="submit" class="btn" style="padding: 0.5rem 1rem; font-size: 0.85rem; {{ $ortsverband->ranking_visible ? 'background: #10b981; color: white;' : 'background: #f3f4f6; color: #374151; border: 1px solid #e5e7eb;' }}">
-                        @if($ortsverband->ranking_visible)
-                            👁️ Für alle sichtbar
+                <div style="display: flex; gap: 0.5rem; background: #f3f4f6; padding: 0.25rem; border-radius: 0.5rem;">
+                    <form action="{{ route('ortsverband.toggle-ranking', $ortsverband) }}" method="POST" style="margin: 0; display: inline;">
+                        @csrf
+                        @if(!$ortsverband->ranking_visible)
+                            <button type="submit" style="padding: 0.5rem 1rem; border-radius: 0.375rem; font-size: 0.85rem; font-weight: 600; border: none; cursor: pointer; background: white; color: #6b7280; transition: all 0.2s;">
+                                Alle
+                            </button>
                         @else
-                            🔒 Nur für Ausbilder
+                            <span style="padding: 0.5rem 1rem; border-radius: 0.375rem; font-size: 0.85rem; font-weight: 600; background: #00337F; color: white;">
+                                Alle
+                            </span>
                         @endif
-                    </button>
-                </form>
+                    </form>
+                    <form action="{{ route('ortsverband.toggle-ranking', $ortsverband) }}" method="POST" style="margin: 0; display: inline;">
+                        @csrf
+                        @if($ortsverband->ranking_visible)
+                            <button type="submit" style="padding: 0.5rem 1rem; border-radius: 0.375rem; font-size: 0.85rem; font-weight: 600; border: none; cursor: pointer; background: white; color: #6b7280; transition: all 0.2s;">
+                                Nur Ausbilder
+                            </button>
+                        @else
+                            <span style="padding: 0.5rem 1rem; border-radius: 0.375rem; font-size: 0.85rem; font-weight: 600; background: #00337F; color: white;">
+                                Nur Ausbilder
+                            </span>
+                        @endif
+                    </form>
+                </div>
             </div>
             
             @forelse($memberProgress->take(10) as $index => $member)
