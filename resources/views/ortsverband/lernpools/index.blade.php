@@ -641,15 +641,15 @@
                                 </span>
                             </div>
 
-                            @if($pool->tags && count($pool->tags) > 0)
-                                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem;">
+                            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem; min-height: 1.75rem;">
+                                @if($pool->tags && count($pool->tags) > 0)
                                     @foreach($pool->tags as $tag)
                                         <span style="background: #dbeafe; color: #1e40af; padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600;">
                                             🏷️ {{ $tag }}
                                         </span>
                                     @endforeach
-                                </div>
-                            @endif
+                                @endif
+                            </div>
 
                             <p class="pool-card-desc">{{ Str::limit($pool->description, 120) }}</p>
 
