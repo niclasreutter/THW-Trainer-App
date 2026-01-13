@@ -134,6 +134,7 @@ class LehrgangController extends Controller
         return view('lehrgaenge.show', [
             'lehrgang' => $lehrgang,
             'isEnrolled' => $isEnrolled,
+            'enrolledIds' => $isEnrolled ? [$lehrgang->id] : [],
             'userProgress' => $userProgress,
             'questions' => $questions,
             'sections' => $sections,
