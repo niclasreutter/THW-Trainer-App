@@ -11,8 +11,8 @@
 
 ## 🎯 Quick Wins (Hohe Priorität)
 
-### 1. Shake-Animation bei falschen Antworten ⏳
-**Status:** Offen
+### 1. Shake-Animation bei falschen Antworten ✅
+**Status:** Erledigt
 **Schwierigkeit:** ⭐ Einfach (15-20 min)
 **Impact:** 🔥 Hoch
 
@@ -21,22 +21,24 @@ Wenn User eine falsche Antwort gibt, schüttelt sich die Frage-Card leicht horiz
 
 **Technische Details:**
 - CSS Keyframe Animation `@keyframes shake`
-- Trigger via Alpine.js bei falscher Antwort
-- Dauer: ~0.4s, 3-4px horizontal movement
+- Trigger via JavaScript bei falscher Antwort
+- Dauer: ~0.4s, 4px horizontal movement
 
 **Dateien:**
-- `resources/views/practice.blade.php` (Hauptimplementierung)
-- `resources/views/exam.blade.php` (falls gewünscht)
-- `resources/css/app.css` (Animation Definition)
+- ✅ `resources/views/practice.blade.php` (Hauptimplementierung)
+- ⚠️ `resources/views/exam.blade.php` (nicht zutreffend - keine Feedback während Prüfung)
+- ✅ `resources/css/app.css` (Animation Definition)
 
 **Implementierung:**
 ```css
 @keyframes shake {
   0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-4px); }
-  75% { transform: translateX(4px); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
+  20%, 40%, 60%, 80% { transform: translateX(4px); }
 }
 ```
+
+**Implementiert am:** 13. Januar 2026
 
 ---
 

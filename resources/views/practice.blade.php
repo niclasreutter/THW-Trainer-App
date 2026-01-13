@@ -994,7 +994,7 @@
                         setTimeout(() => {
                             gamificationPopup.classList.add('show');
                         }, 10);
-                        
+
                         // Hide after 3 seconds
                         setTimeout(() => {
                             gamificationPopup.classList.remove('show');
@@ -1004,16 +1004,26 @@
                         }, 3000);
                     }, 100);
                 }
-                
-                // Show Error Popup
+
+                // Show Error Popup with Shake Animation
                 const errorPopup = document.getElementById('errorPopup');
                 if (errorPopup) {
+                    // Trigger Shake Animation on Question Container
+                    const questionContainer = document.querySelector('#practiceContainer > form > div.mb-2');
+                    if (questionContainer) {
+                        questionContainer.classList.add('shake');
+                        // Remove shake class after animation completes
+                        setTimeout(() => {
+                            questionContainer.classList.remove('shake');
+                        }, 400);
+                    }
+
                     setTimeout(() => {
                         errorPopup.classList.remove('hidden');
                         setTimeout(() => {
                             errorPopup.classList.add('show');
                         }, 10);
-                        
+
                         // Hide after 3 seconds
                         setTimeout(() => {
                             errorPopup.classList.remove('show');
