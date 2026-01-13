@@ -134,21 +134,49 @@ function updateNummer() {
 }
 
 // Globale Funktion für Button-Clicks
-function handleSubmit(action) {
+window.handleSubmit = function(action) {
+    console.log('handleSubmit aufgerufen mit action:', action);
+
     const form = document.getElementById('createQuestionForm');
     if (!form) {
         console.error('Form nicht gefunden');
+        alert('Fehler: Formular nicht gefunden!');
+        return;
+    }
+    console.log('Form gefunden:', form);
+
+    // Prüfe ob mindestens eine Lösung ausgewählt ist
+    const loesungCheckboxes = form.querySelectorAll('input[name="loesung[]"]:checked');
+    if (loesungCheckboxes.length === 0) {
+        alert('Bitte wähle mindestens eine richtige Antwort aus (A, B oder C)!');
         return;
     }
 
-    // Prüfe Browser-Validierung
-    if (!form.checkValidity()) {
-        form.reportValidity();
+    // Prüfe Browser-Validierung für required Felder
+    const requiredInputs = form.querySelectorAll('[required]');
+    let allValid = true;
+    requiredInputs.forEach(input => {
+        if (!input.value.trim()) {
+            allValid = false;
+            input.focus();
+            input.reportValidity();
+        }
+    });
+
+    if (!allValid) {
+        console.log('Validierung fehlgeschlagen');
         return;
     }
+
+    console.log('Validierung erfolgreich, sende Daten...');
 
     const formData = new FormData(form);
     const buttons = form.querySelectorAll('button[name="action"]');
+
+    // Debug: Zeige FormData
+    for (let pair of formData.entries()) {
+        console.log(pair[0] + ': ' + pair[1]);
+    }
 
     // Disable buttons während Submit
     buttons.forEach(btn => {
@@ -165,12 +193,17 @@ function handleSubmit(action) {
         },
         credentials: 'same-origin'
     })
-    .then(response => response.json())
+    .then(response => {
+        console.log('Response erhalten:', response);
+        return response.json();
+    })
     .then(data => {
+        console.log('Data:', data);
         if (data.success) {
             showToast('✓ ' + data.message, 'success');
 
             if (action === 'continue') {
+                console.log('Lade neues Formular...');
                 // Lade Modal neu mit leerem Formular
                 const createUrl = '{{ route("ortsverband.lernpools.questions.create", [$ortsverband, $lernpool]) }}?ajax=1&_t=' + Date.now();
                 fetch(createUrl, {
@@ -182,8 +215,10 @@ function handleSubmit(action) {
                 .then(response => response.text())
                 .then(html => {
                     document.getElementById('genericModal').innerHTML = '<div class="modal">' + html + '</div>';
+                    console.log('Neues Formular geladen');
                 });
             } else {
+                console.log('Schließe Modal...');
                 // Schließe Modal und lade Seite neu
                 document.getElementById('genericModalBackdrop').classList.remove('active');
                 setTimeout(() => {
@@ -206,7 +241,7 @@ function handleSubmit(action) {
             btn.style.opacity = '1';
         });
     });
-}
+};
 
 function showToast(message, type) {
     const toast = document.createElement('div');
