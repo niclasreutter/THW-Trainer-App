@@ -921,8 +921,24 @@
 
                     if (action === 'continue') {
                         console.log('Lade neues Formular...');
+
+                        // Baue die korrekte Create-URL aus der Form Action
+                        // z.B. /ortsverband/1/lernpools/2/questions/store -> /ortsverband/1/lernpools/2/questions/create
+                        let createUrl;
+                        if (formAction.endsWith('/store')) {
+                            createUrl = formAction.replace(/\/store$/, '/create');
+                        } else if (formAction.includes('/questions')) {
+                            // Fallback: füge /create nach /questions hinzu
+                            createUrl = formAction.replace(/\/questions.*$/, '/questions/create');
+                        } else {
+                            console.error('Konnte Create-URL nicht generieren von:', formAction);
+                            return;
+                        }
+
+                        createUrl += '?ajax=1&_t=' + Date.now();
+                        console.log('Create URL:', createUrl);
+
                         // Lade Modal neu mit leerem Formular
-                        const createUrl = formAction.replace('/store', '/create') + '?ajax=1&_t=' + Date.now();
                         fetch(createUrl, {
                             headers: {
                                 'X-Requested-With': 'XMLHttpRequest',
