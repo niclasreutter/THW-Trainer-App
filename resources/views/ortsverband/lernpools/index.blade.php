@@ -595,6 +595,27 @@
                 <span style="color: #6b7280; font-weight: 600;">{{ $lernpools->count() }} Pools</span>
             </div>
 
+            <!-- Tags-Filter -->
+            @if($allTags->isNotEmpty())
+                <div style="margin-bottom: 1.5rem; padding: 1rem; background: #f9fafb; border-radius: 0.75rem; border: 1px solid #e5e7eb;">
+                    <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+                        <span style="font-weight: 600; color: #00337F; white-space: nowrap;">🏷️ Filter:</span>
+                        <a href="{{ route('ortsverband.lernpools.index', $ortsverband) }}"
+                           class="btn btn-secondary"
+                           style="padding: 0.5rem 1rem; font-size: 0.85rem; {{ !$selectedTag ? 'background: #2563eb; color: white;' : '' }}">
+                            Alle
+                        </a>
+                        @foreach($allTags as $tag)
+                            <a href="{{ route('ortsverband.lernpools.index', ['ortsverband' => $ortsverband, 'tag' => $tag]) }}"
+                               class="btn btn-secondary"
+                               style="padding: 0.5rem 1rem; font-size: 0.85rem; {{ $selectedTag === $tag ? 'background: #2563eb; color: white;' : '' }}">
+                                {{ $tag }}
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+
             <div class="button-group">
                 <button id="openCreateModal" class="btn btn-primary">
                     ➕ Neuer Lernpool
@@ -619,6 +640,16 @@
                                     {{ $pool->is_active ? '🟢 Aktiv' : '⚫ Inaktiv' }}
                                 </span>
                             </div>
+
+                            @if($pool->tags && count($pool->tags) > 0)
+                                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem;">
+                                    @foreach($pool->tags as $tag)
+                                        <span style="background: #dbeafe; color: #1e40af; padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600;">
+                                            🏷️ {{ $tag }}
+                                        </span>
+                                    @endforeach
+                                </div>
+                            @endif
 
                             <p class="pool-card-desc">{{ Str::limit($pool->description, 120) }}</p>
 
@@ -701,9 +732,21 @@
                     <label for="description" class="form-label">
                         Beschreibung <span class="required">*</span>
                     </label>
-                    <textarea name="description" id="description" rows="5" class="form-textarea" 
+                    <textarea name="description" id="description" rows="5" class="form-textarea"
                               placeholder="Beschreibung des Lernpools..." required></textarea>
                     <p class="form-error" id="descriptionError" style="display: none;"></p>
+                </div>
+
+                <div class="form-group">
+                    <label for="tags" class="form-label">
+                        Schlagwörter / Tags
+                    </label>
+                    <input type="text" name="tags" id="tags" class="form-input"
+                           placeholder="z.B. ZTR, B FGr, N FGr (mit Komma trennen)">
+                    <p style="font-size: 0.85rem; color: #6b7280; margin-top: 0.25rem;">
+                        Mehrere Tags mit Komma trennen (z.B. "ZTR, B FGr, N FGr")
+                    </p>
+                    <p class="form-error" id="tagsError" style="display: none;"></p>
                 </div>
 
                 <div class="form-group">

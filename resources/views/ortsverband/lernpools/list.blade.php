@@ -130,6 +130,25 @@
         <p class="text-gray-600">Verfügbare Lernpools</p>
     </div>
 
+    <!-- Tags-Filter -->
+    @if($allTags->isNotEmpty())
+        <div style="margin-bottom: 1.5rem; padding: 1rem; background: white; border-radius: 1rem; border: 1px solid #e5e7eb;">
+            <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+                <span style="font-weight: 600; color: #1f2937; white-space: nowrap;">🏷️ Filter:</span>
+                <a href="{{ route('ortsverband.lernpools.list', $ortsverband) }}"
+                   class="btn-small {{ !$selectedTag ? 'btn-primary' : 'btn-outline' }}">
+                    Alle
+                </a>
+                @foreach($allTags as $tag)
+                    <a href="{{ route('ortsverband.lernpools.list', ['ortsverband' => $ortsverband, 'tag' => $tag]) }}"
+                       class="btn-small {{ $selectedTag === $tag ? 'btn-primary' : 'btn-outline' }}">
+                        {{ $tag }}
+                    </a>
+                @endforeach
+            </div>
+        </div>
+    @endif
+
     <!-- Lernpools Liste -->
     @if($lernpools->isEmpty())
         <div class="empty-state">
@@ -143,6 +162,17 @@
                 <div class="lernpool-card">
                     <div class="lernpool-info">
                         <h2 class="lernpool-title">{{ $lernpool->name }}</h2>
+
+                        @if($lernpool->tags && count($lernpool->tags) > 0)
+                            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.75rem;">
+                                @foreach($lernpool->tags as $tag)
+                                    <span style="background: #dbeafe; color: #1e40af; padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600;">
+                                        🏷️ {{ $tag }}
+                                    </span>
+                                @endforeach
+                            </div>
+                        @endif
+
                         @if($lernpool->description)
                             <p class="lernpool-description">{{ $lernpool->description }}</p>
                         @endif

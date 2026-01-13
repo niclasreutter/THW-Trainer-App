@@ -29,9 +29,24 @@
         </div>
 
         <div class="form-group">
+            <label for="tags" class="form-label">
+                Schlagwörter / Tags
+            </label>
+            <input type="text" name="tags" id="tags" value="{{ old('tags', is_array($lernpool->tags) ? implode(', ', $lernpool->tags) : '') }}"
+                   class="form-input @error('tags') error @enderror"
+                   placeholder="z.B. ZTR, B FGr, N FGr (mit Komma trennen)">
+            <p style="font-size: 0.85rem; color: #6b7280; margin-top: 0.25rem;">
+                Mehrere Tags mit Komma trennen (z.B. "ZTR, B FGr, N FGr")
+            </p>
+            @error('tags')
+                <p class="form-error">{{ $message }}</p>
+            @enderror
+        </div>
+
+        <div class="form-group">
             <div class="form-checkbox">
                 <input type="hidden" name="is_active" value="0">
-                <input type="checkbox" name="is_active" id="is_active" value="1" 
+                <input type="checkbox" name="is_active" id="is_active" value="1"
                        {{ old('is_active', $lernpool->is_active) ? 'checked' : '' }}>
                 <label for="is_active">Aktiv</label>
             </div>

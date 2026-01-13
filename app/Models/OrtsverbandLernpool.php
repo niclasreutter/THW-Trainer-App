@@ -9,10 +9,11 @@ class OrtsverbandLernpool extends Model
 {
     protected $table = 'ortsverband_lernpools';
     
-    protected $fillable = ['ortsverband_id', 'created_by', 'name', 'slug', 'description', 'is_active'];
-    
+    protected $fillable = ['ortsverband_id', 'created_by', 'name', 'slug', 'description', 'tags', 'is_active'];
+
     protected $casts = [
         'is_active' => 'boolean',
+        'tags' => 'array',
     ];
 
     /**
