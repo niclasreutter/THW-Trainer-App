@@ -42,8 +42,8 @@ Wenn User eine falsche Antwort gibt, schüttelt sich die Frage-Card leicht horiz
 
 ---
 
-### 2. Floating Point Pop-ups ⏳
-**Status:** Offen
+### 2. Floating Point Pop-ups ✅
+**Status:** Erledigt
 **Schwierigkeit:** ⭐⭐ Mittel (25-30 min)
 **Impact:** 🔥🔥 Sehr hoch
 
@@ -51,15 +51,16 @@ Wenn User eine falsche Antwort gibt, schüttelt sich die Frage-Card leicht horiz
 "+10 Punkte" Labels schweben von der Action nach oben und verschwinden (fade out).
 
 **Technische Details:**
-- Dynamisches Erstellen von `<div>` Elementen an Klick-Position
-- CSS Animation: translateY + opacity fade
+- Dynamisches Erstellen von `<div>` Elementen an Position
+- CSS Animation: translateY + opacity fade mit scale
 - Auto-remove nach Animation (cleanup)
-- Position: absolute, pointer-events: none
+- Position: fixed, pointer-events: none
 
 **Dateien:**
-- `resources/views/practice.blade.php`
-- `resources/views/exam.blade.php`
-- `resources/js/app.js` (Helper-Funktion)
+- ✅ `resources/views/practice.blade.php` (Integration)
+- ⚠️ `resources/views/exam.blade.php` (nicht zutreffend - kein Feedback während Prüfung)
+- ✅ `resources/js/app.js` (Helper-Funktion)
+- ✅ `resources/css/app.css` (Animation Definition)
 
 **Implementierung:**
 ```javascript
@@ -73,6 +74,8 @@ function showFloatingPoints(x, y, points) {
   setTimeout(() => el.remove(), 1500);
 }
 ```
+
+**Implementiert am:** 13. Januar 2026
 
 ---
 

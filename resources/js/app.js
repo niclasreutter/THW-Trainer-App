@@ -70,4 +70,19 @@ window.triggerAchievementConfetti = function() {
     }, 250);
 };
 
+// Floating Points Animation
+window.showFloatingPoints = function(x, y, points) {
+    const el = document.createElement('div');
+    el.textContent = `+${points}`;
+    el.className = 'floating-points';
+    el.style.left = x + 'px';
+    el.style.top = y + 'px';
+    document.body.appendChild(el);
+
+    // Remove element after animation completes
+    setTimeout(() => {
+        el.remove();
+    }, 1500);
+};
+
 Alpine.start();

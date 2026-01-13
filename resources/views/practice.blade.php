@@ -989,6 +989,20 @@
                 // Show Gamification Popup
                 const gamificationPopup = document.getElementById('gamificationPopup');
                 if (gamificationPopup) {
+                    @if($showGamification)
+                        // Trigger Floating Points Animation
+                        const points = {{ $pointsAwarded }};
+                        // Position: Near the gamification popup (top right area)
+                        const x = window.innerWidth - 200;
+                        const y = 80;
+
+                        setTimeout(() => {
+                            if (typeof window.showFloatingPoints === 'function') {
+                                window.showFloatingPoints(x, y, points);
+                            }
+                        }, 400);
+                    @endif
+
                     setTimeout(() => {
                         gamificationPopup.classList.remove('hidden');
                         setTimeout(() => {

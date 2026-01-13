@@ -12,3 +12,30 @@
 .shake {
   animation: shake 0.4s ease-in-out;
 }
+
+/* Floating Points Animation */
+@keyframes floatUp {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-40px) scale(1.1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-80px) scale(0.8);
+  }
+}
+
+.floating-points {
+  position: fixed;
+  z-index: 10000;
+  font-size: 24px;
+  font-weight: bold;
+  color: #fbbf24;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3), 0 0 10px rgba(251, 191, 36, 0.6);
+  pointer-events: none;
+  animation: floatUp 1.5s ease-out forwards;
+}
