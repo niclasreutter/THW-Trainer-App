@@ -163,15 +163,15 @@
                     <div class="lernpool-info">
                         <h2 class="lernpool-title">{{ $lernpool->name }}</h2>
 
-                        @if($lernpool->tags && count($lernpool->tags) > 0)
-                            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.75rem;">
+                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.75rem; min-height: 28px;">
+                            @if($lernpool->tags && count($lernpool->tags) > 0)
                                 @foreach($lernpool->tags as $tag)
                                     <span style="background: #dbeafe; color: #1e40af; padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600;">
                                         🏷️ {{ $tag }}
                                     </span>
                                 @endforeach
-                            </div>
-                        @endif
+                            @endif
+                        </div>
 
                         @if($lernpool->description)
                             <p class="lernpool-description">{{ $lernpool->description }}</p>

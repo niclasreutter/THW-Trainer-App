@@ -917,6 +917,23 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') dismi
                 @endphp
                 <div class="lehrgang-card">
                     <h4 class="lehrgang-card-title">{{ $lernpool->name }}</h4>
+
+                    <!-- Tags Platzhalter für konsistente Höhe -->
+                    <div style="min-height: 24px; margin-bottom: 0.5rem;">
+                        @if($lernpool->tags && count($lernpool->tags) > 0)
+                            <div style="display: flex; gap: 0.35rem; flex-wrap: wrap;">
+                                @foreach(array_slice($lernpool->tags, 0, 2) as $tag)
+                                    <span style="background: #dbeafe; color: #1e40af; padding: 0.2rem 0.6rem; border-radius: 999px; font-size: 0.7rem; font-weight: 600;">
+                                        {{ $tag }}
+                                    </span>
+                                @endforeach
+                                @if(count($lernpool->tags) > 2)
+                                    <span style="color: #6b7280; font-size: 0.7rem; padding: 0.2rem 0.4rem;">+{{ count($lernpool->tags) - 2 }}</span>
+                                @endif
+                            </div>
+                        @endif
+                    </div>
+
                     <p class="lehrgang-card-description">{{ $lernpool->description }}</p>
                     <div class="lehrgang-card-progress">
                         <div class="lehrgang-card-progress-header"><span>{{ $solvedCount }}/{{ $totalCount }} Fragen</span><span>{{ $lernpoolProgress }}%</span></div>
