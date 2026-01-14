@@ -214,7 +214,69 @@
 
             <!-- Settings Dropdown -->
             @auth
-            <div class="hidden sm:flex sm:items-center sm:ms-6">
+            <div class="hidden sm:flex sm:items-center sm:ms-6 space-x-2">
+                <!-- Notifications Bell -->
+                <div class="relative">
+                    <button onclick="document.getElementById('notificationsDropdown').classList.toggle('hidden')" class="relative p-2 text-white hover:text-yellow-400 transition-colors duration-200">
+                        <span class="text-2xl">🔔</span>
+                        @php
+                            // TEMPORÄR: Hardcoded count für Demo
+                            // TODO: Später durch echte Notifications aus DB ersetzen
+                            $notificationCount = 3;
+                        @endphp
+                        @if($notificationCount > 0)
+                            <span class="absolute top-0 right-0 inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-500 rounded-full">
+                                {{ $notificationCount }}
+                            </span>
+                        @endif
+                    </button>
+                    <div id="notificationsDropdown" class="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-xl z-50 hidden border border-gray-200">
+                        <div class="px-4 py-3 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-purple-50">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-sm font-semibold text-gray-700">🔔 Mitteilungen</h3>
+                                <span class="text-xs text-gray-500">{{ $notificationCount }} neu</span>
+                            </div>
+                        </div>
+                        <div class="max-h-96 overflow-y-auto">
+                            <!-- TEMPORÄR: Demo Notifications -->
+                            <a href="#" class="block px-4 py-3 hover:bg-gray-50 transition-colors duration-200 border-b border-gray-100">
+                                <div class="flex items-start space-x-3">
+                                    <span class="text-2xl">🎉</span>
+                                    <div class="flex-1">
+                                        <p class="text-sm font-medium text-gray-800">Neuer Meilenstein erreicht!</p>
+                                        <p class="text-xs text-gray-600 mt-1">Du hast 100% Fortschritt erreicht.</p>
+                                        <p class="text-xs text-gray-400 mt-1">vor 2 Stunden</p>
+                                    </div>
+                                </div>
+                            </a>
+                            <a href="#" class="block px-4 py-3 hover:bg-gray-50 transition-colors duration-200 border-b border-gray-100">
+                                <div class="flex items-start space-x-3">
+                                    <span class="text-2xl">🏆</span>
+                                    <div class="flex-1">
+                                        <p class="text-sm font-medium text-gray-800">Neues Achievement freigeschaltet!</p>
+                                        <p class="text-xs text-gray-600 mt-1">"Prüfungsprofi" - 5 Prüfungen bestanden</p>
+                                        <p class="text-xs text-gray-400 mt-1">vor 1 Tag</p>
+                                    </div>
+                                </div>
+                            </a>
+                            <a href="#" class="block px-4 py-3 hover:bg-gray-50 transition-colors duration-200">
+                                <div class="flex items-start space-x-3">
+                                    <span class="text-2xl">⭐</span>
+                                    <div class="flex-1">
+                                        <p class="text-sm font-medium text-gray-800">Level Up!</p>
+                                        <p class="text-xs text-gray-600 mt-1">Du bist jetzt Level {{ Auth::user()->level ?? 1 }}</p>
+                                        <p class="text-xs text-gray-400 mt-1">vor 2 Tagen</p>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="px-4 py-2 border-t border-gray-200 bg-gray-50">
+                            <a href="#" class="text-xs text-blue-600 hover:text-blue-800 font-medium">Alle Mitteilungen anzeigen →</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User Dropdown -->
                 <div class="relative">
                     <button onclick="document.getElementById('userDropdown').classList.toggle('hidden')" class="inline-flex items-center px-3 py-2 text-sm font-medium text-white hover:text-yellow-400 transition-colors duration-200 relative group">
                         <span class="flex items-center space-x-2">
@@ -470,8 +532,8 @@
 <script>
     // Close all dropdowns when clicking outside
     document.addEventListener('click', function(event) {
-        const dropdowns = ['adminDropdown', 'userDropdown', 'learningDropdown', 'gamificationDropdown'];
-        
+        const dropdowns = ['adminDropdown', 'userDropdown', 'learningDropdown', 'gamificationDropdown', 'notificationsDropdown'];
+
         dropdowns.forEach(function(dropdownId) {
             const dropdown = document.getElementById(dropdownId);
             if (dropdown && !dropdown.classList.contains('hidden')) {
