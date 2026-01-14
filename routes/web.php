@@ -275,6 +275,15 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix
     Route::post('ortsverband/{ortsverband}/view-as', [\App\Http\Controllers\Admin\OrtsverbandController::class, 'viewAs'])->name('ortsverband.view-as');
     Route::post('ortsverband/exit-view', [\App\Http\Controllers\Admin\OrtsverbandController::class, 'exitView'])->name('ortsverband.exit-view');
     Route::delete('ortsverband/{ortsverband}', [\App\Http\Controllers\Admin\OrtsverbandController::class, 'destroy'])->name('ortsverband.destroy');
+
+    // Achievement Routes (Admin)
+    Route::get('achievements', [\App\Http\Controllers\Admin\AchievementController::class, 'index'])->name('achievements.index');
+    Route::get('achievements/create', [\App\Http\Controllers\Admin\AchievementController::class, 'create'])->name('achievements.create');
+    Route::post('achievements', [\App\Http\Controllers\Admin\AchievementController::class, 'store'])->name('achievements.store');
+    Route::get('achievements/{id}/edit', [\App\Http\Controllers\Admin\AchievementController::class, 'edit'])->name('achievements.edit');
+    Route::put('achievements/{id}', [\App\Http\Controllers\Admin\AchievementController::class, 'update'])->name('achievements.update');
+    Route::delete('achievements/{id}', [\App\Http\Controllers\Admin\AchievementController::class, 'destroy'])->name('achievements.destroy');
+    Route::post('achievements/{id}/toggle-active', [\App\Http\Controllers\Admin\AchievementController::class, 'toggleActive'])->name('achievements.toggle-active');
 });
 
 // Test Routes für Error Pages (nur für Development/Testing)

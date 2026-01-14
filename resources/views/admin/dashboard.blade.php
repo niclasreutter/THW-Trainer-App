@@ -324,6 +324,10 @@
                 <span>👥</span>
                 <span>Benutzer verwalten</span>
             </a>
+            <a href="{{ route('admin.achievements.index') }}" class="action-btn info">
+                <span>🏆</span>
+                <span>Achievements verwalten</span>
+            </a>
             <a href="{{ route('admin.newsletter.create') }}" class="action-btn success">
                 <span>📧</span>
                 <span>Newsletter senden</span>

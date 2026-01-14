@@ -208,4 +208,22 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(Notification::class)->where('is_read', false)->orderBy('created_at', 'desc');
     }
+
+    /**
+     * Achievements die der User freigeschaltet hat
+     */
+    public function userAchievements()
+    {
+        return $this->belongsToMany(Achievement::class, 'user_achievements')
+            ->withPivot('unlocked_at')
+            ->withTimestamps();
+    }
+
+    /**
+     * User Achievement Pivot Records
+     */
+    public function achievementRecords()
+    {
+        return $this->hasMany(UserAchievement::class);
+    }
 }

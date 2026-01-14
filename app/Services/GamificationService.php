@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\User;
+use App\Models\Achievement;
 use Carbon\Carbon;
 
 class GamificationService
@@ -35,85 +36,6 @@ class GamificationService
         18 => 35500,
         19 => 41500,
         20 => 48000,
-    ];
-
-    // Achievements
-    const ACHIEVEMENTS = [
-        'first_question' => [
-            'title' => '🌟 Erste Schritte',
-            'description' => 'Erste Frage beantwortet',
-            'icon' => '🎯'
-        ],
-        'streak_3' => [
-            'title' => '🔥 Feuer entfacht',
-            'description' => '3 Tage in Folge gelernt',
-            'icon' => '🔥'
-        ],
-        'streak_7' => [
-            'title' => '🚀 Durchstarter',
-            'description' => '7 Tage in Folge gelernt',
-            'icon' => '🚀'
-        ],
-        'streak_30' => [
-            'title' => '👑 Lernkönig',
-            'description' => '30 Tage in Folge gelernt',
-            'icon' => '👑'
-        ],
-        'questions_50' => [
-            'title' => '📚 Wissensdurst',
-            'description' => '50 Fragen beantwortet',
-            'icon' => '📚'
-        ],
-        'questions_100' => [
-            'title' => '🧠 Denker',
-            'description' => '100 Fragen beantwortet',
-            'icon' => '🧠'
-        ],
-        'questions_500' => [
-            'title' => '🎓 Experte',
-            'description' => '500 Fragen beantwortet',
-            'icon' => '🎓'
-        ],
-        'exam_first' => [
-            'title' => '🏆 Erste Prüfung',
-            'description' => 'Erste Prüfung bestanden',
-            'icon' => '🏆'
-        ],
-        'exam_perfect' => [
-            'title' => '💎 Perfektionist',
-            'description' => 'Prüfung mit 100% bestanden',
-            'icon' => '💎'
-        ],
-        'speed_demon' => [
-            'title' => '⚡ Blitzschnell',
-            'description' => '20 Fragen an einem Tag',
-            'icon' => '⚡'
-        ],
-        'section_master' => [
-            'title' => '🎯 Abschnittsmeister',
-            'description' => 'Alle Fragen eines Abschnitts gelöst',
-            'icon' => '🎯'
-        ],
-        'level_5' => [
-            'title' => '⭐ Aufsteiger',
-            'description' => 'Level 5 erreicht',
-            'icon' => '⭐'
-        ],
-        'level_10' => [
-            'title' => '🌟 Meister',
-            'description' => 'Level 10 erreicht',
-            'icon' => '🌟'
-        ],
-        'level_15' => [
-            'title' => '💫 Experte',
-            'description' => 'Level 15 erreicht',
-            'icon' => '💫'
-        ],
-        'level_20' => [
-            'title' => '🏅 Legende',
-            'description' => 'Level 20 erreicht',
-            'icon' => '🏅'
-        ]
     ];
 
     public function awardPoints(User $user, int $points, string $reason = '')
@@ -428,72 +350,96 @@ class GamificationService
 
     public function unlockAchievement(User $user, string $achievementKey)
     {
-        $achievements = $this->ensureArray($user->achievements);
+        // Hole Achievement aus Datenbank
+        $achievement = Achievement::where('key', $achievementKey)
+            ->where('is_active', true)
+            ->first();
 
-        if (!in_array($achievementKey, $achievements)) {
-            $achievements[] = $achievementKey;
-            $user->achievements = $achievements;
-            $user->save();
-
-            // Add achievement notification to session + DB
-            $achievement = self::ACHIEVEMENTS[$achievementKey] ?? null;
-            if ($achievement) {
-                // Erstelle persistente Notification in DB
-                $this->createNotification($user, [
-                    'type' => 'achievement',
-                    'title' => '🏆 Neues Achievement!',
-                    'message' => $achievement['title'],
-                    'icon' => $achievement['icon'],
-                    'data' => [
-                        'achievement_key' => $achievementKey,
-                        'description' => $achievement['description'],
-                    ]
-                ]);
-
-                // Auch in Session für sofortige Anzeige
-                $notification = [
-                    'type' => 'achievement',
-                    'title' => '🏆 Neues Achievement!',
-                    'message' => $achievement['title'],
-                    'description' => $achievement['description'],
-                    'icon' => $achievement['icon']
-                ];
-
-                $existingNotifications = session('gamification_notifications', []);
-                $existingNotifications[] = $notification;
-                session(['gamification_notifications' => $existingNotifications]);
-                session()->save(); // Force save
-
-                // Debug-Logging
-                \Log::info('🏆 Achievement notification stored in session', [
-                    'user_id' => $user->id,
-                    'achievement_key' => $achievementKey,
-                    'notification' => $notification,
-                    'session_id' => session()->getId()
-                ]);
-            }
-
-            return true; // Neues Achievement
+        if (!$achievement) {
+            \Log::warning("Achievement with key '{$achievementKey}' not found or inactive");
+            return false;
         }
 
-        return false; // Bereits vorhanden
+        // Prüfe ob User das Achievement bereits hat
+        $hasAchievement = $user->userAchievements()
+            ->where('achievement_id', $achievement->id)
+            ->exists();
+
+        if ($hasAchievement) {
+            return false; // Bereits vorhanden
+        }
+
+        // Füge Achievement zum User hinzu
+        $user->userAchievements()->attach($achievement->id, [
+            'unlocked_at' => now(),
+        ]);
+
+        // LEGACY: Auch in der alten JSON-Spalte speichern (für Abwärtskompatibilität)
+        $legacyAchievements = $this->ensureArray($user->achievements);
+        if (!in_array($achievementKey, $legacyAchievements)) {
+            $legacyAchievements[] = $achievementKey;
+            $user->achievements = $legacyAchievements;
+            $user->save();
+        }
+
+        // Erstelle persistente Notification in DB
+        $this->createNotification($user, [
+            'type' => 'achievement',
+            'title' => '🏆 Neues Achievement!',
+            'message' => $achievement->title,
+            'icon' => $achievement->icon,
+            'data' => [
+                'achievement_key' => $achievementKey,
+                'description' => $achievement->description,
+            ]
+        ]);
+
+        // Auch in Session für sofortige Anzeige
+        $notification = [
+            'type' => 'achievement',
+            'title' => '🏆 Neues Achievement!',
+            'message' => $achievement->title,
+            'description' => $achievement->description,
+            'icon' => $achievement->icon
+        ];
+
+        $existingNotifications = session('gamification_notifications', []);
+        $existingNotifications[] = $notification;
+        session(['gamification_notifications' => $existingNotifications]);
+        session()->save(); // Force save
+
+        // Debug-Logging
+        \Log::info('🏆 Achievement notification stored in session', [
+            'user_id' => $user->id,
+            'achievement_key' => $achievementKey,
+            'notification' => $notification,
+            'session_id' => session()->getId()
+        ]);
+
+        return true; // Neues Achievement
     }
 
     public function getUserAchievements(User $user)
     {
-        $userAchievements = $this->ensureArray($user->achievements);
+        // Hole alle aktiven Achievements aus Datenbank
+        $allAchievements = Achievement::active()
+            ->sorted()
+            ->get();
+
+        // Hole User-Achievement-IDs
+        $unlockedIds = $user->userAchievements()->pluck('achievements.id')->toArray();
+
         $result = [];
-        
-        foreach (self::ACHIEVEMENTS as $key => $achievement) {
+        foreach ($allAchievements as $achievement) {
             $result[] = [
-                'key' => $key,
-                'unlocked' => in_array($key, $userAchievements),
-                'title' => $achievement['title'],
-                'description' => $achievement['description'],
-                'icon' => $achievement['icon']
+                'key' => $achievement->key,
+                'unlocked' => in_array($achievement->id, $unlockedIds),
+                'title' => $achievement->title,
+                'description' => $achievement->description,
+                'icon' => $achievement->icon ?? '🏆'
             ];
         }
-        
+
         return $result;
     }
 

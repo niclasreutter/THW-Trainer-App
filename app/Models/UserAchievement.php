@@ -1,0 +1,37 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class UserAchievement extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'user_id',
+        'achievement_id',
+        'unlocked_at',
+    ];
+
+    protected $casts = [
+        'unlocked_at' => 'datetime',
+    ];
+
+    /**
+     * User dem dieses Achievement gehört
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Das Achievement
+     */
+    public function achievement()
+    {
+        return $this->belongsTo(Achievement::class);
+    }
+}
