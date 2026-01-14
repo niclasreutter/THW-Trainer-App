@@ -214,18 +214,18 @@
 
             <!-- Settings Dropdown -->
             @auth
-            <div class="hidden sm:flex sm:items-center sm:ms-6 space-x-2">
-                <!-- Notifications Bell -->
+            @php
+                // TEMPORÄR: Hardcoded count für Demo
+                // TODO: Später durch echte Notifications aus DB ersetzen
+                $notificationCount = 3;
+            @endphp
+            <div class="hidden sm:flex sm:items-center sm:ms-6 space-x-1">
+                <!-- Notifications Bell - Minimalistisch -->
                 <div class="relative">
-                    <button onclick="document.getElementById('notificationsDropdown').classList.toggle('hidden')" class="relative p-2 text-white hover:text-yellow-400 transition-colors duration-200">
-                        <span class="text-2xl">🔔</span>
-                        @php
-                            // TEMPORÄR: Hardcoded count für Demo
-                            // TODO: Später durch echte Notifications aus DB ersetzen
-                            $notificationCount = 3;
-                        @endphp
+                    <button onclick="document.getElementById('notificationsDropdown').classList.toggle('hidden')" class="relative p-1 text-white hover:text-yellow-400 transition-colors duration-200">
+                        <span class="text-xl">🔔</span>
                         @if($notificationCount > 0)
-                            <span class="absolute top-0 right-0 inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-500 rounded-full">
+                            <span class="absolute -top-1 -right-1 inline-flex items-center justify-center w-4 h-4 text-[10px] font-bold text-white bg-red-500 rounded-full">
                                 {{ $notificationCount }}
                             </span>
                         @endif
@@ -281,7 +281,14 @@
                     <button onclick="document.getElementById('userDropdown').classList.toggle('hidden')" class="inline-flex items-center px-3 py-2 text-sm font-medium text-white hover:text-yellow-400 transition-colors duration-200 relative group">
                         <span class="flex items-center space-x-2">
                             <span class="text-lg">👤</span>
-                            <span>{{ Auth::user()->name }}</span>
+                            <span class="relative">
+                                {{ Auth::user()->name }}
+                                @if($notificationCount > 0)
+                                    <span class="absolute -top-2 -right-6 inline-flex items-center justify-center w-4 h-4 text-[10px] font-bold text-white bg-red-500 rounded-full">
+                                        {{ $notificationCount }}
+                                    </span>
+                                @endif
+                            </span>
                             <svg class="ml-1 h-4 w-4 transition-transform duration-200 group-hover:rotate-180" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
                         </span>
                         <div class="absolute -bottom-1 left-0 w-0 h-0.5 bg-yellow-400 transition-all duration-200 group-hover:w-full"></div>
@@ -307,7 +314,18 @@
                                 @endif
                             </div>
                         </div>
-                        
+
+                        <!-- Mitteilungen Link -->
+                        <button onclick="document.getElementById('userDropdown').classList.add('hidden'); document.getElementById('notificationsDropdown').classList.remove('hidden');" class="w-full text-left px-4 py-3 text-gray-700 hover:bg-blue-900 hover:text-yellow-400 transition-colors duration-200 flex items-center justify-between border-b border-gray-100">
+                            <div class="flex items-center space-x-2">
+                                <span class="text-lg">🔔</span>
+                                <span>Mitteilungen</span>
+                            </div>
+                            @if($notificationCount > 0)
+                                <span class="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">{{ $notificationCount }}</span>
+                            @endif
+                        </button>
+
                         <a href="{{ route('profile') }}" class="block px-4 py-3 text-gray-700 hover:bg-blue-900 hover:text-yellow-400 transition-colors duration-200 flex items-center space-x-2">
                             <span class="text-lg">⚙️</span>
                             <span>Profil</span>
