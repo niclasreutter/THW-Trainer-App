@@ -60,23 +60,48 @@
         <!-- PWA Manifest -->
         <link rel="manifest" href="{{ asset('manifest.json') }}">
 
-        <!-- Schema.org EducationalOrganization Markup -->
+        <!-- Schema.org Organization Markup -->
         <script type="application/ld+json">
         {
-            "@@context": "https://schema.org",
-            "@@type": "EducationalOrganization",
+            "@context": "https://schema.org",
+            "@type": "Organization",
             "name": "THW-Trainer",
             "url": "{{ url('/') }}",
             "logo": "{{ asset('logo-thwtrainer.png') }}",
-            "description": "Kostenlose THW Theorie Prüfungsvorbereitung für die Grundausbildung im Technischen Hilfswerk",
-            "educationalCredentialAwarded": "THW Grundausbildung Theorie",
-            "areaServed": "DE",
-            "availableLanguage": "de",
+            "description": "Kostenlose THW Theorie Prüfungsvorbereitung für Grundausbildung, FüUF26 und weitere Lehrgänge. Lernen im Ortsverband mit eigenen Fragen möglich.",
+            "areaServed": {
+                "@type": "Country",
+                "name": "Deutschland"
+            }
+        }
+        </script>
+
+        <!-- Schema.org Course Markup für Bildungsinhalte -->
+        <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "Course",
+            "name": "THW Grundausbildung Theorie",
+            "description": "Kostenlose Online-Vorbereitung für die THW Grundausbildung Theorie-Prüfung mit Prüfungssimulation und Lernfortschritt-Tracking",
+            "provider": {
+                "@type": "Organization",
+                "name": "THW-Trainer",
+                "url": "{{ url('/') }}"
+            },
             "offers": {
-                "@@type": "Offer",
+                "@type": "Offer",
                 "price": "0",
                 "priceCurrency": "EUR",
-                "description": "Kostenlose THW Theoriefragen und Prüfungssimulation"
+                "availability": "https://schema.org/InStock",
+                "category": "Online"
+            },
+            "educationalLevel": "Beginner",
+            "inLanguage": "de",
+            "availableLanguage": "de",
+            "hasCourseInstance": {
+                "@type": "CourseInstance",
+                "courseMode": "online",
+                "courseWorkload": "PT10H"
             }
         }
         </script>
