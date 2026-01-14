@@ -63,20 +63,21 @@
         <!-- Schema.org EducationalOrganization Markup -->
         <script type="application/ld+json">
         {
-            "@@context": "https://schema.org",
-            "@@type": "EducationalOrganization",
+            "@context": "https://schema.org",
+            "@type": "EducationalOrganization",
             "name": "THW-Trainer",
             "url": "{{ url('/') }}",
             "logo": "{{ asset('logo-thwtrainer.png') }}",
-            "description": "Kostenlose THW Theorie Prüfungsvorbereitung für die Grundausbildung im Technischen Hilfswerk",
+            "description": "Kostenlose THW Theorie Prüfungsvorbereitung für Grundausbildung, FüUF26 und weitere Lehrgänge. Lernen im Ortsverband mit eigenen Fragen möglich.",
             "educationalCredentialAwarded": "THW Grundausbildung Theorie",
             "areaServed": "DE",
             "availableLanguage": "de",
             "offers": {
-                "@@type": "Offer",
+                "@type": "Offer",
                 "price": "0",
                 "priceCurrency": "EUR",
-                "description": "Kostenlose THW Theoriefragen und Prüfungssimulation"
+                "availability": "https://schema.org/InStock",
+                "description": "Kostenlose THW Theoriefragen, Prüfungssimulation, Ortsverband-Lernpools und FüUF26 Vorbereitung"
             }
         }
         </script>
