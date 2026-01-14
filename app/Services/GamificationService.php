@@ -25,6 +25,16 @@ class GamificationService
         8 => 3000,
         9 => 4000,
         10 => 5500,
+        11 => 7500,
+        12 => 10000,
+        13 => 13000,
+        14 => 16500,
+        15 => 20500,
+        16 => 25000,
+        17 => 30000,
+        18 => 35500,
+        19 => 41500,
+        20 => 48000,
     ];
 
     // Achievements
@@ -93,6 +103,16 @@ class GamificationService
             'title' => '🌟 Meister',
             'description' => 'Level 10 erreicht',
             'icon' => '🌟'
+        ],
+        'level_15' => [
+            'title' => '💫 Experte',
+            'description' => 'Level 15 erreicht',
+            'icon' => '💫'
+        ],
+        'level_20' => [
+            'title' => '🏅 Legende',
+            'description' => 'Level 20 erreicht',
+            'icon' => '🏅'
         ]
     ];
 
@@ -363,6 +383,12 @@ class GamificationService
         }
         if ($user->level >= 10) {
             $this->unlockAchievement($user, 'level_10');
+        }
+        if ($user->level >= 15) {
+            $this->unlockAchievement($user, 'level_15');
+        }
+        if ($user->level >= 20) {
+            $this->unlockAchievement($user, 'level_20');
         }
     }
 
