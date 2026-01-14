@@ -522,7 +522,7 @@
     
     $gamificationService = new \App\Services\GamificationService();
     $userAchievements = $gamificationService->getUserAchievements($user);
-    $totalAchievements = count(\App\Services\GamificationService::ACHIEVEMENTS);
+    $totalAchievements = \App\Models\Achievement::active()->count();
     $unlockedCount = count(array_filter($userAchievements, fn($a) => $a['unlocked']));
     
     $failedArr = is_array($user->exam_failed_questions ?? null) 
