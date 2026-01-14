@@ -502,7 +502,7 @@ class PracticeController extends Controller
         if ($gamificationResult) {
             session(['gamification_result' => $gamificationResult]);
         }
-        
+
         // WICHTIG: Immer answer_result in Session speichern für Feedback-Anzeige
         session([
             'answer_result' => [
@@ -513,7 +513,16 @@ class PracticeController extends Controller
                 'answer_mapping' => $mapping // Mapping auch speichern für die Anzeige
             ]
         ]);
-        
+
+        // Debug: Prüfe Session vor Redirect
+        \Log::info('🔄 Before redirect - Session state', [
+            'user_id' => $user->id,
+            'question_id' => $question->id,
+            'has_gamification_notifications' => session()->has('gamification_notifications'),
+            'gamification_notifications' => session('gamification_notifications', []),
+            'session_id' => session()->getId()
+        ]);
+
         // WICHTIG: Immer redirect machen (Post/Redirect/Get Pattern)
         // um zu verhindern, dass bei F5 die Frage doppelt gezählt wird
         return redirect()->route('practice.index');

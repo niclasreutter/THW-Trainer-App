@@ -1,9 +1,24 @@
+@php
+    // Debug: Prüfe was in der Session ist
+    \Log::info('📋 Gamification notification component loaded', [
+        'has_notifications' => session()->has('gamification_notifications'),
+        'notifications' => session('gamification_notifications', []),
+        'all_session_keys' => array_keys(session()->all()),
+        'session_id' => session()->getId()
+    ]);
+@endphp
+
 @if(session()->has('gamification_notifications'))
     @php
         $notifications = session('gamification_notifications', []);
         session()->forget('gamification_notifications');
+
+        \Log::info('✅ Displaying gamification notifications', [
+            'count' => count($notifications),
+            'notifications' => $notifications
+        ]);
     @endphp
-    
+
     <!-- Debug: Show notification count -->
     <script>console.log('Gamification notifications found:', @json($notifications));</script>
     

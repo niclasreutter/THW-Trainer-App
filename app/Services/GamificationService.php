@@ -141,6 +141,14 @@ class GamificationService
             $allNotifications = array_merge($existingNotifications, $notifications);
             session(['gamification_notifications' => $allNotifications]);
             session()->save(); // Force save
+
+            // Debug-Logging
+            \Log::info('🎉 Gamification notifications stored in session', [
+                'user_id' => $user->id,
+                'notifications_count' => count($allNotifications),
+                'notifications' => $allNotifications,
+                'session_id' => session()->getId()
+            ]);
         }
 
         return [
@@ -429,6 +437,14 @@ class GamificationService
                 $existingNotifications[] = $notification;
                 session(['gamification_notifications' => $existingNotifications]);
                 session()->save(); // Force save
+
+                // Debug-Logging
+                \Log::info('🏆 Achievement notification stored in session', [
+                    'user_id' => $user->id,
+                    'achievement_key' => $achievementKey,
+                    'notification' => $notification,
+                    'session_id' => session()->getId()
+                ]);
             }
 
             return true; // Neues Achievement
