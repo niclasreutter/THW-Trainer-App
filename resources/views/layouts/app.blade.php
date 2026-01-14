@@ -63,14 +63,14 @@
         <!-- Schema.org Organization Markup -->
         <script type="application/ld+json">
         {
-            "@context": "https://schema.org",
-            "@type": "Organization",
+            "@@context": "https://schema.org",
+            "@@type": "Organization",
             "name": "THW-Trainer",
             "url": "{{ url('/') }}",
             "logo": "{{ asset('logo-thwtrainer.png') }}",
             "description": "Kostenlose THW Theorie Prüfungsvorbereitung für Grundausbildung, FüUF26 und weitere Lehrgänge. Lernen im Ortsverband mit eigenen Fragen möglich.",
             "areaServed": {
-                "@type": "Country",
+                "@@type": "Country",
                 "name": "Deutschland"
             }
         }
@@ -79,17 +79,17 @@
         <!-- Schema.org Course Markup für Bildungsinhalte -->
         <script type="application/ld+json">
         {
-            "@context": "https://schema.org",
-            "@type": "Course",
+            "@@context": "https://schema.org",
+            "@@type": "Course",
             "name": "THW Grundausbildung Theorie",
             "description": "Kostenlose Online-Vorbereitung für die THW Grundausbildung Theorie-Prüfung mit Prüfungssimulation und Lernfortschritt-Tracking",
             "provider": {
-                "@type": "Organization",
+                "@@type": "Organization",
                 "name": "THW-Trainer",
                 "url": "{{ url('/') }}"
             },
             "offers": {
-                "@type": "Offer",
+                "@@type": "Offer",
                 "price": "0",
                 "priceCurrency": "EUR",
                 "availability": "https://schema.org/InStock",
@@ -99,7 +99,7 @@
             "inLanguage": "de",
             "availableLanguage": "de",
             "hasCourseInstance": {
-                "@type": "CourseInstance",
+                "@@type": "CourseInstance",
                 "courseMode": "online",
                 "courseWorkload": "PT10H"
             }

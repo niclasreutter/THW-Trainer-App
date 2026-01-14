@@ -38,31 +38,9 @@
                 </h1>
 
                 <!-- Untertitel -->
-                <p class="text-lg sm:text-xl lg:text-2xl text-blue-100 mb-4 max-w-3xl mx-auto font-light leading-relaxed">
+                <p class="text-lg sm:text-xl lg:text-2xl text-blue-100 mb-8 max-w-3xl mx-auto font-light leading-relaxed">
                     Dein digitaler Begleiter für die THW Grundausbildung - Jetzt kostenlos starten!
                 </p>
-
-                <!-- Sternebewertung -->
-                <div class="flex items-center justify-center gap-2 mb-8">
-                    <div class="flex items-center gap-1" aria-label="Bewertung: 4.7 von 5 Sternen">
-                        <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                        </svg>
-                        <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                        </svg>
-                        <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                        </svg>
-                        <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                        </svg>
-                        <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                        </svg>
-                    </div>
-                    <span class="text-blue-100 font-medium text-sm lg:text-base">4.7/5 ★ (87 Bewertungen)</span>
-                </div>
 
                 <!-- CTA Button -->
                 <a href="#"
@@ -505,70 +483,70 @@ document.addEventListener('DOMContentLoaded', function() {
 <!-- FAQPage Schema -->
 <script type="application/ld+json">
 {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
+    "@@context": "https://schema.org",
+    "@@type": "FAQPage",
     "mainEntity": [
         {
-            "@type": "Question",
+            "@@type": "Question",
             "name": "Was ist die THW Grundausbildung?",
             "acceptedAnswer": {
-                "@type": "Answer",
+                "@@type": "Answer",
                 "text": "Die THW Grundausbildung ist die erste Ausbildungsstufe im Technischen Hilfswerk. Sie vermittelt die grundlegenden Kenntnisse und Fähigkeiten für alle THW-Helfer. Die Theorie-Prüfung ist ein wichtiger Bestandteil dieser Ausbildung und umfasst Themen wie Rechtsgrundlagen, Organisation des THW, Einsatzgrundlagen und technisches Wissen."
             }
         },
         {
-            "@type": "Question",
+            "@@type": "Question",
             "name": "Wie bereite ich mich auf die THW Grundausbildung Theorie vor?",
             "acceptedAnswer": {
-                "@type": "Answer",
+                "@@type": "Answer",
                 "text": "Der THW-Trainer bietet dir alle aktuellen THW-Theoriefragen zur optimalen Vorbereitung. Übe systematisch alle Themenbereiche, nutze die Prüfungssimulation und verfolge deinen Lernfortschritt. Die App funktioniert auf allen Geräten, sodass du auch unterwegs lernen kannst."
             }
         },
         {
-            "@type": "Question",
+            "@@type": "Question",
             "name": "Ist der THW-Trainer kostenlos?",
             "acceptedAnswer": {
-                "@type": "Answer",
+                "@@type": "Answer",
                 "text": "Ja, der THW-Trainer ist komplett kostenlos! Du kannst sofort mit dem Lernen beginnen, ohne jegliche Kosten. Auch eine Anmeldung ist nicht zwingend erforderlich - du kannst anonym üben oder dich kostenlos registrieren, um deinen Lernfortschritt zu speichern."
             }
         },
         {
-            "@type": "Question",
+            "@@type": "Question",
             "name": "Wie viele Fragen gibt es im THW-Trainer?",
             "acceptedAnswer": {
-                "@type": "Answer",
+                "@@type": "Answer",
                 "text": "Der THW-Trainer enthält alle aktuellen THW-Theoriefragen aus allen relevanten Bereichen der Grundausbildung. Die Fragen werden regelmäßig aktualisiert und spiegeln den aktuellen Stand der THW-Ausbildung wider."
             }
         },
         {
-            "@type": "Question",
+            "@@type": "Question",
             "name": "Welche Themen werden in der THW Grundausbildung abgefragt?",
             "acceptedAnswer": {
-                "@type": "Answer",
+                "@@type": "Answer",
                 "text": "Die THW Grundausbildung umfasst Themen wie: Rechtsgrundlagen, Organisation des THW, Einsatzgrundlagen, Gefahren der Einsatzstelle, Technische Hilfe, Einsatzablauf, Führung und Kommunikation."
             }
         },
         {
-            "@type": "Question",
+            "@@type": "Question",
             "name": "Funktioniert der THW-Trainer auf dem Handy?",
             "acceptedAnswer": {
-                "@type": "Answer",
+                "@@type": "Answer",
                 "text": "Ja, der THW-Trainer ist vollständig responsive und funktioniert optimal auf Smartphones, Tablets und Desktop-Computern. Du kannst überall und jederzeit lernen - egal ob zu Hause, unterwegs oder in der Pause."
             }
         },
         {
-            "@type": "Question",
+            "@@type": "Question",
             "name": "Wie schwer ist die THW Grundausbildung Theorie-Prüfung?",
             "acceptedAnswer": {
-                "@type": "Answer",
+                "@@type": "Answer",
                 "text": "Mit der richtigen Vorbereitung ist die THW Grundausbildung Theorie-Prüfung gut zu schaffen. Der THW-Trainer hilft dir dabei, alle wichtigen Themen zu verstehen und zu üben. Nutze die Prüfungssimulation, um dich unter realistischen Bedingungen zu testen."
             }
         },
         {
-            "@type": "Question",
+            "@@type": "Question",
             "name": "Ist der THW-Trainer offiziell vom THW?",
             "acceptedAnswer": {
-                "@type": "Answer",
+                "@@type": "Answer",
                 "text": "Der THW-Trainer ist eine private Initiative eines aktiven THW-Mitglieds und nicht offiziell vom THW herausgegeben. Die Fragen basieren jedoch auf den offiziellen Ausbildungsunterlagen und werden regelmäßig aktualisiert, um den aktuellen Stand der THW-Ausbildung zu reflektieren."
             }
         }
@@ -579,21 +557,21 @@ document.addEventListener('DOMContentLoaded', function() {
 <!-- WebApplication Schema -->
 <script type="application/ld+json">
 {
-    "@context": "https://schema.org",
-    "@type": "WebApplication",
+    "@@context": "https://schema.org",
+    "@@type": "WebApplication",
     "name": "THW-Trainer",
     "url": "{{ url('/') }}",
     "description": "Kostenlose THW Theorie Lernplattform für Grundausbildung, FüUF26 und mehr. Lernen im Ortsverband mit eigenen Fragen und Prüfungssimulation.",
     "applicationCategory": "EducationalApplication",
     "operatingSystem": "Web Browser, iOS, Android",
     "offers": {
-        "@type": "Offer",
+        "@@type": "Offer",
         "price": "0",
         "priceCurrency": "EUR",
         "availability": "https://schema.org/InStock"
     },
     "author": {
-        "@type": "Person",
+        "@@type": "Person",
         "name": "Niclas Reutter",
         "url": "https://niclas-reutter.de"
     },
@@ -608,7 +586,7 @@ document.addEventListener('DOMContentLoaded', function() {
         "Kostenlos und werbefrei"
     ],
     "aggregateRating": {
-        "@type": "AggregateRating",
+        "@@type": "AggregateRating",
         "ratingValue": "4.7",
         "bestRating": "5",
         "worstRating": "1",
@@ -620,8 +598,8 @@ document.addEventListener('DOMContentLoaded', function() {
 <!-- Organization Schema -->
 <script type="application/ld+json">
 {
-    "@context": "https://schema.org",
-    "@type": "Organization",
+    "@@context": "https://schema.org",
+    "@@type": "Organization",
     "name": "THW-Trainer",
     "url": "{{ url('/') }}",
     "logo": "{{ asset('logo-thwtrainer.png') }}",
@@ -629,7 +607,7 @@ document.addEventListener('DOMContentLoaded', function() {
         "https://github.com/niclasreutter"
     ],
     "contactPoint": {
-        "@type": "ContactPoint",
+        "@@type": "ContactPoint",
         "contactType": "Support",
         "email": "support@thw-trainer.de",
         "availableLanguage": "de"
@@ -640,11 +618,11 @@ document.addEventListener('DOMContentLoaded', function() {
 <!-- BreadcrumbList Schema -->
 <script type="application/ld+json">
 {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
+    "@@context": "https://schema.org",
+    "@@type": "BreadcrumbList",
     "itemListElement": [
         {
-            "@type": "ListItem",
+            "@@type": "ListItem",
             "position": 1,
             "name": "Home",
             "item": "{{ url('/') }}"
