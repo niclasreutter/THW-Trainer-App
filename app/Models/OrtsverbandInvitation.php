@@ -101,6 +101,33 @@ class OrtsverbandInvitation extends Model
             'role' => 'member',
             'joined_at' => now()
         ]);
+
+        // Benachrichtige Ausbildungsbeauftragten
+        $this->notifyAusbildungsbeauftragter($user);
+    }
+
+    /**
+     * Benachrichtigt den Ausbildungsbeauftragten über neues Mitglied
+     */
+    private function notifyAusbildungsbeauftragter(User $newMember): void
+    {
+        $ausbildungsbeauftragter = $this->ortsverband->creator;
+
+        if ($ausbildungsbeauftragter && $ausbildungsbeauftragter->id !== $newMember->id) {
+            Notification::create([
+                'user_id' => $ausbildungsbeauftragter->id,
+                'type' => 'ortsverband_new_member',
+                'title' => '👥 Neues Mitglied',
+                'message' => "{$newMember->name} ist deinem Ortsverband beigetreten",
+                'icon' => '👥',
+                'data' => [
+                    'ortsverband_id' => $this->ortsverband->id,
+                    'ortsverband_name' => $this->ortsverband->name,
+                    'new_member_id' => $newMember->id,
+                    'new_member_name' => $newMember->name,
+                ]
+            ]);
+        }
     }
 
     /**

@@ -164,45 +164,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/notifications/read-all', [\App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('notifications.read-all');
     Route::delete('/notifications/{id}', [\App\Http\Controllers\NotificationController::class, 'destroy'])->name('notifications.destroy');
     Route::post('/notifications/clear-read', [\App\Http\Controllers\NotificationController::class, 'clearRead'])->name('notifications.clear-read');
-
-    // Test page for notifications
-    Route::get('/test-notifications-page', function() {
-        return view('test-notifications');
-    })->name('test.notifications.page');
-
-    // Test route for notifications (temporary)
-    Route::get('/test-notification', function() {
-        $service = new \App\Services\GamificationService();
-        $user = auth()->user();
-
-        $type = request()->get('type', 'achievement');
-
-        if ($type === 'achievement') {
-            // Test achievement unlock - unlock a random one the user doesn't have
-            $allAchievements = array_keys(\App\Services\GamificationService::ACHIEVEMENTS);
-            $userAchievements = is_array($user->achievements) ? $user->achievements : json_decode($user->achievements, true) ?? [];
-            $availableAchievements = array_diff($allAchievements, $userAchievements);
-
-            if (!empty($availableAchievements)) {
-                $testAchievement = reset($availableAchievements);
-                $service->unlockAchievement($user, $testAchievement);
-                return redirect()->route('dashboard')->with('success', "Achievement '$testAchievement' freigeschaltet!");
-            } else {
-                return redirect()->route('dashboard')->with('error', 'Alle Achievements bereits freigeschaltet!');
-            }
-        } elseif ($type === 'levelup') {
-            // Test level up - add enough points to trigger level up
-            $currentLevel = $user->level;
-            $service->awardPoints($user, 500, 'Test Level Up');
-            if ($user->level > $currentLevel) {
-                return redirect()->route('dashboard')->with('success', "Level Up! Neues Level: {$user->level}");
-            } else {
-                return redirect()->route('dashboard')->with('info', "Noch kein Level Up. Aktuelles Level: {$user->level}");
-            }
-        }
-
-        return redirect()->route('dashboard');
-    })->name('test.notification');
     
     // Lehrgang Routes (für Kurse)
     Route::get('/lehrgaenge', [\App\Http\Controllers\LehrgangController::class, 'index'])->name('lehrgaenge.index');
