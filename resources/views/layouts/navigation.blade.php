@@ -215,9 +215,8 @@
             <!-- Settings Dropdown -->
             @auth
             @php
-                // TEMPORÄR: Hardcoded count für Demo
-                // TODO: Später durch echte Notifications aus DB ersetzen
-                $notificationCount = 3;
+                // Ungelesene Notifications aus DB
+                $notificationCount = Auth::user()->unreadNotifications()->count();
             @endphp
             <div class="hidden sm:flex sm:items-center sm:ms-6">
                 <!-- User Dropdown -->
@@ -292,42 +291,40 @@
                             </div>
                         </div>
                         <div class="max-h-96 overflow-y-auto">
-                            <!-- TEMPORÄR: Demo Notifications -->
-                            <a href="#" class="block px-4 py-3 hover:bg-gray-50 transition-colors duration-200 border-b border-gray-100">
-                                <div class="flex items-start space-x-3">
-                                    <span class="text-2xl">🎉</span>
-                                    <div class="flex-1">
-                                        <p class="text-sm font-medium text-gray-800">Neuer Meilenstein erreicht!</p>
-                                        <p class="text-xs text-gray-600 mt-1">Du hast 100% Fortschritt erreicht.</p>
-                                        <p class="text-xs text-gray-400 mt-1">vor 2 Stunden</p>
+                            @php
+                                $recentNotifications = Auth::user()->notifications()->limit(10)->get();
+                            @endphp
+                            @forelse($recentNotifications as $notification)
+                                <div class="block px-4 py-3 hover:bg-gray-50 transition-colors duration-200 border-b border-gray-100 {{ $notification->is_read ? 'bg-white' : 'bg-blue-50' }}"
+                                     onclick="markNotificationAsRead({{ $notification->id }})">
+                                    <div class="flex items-start space-x-3">
+                                        <span class="text-2xl">{{ $notification->icon ?? '🔔' }}</span>
+                                        <div class="flex-1">
+                                            <p class="text-sm font-medium text-gray-800">{{ $notification->title }}</p>
+                                            <p class="text-xs text-gray-600 mt-1">{{ $notification->message }}</p>
+                                            <p class="text-xs text-gray-400 mt-1">{{ $notification->created_at->diffForHumans() }}</p>
+                                        </div>
+                                        @if(!$notification->is_read)
+                                            <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
+                                        @endif
                                     </div>
                                 </div>
-                            </a>
-                            <a href="#" class="block px-4 py-3 hover:bg-gray-50 transition-colors duration-200 border-b border-gray-100">
-                                <div class="flex items-start space-x-3">
-                                    <span class="text-2xl">🏆</span>
-                                    <div class="flex-1">
-                                        <p class="text-sm font-medium text-gray-800">Neues Achievement freigeschaltet!</p>
-                                        <p class="text-xs text-gray-600 mt-1">"Prüfungsprofi" - 5 Prüfungen bestanden</p>
-                                        <p class="text-xs text-gray-400 mt-1">vor 1 Tag</p>
-                                    </div>
+                            @empty
+                                <div class="px-4 py-8 text-center text-gray-500">
+                                    <span class="text-4xl">📭</span>
+                                    <p class="mt-2 text-sm">Keine Mitteilungen vorhanden</p>
                                 </div>
-                            </a>
-                            <a href="#" class="block px-4 py-3 hover:bg-gray-50 transition-colors duration-200">
-                                <div class="flex items-start space-x-3">
-                                    <span class="text-2xl">⭐</span>
-                                    <div class="flex-1">
-                                        <p class="text-sm font-medium text-gray-800">Level Up!</p>
-                                        <p class="text-xs text-gray-600 mt-1">Du bist jetzt Level {{ Auth::user()->level ?? 1 }}</p>
-                                        <p class="text-xs text-gray-400 mt-1">vor 2 Tagen</p>
-                                    </div>
-                                </div>
-                            </a>
+                            @endforelse
                         </div>
-                        <div class="px-4 py-2 border-t border-gray-200 bg-gray-50">
+                        <div class="px-4 py-2 border-t border-gray-200 bg-gray-50 flex items-center justify-between">
                             <button onclick="document.getElementById('notificationsDropdown').classList.add('hidden'); document.getElementById('userDropdown').classList.remove('hidden');" class="text-xs text-blue-600 hover:text-blue-800 font-medium">
                                 ← Zurück
                             </button>
+                            @if($recentNotifications->count() > 0)
+                                <a href="{{ route('notifications.index') }}" class="text-xs text-blue-600 hover:text-blue-800 font-medium">
+                                    Alle anzeigen →
+                                </a>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -554,4 +551,23 @@
             }
         });
     });
+
+    // Markiert eine Notification als gelesen
+    function markNotificationAsRead(notificationId) {
+        fetch(`/notifications/${notificationId}/read`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Optional: Badge aktualisieren oder Seite neu laden
+                location.reload();
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
 </script>

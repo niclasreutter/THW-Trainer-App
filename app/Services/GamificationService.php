@@ -100,13 +100,13 @@ class GamificationService
     {
         $oldPoints = $user->points;
         $oldLevel = $user->level;
-        
+
         $user->points += $points;
         $user->level = $this->calculateLevel($user->points);
-        
+
         // Wöchentliche Punkte auch erhöhen
         $this->updateWeeklyPoints($user, $points);
-        
+
         $user->save();
 
         $notifications = [];
@@ -114,6 +114,19 @@ class GamificationService
         // Level-Up Check
         if ($user->level > $oldLevel) {
             $this->checkLevelAchievements($user);
+
+            // Erstelle persistente Notification in DB
+            $notification = $this->createNotification($user, [
+                'type' => 'level_up',
+                'title' => '🎉 Level Up!',
+                'message' => "Du hast Level {$user->level} erreicht!",
+                'icon' => '🎉',
+                'data' => [
+                    'level' => $user->level,
+                    'old_level' => $oldLevel,
+                ]
+            ]);
+
             $notifications[] = [
                 'type' => 'level_up',
                 'title' => '🎉 Level Up!',
@@ -122,7 +135,7 @@ class GamificationService
             ];
         }
 
-        // Store notifications in session
+        // Store notifications in session (für sofortige Anzeige)
         if (!empty($notifications)) {
             $existingNotifications = session('gamification_notifications', []);
             $allNotifications = array_merge($existingNotifications, $notifications);
@@ -382,15 +395,28 @@ class GamificationService
     public function unlockAchievement(User $user, string $achievementKey)
     {
         $achievements = $this->ensureArray($user->achievements);
-        
+
         if (!in_array($achievementKey, $achievements)) {
             $achievements[] = $achievementKey;
             $user->achievements = $achievements;
             $user->save();
-            
-            // Add achievement notification to session
+
+            // Add achievement notification to session + DB
             $achievement = self::ACHIEVEMENTS[$achievementKey] ?? null;
             if ($achievement) {
+                // Erstelle persistente Notification in DB
+                $this->createNotification($user, [
+                    'type' => 'achievement',
+                    'title' => '🏆 Neues Achievement!',
+                    'message' => $achievement['title'],
+                    'icon' => $achievement['icon'],
+                    'data' => [
+                        'achievement_key' => $achievementKey,
+                        'description' => $achievement['description'],
+                    ]
+                ]);
+
+                // Auch in Session für sofortige Anzeige
                 $notification = [
                     'type' => 'achievement',
                     'title' => '🏆 Neues Achievement!',
@@ -398,16 +424,16 @@ class GamificationService
                     'description' => $achievement['description'],
                     'icon' => $achievement['icon']
                 ];
-                
+
                 $existingNotifications = session('gamification_notifications', []);
                 $existingNotifications[] = $notification;
                 session(['gamification_notifications' => $existingNotifications]);
                 session()->save(); // Force save
             }
-            
+
             return true; // Neues Achievement
         }
-        
+
         return false; // Bereits vorhanden
     }
 
@@ -515,12 +541,27 @@ class GamificationService
         if (is_array($value)) {
             return $value;
         }
-        
+
         if (is_string($value)) {
             $decoded = json_decode($value, true);
             return is_array($decoded) ? $decoded : [];
         }
-        
+
         return [];
+    }
+
+    /**
+     * Erstellt eine persistente Notification in der Datenbank
+     */
+    private function createNotification(User $user, array $data)
+    {
+        return \App\Models\Notification::create([
+            'user_id' => $user->id,
+            'type' => $data['type'],
+            'title' => $data['title'],
+            'message' => $data['message'],
+            'icon' => $data['icon'] ?? null,
+            'data' => $data['data'] ?? null,
+        ]);
     }
 }

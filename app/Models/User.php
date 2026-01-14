@@ -192,4 +192,20 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(OrtsverbandLernpoolProgress::class);
     }
+
+    /**
+     * User hat viele Notifications
+     */
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class)->orderBy('created_at', 'desc');
+    }
+
+    /**
+     * Ungelesene Notifications
+     */
+    public function unreadNotifications()
+    {
+        return $this->hasMany(Notification::class)->where('is_read', false)->orderBy('created_at', 'desc');
+    }
 }
