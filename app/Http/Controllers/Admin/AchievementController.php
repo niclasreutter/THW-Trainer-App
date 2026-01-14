@@ -47,7 +47,9 @@ class AchievementController extends Controller
             'level' => 'Level',
         ];
 
-        return view('admin.achievements.create', compact('categories'));
+        $triggerTypes = Achievement::TRIGGER_TYPES;
+
+        return view('admin.achievements.create', compact('categories', 'triggerTypes'));
     }
 
     /**
@@ -63,6 +65,9 @@ class AchievementController extends Controller
             'description' => 'required|string|max:500',
             'icon' => 'nullable|string|max:10',
             'category' => 'required|string|in:general,questions,streak,exam,level',
+            'trigger_type' => 'required|string',
+            'trigger_value' => 'nullable|integer|min:0',
+            'trigger_section' => 'nullable|integer|min:1|max:10',
             'requirement_value' => 'nullable|integer|min:0',
             'is_active' => 'boolean',
             'sort_order' => 'nullable|integer|min:0',
@@ -70,6 +75,23 @@ class AchievementController extends Controller
 
         $validated['is_active'] = $request->has('is_active');
         $validated['sort_order'] = $validated['sort_order'] ?? 0;
+
+        // Baue trigger_config basierend auf trigger_type
+        $triggerConfig = [];
+        if ($request->filled('trigger_value')) {
+            $triggerConfig['value'] = (int) $request->trigger_value;
+        }
+        if ($request->filled('trigger_section')) {
+            $triggerConfig['section'] = (int) $request->trigger_section;
+        }
+        if ($request->trigger_type === 'section_complete' && !$request->filled('trigger_section')) {
+            $triggerConfig['any_section'] = true;
+        }
+
+        $validated['trigger_config'] = $triggerConfig;
+
+        // Entferne temporäre Felder
+        unset($validated['trigger_value'], $validated['trigger_section']);
 
         Achievement::create($validated);
 
@@ -95,7 +117,9 @@ class AchievementController extends Controller
             'level' => 'Level',
         ];
 
-        return view('admin.achievements.edit', compact('achievement', 'categories'));
+        $triggerTypes = Achievement::TRIGGER_TYPES;
+
+        return view('admin.achievements.edit', compact('achievement', 'categories', 'triggerTypes'));
     }
 
     /**
@@ -113,6 +137,9 @@ class AchievementController extends Controller
             'description' => 'required|string|max:500',
             'icon' => 'nullable|string|max:10',
             'category' => 'required|string|in:general,questions,streak,exam,level',
+            'trigger_type' => 'required|string',
+            'trigger_value' => 'nullable|integer|min:0',
+            'trigger_section' => 'nullable|integer|min:1|max:10',
             'requirement_value' => 'nullable|integer|min:0',
             'is_active' => 'boolean',
             'sort_order' => 'nullable|integer|min:0',
@@ -120,6 +147,23 @@ class AchievementController extends Controller
 
         $validated['is_active'] = $request->has('is_active');
         $validated['sort_order'] = $validated['sort_order'] ?? $achievement->sort_order;
+
+        // Baue trigger_config basierend auf trigger_type
+        $triggerConfig = [];
+        if ($request->filled('trigger_value')) {
+            $triggerConfig['value'] = (int) $request->trigger_value;
+        }
+        if ($request->filled('trigger_section')) {
+            $triggerConfig['section'] = (int) $request->trigger_section;
+        }
+        if ($request->trigger_type === 'section_complete' && !$request->filled('trigger_section')) {
+            $triggerConfig['any_section'] = true;
+        }
+
+        $validated['trigger_config'] = $triggerConfig;
+
+        // Entferne temporäre Felder
+        unset($validated['trigger_value'], $validated['trigger_section']);
 
         $achievement->update($validated);
 

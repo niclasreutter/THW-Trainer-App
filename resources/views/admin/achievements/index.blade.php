@@ -246,9 +246,9 @@
                     <tr>
                         <th>Icon</th>
                         <th>Titel</th>
-                        <th>Beschreibung</th>
+                        <th>Trigger-Typ</th>
                         <th>Kategorie</th>
-                        <th>Anforderung</th>
+                        <th>Config</th>
                         <th>Status</th>
                         <th>Nutzer</th>
                         <th>Aktionen</th>
@@ -263,19 +263,35 @@
                             <td>
                                 <strong>{{ $achievement->title }}</strong>
                                 <br>
-                                <small style="color: #6b7280;">Key: {{ $achievement->key }}</small>
+                                <small style="color: #6b7280;">{{ $achievement->description }}</small>
+                                <br>
+                                <small style="color: #9ca3af; font-size: 0.75rem;">Key: {{ $achievement->key }}</small>
                             </td>
-                            <td>{{ $achievement->description }}</td>
+                            <td>
+                                <span class="badge badge-general" style="font-size: 0.75rem;">
+                                    {{ \App\Models\Achievement::TRIGGER_TYPES[$achievement->trigger_type] ?? $achievement->trigger_type }}
+                                </span>
+                            </td>
                             <td>
                                 <span class="badge badge-{{ $achievement->category }}">
                                     {{ $categories[$achievement->category] ?? $achievement->category }}
                                 </span>
                             </td>
                             <td>
-                                @if($achievement->requirement_value)
-                                    {{ $achievement->requirement_value }}
-                                @else
-                                    -
+                                @php
+                                    $config = $achievement->trigger_config ?? [];
+                                @endphp
+                                @if(isset($config['value']))
+                                    <small style="color: #6b7280;">Wert: {{ $config['value'] }}</small>
+                                @endif
+                                @if(isset($config['section']))
+                                    <br><small style="color: #6b7280;">Abschnitt: {{ $config['section'] }}</small>
+                                @endif
+                                @if(isset($config['any_section']) && $config['any_section'])
+                                    <small style="color: #6b7280;">Beliebiger Abschnitt</small>
+                                @endif
+                                @if(empty($config))
+                                    <small style="color: #9ca3af;">-</small>
                                 @endif
                             </td>
                             <td>

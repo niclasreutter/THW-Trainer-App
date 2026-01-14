@@ -15,6 +15,8 @@ class Achievement extends Model
         'description',
         'icon',
         'category',
+        'trigger_type',
+        'trigger_config',
         'requirement_value',
         'is_active',
         'sort_order',
@@ -24,6 +26,21 @@ class Achievement extends Model
         'is_active' => 'boolean',
         'requirement_value' => 'integer',
         'sort_order' => 'integer',
+        'trigger_config' => 'array',
+    ];
+
+    /**
+     * Verfügbare Trigger-Typen
+     */
+    const TRIGGER_TYPES = [
+        'question_count' => 'Anzahl gelöster Fragen',
+        'question_percent' => 'Prozent aller Fragen gelöst',
+        'streak_days' => 'Streak-Tage erreicht',
+        'level_reached' => 'Level erreicht',
+        'exam_passed_count' => 'Anzahl Prüfungen bestanden',
+        'exam_perfect' => 'Perfekte Prüfung (100%)',
+        'daily_questions' => 'Fragen an einem Tag',
+        'section_complete' => 'Alle Fragen eines Abschnitts',
     ];
 
     /**

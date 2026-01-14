@@ -257,95 +257,154 @@ class GamificationService
     {
         $solvedQuestions = $this->ensureArray($user->solved_questions);
         $totalQuestions = count($solvedQuestions);
-        
-        $achievements = [
-            1 => 'first_question',
-            50 => 'questions_50',
-            100 => 'questions_100',
-            500 => 'questions_500'
-        ];
+        $totalQuestionsInDb = \App\Models\Question::count();
+        $questionPercent = $totalQuestionsInDb > 0 ? ($totalQuestions / $totalQuestionsInDb) * 100 : 0;
 
-        foreach ($achievements as $count => $achievement) {
-            if ($totalQuestions >= $count) {
-                $this->unlockAchievement($user, $achievement);
+        // Hole alle aktiven question_count und question_percent Achievements
+        $achievements = Achievement::active()
+            ->whereIn('trigger_type', ['question_count', 'question_percent'])
+            ->get();
+
+        foreach ($achievements as $achievement) {
+            $config = $achievement->trigger_config ?? [];
+            $requiredValue = $config['value'] ?? 0;
+
+            $shouldUnlock = false;
+
+            if ($achievement->trigger_type === 'question_count') {
+                $shouldUnlock = $totalQuestions >= $requiredValue;
+            } elseif ($achievement->trigger_type === 'question_percent') {
+                $shouldUnlock = $questionPercent >= $requiredValue;
+            }
+
+            if ($shouldUnlock) {
+                $this->unlockAchievement($user, $achievement->key);
             }
         }
     }
 
     private function checkStreakAchievements(User $user)
     {
-        $achievements = [
-            3 => 'streak_3',
-            7 => 'streak_7',
-            30 => 'streak_30'
-        ];
+        // Hole alle aktiven streak_days Achievements
+        $achievements = Achievement::active()
+            ->where('trigger_type', 'streak_days')
+            ->get();
 
-        foreach ($achievements as $days => $achievement) {
-            if ($user->streak_days >= $days) {
-                $this->unlockAchievement($user, $achievement);
+        foreach ($achievements as $achievement) {
+            $config = $achievement->trigger_config ?? [];
+            $requiredDays = $config['value'] ?? 0;
+
+            if ($user->streak_days >= $requiredDays) {
+                $this->unlockAchievement($user, $achievement->key);
             }
         }
     }
 
     private function checkExamAchievements(User $user, float $percentage)
     {
-        if ($user->exam_passed_count == 1) {
-            $this->unlockAchievement($user, 'exam_first');
-        }
+        // Hole alle aktiven exam Achievements
+        $achievements = Achievement::active()
+            ->whereIn('trigger_type', ['exam_passed_count', 'exam_perfect'])
+            ->get();
 
-        if ($percentage == 100) {
-            $this->unlockAchievement($user, 'exam_perfect');
+        foreach ($achievements as $achievement) {
+            $config = $achievement->trigger_config ?? [];
+
+            if ($achievement->trigger_type === 'exam_passed_count') {
+                $requiredCount = $config['value'] ?? 1;
+                if ($user->exam_passed_count >= $requiredCount) {
+                    $this->unlockAchievement($user, $achievement->key);
+                }
+            } elseif ($achievement->trigger_type === 'exam_perfect') {
+                if ($percentage == 100) {
+                    $this->unlockAchievement($user, $achievement->key);
+                }
+            }
         }
     }
 
     private function checkLevelAchievements(User $user)
     {
-        if ($user->level >= 5) {
-            $this->unlockAchievement($user, 'level_5');
-        }
-        if ($user->level >= 10) {
-            $this->unlockAchievement($user, 'level_10');
-        }
-        if ($user->level >= 15) {
-            $this->unlockAchievement($user, 'level_15');
-        }
-        if ($user->level >= 20) {
-            $this->unlockAchievement($user, 'level_20');
+        // Hole alle aktiven level_reached Achievements
+        $achievements = Achievement::active()
+            ->where('trigger_type', 'level_reached')
+            ->get();
+
+        foreach ($achievements as $achievement) {
+            $config = $achievement->trigger_config ?? [];
+            $requiredLevel = $config['value'] ?? 0;
+
+            if ($user->level >= $requiredLevel) {
+                $this->unlockAchievement($user, $achievement->key);
+            }
         }
     }
 
     private function checkDailyAchievements(User $user)
     {
-        if ($user->daily_questions_solved >= 20) {
-            $this->unlockAchievement($user, 'speed_demon');
+        // Hole alle aktiven daily_questions Achievements
+        $achievements = Achievement::active()
+            ->where('trigger_type', 'daily_questions')
+            ->get();
+
+        foreach ($achievements as $achievement) {
+            $config = $achievement->trigger_config ?? [];
+            $requiredQuestions = $config['value'] ?? 0;
+
+            if ($user->daily_questions_solved >= $requiredQuestions) {
+                $this->unlockAchievement($user, $achievement->key);
+            }
         }
     }
 
     private function checkSectionAchievements(User $user)
     {
         $solved = $this->ensureArray($user->solved_questions);
-        
-        // Überprüfe jeden Lernabschnitt (1-10)
-        for ($section = 1; $section <= 10; $section++) {
-            $sectionQuestionIds = \App\Models\Question::where('lernabschnitt', $section)->pluck('id')->toArray();
-            
-            if (!empty($sectionQuestionIds)) {
-                // Prüfe ob alle Fragen des Abschnitts gelöst sind
-                $solvedInSection = array_intersect($solved, $sectionQuestionIds);
-                
-                if (count($solvedInSection) === count($sectionQuestionIds)) {
-                    // Alle Fragen dieses Abschnitts sind gelöst
-                    // Vergebe das Achievement, wenn es noch nicht vorhanden ist
-                    $achievements = $this->ensureArray($user->achievements);
-                    if (!in_array('section_master', $achievements)) {
-                        $this->unlockAchievement($user, 'section_master');
-                        
-                        // Debug-Log
-                        \Log::info("Abschnittsmeister Achievement vergeben für User {$user->id}, Abschnitt {$section}");
+
+        // Hole alle aktiven section_complete Achievements
+        $achievements = Achievement::active()
+            ->where('trigger_type', 'section_complete')
+            ->get();
+
+        foreach ($achievements as $achievement) {
+            $config = $achievement->trigger_config ?? [];
+            $specificSection = $config['section'] ?? null;
+            $anySection = $config['any_section'] ?? false;
+
+            if ($anySection) {
+                // Prüfe ob irgendein Abschnitt komplett gelöst ist
+                for ($section = 1; $section <= 10; $section++) {
+                    if ($this->isSectionComplete($user, $section, $solved)) {
+                        $this->unlockAchievement($user, $achievement->key);
+                        break; // Ein Abschnitt reicht
                     }
+                }
+            } elseif ($specificSection) {
+                // Prüfe nur einen spezifischen Abschnitt
+                if ($this->isSectionComplete($user, $specificSection, $solved)) {
+                    $this->unlockAchievement($user, $achievement->key);
                 }
             }
         }
+    }
+
+    /**
+     * Prüft ob ein Abschnitt vollständig gelöst ist
+     */
+    private function isSectionComplete(User $user, int $section, array $solved = null): bool
+    {
+        if ($solved === null) {
+            $solved = $this->ensureArray($user->solved_questions);
+        }
+
+        $sectionQuestionIds = \App\Models\Question::where('lernabschnitt', $section)->pluck('id')->toArray();
+
+        if (empty($sectionQuestionIds)) {
+            return false;
+        }
+
+        $solvedInSection = array_intersect($solved, $sectionQuestionIds);
+        return count($solvedInSection) === count($sectionQuestionIds);
     }
 
     public function unlockAchievement(User $user, string $achievementKey)

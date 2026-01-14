@@ -159,6 +159,19 @@
         margin-bottom: 1.5rem;
         font-size: 0.9rem;
     }
+
+    .trigger-config {
+        display: none;
+        margin-top: 1rem;
+        padding: 1rem;
+        background: #f9fafb;
+        border-radius: 0.5rem;
+        border: 1px solid #e5e7eb;
+    }
+
+    .trigger-config.active {
+        display: block;
+    }
 </style>
 @endpush
 
@@ -245,14 +258,45 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label" for="requirement_value">Anforderungswert</label>
+                    <label class="form-label" for="trigger_type">🎯 Trigger-Typ (Wie wird es freigeschaltet?)</label>
+                    <select class="form-control" id="trigger_type" name="trigger_type" required>
+                        @foreach($triggerTypes as $key => $label)
+                            <option value="{{ $key }}" {{ old('trigger_type', $achievement->trigger_type) == $key ? 'selected' : '' }}>
+                                {{ $label }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <small class="form-text">Definiert die Logik, wann das Achievement freigeschaltet wird</small>
+                </div>
+
+                <!-- Dynamische Trigger-Konfiguration -->
+                @php
+                    $triggerConfig = $achievement->trigger_config ?? [];
+                    $triggerValue = $triggerConfig['value'] ?? '';
+                    $triggerSection = $triggerConfig['section'] ?? '';
+                @endphp
+
+                <div id="trigger-config-value" class="trigger-config">
+                    <label class="form-label" for="trigger_value">Wert</label>
                     <input type="number"
                            class="form-control"
-                           id="requirement_value"
-                           name="requirement_value"
-                           value="{{ old('requirement_value', $achievement->requirement_value) }}"
+                           id="trigger_value"
+                           name="trigger_value"
+                           value="{{ old('trigger_value', $triggerValue) }}"
                            min="0">
-                    <small class="form-text">z.B. 50 für "50 Fragen beantwortet" (optional)</small>
+                    <small class="form-text">z.B. 50 für "50 Fragen beantwortet"</small>
+                </div>
+
+                <div id="trigger-config-section" class="trigger-config">
+                    <label class="form-label" for="trigger_section">Abschnitt (1-10)</label>
+                    <input type="number"
+                           class="form-control"
+                           id="trigger_section"
+                           name="trigger_section"
+                           value="{{ old('trigger_section', $triggerSection) }}"
+                           min="1"
+                           max="10">
+                    <small class="form-text">Leer lassen für "irgendein Abschnitt"</small>
                 </div>
 
                 <div class="form-group">
@@ -292,4 +336,41 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const triggerTypeSelect = document.getElementById('trigger_type');
+    const valueConfig = document.getElementById('trigger-config-value');
+    const sectionConfig = document.getElementById('trigger-config-section');
+
+    function updateTriggerConfig() {
+        const triggerType = triggerTypeSelect.value;
+
+        // Reset alle
+        valueConfig.classList.remove('active');
+        sectionConfig.classList.remove('active');
+
+        // Zeige relevante Felder basierend auf Trigger-Type
+        const needsValue = [
+            'question_count',
+            'question_percent',
+            'streak_days',
+            'level_reached',
+            'exam_passed_count',
+            'daily_questions'
+        ];
+
+        if (needsValue.includes(triggerType)) {
+            valueConfig.classList.add('active');
+        }
+
+        if (triggerType === 'section_complete') {
+            sectionConfig.classList.add('active');
+        }
+    }
+
+    triggerTypeSelect.addEventListener('change', updateTriggerConfig);
+    updateTriggerConfig(); // Initial
+});
+</script>
 @endsection
