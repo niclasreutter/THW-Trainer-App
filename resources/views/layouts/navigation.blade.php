@@ -515,7 +515,43 @@
             </div>
 
             <div class="mt-3 space-y-1 px-4">
-                <a href="{{ route('profile') }}" 
+                <!-- Gamification Stats -->
+                <div class="mb-3 p-3 bg-blue-800 rounded-lg">
+                    <div class="text-xs font-semibold text-gray-300 mb-2">Deine Stats</div>
+                    <div class="grid grid-cols-3 gap-2 text-center">
+                        <div>
+                            <div class="text-lg font-bold text-yellow-400">{{ Auth::user()->level ?? 1 }}</div>
+                            <div class="text-xs text-gray-300">Level</div>
+                        </div>
+                        <div>
+                            <div class="text-lg font-bold text-green-400">{{ number_format(Auth::user()->points ?? 0) }}</div>
+                            <div class="text-xs text-gray-300">Punkte</div>
+                        </div>
+                        @if((Auth::user()->streak_days ?? 0) > 0)
+                        <div>
+                            <div class="text-lg font-bold text-orange-400">{{ Auth::user()->streak_days }}</div>
+                            <div class="text-xs text-gray-300">Streak</div>
+                        </div>
+                        @endif
+                    </div>
+                </div>
+
+                <!-- Mitteilungen -->
+                @php
+                    $mobileNotificationCount = Auth::user()->unreadNotifications()->count();
+                @endphp
+                <a href="{{ route('notifications.index') }}"
+                   class="block px-3 py-2 text-base font-medium text-white hover:text-yellow-400 hover:bg-blue-800 rounded-md transition-colors duration-200 flex items-center justify-between">
+                    <div class="flex items-center space-x-2">
+                        <span class="text-lg">🔔</span>
+                        <span>Mitteilungen</span>
+                    </div>
+                    @if($mobileNotificationCount > 0)
+                        <span class="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">{{ $mobileNotificationCount }}</span>
+                    @endif
+                </a>
+
+                <a href="{{ route('profile') }}"
                    class="block px-3 py-2 text-base font-medium text-white hover:text-yellow-400 hover:bg-blue-800 rounded-md transition-colors duration-200 flex items-center space-x-2">
                     <span class="text-lg">⚙️</span>
                     <span>Profil</span>
@@ -524,7 +560,7 @@
                 <!-- Authentication -->
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
-                    <button type="submit" 
+                    <button type="submit"
                             class="w-full text-left px-3 py-2 text-base font-medium text-white hover:text-yellow-400 hover:bg-blue-800 rounded-md transition-colors duration-200 flex items-center space-x-2">
                         <span class="text-lg">🚪</span>
                         <span>Logout</span>
