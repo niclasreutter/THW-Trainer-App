@@ -445,13 +445,19 @@ class PracticeController extends Controller
         
         // Nur wenn Frage gemeistert (2x richtig in Folge)
         if ($progress->isMastered()) {
+            \Log::info('🎯 Question mastered (2x correct)', [
+                'user_id' => $user->id,
+                'question_id' => $question->id,
+                'already_in_solved' => in_array($question->id, $solved)
+            ]);
+
             // Zu solved_questions hinzufügen (falls noch nicht drin)
             if (!in_array($question->id, $solved)) {
                 $solved[] = $question->id;
                 $user->solved_questions = array_unique($solved);
                 $user->save();
             }
-            
+
             // Entferne Frage aus exam_failed_questions falls dort vorhanden
             $failed = $this->ensureArray($user->exam_failed_questions);
             if (in_array($question->id, $failed)) {
@@ -459,7 +465,7 @@ class PracticeController extends Controller
                 $user->exam_failed_questions = array_values($failed);
                 $user->save();
             }
-            
+
             // Gamification: Punkte nur wenn gemeistert
             $gamificationService = new GamificationService();
             $gamificationResult = $gamificationService->awardQuestionPoints($user, true, $question->id);
@@ -475,9 +481,16 @@ class PracticeController extends Controller
                 session(['practice_ids' => array_values($practiceIds)]);
             }
         } else {
+            \Log::info('📝 Question not yet mastered', [
+                'user_id' => $user->id,
+                'question_id' => $question->id,
+                'is_correct' => $isCorrect,
+                'consecutive_correct' => $progress->consecutive_correct
+            ]);
+
             // Frage noch nicht gemeistert (0 oder 1x richtig)
             // KEINE Änderung an exam_failed_questions - das ist nur für Prüfungen!
-            
+
             // Gamification: Auch beim ersten richtigen Beantworten Punkte vergeben
             $gamificationService = new GamificationService();
             $gamificationResult = $gamificationService->awardQuestionPoints($user, $isCorrect, $question->id);

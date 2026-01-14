@@ -190,9 +190,19 @@ class GamificationService
 
     public function awardQuestionPoints(User $user, bool $isCorrect = true, int $questionId = null)
     {
+        \Log::info('💰 awardQuestionPoints called', [
+            'user_id' => $user->id,
+            'question_id' => $questionId,
+            'is_correct' => $isCorrect
+        ]);
+
         if (!$isCorrect) {
             // Bei falscher Antwort: Nur Aktivität aktualisieren, keine Punkte
             $this->updateUserActivity($user);
+            \Log::info('❌ Question answered incorrectly - no points awarded', [
+                'user_id' => $user->id,
+                'question_id' => $questionId
+            ]);
             return null;
         }
 
@@ -217,10 +227,17 @@ class GamificationService
         $totalPoints = $basePoints + $topWrongBonus + $streakBonus;
 
         $result = $this->awardPoints($user, $totalPoints, $reason);
-        
+
         $this->checkQuestionAchievements($user);
         $this->checkDailyAchievements($user);
         $this->checkSectionAchievements($user);
+
+        \Log::info('✅ awardQuestionPoints completed', [
+            'user_id' => $user->id,
+            'points_awarded' => $totalPoints,
+            'level_up' => $result['level_up'] ?? false,
+            'result' => $result
+        ]);
 
         return $result;
     }
