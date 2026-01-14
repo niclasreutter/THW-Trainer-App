@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'THW Theorie lernen kostenlos | THW-Trainer Prüfungsvorbereitung')
-@section('description', 'THW Theorie kostenlos lernen mit 400+ Prüfungsfragen! ✓ Grundausbildung ✓ Prüfungssimulation ✓ Lernfortschritt tracken. Jetzt ohne Anmeldung starten!')
+@section('title', 'THW Theorie kostenlos lernen 2026 | Alle Prüfungsfragen + Lernen im Ortsverband')
+@section('description', 'THW Theorie: alle aktuelle Prüfungsfragen ✓ Grundausbildung & Lehrgänge ✓ Eigene Fragen erstellen ✓ Ortsverband-Lernpools ✓ Kostenlos & werbefrei')
 
 @section('content')
 <div class="overflow-x-hidden">
@@ -32,7 +32,9 @@
             <div class="text-center px-4 max-w-[90%] w-full">
                 <!-- Haupttitel mit strukturiertem H1 -->
                 <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold mb-4 tracking-tight" style="color: white;">
-                    <span style="display: inline-block; background: linear-gradient(90deg, #fbbf24, #f59e0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">THW Theorie kostenlos üben</span>
+                    <span style="display: inline-block; background: linear-gradient(90deg, #fbbf24, #f59e0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">THW Theorie lernen</span>
+                    <br class="hidden sm:block">
+                    <span class="text-2xl sm:text-3xl lg:text-4xl font-light text-blue-100">Kostenlose Prüfungsvorbereitung 2026</span>
                 </h1>
 
                 <!-- Untertitel -->
