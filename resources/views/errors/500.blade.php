@@ -9,57 +9,107 @@
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
         }
+
+        .error-gradient {
+            background: linear-gradient(90deg, #fbbf24, #f59e0b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #00337F 0%, #002a66 100%);
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 51, 127, 0.3);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(251, 191, 36, 0.4);
+        }
+
+        .error-card {
+            background: white;
+            border-radius: 1.5rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+        }
+
+        .error-card:hover {
+            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.2);
+        }
+
+        .info-box {
+            background: rgba(251, 191, 36, 0.1);
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            border-radius: 0.75rem;
+            padding: 1rem;
+        }
     </style>
 </head>
-<body class="bg-gray-50">
+<body style="background: #f3f4f6;">
     <div class="min-h-screen flex items-center justify-center p-4">
-        <div class="max-w-md w-full text-center">
-            <!-- Logo -->
-            <div class="mb-8">
-                <div class="inline-block bg-orange-500 text-white rounded-full p-6 shadow-lg">
-                    <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                    </svg>
+        <div class="max-w-2xl w-full">
+            <div class="error-card" style="padding: 3rem;">
+                <!-- Error Code & Icon -->
+                <div class="text-center mb-6">
+                    <div class="mb-4">
+                        <div style="display: inline-block; width: 80px; height: 80px; background: linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, rgba(245, 158, 11, 0.1) 100%); border-radius: 1rem; display: flex; align-items: center; justify-content: center; font-size: 2.5rem;">
+                            ⚠️
+                        </div>
+                    </div>
+                    <h1 style="font-size: 5rem; font-weight: 800; line-height: 1; margin-bottom: 1rem;">
+                        <span class="error-gradient">500</span>
+                    </h1>
+                    <h2 style="font-size: 1.75rem; font-weight: 700; color: #00337F; margin-bottom: 1rem;">
+                        Interner Serverfehler
+                    </h2>
+                    <p style="color: #6b7280; font-size: 1rem; line-height: 1.6; max-width: 500px; margin: 0 auto;">
+                        Ups! Etwas ist auf unserer Seite schiefgelaufen.
+                        Wir wurden automatisch benachrichtigt und kümmern uns darum.
+                    </p>
                 </div>
-            </div>
 
-            <!-- Error Code -->
-            <h1 class="text-8xl font-bold text-orange-500 mb-4">500</h1>
-            
-            <!-- Error Message -->
-            <h2 class="text-2xl font-semibold text-gray-800 mb-4">
-                Interner Serverfehler
-            </h2>
-            
-            <p class="text-gray-600 mb-8">
-                Ups! Etwas ist auf unserer Seite schiefgelaufen. 
-                Wir wurden automatisch benachrichtigt und kümmern uns darum.
-            </p>
+                <!-- Info Box -->
+                <div class="info-box" style="margin-bottom: 2rem;">
+                    <p style="color: #92400e; font-size: 0.875rem; margin: 0;">
+                        <strong>💡 Tipp:</strong> Versuche die Seite neu zu laden.
+                        Sollte das Problem bestehen bleiben, kontaktiere uns bitte.
+                    </p>
+                </div>
 
-            <!-- Action Buttons -->
-            <div class="space-y-3">
-                <button onclick="window.location.reload()" 
-                        class="block w-full bg-blue-900 hover:bg-blue-800 text-yellow-400 font-semibold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg">
-                    🔄 Seite neu laden
-                </button>
-                
-                <a href="{{ route('home') }}" 
-                   class="block w-full bg-yellow-400 hover:bg-yellow-500 text-blue-900 font-semibold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-md">
-                    🏠 Zur Startseite
-                </a>
-            </div>
+                <!-- Action Buttons -->
+                <div style="display: grid; gap: 1rem;">
+                    <button onclick="window.location.reload()"
+                            class="btn-primary"
+                            style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 1rem 1.5rem; border-radius: 0.75rem; font-weight: 700; color: white; border: none; cursor: pointer;">
+                        <span>🔄</span>
+                        <span>Seite neu laden</span>
+                    </button>
 
-            <!-- Additional Help -->
-            <div class="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                <p class="text-sm text-blue-800">
-                    <strong>💡 Tipp:</strong> Versuche die Seite neu zu laden. 
-                    Sollte das Problem bestehen bleiben, kontaktiere uns bitte.
-                </p>
-            </div>
+                    <a href="{{ route('home') }}"
+                       class="btn-secondary"
+                       style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 1rem 1.5rem; border-radius: 0.75rem; font-weight: 700; text-decoration: none; color: #1e40af;">
+                        <span>🏠</span>
+                        <span>Zur Startseite</span>
+                    </a>
+                </div>
 
-            <!-- Footer Info -->
-            <div class="mt-8 text-sm text-gray-500">
-                <p>THW-Trainer - Dein digitaler Lernbegleiter</p>
+                <!-- Footer -->
+                <div class="text-center mt-8" style="padding-top: 2rem; border-top: 1px solid #e5e7eb;">
+                    <p style="color: #9ca3af; font-size: 0.875rem;">
+                        THW-Trainer - Dein digitaler Lernbegleiter
+                    </p>
+                </div>
             </div>
         </div>
     </div>
