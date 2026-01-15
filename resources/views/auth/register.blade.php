@@ -601,56 +601,68 @@
 </div>
 
 <script>
-    function animateCounter(element, target, duration = 2000) {
-        // Stelle sicher, dass target eine Zahl ist
-        const numTarget = Number(target);
-        if (isNaN(numTarget)) {
-            console.error('Invalid target:', target);
-            return;
-        }
+    (function() {
+        'use strict';
 
-        const startTime = Date.now();
-        const isPercentage = numTarget === 100;
+        function animateCounter(element, target, duration) {
+            if (!element) return;
 
-        function update() {
-            const elapsed = Date.now() - startTime;
-            const progress = Math.min(elapsed / duration, 1);
+            const isPercentage = target === 100;
+            const startTime = performance.now();
 
-            // Easing function for smooth animation
-            const easeOutQuad = 1 - Math.pow(1 - progress, 2);
-            const currentValue = Math.floor(easeOutQuad * numTarget);
+            function update(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
 
-            if (isPercentage) {
-                element.textContent = currentValue + '%';
-            } else {
-                // Format mit deutschem Tausender-Trennzeichen
-                const formatted = currentValue.toLocaleString('de-DE');
-                element.textContent = formatted + '+';
+                // Easing function
+                const eased = 1 - Math.pow(1 - progress, 2);
+                const currentValue = Math.round(eased * target);
+
+                // Update display
+                try {
+                    if (isPercentage) {
+                        element.textContent = currentValue + '%';
+                    } else if (currentValue >= 1000) {
+                        // Format für >= 1000: "1.000+"
+                        element.textContent = currentValue.toLocaleString('de-DE') + '+';
+                    } else {
+                        // Format für < 1000: "200+"
+                        element.textContent = currentValue + '+';
+                    }
+                } catch (e) {
+                    console.error('Counter update error:', e);
+                    element.textContent = target + (isPercentage ? '%' : '+');
+                }
+
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                }
             }
 
-            if (progress < 1) {
-                requestAnimationFrame(update);
-            }
+            requestAnimationFrame(update);
         }
 
-        update();
-    }
-
-    // Start animation when page loads
-    document.addEventListener('DOMContentLoaded', function() {
-        const stats = document.querySelectorAll('.auth-stat-number');
-        const targets = [200, 1000, 100];
-
-        if (stats.length === 0) {
-            console.error('No stat elements found');
-            return;
+        // Initialize on page load
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
         }
 
-        stats.forEach((stat, index) => {
-            if (index < targets.length) {
-                animateCounter(stat, targets[index]);
+        function init() {
+            const stats = document.querySelectorAll('.auth-stat-number');
+            const targets = [200, 1000, 100];
+
+            if (stats.length !== 3) {
+                console.warn('Expected 3 stat elements, found:', stats.length);
             }
-        });
-    });
+
+            stats.forEach(function(stat, index) {
+                if (targets[index] !== undefined) {
+                    animateCounter(stat, targets[index], 2000);
+                }
+            });
+        }
+    })();
 </script>
 @endsection
