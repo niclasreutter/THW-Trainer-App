@@ -519,41 +519,54 @@
 
 <script>
     function animateCounter(element, target, duration = 2000) {
+        // Stelle sicher, dass target eine Zahl ist
+        const numTarget = Number(target);
+        if (isNaN(numTarget)) {
+            console.error('Invalid target:', target);
+            return;
+        }
+
         const startTime = Date.now();
-        const startValue = 0;
-        
-        const isPercentage = target === 100;
-        const displayTarget = isPercentage ? 100 : target;
-        
+        const isPercentage = numTarget === 100;
+
         function update() {
             const elapsed = Date.now() - startTime;
             const progress = Math.min(elapsed / duration, 1);
-            
+
             // Easing function for smooth animation
             const easeOutQuad = 1 - Math.pow(1 - progress, 2);
-            const currentValue = Math.floor(easeOutQuad * displayTarget);
-            
+            const currentValue = Math.floor(easeOutQuad * numTarget);
+
             if (isPercentage) {
                 element.textContent = currentValue + '%';
             } else {
-                element.textContent = currentValue.toLocaleString('de-DE') + '+';
+                // Format mit deutschem Tausender-Trennzeichen
+                const formatted = currentValue.toLocaleString('de-DE');
+                element.textContent = formatted + '+';
             }
-            
+
             if (progress < 1) {
                 requestAnimationFrame(update);
             }
         }
-        
+
         update();
     }
-    
+
     // Start animation when page loads
     document.addEventListener('DOMContentLoaded', function() {
         const stats = document.querySelectorAll('.auth-stat-number');
         const targets = [200, 1000, 100];
-        
+
+        if (stats.length === 0) {
+            console.error('No stat elements found');
+            return;
+        }
+
         stats.forEach((stat, index) => {
-            animateCounter(stat, targets[index]);
+            if (index < targets.length) {
+                animateCounter(stat, targets[index]);
+            }
         });
     });
 </script>
