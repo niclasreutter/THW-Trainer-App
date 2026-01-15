@@ -162,42 +162,61 @@ class PracticeController extends Controller
             case 'all':
                 // Intelligente Priorisierung für Practice All:
                 // 1. Falsch beantwortete Fragen aus Exams (höchste Priorität)
-                // 2. Ungelöste Fragen
-                // 3. Wenn alle gelöst: alle Fragen in zufälliger Reihenfolge
-                
+                // 2. Nicht-gemeisterte Fragen (consecutive_correct < 2)
+                // 3. Wenn alle gemeistert: alle Fragen in zufälliger Reihenfolge
+
                 $idsToShow = [];
-                
-                // 1. Falsch beantwortete Fragen zuerst (zufällig gemischt)
+
+                // 1. Falsch beantwortete Fragen aus Prüfungen zuerst (zufällig gemischt)
                 $failedIds = array_values($failed);
                 shuffle($failedIds);
                 $idsToShow = array_merge($idsToShow, $failedIds);
-                
-                // 2. Ungelöste Fragen hinzufügen (nach Lernabschnitten sortiert, innerhalb zufällig)
-                $unsolvedIds = [];
+
+                // 2. Nicht-gemeisterte Fragen hinzufügen (consecutive_correct < 2)
+                // Das beinhaltet: Fragen mit 0 oder 1x richtig (müssen noch gemeistert werden)
+                $unmasteredIds = UserQuestionProgress::getUnmasteredQuestions($user->id);
+
+                // Hole auch Fragen die noch nie beantwortet wurden
+                $allQuestionIds = Question::pluck('id')->toArray();
+                $answeredQuestionIds = UserQuestionProgress::where('user_id', $user->id)
+                    ->pluck('question_id')
+                    ->toArray();
+                $neverAnsweredIds = array_diff($allQuestionIds, $answeredQuestionIds);
+
+                // Kombiniere unmastered + never answered
+                $toLearnIds = array_unique(array_merge($unmasteredIds, $neverAnsweredIds));
+
+                // Entferne bereits in failed list enthaltene Fragen
+                $toLearnIds = array_diff($toLearnIds, $failedIds);
+
+                // Nach Lernabschnitten sortiert, innerhalb zufällig
+                $sortedToLearnIds = [];
                 for ($section = 1; $section <= 10; $section++) {
                     $sectionIds = Question::where('lernabschnitt', $section)
-                        ->whereNotIn('id', $solved)
-                        ->whereNotIn('id', $failed) // Nicht bereits in failed list
+                        ->whereIn('id', $toLearnIds)
                         ->pluck('id')->toArray();
-                    
+
                     shuffle($sectionIds);
-                    $unsolvedIds = array_merge($unsolvedIds, $sectionIds);
+                    $sortedToLearnIds = array_merge($sortedToLearnIds, $sectionIds);
                 }
-                $idsToShow = array_merge($idsToShow, $unsolvedIds);
-                
-                // 3. Wenn keine ungelösten/failed Fragen vorhanden: alle Fragen zufällig
+                $idsToShow = array_merge($idsToShow, $sortedToLearnIds);
+
+                // 3. Wenn keine zu lernenden Fragen vorhanden: alle Fragen zufällig
                 if (empty($idsToShow)) {
                     $allIds = Question::pluck('id')->toArray();
                     shuffle($allIds);
                     $idsToShow = $allIds;
                 }
-                
+
                 // Debug-Ausgabe
                 \Log::info('Practice Mode All Debug', [
-                    'failed_count' => count($failed),
-                    'unsolved_count' => count($unsolvedIds),
+                    'user_id' => $user->id,
+                    'failed_count' => count($failedIds),
+                    'unmastered_count' => count($unmasteredIds),
+                    'never_answered_count' => count($neverAnsweredIds),
+                    'total_to_learn' => count($toLearnIds),
                     'total_ids_to_show' => count($idsToShow),
-                    'showing_all_random' => empty($failed) && empty($unsolvedIds)
+                    'showing_all_random' => empty($failedIds) && empty($toLearnIds)
                 ]);
                 break;
                 
@@ -477,11 +496,18 @@ class PracticeController extends Controller
         } else {
             // Frage noch nicht gemeistert (0 oder 1x richtig)
             // KEINE Änderung an exam_failed_questions - das ist nur für Prüfungen!
-            
+
+            // Entferne Frage aus solved_questions falls dort (für Konsistenz)
+            if (in_array($question->id, $solved)) {
+                $solved = array_diff($solved, [$question->id]);
+                $user->solved_questions = array_values($solved);
+                $user->save();
+            }
+
             // Gamification: Auch beim ersten richtigen Beantworten Punkte vergeben
             $gamificationService = new GamificationService();
             $gamificationResult = $gamificationService->awardQuestionPoints($user, $isCorrect, $question->id);
-            
+
             // Bei nicht-gemeisterter Antwort: Frage nicht aus der Session entfernen, sondern weiter hinten einreihen
             $practiceIds = session('practice_ids', []);
             if (!empty($practiceIds)) {
@@ -493,7 +519,7 @@ class PracticeController extends Controller
                     session(['practice_ids' => array_values($practiceIds)]);
                 }
             }
-            
+
             // NICHT zu skipped hinzufügen! Die Frage bleibt in practice_ids und kommt später wieder
             // Sie wird nur durch answer_result temporär "pausiert" für diese Anzeige
         }
