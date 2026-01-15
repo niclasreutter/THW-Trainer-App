@@ -436,15 +436,15 @@
 
             <div class="auth-stats">
                 <div class="auth-stat">
-                    <div class="auth-stat-number">200+</div>
+                    <div class="auth-stat-number">0</div>
                     <div class="auth-stat-label">User</div>
                 </div>
                 <div class="auth-stat">
-                    <div class="auth-stat-number">1.000+</div>
+                    <div class="auth-stat-number">0</div>
                     <div class="auth-stat-label">Fragen</div>
                 </div>
                 <div class="auth-stat">
-                    <div class="auth-stat-number">100%</div>
+                    <div class="auth-stat-number">0</div>
                     <div class="auth-stat-label">Kostenlos</div>
                 </div>
             </div>
