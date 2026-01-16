@@ -54,24 +54,29 @@ class DailyAdminReport extends Command
 
     private function generateReportData()
     {
-        $today = now()->startOfDay();
+        // Report zeigt GESTERN (kompletter Tag), da er um 08:00 Uhr läuft
         $yesterday = now()->subDay()->startOfDay();
+        $yesterdayEnd = now()->subDay()->endOfDay();
+        $twoDaysAgo = now()->subDays(2)->startOfDay();
         $lastWeek = now()->subWeek()->startOfDay();
+        $lastMonth = now()->subMonth()->startOfDay();
 
         return [
-            'date' => now()->format('d.m.Y'),
+            'date' => now()->subDay()->format('d.m.Y'), // Gestern
+            'report_day' => 'Gestern',
             'users' => [
                 'total' => User::count(),
                 'verified' => User::whereNotNull('email_verified_at')->count(),
-                'active_today' => User::where('updated_at', '>=', $today)->count(), // Verwende updated_at statt last_activity
-                'active_last_week' => User::where('updated_at', '>=', $lastWeek)->count(),
-                'new_today' => User::whereDate('created_at', $today)->count(),
-                'new_last_week' => User::where('created_at', '>=', $lastWeek)->count(),
+                'active_yesterday' => User::whereBetween('last_activity_date', [$yesterday, $yesterdayEnd])->count(),
+                'active_last_7_days' => User::where('last_activity_date', '>=', $lastWeek)->count(),
+                'active_last_30_days' => User::where('last_activity_date', '>=', $lastMonth)->count(),
+                'new_yesterday' => User::whereBetween('created_at', [$yesterday, $yesterdayEnd])->count(),
+                'new_last_7_days' => User::where('created_at', '>=', $lastWeek)->count(),
             ],
             'activity' => [
-                'questions_answered_today' => QuestionStatistic::whereDate('created_at', $today)->count(),
-                'questions_answered_yesterday' => QuestionStatistic::whereDate('created_at', $yesterday)->count(),
-                'correct_answers_today' => QuestionStatistic::whereDate('created_at', $today)->where('is_correct', true)->count(),
+                'questions_answered_yesterday' => QuestionStatistic::whereBetween('created_at', [$yesterday, $yesterdayEnd])->count(),
+                'questions_answered_2_days_ago' => QuestionStatistic::whereBetween('created_at', [$twoDaysAgo, $yesterday])->count(),
+                'correct_answers_yesterday' => QuestionStatistic::whereBetween('created_at', [$yesterday, $yesterdayEnd])->where('is_correct', true)->count(),
                 'total_questions_answered' => QuestionStatistic::count(),
                 'total_correct_answers' => QuestionStatistic::where('is_correct', true)->count(),
             ],
@@ -102,9 +107,9 @@ class DailyAdminReport extends Command
         try {
             Mail::send('emails.admin-daily-report', $reportData, function ($message) use ($email, $reportData) {
                 $message->to($email)
-                        ->subject("THW-Trainer Tagesreport - {$reportData['date']}");
+                        ->subject("THW-Trainer Tagesreport - {$reportData['date']} (Gestern)");
             });
-            
+
             $this->info("📧 E-Mail erfolgreich gesendet an: {$email}");
             
         } catch (\Exception $e) {
@@ -150,10 +155,13 @@ class DailyAdminReport extends Command
 
     private function getRecentActivity()
     {
+        $yesterday = now()->subDay()->startOfDay();
+        $yesterdayEnd = now()->subDay()->endOfDay();
+
         return [
-            'new_users_last_24h' => User::where('created_at', '>=', now()->subDay())->count(),
-            'questions_answered_last_24h' => QuestionStatistic::where('created_at', '>=', now()->subDay())->count(),
-            'exams_taken_last_24h' => DB::table('exam_statistics')->where('created_at', '>=', now()->subDay())->count(),
+            'new_users_yesterday' => User::whereBetween('created_at', [$yesterday, $yesterdayEnd])->count(),
+            'questions_answered_yesterday' => QuestionStatistic::whereBetween('created_at', [$yesterday, $yesterdayEnd])->count(),
+            'exams_taken_yesterday' => DB::table('exam_statistics')->whereBetween('created_at', [$yesterday, $yesterdayEnd])->count(),
         ];
     }
 }
