@@ -37,6 +37,7 @@
         .kpi-trend.down { color: #dc3545; }
         .kpi-trend.neutral { color: #6b7280; }
         .kpi-subtext { font-size: 12px; color: #6b7280; margin-top: 3px; }
+        .sparkline { font-size: 16px; letter-spacing: 1px; font-family: monospace; color: #0066CC; margin-top: 5px; }
 
         /* Stats Row */
         .stats-row { display: flex; justify-content: space-between; margin: 12px 0; padding: 10px 0; border-bottom: 1px solid #f3f4f6; }
@@ -102,6 +103,7 @@
                 <div class="kpi-card">
                     <div class="kpi-label">Aktive Gestern</div>
                     <div class="kpi-value">{{ number_format($users['active_yesterday']) }}</div>
+                    <div class="sparkline">{{ $users['active_sparkline'] }}</div>
                     @if($users['active_trend']['direction'] != 'neutral')
                         <div class="kpi-trend {{ $users['active_trend']['direction'] }}">
                             @if($users['active_trend']['direction'] == 'up') ↗
@@ -116,6 +118,7 @@
                 <div class="kpi-card">
                     <div class="kpi-label">Neue Registrierungen</div>
                     <div class="kpi-value">{{ number_format($users['new_yesterday']) }}</div>
+                    <div class="sparkline">{{ $users['new_sparkline'] }}</div>
                     @if($users['new_trend']['direction'] != 'neutral')
                         <div class="kpi-trend {{ $users['new_trend']['direction'] }}">
                             @if($users['new_trend']['direction'] == 'up') ↗
@@ -152,6 +155,7 @@
                 <div class="kpi-card">
                     <div class="kpi-label">Beantwortete Fragen</div>
                     <div class="kpi-value">{{ number_format($activity['questions_answered_yesterday']) }}</div>
+                    <div class="sparkline">{{ $activity['questions_sparkline'] }}</div>
                     @if($activity['questions_trend']['direction'] != 'neutral')
                         <div class="kpi-trend {{ $activity['questions_trend']['direction'] }}">
                             @if($activity['questions_trend']['direction'] == 'up') ↗
