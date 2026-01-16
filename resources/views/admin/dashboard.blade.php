@@ -395,6 +395,22 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Warte bis Chart.js geladen ist
+    if (typeof Chart === 'undefined') {
+        console.error('❌ Chart.js konnte nicht geladen werden!');
+        return;
+    }
+
+    // Debug: Überprüfe ob Daten ankommen
+    console.log('📊 Chart Data:', {
+        labels: {!! json_encode($chartData['labels'] ?? []) !!},
+        active: {!! json_encode($chartData['active'] ?? []) !!},
+        registrations: {!! json_encode($chartData['registrations'] ?? []) !!},
+        questions: {!! json_encode($chartData['questions'] ?? []) !!},
+        successRate: {!! json_encode($chartData['successRate'] ?? []) !!}
+    });
+
     // Chart.js Globale Konfiguration
     Chart.defaults.font.family = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
     Chart.defaults.color = '#6b7280';
@@ -438,97 +454,148 @@
         }
     };
 
-    // Aktive Benutzer Chart
-    new Chart(document.getElementById('activeUsersChart'), {
-        type: 'line',
-        data: {
-            labels: {!! json_encode($chartData['labels']) !!},
-            datasets: [{
-                label: 'Aktive Benutzer',
-                data: {!! json_encode($chartData['active']) !!},
-                borderColor: '#0066CC',
-                backgroundColor: 'rgba(0, 102, 204, 0.1)',
-                borderWidth: 2,
-                fill: true,
-                tension: 0.4,
-                pointRadius: 2,
-                pointHoverRadius: 5,
-                pointBackgroundColor: '#0066CC'
-            }]
-        },
-        options: commonOptions
-    });
+    // Überprüfe ob Chart.js geladen ist
+    if (typeof Chart === 'undefined') {
+        console.error('❌ Chart.js ist nicht geladen!');
+        return;
+    } else {
+        console.log('✅ Chart.js erfolgreich geladen');
+    }
 
-    // Registrierungen Chart
-    new Chart(document.getElementById('registrationsChart'), {
-        type: 'line',
-        data: {
-            labels: {!! json_encode($chartData['labels']) !!},
-            datasets: [{
-                label: 'Neue Registrierungen',
-                data: {!! json_encode($chartData['registrations']) !!},
-                borderColor: '#16a34a',
-                backgroundColor: 'rgba(22, 163, 74, 0.1)',
-                borderWidth: 2,
-                fill: true,
-                tension: 0.4,
-                pointRadius: 2,
-                pointHoverRadius: 5,
-                pointBackgroundColor: '#16a34a'
-            }]
-        },
-        options: commonOptions
-    });
-
-    // Fragen Chart
-    new Chart(document.getElementById('questionsChart'), {
-        type: 'line',
-        data: {
-            labels: {!! json_encode($chartData['labels']) !!},
-            datasets: [{
-                label: 'Beantwortete Fragen',
-                data: {!! json_encode($chartData['questions']) !!},
-                borderColor: '#f59e0b',
-                backgroundColor: 'rgba(245, 158, 11, 0.1)',
-                borderWidth: 2,
-                fill: true,
-                tension: 0.4,
-                pointRadius: 2,
-                pointHoverRadius: 5,
-                pointBackgroundColor: '#f59e0b'
-            }]
-        },
-        options: commonOptions
-    });
-
-    // Erfolgsquote Chart
-    const successOptions = { ...commonOptions };
-    successOptions.scales.y.max = 100;
-    successOptions.scales.y.ticks = {
-        ...successOptions.scales.y.ticks,
-        callback: function(value) {
-            return value + '%';
-        }
+    // Überprüfe ob Canvas-Elemente existieren
+    const canvasElements = {
+        activeUsersChart: document.getElementById('activeUsersChart'),
+        registrationsChart: document.getElementById('registrationsChart'),
+        questionsChart: document.getElementById('questionsChart'),
+        successRateChart: document.getElementById('successRateChart')
     };
 
-    new Chart(document.getElementById('successRateChart'), {
-        type: 'line',
-        data: {
-            labels: {!! json_encode($chartData['labels']) !!},
-            datasets: [{
-                label: 'Erfolgsquote',
-                data: {!! json_encode($chartData['successRate']) !!},
-                borderColor: '#8b5cf6',
-                backgroundColor: 'rgba(139, 92, 246, 0.1)',
-                borderWidth: 2,
-                fill: true,
-                tension: 0.4,
-                pointRadius: 2,
-                pointHoverRadius: 5,
-                pointBackgroundColor: '#8b5cf6'
-            }]
-        },
-        options: successOptions
-    });
+    console.log('Canvas Elemente:', canvasElements);
+
+    // Aktive Benutzer Chart
+    try {
+        if (!canvasElements.activeUsersChart) {
+            throw new Error('Canvas Element "activeUsersChart" nicht gefunden');
+        }
+        const activeChart = new Chart(document.getElementById('activeUsersChart'), {
+            type: 'line',
+            data: {
+                labels: {!! json_encode($chartData['labels']) !!},
+                datasets: [{
+                    label: 'Aktive Benutzer',
+                    data: {!! json_encode($chartData['active']) !!},
+                    borderColor: '#0066CC',
+                    backgroundColor: 'rgba(0, 102, 204, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 2,
+                    pointHoverRadius: 5,
+                    pointBackgroundColor: '#0066CC'
+                }]
+            },
+            options: commonOptions
+        });
+        console.log('✅ Aktive Benutzer Chart erstellt');
+    } catch (error) {
+        console.error('❌ Fehler bei Aktive Benutzer Chart:', error);
+    }
+
+    // Registrierungen Chart
+    try {
+        if (!canvasElements.registrationsChart) {
+            throw new Error('Canvas Element "registrationsChart" nicht gefunden');
+        }
+        const registrationsChart = new Chart(document.getElementById('registrationsChart'), {
+            type: 'line',
+            data: {
+                labels: {!! json_encode($chartData['labels']) !!},
+                datasets: [{
+                    label: 'Neue Registrierungen',
+                    data: {!! json_encode($chartData['registrations']) !!},
+                    borderColor: '#16a34a',
+                    backgroundColor: 'rgba(22, 163, 74, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 2,
+                    pointHoverRadius: 5,
+                    pointBackgroundColor: '#16a34a'
+                }]
+            },
+            options: commonOptions
+        });
+        console.log('✅ Registrierungen Chart erstellt');
+    } catch (error) {
+        console.error('❌ Fehler bei Registrierungen Chart:', error);
+    }
+
+    // Fragen Chart
+    try {
+        if (!canvasElements.questionsChart) {
+            throw new Error('Canvas Element "questionsChart" nicht gefunden');
+        }
+        const questionsChart = new Chart(document.getElementById('questionsChart'), {
+            type: 'line',
+            data: {
+                labels: {!! json_encode($chartData['labels']) !!},
+                datasets: [{
+                    label: 'Beantwortete Fragen',
+                    data: {!! json_encode($chartData['questions']) !!},
+                    borderColor: '#f59e0b',
+                    backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 2,
+                    pointHoverRadius: 5,
+                    pointBackgroundColor: '#f59e0b'
+                }]
+            },
+            options: commonOptions
+        });
+        console.log('✅ Beantwortete Fragen Chart erstellt');
+    } catch (error) {
+        console.error('❌ Fehler bei Beantwortete Fragen Chart:', error);
+    }
+
+    // Erfolgsquote Chart
+    try {
+        if (!canvasElements.successRateChart) {
+            throw new Error('Canvas Element "successRateChart" nicht gefunden');
+        }
+        const successOptions = { ...commonOptions };
+        successOptions.scales.y.max = 100;
+        successOptions.scales.y.ticks = {
+            ...successOptions.scales.y.ticks,
+            callback: function(value) {
+                return value + '%';
+            }
+        };
+
+        const successChart = new Chart(document.getElementById('successRateChart'), {
+            type: 'line',
+            data: {
+                labels: {!! json_encode($chartData['labels']) !!},
+                datasets: [{
+                    label: 'Erfolgsquote',
+                    data: {!! json_encode($chartData['successRate']) !!},
+                    borderColor: '#8b5cf6',
+                    backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 2,
+                    pointHoverRadius: 5,
+                    pointBackgroundColor: '#8b5cf6'
+                }]
+            },
+            options: successOptions
+        });
+        console.log('✅ Erfolgsquote Chart erstellt');
+    } catch (error) {
+        console.error('❌ Fehler bei Erfolgsquote Chart:', error);
+    }
+});
 </script>
 @endpush
