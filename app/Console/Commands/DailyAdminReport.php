@@ -135,6 +135,8 @@ class DailyAdminReport extends Command
             // System
             'system' => [
                 'total_questions' => Question::count(),
+                'lehrgang_questions' => \App\Models\LehrgangQuestion::count(),
+                'lernpool_questions' => \App\Models\OrtsverbandLernpoolQuestion::count(),
                 'database_size' => $this->getDatabaseSize(),
             ],
 
