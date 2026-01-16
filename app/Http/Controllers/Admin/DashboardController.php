@@ -42,7 +42,10 @@ class DashboardController extends Controller
         
         // Leaderboard Top-10
         $leaderboard = $this->getLeaderboard();
-        
+
+        // Chart-Daten für 30 Tage
+        $chartData = $this->getChartData();
+
         return view('admin.dashboard', compact(
             'systemStatus',
             'totalUsers',
@@ -57,7 +60,8 @@ class DashboardController extends Controller
             'wrongAnswerRate',
             'userActivity',
             'learningProgress',
-            'leaderboard'
+            'leaderboard',
+            'chartData'
         ));
     }
     
@@ -205,5 +209,45 @@ class DashboardController extends Controller
             ->values();
         
         return $users;
+    }
+
+    private function getChartData()
+    {
+        $labels = [];
+        $activeData = [];
+        $registrationsData = [];
+        $questionsData = [];
+        $successRateData = [];
+
+        // Sammle Daten für die letzten 30 Tage
+        for ($i = 29; $i >= 0; $i--) {
+            $day = now()->subDays($i)->startOfDay();
+            $dayEnd = now()->subDays($i)->endOfDay();
+
+            // Label (nur Tag.Monat)
+            $labels[] = $day->format('d.m');
+
+            // Aktive Benutzer
+            $activeData[] = User::whereBetween('last_activity_date', [$day, $dayEnd])->count();
+
+            // Neue Registrierungen
+            $registrationsData[] = User::whereBetween('created_at', [$day, $dayEnd])->count();
+
+            // Beantwortete Fragen
+            $questionsData[] = QuestionStatistic::whereBetween('created_at', [$day, $dayEnd])->count();
+
+            // Erfolgsquote
+            $totalQuestions = QuestionStatistic::whereBetween('created_at', [$day, $dayEnd])->count();
+            $correctQuestions = QuestionStatistic::whereBetween('created_at', [$day, $dayEnd])->where('is_correct', true)->count();
+            $successRateData[] = $totalQuestions > 0 ? round(($correctQuestions / $totalQuestions) * 100, 1) : 0;
+        }
+
+        return [
+            'labels' => $labels,
+            'active' => $activeData,
+            'registrations' => $registrationsData,
+            'questions' => $questionsData,
+            'successRate' => $successRateData
+        ];
     }
 }
