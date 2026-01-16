@@ -38,12 +38,13 @@ class SendStreakReminders extends Command
         // Finde alle Benutzer die:
         // 1. E-Mail-Zustimmung haben (email_consent = true)
         // 2. Einen Streak > 1 haben
-        // 3. Heute noch keine Fragen beantwortet haben (daily_questions_date != heute)
+        // 3. Heute noch nicht gelernt haben (last_activity_date != heute)
+        // WICHTIG: Verwendet last_activity_date (konsistent mit GamificationService)
         $users = User::where('email_consent', true)
             ->where('streak_days', '>', 1)
             ->where(function($query) use ($today) {
-                $query->whereNull('daily_questions_date')
-                      ->orWhere('daily_questions_date', '!=', $today);
+                $query->whereNull('last_activity_date')
+                      ->orWhere('last_activity_date', '!=', $today);
             })
             ->get();
         
@@ -51,10 +52,10 @@ class SendStreakReminders extends Command
         
         foreach ($users as $user) {
             try {
-                // Prüfe ob der Benutzer heute wirklich noch keine Fragen beantwortet hat
-                $lastDailyActivity = $user->daily_questions_date ? Carbon::parse($user->daily_questions_date) : null;
-                
-                if (!$lastDailyActivity || $lastDailyActivity->lt($today)) {
+                // Prüfe ob der Benutzer heute wirklich noch nicht aktiv war
+                $lastActivity = $user->last_activity_date ? Carbon::parse($user->last_activity_date) : null;
+
+                if (!$lastActivity || $lastActivity->lt($today)) {
                     $this->info("Sending streak reminder to: {$user->email} (ID: {$user->id}, Streak: {$user->streak_days} days)");
                     
                     // Sende E-Mail
