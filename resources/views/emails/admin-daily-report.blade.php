@@ -31,7 +31,7 @@
     <div class="container">
         <div class="header">
             <h1>📊 THW-Trainer Tagesreport</h1>
-            <p>Automatischer Bericht für {{ $date }}</p>
+            <p>Automatischer Bericht für {{ $date }} ({{ $report_day }})</p>
         </div>
 
         <!-- Benutzer-Statistiken -->
@@ -47,17 +47,17 @@
                     <div class="stat-label">Verifizierte Benutzer</div>
                 </div>
                 <div class="stat-card">
-                    <span class="stat-number">{{ number_format($users['active_today']) }}</span>
-                    <div class="stat-label">Aktiv heute</div>
+                    <span class="stat-number">{{ number_format($users['active_yesterday']) }}</span>
+                    <div class="stat-label">Aktiv gestern</div>
                 </div>
                 <div class="stat-card">
-                    <span class="stat-number">{{ number_format($users['new_today']) }}</span>
-                    <div class="stat-label">Neu registriert heute</div>
+                    <span class="stat-number">{{ number_format($users['new_yesterday']) }}</span>
+                    <div class="stat-label">Neu registriert gestern</div>
                 </div>
             </div>
-            
+
             <div class="alert alert-info">
-                <strong>📈 Wöchentliche Aktivität:</strong> {{ number_format($users['active_last_week']) }} aktive Benutzer in den letzten 7 Tagen
+                <strong>📈 Aktivität:</strong> {{ number_format($users['active_last_7_days']) }} aktive Benutzer in den letzten 7 Tagen | {{ number_format($users['active_last_30_days']) }} in den letzten 30 Tagen
             </div>
         </div>
 
@@ -66,12 +66,12 @@
             <h2>🎯 Lernaktivität</h2>
             <div class="stats-grid">
                 <div class="stat-card">
-                    <span class="stat-number">{{ number_format($activity['questions_answered_today']) }}</span>
-                    <div class="stat-label">Fragen heute beantwortet</div>
+                    <span class="stat-number">{{ number_format($activity['questions_answered_yesterday']) }}</span>
+                    <div class="stat-label">Fragen gestern beantwortet</div>
                 </div>
                 <div class="stat-card">
-                    <span class="stat-number">{{ number_format($activity['correct_answers_today']) }}</span>
-                    <div class="stat-label">Richtige Antworten heute</div>
+                    <span class="stat-number">{{ number_format($activity['correct_answers_yesterday']) }}</span>
+                    <div class="stat-label">Richtige Antworten gestern</div>
                 </div>
                 <div class="stat-card">
                     <span class="stat-number">{{ number_format($activity['total_questions_answered']) }}</span>
@@ -82,11 +82,11 @@
                     <div class="stat-label">Gesamt richtig</div>
                 </div>
             </div>
-            
-            @if($activity['questions_answered_today'] > 0)
-                @php $successRate = round(($activity['correct_answers_today'] / $activity['questions_answered_today']) * 100, 1); @endphp
+
+            @if($activity['questions_answered_yesterday'] > 0)
+                @php $successRate = round(($activity['correct_answers_yesterday'] / $activity['questions_answered_yesterday']) * 100, 1); @endphp
                 <div class="alert alert-success">
-                    <strong>✅ Erfolgsquote heute:</strong> {{ $successRate }}% ({{ $activity['correct_answers_today'] }}/{{ $activity['questions_answered_today'] }})
+                    <strong>✅ Erfolgsquote gestern:</strong> {{ $successRate }}% ({{ $activity['correct_answers_yesterday'] }}/{{ $activity['questions_answered_yesterday'] }})
                 </div>
             @endif
         </div>
@@ -166,11 +166,11 @@
 
         <!-- Letzte Aktivitäten -->
         <div class="section">
-            <h2>📈 Aktivität der letzten 24h</h2>
+            <h2>📈 Aktivität gestern</h2>
             <div class="alert alert-info">
-                <strong>🆕 Neue Benutzer:</strong> {{ $recent_activity['new_users_last_24h'] }}<br>
-                <strong>❓ Beantwortete Fragen:</strong> {{ $recent_activity['questions_answered_last_24h'] }}<br>
-                <strong>📝 Abgelegte Prüfungen:</strong> {{ $recent_activity['exams_taken_last_24h'] }}
+                <strong>🆕 Neue Benutzer:</strong> {{ $recent_activity['new_users_yesterday'] }}<br>
+                <strong>❓ Beantwortete Fragen:</strong> {{ $recent_activity['questions_answered_yesterday'] }}<br>
+                <strong>📝 Abgelegte Prüfungen:</strong> {{ $recent_activity['exams_taken_yesterday'] }}
             </div>
         </div>
 
