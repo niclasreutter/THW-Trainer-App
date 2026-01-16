@@ -564,13 +564,11 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!canvasElements.successRateChart) {
             throw new Error('Canvas Element "successRateChart" nicht gefunden');
         }
-        const successOptions = { ...commonOptions };
+        // Deep copy für successOptions (sonst wird commonOptions auch geändert!)
+        const successOptions = JSON.parse(JSON.stringify(commonOptions));
         successOptions.scales.y.max = 100;
-        successOptions.scales.y.ticks = {
-            ...successOptions.scales.y.ticks,
-            callback: function(value) {
-                return value + '%';
-            }
+        successOptions.scales.y.ticks.callback = function(value) {
+            return value + '%';
         };
 
         const successChart = new Chart(document.getElementById('successRateChart'), {
