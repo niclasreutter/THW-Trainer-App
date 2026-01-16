@@ -227,8 +227,11 @@ class DashboardController extends Controller
             // Label (nur Tag.Monat)
             $labels[] = $day->format('d.m');
 
-            // Aktive Benutzer
-            $activeData[] = User::whereBetween('last_activity_date', [$day, $dayEnd])->count();
+            // Aktive Benutzer (unique users die an dem Tag Fragen beantwortet haben)
+            // Verwende question_statistics als Activity Log
+            $activeData[] = QuestionStatistic::whereBetween('created_at', [$day, $dayEnd])
+                ->distinct('user_id')
+                ->count('user_id');
 
             // Neue Registrierungen
             $registrationsData[] = User::whereBetween('created_at', [$day, $dayEnd])->count();

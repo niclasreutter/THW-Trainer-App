@@ -62,8 +62,15 @@ class DailyAdminReport extends Command
         // Benutzer-Metriken
         $totalUsers = User::count();
         $verifiedUsers = User::whereNotNull('email_verified_at')->count();
-        $activeYesterday = User::whereBetween('last_activity_date', [$yesterday, $yesterdayEnd])->count();
-        $activeTwoDaysAgo = User::whereBetween('last_activity_date', [$twoDaysAgo, $twoDaysAgoEnd])->count();
+
+        // Aktive Benutzer = unique users die Fragen beantwortet haben (aus question_statistics)
+        $activeYesterday = QuestionStatistic::whereBetween('created_at', [$yesterday, $yesterdayEnd])
+            ->distinct('user_id')
+            ->count('user_id');
+        $activeTwoDaysAgo = QuestionStatistic::whereBetween('created_at', [$twoDaysAgo, $twoDaysAgoEnd])
+            ->distinct('user_id')
+            ->count('user_id');
+
         $newYesterday = User::whereBetween('created_at', [$yesterday, $yesterdayEnd])->count();
         $newTwoDaysAgo = User::whereBetween('created_at', [$twoDaysAgo, $twoDaysAgoEnd])->count();
 
@@ -98,8 +105,8 @@ class DailyAdminReport extends Command
                 'active_yesterday' => $activeYesterday,
                 'active_2_days_ago' => $activeTwoDaysAgo,
                 'active_trend' => $this->getTrend($activeYesterday, $activeTwoDaysAgo),
-                'active_last_7_days' => User::where('last_activity_date', '>=', $lastWeek)->count(),
-                'active_last_30_days' => User::where('last_activity_date', '>=', $lastMonth)->count(),
+                'active_last_7_days' => QuestionStatistic::where('created_at', '>=', $lastWeek)->distinct('user_id')->count('user_id'),
+                'active_last_30_days' => QuestionStatistic::where('created_at', '>=', $lastMonth)->distinct('user_id')->count('user_id'),
                 'active_sparkline' => $this->generateSparkline($activityLast7Days),
                 'new_yesterday' => $newYesterday,
                 'new_2_days_ago' => $newTwoDaysAgo,
@@ -248,7 +255,11 @@ class DailyAdminReport extends Command
 
             switch ($type) {
                 case 'active':
-                    $data[] = User::whereBetween('last_activity_date', [$day, $dayEnd])->count();
+                    // Aktive Benutzer = unique users die an dem Tag Fragen beantwortet haben
+                    // Verwende question_statistics als Activity Log
+                    $data[] = QuestionStatistic::whereBetween('created_at', [$day, $dayEnd])
+                        ->distinct('user_id')
+                        ->count('user_id');
                     break;
                 case 'registrations':
                     $data[] = User::whereBetween('created_at', [$day, $dayEnd])->count();
