@@ -81,6 +81,11 @@ class DailyAdminReport extends Command
         $usersWithStreak = User::where('streak_days', '>', 0)->count();
         $avgStreak = User::where('streak_days', '>', 0)->avg('streak_days');
 
+        // 7-Tage Daten für Sparklines
+        $activityLast7Days = $this->getLast7DaysData('active');
+        $registrationsLast7Days = $this->getLast7DaysData('registrations');
+        $questionsLast7Days = $this->getLast7DaysData('questions');
+
         return [
             'date' => now()->subDay()->format('d.m.Y'),
             'report_day' => 'Gestern',
@@ -95,10 +100,12 @@ class DailyAdminReport extends Command
                 'active_trend' => $this->getTrend($activeYesterday, $activeTwoDaysAgo),
                 'active_last_7_days' => User::where('last_activity_date', '>=', $lastWeek)->count(),
                 'active_last_30_days' => User::where('last_activity_date', '>=', $lastMonth)->count(),
+                'active_sparkline' => $this->generateSparkline($activityLast7Days),
                 'new_yesterday' => $newYesterday,
                 'new_2_days_ago' => $newTwoDaysAgo,
                 'new_trend' => $this->getTrend($newYesterday, $newTwoDaysAgo),
                 'new_last_7_days' => User::where('created_at', '>=', $lastWeek)->count(),
+                'new_sparkline' => $this->generateSparkline($registrationsLast7Days),
             ],
 
             // Aktivität mit Trends
@@ -106,6 +113,7 @@ class DailyAdminReport extends Command
                 'questions_answered_yesterday' => $questionsYesterday,
                 'questions_answered_2_days_ago' => $questionsTwoDaysAgo,
                 'questions_trend' => $this->getTrend($questionsYesterday, $questionsTwoDaysAgo),
+                'questions_sparkline' => $this->generateSparkline($questionsLast7Days),
                 'correct_answers_yesterday' => $correctYesterday,
                 'correct_answers_2_days_ago' => $correctTwoDaysAgo,
                 'success_rate_yesterday' => $successRateYesterday,
@@ -228,6 +236,48 @@ class DailyAdminReport extends Command
         } catch (\Exception $e) {
             return 'Unbekannt';
         }
+    }
+
+    private function getLast7DaysData($type)
+    {
+        $data = [];
+
+        for ($i = 6; $i >= 0; $i--) {
+            $day = now()->subDays($i)->startOfDay();
+            $dayEnd = now()->subDays($i)->endOfDay();
+
+            switch ($type) {
+                case 'active':
+                    $data[] = User::whereBetween('last_activity_date', [$day, $dayEnd])->count();
+                    break;
+                case 'registrations':
+                    $data[] = User::whereBetween('created_at', [$day, $dayEnd])->count();
+                    break;
+                case 'questions':
+                    $data[] = QuestionStatistic::whereBetween('created_at', [$day, $dayEnd])->count();
+                    break;
+            }
+        }
+
+        return $data;
+    }
+
+    private function generateSparkline($data)
+    {
+        if (empty($data) || max($data) == 0) {
+            return '▁▁▁▁▁▁▁';
+        }
+
+        $chars = ['▁', '▂', '▃', '▄', '▅', '▆', '▇', '█'];
+        $max = max($data);
+        $sparkline = '';
+
+        foreach ($data as $value) {
+            $index = $max > 0 ? floor(($value / $max) * (count($chars) - 1)) : 0;
+            $sparkline .= $chars[$index];
+        }
+
+        return $sparkline;
     }
 
 }
