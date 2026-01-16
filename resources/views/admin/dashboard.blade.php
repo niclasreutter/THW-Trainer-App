@@ -395,6 +395,13 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Warte bis Chart.js geladen ist
+    if (typeof Chart === 'undefined') {
+        console.error('❌ Chart.js konnte nicht geladen werden!');
+        return;
+    }
+
     // Debug: Überprüfe ob Daten ankommen
     console.log('📊 Chart Data:', {
         labels: {!! json_encode($chartData['labels'] ?? []) !!},
@@ -450,12 +457,26 @@
     // Überprüfe ob Chart.js geladen ist
     if (typeof Chart === 'undefined') {
         console.error('❌ Chart.js ist nicht geladen!');
+        return;
     } else {
         console.log('✅ Chart.js erfolgreich geladen');
     }
 
+    // Überprüfe ob Canvas-Elemente existieren
+    const canvasElements = {
+        activeUsersChart: document.getElementById('activeUsersChart'),
+        registrationsChart: document.getElementById('registrationsChart'),
+        questionsChart: document.getElementById('questionsChart'),
+        successRateChart: document.getElementById('successRateChart')
+    };
+
+    console.log('Canvas Elemente:', canvasElements);
+
     // Aktive Benutzer Chart
     try {
+        if (!canvasElements.activeUsersChart) {
+            throw new Error('Canvas Element "activeUsersChart" nicht gefunden');
+        }
         const activeChart = new Chart(document.getElementById('activeUsersChart'), {
             type: 'line',
             data: {
@@ -482,6 +503,9 @@
 
     // Registrierungen Chart
     try {
+        if (!canvasElements.registrationsChart) {
+            throw new Error('Canvas Element "registrationsChart" nicht gefunden');
+        }
         const registrationsChart = new Chart(document.getElementById('registrationsChart'), {
             type: 'line',
             data: {
@@ -508,6 +532,9 @@
 
     // Fragen Chart
     try {
+        if (!canvasElements.questionsChart) {
+            throw new Error('Canvas Element "questionsChart" nicht gefunden');
+        }
         const questionsChart = new Chart(document.getElementById('questionsChart'), {
             type: 'line',
             data: {
@@ -534,6 +561,9 @@
 
     // Erfolgsquote Chart
     try {
+        if (!canvasElements.successRateChart) {
+            throw new Error('Canvas Element "successRateChart" nicht gefunden');
+        }
         const successOptions = { ...commonOptions };
         successOptions.scales.y.max = 100;
         successOptions.scales.y.ticks = {
@@ -566,5 +596,6 @@
     } catch (error) {
         console.error('❌ Fehler bei Erfolgsquote Chart:', error);
     }
+});
 </script>
 @endpush
