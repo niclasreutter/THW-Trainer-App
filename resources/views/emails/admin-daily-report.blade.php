@@ -3,137 +3,240 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>THW-Trainer Tagesreport - {{ $date }}</title>
+    <title>THW-Trainer Admin Report - {{ $date }}</title>
     <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 20px; background-color: #f4f4f4; }
-        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        .header { text-align: center; border-bottom: 3px solid #2563eb; padding-bottom: 20px; margin-bottom: 30px; }
-        .header h1 { color: #2563eb; margin: 0; font-size: 28px; }
-        .header p { color: #666; margin: 10px 0 0 0; font-size: 16px; }
-        .section { margin-bottom: 30px; }
-        .section h2 { color: #1f2937; border-left: 4px solid #2563eb; padding-left: 15px; margin-bottom: 15px; }
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
-        .stat-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; text-align: center; }
-        .stat-number { font-size: 24px; font-weight: bold; color: #2563eb; display: block; }
-        .stat-label { font-size: 14px; color: #64748b; margin-top: 5px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; line-height: 1.5; color: #1a1a1a; background: #f5f5f5; padding: 20px; }
+        .container { max-width: 700px; margin: 0 auto; background: #ffffff; }
+
+        /* Header */
+        .header { background: linear-gradient(135deg, #0066CC 0%, #004C99 100%); color: white; padding: 30px; }
+        .header h1 { font-size: 24px; font-weight: 600; margin-bottom: 5px; }
+        .header .date { opacity: 0.9; font-size: 14px; }
+
+        /* Warnungen */
+        .warnings { padding: 20px; background: #f8f9fa; border-left: 4px solid #666; }
+        .warnings.has-danger { background: #fff5f5; border-color: #dc3545; }
+        .warnings.has-success { background: #f0fdf4; border-color: #16a34a; }
+        .warning-item { padding: 8px 0; font-size: 14px; }
+        .warning-item.danger { color: #dc3545; font-weight: 500; }
+        .warning-item.warning { color: #f59e0b; font-weight: 500; }
+        .warning-item.success { color: #16a34a; font-weight: 500; }
+
+        /* Sections */
+        .section { padding: 25px 30px; border-bottom: 1px solid #e5e7eb; }
+        .section-title { font-size: 16px; font-weight: 600; color: #374151; margin-bottom: 15px; padding-bottom: 8px; border-bottom: 2px solid #0066CC; }
+
+        /* KPI Grid */
+        .kpi-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 15px; }
+        .kpi-card { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 6px; padding: 15px; }
+        .kpi-label { font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; }
+        .kpi-value { font-size: 28px; font-weight: 700; color: #111827; line-height: 1; }
+        .kpi-trend { font-size: 13px; margin-top: 5px; font-weight: 500; }
+        .kpi-trend.up { color: #16a34a; }
+        .kpi-trend.down { color: #dc3545; }
+        .kpi-trend.neutral { color: #6b7280; }
+        .kpi-subtext { font-size: 12px; color: #6b7280; margin-top: 3px; }
+
+        /* Stats Row */
+        .stats-row { display: flex; justify-content: space-between; margin: 12px 0; padding: 10px 0; border-bottom: 1px solid #f3f4f6; }
+        .stats-row:last-child { border-bottom: none; }
+        .stats-label { font-size: 14px; color: #4b5563; }
+        .stats-value { font-size: 14px; font-weight: 600; color: #111827; }
+
+        /* Top Users Table */
         .table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        .table th, .table td { padding: 12px; text-align: left; border-bottom: 1px solid #e2e8f0; }
-        .table th { background-color: #f8fafc; font-weight: bold; color: #374151; }
-        .table tr:hover { background-color: #f8fafc; }
-        .alert { padding: 15px; border-radius: 8px; margin: 15px 0; }
-        .alert-info { background-color: #dbeafe; border-left: 4px solid #2563eb; color: #1e40af; }
-        .alert-success { background-color: #dcfce7; border-left: 4px solid #16a34a; color: #166534; }
-        .footer { text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e2e8f0; color: #64748b; font-size: 14px; }
-        .emoji { font-size: 20px; margin-right: 8px; }
+        .table th { text-align: left; font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; padding: 8px; border-bottom: 2px solid #e5e7eb; }
+        .table td { padding: 10px 8px; font-size: 14px; border-bottom: 1px solid #f3f4f6; }
+        .table tr:last-child td { border-bottom: none; }
+        .rank { display: inline-block; width: 24px; height: 24px; line-height: 24px; text-align: center; border-radius: 50%; font-weight: 600; font-size: 12px; }
+        .rank-1 { background: #fbbf24; color: #78350f; }
+        .rank-2 { background: #d1d5db; color: #374151; }
+        .rank-3 { background: #f59e0b; color: #78350f; }
+        .rank-other { background: #f3f4f6; color: #6b7280; }
+
+        /* Footer */
+        .footer { padding: 20px 30px; background: #f9fafb; text-align: center; font-size: 12px; color: #6b7280; }
+
+        /* Responsive */
+        @media only screen and (max-width: 600px) {
+            body { padding: 0; }
+            .kpi-grid { grid-template-columns: 1fr; }
+            .section { padding: 20px 15px; }
+        }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- Header -->
         <div class="header">
-            <h1>📊 THW-Trainer Tagesreport</h1>
-            <p>Automatischer Bericht für {{ $date }} ({{ $report_day }})</p>
+            <h1>THW-Trainer Admin Report</h1>
+            <div class="date">{{ $date }} ({{ $report_day }})</div>
         </div>
 
-        <!-- Benutzer-Statistiken -->
+        <!-- Warnungen / Highlights -->
+        @if(count($warnings) > 0)
+            @php
+                $hasDanger = collect($warnings)->contains('type', 'danger');
+                $hasSuccess = !$hasDanger && collect($warnings)->contains('type', 'success');
+                $warnClass = $hasDanger ? 'has-danger' : ($hasSuccess ? 'has-success' : '');
+            @endphp
+            <div class="warnings {{ $warnClass }}">
+                @foreach($warnings as $warning)
+                    <div class="warning-item {{ $warning['type'] }}">
+                        @if($warning['type'] == 'danger') ⚠️
+                        @elseif($warning['type'] == 'success') ✓
+                        @else ℹ️
+                        @endif
+                        {{ $warning['message'] }}
+                    </div>
+                @endforeach
+            </div>
+        @endif
+
+        <!-- Benutzer -->
         <div class="section">
-            <h2>👥 Benutzer-Übersicht</h2>
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <span class="stat-number">{{ number_format($users['total']) }}</span>
-                    <div class="stat-label">Gesamt Benutzer</div>
+            <div class="section-title">Benutzer</div>
+
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-label">Aktive Gestern</div>
+                    <div class="kpi-value">{{ number_format($users['active_yesterday']) }}</div>
+                    @if($users['active_trend']['direction'] != 'neutral')
+                        <div class="kpi-trend {{ $users['active_trend']['direction'] }}">
+                            @if($users['active_trend']['direction'] == 'up') ↗
+                            @else ↘
+                            @endif
+                            {{ $users['active_trend']['percentage'] }}% vs. Vortag
+                        </div>
+                    @endif
+                    <div class="kpi-subtext">{{ number_format($users['active_last_7_days']) }} in 7 Tagen</div>
                 </div>
-                <div class="stat-card">
-                    <span class="stat-number">{{ number_format($users['verified']) }}</span>
-                    <div class="stat-label">Verifizierte Benutzer</div>
-                </div>
-                <div class="stat-card">
-                    <span class="stat-number">{{ number_format($users['active_yesterday']) }}</span>
-                    <div class="stat-label">Aktiv gestern</div>
-                </div>
-                <div class="stat-card">
-                    <span class="stat-number">{{ number_format($users['new_yesterday']) }}</span>
-                    <div class="stat-label">Neu registriert gestern</div>
+
+                <div class="kpi-card">
+                    <div class="kpi-label">Neue Registrierungen</div>
+                    <div class="kpi-value">{{ number_format($users['new_yesterday']) }}</div>
+                    @if($users['new_trend']['direction'] != 'neutral')
+                        <div class="kpi-trend {{ $users['new_trend']['direction'] }}">
+                            @if($users['new_trend']['direction'] == 'up') ↗
+                            @else ↘
+                            @endif
+                            {{ $users['new_trend']['percentage'] }}% vs. Vortag
+                        </div>
+                    @endif
+                    <div class="kpi-subtext">{{ number_format($users['new_last_7_days']) }} in 7 Tagen</div>
                 </div>
             </div>
 
-            <div class="alert alert-info">
-                <strong>📈 Aktivität:</strong> {{ number_format($users['active_last_7_days']) }} aktive Benutzer in den letzten 7 Tagen | {{ number_format($users['active_last_30_days']) }} in den letzten 30 Tagen
+            <div style="margin-top: 20px;">
+                <div class="stats-row">
+                    <span class="stats-label">Gesamt Benutzer</span>
+                    <span class="stats-value">{{ number_format($users['total']) }}</span>
+                </div>
+                <div class="stats-row">
+                    <span class="stats-label">Verifizierte Accounts</span>
+                    <span class="stats-value">{{ number_format($users['verified']) }} ({{ $users['verification_rate'] }}%)</span>
+                </div>
+                <div class="stats-row">
+                    <span class="stats-label">Aktiv (30 Tage)</span>
+                    <span class="stats-value">{{ number_format($users['active_last_30_days']) }}</span>
+                </div>
             </div>
         </div>
 
-        <!-- Aktivitäts-Statistiken -->
+        <!-- Lernaktivität -->
         <div class="section">
-            <h2>🎯 Lernaktivität</h2>
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <span class="stat-number">{{ number_format($activity['questions_answered_yesterday']) }}</span>
-                    <div class="stat-label">Fragen gestern beantwortet</div>
+            <div class="section-title">Lernaktivität</div>
+
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-label">Beantwortete Fragen</div>
+                    <div class="kpi-value">{{ number_format($activity['questions_answered_yesterday']) }}</div>
+                    @if($activity['questions_trend']['direction'] != 'neutral')
+                        <div class="kpi-trend {{ $activity['questions_trend']['direction'] }}">
+                            @if($activity['questions_trend']['direction'] == 'up') ↗
+                            @else ↘
+                            @endif
+                            {{ $activity['questions_trend']['percentage'] }}% vs. Vortag
+                        </div>
+                    @endif
+                    <div class="kpi-subtext">Ø {{ $activity['avg_questions_per_user'] }} pro aktivem User</div>
                 </div>
-                <div class="stat-card">
-                    <span class="stat-number">{{ number_format($activity['correct_answers_yesterday']) }}</span>
-                    <div class="stat-label">Richtige Antworten gestern</div>
-                </div>
-                <div class="stat-card">
-                    <span class="stat-number">{{ number_format($activity['total_questions_answered']) }}</span>
-                    <div class="stat-label">Gesamt beantwortet</div>
-                </div>
-                <div class="stat-card">
-                    <span class="stat-number">{{ number_format($activity['total_correct_answers']) }}</span>
-                    <div class="stat-label">Gesamt richtig</div>
+
+                <div class="kpi-card">
+                    <div class="kpi-label">Erfolgsquote</div>
+                    <div class="kpi-value">{{ $activity['success_rate_yesterday'] }}%</div>
+                    @if($activity['success_rate_trend']['direction'] != 'neutral')
+                        <div class="kpi-trend {{ $activity['success_rate_trend']['direction'] }}">
+                            @if($activity['success_rate_trend']['direction'] == 'up') ↗
+                            @else ↘
+                            @endif
+                            {{ $activity['success_rate_trend']['percentage'] }}% vs. Vortag
+                        </div>
+                    @endif
+                    <div class="kpi-subtext">{{ number_format($activity['correct_answers_yesterday']) }} richtige Antworten</div>
                 </div>
             </div>
 
-            @if($activity['questions_answered_yesterday'] > 0)
-                @php $successRate = round(($activity['correct_answers_yesterday'] / $activity['questions_answered_yesterday']) * 100, 1); @endphp
-                <div class="alert alert-success">
-                    <strong>✅ Erfolgsquote gestern:</strong> {{ $successRate }}% ({{ $activity['correct_answers_yesterday'] }}/{{ $activity['questions_answered_yesterday'] }})
+            <div style="margin-top: 20px;">
+                <div class="stats-row">
+                    <span class="stats-label">Gesamt beantwortet (all-time)</span>
+                    <span class="stats-value">{{ number_format($activity['total_questions_answered']) }}</span>
                 </div>
-            @endif
+            </div>
         </div>
 
         <!-- Gamification -->
         <div class="section">
-            <h2>🏆 Gamification & Engagement</h2>
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <span class="stat-number">{{ number_format($gamification['total_points_awarded']) }}</span>
-                    <div class="stat-label">Gesamt vergebene Punkte</div>
-                </div>
-                <div class="stat-card">
-                    <span class="stat-number">{{ number_format($gamification['avg_points_per_user'], 0) }}</span>
-                    <div class="stat-label">Ø Punkte pro Benutzer</div>
-                </div>
-                <div class="stat-card">
-                    <span class="stat-number">{{ number_format($gamification['users_with_streak']) }}</span>
-                    <div class="stat-label">Benutzer mit Streak</div>
-                </div>
-                <div class="stat-card">
-                    <span class="stat-number">{{ number_format($gamification['top_user_points']) }}</span>
-                    <div class="stat-label">Höchste Punktzahl</div>
-                </div>
+            <div class="section-title">Engagement & Gamification</div>
+
+            <div class="stats-row">
+                <span class="stats-label">Benutzer mit aktivem Streak</span>
+                <span class="stats-value">{{ number_format($gamification['users_with_streak']) }}</span>
+            </div>
+            <div class="stats-row">
+                <span class="stats-label">Durchschnittliche Streak-Länge</span>
+                <span class="stats-value">{{ $gamification['avg_streak_length'] }} Tage</span>
+            </div>
+            <div class="stats-row">
+                <span class="stats-label">Längster aktiver Streak</span>
+                <span class="stats-value">{{ $gamification['longest_streak'] }} Tage</span>
+            </div>
+            <div class="stats-row">
+                <span class="stats-label">Durchschnitt Punkte/Benutzer</span>
+                <span class="stats-value">{{ number_format($gamification['avg_points_per_user']) }}</span>
+            </div>
+            <div class="stats-row">
+                <span class="stats-label">Benutzer Level 5+</span>
+                <span class="stats-value">{{ number_format($gamification['users_level_5_plus']) }}</span>
             </div>
         </div>
 
-        <!-- Top Benutzer -->
+        <!-- Top 5 Benutzer -->
         @if(count($top_users) > 0)
         <div class="section">
-            <h2>🥇 Top 5 Benutzer</h2>
+            <div class="section-title">Top 5 Benutzer (Punkte)</div>
+
             <table class="table">
                 <thead>
                     <tr>
+                        <th style="width: 40px;">#</th>
                         <th>Name</th>
-                        <th>Punkte</th>
-                        <th>Level</th>
-                        <th>Streak</th>
+                        <th style="text-align: right;">Punkte</th>
+                        <th style="text-align: center;">Level</th>
+                        <th style="text-align: center;">Streak</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($top_users as $user)
+                    @foreach($top_users as $index => $user)
                     <tr>
-                        <td>{{ $user['name'] }}</td>
-                        <td>{{ number_format($user['points']) }}</td>
-                        <td>{{ $user['level'] }}</td>
-                        <td>{{ $user['streak_days'] }} Tage</td>
+                        <td>
+                            <span class="rank rank-{{ $index + 1 <= 3 ? $index + 1 : 'other' }}">{{ $index + 1 }}</span>
+                        </td>
+                        <td style="font-weight: 500;">{{ $user['name'] }}</td>
+                        <td style="text-align: right; font-weight: 600;">{{ number_format($user['points']) }}</td>
+                        <td style="text-align: center;">{{ $user['level'] }}</td>
+                        <td style="text-align: center;">{{ $user['streak_days'] }}d</td>
                     </tr>
                     @endforeach
                 </tbody>
@@ -141,42 +244,24 @@
         </div>
         @endif
 
-        <!-- System-Informationen -->
+        <!-- System -->
         <div class="section">
-            <h2>⚙️ System-Status</h2>
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <span class="stat-number">{{ number_format($system['total_questions']) }}</span>
-                    <div class="stat-label">Fragen in der DB</div>
-                </div>
-                <div class="stat-card">
-                    <span class="stat-number">{{ $system['database_size'] }}</span>
-                    <div class="stat-label">Datenbank-Größe</div>
-                </div>
-                <div class="stat-card">
-                    <span class="stat-number">{{ $system['cache_hit_rate'] }}</span>
-                    <div class="stat-label">Cache Hit-Rate</div>
-                </div>
-                <div class="stat-card">
-                    <span class="stat-number">{{ $system['server_uptime'] }}</span>
-                    <div class="stat-label">Server Uptime</div>
-                </div>
+            <div class="section-title">System</div>
+
+            <div class="stats-row">
+                <span class="stats-label">Fragen in Datenbank</span>
+                <span class="stats-value">{{ number_format($system['total_questions']) }}</span>
+            </div>
+            <div class="stats-row">
+                <span class="stats-label">Datenbank-Größe</span>
+                <span class="stats-value">{{ $system['database_size'] }}</span>
             </div>
         </div>
 
-        <!-- Letzte Aktivitäten -->
-        <div class="section">
-            <h2>📈 Aktivität gestern</h2>
-            <div class="alert alert-info">
-                <strong>🆕 Neue Benutzer:</strong> {{ $recent_activity['new_users_yesterday'] }}<br>
-                <strong>❓ Beantwortete Fragen:</strong> {{ $recent_activity['questions_answered_yesterday'] }}<br>
-                <strong>📝 Abgelegte Prüfungen:</strong> {{ $recent_activity['exams_taken_yesterday'] }}
-            </div>
-        </div>
-
+        <!-- Footer -->
         <div class="footer">
-            <p>🤖 Automatisch generiert am {{ now()->format('d.m.Y H:i:s') }} Uhr</p>
-            <p>THW-Trainer.de - Dein Weg zur erfolgreichen THW-Prüfung</p>
+            <div>Automatisch generiert am {{ now()->format('d.m.Y H:i') }} Uhr</div>
+            <div style="margin-top: 5px;">THW-Trainer.de</div>
         </div>
     </div>
 </body>

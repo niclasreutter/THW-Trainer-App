@@ -30,14 +30,11 @@ class DailyAdminReport extends Command
             
             \Log::info('Täglicher Admin-Report gesendet', [
                 'email' => $email,
-                'date' => now()->format('Y-m-d'),
+                'date' => $reportData['date'],
                 'users_total' => $reportData['users']['total'],
-                'questions_answered_today' => $reportData['activity']['questions_answered_today'],
-                'mail_config' => [
-                    'driver' => config('mail.default'),
-                    'host' => config('mail.mailers.smtp.host'),
-                    'from' => config('mail.from.address')
-                ]
+                'active_yesterday' => $reportData['users']['active_yesterday'],
+                'questions_answered_yesterday' => $reportData['activity']['questions_answered_yesterday'],
+                'warnings_count' => count($reportData['warnings'])
             ]);
 
             return Command::SUCCESS;
@@ -58,48 +55,146 @@ class DailyAdminReport extends Command
         $yesterday = now()->subDay()->startOfDay();
         $yesterdayEnd = now()->subDay()->endOfDay();
         $twoDaysAgo = now()->subDays(2)->startOfDay();
+        $twoDaysAgoEnd = now()->subDays(2)->endOfDay();
         $lastWeek = now()->subWeek()->startOfDay();
         $lastMonth = now()->subMonth()->startOfDay();
 
+        // Benutzer-Metriken
+        $totalUsers = User::count();
+        $verifiedUsers = User::whereNotNull('email_verified_at')->count();
+        $activeYesterday = User::whereBetween('last_activity_date', [$yesterday, $yesterdayEnd])->count();
+        $activeTwoDaysAgo = User::whereBetween('last_activity_date', [$twoDaysAgo, $twoDaysAgoEnd])->count();
+        $newYesterday = User::whereBetween('created_at', [$yesterday, $yesterdayEnd])->count();
+        $newTwoDaysAgo = User::whereBetween('created_at', [$twoDaysAgo, $twoDaysAgoEnd])->count();
+
+        // Aktivitäts-Metriken
+        $questionsYesterday = QuestionStatistic::whereBetween('created_at', [$yesterday, $yesterdayEnd])->count();
+        $questionsTwoDaysAgo = QuestionStatistic::whereBetween('created_at', [$twoDaysAgo, $twoDaysAgoEnd])->count();
+        $correctYesterday = QuestionStatistic::whereBetween('created_at', [$yesterday, $yesterdayEnd])->where('is_correct', true)->count();
+        $correctTwoDaysAgo = QuestionStatistic::whereBetween('created_at', [$twoDaysAgo, $twoDaysAgoEnd])->where('is_correct', true)->count();
+
+        // Erfolgsquoten
+        $successRateYesterday = $questionsYesterday > 0 ? round(($correctYesterday / $questionsYesterday) * 100, 1) : 0;
+        $successRateTwoDaysAgo = $questionsTwoDaysAgo > 0 ? round(($correctTwoDaysAgo / $questionsTwoDaysAgo) * 100, 1) : 0;
+
+        // Gamification
+        $usersWithStreak = User::where('streak_days', '>', 0)->count();
+        $avgStreak = User::where('streak_days', '>', 0)->avg('streak_days');
+
         return [
-            'date' => now()->subDay()->format('d.m.Y'), // Gestern
+            'date' => now()->subDay()->format('d.m.Y'),
             'report_day' => 'Gestern',
+
+            // Benutzer mit Trends
             'users' => [
-                'total' => User::count(),
-                'verified' => User::whereNotNull('email_verified_at')->count(),
-                'active_yesterday' => User::whereBetween('last_activity_date', [$yesterday, $yesterdayEnd])->count(),
+                'total' => $totalUsers,
+                'verified' => $verifiedUsers,
+                'verification_rate' => $totalUsers > 0 ? round(($verifiedUsers / $totalUsers) * 100, 1) : 0,
+                'active_yesterday' => $activeYesterday,
+                'active_2_days_ago' => $activeTwoDaysAgo,
+                'active_trend' => $this->getTrend($activeYesterday, $activeTwoDaysAgo),
                 'active_last_7_days' => User::where('last_activity_date', '>=', $lastWeek)->count(),
                 'active_last_30_days' => User::where('last_activity_date', '>=', $lastMonth)->count(),
-                'new_yesterday' => User::whereBetween('created_at', [$yesterday, $yesterdayEnd])->count(),
+                'new_yesterday' => $newYesterday,
+                'new_2_days_ago' => $newTwoDaysAgo,
+                'new_trend' => $this->getTrend($newYesterday, $newTwoDaysAgo),
                 'new_last_7_days' => User::where('created_at', '>=', $lastWeek)->count(),
             ],
+
+            // Aktivität mit Trends
             'activity' => [
-                'questions_answered_yesterday' => QuestionStatistic::whereBetween('created_at', [$yesterday, $yesterdayEnd])->count(),
-                'questions_answered_2_days_ago' => QuestionStatistic::whereBetween('created_at', [$twoDaysAgo, $yesterday])->count(),
-                'correct_answers_yesterday' => QuestionStatistic::whereBetween('created_at', [$yesterday, $yesterdayEnd])->where('is_correct', true)->count(),
+                'questions_answered_yesterday' => $questionsYesterday,
+                'questions_answered_2_days_ago' => $questionsTwoDaysAgo,
+                'questions_trend' => $this->getTrend($questionsYesterday, $questionsTwoDaysAgo),
+                'correct_answers_yesterday' => $correctYesterday,
+                'correct_answers_2_days_ago' => $correctTwoDaysAgo,
+                'success_rate_yesterday' => $successRateYesterday,
+                'success_rate_2_days_ago' => $successRateTwoDaysAgo,
+                'success_rate_trend' => $this->getTrend($successRateYesterday, $successRateTwoDaysAgo),
+                'avg_questions_per_user' => $activeYesterday > 0 ? round($questionsYesterday / $activeYesterday, 1) : 0,
                 'total_questions_answered' => QuestionStatistic::count(),
-                'total_correct_answers' => QuestionStatistic::where('is_correct', true)->count(),
             ],
+
+            // Gamification
             'gamification' => [
+                'users_with_streak' => $usersWithStreak,
+                'avg_streak_length' => round($avgStreak ?? 0, 1),
+                'longest_streak' => User::max('streak_days') ?? 0,
                 'total_points_awarded' => User::sum('points'),
-                'avg_points_per_user' => User::avg('points'),
-                'users_with_streak' => User::where('streak_days', '>', 0)->count(),
-                'top_user_points' => User::max('points'),
+                'avg_points_per_user' => round(User::avg('points') ?? 0, 0),
                 'users_level_5_plus' => User::where('level', '>=', 5)->count(),
             ],
-            'system' => [
-                'total_questions' => Question::count(),
-                'database_size' => $this->getDatabaseSize(),
-                'cache_hit_rate' => $this->getCacheHitRate(),
-                'server_uptime' => $this->getServerUptime(),
-            ],
+
+            // Top Performer
             'top_users' => User::where('points', '>', 0)
                 ->orderByDesc('points')
                 ->limit(5)
                 ->get(['name', 'points', 'level', 'streak_days'])
                 ->toArray(),
-            'recent_activity' => $this->getRecentActivity()
+
+            // System
+            'system' => [
+                'total_questions' => Question::count(),
+                'database_size' => $this->getDatabaseSize(),
+            ],
+
+            // Warnungen
+            'warnings' => $this->getWarnings($activeYesterday, $activeTwoDaysAgo, $newYesterday, $successRateYesterday)
         ];
+    }
+
+    private function getTrend($current, $previous)
+    {
+        if ($previous == 0) {
+            return ['direction' => 'neutral', 'percentage' => 0];
+        }
+
+        $change = (($current - $previous) / $previous) * 100;
+        $direction = $change > 5 ? 'up' : ($change < -5 ? 'down' : 'neutral');
+
+        return [
+            'direction' => $direction,
+            'percentage' => round(abs($change), 1)
+        ];
+    }
+
+    private function getWarnings($activeYesterday, $activeTwoDaysAgo, $newYesterday, $successRate)
+    {
+        $warnings = [];
+
+        // Warnung: Starker Aktivitätsrückgang
+        if ($activeTwoDaysAgo > 0 && $activeYesterday < ($activeTwoDaysAgo * 0.7)) {
+            $warnings[] = [
+                'type' => 'danger',
+                'message' => 'Aktivität stark gesunken (-' . round((1 - ($activeYesterday / $activeTwoDaysAgo)) * 100) . '%)'
+            ];
+        }
+
+        // Warnung: Keine neuen User
+        if ($newYesterday == 0) {
+            $warnings[] = [
+                'type' => 'warning',
+                'message' => 'Keine neuen Registrierungen gestern'
+            ];
+        }
+
+        // Warnung: Niedrige Erfolgsquote
+        if ($successRate > 0 && $successRate < 60) {
+            $warnings[] = [
+                'type' => 'warning',
+                'message' => 'Niedrige Erfolgsquote (' . $successRate . '%)'
+            ];
+        }
+
+        // Positiv: Hohe Aktivität
+        if ($activeYesterday > $activeTwoDaysAgo * 1.2) {
+            $warnings[] = [
+                'type' => 'success',
+                'message' => 'Aktivität steigt (+' . round((($activeYesterday / $activeTwoDaysAgo) - 1) * 100) . '%)'
+            ];
+        }
+
+        return $warnings;
     }
 
     private function sendReportEmail($email, $reportData)
@@ -133,35 +228,4 @@ class DailyAdminReport extends Command
         }
     }
 
-    private function getCacheHitRate()
-    {
-        try {
-            // Vereinfachte Cache-Hit-Rate Berechnung
-            return '~95% (geschätzt)';
-        } catch (\Exception $e) {
-            return 'Unbekannt';
-        }
-    }
-
-    private function getServerUptime()
-    {
-        try {
-            $uptime = shell_exec('uptime -p 2>/dev/null');
-            return $uptime ? trim($uptime) : 'Unbekannt';
-        } catch (\Exception $e) {
-            return 'Unbekannt';
-        }
-    }
-
-    private function getRecentActivity()
-    {
-        $yesterday = now()->subDay()->startOfDay();
-        $yesterdayEnd = now()->subDay()->endOfDay();
-
-        return [
-            'new_users_yesterday' => User::whereBetween('created_at', [$yesterday, $yesterdayEnd])->count(),
-            'questions_answered_yesterday' => QuestionStatistic::whereBetween('created_at', [$yesterday, $yesterdayEnd])->count(),
-            'exams_taken_yesterday' => DB::table('exam_statistics')->whereBetween('created_at', [$yesterday, $yesterdayEnd])->count(),
-        ];
-    }
 }
