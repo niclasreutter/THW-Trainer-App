@@ -249,8 +249,20 @@
             <div class="section-title">System</div>
 
             <div class="stats-row">
-                <span class="stats-label">Fragen in Datenbank</span>
+                <span class="stats-label">Gesamt Fragen in Datenbank</span>
+                <span class="stats-value">{{ number_format($system['total_questions'] + $system['lehrgang_questions'] + $system['lernpool_questions']) }}</span>
+            </div>
+            <div class="stats-row" style="padding-left: 20px; font-size: 13px; color: #6b7280;">
+                <span class="stats-label">↳ Basis-Fragen</span>
                 <span class="stats-value">{{ number_format($system['total_questions']) }}</span>
+            </div>
+            <div class="stats-row" style="padding-left: 20px; font-size: 13px; color: #6b7280;">
+                <span class="stats-label">↳ Lehrgangs-Fragen</span>
+                <span class="stats-value">{{ number_format($system['lehrgang_questions']) }}</span>
+            </div>
+            <div class="stats-row" style="padding-left: 20px; font-size: 13px; color: #6b7280;">
+                <span class="stats-label">↳ Lernpool-Fragen</span>
+                <span class="stats-value">{{ number_format($system['lernpool_questions']) }}</span>
             </div>
             <div class="stats-row">
                 <span class="stats-label">Datenbank-Größe</span>
