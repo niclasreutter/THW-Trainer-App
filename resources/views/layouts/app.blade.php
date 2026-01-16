@@ -369,5 +369,8 @@
 
         </script>
 
+        <!-- Page-specific scripts -->
+        @stack('scripts')
+
     </body>
 </html>
