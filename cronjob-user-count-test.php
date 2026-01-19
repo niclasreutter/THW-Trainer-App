@@ -2,74 +2,35 @@
 
 /**
  * User Count History - TEST VERSION
- * Zählt täglich alle User vom VORTAG und speichert in user_count_history
- * Löscht Einträge älter als 30 Tage
+ * Wrapper für Laravel Artisan Command mit Debug-Ausgabe
  *
  * TEST KONFIGURATION:
  * - Kann manuell aufgerufen werden: php cronjob-user-count-test.php
  * - Zeigt detaillierte Debug-Info
  */
 
-// Load Laravel
-require __DIR__.'/bootstrap/app.php';
-$app->make(\Illuminate\Contracts\Console\Kernel::class)->bootstrap();
-
-use App\Models\User;
-use App\Models\UserCountHistory;
-use Carbon\Carbon;
-
 echo "=== USER COUNT HISTORY CRONJOB TEST ===\n\n";
-echo "Zeit: " . now()->format('d.m.Y H:i:s') . "\n\n";
+echo "Zeit: " . date('d.m.Y H:i:s') . "\n";
+echo "Verzeichnis: " . __DIR__ . "\n\n";
 
-try {
-    // Speichere Daten für GESTERN (vollständiger Tag)
-    $yesterday = Carbon::yesterday();
+// Wechsle ins Laravel Root-Verzeichnis
+chdir(__DIR__);
 
-    // Zähle User-Stand vom Vortag (Ende des Tages)
-    $yesterdayEnd = $yesterday->copy()->endOfDay();
-    $totalUsers = User::where('created_at', '<=', $yesterdayEnd)->count();
-    $verifiedUsers = User::whereNotNull('email_verified_at')
-        ->where('created_at', '<=', $yesterdayEnd)
-        ->count();
+echo "Führe Laravel Artisan Command aus...\n";
+echo "Command: php artisan user-count:record\n\n";
+echo "--- OUTPUT ---\n";
 
-    echo "📊 User-Statistiken vom {$yesterday->format('d.m.Y')}:\n";
-    echo "   Total User: {$totalUsers}\n";
-    echo "   Verifiziert: {$verifiedUsers}\n";
-    echo "   Unverifiziert: " . ($totalUsers - $verifiedUsers) . "\n\n";
+// Führe Artisan Command aus
+$output = [];
+$returnCode = 0;
 
-    // Erstelle oder aktualisiere Eintrag für gestern
-    UserCountHistory::updateOrCreate(
-        ['date' => $yesterday],
-        [
-            'total_users' => $totalUsers,
-            'verified_users' => $verifiedUsers,
-        ]
-    );
+exec('php artisan user-count:record 2>&1', $output, $returnCode);
 
-    echo "✅ Eintrag für {$yesterday->format('d.m.Y')} gespeichert\n\n";
+// Ausgabe anzeigen
+echo implode("\n", $output) . "\n";
 
-    // Zeige letzte Einträge
-    echo "📈 Letzte 7 Einträge:\n";
-    $recentEntries = UserCountHistory::orderBy('date', 'desc')->take(7)->get();
-    foreach ($recentEntries as $entry) {
-        echo "   {$entry->date->format('d.m.Y')}: {$entry->total_users} User ({$entry->verified_users} verifiziert)\n";
-    }
-    echo "\n";
+echo "\n--- ENDE ---\n";
+echo "Return Code: " . $returnCode . " (" . ($returnCode === 0 ? "Erfolg" : "Fehler") . ")\n";
 
-    // Lösche Einträge älter als 30 Tage
-    $cutoffDate = Carbon::today()->subDays(30);
-    $deleted = UserCountHistory::where('date', '<', $cutoffDate)->delete();
-
-    if ($deleted > 0) {
-        echo "🗑️  {$deleted} alte Einträge gelöscht (älter als {$cutoffDate->format('d.m.Y')})\n";
-    } else {
-        echo "ℹ️  Keine alten Einträge zum Löschen gefunden\n";
-    }
-
-    echo "\n✅ Cronjob erfolgreich abgeschlossen\n";
-
-} catch (\Exception $e) {
-    echo "\n❌ FEHLER: " . $e->getMessage() . "\n";
-    echo "\nStack Trace:\n" . $e->getTraceAsString() . "\n";
-    exit(1);
-}
+// Exit mit dem Return Code des Commands
+exit($returnCode);
