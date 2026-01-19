@@ -28,12 +28,17 @@
     .auth-left::before {
         content: '';
         position: absolute;
-        top: -50%;
-        right: -30%;
-        width: 80%;
-        height: 150%;
-        background: radial-gradient(circle, rgba(255,255,255,0.03) 0%, transparent 70%);
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: url('/images/bauhaus-pattern.svg');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        opacity: 0.05;
         pointer-events: none;
+        z-index: 0;
     }
 
     .auth-left::after {
@@ -393,12 +398,12 @@
     <!-- Right Panel: Confirm Password Form -->
     <div class="auth-right">
         <div class="auth-form-container">
-            <h2>🔐 Passwort bestätigen</h2>
+            <h2>Passwort bestätigen</h2>
             <p>Gib dein Passwort ein um fortzufahren</p>
 
             @if ($errors->any())
                 <div class="error-box">
-                    <h3>❌ Fehler</h3>
+                    <h3>Fehler</h3>
                     <ul>
                         @foreach ($errors->all() as $error)
                             <li>{{ $error }}</li>
@@ -412,7 +417,7 @@
 
                 <!-- Password Field -->
                 <div class="form-group">
-                    <label for="password">🔒 Passwort</label>
+                    <label for="password">Passwort</label>
                     <input id="password"
                            type="password"
                            name="password"
@@ -423,7 +428,7 @@
                 </div>
 
                 <!-- Confirm Button -->
-                <button type="submit" class="auth-btn">✅ Bestätigen</button>
+                <button type="submit" class="auth-btn">Bestätigen</button>
             </form>
         </div>
     </div>

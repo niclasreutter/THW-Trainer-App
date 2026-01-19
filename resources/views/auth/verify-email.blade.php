@@ -28,12 +28,17 @@
     .auth-left::before {
         content: '';
         position: absolute;
-        top: -50%;
-        right: -30%;
-        width: 80%;
-        height: 150%;
-        background: radial-gradient(circle, rgba(255,255,255,0.03) 0%, transparent 70%);
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: url('/images/bauhaus-pattern.svg');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        opacity: 0.05;
         pointer-events: none;
+        z-index: 0;
     }
 
     .auth-left::after {
@@ -542,18 +547,18 @@
 
             @if (session('status') == 'verification-link-sent')
                 <div class="success-box">
-                    <p>✅ Ein neuer Bestätigungslink wurde an deine E-Mail-Adresse gesendet.</p>
+                    <p>Ein neuer Bestätigungslink wurde an deine E-Mail-Adresse gesendet.</p>
                 </div>
             @endif
 
             <form method="POST" action="{{ route('verification.send') }}">
                 @csrf
-                <button type="submit" class="auth-btn">📧 Bestätigungsmail erneut senden</button>
+                <button type="submit" class="auth-btn">Bestätigungsmail erneut senden</button>
             </form>
 
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
-                <button type="submit" class="auth-secondary-btn">👋 Abmelden</button>
+                <button type="submit" class="auth-secondary-btn">Abmelden</button>
             </form>
         </div>
     </div>

@@ -30,12 +30,17 @@
     .auth-left::before {
         content: '';
         position: absolute;
-        top: -50%;
-        right: -30%;
-        width: 80%;
-        height: 150%;
-        background: radial-gradient(circle, rgba(255,255,255,0.03) 0%, transparent 70%);
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: url('/images/bauhaus-pattern.svg');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        opacity: 0.05;
         pointer-events: none;
+        z-index: 0;
     }
 
     .auth-left::after {
@@ -469,7 +474,7 @@
 
                 <!-- Email Field -->
                 <div class="form-group">
-                    <label for="email">📧 E-Mail-Adresse</label>
+                    <label for="email">E-Mail-Adresse</label>
                     <input id="email"
                            type="email"
                            name="email"
@@ -482,7 +487,7 @@
                 </div>
 
                 <!-- Reset Button -->
-                <button type="submit" class="auth-btn">🔗 Reset-Link senden</button>
+                <button type="submit" class="auth-btn">Reset-Link senden</button>
             </form>
 
             <!-- Back to Login -->

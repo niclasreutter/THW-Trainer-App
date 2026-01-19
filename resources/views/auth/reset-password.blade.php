@@ -30,12 +30,17 @@
     .auth-left::before {
         content: '';
         position: absolute;
-        top: -50%;
-        right: -30%;
-        width: 80%;
-        height: 150%;
-        background: radial-gradient(circle, rgba(255,255,255,0.03) 0%, transparent 70%);
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: url('/images/bauhaus-pattern.svg');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        opacity: 0.05;
         pointer-events: none;
+        z-index: 0;
     }
 
     .auth-left::after {
@@ -622,12 +627,12 @@
     <!-- Right Panel: Reset Form -->
     <div class="auth-right">
         <div class="auth-form-container">
-            <h2>🔒 Neues Passwort setzen</h2>
+            <h2>Neues Passwort setzen</h2>
             <p>Definiere ein sicheres neues Passwort</p>
 
             @if ($errors->any())
                 <div class="error-box">
-                    <h3>❌ Fehler beim Setzen des Passworts</h3>
+                    <h3>Fehler beim Setzen des Passworts</h3>
                     <ul>
                         @foreach ($errors->all() as $error)
                             <li>{{ $error }}</li>
@@ -642,7 +647,7 @@
 
                 <!-- Email Field (Read-only) -->
                 <div class="form-group">
-                    <label for="email">📧 E-Mail-Adresse</label>
+                    <label for="email">E-Mail-Adresse</label>
                     <input id="email"
                            type="email"
                            name="email"
@@ -656,7 +661,7 @@
 
                 <!-- New Password Field -->
                 <div class="form-group">
-                    <label for="password">🔒 Neues Passwort</label>
+                    <label for="password">Neues Passwort</label>
                     <input id="password"
                            type="password"
                            name="password"
@@ -668,7 +673,7 @@
 
                 <!-- Password Confirmation Field -->
                 <div class="form-group">
-                    <label for="password_confirmation">🔒 Passwort bestätigen</label>
+                    <label for="password_confirmation">Passwort bestätigen</label>
                     <input id="password_confirmation"
                            type="password"
                            name="password_confirmation"
@@ -679,7 +684,7 @@
                 </div>
 
                 <!-- Reset Button -->
-                <button type="submit" class="auth-btn">🔄 Passwort aktualisieren</button>
+                <button type="submit" class="auth-btn">Passwort aktualisieren</button>
             </form>
 
             <!-- Back to Login -->
