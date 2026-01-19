@@ -1,0 +1,32 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('user_count_history', function (Blueprint $table) {
+            $table->id();
+            $table->date('date')->unique()->comment('Datum der Zählung');
+            $table->integer('total_users')->default(0)->comment('Gesamtanzahl User');
+            $table->integer('verified_users')->default(0)->comment('Verifizierte User');
+            $table->timestamps();
+
+            $table->index('date');
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('user_count_history');
+    }
+};

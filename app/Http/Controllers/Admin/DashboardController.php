@@ -216,8 +216,10 @@ class DashboardController extends Controller
         $labels = [];
         $activeData = [];
         $registrationsData = [];
-        $questionsData = [];
-        $successRateData = [];
+        $questionsTotal = [];
+        $questionsCorrect = [];
+        $questionsWrong = [];
+        $userCountData = [];
 
         // Sammle Daten für die letzten 30 Tage
         for ($i = 29; $i >= 0; $i--) {
@@ -227,30 +229,34 @@ class DashboardController extends Controller
             // Label (nur Tag.Monat)
             $labels[] = $day->format('d.m');
 
-            // Aktive Benutzer (unique users die an dem Tag Fragen beantwortet haben)
-            // Verwende question_statistics als Activity Log
+            // Chart 1: Aktive Benutzer + Neue Registrierungen (kombiniert)
             $activeData[] = QuestionStatistic::whereBetween('created_at', [$day, $dayEnd])
                 ->distinct('user_id')
                 ->count('user_id');
-
-            // Neue Registrierungen
             $registrationsData[] = User::whereBetween('created_at', [$day, $dayEnd])->count();
 
-            // Beantwortete Fragen
-            $questionsData[] = QuestionStatistic::whereBetween('created_at', [$day, $dayEnd])->count();
-
-            // Erfolgsquote
+            // Chart 2: Beantwortete Fragen (Total, Richtig, Falsch)
             $totalQuestions = QuestionStatistic::whereBetween('created_at', [$day, $dayEnd])->count();
             $correctQuestions = QuestionStatistic::whereBetween('created_at', [$day, $dayEnd])->where('is_correct', true)->count();
-            $successRateData[] = $totalQuestions > 0 ? round(($correctQuestions / $totalQuestions) * 100, 1) : 0;
+            $wrongQuestions = $totalQuestions - $correctQuestions;
+
+            $questionsTotal[] = $totalQuestions;
+            $questionsCorrect[] = $correctQuestions;
+            $questionsWrong[] = $wrongQuestions;
+
+            // Chart 3: User-Verlauf (aus user_count_history Tabelle)
+            $userCount = \App\Models\UserCountHistory::whereDate('date', $day->format('Y-m-d'))->first();
+            $userCountData[] = $userCount ? $userCount->total_users : 0;
         }
 
         return [
             'labels' => $labels,
             'active' => $activeData,
             'registrations' => $registrationsData,
-            'questions' => $questionsData,
-            'successRate' => $successRateData
+            'questionsTotal' => $questionsTotal,
+            'questionsCorrect' => $questionsCorrect,
+            'questionsWrong' => $questionsWrong,
+            'userCount' => $userCountData,
         ];
     }
 }

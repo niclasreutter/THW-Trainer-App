@@ -112,10 +112,10 @@
     .status-warning { background: #f59e0b; }
 
     /* Charts */
-    .charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+    .charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
     .chart-card { background: white; border: 1px solid #e5e7eb; border-radius: 10px; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); }
     .chart-card h3 { font-size: 1rem; font-weight: 700; color: #1f2937; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
-    .chart-container { position: relative; height: 250px; }
+    .chart-container { position: relative; height: 280px; }
 
     @media (max-width: 768px) {
         .admin-container { padding: 1rem; }
@@ -324,23 +324,15 @@
         <!-- Statistiken Charts (30 Tage) -->
         <div class="section-title">📊 Statistiken (30 Tage)</div>
         <div class="charts-grid">
-            <!-- Aktive Benutzer Chart -->
+            <!-- Chart 1: Aktive Benutzer + Registrierungen -->
             <div class="chart-card">
-                <h3>👥 Aktive Benutzer</h3>
+                <h3>👥 Benutzeraktivität</h3>
                 <div class="chart-container">
-                    <canvas id="activeUsersChart"></canvas>
+                    <canvas id="userActivityChart"></canvas>
                 </div>
             </div>
 
-            <!-- Neue Registrierungen Chart -->
-            <div class="chart-card">
-                <h3>🆕 Neue Registrierungen</h3>
-                <div class="chart-container">
-                    <canvas id="registrationsChart"></canvas>
-                </div>
-            </div>
-
-            <!-- Beantwortete Fragen Chart -->
+            <!-- Chart 2: Beantwortete Fragen (Total, Richtig, Falsch) -->
             <div class="chart-card">
                 <h3>❓ Beantwortete Fragen</h3>
                 <div class="chart-container">
@@ -348,11 +340,11 @@
                 </div>
             </div>
 
-            <!-- Erfolgsquote Chart -->
+            <!-- Chart 3: User-Verlauf -->
             <div class="chart-card">
-                <h3>✅ Erfolgsquote %</h3>
+                <h3>📈 User-Wachstum</h3>
                 <div class="chart-container">
-                    <canvas id="successRateChart"></canvas>
+                    <canvas id="userGrowthChart"></canvas>
                 </div>
             </div>
         </div>
@@ -402,14 +394,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
     }
 
-    // Debug: Überprüfe ob Daten ankommen
-    console.log('📊 Chart Data:', {
-        labels: {!! json_encode($chartData['labels'] ?? []) !!},
-        active: {!! json_encode($chartData['active'] ?? []) !!},
-        registrations: {!! json_encode($chartData['registrations'] ?? []) !!},
-        questions: {!! json_encode($chartData['questions'] ?? []) !!},
-        successRate: {!! json_encode($chartData['successRate'] ?? []) !!}
-    });
+    console.log('✅ Chart.js geladen');
 
     // Chart.js Globale Konfiguration
     Chart.defaults.font.family = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
@@ -419,9 +404,19 @@ document.addEventListener('DOMContentLoaded', function() {
     const commonOptions = {
         responsive: true,
         maintainAspectRatio: false,
+        interaction: {
+            mode: 'index',
+            intersect: false,
+        },
         plugins: {
             legend: {
-                display: false
+                display: true,
+                position: 'top',
+                labels: {
+                    usePointStyle: true,
+                    padding: 15,
+                    font: { size: 11 }
+                }
             },
             tooltip: {
                 backgroundColor: 'rgba(0, 0, 0, 0.8)',
@@ -434,17 +429,11 @@ document.addEventListener('DOMContentLoaded', function() {
         scales: {
             y: {
                 beginAtZero: true,
-                grid: {
-                    color: '#f3f4f6'
-                },
-                ticks: {
-                    font: { size: 10 }
-                }
+                grid: { color: '#f3f4f6' },
+                ticks: { font: { size: 10 } }
             },
             x: {
-                grid: {
-                    display: false
-                },
+                grid: { display: false },
                 ticks: {
                     font: { size: 9 },
                     maxRotation: 45,
@@ -454,145 +443,116 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 
-    // Überprüfe ob Chart.js geladen ist
-    if (typeof Chart === 'undefined') {
-        console.error('❌ Chart.js ist nicht geladen!');
-        return;
-    } else {
-        console.log('✅ Chart.js erfolgreich geladen');
-    }
-
-    // Überprüfe ob Canvas-Elemente existieren
-    const canvasElements = {
-        activeUsersChart: document.getElementById('activeUsersChart'),
-        registrationsChart: document.getElementById('registrationsChart'),
-        questionsChart: document.getElementById('questionsChart'),
-        successRateChart: document.getElementById('successRateChart')
-    };
-
-    console.log('Canvas Elemente:', canvasElements);
-
-    // Aktive Benutzer Chart
+    // Chart 1: Benutzeraktivität (Aktive + Registrierungen)
     try {
-        if (!canvasElements.activeUsersChart) {
-            throw new Error('Canvas Element "activeUsersChart" nicht gefunden');
-        }
-        const activeChart = new Chart(document.getElementById('activeUsersChart'), {
+        new Chart(document.getElementById('userActivityChart'), {
             type: 'line',
             data: {
                 labels: {!! json_encode($chartData['labels']) !!},
-                datasets: [{
-                    label: 'Aktive Benutzer',
-                    data: {!! json_encode($chartData['active']) !!},
-                    borderColor: '#0066CC',
-                    backgroundColor: 'rgba(0, 102, 204, 0.1)',
-                    borderWidth: 2,
-                    fill: true,
-                    tension: 0.4,
-                    pointRadius: 2,
-                    pointHoverRadius: 5,
-                    pointBackgroundColor: '#0066CC'
-                }]
+                datasets: [
+                    {
+                        label: 'Aktive Benutzer',
+                        data: {!! json_encode($chartData['active']) !!},
+                        borderColor: '#0066CC',
+                        backgroundColor: 'rgba(0, 102, 204, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 2,
+                        pointHoverRadius: 5
+                    },
+                    {
+                        label: 'Neue Registrierungen',
+                        data: {!! json_encode($chartData['registrations']) !!},
+                        borderColor: '#16a34a',
+                        backgroundColor: 'rgba(22, 163, 74, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 2,
+                        pointHoverRadius: 5
+                    }
+                ]
             },
             options: commonOptions
         });
-        console.log('✅ Aktive Benutzer Chart erstellt');
+        console.log('✅ Benutzeraktivität Chart erstellt');
     } catch (error) {
-        console.error('❌ Fehler bei Aktive Benutzer Chart:', error);
+        console.error('❌ Fehler bei Benutzeraktivität Chart:', error);
     }
 
-    // Registrierungen Chart
+    // Chart 2: Beantwortete Fragen (Total, Richtig, Falsch)
     try {
-        if (!canvasElements.registrationsChart) {
-            throw new Error('Canvas Element "registrationsChart" nicht gefunden');
-        }
-        const registrationsChart = new Chart(document.getElementById('registrationsChart'), {
+        new Chart(document.getElementById('questionsChart'), {
             type: 'line',
             data: {
                 labels: {!! json_encode($chartData['labels']) !!},
-                datasets: [{
-                    label: 'Neue Registrierungen',
-                    data: {!! json_encode($chartData['registrations']) !!},
-                    borderColor: '#16a34a',
-                    backgroundColor: 'rgba(22, 163, 74, 0.1)',
-                    borderWidth: 2,
-                    fill: true,
-                    tension: 0.4,
-                    pointRadius: 2,
-                    pointHoverRadius: 5,
-                    pointBackgroundColor: '#16a34a'
-                }]
+                datasets: [
+                    {
+                        label: 'Gesamt',
+                        data: {!! json_encode($chartData['questionsTotal']) !!},
+                        borderColor: '#6b7280',
+                        backgroundColor: 'rgba(107, 114, 128, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 2,
+                        pointHoverRadius: 5
+                    },
+                    {
+                        label: 'Richtig',
+                        data: {!! json_encode($chartData['questionsCorrect']) !!},
+                        borderColor: '#22c55e',
+                        backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 2,
+                        pointHoverRadius: 5
+                    },
+                    {
+                        label: 'Falsch',
+                        data: {!! json_encode($chartData['questionsWrong']) !!},
+                        borderColor: '#ef4444',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 2,
+                        pointHoverRadius: 5
+                    }
+                ]
             },
             options: commonOptions
         });
-        console.log('✅ Registrierungen Chart erstellt');
+        console.log('✅ Fragen Chart erstellt');
     } catch (error) {
-        console.error('❌ Fehler bei Registrierungen Chart:', error);
+        console.error('❌ Fehler bei Fragen Chart:', error);
     }
 
-    // Fragen Chart
+    // Chart 3: User-Wachstum
     try {
-        if (!canvasElements.questionsChart) {
-            throw new Error('Canvas Element "questionsChart" nicht gefunden');
-        }
-        const questionsChart = new Chart(document.getElementById('questionsChart'), {
+        new Chart(document.getElementById('userGrowthChart'), {
             type: 'line',
             data: {
                 labels: {!! json_encode($chartData['labels']) !!},
                 datasets: [{
-                    label: 'Beantwortete Fragen',
-                    data: {!! json_encode($chartData['questions']) !!},
-                    borderColor: '#f59e0b',
-                    backgroundColor: 'rgba(245, 158, 11, 0.1)',
-                    borderWidth: 2,
-                    fill: true,
-                    tension: 0.4,
-                    pointRadius: 2,
-                    pointHoverRadius: 5,
-                    pointBackgroundColor: '#f59e0b'
-                }]
-            },
-            options: commonOptions
-        });
-        console.log('✅ Beantwortete Fragen Chart erstellt');
-    } catch (error) {
-        console.error('❌ Fehler bei Beantwortete Fragen Chart:', error);
-    }
-
-    // Erfolgsquote Chart
-    try {
-        if (!canvasElements.successRateChart) {
-            throw new Error('Canvas Element "successRateChart" nicht gefunden');
-        }
-        // Deep copy für successOptions (sonst wird commonOptions auch geändert!)
-        const successOptions = JSON.parse(JSON.stringify(commonOptions));
-        successOptions.scales.y.max = 100;
-        successOptions.scales.y.ticks.callback = function(value) {
-            return value + '%';
-        };
-
-        const successChart = new Chart(document.getElementById('successRateChart'), {
-            type: 'line',
-            data: {
-                labels: {!! json_encode($chartData['labels']) !!},
-                datasets: [{
-                    label: 'Erfolgsquote',
-                    data: {!! json_encode($chartData['successRate']) !!},
+                    label: 'Gesamtanzahl User',
+                    data: {!! json_encode($chartData['userCount']) !!},
                     borderColor: '#8b5cf6',
                     backgroundColor: 'rgba(139, 92, 246, 0.1)',
-                    borderWidth: 2,
+                    borderWidth: 3,
                     fill: true,
                     tension: 0.4,
                     pointRadius: 2,
-                    pointHoverRadius: 5,
-                    pointBackgroundColor: '#8b5cf6'
+                    pointHoverRadius: 5
                 }]
             },
-            options: successOptions
+            options: commonOptions
         });
-        console.log('✅ Erfolgsquote Chart erstellt');
+        console.log('✅ User-Wachstum Chart erstellt');
     } catch (error) {
-        console.error('❌ Fehler bei Erfolgsquote Chart:', error);
+        console.error('❌ Fehler bei User-Wachstum Chart:', error);
     }
 });
 </script>
