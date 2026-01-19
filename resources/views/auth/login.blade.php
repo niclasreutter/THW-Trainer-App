@@ -17,7 +17,7 @@
 
     .auth-left {
         flex: 1.5;
-        background-color: #00337F;
+        background: linear-gradient(160deg, #00337F 0%, #001d4a 100%);
         padding: 3rem 4rem;
         display: flex;
         flex-direction: column;
