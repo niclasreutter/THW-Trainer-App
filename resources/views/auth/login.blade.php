@@ -38,7 +38,7 @@
         background-size: cover;
         background-position: center;
         background-repeat: no-repeat;
-        opacity: 0.2;
+        opacity: 0.05;
         pointer-events: none;
         z-index: 0;
     }
@@ -210,7 +210,7 @@
 
     .form-input {
         width: 100%;
-        padding: 1rem 1.2rem 1rem 3.2rem;
+        padding: 1rem 1.2rem 1rem 1rem;
         border: 2px solid #e5e7eb;
         border-radius: 0.8rem;
         font-size: 1rem;
@@ -455,7 +455,7 @@
     <!-- Right Section -->
     <div class="auth-right">
         <div class="auth-form-container">
-            <h2>Willkommen zurück 👋</h2>
+            <h2>Willkommen zurück!</h2>
             <p>Melde dich an, um auf deinen Lernfortschritt zuzugreifen.</p>
 
             <!-- Error Messages -->
@@ -509,7 +509,7 @@
                 </div>
 
                 <!-- Submit Button -->
-                <button type="submit" class="auth-btn">🚀 Anmelden</button>
+                <button type="submit" class="auth-btn">Anmelden</button>
             </form>
 
             <!-- Divider -->
