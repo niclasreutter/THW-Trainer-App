@@ -2,7 +2,7 @@
 
 /**
  * User Count History - TEST VERSION
- * Zählt täglich alle User und speichert in user_count_history
+ * Zählt täglich alle User vom VORTAG und speichert in user_count_history
  * Löscht Einträge älter als 30 Tage
  *
  * TEST KONFIGURATION:
@@ -22,27 +22,31 @@ echo "=== USER COUNT HISTORY CRONJOB TEST ===\n\n";
 echo "Zeit: " . now()->format('d.m.Y H:i:s') . "\n\n";
 
 try {
-    $today = Carbon::today();
+    // Speichere Daten für GESTERN (vollständiger Tag)
+    $yesterday = Carbon::yesterday();
 
-    // Zähle User
-    $totalUsers = User::count();
-    $verifiedUsers = User::whereNotNull('email_verified_at')->count();
+    // Zähle User-Stand vom Vortag (Ende des Tages)
+    $yesterdayEnd = $yesterday->copy()->endOfDay();
+    $totalUsers = User::where('created_at', '<=', $yesterdayEnd)->count();
+    $verifiedUsers = User::whereNotNull('email_verified_at')
+        ->where('created_at', '<=', $yesterdayEnd)
+        ->count();
 
-    echo "📊 User-Statistiken:\n";
+    echo "📊 User-Statistiken vom {$yesterday->format('d.m.Y')}:\n";
     echo "   Total User: {$totalUsers}\n";
     echo "   Verifiziert: {$verifiedUsers}\n";
     echo "   Unverifiziert: " . ($totalUsers - $verifiedUsers) . "\n\n";
 
-    // Erstelle oder aktualisiere Eintrag für heute
+    // Erstelle oder aktualisiere Eintrag für gestern
     UserCountHistory::updateOrCreate(
-        ['date' => $today],
+        ['date' => $yesterday],
         [
             'total_users' => $totalUsers,
             'verified_users' => $verifiedUsers,
         ]
     );
 
-    echo "✅ Eintrag für {$today->format('d.m.Y')} gespeichert\n\n";
+    echo "✅ Eintrag für {$yesterday->format('d.m.Y')} gespeichert\n\n";
 
     // Zeige letzte Einträge
     echo "📈 Letzte 7 Einträge:\n";
