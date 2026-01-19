@@ -2,14 +2,14 @@
 
 /**
  * User Count History - PRODUCTION
- * Zählt täglich alle User und speichert in user_count_history
+ * Zählt täglich alle User vom VORTAG und speichert in user_count_history
  * Löscht Einträge älter als 30 Tage
  *
  * PLESK KONFIGURATION:
  * - Typ: PHP Skript ausführen
  * - PHP Version: PHP 8.2
  * - Pfad: /cronjob-user-count-prod.php
- * - Zeitplan: Täglich um 23:55 Uhr
+ * - Zeitplan: Täglich um 00:15 Uhr
  */
 
 // Load Laravel
@@ -21,22 +21,26 @@ use App\Models\UserCountHistory;
 use Carbon\Carbon;
 
 try {
-    $today = Carbon::today();
+    // Speichere Daten für GESTERN (vollständiger Tag)
+    $yesterday = Carbon::yesterday();
 
-    // Zähle User
-    $totalUsers = User::count();
-    $verifiedUsers = User::whereNotNull('email_verified_at')->count();
+    // Zähle User-Stand vom Vortag (Ende des Tages)
+    $yesterdayEnd = $yesterday->copy()->endOfDay();
+    $totalUsers = User::where('created_at', '<=', $yesterdayEnd)->count();
+    $verifiedUsers = User::whereNotNull('email_verified_at')
+        ->where('created_at', '<=', $yesterdayEnd)
+        ->count();
 
-    // Erstelle oder aktualisiere Eintrag für heute
+    // Erstelle oder aktualisiere Eintrag für gestern
     UserCountHistory::updateOrCreate(
-        ['date' => $today],
+        ['date' => $yesterday],
         [
             'total_users' => $totalUsers,
             'verified_users' => $verifiedUsers,
         ]
     );
 
-    echo "✅ User Count gespeichert für {$today->format('d.m.Y')}\n";
+    echo "✅ User Count gespeichert für {$yesterday->format('d.m.Y')}\n";
     echo "   Total: {$totalUsers}, Verifiziert: {$verifiedUsers}\n";
 
     // Lösche Einträge älter als 30 Tage
