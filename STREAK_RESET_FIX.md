@@ -1,6 +1,6 @@
-# 🔥 Streak-Reset Cron-Job Fix
+# 🔥 Streak & Daily Questions Reset Cron-Job Fix
 
-## 🔴 Problem
+## 🔴 Problem #1 (Behoben: 16. Januar 2026)
 
 User haben gemeldet, dass ihre Streaks zurückgesetzt wurden, obwohl sie gestern gelernt haben.
 
@@ -26,36 +26,99 @@ Beispiel (ALTER Cron):
 - User hatte noch 1 Stunde Zeit bis Mitternacht!
 ```
 
+## 🔴 Problem #2 (Behoben: 19. Januar 2026)
+
+User haben gemeldet, dass ihre täglichen Fragen (20 Stück) manchmal nicht bzw. erst vormittags zurückgesetzt werden.
+
+### Ursache
+
+**Daily Questions wurden nur für inaktive User zurückgesetzt!**
+- Der Cronjob setzte `daily_questions_solved` nur zurück, wenn auch der Streak zurückgesetzt wurde
+- User die **jeden Tag** lernen, bekamen ihre Daily Questions **nicht um 00:01 Uhr** zurückgesetzt
+- Der Reset erfolgte erst beim Beantworten der ersten Frage am nächsten Tag (durch `GamificationService::updateDailyQuestions()`)
+
+```
+Beispiel (ALTER Cron):
+- User lernt am Montag 20 Fragen → daily_questions_solved = 20, daily_questions_date = Montag
+- Dienstag 00:01 Uhr läuft der Cron
+- User war gestern aktiv → Streak bleibt ✓
+- ABER: daily_questions_solved wird NICHT zurückgesetzt! ❌
+- Dienstag 08:00 Uhr: User loggt sich ein und sieht noch "20/20" vom Vortag
+- Dienstag 08:01 Uhr: User beantwortet erste Frage → Counter wird zurückgesetzt auf 1
+- User denkt: "Warum wurde mein Counter nicht um Mitternacht zurückgesetzt?"
+```
+
 ## ✅ Lösung
 
-### Neue Logik
+### Neue Logik (Version 2.0 - 19. Januar 2026)
 
-**1. Konsistente Datenspalte**
-- Verwendet jetzt `last_activity_date` (wie GamificationService)
+**1. Zwei getrennte Reset-Logiken**
 
-**2. Korrektes Timing**
+Der Cronjob behandelt jetzt Daily Questions und Streaks unabhängig voneinander:
+
+```php
+foreach ($allUsers as $user) {
+    // 1. RESET DAILY QUESTIONS (für ALLE User)
+    if ($user->daily_questions_date && Carbon::parse($user->daily_questions_date)->lt($today)) {
+        $user->daily_questions_solved = 0;
+        $user->daily_questions_date = null;
+    }
+
+    // 2. RESET STREAK (nur für User die gestern NICHT aktiv waren)
+    if ($user->streak_days > 0) {
+        if (!$lastActivity || $lastActivity->lt($yesterday)) {
+            $user->streak_days = 0;
+        }
+    }
+}
+```
+
+**2. Konsistente Datenspalte für Streaks**
+- Verwendet `last_activity_date` (wie GamificationService)
+- Nicht mehr `daily_questions_date` für Streak-Reset
+
+**3. Korrektes Timing**
 - Läuft um **00:01 Uhr** (nach Mitternacht)
 - Prüft ob User **gestern** gelernt hat
 - Wenn `last_activity_date < gestern` → Streak wird zurückgesetzt
+- Wenn `daily_questions_date < heute` → Daily Questions werden zurückgesetzt
 
-**3. Kulanzzeit bis Mitternacht**
+**4. Kulanzzeit bis Mitternacht**
 ```
-Beispiel (NEUER Cron):
-- User lernt am Montag um 14:00 Uhr → last_activity_date = Montag
-- Dienstag um 00:01 Uhr läuft der Cron
-- Gestern = Montag
-- last_activity_date (Montag) >= Gestern (Montag) → Streak bleibt! ✓
-- User hat bis Dienstag Mitternacht Zeit um zu lernen
+Beispiel (NEUER Cron v2.0):
+MONTAG 14:00 Uhr:
+- User lernt und beantwortet 20 Fragen
+- last_activity_date = Montag
+- daily_questions_solved = 20, daily_questions_date = Montag
+- streak_days = 5
 
-- Mittwoch um 00:01 Uhr läuft der Cron
+DIENSTAG 00:01 Uhr (Cronjob läuft):
+- Heute = Dienstag
+- Gestern = Montag
+- daily_questions_date (Montag) < Heute (Dienstag) → Daily Questions werden zurückgesetzt! ✓
+- last_activity_date (Montag) >= Gestern (Montag) → Streak bleibt! ✓
+- Ergebnis: daily_questions_solved = 0, streak_days = 5
+
+DIENSTAG 08:00 Uhr:
+- User loggt sich ein
+- Sieht "0/20 tägliche Fragen" ✓
+- Streak bleibt bei 5 Tagen ✓
+
+MITTWOCH 00:01 Uhr (User hat Dienstag NICHT gelernt):
 - Gestern = Dienstag
-- last_activity_date (Montag) < Gestern (Dienstag) → Streak wird zurückgesetzt ✓
+- last_activity_date (Montag) < Gestern (Dienstag) → Streak wird zurückgesetzt! ✓
+- Ergebnis: streak_days = 0
 ```
 
 ## 📋 Geänderte Dateien
 
+### Version 1.0 (16. Januar 2026)
 - `cronjob-daily-reset-prod.php` - Komplett neu geschrieben
 - `cronjob-daily-reset-test.php` - Komplett neu geschrieben (mit Debug-Output)
+
+### Version 2.0 (19. Januar 2026)
+- `cronjob-daily-reset-prod.php` - Daily Questions Reset für ALLE User (nicht nur inaktive)
+- `cronjob-daily-reset-test.php` - Erweiterte Debug-Ausgaben für Daily Questions
 
 ## ⚙️ Plesk Cronjob Konfiguration
 
@@ -128,12 +191,13 @@ php cronjob-daily-reset-test.php
 
 ## 📊 Logik-Vergleich
 
-| Szenario | Alter Cron (23:00) | Neuer Cron (00:01) |
-|----------|-------------------|-------------------|
-| User lernt Montag, Cron läuft Dienstag 23:00 | ❌ Streak zurückgesetzt (noch 1h Zeit!) | - |
-| User lernt Montag, Cron läuft Dienstag 00:01 | - | ✅ Streak bleibt (hat bis Mitternacht Zeit) |
-| User lernt Montag, nicht Dienstag, Cron läuft Mittwoch 00:01 | - | ✅ Streak wird zurückgesetzt (1 Tag Pause) |
-| User lernt Montag + Dienstag, Cron läuft Mittwoch 00:01 | - | ✅ Streak bleibt |
+| Szenario | Alter Cron v1 (23:00) | Neuer Cron v1 (00:01) | Neuer Cron v2 (00:01) |
+|----------|----------------------|----------------------|----------------------|
+| User lernt Montag, Cron läuft Dienstag 23:00 | ❌ Streak zurückgesetzt (noch 1h Zeit!) | - | - |
+| User lernt Montag, Cron läuft Dienstag 00:01 | - | ✅ Streak bleibt | ✅ Streak bleibt |
+| Daily Questions nach Cron | - | ❌ Noch 20/20 (wenn Streak bleibt) | ✅ 0/20 (zurückgesetzt) |
+| User lernt Montag, nicht Dienstag, Cron läuft Mittwoch 00:01 | - | ✅ Streak wird zurückgesetzt | ✅ Streak wird zurückgesetzt |
+| User lernt täglich, Cron läuft täglich 00:01 | - | ❌ Daily Questions nicht zurückgesetzt | ✅ Daily Questions zurückgesetzt |
 
 ## 🚀 Deployment
 
@@ -205,10 +269,16 @@ php artisan tinker
 - Test-Script hat zusätzliche Debug-Ausgaben
 - Prod-Script läuft ohne Debug-Spam
 
-## 🎯 Erwartetes Verhalten (nach Fix)
+## 🎯 Erwartetes Verhalten (nach Fix v2.0)
 
-1. User lernt täglich → Streak wächst
-2. User lernt heute nicht → hat bis Mitternacht Zeit
+### Daily Questions
+1. **Täglich um 00:01 Uhr** werden Daily Questions für **ALLE User** zurückgesetzt
+2. User sehen beim Login am Morgen "0/20 tägliche Fragen"
+3. Unabhängig davon, ob der Streak bleibt oder nicht
+
+### Streaks
+1. User lernt täglich → Streak wächst, Daily Questions werden täglich zurückgesetzt
+2. User lernt heute nicht → hat bis Mitternacht Zeit, Daily Questions werden morgen zurückgesetzt
 3. User pausiert 1 Tag → Streak wird am nächsten Tag um 00:01 zurückgesetzt
 4. User pausiert mehrere Tage → Streak wird am nächsten Tag um 00:01 zurückgesetzt
 
@@ -224,4 +294,5 @@ php artisan tinker
 ---
 
 **Erstellt:** 16. Januar 2026
+**Aktualisiert:** 19. Januar 2026 (Daily Questions Fix)
 **Status:** ✅ Bereit für Deployment
