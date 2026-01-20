@@ -252,7 +252,7 @@
 
             <!-- Benutzer-Aktivität -->
             <div class="card">
-                <h3><span class="card-icon">📈</span> Benutzer-Aktivität (30 Tage)</h3>
+                <h3><span class="card-icon">📈</span> Benutzer-Aktivität</h3>
                 <div class="stat-row">
                     <span class="stat-label-col">Heute</span>
                     <span class="stat-value-col">{{ $userActivity['today'] }}</span>
@@ -321,8 +321,8 @@
             </div>
         </div>
 
-        <!-- Statistiken Charts (30 Tage) -->
-        <div class="section-title">📊 Statistiken (30 Tage)</div>
+        <!-- Statistiken Charts (29 Tage) -->
+        <div class="section-title">📊 Statistiken (letzte 29 Tage)</div>
         <div class="charts-grid">
             <!-- Chart 1: Aktive Benutzer + Registrierungen -->
             <div class="chart-card">
