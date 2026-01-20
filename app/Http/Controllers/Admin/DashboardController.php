@@ -221,8 +221,8 @@ class DashboardController extends Controller
         $questionsWrong = [];
         $userCountData = [];
 
-        // Sammle Daten für die letzten 30 Tage
-        for ($i = 29; $i >= 0; $i--) {
+        // Sammle Daten für die letzten 29 Tage (ohne heute, da noch keine Daten vorhanden)
+        for ($i = 29; $i >= 1; $i--) {
             $day = now()->subDays($i)->startOfDay();
             $dayEnd = now()->subDays($i)->endOfDay();
 
