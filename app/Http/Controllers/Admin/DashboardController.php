@@ -220,9 +220,10 @@ class DashboardController extends Controller
         $questionsCorrect = [];
         $questionsWrong = [];
         $userCountData = [];
+        $unverifiedCountData = [];
 
-        // Sammle Daten für die letzten 29 Tage (ohne heute, da noch keine Daten vorhanden)
-        for ($i = 29; $i >= 1; $i--) {
+        // Sammle Daten für die letzten 30 Tage (inkl. heute)
+        for ($i = 29; $i >= 0; $i--) {
             $day = now()->subDays($i)->startOfDay();
             $dayEnd = now()->subDays($i)->endOfDay();
 
@@ -246,7 +247,18 @@ class DashboardController extends Controller
 
             // Chart 3: User-Verlauf (aus user_count_history Tabelle)
             $userCount = \App\Models\UserCountHistory::whereDate('date', $day->format('Y-m-d'))->first();
-            $userCountData[] = $userCount ? $userCount->total_users : 0;
+
+            if ($userCount) {
+                // Historische Daten vorhanden
+                $userCountData[] = $userCount->total_users;
+                $unverifiedCountData[] = $userCount->total_users - $userCount->verified_users;
+            } else {
+                // Für heute (noch kein History-Eintrag): Live-Daten verwenden
+                $totalUsers = User::where('created_at', '<=', $dayEnd)->count();
+                $verifiedUsers = User::whereNotNull('email_verified_at')->where('created_at', '<=', $dayEnd)->count();
+                $userCountData[] = $totalUsers;
+                $unverifiedCountData[] = $totalUsers - $verifiedUsers;
+            }
         }
 
         return [
@@ -257,6 +269,7 @@ class DashboardController extends Controller
             'questionsCorrect' => $questionsCorrect,
             'questionsWrong' => $questionsWrong,
             'userCount' => $userCountData,
+            'unverifiedCount' => $unverifiedCountData,
         ];
     }
 }
