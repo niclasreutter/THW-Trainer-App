@@ -321,8 +321,8 @@
             </div>
         </div>
 
-        <!-- Statistiken Charts (29 Tage) -->
-        <div class="section-title">📊 Statistiken (letzte 29 Tage)</div>
+        <!-- Statistiken Charts (30 Tage inkl. heute) -->
+        <div class="section-title">📊 Statistiken (letzte 30 Tage)</div>
         <div class="charts-grid">
             <!-- Chart 1: Aktive Benutzer + Registrierungen -->
             <div class="chart-card">
@@ -536,17 +536,30 @@ document.addEventListener('DOMContentLoaded', function() {
             type: 'line',
             data: {
                 labels: {!! json_encode($chartData['labels']) !!},
-                datasets: [{
-                    label: 'Gesamtanzahl User',
-                    data: {!! json_encode($chartData['userCount']) !!},
-                    borderColor: '#8b5cf6',
-                    backgroundColor: 'rgba(139, 92, 246, 0.1)',
-                    borderWidth: 3,
-                    fill: true,
-                    tension: 0.4,
-                    pointRadius: 2,
-                    pointHoverRadius: 5
-                }]
+                datasets: [
+                    {
+                        label: 'Gesamtanzahl User',
+                        data: {!! json_encode($chartData['userCount']) !!},
+                        borderColor: '#8b5cf6',
+                        backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 2,
+                        pointHoverRadius: 5
+                    },
+                    {
+                        label: 'Unbestätigte Accounts',
+                        data: {!! json_encode($chartData['unverifiedCount']) !!},
+                        borderColor: '#f59e0b',
+                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 2,
+                        pointHoverRadius: 5
+                    }
+                ]
             },
             options: commonOptions
         });
