@@ -110,7 +110,9 @@ class ExamController extends Controller
             'fragen_ids.*' => 'required|integer|exists:questions,id',
             'answer' => 'nullable|array',
             'answer.*' => 'nullable|array',
-            'answer.*.*' => 'string|in:A,B,C',
+            'answer.*.*' => 'string|in:0,1,2', // Now positions instead of letters
+            'answer_mappings' => 'nullable|array',
+            'answer_mappings.*' => 'nullable|string',
         ]);
 
         // Load questions securely (only validated IDs)
@@ -129,18 +131,35 @@ class ExamController extends Controller
         }
 
         $userAnswers = $validated['answer'] ?? [];
+        $answerMappings = $validated['answer_mappings'] ?? [];
         $results = [];
         $correctCount = 0;
         $failed = [];
         foreach ($fragen as $nr => $frage) {
+            // Get mapping for this question
+            $mappingJson = $answerMappings[$nr] ?? null;
+            $mapping = $mappingJson ? json_decode($mappingJson, true) : null;
+
             $solution = collect(explode(',', $frage->loesung))->map(fn($s) => trim($s));
-            $userAnswer = collect($userAnswers[$nr] ?? []);
-            $isCorrect = $userAnswer->sort()->values()->all() === $solution->sort()->values()->all();
+
+            // Map positions back to letters if mapping exists
+            if ($mapping) {
+                $userAnswerPositions = $userAnswers[$nr] ?? [];
+                $userAnswer = collect($userAnswerPositions)->map(function($position) use ($mapping) {
+                    return $mapping[$position] ?? null;
+                })->filter()->sort()->values();
+            } else {
+                // Fallback without mapping (legacy support)
+                $userAnswer = collect($userAnswers[$nr] ?? [])->sort()->values();
+            }
+
+            $isCorrect = $userAnswer->all() === $solution->sort()->values()->all();
             $results[$nr] = [
                 'frage' => $frage,
                 'userAnswer' => $userAnswer,
                 'solution' => $solution,
-                'isCorrect' => $isCorrect
+                'isCorrect' => $isCorrect,
+                'mapping' => $mapping // Store mapping for display
             ];
             if ($isCorrect) {
                 $correctCount++;

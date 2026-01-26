@@ -102,7 +102,29 @@
             
             @foreach($fragen as $index => $frage)
                 <input type="hidden" name="fragen_ids[]" value="{{ $frage->id }}">
-                
+
+                @php
+                    // Shuffle answers like in practice mode
+                    $answersOriginal = [
+                        ['letter' => 'A', 'text' => $frage->antwort_a],
+                        ['letter' => 'B', 'text' => $frage->antwort_b],
+                        ['letter' => 'C', 'text' => $frage->antwort_c],
+                    ];
+
+                    $answers = $answersOriginal;
+                    shuffle($answers);
+
+                    // Create mapping: Position -> Letter
+                    $mappingArray = [];
+                    foreach ($answers as $ansIndex => $answer) {
+                        $mappingArray[$ansIndex] = $answer['letter'];
+                    }
+
+                    $mappingJson = json_encode($mappingArray);
+                @endphp
+
+                <input type="hidden" name="answer_mappings[{{ $index }}]" value="{{ $mappingJson }}">
+
                 <div class="question-slide" data-question="{{ $index }}" style="display: {{ $index === 0 ? 'block' : 'none' }};">
                     <!-- Fragen-Info -->
                     <div class="mb-3">
@@ -112,28 +134,28 @@
                             LA {{ $frage->lernabschnitt ?? '-' }}.{{ $frage->nummer ?? '-' }}
                         </div>
                         <h3 class="text-base font-bold text-gray-900 mb-3">{{ $frage->frage }}</h3>
-                        
+
                         <!-- Markieren Button -->
-                        <button type="button" 
-                                onclick="toggleMark({{ $index }})" 
+                        <button type="button"
+                                onclick="toggleMark({{ $index }})"
                                 id="mark-btn-{{ $index }}"
                                 class="text-xs px-3 py-1 rounded-lg border-2 transition-all duration-200 hover:scale-105"
                                 style="border-color: #d1d5db; background-color: white; color: #6b7280;">
                             🔖 Markieren
                         </button>
                     </div>
-                    
-                    <!-- Antwortoptionen -->
+
+                    <!-- Antwortoptionen (shuffled) -->
                     <div class="space-y-2 mb-4">
-                        @foreach(['A','B','C'] as $option)
+                        @foreach($answers as $ansIndex => $answer)
                             <label class="flex items-start p-3 rounded-lg border-2 border-gray-200 hover:border-blue-300 hover:bg-blue-50 cursor-pointer transition-all duration-200">
-                                <input type="checkbox" 
-                                       name="answer[{{ $index }}][]" 
-                                       value="{{ $option }}"
+                                <input type="checkbox"
+                                       name="answer[{{ $index }}][]"
+                                       value="{{ $ansIndex }}"
                                        onchange="updateAnswerStatus({{ $index }})"
                                        class="mt-1 w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2">
                                 <span class="ml-3 text-sm text-gray-900">
-                                    <span class="font-bold">{{ $option }}:</span> {{ $frage['antwort_'.strtolower($option)] }}
+                                    {{ $answer['text'] }}
                                 </span>
                             </label>
                         @endforeach
@@ -522,8 +544,32 @@
                         $userAnswer = $result['userAnswer'];
                         $solution = $result['solution'];
                         $isCorrect = $result['isCorrect'];
+                        $mappingArray = $result['mapping'] ?? [];
+
+                        // Prepare answers in shuffled order (based on mapping)
+                        $answersOriginal = [
+                            ['letter' => 'A', 'text' => $frage->antwort_a],
+                            ['letter' => 'B', 'text' => $frage->antwort_b],
+                            ['letter' => 'C', 'text' => $frage->antwort_c],
+                        ];
+
+                        // Sort according to mapping
+                        if ($mappingArray) {
+                            $displayAnswers = [];
+                            foreach ($mappingArray as $position => $letter) {
+                                foreach ($answersOriginal as $ans) {
+                                    if ($ans['letter'] === $letter) {
+                                        $displayAnswers[$position] = $ans;
+                                        break;
+                                    }
+                                }
+                            }
+                            ksort($displayAnswers);
+                        } else {
+                            $displayAnswers = $answersOriginal;
+                        }
                     @endphp
-                    
+
                     <div class="border-2 rounded-lg p-4 {{ $isCorrect ? 'border-green-300 bg-green-50' : 'border-red-300 bg-red-50' }}">
                         <!-- Fragen-Header -->
                         <div class="flex items-start justify-between mb-3">
@@ -540,14 +586,15 @@
                                 <h4 class="text-sm font-bold text-gray-900">{{ $frage->frage }}</h4>
                             </div>
                         </div>
-                        
-                        <!-- Antwortoptionen -->
+
+                        <!-- Antwortoptionen (in shuffled order) -->
                         <div class="space-y-2">
-                            @foreach(['A', 'B', 'C'] as $option)
+                            @foreach($displayAnswers as $answerIndex => $answer)
                                 @php
-                                    $isUserAnswer = $userAnswer->contains($option);
-                                    $isSolution = $solution->contains($option);
-                                    
+                                    $originalLetter = $answer['letter'];
+                                    $isUserAnswer = $userAnswer->contains($originalLetter);
+                                    $isSolution = $solution->contains($originalLetter);
+
                                     // Farbe bestimmen
                                     if ($isSolution && $isUserAnswer) {
                                         // Richtig ausgewählt
@@ -575,7 +622,7 @@
                                         $icon = '';
                                     }
                                 @endphp
-                                
+
                                 <div class="flex items-start p-3 rounded-lg border-2 {{ $bgColor }} {{ $borderColor }}">
                                     <div class="flex items-center min-w-0 flex-1">
                                         @if($isUserAnswer)
@@ -584,7 +631,7 @@
                                             <span class="w-5 h-5 mr-3 flex-shrink-0"></span>
                                         @endif
                                         <span class="text-sm {{ $textColor }}">
-                                            <span class="font-bold">{{ $option }}:</span> {{ $frage['antwort_'.strtolower($option)] }}
+                                            {{ $answer['text'] }}
                                         </span>
                                     </div>
                                     @if($isSolution && !$isUserAnswer)
