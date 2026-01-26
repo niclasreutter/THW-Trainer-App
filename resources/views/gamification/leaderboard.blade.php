@@ -11,7 +11,7 @@
 
 .leaderboard-header { text-align: center; margin-bottom: 3rem; padding-top: 1rem; }
 
-.leaderboard-header h1 { font-size: 2.5rem; font-weight: 800; color: #00337F; margin-bottom: 0.5rem; line-height: 1.2; }
+.leaderboard-header h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 0.5rem; line-height: 1.2; display: inline-block; background: linear-gradient(90deg, #fbbf24, #f59e0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
 
 .leaderboard-subtitle { font-size: 1.1rem; color: #4b5563; margin-bottom: 0; }
 
@@ -183,19 +183,19 @@ tbody tr:hover { background: #fafafa; }
     <div class="leaderboard-container">
         <!-- Header -->
         <div class="leaderboard-header">
-            <h1>🏆 Leaderboard</h1>
+            <h1>Leaderboard</h1>
             <p class="leaderboard-subtitle">Zeige dein Können und klettere die Rangliste hinauf</p>
         </div>
 
         <!-- Tab Navigation -->
         <div class="tab-nav">
-            <a href="{{ route('gamification.leaderboard', ['tab' => 'gesamt']) }}" class="tab-link {{ $tab === 'gesamt' ? 'active' : '' }}">🌍 Gesamt-Rangliste</a>
-            <a href="{{ route('gamification.leaderboard', ['tab' => 'woche']) }}" class="tab-link {{ $tab === 'woche' ? 'active' : '' }}">📅 Diese Woche</a>
+            <a href="{{ route('gamification.leaderboard', ['tab' => 'gesamt']) }}" class="tab-link {{ $tab === 'gesamt' ? 'active' : '' }}"><i class="bi bi-globe"></i> Gesamt-Rangliste</a>
+            <a href="{{ route('gamification.leaderboard', ['tab' => 'woche']) }}" class="tab-link {{ $tab === 'woche' ? 'active' : '' }}"><i class="bi bi-calendar-week"></i> Diese Woche</a>
         </div>
 
         @if($tab === 'woche' && $weekRange)
             <div class="week-info">
-                <div class="week-info-icon">📆</div>
+                <div class="week-info-icon"><i class="bi bi-calendar-event"></i></div>
                 <div class="week-info-content">
                     <h3>Aktuelle Woche</h3>
                     <p>{{ $weekRange['formatted'] }} (Montag - Sonntag)</p>
@@ -246,24 +246,24 @@ tbody tr:hover { background: #fafafa; }
                                 <td>
                                     <span class="user-name">{{ $user->name }}</span>
                                     @if($isCurrentUser)
-                                        <span class="you-badge">👤 Du</span>
+                                        <span class="you-badge"><i class="bi bi-person-fill"></i> Du</span>
                                     @endif
                                 </td>
                                 <td>
                                     <div class="stat-col">
-                                        <span class="stat-icon">💎</span>
+                                        <span class="stat-icon text-cyan-500"><i class="bi bi-gem"></i></span>
                                         <span class="stat-text">{{ number_format($tab === 'woche' ? $user->weekly_points : $user->points) }}</span>
                                     </div>
                                 </td>
                                 <td>
                                     <div class="stat-col">
-                                        <span class="stat-icon">⭐</span>
+                                        <span class="stat-icon text-yellow-500"><i class="bi bi-star-fill"></i></span>
                                         <span class="stat-text">{{ $user->level }}</span>
                                     </div>
                                 </td>
                                 <td>
                                     <div class="stat-col">
-                                        <span class="stat-icon">🔥</span>
+                                        <span class="stat-icon text-orange-500"><i class="bi bi-fire"></i></span>
                                         <span class="stat-text">{{ $user->streak_days }} Tage</span>
                                     </div>
                                 </td>
@@ -272,7 +272,7 @@ tbody tr:hover { background: #fafafa; }
                             <tr>
                                 <td colspan="5">
                                     <div class="empty-state">
-                                        <div class="empty-state-icon">🏆</div>
+                                        <div class="empty-state-icon"><i class="bi bi-trophy"></i></div>
                                         <p style="font-weight: 600;">{{ $tab === 'woche' ? 'Noch keine Aktivität diese Woche!' : 'Noch keine Einträge im Leaderboard' }}</p>
                                         <p style="font-size: 0.9rem; margin-top: 0.5rem;">{{ $tab === 'woche' ? 'Sei der Erste und sammle Punkte!' : '' }}</p>
                                     </div>
@@ -315,25 +315,25 @@ tbody tr:hover { background: #fafafa; }
                             <div class="user-info-name">
                                 {{ $user->name }}
                                 @if($isCurrentUser)
-                                    <span class="you-badge">👤</span>
+                                    <span class="you-badge"><i class="bi bi-person-fill"></i></span>
                                 @endif
                             </div>
                         </div>
                         <div class="stat-row">
                             <div class="stat-item">
-                                <span>💎</span>
+                                <span class="text-cyan-500"><i class="bi bi-gem"></i></span>
                                 <span class="stat-label">Punkte:</span>
                                 <span class="stat-value">{{ number_format($tab === 'woche' ? $user->weekly_points : $user->points) }}</span>
                             </div>
                         </div>
                         <div class="stat-row">
                             <div class="stat-item">
-                                <span>⭐</span>
+                                <span class="text-yellow-500"><i class="bi bi-star-fill"></i></span>
                                 <span class="stat-label">Level:</span>
                                 <span class="stat-value">{{ $user->level }}</span>
                             </div>
                             <div class="stat-item">
-                                <span>🔥</span>
+                                <span class="text-orange-500"><i class="bi bi-fire"></i></span>
                                 <span class="stat-label">Streak:</span>
                                 <span class="stat-value">{{ $user->streak_days }}</span>
                             </div>
@@ -342,7 +342,7 @@ tbody tr:hover { background: #fafafa; }
                 </div>
             @empty
                 <div class="empty-state" style="margin: 2rem 0;">
-                    <div class="empty-state-icon">🏆</div>
+                    <div class="empty-state-icon"><i class="bi bi-trophy"></i></div>
                     <p style="font-weight: 600;">{{ $tab === 'woche' ? 'Noch keine Aktivität diese Woche!' : 'Noch keine Einträge im Leaderboard' }}</p>
                     <p style="font-size: 0.9rem; margin-top: 0.5rem;">{{ $tab === 'woche' ? 'Sei der Erste und sammle Punkte!' : '' }}</p>
                 </div>
@@ -351,13 +351,13 @@ tbody tr:hover { background: #fafafa; }
 
         <!-- Info Box -->
         <div class="info-box">
-            <h3>💡 So sammelst du Punkte:</h3>
+            <h3><i class="bi bi-lightbulb"></i> So sammelst du Punkte:</h3>
             <ul>
-                <li>✅ <strong>+10 Punkte</strong> pro richtig beantwortete Frage</li>
-                <li>🎓 <strong>+100 Punkte</strong> für bestandene Prüfungen</li>
-                <li>🔥 <strong>Streak-Bonus</strong> bei täglichem Lernen</li>
+                <li><i class="bi bi-check-circle-fill text-green-500"></i> <strong>+10 Punkte</strong> pro richtig beantwortete Frage</li>
+                <li><i class="bi bi-mortarboard"></i> <strong>+100 Punkte</strong> für bestandene Prüfungen</li>
+                <li><i class="bi bi-fire text-orange-500"></i> <strong>Streak-Bonus</strong> bei täglichem Lernen</li>
                 @if($tab === 'woche')
-                    <li>📅 <strong>Wöchentliche Rangliste</strong> wird jeden Montag zurückgesetzt</li>
+                    <li><i class="bi bi-calendar-week"></i> <strong>Wöchentliche Rangliste</strong> wird jeden Montag zurückgesetzt</li>
                 @endif
             </ul>
         </div>
@@ -380,7 +380,7 @@ tbody tr:hover { background: #fafafa; }
             @if(!$isInTop50)
                 <div class="user-rank-card">
                     <div>
-                        <h3 style="font-size: 1.25rem; font-weight: 700; color: #00337F; margin: 0;">📍 Deine Platzierung</h3>
+                        <h3 style="font-size: 1.25rem; font-weight: 700; color: #00337F; margin: 0;"><i class="bi bi-geo-alt"></i> Deine Platzierung</h3>
                         <div class="rank-number">Rang #{{ $userRank }}</div>
                         <div class="rank-details">
                             @if($tab === 'woche')
@@ -392,7 +392,7 @@ tbody tr:hover { background: #fafafa; }
                     </div>
                     <div style="text-align: right;">
                         <div class="rank-details">Level {{ $currentUser->level }}</div>
-                        <div class="rank-details">🔥 {{ $currentUser->streak_days }} Tage Streak</div>
+                        <div class="rank-details"><i class="bi bi-fire text-orange-500"></i> {{ $currentUser->streak_days }} Tage Streak</div>
                     </div>
                 </div>
             @endif

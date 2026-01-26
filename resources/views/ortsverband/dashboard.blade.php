@@ -250,40 +250,40 @@
 <div class="dashboard-wrapper">
     <div class="dashboard-container">
         <div class="dashboard-header">
-            <h1 class="dashboard-greeting">📊 <span>{{ $ortsverband->name }}</span></h1>
+            <h1 class="dashboard-greeting"><span>{{ $ortsverband->name }}</span></h1>
             <p class="dashboard-subtitle">Ausbildungsbeauftragter Dashboard</p>
         </div>
 
         @if(session('success'))
         <div class="alert alert-success">
-            ✓ {{ session('success') }}
+            <i class="bi bi-check-circle"></i> {{ session('success') }}
         </div>
         @endif
 
         {{-- Statistiken --}}
         <div class="stats-grid">
             <div class="stat-card">
-                <div class="stat-icon">👥</div>
+                <div class="stat-icon"><i class="bi bi-people"></i></div>
                 <div class="stat-value">{{ $stats['total_members'] ?? 0 }}</div>
                 <div class="stat-label">Mitglieder</div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon">✅</div>
+                <div class="stat-icon"><i class="bi bi-check-circle text-green-500"></i></div>
                 <div class="stat-value">{{ $stats['active_members'] ?? 0 }}</div>
                 <div class="stat-label">Aktiv (7 Tage)</div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon">📚</div>
+                <div class="stat-icon"><i class="bi bi-book"></i></div>
                 <div class="stat-value">{{ $stats['avg_theory'] ?? 0 }}%</div>
                 <div class="stat-label">Ø Theorie</div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon">🎯</div>
+                <div class="stat-icon"><i class="bi bi-bullseye"></i></div>
                 <div class="stat-value">{{ $stats['avg_exams'] ?? 0 }}</div>
                 <div class="stat-label">Ø Prüfungen</div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon">🔥</div>
+                <div class="stat-icon"><i class="bi bi-fire text-orange-500"></i></div>
                 <div class="stat-value">{{ $stats['avg_streak'] ?? 0 }}</div>
                 <div class="stat-label">Ø Streak</div>
             </div>
@@ -292,7 +292,7 @@
         {{-- Rangliste --}}
         <div class="section-card">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
-                <h2 class="section-title" style="margin-bottom: 0;">🏆 Rangliste</h2>
+                <h2 class="section-title" style="margin-bottom: 0;">Rangliste</h2>
                 <div style="display: flex; gap: 0.5rem; background: #f3f4f6; padding: 0.25rem; border-radius: 0.5rem;">
                     <form action="{{ route('ortsverband.toggle-ranking', $ortsverband) }}" method="POST" style="margin: 0; display: inline;">
                         @csrf
@@ -334,14 +334,14 @@
                     <div class="member-name">
                         {{ $member['user']->name }}
                         @if($member['role'] === 'ausbildungsbeauftragter')
-                            <span class="badge badge-primary">👨‍🏫</span>
+                            <span class="badge badge-primary"><i class="bi bi-person-badge"></i></span>
                         @endif
                     </div>
                     <div class="member-stats">
-                        <span>📚 {{ $member['theory_progress_percent'] }}%</span>
-                        <span>🎯 {{ $member['exams_passed'] }}/5</span>
-                        <span>🔥 {{ $member['streak'] }} Tage</span>
-                        <span>⚡ Lvl {{ $member['level'] }}</span>
+                        <span><i class="bi bi-book"></i> {{ $member['theory_progress_percent'] }}%</span>
+                        <span><i class="bi bi-bullseye"></i> {{ $member['exams_passed'] }}/5</span>
+                        <span><i class="bi bi-fire text-orange-500"></i> {{ $member['streak'] }} Tage</span>
+                        <span><i class="bi bi-lightning"></i> Lvl {{ $member['level'] }}</span>
                     </div>
                     <div class="progress-bar">
                         <div class="progress-fill" style="width: {{ $member['theory_progress_percent'] }}%"></div>
@@ -357,7 +357,7 @@
 
         {{-- Schwachstellen-Analyse --}}
         <div class="section-card">
-            <h2 class="section-title">📉 Schwachstellen-Analyse</h2>
+            <h2 class="section-title">Schwachstellen-Analyse</h2>
             
             @if($weaknesses['weak_sections']->isNotEmpty())
             <h3 style="font-size: 1rem; font-weight: 600; color: #374151; margin-bottom: 1rem;">
@@ -427,23 +427,23 @@
         {{-- Schnellzugriff --}}
         <div class="quick-actions">
             <a href="{{ route('ortsverband.members', $ortsverband) }}" class="quick-action">
-                <div class="quick-action-icon">👥</div>
+                <div class="quick-action-icon"><i class="bi bi-people"></i></div>
                 <div class="quick-action-label">Mitglieder</div>
             </a>
             <a href="{{ route('ortsverband.lernpools.index', $ortsverband) }}" class="quick-action">
-                <div class="quick-action-icon">📚</div>
+                <div class="quick-action-icon"><i class="bi bi-collection"></i></div>
                 <div class="quick-action-label">Lernpools</div>
             </a>
             <a href="{{ route('ortsverband.invitations.index', $ortsverband) }}" class="quick-action">
-                <div class="quick-action-icon">🔗</div>
+                <div class="quick-action-icon"><i class="bi bi-link-45deg"></i></div>
                 <div class="quick-action-label">Einladungen</div>
             </a>
             <a href="{{ route('ortsverband.edit', $ortsverband) }}" class="quick-action">
-                <div class="quick-action-icon">⚙️</div>
+                <div class="quick-action-icon"><i class="bi bi-gear"></i></div>
                 <div class="quick-action-label">Einstellungen</div>
             </a>
             <a href="{{ route('ortsverband.index') }}" class="quick-action">
-                <div class="quick-action-icon">←</div>
+                <div class="quick-action-icon"><i class="bi bi-arrow-left"></i></div>
                 <div class="quick-action-label">Zurück</div>
             </a>
         </div>

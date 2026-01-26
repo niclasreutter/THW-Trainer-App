@@ -296,7 +296,7 @@
 <div class="dashboard-wrapper">
     <div class="dashboard-container">
         <div class="dashboard-header">
-            <h1 class="dashboard-greeting">📚 <span>Lehrgänge</span></h1>
+            <h1 class="dashboard-greeting"><span>Lehrgänge</span></h1>
             <p class="dashboard-subtitle">Verwaltung aller THW-Lehrgänge</p>
         </div>
 
@@ -309,25 +309,25 @@
 
         <div class="stats-grid">
             <div class="stat-card">
-                <div class="stat-icon">📖</div>
+                <div class="stat-icon"><i class="bi bi-book"></i></div>
                 <div class="stat-value">{{ $lehrgaenge->total() }}</div>
                 <div class="stat-label">Lehrgänge</div>
             </div>
 
             <div class="stat-card">
-                <div class="stat-icon">❓</div>
+                <div class="stat-icon"><i class="bi bi-question-circle"></i></div>
                 <div class="stat-value">{{ $totalQuestions }}</div>
                 <div class="stat-label">Fragen</div>
             </div>
 
             <div class="stat-card">
-                <div class="stat-icon">👥</div>
+                <div class="stat-icon"><i class="bi bi-people"></i></div>
                 <div class="stat-value">{{ $totalUsers }}</div>
                 <div class="stat-label">Teilnehmer</div>
             </div>
 
             <div class="stat-card">
-                <div class="stat-icon">📊</div>
+                <div class="stat-icon"><i class="bi bi-bar-chart"></i></div>
                 <div class="stat-value">{{ $avgQuestions }}</div>
                 <div class="stat-label">Ø Fragen/Lehrgang</div>
             </div>
@@ -336,13 +336,13 @@
         <!-- Alerts -->
         @if(session('success'))
             <div class="alert alert-success">
-                ✓ {{ session('success') }}
+                <i class="bi bi-check-circle"></i> {{ session('success') }}
             </div>
         @endif
 
         @if(session('error'))
             <div class="alert alert-error">
-                ✗ {{ session('error') }}
+                <i class="bi bi-x-circle"></i> {{ session('error') }}
             </div>
         @endif
 
@@ -355,10 +355,10 @@
 
             <div class="button-group">
                 <a href="{{ route('admin.lehrgaenge.create') }}" class="btn btn-primary">
-                    ➕ Neuer Lehrgang
+                    <i class="bi bi-plus-lg"></i> Neuer Lehrgang
                 </a>
                 <a href="{{ route('admin.dashboard') }}" class="btn btn-secondary">
-                    ← Zurück zum Dashboard
+                    <i class="bi bi-arrow-left"></i> Zurück zum Dashboard
                 </a>
             </div>
 
@@ -385,16 +385,16 @@
 
                             <div class="lehrgang-card-actions">
                                 <a href="{{ url('admin/lehrgaenge/' . $lehrgang->id) }}" class="action-link">
-                                    👁️ Details
+                                    <i class="bi bi-eye"></i> Details
                                 </a>
                                 <a href="{{ url('admin/lehrgaenge/' . $lehrgang->id . '/edit') }}" class="action-link">
-                                    ✏️ Bearbeiten
+                                    <i class="bi bi-pencil"></i> Bearbeiten
                                 </a>
                                 <form action="{{ url('admin/lehrgaenge/' . $lehrgang->id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Wirklich löschen? Alle Fragen werden gelöscht!');">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="action-link action-link-danger" style="background: none; border: none; padding: 0.35rem 0.75rem; cursor: pointer;">
-                                        🗑️ Löschen
+                                        <i class="bi bi-trash"></i> Löschen
                                     </button>
                                 </form>
                             </div>
@@ -408,9 +408,9 @@
                 </div>
             @else
                 <div class="empty-state">
-                    <p>📭 Noch keine Lehrgänge vorhanden</p>
+                    <p><i class="bi bi-inbox"></i> Noch keine Lehrgänge vorhanden</p>
                     <a href="{{ route('admin.lehrgaenge.create') }}" class="btn btn-primary">
-                        ➕ Neuen Lehrgang erstellen
+                        <i class="bi bi-plus-lg"></i> Neuen Lehrgang erstellen
                     </a>
                 </div>
             @endif

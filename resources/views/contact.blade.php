@@ -13,7 +13,7 @@
 
     .contact-header { text-align: center; margin-bottom: 3rem; padding-top: 1rem; }
 
-    .contact-header h1 { font-size: 2.5rem; font-weight: 800; color: #00337F; margin-bottom: 0.5rem; line-height: 1.2; }
+    .contact-header h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 0.5rem; line-height: 1.2; display: inline-block; background: linear-gradient(90deg, #fbbf24, #f59e0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
 
     .contact-subtitle { font-size: 1.1rem; color: #4b5563; margin-bottom: 0; }
 
@@ -108,14 +108,14 @@
     <div class="contact-container">
         <!-- Header -->
         <div class="contact-header">
-            <h1>📬 Kontakt & Feedback</h1>
+            <h1>Kontakt & Feedback</h1>
             <p class="contact-subtitle">Dein Feedback ist mir wichtig! Schreib mir bei Fragen, Ideen oder Problemen.</p>
         </div>
 
         <!-- Success Message -->
         @if(session('success'))
             <div class="alert-box alert-success">
-                <div class="alert-icon">✅</div>
+                <div class="alert-icon"><i class="bi bi-check-circle-fill text-green-500"></i></div>
                 <div class="alert-content">
                     <h3>Nachricht gesendet!</h3>
                     <p>{{ session('success') }}</p>
@@ -126,7 +126,7 @@
         <!-- Error Messages -->
         @if($errors->any())
             <div class="alert-box alert-error">
-                <div class="alert-icon">❌</div>
+                <div class="alert-icon"><i class="bi bi-x-circle-fill text-red-500"></i></div>
                 <div class="alert-content">
                     <h3>Bitte überprüfe deine Eingaben:</h3>
                     <ul style="list-style: disc; margin-left: 1.5rem; margin-top: 0.5rem;">
@@ -156,7 +156,7 @@
                                        onchange="updateFormType(this.value)"
                                        {{ old('type') == 'feedback' ? 'checked' : '' }} required>
                                 <div class="radio-label-content">
-                                    <span class="radio-label-icon">💭</span>
+                                    <span class="radio-label-icon"><i class="bi bi-chat-dots"></i></span>
                                     <span class="radio-label-title">Feedback</span>
                                     <span class="radio-label-desc">Lob, Kritik, Verbesserungsvorschläge</span>
                                 </div>
@@ -169,7 +169,7 @@
                                        onchange="updateFormType(this.value)"
                                        {{ old('type') == 'feature' ? 'checked' : '' }} required>
                                 <div class="radio-label-content">
-                                    <span class="radio-label-icon">✨</span>
+                                    <span class="radio-label-icon"><i class="bi bi-lightbulb"></i></span>
                                     <span class="radio-label-title">Feature-Wunsch</span>
                                     <span class="radio-label-desc">Neue Funktionen vorschlagen</span>
                                 </div>
@@ -182,7 +182,7 @@
                                        onchange="updateFormType(this.value)"
                                        {{ old('type') == 'bug' ? 'checked' : '' }} required>
                                 <div class="radio-label-content">
-                                    <span class="radio-label-icon">🐛</span>
+                                    <span class="radio-label-icon"><i class="bi bi-bug"></i></span>
                                     <span class="radio-label-title">Fehler melden</span>
                                     <span class="radio-label-desc">Etwas funktioniert nicht?</span>
                                 </div>
@@ -195,7 +195,7 @@
                                        onchange="updateFormType(this.value)"
                                        {{ old('type') == 'other' ? 'checked' : '' }} required>
                                 <div class="radio-label-content">
-                                    <span class="radio-label-icon">📧</span>
+                                    <span class="radio-label-icon"><i class="bi bi-envelope"></i></span>
                                     <span class="radio-label-title">Sonstiges</span>
                                     <span class="radio-label-desc">Allgemeine Anfrage</span>
                                 </div>
@@ -219,7 +219,7 @@
                            onchange="toggleHermineFields()"
                            {{ old('hermine_contact') ? 'checked' : '' }} class="checkbox-input">
                     <label for="hermine_contact" class="checkbox-label">
-                        <span class="checkbox-label-text">📱 Kontakt über Hermine</span>
+                        <span class="checkbox-label-text"><i class="bi bi-phone"></i> Kontakt über Hermine</span>
                         <span class="checkbox-description">
                             Ich bin einverstanden, dass ich über die THW-Messenger-App Hermine kontaktiert werde
                         </span>
@@ -228,7 +228,7 @@
 
                 <!-- Hermine Fields (conditional) -->
                 <div id="hermineFields" class="hidden conditional-field" style="display: none; background: linear-gradient(135deg, rgba(0, 51, 127, 0.05) 0%, rgba(0, 63, 153, 0.05) 100%); border: 1px solid #dbeafe; border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem;">
-                    <h3 style="font-weight: 600; color: #00337F; margin: 0 0 1rem 0;">👤 Deine Hermine-Daten</h3>
+                    <h3 style="font-weight: 600; color: #00337F; margin: 0 0 1rem 0;"><i class="bi bi-person"></i> Deine Hermine-Daten</h3>
                     
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
                         <div>
@@ -252,7 +252,7 @@
 
                 <!-- Bug Location (conditional) -->
                 <div id="bugFields" class="hidden conditional-field" style="display: none; margin-bottom: 1.5rem;">
-                    <label for="error_location" class="form-label">🐛 Wo ist der Fehler aufgetreten? <span class="required">*</span></label>
+                    <label for="error_location" class="form-label"><i class="bi bi-bug"></i> Wo ist der Fehler aufgetreten? <span class="required">*</span></label>
                     <select id="error_location" name="error_location" class="form-select">
                         <option value="">Bitte auswählen...</option>
                         <option value="dashboard" {{ old('error_location') == 'dashboard' ? 'selected' : '' }}>Dashboard</option>
@@ -281,9 +281,9 @@
                 </div>
 
                 <!-- Submit Button -->
-                <button type="submit" id="submitBtn" class="button button-primary">📤 Nachricht absenden</button>
+                <button type="submit" id="submitBtn" class="button button-primary"><i class="bi bi-send"></i> Nachricht absenden</button>
 
-                <p class="privacy-text">🔒 Deine Daten werden vertraulich behandelt und nicht an Dritte weitergegeben.</p>
+                <p class="privacy-text"><i class="bi bi-lock"></i> Deine Daten werden vertraulich behandelt und nicht an Dritte weitergegeben.</p>
             </form>
         </div>
     </div>
@@ -301,13 +301,13 @@
         if (type === 'bug') {
             bugFields.style.display = 'block';
             errorLocation.setAttribute('required', 'required');
-            messageLabel.textContent = '🐛 Beschreibe den Fehler';
+            messageLabel.textContent = 'Beschreibe den Fehler';
         } else if (type === 'feedback') {
-            messageLabel.textContent = '💭 Dein Feedback';
+            messageLabel.textContent = 'Dein Feedback';
         } else if (type === 'feature') {
-            messageLabel.textContent = '✨ Beschreibe deinen Feature-Wunsch';
+            messageLabel.textContent = 'Beschreibe deinen Feature-Wunsch';
         } else {
-            messageLabel.textContent = '📧 Deine Nachricht';
+            messageLabel.textContent = 'Deine Nachricht';
         }
     }
 
@@ -340,7 +340,7 @@
     document.getElementById('contactForm').addEventListener('submit', function(e) {
         const submitBtn = document.getElementById('submitBtn');
         submitBtn.disabled = true;
-        submitBtn.textContent = '⏳ Wird gesendet...';
+        submitBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Wird gesendet...';
     });
 </script>
 

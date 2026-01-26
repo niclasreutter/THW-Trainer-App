@@ -13,7 +13,7 @@
 
     .admin-header { text-align: center; margin-bottom: 3rem; }
 
-    .admin-header h1 { font-size: 2.5rem; font-weight: 800; color: #00337F; margin-bottom: 0.5rem; line-height: 1.2; }
+    .admin-header h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 0.5rem; line-height: 1.2; display: inline-block; background: linear-gradient(90deg, #fbbf24, #f59e0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
 
     .admin-subtitle { font-size: 1.1rem; color: #4b5563; margin: 0; }
 
@@ -138,12 +138,12 @@
     <div class="admin-container">
         <!-- Header -->
         <div class="admin-header">
-            <h1>⚙️ Admin Dashboard</h1>
+            <h1>Admin Dashboard</h1>
             <p class="admin-subtitle">Übersicht über System-Status, Benutzer und Lernfortschritt</p>
         </div>
 
         <!-- System Status -->
-        <div class="section-title">🔧 System Status</div>
+        <div class="section-title">System Status</div>
         <div class="stat-grid">
             <div class="stat-card system-status">
                 <div class="stat-label">Datenbank</div>
@@ -183,7 +183,7 @@
         </div>
 
         <!-- KPI Cards -->
-        <div class="section-title">📊 Wichtige Kennzahlen</div>
+        <div class="section-title">Wichtige Kennzahlen</div>
         <div class="kpi-grid">
             <!-- Gesamt Benutzer -->
             <div class="kpi-card">
@@ -192,7 +192,7 @@
                     <p class="kpi-value">{{ $totalUsers }}</p>
                     <p class="kpi-sub">+{{ $newUsersToday }} heute</p>
                 </div>
-                <div class="kpi-icon">👥</div>
+                <div class="kpi-icon"><i class="bi bi-people"></i></div>
             </div>
 
             <!-- E-Mail bestätigt -->
@@ -202,7 +202,7 @@
                     <p class="kpi-value">{{ $verifiedUsers }}</p>
                     <p class="kpi-sub">{{ $verificationRate }}% Rate</p>
                 </div>
-                <div class="kpi-icon">✅</div>
+                <div class="kpi-icon"><i class="bi bi-check-circle-fill text-green-500"></i></div>
             </div>
 
             <!-- Gesamt Fragen -->
@@ -212,7 +212,7 @@
                     <p class="kpi-value">{{ $totalQuestions }}</p>
                     <p class="kpi-sub">{{ $learningSections }} Lernabschnitte</p>
                 </div>
-                <div class="kpi-icon">❓</div>
+                <div class="kpi-icon"><i class="bi bi-question-circle"></i></div>
             </div>
 
             <!-- Beantwortete Fragen -->
@@ -222,16 +222,16 @@
                     <p class="kpi-value">{{ number_format($totalAnsweredQuestions) }}</p>
                     <p class="kpi-sub">{{ $wrongAnswerRate }}% Falsch</p>
                 </div>
-                <div class="kpi-icon">📊</div>
+                <div class="kpi-icon"><i class="bi bi-bar-chart"></i></div>
             </div>
         </div>
 
         <!-- Detail Cards -->
-        <div class="section-title">📈 Detaillierte Statistiken</div>
+        <div class="section-title">Detaillierte Statistiken</div>
         <div class="grid-2">
             <!-- Fragen-Statistik -->
             <div class="card">
-                <h3><span class="card-icon">📉</span> Fragen-Statistik</h3>
+                <h3><span class="card-icon"><i class="bi bi-graph-down"></i></span> Fragen-Statistik</h3>
                 <div class="stat-row">
                     <span class="stat-label-col">Gesamt beantwortet</span>
                     <span class="stat-value-col">{{ number_format($totalAnsweredQuestions) }}</span>
@@ -252,7 +252,7 @@
 
             <!-- Benutzer-Aktivität -->
             <div class="card">
-                <h3><span class="card-icon">📈</span> Benutzer-Aktivität</h3>
+                <h3><span class="card-icon"><i class="bi bi-graph-up"></i></span> Benutzer-Aktivität</h3>
                 <div class="stat-row">
                     <span class="stat-label-col">Heute</span>
                     <span class="stat-value-col">{{ $userActivity['today'] }}</span>
@@ -269,7 +269,7 @@
 
             <!-- Lernfortschritt -->
             <div class="card">
-                <h3><span class="card-icon">🎓</span> Lernfortschritt</h3>
+                <h3><span class="card-icon"><i class="bi bi-mortarboard"></i></span> Lernfortschritt</h3>
                 <div class="stat-row">
                     <span class="stat-label-col">Gesamt Punkte</span>
                     <span class="stat-value-col warning">{{ number_format($learningProgress['total_points']) }}</span>
@@ -286,7 +286,7 @@
         </div>
 
         <!-- Leaderboard Section -->
-        <div class="section-title">🏆 Leaderboard Top-10</div>
+        <div class="section-title">Leaderboard Top-10</div>
         <div class="card">
             <div style="max-height: 400px; overflow-y: auto;">
                 @forelse($leaderboard as $index => $user)
@@ -314,7 +314,7 @@
                     </div>
                 @empty
                     <div style="text-align: center; padding: 3rem 1rem; color: #9ca3af;">
-                        <div style="font-size: 3rem; margin-bottom: 1rem;">👥</div>
+                        <div style="font-size: 3rem; margin-bottom: 1rem;"><i class="bi bi-people"></i></div>
                         <p>Noch keine Benutzer-Daten verfügbar</p>
                     </div>
                 @endforelse
@@ -322,11 +322,11 @@
         </div>
 
         <!-- Statistiken Charts (30 Tage inkl. heute) -->
-        <div class="section-title">📊 Statistiken (letzte 30 Tage)</div>
+        <div class="section-title">Statistiken (letzte 30 Tage)</div>
         <div class="charts-grid">
             <!-- Chart 1: Aktive Benutzer + Registrierungen -->
             <div class="chart-card">
-                <h3>👥 Benutzeraktivität</h3>
+                <h3><i class="bi bi-people"></i> Benutzeraktivität</h3>
                 <div class="chart-container">
                     <canvas id="userActivityChart"></canvas>
                 </div>
@@ -334,7 +334,7 @@
 
             <!-- Chart 2: Beantwortete Fragen (Total, Richtig, Falsch) -->
             <div class="chart-card">
-                <h3>❓ Beantwortete Fragen</h3>
+                <h3><i class="bi bi-question-circle"></i> Beantwortete Fragen</h3>
                 <div class="chart-container">
                     <canvas id="questionsChart"></canvas>
                 </div>
@@ -342,7 +342,7 @@
 
             <!-- Chart 3: User-Verlauf -->
             <div class="chart-card">
-                <h3>📈 User-Wachstum</h3>
+                <h3><i class="bi bi-graph-up-arrow"></i> User-Wachstum</h3>
                 <div class="chart-container">
                     <canvas id="userGrowthChart"></canvas>
                 </div>
@@ -350,22 +350,22 @@
         </div>
 
         <!-- Quick Actions -->
-        <div class="section-title">⚡ Schnellaktionen</div>
+        <div class="section-title">Schnellaktionen</div>
         <div class="action-buttons">
             <a href="{{ route('admin.questions.index') }}" class="action-btn warning">
-                <span>❓</span>
+                <span><i class="bi bi-question-circle"></i></span>
                 <span>Fragen verwalten</span>
             </a>
             <a href="{{ route('admin.users.index') }}" class="action-btn primary">
-                <span>👥</span>
+                <span><i class="bi bi-people"></i></span>
                 <span>Benutzer verwalten</span>
             </a>
             <a href="{{ route('admin.newsletter.create') }}" class="action-btn success">
-                <span>📧</span>
+                <span><i class="bi bi-envelope"></i></span>
                 <span>Newsletter senden</span>
             </a>
             <a href="{{ route('admin.contact-messages.index') }}" class="action-btn info">
-                <span>💬</span>
+                <span><i class="bi bi-chat-dots"></i></span>
                 <span>Kontaktanfragen</span>
                 @php
                     $unreadCount = \App\Models\ContactMessage::where('is_read', false)->count();

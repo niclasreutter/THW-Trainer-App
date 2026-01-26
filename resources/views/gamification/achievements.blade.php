@@ -31,8 +31,12 @@
     .achievements-title {
         font-size: 2.5rem;
         font-weight: 800;
-        color: #00337F;
         line-height: 1.2;
+        display: inline-block;
+        background: linear-gradient(90deg, #fbbf24, #f59e0b);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
     }
 
     .back-link {
@@ -300,7 +304,7 @@
 <div class="achievements-wrapper">
     <div class="achievements-container">
         <div class="achievements-header">
-            <h1 class="achievements-title">🏆 Achievements & Fortschritt</h1>
+            <h1 class="achievements-title">Achievements & Fortschritt</h1>
             <a href="{{ route('dashboard') }}" class="back-link">
                 ← Zurück zum Dashboard
             </a>
@@ -318,7 +322,7 @@
         <!-- Stats Grid -->
         <div class="stats-grid">
             <div class="stat-card">
-                <div class="stat-icon">⭐</div>
+                <div class="stat-icon text-yellow-500"><i class="bi bi-star-fill"></i></div>
                 <div class="stat-content">
                     <div class="stat-value">Level {{ $user->level }}</div>
                     <div class="stat-label">
@@ -340,7 +344,7 @@
             </div>
 
             <div class="stat-card">
-                <div class="stat-icon">💎</div>
+                <div class="stat-icon text-cyan-500"><i class="bi bi-gem"></i></div>
                 <div class="stat-content">
                     <div class="stat-value">{{ number_format($user->points) }}</div>
                     <div class="stat-label">Gesamtpunkte</div>
@@ -348,7 +352,7 @@
             </div>
 
             <div class="stat-card">
-                <div class="stat-icon">🔥</div>
+                <div class="stat-icon text-orange-500"><i class="bi bi-fire"></i></div>
                 <div class="stat-content">
                     <div class="stat-value">{{ $user->streak_days }}</div>
                     <div class="stat-label">Tage Streak</div>
@@ -356,7 +360,7 @@
             </div>
 
             <div class="stat-card">
-                <div class="stat-icon">🏆</div>
+                <div class="stat-icon text-yellow-600"><i class="bi bi-trophy-fill"></i></div>
                 <div class="stat-content">
                     <div class="stat-value">{{ collect($achievements)->where('unlocked', true)->count() }}</div>
                     <div class="stat-label">Achievements freigeschaltet</div>
@@ -366,7 +370,7 @@
 
         <!-- Achievements -->
         <div class="achievements-section">
-            <h2 class="section-title">🎯 Achievements</h2>
+            <h2 class="section-title">Achievements</h2>
             <div class="achievements-grid">
                 @foreach($achievements as $achievement)
                     <div class="achievement-card {{ $achievement['unlocked'] ? 'unlocked' : 'locked' }}">
@@ -394,7 +398,7 @@
         <!-- Daily Challenge -->
         <div class="daily-challenge">
             <div class="daily-challenge-content">
-                <h2 class="daily-challenge-title">⚡ Tägliche Herausforderung</h2>
+                <h2 class="daily-challenge-title">Tägliche Herausforderung</h2>
                 <p class="daily-challenge-description">
                     Beantworte 20 Fragen heute für das "Blitzschnell" Achievement!
                 </p>
