@@ -31,9 +31,13 @@
     .statistics-title {
         font-size: 2.5rem;
         font-weight: 800;
-        color: #00337F;
         margin-bottom: 0.5rem;
         line-height: 1.2;
+        display: inline-block;
+        background: linear-gradient(90deg, #fbbf24, #f59e0b);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
     }
 
     .statistics-subtitle {
@@ -423,7 +427,7 @@
 <div class="statistics-wrapper">
     <div class="statistics-container">
         <div class="statistics-header">
-            <h1 class="statistics-title">📊 THW-Trainer Statistiken</h1>
+            <h1 class="statistics-title">Statistiken</h1>
             <p class="statistics-subtitle">Anonyme Statistiken über alle beantworteten Fragen</p>
         </div>
 
@@ -436,7 +440,7 @@
                         <div class="stat-value">{{ number_format($totalAnswered) }}</div>
                         <div class="stat-subtext">{{ number_format($totalAnsweredToday) }} heute</div>
                     </div>
-                    <div class="stat-icon">📊</div>
+                    <div class="stat-icon"><i class="bi bi-bar-chart"></i></div>
                 </div>
             </div>
 
@@ -447,7 +451,7 @@
                         <div class="stat-value">{{ number_format($totalCorrect) }}</div>
                         <div class="stat-subtext">{{ $successRate }}% Erfolgsrate</div>
                     </div>
-                    <div class="stat-icon">✓</div>
+                    <div class="stat-icon"><i class="bi bi-check-circle"></i></div>
                 </div>
             </div>
 
@@ -458,7 +462,7 @@
                         <div class="stat-value">{{ number_format($totalWrong) }}</div>
                         <div class="stat-subtext">{{ $errorRate }}% Fehlerrate</div>
                     </div>
-                    <div class="stat-icon">✗</div>
+                    <div class="stat-icon"><i class="bi bi-x-circle"></i></div>
                 </div>
             </div>
 
@@ -469,7 +473,7 @@
                         <div class="stat-value">{{ number_format($totalExams) }}</div>
                         <div class="stat-subtext">{{ number_format($passedExams) }} bestanden ({{ $examPassRate }}%)</div>
                     </div>
-                    <div class="stat-icon">🏆</div>
+                    <div class="stat-icon"><i class="bi bi-trophy"></i></div>
                 </div>
             </div>
         </div>
@@ -477,10 +481,7 @@
         <!-- Lernabschnitt-Statistiken -->
         @if($sectionStats->isNotEmpty())
         <div class="section-card">
-            <h2 class="section-title">
-                <span class="section-title-icon">📚</span>
-                Statistik nach Lernabschnitten
-            </h2>
+            <h2 class="section-title">Statistik nach Lernabschnitten</h2>
             
             <div class="section-stats-grid">
                 @foreach($sectionStats as $stat)
@@ -533,14 +534,11 @@
         <div class="questions-grid">
             <!-- Top 10 Schwierigste Fragen -->
             <div class="section-card">
-                <h2 class="section-title">
-                    <span class="section-title-icon">⚠️</span>
-                    Top 10 Schwierigste Fragen
-                </h2>
+                <h2 class="section-title">Top 10 Schwierigste Fragen</h2>
                 
                 @if($topWrongQuestionsWithDetails->isEmpty())
                     <div class="empty-state">
-                        <div class="empty-icon">📊</div>
+                        <div class="empty-icon"><i class="bi bi-bar-chart"></i></div>
                         <p>Noch nicht genügend Daten verfügbar</p>
                         <p style="font-size: 0.8rem;">(mindestens 5 Versuche pro Frage erforderlich)</p>
                     </div>
@@ -570,14 +568,11 @@
 
             <!-- Top 10 Einfachste Fragen -->
             <div class="section-card">
-                <h2 class="section-title">
-                    <span class="section-title-icon">⭐</span>
-                    Top 10 Einfachste Fragen
-                </h2>
+                <h2 class="section-title">Top 10 Einfachste Fragen</h2>
                 
                 @if($topCorrectQuestionsWithDetails->isEmpty())
                     <div class="empty-state">
-                        <div class="empty-icon">📊</div>
+                        <div class="empty-icon"><i class="bi bi-bar-chart"></i></div>
                         <p>Noch nicht genügend Daten verfügbar</p>
                         <p style="font-size: 0.8rem;">(mindestens 5 Versuche pro Frage erforderlich)</p>
                     </div>
@@ -609,10 +604,7 @@
         <!-- Lehrgang-Statistiken -->
         @if($lehrgangStats->isNotEmpty())
         <div class="section-card">
-            <h2 class="section-title">
-                <span class="section-title-icon">🎓</span>
-                Lehrgänge
-            </h2>
+            <h2 class="section-title">Lehrgänge</h2>
             
             <div class="section-stats-grid">
                 @foreach($lehrgangStats as $lehrgang)
@@ -620,17 +612,17 @@
                         <div class="stat-item-name">{{ $lehrgang->name }}</div>
                         
                         <div class="stat-item-row">
-                            <span>👥 Nutzer eingeschrieben:</span>
+                            <span>Nutzer eingeschrieben:</span>
                             <span class="stat-item-count">{{ number_format($lehrgang->users_count) }}</span>
                         </div>
-                        
+
                         <div class="stat-item-row">
-                            <span>❓ Fragen:</span>
+                            <span>Fragen:</span>
                             <span class="stat-item-count">{{ $lehrgang->questions_count }}</span>
                         </div>
-                        
+
                         <div class="stat-item-row">
-                            <span>📊 Beantwortet:</span>
+                            <span>Beantwortet:</span>
                             <span class="stat-item-count">{{ number_format($lehrgang->total_answered) }}</span>
                         </div>
                         
