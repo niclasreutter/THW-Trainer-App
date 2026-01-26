@@ -305,13 +305,13 @@
 <div class="practice-wrapper">
     <div class="practice-container">
         <header class="practice-header">
-            <h1 class="practice-title">📚 Übungsmenü</h1>
-            <p class="practice-subtitle">Wähle deinen Lernmodus und verbessere dein Wissen</p>
+            <h1 class="practice-title"><i class="bi bi-book mr-2"></i>Übungsmenü</h1>
+            <p class="practice-subtitle">Lernmodus auswählen</p>
         </header>
 
         <!-- Suchfeld -->
         <div class="section-card">
-            <h2 class="section-title">🔍 Fragen suchen</h2>
+            <h2 class="section-title"><i class="bi bi-search mr-2"></i>Fragen suchen</h2>
             <form action="{{ route('practice.search') }}" method="GET" class="search-form">
                 <input type="text" name="search" value="{{ request('search') }}" 
                        placeholder="Suchbegriff eingeben..." 
@@ -322,12 +322,12 @@
 
         <!-- Alle Fragen Modus -->
         <div class="section-card">
-            <h2 class="section-title">📖 Alle Fragen</h2>
-            
+            <h2 class="section-title"><i class="bi bi-journal-text mr-2"></i>Alle Fragen</h2>
+
             <!-- Statistiken -->
             <div class="stats-grid">
                 <div class="stat-item failed">
-                    <div class="stat-icon">❌</div>
+                    <div class="stat-icon"><i class="bi bi-x-circle text-red-500"></i></div>
                     <div class="stat-content">
                         <div class="stat-value">{{ $failedCount }}</div>
                         <div class="stat-label">Fehlgeschlagen</div>
@@ -337,7 +337,7 @@
                 </div>
 
                 <div class="stat-item unsolved">
-                    <div class="stat-icon">❓</div>
+                    <div class="stat-icon"><i class="bi bi-question-circle text-yellow-500"></i></div>
                     <div class="stat-content">
                         <div class="stat-value">{{ $unsolvedCount }}</div>
                         <div class="stat-label">Ungelöst</div>
@@ -347,7 +347,7 @@
                 </div>
 
                 <div class="stat-item solved">
-                    <div class="stat-icon">✅</div>
+                    <div class="stat-icon"><i class="bi bi-check-circle text-green-500"></i></div>
                     <div class="stat-content">
                         <div class="stat-value">{{ $solvedCount }}</div>
                         <div class="stat-label">Gemeistert</div>
@@ -373,11 +373,11 @@
             @endif
             
             <a href="{{ route('practice.all') }}" class="start-training-btn">
-                <div class="start-training-icon">🎯</div>
+                <div class="start-training-icon"><i class="bi bi-bullseye"></i></div>
                 <div class="start-training-content">
                     <div class="start-training-title">
                         @if($failedCount > 0 || $unsolvedCount > 0)
-                            Prioritäts-Training starten
+                            Training starten
                         @else
                             Alle Fragen wiederholen
                         @endif
@@ -397,7 +397,7 @@
 
         <!-- Lernabschnitte -->
         <div class="section-card">
-            <h2 class="section-title">📚 Lernabschnitte</h2>
+            <h2 class="section-title"><i class="bi bi-list-ol mr-2"></i>Lernabschnitte</h2>
             <p class="section-description">Übe gezielt nach Themengebieten strukturiert.</p>
             
             <div class="sections-grid">
