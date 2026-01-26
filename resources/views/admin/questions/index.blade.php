@@ -27,11 +27,15 @@
         gap: 1rem; 
     }
     
-    .page-title { 
-        font-size: 2rem; 
-        font-weight: 800; 
-        color: #00337F; 
-        margin: 0; 
+    .page-title {
+        font-size: 2rem;
+        font-weight: 800;
+        margin: 0;
+        display: inline-block;
+        background: linear-gradient(90deg, #fbbf24, #f59e0b);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
     }
     
     .btn { 
@@ -132,17 +136,17 @@
     <div class="admin-container">
         <!-- Header -->
         <div class="page-header">
-            <h1 class="page-title">📝 Fragenverwaltung</h1>
+            <h1 class="page-title">Fragenverwaltung</h1>
             <div style="display: flex; gap: 1rem;">
                 <a href="{{ route('admin.dashboard') }}" class="btn btn-secondary">← Admin Dashboard</a>
-                <a href="{{ route('admin.users.index') }}" class="btn btn-primary">👥 Benutzer</a>
+                <a href="{{ route('admin.users.index') }}" class="btn btn-primary"><i class="bi bi-people"></i> Benutzer</a>
             </div>
         </div>
 
         <!-- Status Messages -->
         @if(session('success'))
             <div style="background: rgba(34, 197, 94, 0.1); border: 1px solid #22c55e; border-radius: 10px; padding: 1.5rem; margin-bottom: 2rem; display: flex; gap: 1rem;">
-                <span>✅</span>
+                <span><i class="bi bi-check-circle-fill text-green-500"></i></span>
                 <div>
                     <strong style="color: #16a34a;">Erfolg!</strong>
                     <p style="color: #16a34a; margin: 0;">{{ session('success') }}</p>
@@ -152,7 +156,7 @@
 
         @if($errors->any())
             <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; border-radius: 10px; padding: 1.5rem; margin-bottom: 2rem; display: flex; gap: 1rem;">
-                <span>❌</span>
+                <span><i class="bi bi-x-circle-fill text-red-500"></i></span>
                 <div>
                     <strong style="color: #dc2626;">Fehler!</strong>
                     <ul style="color: #dc2626; margin: 0; padding-left: 1rem;">
@@ -166,10 +170,10 @@
 
         <!-- Statistiken -->
         <div style="margin-bottom: 2rem;">
-            <h2 style="font-size: 1.3rem; font-weight: 700; color: #1f2937; margin-bottom: 1.5rem;">📊 Statistiken</h2>
+            <h2 style="font-size: 1.3rem; font-weight: 700; color: #1f2937; margin-bottom: 1.5rem;">Statistiken</h2>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
                 <div style="background: white; border: 1px solid #e5e7eb; border-radius: 10px; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); display: flex; gap: 1rem; align-items: center;">
-                    <div style="font-size: 2rem;">📝</div>
+                    <div style="font-size: 2rem;"><i class="bi bi-card-text"></i></div>
                     <div>
                         <h3 style="margin: 0 0 0.5rem 0; color: #6b7280; font-size: 0.9rem; font-weight: 500;">Gesamt Fragen</h3>
                         <p style="font-size: 1.75rem; font-weight: 800; color: #00337F; margin: 0;">{{ $questions->count() }}</p>
@@ -177,7 +181,7 @@
                 </div>
 
                 <div style="background: white; border: 1px solid #e5e7eb; border-radius: 10px; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); display: flex; gap: 1rem; align-items: center;">
-                    <div style="font-size: 2rem;">📚</div>
+                    <div style="font-size: 2rem;"><i class="bi bi-book"></i></div>
                     <div>
                         <h3 style="margin: 0 0 0.5rem 0; color: #6b7280; font-size: 0.9rem; font-weight: 500;">Lernabschnitte</h3>
                         <p style="font-size: 1.75rem; font-weight: 800; color: #00337F; margin: 0;">{{ $questions->pluck('lernabschnitt')->unique()->count() }}</p>
@@ -185,7 +189,7 @@
                 </div>
 
                 <div style="background: white; border: 1px solid #e5e7eb; border-radius: 10px; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); display: flex; gap: 1rem; align-items: center;">
-                    <div style="font-size: 2rem;">🏆</div>
+                    <div style="font-size: 2rem;"><i class="bi bi-hash"></i></div>
                     <div>
                         <h3 style="margin: 0 0 0.5rem 0; color: #6b7280; font-size: 0.9rem; font-weight: 500;">Höchste ID</h3>
                         <p style="font-size: 1.75rem; font-weight: 800; color: #00337F; margin: 0;">{{ $questions->max('id') ?? 0 }}</p>
@@ -196,7 +200,7 @@
 
         <!-- Neue Frage hinzufügen -->
         <div style="background: white; border: 1px solid #e5e7eb; border-radius: 10px; padding: 2rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); margin-bottom: 2rem;">
-            <h3 style="font-size: 1.3rem; font-weight: 700; color: #1f2937; margin: 0 0 1.5rem 0;">➕ Neue Frage hinzufügen</h3>
+            <h3 style="font-size: 1.3rem; font-weight: 700; color: #1f2937; margin: 0 0 1.5rem 0;">Neue Frage hinzufügen</h3>
             
             <form method="POST" action="{{ route('admin.questions.store') }}">
                 @csrf
@@ -284,16 +288,16 @@
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-primary" 
+                <button type="submit" class="btn btn-primary"
                         style="background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: white; padding: 0.75rem 1.5rem;">
-                    💾 Frage speichern
+                    <i class="bi bi-floppy"></i> Frage speichern
                 </button>
             </form>
         </div>
 
         <!-- Fragen-Liste -->
         <div style="background: white; border: 1px solid #e5e7eb; border-radius: 10px; padding: 2rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);">
-            <h3 style="font-size: 1.3rem; font-weight: 700; color: #1f2937; margin: 0 0 1.5rem 0;">📋 Alle Fragen ({{ $questions->count() }})</h3>
+            <h3 style="font-size: 1.3rem; font-weight: 700; color: #1f2937; margin: 0 0 1.5rem 0;">Alle Fragen ({{ $questions->count() }})</h3>
             
             @if($questions->count() > 0)
                 <!-- Desktop Tabelle (versteckt auf mobil) -->
@@ -404,7 +408,7 @@
                                             <!-- Antworten bearbeiten Button -->
                                             <button onclick="toggleAnswers({{ $question->id }})" 
                                                     style="background: #00337F; color: white; padding: 0.5rem 0.75rem; border-radius: 6px; border: none; font-size: 0.8rem; cursor: pointer;">
-                                                📝 Antworten
+                                                <i class="bi bi-pencil"></i> Antworten
                                             </button>
                                             
                                             <!-- Löschen Button -->
@@ -415,7 +419,7 @@
                                                 @method('DELETE')
                                                 <button type="submit" 
                                                         style="background: #ef4444; color: white; padding: 0.5rem 0.75rem; border-radius: 6px; border: none; font-size: 0.8rem; cursor: pointer;">
-                                                    🗑️
+                                                    <i class="bi bi-trash"></i>
                                                 </button>
                                             </form>
                                         </div>
@@ -477,7 +481,7 @@
                                         @method('DELETE')
                                         <button type="submit" 
                                                 style="background: #ef4444; color: white; padding: 0.5rem; border-radius: 8px; border: none; cursor: pointer; font-size: 1.2rem;">
-                                            🗑️
+                                            <i class="bi bi-trash"></i>
                                         </button>
                                     </form>
                                 </div>
@@ -572,7 +576,7 @@
                             <!-- Antworten Button -->
                             <button onclick="toggleAnswersMobile({{ $question->id }})" 
                                     style="background: #00337F; color: white; padding: 0.75rem 1.5rem; border-radius: 8px; border: none; font-size: 1rem; cursor: pointer; width: 100%; margin-bottom: 1rem;">
-                                📝 Antworten bearbeiten
+                                <i class="bi bi-pencil"></i> Antworten bearbeiten
                             </button>
 
                             <!-- Antworten (versteckt by default) -->
@@ -612,7 +616,7 @@
                 </div>
             @else
                 <div style="text-align: center; padding: 3rem 1rem; color: #9ca3af;">
-                    <div style="font-size: 3rem; margin-bottom: 1rem;">📝</div>
+                    <div style="font-size: 3rem; margin-bottom: 1rem;"><i class="bi bi-card-text"></i></div>
                     <p>Noch keine Fragen vorhanden. Erstelle deine erste Frage!</p>
                 </div>
             @endif
@@ -737,11 +741,11 @@ function toggleAnswersMobile(questionId) {
     
     if (answersDiv.style.display === 'none' || answersDiv.style.display === '') {
         answersDiv.style.display = 'block';
-        button.textContent = '🔼 Antworten verstecken';
+        button.innerHTML = '<i class="bi bi-chevron-up"></i> Antworten verstecken';
         button.style.background = '#dc2626';
     } else {
         answersDiv.style.display = 'none';
-        button.textContent = '📝 Antworten bearbeiten';
+        button.innerHTML = '<i class="bi bi-pencil"></i> Antworten bearbeiten';
         button.style.background = '#00337F';
     }
 }
@@ -885,11 +889,11 @@ function toggleAnswers(questionId) {
     
     if (answersRow.style.display === 'none' || answersRow.style.display === '') {
         answersRow.style.display = 'table-row';
-        button.textContent = '🔼 Verstecken';
+        button.innerHTML = '<i class="bi bi-chevron-up"></i> Verstecken';
         button.style.background = '#dc2626';
     } else {
         answersRow.style.display = 'none';
-        button.textContent = '📝 Antworten';
+        button.innerHTML = '<i class="bi bi-pencil"></i> Antworten';
         button.style.background = '#00337F';
     }
 }

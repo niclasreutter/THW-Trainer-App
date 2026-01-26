@@ -370,26 +370,26 @@
 <div class="dashboard-wrapper">
     <div class="dashboard-container">
         <div class="dashboard-header">
-            <h1 class="dashboard-greeting">🚨 <span>Ortsverband</span></h1>
+            <h1 class="dashboard-greeting"><span>Ortsverband</span></h1>
             <p class="dashboard-subtitle">Tritt einem Ortsverband bei oder erstelle deinen eigenen</p>
         </div>
 
         @if(session('success'))
         <div class="alert alert-success">
-            ✓ {{ session('success') }}
+            <i class="bi bi-check-circle"></i> {{ session('success') }}
         </div>
         @endif
 
         @if(session('error'))
         <div class="alert alert-error">
-            ✗ {{ session('error') }}
+            <i class="bi bi-x-circle"></i> {{ session('error') }}
         </div>
         @endif
 
         {{-- Kein Ortsverband - Erstellen oder Beitreten --}}
         <div class="ortsverband-card">
             <div class="empty-state">
-                <div class="empty-state-icon">🚨</div>
+                <div class="empty-state-icon"><i class="bi bi-building"></i></div>
                 <h3 class="empty-state-title">Noch kein Ortsverband</h3>
                 <p class="empty-state-description">
                     Erstelle einen eigenen Ortsverband als Ausbildungsbeauftragter oder tritt einem über einen Einladungscode bei.
@@ -420,7 +420,7 @@
 
         <div style="text-align: center; margin-top: 2rem;">
             <a href="{{ route('dashboard') }}" style="color: #6b7280; text-decoration: none; font-size: 0.9rem;">
-                ← Zurück zum Dashboard
+                <i class="bi bi-arrow-left"></i> Zurück zum Dashboard
             </a>
         </div>
     </div>

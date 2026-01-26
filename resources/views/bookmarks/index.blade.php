@@ -29,9 +29,13 @@
     .bookmarks-title {
         font-size: 2.5rem;
         font-weight: 800;
-        color: #00337F;
         margin-bottom: 0.5rem;
         line-height: 1.2;
+        display: inline-block;
+        background: linear-gradient(90deg, #fbbf24, #f59e0b);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
     }
 
     .bookmarks-subtitle {
@@ -279,7 +283,7 @@
 <div class="bookmarks-wrapper">
     <div class="bookmarks-container">
         <header class="bookmarks-header">
-            <h1 class="bookmarks-title">🔖 Gespeicherte Fragen</h1>
+            <h1 class="bookmarks-title">Gespeicherte Fragen</h1>
             <p class="bookmarks-subtitle">Deine Favoriten zum gezielten Üben</p>
         </header>
 
@@ -298,18 +302,18 @@
         @if($questions->count() > 0)
             <!-- Practice Button Card -->
             <div class="practice-card">
-                <h2 class="practice-card-title">🎯 Alle gespeicherten Fragen üben</h2>
+                <h2 class="practice-card-title">Alle gespeicherten Fragen üben</h2>
                 <p class="practice-card-description">
                     Starte eine komplette Übungssession mit allen {{ $questions->count() }} gespeicherten Fragen.
                 </p>
                 <a href="{{ route('bookmarks.practice') }}" class="practice-button">
-                    📚 Jetzt üben ({{ $questions->count() }} Fragen)
+                    <i class="bi bi-book"></i> Jetzt üben ({{ $questions->count() }} Fragen)
                 </a>
             </div>
 
             <!-- Questions List -->
             <div class="questions-section">
-                <h2 class="questions-title">📋 Deine Lesezeichen</h2>
+                <h2 class="questions-title">Deine Lesezeichen</h2>
                 <div class="questions-grid">
                     @foreach($questions as $question)
                         <div class="question-card">
@@ -350,7 +354,7 @@
         @else
             <!-- Empty State -->
             <div class="empty-state">
-                <div class="empty-state-icon">📝</div>
+                <div class="empty-state-icon"><i class="bi bi-bookmark"></i></div>
                 <h2 class="empty-state-title">Noch keine Fragen gespeichert</h2>
                 <p class="empty-state-description">
                     Du kannst Fragen während des Übens speichern, um sie später gezielt nochmal zu üben.
