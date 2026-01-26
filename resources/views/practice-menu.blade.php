@@ -31,9 +31,13 @@
     .practice-title {
         font-size: 2.5rem;
         font-weight: 800;
-        color: #00337F;
         margin-bottom: 0.5rem;
         line-height: 1.2;
+        display: inline-block;
+        background: linear-gradient(90deg, #fbbf24, #f59e0b);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
     }
 
     .practice-subtitle {
@@ -305,13 +309,13 @@
 <div class="practice-wrapper">
     <div class="practice-container">
         <header class="practice-header">
-            <h1 class="practice-title"><i class="bi bi-book mr-2"></i>Übungsmenü</h1>
+            <h1 class="practice-title">Übungsmenü</h1>
             <p class="practice-subtitle">Lernmodus auswählen</p>
         </header>
 
         <!-- Suchfeld -->
         <div class="section-card">
-            <h2 class="section-title"><i class="bi bi-search mr-2"></i>Fragen suchen</h2>
+            <h2 class="section-title">Fragen suchen</h2>
             <form action="{{ route('practice.search') }}" method="GET" class="search-form">
                 <input type="text" name="search" value="{{ request('search') }}" 
                        placeholder="Suchbegriff eingeben..." 
@@ -322,7 +326,7 @@
 
         <!-- Alle Fragen Modus -->
         <div class="section-card">
-            <h2 class="section-title"><i class="bi bi-journal-text mr-2"></i>Alle Fragen</h2>
+            <h2 class="section-title">Alle Fragen</h2>
 
             <!-- Statistiken -->
             <div class="stats-grid">
@@ -397,7 +401,7 @@
 
         <!-- Lernabschnitte -->
         <div class="section-card">
-            <h2 class="section-title"><i class="bi bi-list-ol mr-2"></i>Lernabschnitte</h2>
+            <h2 class="section-title">Lernabschnitte</h2>
             <p class="section-description">Übe gezielt nach Themengebieten strukturiert.</p>
             
             <div class="sections-grid">

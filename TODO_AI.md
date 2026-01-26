@@ -87,11 +87,20 @@
 #### Priorität 3 (Weitere Views) - Phase 2
 - [ ] `resources/views/gamification/achievements.blade.php`
 - [ ] `resources/views/gamification/leaderboard.blade.php`
-- [ ] `resources/views/statistics.blade.php`
+- [x] `resources/views/statistics.blade.php` - Emojis ersetzt, Titel mit Gradient
 - [ ] `resources/views/exam.blade.php`
 - [ ] `resources/views/practice.blade.php`
 - [ ] `resources/views/ortsverband/*.blade.php`
 - [ ] `resources/views/components/*.blade.php`
+
+---
+
+## 5. Seitenüberschriften mit gelbem Gradient (ohne Icons)
+
+- [x] `practice-menu.blade.php` - `.practice-title` mit Gradient
+- [x] `statistics.blade.php` - `.statistics-title` mit Gradient
+- [x] `dashboard.blade.php` - Section-Titel ohne Icons
+- [x] Alle Section-Titel Icons entfernt
 
 ---
 
@@ -142,6 +151,9 @@
 - [x] app.blade.php - Footer Icons ersetzt
 - [x] Emoji-Rain und Raketen-Animation entfernt
 - [x] Build erfolgreich (Font-Dateien werden gebündelt)
+- [x] Seitenüberschriften: Gelber Gradient statt blau, ohne Icons
+- [x] statistics.blade.php - Komplett überarbeitet (Emojis + Gradient-Titel)
+- [x] Alle Section-Titel ohne Icons
 
 ---
 

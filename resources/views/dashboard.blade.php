@@ -728,7 +728,7 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') dismi
 
         @if(!empty($recentExams) && $recentExams->count() > 0)
         <div style="background: white; border: 1px solid #e5e7eb; border-radius: 1.25rem; padding: 1.75rem; margin-bottom: 1.75rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);">
-            <h2 class="section-title"><i class="bi bi-bar-chart mr-2"></i>Deine letzten Prüfungen</h2>
+            <h2 class="section-title">Deine letzten Prüfungen</h2>
             
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
                 @php
@@ -844,7 +844,7 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') dismi
         @endif
 
         <div class="section-header">
-            <h2 class="section-title"><i class="bi bi-journal-text mr-2"></i>Deine Lehrgänge</h2>
+            <h2 class="section-title">Deine Lehrgänge</h2>
             <a href="{{ route('lehrgaenge.index') }}" class="section-link">Alle anzeigen <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></a>
         </div>
 
@@ -887,7 +887,7 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') dismi
 
 
         <div class="section-header">
-            <h2 class="section-title"><i class="bi bi-collection mr-2"></i>Deine Lernpools</h2>
+            <h2 class="section-title">Deine Lernpools</h2>
             <a href="{{ route('ortsverband.index') }}" class="section-link">Zu Ortsverbänden <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></a>
         </div>
 
