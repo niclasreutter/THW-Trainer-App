@@ -726,9 +726,12 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') dismi
             </div>
         </div>
 
+        <div class="section-header">
+            <h2 class="section-title"><i class="bi bi-list-check"></i> Deine Letzte Prüfung</h2>
+        </div>
+
         @if(!empty($recentExams) && $recentExams->count() > 0)
         <div style="background: white; border: 1px solid #e5e7eb; border-radius: 1.25rem; padding: 1.75rem; margin-bottom: 1.75rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);">
-            <h2 class="section-title">Deine letzten Prüfungen</h2>
             
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
                 @php
