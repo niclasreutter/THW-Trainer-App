@@ -162,13 +162,13 @@
                     <p class="text-gray-600 text-sm mb-2">
                         Diese Webseite wird kostenlos zur Verfügung gestellt
                     </p>
-                    <a href="https://paypal.me/reuttern" 
-                       target="_blank" 
+                    <a href="https://paypal.me/reuttern"
+                       target="_blank"
                        rel="noopener"
                        style="display: inline-flex; align-items: center; gap: 0.5rem; background-color: #00337F; color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 500; text-decoration: none; transition: background-color 0.2s;"
                        onmouseover="this.style.backgroundColor='#002a66'"
                        onmouseout="this.style.backgroundColor='#00337F'">
-                        <span>☕</span>
+                        <i class="bi bi-cup-hot"></i>
                         <span>Unterstütze mich</span>
                     </a>
                 </div>
@@ -182,7 +182,7 @@
                 
                 <!-- Creator -->
                 <div class="text-center text-gray-400 text-xs mt-2">
-                    Mit 💙 erstellt von <a href="https://niclas-reutter.de" target="_blank" rel="noopener" class="text-blue-600 hover:underline">niclas-reutter.de</a>
+                    Erstellt von <a href="https://niclas-reutter.de" target="_blank" rel="noopener" class="text-blue-600 hover:underline">niclas-reutter.de</a>
                 </div>
             </div>
         </footer>

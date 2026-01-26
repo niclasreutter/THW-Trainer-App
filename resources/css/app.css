@@ -1,3 +1,6 @@
+/* Bootstrap Icons (lokal via npm - DSGVO-konform) */
+@import 'bootstrap-icons/font/bootstrap-icons.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

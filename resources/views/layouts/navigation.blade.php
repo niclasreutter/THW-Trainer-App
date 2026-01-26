@@ -210,16 +210,16 @@
                             <div class="text-xs font-semibold text-gray-600 mb-2">Deine Stats</div>
                             <div class="space-y-1.5">
                                 <div class="flex items-center justify-between bg-yellow-500/10 rounded-lg px-3 py-1.5">
-                                    <span class="text-sm font-medium text-gray-700">⭐ Level</span>
+                                    <span class="text-sm font-medium text-gray-700"><i class="bi bi-star-fill mr-1"></i>Level</span>
                                     <span class="text-sm font-bold text-yellow-600">{{ Auth::user()->level ?? 1 }}</span>
                                 </div>
                                 <div class="flex items-center justify-between bg-green-500/10 rounded-lg px-3 py-1.5">
-                                    <span class="text-sm font-medium text-gray-700">💎 Punkte</span>
+                                    <span class="text-sm font-medium text-gray-700"><i class="bi bi-gem mr-1"></i>Punkte</span>
                                     <span class="text-sm font-bold text-green-600">{{ number_format(Auth::user()->points ?? 0) }}</span>
                                 </div>
                                 @if((Auth::user()->streak_days ?? 0) > 0)
                                     <div class="flex items-center justify-between bg-orange-500/10 rounded-lg px-3 py-1.5">
-                                        <span class="text-sm font-medium text-gray-700">🔥 Streak</span>
+                                        <span class="text-sm font-medium text-gray-700"><i class="bi bi-fire mr-1"></i>Streak</span>
                                         <span class="text-sm font-bold text-orange-600">{{ Auth::user()->streak_days }} Tage</span>
                                     </div>
                                 @endif
@@ -261,7 +261,7 @@
                                 <div class="block px-4 py-3 hover:bg-gray-50 transition-colors duration-200 border-b border-gray-100 {{ $notification->is_read ? 'bg-white' : 'bg-blue-50' }}"
                                      onclick="markNotificationAsRead({{ $notification->id }})">
                                     <div class="flex items-start space-x-3">
-                                        <span class="text-2xl">{{ $notification->icon ?? '🔔' }}</span>
+                                        <span class="text-2xl"><i class="bi bi-bell"></i></span>
                                         <div class="flex-1">
                                             <p class="text-sm font-medium text-gray-800">{{ $notification->title }}</p>
                                             <p class="text-xs text-gray-600 mt-1">{{ $notification->message }}</p>

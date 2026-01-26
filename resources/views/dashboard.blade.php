@@ -531,60 +531,52 @@
     $hasFailedQuestions = $failedArr && count($failedArr) > 0;
     $canStartExam = $progress >= $total && !$hasFailedQuestions;
     
+    // Sachliche Fortschrittsanzeige ohne Marketing-Sprache
     if ($progressPercent == 100 && $exams >= 5) {
-        $motivationalMessage = "Du hast alle Fragen gemeistert und 5+ Prüfungen bestanden!";
-        $motivationalEmoji = "🎉";
+        $motivationalMessage = "Alle Fragen bearbeitet, " . $exams . " Prüfungen absolviert";
     } elseif ($progressPercent == 100) {
-        $motivationalMessage = "Alle Fragen gelöst! Zeit für die Prüfungen!";
-        $motivationalEmoji = "🚀";
+        $motivationalMessage = "Alle Fragen bearbeitet - Prüfungsmodus verfügbar";
     } elseif ($progressPercent >= 75) {
-        $motivationalMessage = "Fast geschafft! Noch " . (100 - $progressPercent) . "% bis zum Ziel!";
-        $motivationalEmoji = "⚡";
+        $motivationalMessage = $progressPercent . "% abgeschlossen - noch " . ($total - $progress) . " Fragen";
     } elseif ($progressPercent >= 50) {
-        $motivationalMessage = "Halbzeit! Du machst das großartig!";
-        $motivationalEmoji = "💪";
+        $motivationalMessage = $progressPercent . "% abgeschlossen";
     } elseif ($progressPercent >= 25) {
-        $motivationalMessage = "Super Start! Bleib dran!";
-        $motivationalEmoji = "🌟";
+        $motivationalMessage = $progressPercent . "% abgeschlossen";
     } elseif ($progressPercent > 0) {
-        $motivationalMessage = "Guter Anfang! Weiter so!";
-        $motivationalEmoji = "✨";
+        $motivationalMessage = $progressPercent . "% abgeschlossen - " . $progress . " von " . $total . " Fragen";
     } else {
-        $motivationalMessage = "Starte deine Reise zur Grundausbildung!";
-        $motivationalEmoji = "🎯";
+        $motivationalMessage = "Noch keine Fragen bearbeitet";
     }
 @endphp
 
 @if(!$user->leaderboard_banner_dismissed && !$user->leaderboard_consent)
 <div class="leaderboard-modal-overlay" id="leaderboard-modal">
     <div class="leaderboard-modal">
-        <div class="leaderboard-trophy-bg">🏆</div>
+        <div class="leaderboard-trophy-bg"><i class="bi bi-trophy"></i></div>
         <div class="leaderboard-modal-content">
             <button class="leaderboard-modal-close" onclick="dismissModal(false)" aria-label="Schließen">×</button>
             <div style="text-align: center; margin-bottom: 1.5rem;">
                 <div style="display: inline-block; background: rgba(255, 255, 255, 0.2); border-radius: 50%; padding: 1rem; margin-bottom: 1rem;">
-                    <svg style="width: 48px; height: 48px; color: white;" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"></path>
-                    </svg>
+                    <i class="bi bi-bar-chart" style="font-size: 3rem; color: white;"></i>
                 </div>
-                <h2 style="font-size: 1.75rem; font-weight: 800; color: white; margin-bottom: 0.5rem;">🎉 Öffentliches Leaderboard!</h2>
-                <p style="color: white; font-size: 1rem; opacity: 0.9;">Messe dich mit anderen THW-Lernenden!</p>
+                <h2 style="font-size: 1.75rem; font-weight: 800; color: white; margin-bottom: 0.5rem;">Öffentliches Leaderboard</h2>
+                <p style="color: white; font-size: 1rem; opacity: 0.9;">Messe dich mit anderen THW-Lernenden</p>
             </div>
             <div style="background: rgba(255, 255, 255, 0.15); border-radius: 1rem; padding: 1.25rem; margin-bottom: 1.5rem; border: 2px solid rgba(255, 255, 255, 0.3);">
-                <p style="color: white; font-size: 0.9rem; margin-bottom: 0.75rem;">📊 <strong>Dein Name & Punkte</strong> werden im Ranking angezeigt</p>
-                <p style="color: white; font-size: 0.9rem; margin-bottom: 0.75rem;">🔄 <strong>Jederzeit änderbar</strong> in deinem Profil</p>
-                <p style="color: white; font-size: 0.9rem; margin: 0;">🏆 <strong>Motiviere andere</strong> und lass dich motivieren</p>
+                <p style="color: white; font-size: 0.9rem; margin-bottom: 0.75rem;"><i class="bi bi-bar-chart mr-2"></i><strong>Dein Name & Punkte</strong> werden im Ranking angezeigt</p>
+                <p style="color: white; font-size: 0.9rem; margin-bottom: 0.75rem;"><i class="bi bi-arrow-repeat mr-2"></i><strong>Jederzeit änderbar</strong> in deinem Profil</p>
+                <p style="color: white; font-size: 0.9rem; margin: 0;"><i class="bi bi-trophy mr-2"></i><strong>Motiviere andere</strong> und lass dich motivieren</p>
             </div>
             <div style="display: flex; flex-direction: column; gap: 0.75rem;">
                 <form action="{{ route('profile.dismiss.leaderboard.banner') }}" method="POST" id="acceptForm">
                     @csrf
                     <input type="hidden" name="accept" value="1">
-                    <button type="submit" style="width: 100%; background: white; color: #d97706; font-weight: 700; font-size: 1rem; padding: 1rem; border-radius: 0.75rem; border: none; cursor: pointer;">✅ Ja, ich möchte teilnehmen!</button>
+                    <button type="submit" style="width: 100%; background: white; color: #d97706; font-weight: 700; font-size: 1rem; padding: 1rem; border-radius: 0.75rem; border: none; cursor: pointer;"><i class="bi bi-check-lg mr-1"></i> Ja, teilnehmen</button>
                 </form>
                 <form action="{{ route('profile.dismiss.leaderboard.banner') }}" method="POST" id="declineForm">
                     @csrf
                     <input type="hidden" name="accept" value="0">
-                    <button type="submit" style="width: 100%; background: rgba(255,255,255,0.2); color: white; font-weight: 600; padding: 0.875rem; border-radius: 0.75rem; border: 2px solid rgba(255,255,255,0.5); cursor: pointer;">❌ Nein, danke</button>
+                    <button type="submit" style="width: 100%; background: rgba(255,255,255,0.2); color: white; font-weight: 600; padding: 0.875rem; border-radius: 0.75rem; border: 2px solid rgba(255,255,255,0.5); cursor: pointer;"><i class="bi bi-x-lg mr-1"></i> Nein, danke</button>
                 </form>
             </div>
         </div>
@@ -604,12 +596,12 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') dismi
     <div class="dashboard-container">
         <header class="dashboard-header">
             <h1 class="dashboard-greeting">Hallo, <span>{{ $user->name }}!</span></h1>
-            <p class="dashboard-subtitle">{{ $motivationalEmoji }} {{ $motivationalMessage }}</p>
+            <p class="dashboard-subtitle">{{ $motivationalMessage }}</p>
         </header>
 
         @if(session('error'))
         <div class="alert-banner error" id="error-message">
-            <div class="alert-banner-icon">🔥</div>
+            <div class="alert-banner-icon"><i class="bi bi-exclamation-triangle"></i></div>
             <div class="alert-banner-content"><div class="alert-banner-title">{{ session('error') }}</div></div>
             <button class="alert-banner-close" onclick="this.parentElement.remove()">×</button>
         </div>
@@ -617,7 +609,7 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') dismi
 
         @if(!$user->email_consent && !session('email_consent_banner_dismissed'))
         <div class="alert-banner info" id="email-consent-banner">
-            <div class="alert-banner-icon">📧</div>
+            <div class="alert-banner-icon"><i class="bi bi-envelope"></i></div>
             <div class="alert-banner-content">
                 <div class="alert-banner-title">E-Mail-Benachrichtigungen aktivieren</div>
                 <div class="alert-banner-description">Erhalte Updates zu deinem Lernfortschritt und neuen Features.</div>
@@ -629,7 +621,7 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') dismi
 
         @if($hasFailedQuestions)
         <div class="alert-banner warning">
-            <div class="alert-banner-icon">🔄</div>
+            <div class="alert-banner-icon"><i class="bi bi-arrow-repeat"></i></div>
             <div class="alert-banner-content">
                 <div class="alert-banner-title">{{ count($failedArr) }} Frage{{ count($failedArr) == 1 ? '' : 'n' }} zum Wiederholen</div>
                 <div class="alert-banner-description">Beantworte diese Fragen, bevor du eine neue Prüfung starten kannst.</div>
@@ -640,26 +632,26 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') dismi
 
         <div class="stats-grid">
             <div class="stat-card">
-                <div class="stat-icon">🔥</div>
+                <div class="stat-icon text-orange-500"><i class="bi bi-fire"></i></div>
                 <div class="stat-value">{{ $user->streak_days ?? 0 }}</div>
                 <div class="stat-label">Tage Streak</div>
                 <div class="stat-progress"><div class="stat-progress-fill yellow" style="width: {{ min(100, (($user->streak_days ?? 0) / 7) * 100) }}%"></div></div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon">⭐</div>
+                <div class="stat-icon text-yellow-500"><i class="bi bi-star-fill"></i></div>
                 <div class="stat-value">{{ $user->level ?? 1 }}</div>
                 <div class="stat-label">Level</div>
                 @php $levelUpPoints = 100 * pow(1.5, ($user->level ?? 1) - 1); $currentProgress = ($user->points ?? 0) % $levelUpPoints; $levelProgressPercent = $levelUpPoints > 0 ? ($currentProgress / $levelUpPoints) * 100 : 0; @endphp
                 <div class="stat-progress"><div class="stat-progress-fill blue" style="width: {{ $levelProgressPercent }}%"></div></div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon">⚡</div>
+                <div class="stat-icon text-blue-500"><i class="bi bi-lightning-charge-fill"></i></div>
                 <div class="stat-value">{{ $user->daily_questions_solved ?? 0 }}/20</div>
                 <div class="stat-label">Heute</div>
                 <div class="stat-progress"><div class="stat-progress-fill green" style="width: {{ min(100, (($user->daily_questions_solved ?? 0) / 20) * 100) }}%"></div></div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon">🏆</div>
+                <div class="stat-icon text-purple-500"><i class="bi bi-trophy"></i></div>
                 <div class="stat-value">{{ $unlockedCount }}/{{ $totalAchievements }}</div>
                 <div class="stat-label">Erfolge</div>
                 <div class="stat-progress"><div class="stat-progress-fill purple" style="width: {{ $totalAchievements > 0 ? ($unlockedCount / $totalAchievements) * 100 : 0 }}%"></div></div>
@@ -669,9 +661,9 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') dismi
         <div class="main-actions">
             <a href="{{ route('practice.menu') }}" class="action-card" style="text-decoration: none;">
                 <div class="action-card-header">
-                    <div class="action-card-icon yellow">📚</div>
+                    <div class="action-card-icon yellow"><i class="bi bi-book" style="color: white;"></i></div>
                     @if($progressPercent == 100)
-                        <span class="action-card-badge" style="background: rgba(34, 197, 94, 0.15); color: #16a34a;">✓ Abgeschlossen</span>
+                        <span class="action-card-badge" style="background: rgba(34, 197, 94, 0.15); color: #16a34a;"><i class="bi bi-check"></i> Abgeschlossen</span>
                     @else
                         <span class="action-card-badge">Grundausbildung</span>
                     @endif
@@ -693,9 +685,9 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') dismi
 
             <div class="action-card">
                 <div class="action-card-header">
-                    <div class="action-card-icon blue">🎓</div>
+                    <div class="action-card-icon blue"><i class="bi bi-mortarboard" style="color: white;"></i></div>
                     @if($exams >= 5)
-                        <span class="action-card-badge" style="background: rgba(34, 197, 94, 0.15); color: #16a34a;">✓ Bereit!</span>
+                        <span class="action-card-badge" style="background: rgba(34, 197, 94, 0.15); color: #16a34a;"><i class="bi bi-check"></i> Bereit</span>
                     @elseif($canStartExam)
                         <span class="action-card-badge" style="background: rgba(59, 130, 246, 0.15); color: #2563eb;">Freigeschaltet</span>
                     @else
@@ -736,7 +728,7 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') dismi
 
         @if(!empty($recentExams) && $recentExams->count() > 0)
         <div style="background: white; border: 1px solid #e5e7eb; border-radius: 1.25rem; padding: 1.75rem; margin-bottom: 1.75rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);">
-            <h2 class="section-title">📊 Deine letzten Prüfungen</h2>
+            <h2 class="section-title"><i class="bi bi-bar-chart mr-2"></i>Deine letzten Prüfungen</h2>
             
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
                 @php
@@ -756,11 +748,11 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') dismi
                                 <div style="font-size: 0.85rem; color: #6b7280; margin-bottom: 0.25rem;">{{ $exam->created_at->format('d.m.Y H:i') }} Uhr</div>
                                 <div style="font-size: 1.5rem; font-weight: 800; color: #00337F;">{{ $percentage }}%</div>
                             </div>
-                            <div style="font-size: 1.5rem;">{{ $exam->is_passed ? '✅' : '❌' }}</div>
+                            <div style="font-size: 1.5rem;">{!! $exam->is_passed ? '<i class="bi bi-check-circle-fill text-green-500"></i>' : '<i class="bi bi-x-circle-fill text-red-500"></i>' !!}</div>
                         </div>
                         <div style="font-size: 0.85rem; color: #6b7280; margin-bottom: 0.75rem;">{{ $exam->correct_answers }}/{{ $totalQuestionsPerExam }} richtig</div>
                         <span style="font-size: 0.8rem; font-weight: 700; padding: 0.35rem 0.75rem; border-radius: 0.5rem; text-align: center; background: {{ $exam->is_passed ? 'rgba(34, 197, 94, 0.15); color: #16a34a;' : 'rgba(239, 68, 68, 0.15); color: #dc2626;' }}">
-                            {{ $exam->is_passed ? '✓ BESTANDEN' : 'NICHT BESTANDEN' }}
+                            {!! $exam->is_passed ? '<i class="bi bi-check"></i> BESTANDEN' : 'NICHT BESTANDEN' !!}
                         </span>
                     </div>
                 @endforeach
@@ -852,7 +844,7 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') dismi
         @endif
 
         <div class="section-header">
-            <h2 class="section-title">📚 Deine Lehrgänge</h2>
+            <h2 class="section-title"><i class="bi bi-journal-text mr-2"></i>Deine Lehrgänge</h2>
             <a href="{{ route('lehrgaenge.index') }}" class="section-link">Alle anzeigen <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></a>
         </div>
 
@@ -877,25 +869,25 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') dismi
                         <div class="lehrgang-card-progress-bar"><div class="lehrgang-card-progress-fill {{ $isCompleted ? 'complete' : '' }}" style="width: {{ $lehrgangProgressPercent }}%"></div></div>
                     </div>
                     @if($isCompleted)
-                        <span class="lehrgang-card-btn complete">✓ Abgeschlossen</span>
+                        <span class="lehrgang-card-btn complete"><i class="bi bi-check"></i> Abgeschlossen</span>
                     @else
-                        <a href="{{ route('lehrgaenge.practice', $lehrgang->slug) }}" class="lehrgang-card-btn">📖 Weitermachen</a>
+                        <a href="{{ route('lehrgaenge.practice', $lehrgang->slug) }}" class="lehrgang-card-btn"><i class="bi bi-book mr-1"></i>Weitermachen</a>
                     @endif
                 </div>
             @endforeach
         </div>
         @else
         <div class="empty-state-card">
-            <div class="empty-state-icon">🎓</div>
-            <h3 class="empty-state-title">Entdecke Lehrgänge!</h3>
-            <p class="empty-state-description">Lerne spezifische THW-Themen mit unseren Lehrgängen. Mehr Inhalte kommen bald!</p>
-            <a href="{{ route('lehrgaenge.index') }}" class="empty-state-btn">🚀 Lehrgänge erkunden</a>
+            <div class="empty-state-icon"><i class="bi bi-mortarboard" style="font-size: 3rem; color: #6b7280;"></i></div>
+            <h3 class="empty-state-title">Keine Lehrgänge</h3>
+            <p class="empty-state-description">Lerne spezifische THW-Themen mit Lehrgängen.</p>
+            <a href="{{ route('lehrgaenge.index') }}" class="empty-state-btn">Lehrgänge ansehen</a>
         </div>
         @endif
 
 
         <div class="section-header">
-            <h2 class="section-title">📚 Deine Lernpools</h2>
+            <h2 class="section-title"><i class="bi bi-collection mr-2"></i>Deine Lernpools</h2>
             <a href="{{ route('ortsverband.index') }}" class="section-link">Zu Ortsverbänden <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></a>
         </div>
 
@@ -940,19 +932,19 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') dismi
                         <div class="lehrgang-card-progress-bar"><div class="lehrgang-card-progress-fill {{ $isCompleted ? 'complete' : '' }}" style="width: {{ $lernpoolProgress }}%"></div></div>
                     </div>
                     @if($isCompleted)
-                        <span class="lehrgang-card-btn complete">✓ Gemeistert</span>
+                        <span class="lehrgang-card-btn complete"><i class="bi bi-check"></i> Gemeistert</span>
                     @else
-                        <a href="{{ route('ortsverband.lernpools.practice', [$lernpool->ortsverband_id, $lernpool->id]) }}" class="lehrgang-card-btn">📖 Weitermachen</a>
+                        <a href="{{ route('ortsverband.lernpools.practice', [$lernpool->ortsverband_id, $lernpool->id]) }}" class="lehrgang-card-btn"><i class="bi bi-book mr-1"></i>Weitermachen</a>
                     @endif
                 </div>
             @endforeach
         </div>
         @else
         <div class="empty-state-card">
-            <div class="empty-state-icon">🏠</div>
-            <h3 class="empty-state-title">Entdecke Lernpools!</h3>
-            <p class="empty-state-description">Tritt einem Ortsverband bei und starte mit Lernpools, die dein Ausbilder erstellt hat.</p>
-            <a href="{{ route('ortsverband.index') }}" class="empty-state-btn">🚀 Ortsverbände erkunden</a>
+            <div class="empty-state-icon"><i class="bi bi-building" style="font-size: 3rem; color: #6b7280;"></i></div>
+            <h3 class="empty-state-title">Keine Lernpools</h3>
+            <p class="empty-state-description">Tritt einem Ortsverband bei, um Lernpools zu nutzen.</p>
+            <a href="{{ route('ortsverband.index') }}" class="empty-state-btn">Ortsverband beitreten</a>
         </div>
         @endif
 
@@ -1034,21 +1026,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 1500);
         @endif
     }, 200);
-    
-    @if($exams >= 5)
-    setTimeout(() => {
-        const emojis = ['🎊', '🎉', '🥳'];
-        for (let i = 0; i < 15; i++) {
-            setTimeout(() => {
-                const emoji = document.createElement('div');
-                emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-                emoji.style.cssText = 'position: fixed; font-size: 2rem; left: ' + (Math.random() * 100) + 'vw; top: -50px; z-index: 9999; pointer-events: none; animation: emojiFall 3s linear forwards;';
-                document.body.appendChild(emoji);
-                setTimeout(() => emoji.remove(), 3000);
-            }, i * 100);
-        }
-    }, 1000);
-    @endif
 });
 
 function dismissEmailConsentBanner() {

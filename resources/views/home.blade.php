@@ -48,7 +48,7 @@
                    class="inline-flex items-center justify-center px-6 py-3 lg:px-8 lg:py-4 text-base lg:text-lg font-bold text-blue-900 bg-yellow-400 rounded-xl shadow-lg hover:bg-yellow-500 hover:scale-105 transition-all duration-300"
                    onclick="launchRocket(event)"
                    aria-label="Jetzt kostenlos THW-Theorie üben starten">
-                    <span id="rocket" class="text-xl lg:text-2xl mr-2 animate-rocket-bounce" aria-hidden="true">🚀</span>
+                    <i id="rocket" class="bi bi-play-circle-fill text-xl lg:text-2xl mr-2" aria-hidden="true"></i>
                     <span>THW-Theorie kostenlos üben</span>
                 </a>
 
@@ -70,10 +70,10 @@
             <!-- Header -->
             <header class="text-center mb-12 lg:mb-16">
                 <h2 id="features-heading" class="text-3xl lg:text-4xl font-bold text-gray-900 mb-4 lg:mb-6 tracking-tight">
-                    🎯 Was bietet der THW-Trainer?
+                    Was bietet der THW-Trainer?
                 </h2>
                 <p class="text-base lg:text-xl text-gray-600 max-w-4xl mx-auto leading-relaxed font-light">
-                    Alles, was du brauchst, um dich optimal auf deine Grundausbildung Theorie-Prüfung im THW vorzubereiten
+                    Alles für deine Grundausbildung Theorie-Prüfung im THW
                 </p>
             </header>
 
@@ -81,7 +81,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
                 <!-- Feature 1: Alle Theoriefragen -->
                 <article class="bg-white rounded-xl shadow-md p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-                    <div aria-hidden="true" class="text-4xl mb-3">📚</div>
+                    <div aria-hidden="true" class="text-4xl mb-3 text-thw-blue"><i class="bi bi-book"></i></div>
                     <h3 class="text-xl font-semibold text-thw-blue mb-3">Alle Theoriefragen</h3>
                     <p class="text-gray-700 leading-relaxed">
                         Umfassende Sammlung aller <strong>THW-Theoriefragen</strong> zum Üben und Lernen.
@@ -91,7 +91,7 @@
 
                 <!-- Feature 2: Prüfungssimulation -->
                 <article class="bg-white rounded-xl shadow-md p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-                    <div aria-hidden="true" class="text-4xl mb-3">🎓</div>
+                    <div aria-hidden="true" class="text-4xl mb-3 text-thw-blue"><i class="bi bi-mortarboard"></i></div>
                     <h3 class="text-xl font-semibold text-thw-blue mb-3">Prüfungssimulation</h3>
                     <p class="text-gray-700 leading-relaxed">
                         Realistische <strong>Prüfungssimulation</strong> verfügbar, sobald alle Fragen bearbeitet wurden.
@@ -101,7 +101,7 @@
 
                 <!-- Feature 3: Lernfortschritt -->
                 <article class="bg-white rounded-xl shadow-md p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-                    <div aria-hidden="true" class="text-4xl mb-3">📊</div>
+                    <div aria-hidden="true" class="text-4xl mb-3 text-thw-blue"><i class="bi bi-bar-chart"></i></div>
                     <h3 class="text-xl font-semibold text-thw-blue mb-3">Lernfortschritt tracken</h3>
                     <p class="text-gray-700 leading-relaxed">
                         Dein Fortschritt wird gespeichert und im persönlichen Dashboard angezeigt.
@@ -111,7 +111,7 @@
 
                 <!-- Feature 4: PWA -->
                 <article class="bg-white rounded-xl shadow-md p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-                    <div aria-hidden="true" class="text-4xl mb-3">📲</div>
+                    <div aria-hidden="true" class="text-4xl mb-3 text-thw-blue"><i class="bi bi-phone"></i></div>
                     <h3 class="text-xl font-semibold text-thw-blue mb-3">Als App installierbar</h3>
                     <p class="text-gray-700 leading-relaxed">
                         Installiere THW Trainer als <strong>Progressive Web App</strong> auf deinem Smartphone für schnelleren Zugriff vom Homescreen.
@@ -125,7 +125,7 @@
     <section class="py-12 lg:py-16 bg-thw-blue" aria-labelledby="cta-heading">
         <div class="max-w-6xl mx-auto text-center px-4 sm:px-6 lg:px-8">
             <h2 id="cta-heading" class="text-2xl lg:text-4xl font-bold text-white mb-4 lg:mb-5 tracking-tight">
-                📑 Bereit zum Lernen?
+                Bereit zum Lernen?
             </h2>
             <p class="text-base lg:text-lg text-white mb-4 lg:mb-6 max-w-4xl mx-auto leading-relaxed font-light">
                 Starte jetzt mit dem THW-Trainer und bereite dich optimal auf deine <strong class="font-semibold">Grundausbildung Theorie-Prüfung im THW</strong> vor.
@@ -156,10 +156,10 @@
         <div class="max-w-2xl lg:max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <header class="text-center mb-8 lg:mb-12">
                 <h2 id="faq-heading" class="text-3xl lg:text-4xl font-bold text-gray-900 mb-4 tracking-tight">
-                    ❓ Häufig gestellte Fragen
+                    Häufig gestellte Fragen
                 </h2>
                 <p class="text-base lg:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
-                    Alles was du über <strong>THW Grundausbildung</strong> und den THW-Trainer wissen musst
+                    Alles über <strong>THW Grundausbildung</strong> und den THW-Trainer
                 </p>
             </header>
             
@@ -322,7 +322,7 @@
                             und spiegeln den aktuellen Stand der <strong>THW-Ausbildung</strong> wider.
                         </p>
                         <p class="font-semibold">
-                            Viel Erfolg bei deiner Prüfung! 🚀
+                            Viel Erfolg bei deiner Prüfung!
                         </p>
                         <p>
                             Diese Webseite stelle ich <strong>kostenlos zur Verfügung</strong> und finanziere alle Kosten für Webseite, Domain und Server selbst.
@@ -335,8 +335,8 @@
                            rel="noopener noreferrer"
                            class="inline-flex items-center px-8 py-4 bg-thw-blue text-white font-bold rounded-xl hover:bg-blue-800 hover:scale-105 transition-all duration-300 shadow-lg"
                            aria-label="Unterstütze den Entwickler mit einer Kaffee-Spende via PayPal">
-                            <span class="mr-2 text-xl" aria-hidden="true">☕</span>
-                            Finanziere meinen Kaffee
+                            <i class="bi bi-cup-hot mr-2 text-xl" aria-hidden="true"></i>
+                            Unterstütze mich
                         </a>
                     </div>
                 </div>
@@ -347,45 +347,6 @@
 </div>
 
 <style>
-/* Rocket Animation */
-@keyframes rocket-bounce {
-    0%, 100% {
-        transform: translateY(0) rotate(0deg);
-    }
-    25% {
-        transform: translateY(-2px) rotate(-2deg);
-    }
-    50% {
-        transform: translateY(-4px) rotate(0deg);
-    }
-    75% {
-        transform: translateY(-2px) rotate(2deg);
-    }
-}
-
-@keyframes rocket-launch {
-    0% {
-        transform: translateY(0) rotate(0deg) scale(1);
-        opacity: 1;
-    }
-    50% {
-        transform: translateY(-20px) rotate(-10deg) scale(1.2);
-        opacity: 0.8;
-    }
-    100% {
-        transform: translateY(-100px) rotate(-20deg) scale(0.5);
-        opacity: 0;
-    }
-}
-
-.animate-rocket-bounce {
-    animation: rocket-bounce 1.5s infinite;
-}
-
-.rocket-launching {
-    animation: rocket-launch 1s ease-out forwards !important;
-}
-
 /* Custom THW Blue Color */
 .bg-thw-blue {
     background-color: #00337F;
@@ -407,27 +368,11 @@
 
 <script>
 /**
- * Launch Rocket Animation und Weiterleitung
+ * CTA Button Weiterleitung
  */
 function launchRocket(event) {
     event.preventDefault();
-
-    const rocket = document.getElementById('rocket');
-    const button = document.getElementById('cta-button');
-
-    if (!rocket || !button) return;
-
-    // Rakete starten
-    rocket.classList.add('rocket-launching');
-
-    // Button deaktivieren während der Animation
-    button.style.pointerEvents = 'none';
-    button.style.opacity = '0.7';
-
-    // Nach 1 Sekunde zur Dashboard-Seite weiterleiten
-    setTimeout(() => {
-        window.location.href = '{{ route("dashboard") }}';
-    }, 1000);
+    window.location.href = '{{ route("dashboard") }}';
 }
 
 /**
