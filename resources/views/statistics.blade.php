@@ -10,12 +10,14 @@
     .statistics-wrapper {
         min-height: 100vh;
         background: #f3f4f6;
+        overflow-x: hidden;
     }
 
     .statistics-container {
         max-width: 1200px;
         margin: 0 auto;
         padding: 2rem;
+        overflow-x: hidden;
     }
 
     .statistics-header {
@@ -79,6 +81,8 @@
         padding: 1.5rem;
         margin-bottom: 1.5rem;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+        min-width: 0;
     }
 
     .section-title {
@@ -99,10 +103,14 @@
         grid-template-columns: 1fr 1fr;
         gap: 1.5rem;
         margin-bottom: 1.5rem;
+        min-width: 0;
     }
 
     .chart-container {
         height: 250px;
+        position: relative;
+        width: 100%;
+        min-width: 0;
     }
 
     /* Lernabschnitte */
@@ -383,12 +391,29 @@
         .activity-grid { grid-template-columns: 1fr; gap: 1.5rem; }
     }
 
-    @media (max-width: 480px) {
+    @media (max-width: 640px) {
         .statistics-container { padding: 1rem; }
         .statistics-header h1 { font-size: 1.75rem; }
-        .section-bar { width: 80px; }
-        .section-name { font-size: 0.8rem; }
+        .section-card { padding: 1rem; }
+        .chart-container { height: 200px; }
+        .section-bar { width: 60px; }
+        .section-name { font-size: 0.75rem; }
+        .section-row { gap: 0.5rem; padding: 0.5rem; }
+        .section-number { min-width: 22px; font-size: 0.85rem; }
+        .section-rate { min-width: 38px; font-size: 0.8rem; }
         .lehrgang-grid { grid-template-columns: 1fr; }
+        .question-text { font-size: 0.8rem; }
+        .weekday-value { width: 30px; font-size: 0.7rem; }
+        .hours-chart { height: 50px; }
+    }
+
+    @media (max-width: 400px) {
+        .stats-grid { grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+        .stat-card { padding: 1rem; }
+        .stat-value { font-size: 1.25rem; }
+        .stat-icon { font-size: 1.5rem; }
+        .section-bar { width: 50px; }
+        .section-info { max-width: calc(100% - 130px); }
     }
 </style>
 @endpush
