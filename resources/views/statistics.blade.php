@@ -473,7 +473,7 @@
 
         <!-- Aktivität -->
         <div class="section-card">
-            <h3 class="section-title"><i class="bi bi-clock-history"></i> Wann wird gelernt?</h3>
+            <h3 class="section-title"><i class="bi bi-clock-history"></i> Wann wird gelernt? <span style="font-weight: 400; font-size: 0.8rem; color: #9ca3af;">(letzte 30 Tage)</span></h3>
             <div class="activity-grid">
                 <div class="activity-section">
                     <h4>Aktivität nach Wochentag</h4>

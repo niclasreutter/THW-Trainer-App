@@ -156,29 +156,31 @@ class StatisticsController extends Controller
         $examsToday = ExamStatistic::whereDate('created_at', today())->count();
         $examsThisWeek = ExamStatistic::where('created_at', '>=', now()->startOfWeek())->count();
 
-        // Aktivität pro Wochentag (basierend auf beantworteten Fragen)
-        $activityByWeekday = QuestionStatistic::select(
-            DB::raw('DAYOFWEEK(created_at) as weekday'),
-            DB::raw('COUNT(*) as count')
-        )
-            ->where('created_at', '>=', now()->subDays(30))
-            ->groupBy('weekday')
-            ->orderBy('weekday')
-            ->get()
-            ->pluck('count', 'weekday')
-            ->toArray();
+        // Aktivität pro Wochentag (alle Quellen kombiniert, letzte 30 Tage)
+        $activityGA = QuestionStatistic::select(DB::raw('DAYOFWEEK(created_at) as weekday'), DB::raw('COUNT(*) as count'))
+            ->where('created_at', '>=', now()->subDays(30))->groupBy('weekday')->pluck('count', 'weekday')->toArray();
+        $activityLG = LehrgangQuestionStatistic::select(DB::raw('DAYOFWEEK(created_at) as weekday'), DB::raw('COUNT(*) as count'))
+            ->where('created_at', '>=', now()->subDays(30))->groupBy('weekday')->pluck('count', 'weekday')->toArray();
+        $activityLP = OrtsverbandLernpoolQuestionStatistic::select(DB::raw('DAYOFWEEK(created_at) as weekday'), DB::raw('COUNT(*) as count'))
+            ->where('created_at', '>=', now()->subDays(30))->groupBy('weekday')->pluck('count', 'weekday')->toArray();
 
-        // Peak-Stunden (wann wird am meisten gelernt)
-        $peakHours = QuestionStatistic::select(
-            DB::raw('HOUR(created_at) as hour'),
-            DB::raw('COUNT(*) as count')
-        )
-            ->where('created_at', '>=', now()->subDays(30))
-            ->groupBy('hour')
-            ->orderBy('hour')
-            ->get()
-            ->pluck('count', 'hour')
-            ->toArray();
+        $activityByWeekday = [];
+        for ($d = 1; $d <= 7; $d++) {
+            $activityByWeekday[$d] = ($activityGA[$d] ?? 0) + ($activityLG[$d] ?? 0) + ($activityLP[$d] ?? 0);
+        }
+
+        // Peak-Stunden (alle Quellen kombiniert, letzte 30 Tage)
+        $hoursGA = QuestionStatistic::select(DB::raw('HOUR(created_at) as hour'), DB::raw('COUNT(*) as count'))
+            ->where('created_at', '>=', now()->subDays(30))->groupBy('hour')->pluck('count', 'hour')->toArray();
+        $hoursLG = LehrgangQuestionStatistic::select(DB::raw('HOUR(created_at) as hour'), DB::raw('COUNT(*) as count'))
+            ->where('created_at', '>=', now()->subDays(30))->groupBy('hour')->pluck('count', 'hour')->toArray();
+        $hoursLP = OrtsverbandLernpoolQuestionStatistic::select(DB::raw('HOUR(created_at) as hour'), DB::raw('COUNT(*) as count'))
+            ->where('created_at', '>=', now()->subDays(30))->groupBy('hour')->pluck('count', 'hour')->toArray();
+
+        $peakHours = [];
+        for ($h = 0; $h < 24; $h++) {
+            $peakHours[$h] = ($hoursGA[$h] ?? 0) + ($hoursLG[$h] ?? 0) + ($hoursLP[$h] ?? 0);
+        }
 
         return view('statistics', compact(
             'totalAnswered',
