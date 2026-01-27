@@ -726,13 +726,12 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') dismi
             </div>
         </div>
 
-        <div class="section-header">
-            <h2 class="section-title"><i class="bi bi-list-check"></i> Deine Letzte Prüfung</h2>
-        </div>
-
         @if(!empty($recentExams) && $recentExams->count() > 0)
+           <div class="section-header">
+            <h2 class="section-title"><i class="bi bi-clipboard2-data"></i> Deine Letzte Prüfungen</h2>
+        </div>
         <div style="background: white; border: 1px solid #e5e7eb; border-radius: 1.25rem; padding: 1.75rem; margin-bottom: 1.75rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);">
-            
+
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
                 @php
                     $totalPercentage = 0;
@@ -802,9 +801,12 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') dismi
 
         @if($isAusbilder && $userOV)
         {{-- Ausbilder-Karte mit Statistiken --}}
+        <div class="section-header">
+            <h2 class="section-title"><i class="bi bi-house-check"></i> Dein Ortsverband</h2>
+        </div>
         <div class="action-card">
             <div class="action-card-header">
-                <div class="action-card-icon" style="background: linear-gradient(135deg, #00337F 0%, #0047b3 100%);">🏠</div>
+                <div class="action-card-icon" style="background: linear-gradient(135deg, #00337F 0%, #0047b3 100%);"><i class="bi bi-house" style="color: white;"></i></div>
                 <span class="action-card-badge" style="background: rgba(0, 51, 127, 0.15); color: #00337F;">Ausbilder</span>
             </div>
             <h3 class="action-card-title">{{ $userOV->name }}</h3>
@@ -835,19 +837,18 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') dismi
             </div>
             @else
             <p style="color: #6b7280; margin-bottom: 1rem; font-size: 0.9rem;">
-                👋 Noch keine Mitglieder im Ortsverband. Lade Helfer über einen Einladungslink ein!
+                Noch keine Mitglieder im Ortsverband. Lade Helfer über einen Einladungslink ein!
             </p>
             @endif
 
             <a href="{{ route('ortsverband.index') }}" class="action-card-btn primary" style="text-decoration: none;">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                 Mitglieder verwalten
             </a>
         </div>
         @endif
 
-        <div class="section-header">
-            <h2 class="section-title">Deine Lehrgänge</h2>
+            <div class="section-header" style="margin-top: 2rem;">
+            <h2 class="section-title"><i class="bi bi-mortarboard"></i> Deine Lehrgänge</h2>
             <a href="{{ route('lehrgaenge.index') }}" class="section-link">Alle anzeigen <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></a>
         </div>
 
@@ -890,7 +891,7 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') dismi
 
 
         <div class="section-header">
-            <h2 class="section-title">Deine Lernpools</h2>
+            <h2 class="section-title"><i class="bi bi-collection"></i> Deine Lernpools</h2>
             <a href="{{ route('ortsverband.index') }}" class="section-link">Zu Ortsverbänden <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></a>
         </div>
 
