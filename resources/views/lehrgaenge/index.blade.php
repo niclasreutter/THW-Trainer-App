@@ -35,6 +35,14 @@
         line-height: 1.2;
     }
 
+    .lehrgaenge-title span {
+        display: inline-block;
+        background: linear-gradient(90deg, #fbbf24, #f59e0b);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
     .lehrgaenge-subtitle {
         font-size: 1.1rem;
         color: #4b5563;
@@ -262,13 +270,13 @@
 <div class="lehrgaenge-wrapper">
     <div class="lehrgaenge-container">
         <header class="lehrgaenge-header">
-            <h1 class="lehrgaenge-title">🎓 Lehrgänge</h1>
+            <h1 class="lehrgaenge-title"><span>Lehrgänge</span></h1>
             <p class="lehrgaenge-subtitle">Wähle einen Lehrgang, um dein Wissen zu erweitern</p>
         </header>
 
         @if($lehrgaenge->isEmpty())
             <div class="empty-state">
-                <div class="empty-state-icon">📚</div>
+                <div class="empty-state-icon"><i class="bi bi-mortarboard" style="color: #6b7280;"></i></div>
                 <h3 class="empty-state-title">Noch keine Lehrgänge verfügbar</h3>
                 <p class="empty-state-description">Bald werden hier Lehrgänge erscheinen!</p>
             </div>
@@ -310,7 +318,7 @@
                         <div class="lehrgang-header">
                             <h2 class="lehrgang-name">{{ $lehrgang->lehrgang }}</h2>
                             @if($isEnrolled)
-                                <span class="lehrgang-badge enrolled">✓ Eingeschrieben</span>
+                                <span class="lehrgang-badge enrolled"><i class="bi bi-check"></i> Eingeschrieben</span>
                             @endif
                         </div>
                         
@@ -341,22 +349,22 @@
                         
                         <div class="lehrgang-actions">
                             <a href="{{ route('lehrgaenge.show', $lehrgang->slug) }}" class="lehrgang-btn primary">
-                                ℹ️ Details anzeigen
+                                Details anzeigen
                             </a>
                             
                             @if($isEnrolled)
                                 @if($isCompleted)
-                                    <span class="lehrgang-btn success">✓ Abgeschlossen</span>
+                                    <span class="lehrgang-btn success">Abgeschlossen</span>
                                 @else
                                     <a href="{{ route('lehrgaenge.practice', $lehrgang->slug) }}" class="lehrgang-btn secondary">
-                                        📚 Weitermachen
+                                        Weitermachen
                                     </a>
                                 @endif
                             @else
                                 <form action="{{ route('lehrgaenge.enroll', $lehrgang->slug) }}" method="POST" style="width: 100%;">
                                     @csrf
                                     <button type="submit" class="lehrgang-btn secondary" style="width: 100%;">
-                                        ✨ Beitreten
+                                        Beitreten
                                     </button>
                                 </form>
                             @endif
@@ -368,7 +376,7 @@
 
         <div class="text-center mt-8">
             <a href="{{ route('dashboard') }}" class="back-link">
-                ← Zurück zum Dashboard
+                Zurück zum Dashboard
             </a>
         </div>
     </div>

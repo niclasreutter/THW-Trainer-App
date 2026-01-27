@@ -45,6 +45,14 @@
         line-height: 1.2;
     }
 
+    .lehrgang-title span {
+        display: inline-block;
+        background: linear-gradient(90deg, #fbbf24, #f59e0b);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
     .lehrgang-badge {
         font-size: 0.75rem;
         font-weight: 700;
@@ -400,10 +408,10 @@
         <div class="lehrgang-hero">
             <div class="lehrgang-hero-header">
                 <div>
-                    <h1 class="lehrgang-title">🎓 {{ $lehrgang->lehrgang }}</h1>
+                    <h1 class="lehrgang-title"><span>{{ $lehrgang->lehrgang }}</span></h1>
                 </div>
                 @if($isEnrolled)
-                    <span class="lehrgang-badge enrolled">✓ Eingeschrieben</span>
+                    <span class="lehrgang-badge enrolled"><i class="bi bi-check"></i> Eingeschrieben</span>
                 @endif
             </div>
             
@@ -429,7 +437,7 @@
             <!-- Progress Section -->
             <div class="progress-section">
                 <div class="progress-header">
-                    <h2 class="progress-title">📊 Dein Fortschritt</h2>
+                    <h2 class="progress-title">Dein Fortschritt</h2>
                     <span class="progress-percentage">{{ $progressPercent }}%</span>
                 </div>
                 <div class="progress-bar-wrapper">
@@ -438,13 +446,13 @@
                 <div class="progress-details">
                     <span>{{ $solvedCount }}/{{ $totalCount }} Fragen beantwortet</span>
                     @if($isCompleted)
-                        <span style="color: #16a34a; font-weight: 600;">✓ Abgeschlossen!</span>
+                        <span style="color: #16a34a; font-weight: 600;"><i class="bi bi-check-circle"></i> Abgeschlossen</span>
                     @endif
                 </div>
             </div>
 
             <!-- Sections -->
-            <h2 class="sections-title">📚 Lernabschnitte</h2>
+            <h2 class="sections-title">Lernabschnitte</h2>
             
             @php
                 // Lade Lernabschnitt-Namen direkt aus der DB (Cache-Bust Workaround)
@@ -491,14 +499,14 @@
             <!-- Action Buttons -->
             <div class="action-buttons">
                 @if($isCompleted)
-                    <span class="action-btn success">✓ Lehrgang abgeschlossen</span>
+                    <span class="action-btn success">Lehrgang abgeschlossen</span>
                 @else
                     <a href="{{ route('lehrgaenge.practice', $lehrgang->slug) }}" class="action-btn secondary">
-                        📚 Jetzt üben
+                        Jetzt üben
                     </a>
                 @endif
                 <a href="{{ route('lehrgaenge.index') }}" class="action-btn outline">
-                    ← Alle Lehrgänge
+                    Alle Lehrgänge
                 </a>
             </div>
 
@@ -508,7 +516,7 @@
                       onsubmit="return confirm('Möchtest du diesen Lehrgang wirklich verlassen? Dein Fortschritt bleibt gespeichert.');">
                     @csrf
                     <button type="submit" class="action-btn danger" style="max-width: 300px;">
-                        🚪 Lehrgang verlassen
+                        Lehrgang verlassen
                     </button>
                 </form>
                 <p style="font-size: 0.8rem; color: #6b7280; margin-top: 0.5rem;">Dein Fortschritt bleibt erhalten</p>
@@ -516,7 +524,7 @@
         @else
             <!-- Enroll Section -->
             <div class="enroll-section">
-                <div class="enroll-icon">🚀</div>
+                <div class="enroll-icon"><i class="bi bi-mortarboard" style="color: #00337F;"></i></div>
                 <h2 class="enroll-title">Bereit für diesen Lehrgang?</h2>
                 <p class="enroll-description">
                     Schreibe dich jetzt ein und beginne mit dem Lernen. Du wirst Zugang zu allen {{ $questionCount }} Fragen erhalten und deinen Fortschritt verfolgen können.
@@ -524,13 +532,13 @@
                 <form action="{{ route('lehrgaenge.enroll', $lehrgang->slug) }}" method="POST" style="display: inline-block;">
                     @csrf
                     <button type="submit" class="action-btn secondary" style="min-width: 200px;">
-                        ✨ Jetzt beitreten
+                        Jetzt beitreten
                     </button>
                 </form>
             </div>
 
             <!-- Preview Sections -->
-            <h2 class="sections-title">📚 Lernabschnitte (Vorschau)</h2>
+            <h2 class="sections-title">Lernabschnitte (Vorschau)</h2>
             
             @php
                 // Lade Lernabschnitt-Namen direkt aus der DB (Cache-Bust Workaround)
@@ -569,7 +577,7 @@
 
             <div class="text-center mt-6">
                 <a href="{{ route('lehrgaenge.index') }}" class="back-link">
-                    ← Zurück zur Übersicht
+                    Zurück zur Übersicht
                 </a>
             </div>
         @endif

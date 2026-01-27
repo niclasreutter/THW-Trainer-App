@@ -22,20 +22,24 @@ git commit -m "EMOJI: Beschreibung (max 4 Wörter)"
 | ⚡ | Performance |
 | 🔒 | Security |
 
-### 2. Design-Pattern (Admin/Dashboard-Seiten)
+### 2. Design-Pattern (Seitenüberschriften)
 ```html
-<div class="dashboard-header">
-    <h1 class="dashboard-greeting">📚 <span>Titel</span></h1>
-    <p class="dashboard-subtitle">Beschreibung</p>
-</div>
+<h1 class="page-title"><span>Titel</span></h1>
+<p class="page-subtitle">Beschreibung</p>
 ```
 ```css
-.dashboard-greeting span {
+.page-title span {
     background: linear-gradient(90deg, #fbbf24, #f59e0b);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 ```
+
+**Wichtig:**
+- **Keine Emojis** im UI verwenden
+- **Icons nur sinnvoll** einsetzen (z.B. Status-Badges, nicht in Buttons)
+- **Buttons ohne Icons** - cleaner und professioneller
+- Bootstrap Icons (`bi bi-*`) für notwendige Icons
 
 ### 3. Nach jeder Änderung
 ```bash
@@ -77,4 +81,4 @@ fetch(url, { cache: 'no-store' });
 - **[docs/FILE-GUIDE.md](docs/FILE-GUIDE.md)** - Datei-Navigation, wo was ist
 
 ---
-*Letzte Aktualisierung: 12. Januar 2026*
+*Letzte Aktualisierung: 27. Januar 2026*
