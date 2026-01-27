@@ -12,7 +12,7 @@
             
             <div style="background:#fef3c7;border:2px solid #f59e0b;border-radius:8px;padding:18px;margin:18px 0;text-align:center;">
                 <p style="margin:0;font-size:1rem;font-weight:bold;color:#92400e;">
-                    ⏰ <strong>Wichtig:</strong> Dieser Link ist nur für 5 Minuten gültig.
+                    <strong>Wichtig:</strong> Dieser Link ist nur für 5 Minuten gültig.
                 </p>
             </div>
 
