@@ -7,6 +7,7 @@ use App\Models\QuestionStatistic;
 use App\Models\LehrgangQuestionStatistic;
 use App\Models\OrtsverbandLernpoolQuestionStatistic;
 use App\Models\ExamStatistic;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class StatisticsController extends Controller
@@ -16,6 +17,8 @@ class StatisticsController extends Controller
      */
     public function index()
     {
+        // Chart-Daten für die letzten 30 Tage
+        $chartData = $this->getChartData();
         // Gesamt-Statistiken (Grundausbildung + Lehrgänge + Lernpools kombinieren)
         $totalAnswered = QuestionStatistic::count() +
                          LehrgangQuestionStatistic::count() +
@@ -149,10 +152,38 @@ class StatisticsController extends Controller
             ->sortByDesc('total_answered')
             ->values();
         
+        // Zusätzliche Statistiken für moderne Ansicht
+        $examsToday = ExamStatistic::whereDate('created_at', today())->count();
+        $examsThisWeek = ExamStatistic::where('created_at', '>=', now()->startOfWeek())->count();
+
+        // Aktivität pro Wochentag (basierend auf beantworteten Fragen)
+        $activityByWeekday = QuestionStatistic::select(
+            DB::raw('DAYOFWEEK(created_at) as weekday'),
+            DB::raw('COUNT(*) as count')
+        )
+            ->where('created_at', '>=', now()->subDays(30))
+            ->groupBy('weekday')
+            ->orderBy('weekday')
+            ->get()
+            ->pluck('count', 'weekday')
+            ->toArray();
+
+        // Peak-Stunden (wann wird am meisten gelernt)
+        $peakHours = QuestionStatistic::select(
+            DB::raw('HOUR(created_at) as hour'),
+            DB::raw('COUNT(*) as count')
+        )
+            ->where('created_at', '>=', now()->subDays(30))
+            ->groupBy('hour')
+            ->orderBy('hour')
+            ->get()
+            ->pluck('count', 'hour')
+            ->toArray();
+
         return view('statistics', compact(
             'totalAnswered',
             'totalAnsweredToday',
-            'totalCorrect', 
+            'totalCorrect',
             'totalWrong',
             'successRate',
             'errorRate',
@@ -160,11 +191,63 @@ class StatisticsController extends Controller
             'passedExams',
             'failedExams',
             'examPassRate',
+            'examsToday',
+            'examsThisWeek',
             'topWrongQuestionsWithDetails',
             'topCorrectQuestionsWithDetails',
             'sectionStats',
-            'lehrgangStats'
+            'lehrgangStats',
+            'chartData',
+            'activityByWeekday',
+            'peakHours'
         ));
+    }
+
+    /**
+     * Generiere Chart-Daten für die letzten 30 Tage
+     */
+    private function getChartData(): array
+    {
+        $labels = [];
+        $questionsTotal = [];
+        $questionsCorrect = [];
+        $questionsWrong = [];
+        $examsTotal = [];
+        $examsPassed = [];
+
+        // Letzte 30 Tage inkl. heute
+        for ($i = 29; $i >= 0; $i--) {
+            $date = Carbon::now()->subDays($i);
+            $labels[] = $date->format('d.m.');
+
+            // Fragen-Statistiken für diesen Tag (alle Quellen kombiniert)
+            $dayQuestionsGA = QuestionStatistic::whereDate('created_at', $date)->get();
+            $dayQuestionsLG = LehrgangQuestionStatistic::whereDate('created_at', $date)->get();
+            $dayQuestionsLP = OrtsverbandLernpoolQuestionStatistic::whereDate('created_at', $date)->get();
+
+            $totalDay = $dayQuestionsGA->count() + $dayQuestionsLG->count() + $dayQuestionsLP->count();
+            $correctDay = $dayQuestionsGA->where('is_correct', true)->count()
+                        + $dayQuestionsLG->where('is_correct', true)->count()
+                        + $dayQuestionsLP->where('is_correct', true)->count();
+
+            $questionsTotal[] = $totalDay;
+            $questionsCorrect[] = $correctDay;
+            $questionsWrong[] = $totalDay - $correctDay;
+
+            // Prüfungs-Statistiken für diesen Tag
+            $dayExams = ExamStatistic::whereDate('created_at', $date)->get();
+            $examsTotal[] = $dayExams->count();
+            $examsPassed[] = $dayExams->where('is_passed', true)->count();
+        }
+
+        return [
+            'labels' => $labels,
+            'questionsTotal' => $questionsTotal,
+            'questionsCorrect' => $questionsCorrect,
+            'questionsWrong' => $questionsWrong,
+            'examsTotal' => $examsTotal,
+            'examsPassed' => $examsPassed,
+        ];
     }
 }
 

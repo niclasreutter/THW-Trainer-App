@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Statistiken - THW Trainer')
-@section('description', 'Öffentliche Statistiken über alle beantworteten Fragen im THW-Trainer. Sehen Sie, welche Fragen am häufigsten richtig oder falsch beantwortet wurden.')
+@section('description', 'Öffentliche Statistiken über alle beantworteten Fragen im THW-Trainer.')
 
 @push('styles')
 <style>
@@ -10,415 +10,385 @@
     .statistics-wrapper {
         min-height: 100vh;
         background: #f3f4f6;
-        position: relative;
-        overflow-x: hidden;
     }
 
     .statistics-container {
-        max-width: 1400px;
+        max-width: 1200px;
         margin: 0 auto;
         padding: 2rem;
-        position: relative;
-        z-index: 1;
     }
 
     .statistics-header {
         text-align: center;
-        margin-bottom: 2.5rem;
+        margin-bottom: 2rem;
         padding-top: 1rem;
     }
 
-    .statistics-title {
+    .statistics-header h1 {
         font-size: 2.5rem;
         font-weight: 800;
+        color: #00337F;
         margin-bottom: 0.5rem;
-        line-height: 1.2;
-        display: inline-block;
+    }
+
+    .statistics-header h1 span {
         background: linear-gradient(90deg, #fbbf24, #f59e0b);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
     }
 
-    .statistics-subtitle {
-        font-size: 1.1rem;
-        color: #4b5563;
+    .statistics-header p {
+        font-size: 1rem;
+        color: #6b7280;
     }
 
+    /* Stats Grid - wie Dashboard */
     .stats-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 2.5rem;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+        margin-bottom: 2rem;
     }
 
     .stat-card {
-        border-radius: 1.5rem;
-        padding: 2rem;
-        color: white;
-        transition: all 0.3s ease;
-        cursor: pointer;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    }
-
-    .stat-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
-    }
-
-    .stat-card.blue { background: linear-gradient(135deg, #00337F 0%, #002a66 100%); }
-    .stat-card.green { background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); }
-    .stat-card.red { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
-    .stat-card.orange { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
-
-    .stat-card-content {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 1rem;
-    }
-
-    .stat-card-info {
-        flex: 1;
-    }
-
-    .stat-label {
-        font-size: 0.85rem;
-        opacity: 0.9;
-        margin-bottom: 0.25rem;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    .stat-value {
-        font-size: 2rem;
-        font-weight: 800;
-        line-height: 1;
-        margin-bottom: 0.5rem;
-    }
-
-    .stat-subtext {
-        font-size: 0.85rem;
-        opacity: 0.85;
-    }
-
-    .stat-icon {
-        font-size: 3rem;
-        opacity: 0.3;
-        flex-shrink: 0;
-    }
-
-    .section-card {
         background: white;
-        border: 1px solid #e5e7eb;
-        border-radius: 1.5rem;
-        padding: 2rem;
-        margin-bottom: 2.5rem;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-        transition: all 0.3s ease;
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-        min-width: 0;
-        overflow: hidden;
-    }
-
-    .section-card:hover {
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
-        transform: translateY(-2px);
-    }
-
-    @media (max-width: 768px) {
-        .section-card {
-            padding: 1.25rem;
-            margin-bottom: 1.5rem;
-            border-radius: 1rem;
-        }
-    }
-
-    .section-title {
-        font-size: 1.5rem;
-        font-weight: 800;
-        color: #1f2937;
-        margin-bottom: 2rem;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-    }
-
-    @media (max-width: 768px) {
-        .section-title {
-            font-size: 1.25rem;
-            margin-bottom: 1.25rem;
-        }
-    }
-
-    .section-title-icon {
-        font-size: 1.75rem;
-    }
-
-    .section-stats-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 1rem;
-    }
-
-    .stat-item {
         border: 1px solid #e5e7eb;
         border-radius: 1rem;
         padding: 1.25rem;
+        text-align: center;
         transition: all 0.2s ease;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .stat-icon { font-size: 1.75rem; margin-bottom: 0.5rem; }
+    .stat-value { font-size: 1.5rem; font-weight: 800; color: #00337F; margin-bottom: 0.25rem; }
+    .stat-label { font-size: 0.75rem; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; }
+    .stat-sub { font-size: 0.8rem; color: #9ca3af; margin-top: 0.25rem; }
+
+    /* Section Cards */
+    .section-card {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .section-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .section-title i { color: #00337F; }
+
+    /* Charts */
+    .charts-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .chart-container {
+        height: 250px;
+    }
+
+    /* Lernabschnitte */
+    .sections-list {
         display: flex;
         flex-direction: column;
-        height: 100%;
+        gap: 0.75rem;
     }
 
-    .stat-item:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
-    }
-
-    .stat-item-name {
-        font-weight: 600;
-        color: #1f2937;
-        margin-bottom: 0.75rem;
-        font-size: 0.95rem;
-        line-height: 1.3;
-    }
-
-    .stat-item-row {
+    .section-row {
         display: flex;
-        justify-content: space-between;
-        font-size: 0.85rem;
-        color: #6b7280;
-        margin-bottom: 0.5rem;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.75rem;
+        background: #f9fafb;
+        border-radius: 0.5rem;
     }
 
-    .stat-item-row:last-of-type { margin-bottom: 0.75rem; }
+    .section-row:hover {
+        background: #f3f4f6;
+    }
 
-    .stat-item-count { font-weight: 600; }
-    .stat-item-correct { color: #22c55e; }
-    .stat-item-wrong { color: #ef4444; }
+    .section-number {
+        font-weight: 700;
+        color: #00337F;
+        min-width: 28px;
+    }
 
-    .stat-item > div:nth-child(2) {
+    .section-info {
         flex: 1;
+        min-width: 0;
     }
 
-    .stat-item > div:last-child {
-        margin-top: auto;
+    .section-name {
+        font-size: 0.85rem;
+        color: #374151;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
-    .progress-bar {
-        width: 100%;
+    .section-stats {
+        font-size: 0.75rem;
+        color: #6b7280;
+    }
+
+    .section-bar {
+        width: 120px;
         height: 6px;
         background: #e5e7eb;
         border-radius: 3px;
         overflow: hidden;
-        display: flex;
-        margin-bottom: 0.5rem;
     }
 
-    .progress-correct {
+    .section-bar-fill {
         height: 100%;
         background: linear-gradient(90deg, #22c55e, #16a34a);
-        transition: width 0.5s ease;
+        border-radius: 3px;
     }
 
-    .progress-wrong {
-        height: 100%;
-        background: linear-gradient(90deg, #ef4444, #dc2626);
-        transition: width 0.5s ease;
+    .section-rate {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: #22c55e;
+        min-width: 45px;
+        text-align: right;
     }
 
-    .progress-label {
-        font-size: 0.75rem;
-        color: #6b7280;
-        margin-top: 0.25rem;
-    }
-
-    .questions-grid {
+    /* Fragen Listen */
+    .questions-row {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
-        gap: 2rem;
-    }
-
-    @media (max-width: 1024px) {
-        .questions-grid {
-            grid-template-columns: 1fr;
-        }
-    }
-
-    @media (max-width: 768px) {
-        .questions-grid {
-            grid-template-columns: 1fr;
-            gap: 1rem;
-            min-width: 0;
-            overflow-x: hidden;
-        }
-        
-        .section-card {
-            padding: 1rem;
-            min-width: 0;
-            overflow: hidden;
-        }
-        
-        .question-item {
-            padding: 1rem;
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            min-width: 0;
-            overflow: hidden;
-        }
-        
-        .question-item > div {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            min-width: 0;
-            width: 100%;
-        }
-        
-        .question-rate {
-            align-self: flex-end;
-            margin-top: 0.5rem;
-            min-width: auto;
-        }
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
     }
 
     .question-list {
         display: flex;
         flex-direction: column;
-        gap: 1.25rem;
-        flex: 1;
-    }
-
-    .question-item {
-        position: relative;
-        border: 1px solid #e5e7eb;
-        border-radius: 1rem;
-        padding: 1.5rem;
-        background: white;
-        transition: all 0.3s ease;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        gap: 1rem;
-        overflow: hidden;
-        min-height: 120px;
-    }
-
-    .question-item:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-        border-color: #d1d5db;
-    }
-
-    .question-item.wrong {
-        border-left: 4px solid #ef4444;
-    }
-
-    .question-item.correct {
-        border-left: 4px solid #22c55e;
-    }
-
-    .question-rank {
-        font-size: 1.25rem;
-        font-weight: 800;
-        color: #1f2937;
-        display: inline-block;
-        width: 32px;
-        margin-right: 0.5rem;
-        flex-shrink: 0;
-    }
-
-    .question-text {
-        font-size: 0.95rem;
-        color: #1f2937;
-        margin-bottom: 0.5rem;
-        font-weight: 600;
-        line-height: 1.4;
-        word-break: break-word;
-        overflow-wrap: break-word;
-    }
-
-    @media (max-width: 768px) {
-        .question-text {
-            font-size: 0.9rem;
-            line-height: 1.3;
-        }
-    }
-
-    .question-section {
-        font-size: 0.75rem;
-        color: #6b7280;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        margin-bottom: 0.75rem;
-        font-weight: 500;
-    }
-
-    .question-stats {
-        display: flex;
-        justify-content: space-between;
-        font-size: 0.8rem;
-        color: #6b7280;
-        margin-bottom: 0;
-        flex-wrap: wrap;
         gap: 0.5rem;
     }
 
-    @media (max-width: 768px) {
-        .question-stats {
-            font-size: 0.75rem;
-            flex-direction: column;
-        }
+    .question-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        padding: 0.75rem;
+        background: #f9fafb;
+        border-radius: 0.5rem;
+        border-left: 3px solid transparent;
+    }
+
+    .question-item.wrong { border-left-color: #ef4444; }
+    .question-item.correct { border-left-color: #22c55e; }
+
+    .question-rank {
+        font-weight: 700;
+        color: #9ca3af;
+        font-size: 0.85rem;
+        min-width: 20px;
+    }
+
+    .question-content {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .question-text {
+        font-size: 0.85rem;
+        color: #374151;
+        line-height: 1.4;
+        margin-bottom: 0.25rem;
+    }
+
+    .question-meta {
+        font-size: 0.7rem;
+        color: #9ca3af;
     }
 
     .question-rate {
-        font-size: 1.5rem;
-        font-weight: 800;
-        text-align: right;
-        min-width: 70px;
-        flex-shrink: 0;
+        font-weight: 700;
+        font-size: 0.9rem;
     }
 
     .question-rate.wrong { color: #ef4444; }
     .question-rate.correct { color: #22c55e; }
 
-    .empty-state {
-        text-align: center;
-        padding: 3rem;
-        color: #6b7280;
+    /* Lehrgänge */
+    .lehrgang-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 1rem;
     }
 
-    .empty-icon { font-size: 2rem; margin-bottom: 1rem; }
-
-    .info-banner {
-        background: rgba(59, 130, 246, 0.1);
-        border-left: 4px solid #00337F;
+    .lehrgang-item {
+        padding: 1rem;
+        background: #f9fafb;
         border-radius: 0.75rem;
-        padding: 1.5rem;
-        margin-top: 2rem;
+        border: 1px solid #e5e7eb;
     }
 
-    .info-banner-title {
-        font-weight: 700;
-        color: #00337F;
+    .lehrgang-name {
+        font-weight: 600;
+        color: #1f2937;
+        font-size: 0.9rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .lehrgang-stats {
+        display: flex;
+        gap: 1rem;
+        font-size: 0.75rem;
+        color: #6b7280;
         margin-bottom: 0.5rem;
     }
 
-    .info-banner-text {
-        font-size: 0.9rem;
-        color: #4b5563;
+    .lehrgang-bar {
+        height: 4px;
+        background: #e5e7eb;
+        border-radius: 2px;
+        overflow: hidden;
+    }
+
+    .lehrgang-bar-fill {
+        height: 100%;
+        border-radius: 2px;
+    }
+
+    /* Aktivität */
+    .activity-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+    }
+
+    .activity-section h4 {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #6b7280;
+        margin-bottom: 1rem;
+    }
+
+    .weekday-row {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .weekday-label {
+        font-size: 0.75rem;
+        color: #6b7280;
+        width: 24px;
+    }
+
+    .weekday-bar-container {
+        flex: 1;
+        height: 20px;
+        background: #e5e7eb;
+        border-radius: 3px;
+        overflow: hidden;
+    }
+
+    .weekday-bar {
+        height: 100%;
+        background: linear-gradient(90deg, #00337F, #0066CC);
+        border-radius: 3px;
+        min-width: 2px;
+    }
+
+    .weekday-value {
+        font-size: 0.75rem;
+        color: #374151;
+        font-weight: 600;
+        width: 35px;
+        text-align: right;
+    }
+
+    .hours-chart {
+        display: flex;
+        align-items: flex-end;
+        height: 60px;
+        gap: 1px;
+    }
+
+    .hour-bar {
+        flex: 1;
+        background: #f59e0b;
+        border-radius: 2px 2px 0 0;
+        min-height: 2px;
+    }
+
+    .hours-labels {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 0.5rem;
+        font-size: 0.65rem;
+        color: #9ca3af;
+    }
+
+    /* Info */
+    .info-box {
+        background: #f0f9ff;
+        border: 1px solid #bae6fd;
+        border-radius: 0.75rem;
+        padding: 1rem 1.25rem;
+        margin-top: 1.5rem;
+        display: flex;
+        gap: 0.75rem;
+        align-items: flex-start;
+    }
+
+    .info-box i {
+        color: #0284c7;
+        font-size: 1rem;
+        margin-top: 0.125rem;
+    }
+
+    .info-box p {
+        font-size: 0.85rem;
+        color: #475569;
+        margin: 0;
         line-height: 1.5;
     }
 
-    @media (max-width: 640px) {
+    /* Empty */
+    .empty-state {
+        text-align: center;
+        padding: 2rem;
+        color: #6b7280;
+        font-size: 0.9rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+        .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        .charts-row { grid-template-columns: 1fr; }
+        .questions-row { grid-template-columns: 1fr; }
+        .activity-grid { grid-template-columns: 1fr; gap: 1.5rem; }
+    }
+
+    @media (max-width: 480px) {
         .statistics-container { padding: 1rem; }
-        .statistics-title { font-size: 1.75rem; }
-        .section-stats-grid { grid-template-columns: 1fr; }
+        .statistics-header h1 { font-size: 1.75rem; }
+        .section-bar { width: 80px; }
+        .section-name { font-size: 0.8rem; }
+        .lehrgang-grid { grid-template-columns: 1fr; }
     }
 </style>
 @endpush
@@ -426,174 +396,163 @@
 @section('content')
 <div class="statistics-wrapper">
     <div class="statistics-container">
+
         <div class="statistics-header">
-            <h1 class="statistics-title">Statistiken</h1>
-            <p class="statistics-subtitle">Anonyme Statistiken über alle beantworteten Fragen</p>
+            <h1>Plattform-<span>Statistiken</span></h1>
+            <p>Anonyme Daten aller Nutzer</p>
         </div>
 
-        <!-- Stats Grid -->
+        <!-- Haupt-Stats -->
         <div class="stats-grid">
-            <div class="stat-card blue">
-                <div class="stat-card-content">
-                    <div class="stat-card-info">
-                        <div class="stat-label">Gesamt beantwortet</div>
-                        <div class="stat-value">{{ number_format($totalAnswered) }}</div>
-                        <div class="stat-subtext">{{ number_format($totalAnsweredToday) }} heute</div>
-                    </div>
-                    <div class="stat-icon"><i class="bi bi-bar-chart"></i></div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="bi bi-chat-dots text-blue-600"></i></div>
+                <div class="stat-value">{{ number_format($totalAnswered) }}</div>
+                <div class="stat-label">Fragen beantwortet</div>
+                <div class="stat-sub">{{ number_format($totalAnsweredToday) }} heute</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="bi bi-check-circle text-green-500"></i></div>
+                <div class="stat-value">{{ $successRate }}%</div>
+                <div class="stat-label">Richtig</div>
+                <div class="stat-sub">{{ number_format($totalCorrect) }} gesamt</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="bi bi-x-circle text-red-500"></i></div>
+                <div class="stat-value">{{ $errorRate }}%</div>
+                <div class="stat-label">Falsch</div>
+                <div class="stat-sub">{{ number_format($totalWrong) }} gesamt</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="bi bi-clipboard-check text-yellow-500"></i></div>
+                <div class="stat-value">{{ number_format($totalExams) }}</div>
+                <div class="stat-label">Prüfungen</div>
+                <div class="stat-sub">{{ $examPassRate }}% bestanden</div>
+            </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="charts-row">
+            <div class="section-card">
+                <h3 class="section-title"><i class="bi bi-graph-up"></i> Fragen (30 Tage)</h3>
+                <div class="chart-container">
+                    <canvas id="questionsChart"></canvas>
                 </div>
             </div>
-
-            <div class="stat-card green">
-                <div class="stat-card-content">
-                    <div class="stat-card-info">
-                        <div class="stat-label">Richtig beantwortet</div>
-                        <div class="stat-value">{{ number_format($totalCorrect) }}</div>
-                        <div class="stat-subtext">{{ $successRate }}% Erfolgsrate</div>
-                    </div>
-                    <div class="stat-icon"><i class="bi bi-check-circle"></i></div>
-                </div>
-            </div>
-
-            <div class="stat-card red">
-                <div class="stat-card-content">
-                    <div class="stat-card-info">
-                        <div class="stat-label">Falsch beantwortet</div>
-                        <div class="stat-value">{{ number_format($totalWrong) }}</div>
-                        <div class="stat-subtext">{{ $errorRate }}% Fehlerrate</div>
-                    </div>
-                    <div class="stat-icon"><i class="bi bi-x-circle"></i></div>
-                </div>
-            </div>
-
-            <div class="stat-card orange">
-                <div class="stat-card-content">
-                    <div class="stat-card-info">
-                        <div class="stat-label">Prüfungen</div>
-                        <div class="stat-value">{{ number_format($totalExams) }}</div>
-                        <div class="stat-subtext">{{ number_format($passedExams) }} bestanden ({{ $examPassRate }}%)</div>
-                    </div>
-                    <div class="stat-icon"><i class="bi bi-trophy"></i></div>
+            <div class="section-card">
+                <h3 class="section-title"><i class="bi bi-bar-chart"></i> Prüfungen (30 Tage)</h3>
+                <div class="chart-container">
+                    <canvas id="examsChart"></canvas>
                 </div>
             </div>
         </div>
 
-        <!-- Lernabschnitt-Statistiken -->
+        <!-- Aktivität -->
+        <div class="section-card">
+            <h3 class="section-title"><i class="bi bi-clock-history"></i> Wann wird gelernt?</h3>
+            <div class="activity-grid">
+                <div class="activity-section">
+                    <h4>Aktivität nach Wochentag</h4>
+                    @php
+                        $weekdays = ['', 'So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
+                        $maxW = max($activityByWeekday ?: [1]);
+                    @endphp
+                    @foreach([2,3,4,5,6,7,1] as $day)
+                        <div class="weekday-row">
+                            <span class="weekday-label">{{ $weekdays[$day] }}</span>
+                            <div class="weekday-bar-container">
+                                <div class="weekday-bar" style="width: {{ $maxW > 0 ? (($activityByWeekday[$day] ?? 0) / $maxW * 100) : 0 }}%"></div>
+                            </div>
+                            <span class="weekday-value">{{ number_format($activityByWeekday[$day] ?? 0) }}</span>
+                        </div>
+                    @endforeach
+                </div>
+                <div class="activity-section">
+                    <h4>Aktivität nach Uhrzeit</h4>
+                    @php $maxH = max($peakHours ?: [1]); @endphp
+                    <div class="hours-chart">
+                        @for($h = 0; $h < 24; $h++)
+                            <div class="hour-bar" style="height: {{ $maxH > 0 ? (($peakHours[$h] ?? 0) / $maxH * 100) : 0 }}%" title="{{ $h }}:00"></div>
+                        @endfor
+                    </div>
+                    <div class="hours-labels">
+                        <span>0h</span><span>6h</span><span>12h</span><span>18h</span><span>24h</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lernabschnitte -->
         @if($sectionStats->isNotEmpty())
         <div class="section-card">
-            <h2 class="section-title">Statistik nach Lernabschnitten</h2>
-            
-            <div class="section-stats-grid">
+            <h3 class="section-title"><i class="bi bi-journal-text"></i> Erfolgsrate nach Lernabschnitt</h3>
+            <div class="sections-list">
+                @php
+                    $sectionNames = [
+                        1 => 'THW im Gefüge des Zivil- und Katastrophenschutzes',
+                        2 => 'Arbeitssicherheit und Gesundheitsschutz',
+                        3 => 'Leinen, Drahtseile, Ketten, Schlingen',
+                        4 => 'Arbeiten mit Leitern',
+                        5 => 'Stromerzeugung und Beleuchtung',
+                        6 => 'Metall-, Holz- und Steinbearbeitung',
+                        7 => 'Bewegen von Lasten',
+                        8 => 'Arbeiten am und auf dem Wasser',
+                        9 => 'Einsatzgrundlagen',
+                        10 => 'Grundlagen der Rettung und Bergung'
+                    ];
+                @endphp
                 @foreach($sectionStats as $stat)
-                    @php
-                        $sectionNames = [
-                            1 => 'Das THW im Gefüge des Zivil- und Katastrophenschutzes',
-                            2 => 'Arbeitssicherheit und Gesundheitsschutz', 
-                            3 => 'Arbeiten mit Leinen, Drahtseilen, Ketten, Rund- und Bandschlingen',
-                            4 => 'Arbeiten mit Leitern',
-                            5 => 'Stromerzeugung und Beleuchtung',
-                            6 => 'Metall-, Holz- und Steinbearbeitung',
-                            7 => 'Bewegen von Lasten',
-                            8 => 'Arbeiten am und auf dem Wasser',
-                            9 => 'Einsatzgrundlagen',
-                            10 => 'Grundlagen der Rettung und Bergung'
-                        ];
-                        $sectionName = $sectionNames[$stat->lernabschnitt] ?? 'Unbekannt';
-                    @endphp
-                    <div class="stat-item">
-                        <div class="stat-item-name">{{ $stat->lernabschnitt }}. {{ $sectionName }}</div>
-                        
-                        <div class="stat-item-row">
-                            <span>Versuche:</span>
-                            <span class="stat-item-count">{{ number_format($stat->total_attempts) }}</span>
+                    <div class="section-row">
+                        <span class="section-number">{{ $stat->lernabschnitt }}.</span>
+                        <div class="section-info">
+                            <div class="section-name">{{ $sectionNames[$stat->lernabschnitt] ?? 'Unbekannt' }}</div>
+                            <div class="section-stats">{{ number_format($stat->total_attempts) }} Versuche</div>
                         </div>
-                        
-                        <div class="stat-item-row">
-                            <span class="stat-item-correct">✓ Richtig</span>
-                            <span class="stat-item-count stat-item-correct">{{ number_format($stat->correct_count) }}</span>
+                        <div class="section-bar">
+                            <div class="section-bar-fill" style="width: {{ $stat->success_rate }}%"></div>
                         </div>
-                        
-                        <div class="stat-item-row">
-                            <span class="stat-item-wrong">✗ Falsch</span>
-                            <span class="stat-item-count stat-item-wrong">{{ number_format($stat->wrong_count) }}</span>
-                        </div>
-                        
-                        <div class="progress-bar">
-                            <div class="progress-correct" style="width: {{ $stat->success_rate }}%"></div>
-                            <div class="progress-wrong" style="width: {{ 100 - $stat->success_rate }}%"></div>
-                        </div>
-                        
-                        <div class="progress-label">{{ $stat->success_rate }}% Erfolgsrate</div>
+                        <span class="section-rate">{{ $stat->success_rate }}%</span>
                     </div>
                 @endforeach
             </div>
         </div>
         @endif
 
-        <!-- Top 10 Questions -->
-        <div class="questions-grid">
-            <!-- Top 10 Schwierigste Fragen -->
+        <!-- Top Fragen -->
+        <div class="questions-row">
             <div class="section-card">
-                <h2 class="section-title">Top 10 Schwierigste Fragen</h2>
-                
+                <h3 class="section-title"><i class="bi bi-exclamation-triangle text-red-500"></i> Schwierigste Fragen</h3>
                 @if($topWrongQuestionsWithDetails->isEmpty())
-                    <div class="empty-state">
-                        <div class="empty-icon"><i class="bi bi-bar-chart"></i></div>
-                        <p>Noch nicht genügend Daten verfügbar</p>
-                        <p style="font-size: 0.8rem;">(mindestens 5 Versuche pro Frage erforderlich)</p>
-                    </div>
+                    <div class="empty-state">Noch nicht genug Daten (min. 5 Versuche)</div>
                 @else
                     <div class="question-list">
-                        @foreach($topWrongQuestionsWithDetails as $index => $item)
+                        @foreach($topWrongQuestionsWithDetails->take(8) as $i => $item)
                             <div class="question-item wrong">
-                                <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem;">
-                                    <div style="flex: 1;">
-                                        <div style="display: flex; align-items: baseline; gap: 0.5rem; margin-bottom: 0.5rem;">
-                                            <span class="question-rank">{{ $index + 1 }}.</span>
-                                            <div class="question-text">{{ Str::limit($item['question']->frage, 120) }}</div>
-                                        </div>
-                                        <div class="question-section">Lernabschnitt {{ $item['question']->lernabschnitt }}</div>
-                                        <div class="question-stats">
-                                            <span>{{ number_format($item['total_attempts']) }} Versuche</span>
-                                            <span><span class="stat-item-correct">✓ {{ number_format($item['correct_count']) }}</span> | <span class="stat-item-wrong">✗ {{ number_format($item['wrong_count']) }}</span></span>
-                                        </div>
-                                    </div>
-                                    <div class="question-rate wrong">{{ $item['error_rate'] }}%</div>
+                                <span class="question-rank">{{ $i + 1 }}.</span>
+                                <div class="question-content">
+                                    <div class="question-text">{{ Str::limit($item['question']->frage, 80) }}</div>
+                                    <div class="question-meta">LA {{ $item['question']->lernabschnitt }} · {{ $item['total_attempts'] }} Versuche</div>
                                 </div>
+                                <span class="question-rate wrong">{{ $item['error_rate'] }}%</span>
                             </div>
                         @endforeach
                     </div>
                 @endif
             </div>
 
-            <!-- Top 10 Einfachste Fragen -->
             <div class="section-card">
-                <h2 class="section-title">Top 10 Einfachste Fragen</h2>
-                
+                <h3 class="section-title"><i class="bi bi-check2-circle text-green-500"></i> Einfachste Fragen</h3>
                 @if($topCorrectQuestionsWithDetails->isEmpty())
-                    <div class="empty-state">
-                        <div class="empty-icon"><i class="bi bi-bar-chart"></i></div>
-                        <p>Noch nicht genügend Daten verfügbar</p>
-                        <p style="font-size: 0.8rem;">(mindestens 5 Versuche pro Frage erforderlich)</p>
-                    </div>
+                    <div class="empty-state">Noch nicht genug Daten (min. 5 Versuche)</div>
                 @else
                     <div class="question-list">
-                        @foreach($topCorrectQuestionsWithDetails as $index => $item)
+                        @foreach($topCorrectQuestionsWithDetails->take(8) as $i => $item)
                             <div class="question-item correct">
-                                <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem;">
-                                    <div style="flex: 1;">
-                                        <div style="display: flex; align-items: baseline; gap: 0.5rem; margin-bottom: 0.5rem;">
-                                            <span class="question-rank">{{ $index + 1 }}.</span>
-                                            <div class="question-text">{{ Str::limit($item['question']->frage, 120) }}</div>
-                                        </div>
-                                        <div class="question-section">Lernabschnitt {{ $item['question']->lernabschnitt }}</div>
-                                        <div class="question-stats">
-                                            <span>{{ number_format($item['total_attempts']) }} Versuche</span>
-                                            <span><span class="stat-item-correct">✓ {{ number_format($item['correct_count']) }}</span> | <span class="stat-item-wrong">✗ {{ number_format($item['wrong_count']) }}</span></span>
-                                        </div>
-                                    </div>
-                                    <div class="question-rate correct">{{ $item['success_rate'] }}%</div>
+                                <span class="question-rank">{{ $i + 1 }}.</span>
+                                <div class="question-content">
+                                    <div class="question-text">{{ Str::limit($item['question']->frage, 80) }}</div>
+                                    <div class="question-meta">LA {{ $item['question']->lernabschnitt }} · {{ $item['total_attempts'] }} Versuche</div>
                                 </div>
+                                <span class="question-rate correct">{{ $item['success_rate'] }}%</span>
                             </div>
                         @endforeach
                     </div>
@@ -601,62 +560,83 @@
             </div>
         </div>
 
-        <!-- Lehrgang-Statistiken -->
+        <!-- Lehrgänge -->
         @if($lehrgangStats->isNotEmpty())
         <div class="section-card">
-            <h2 class="section-title">Lehrgänge</h2>
-            
-            <div class="section-stats-grid">
-                @foreach($lehrgangStats as $lehrgang)
-                    <div class="stat-item">
-                        <div class="stat-item-name">{{ $lehrgang->name }}</div>
-                        
-                        <div class="stat-item-row">
-                            <span>Nutzer eingeschrieben:</span>
-                            <span class="stat-item-count">{{ number_format($lehrgang->users_count) }}</span>
+            <h3 class="section-title"><i class="bi bi-mortarboard"></i> Lehrgänge</h3>
+            <div class="lehrgang-grid">
+                @foreach($lehrgangStats as $lg)
+                    <div class="lehrgang-item">
+                        <div class="lehrgang-name">{{ $lg->name }}</div>
+                        <div class="lehrgang-stats">
+                            <span>{{ $lg->users_count }} Nutzer</span>
+                            <span>{{ $lg->questions_count }} Fragen</span>
                         </div>
-
-                        <div class="stat-item-row">
-                            <span>Fragen:</span>
-                            <span class="stat-item-count">{{ $lehrgang->questions_count }}</span>
+                        <div class="lehrgang-bar">
+                            <div class="lehrgang-bar-fill" style="width: {{ $lg->success_rate }}%; background: {{ $lg->success_rate >= 70 ? '#22c55e' : ($lg->success_rate >= 50 ? '#f59e0b' : '#ef4444') }};"></div>
                         </div>
-
-                        <div class="stat-item-row">
-                            <span>Beantwortet:</span>
-                            <span class="stat-item-count">{{ number_format($lehrgang->total_answered) }}</span>
-                        </div>
-                        
-                        <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #e5e7eb;">
-                            <div class="stat-item-row" style="margin-bottom: 0.5rem;">
-                                <span>Erfolgsrate</span>
-                                <span class="stat-item-count" style="color: {{ $lehrgang->success_rate >= 70 ? '#22c55e' : ($lehrgang->success_rate >= 50 ? '#f59e0b' : '#ef4444') }}">
-                                    {{ $lehrgang->success_rate }}%
-                                </span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress-correct" style="width: {{ $lehrgang->success_rate }}%; background: {{ $lehrgang->success_rate >= 70 ? 'linear-gradient(90deg, #22c55e, #16a34a)' : ($lehrgang->success_rate >= 50 ? 'linear-gradient(90deg, #f59e0b, #d97706)' : 'linear-gradient(90deg, #ef4444, #dc2626)') }}"></div>
-                            </div>
-                        </div>
+                        <div style="font-size: 0.75rem; color: {{ $lg->success_rate >= 70 ? '#16a34a' : ($lg->success_rate >= 50 ? '#d97706' : '#dc2626') }}; font-weight: 600; margin-top: 0.25rem;">{{ $lg->success_rate }}% Erfolg</div>
                     </div>
                 @endforeach
             </div>
         </div>
         @endif
 
-        <!-- Info Banner -->
-        <div class="info-banner">
-            <div class="info-banner-title">ℹ️ Über diese Statistiken</div>
-            <div class="info-banner-text">
-                <p style="margin-bottom: 0.5rem;">
-                    Diese Statistiken basieren auf anonymen Daten aller Nutzer (angemeldet und Gäste). 
-                    Es werden keine persönlichen Informationen gespeichert - nur ob eine Frage richtig oder falsch beantwortet wurde.
-                </p>
-                <p>
-                    Fragen in den Top-10-Listen benötigen mindestens 5 Versuche, um aussagekräftige Statistiken zu liefern.
-                </p>
-            </div>
+        <div class="info-box">
+            <i class="bi bi-shield-check"></i>
+            <p>Diese Statistiken sind vollständig anonym. Es werden keine persönlichen Daten gespeichert - nur ob Fragen richtig oder falsch beantwortet wurden.</p>
         </div>
+
     </div>
 </div>
 @endsection
 
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof Chart === 'undefined') return;
+
+    Chart.defaults.font.family = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+    Chart.defaults.color = '#6b7280';
+
+    const baseOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: true, position: 'top', labels: { usePointStyle: true, padding: 12, font: { size: 11 } } },
+            tooltip: { backgroundColor: '#1f2937', padding: 10, cornerRadius: 6 }
+        },
+        scales: {
+            y: { beginAtZero: true, grid: { color: '#f3f4f6' }, ticks: { font: { size: 10 } } },
+            x: { grid: { display: false }, ticks: { font: { size: 9 }, maxRotation: 45 } }
+        }
+    };
+
+    new Chart(document.getElementById('questionsChart'), {
+        type: 'line',
+        data: {
+            labels: {!! json_encode($chartData['labels']) !!},
+            datasets: [
+                { label: 'Gesamt', data: {!! json_encode($chartData['questionsTotal']) !!}, borderColor: '#00337F', backgroundColor: 'rgba(0,51,127,0.1)', borderWidth: 2, fill: true, tension: 0.3, pointRadius: 1 },
+                { label: 'Richtig', data: {!! json_encode($chartData['questionsCorrect']) !!}, borderColor: '#22c55e', borderWidth: 2, tension: 0.3, pointRadius: 1 },
+                { label: 'Falsch', data: {!! json_encode($chartData['questionsWrong']) !!}, borderColor: '#ef4444', borderWidth: 2, tension: 0.3, pointRadius: 1 }
+            ]
+        },
+        options: baseOptions
+    });
+
+    new Chart(document.getElementById('examsChart'), {
+        type: 'bar',
+        data: {
+            labels: {!! json_encode($chartData['labels']) !!},
+            datasets: [
+                { label: 'Bestanden', data: {!! json_encode($chartData['examsPassed']) !!}, backgroundColor: '#22c55e', borderRadius: 3 },
+                { label: 'Gesamt', data: {!! json_encode($chartData['examsTotal']) !!}, backgroundColor: 'rgba(0,51,127,0.3)', borderRadius: 3 }
+            ]
+        },
+        options: { ...baseOptions, plugins: { ...baseOptions.plugins, legend: { ...baseOptions.plugins.legend, reverse: true } } }
+    });
+});
+</script>
+@endpush
