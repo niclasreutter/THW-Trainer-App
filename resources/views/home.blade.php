@@ -45,11 +45,12 @@
                 <!-- CTA Button -->
                 <a href="#"
                    id="cta-button"
-                   class="inline-flex items-center justify-center px-6 py-3 lg:px-8 lg:py-4 text-base lg:text-lg font-bold text-blue-900 bg-yellow-400 rounded-xl shadow-lg hover:bg-yellow-500 hover:scale-105 transition-all duration-300"
+                   class="inline-flex items-center justify-center px-6 py-3 lg:px-8 lg:py-4 text-base lg:text-lg font-bold rounded-xl shadow-lg hover:scale-105 transition-all duration-300"
+                   style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: #1e3a8a;"
                    onclick="launchRocket(event)"
-                   aria-label="Jetzt kostenlos THW-Theorie üben starten">
-                    <i id="rocket" class="bi bi-play-circle-fill text-xl lg:text-2xl mr-2" aria-hidden="true"></i>
-                    <span>THW-Theorie kostenlos üben</span>
+                   aria-label="Jetzt kostenlos THW-Theorie lernen starten">
+                    <i id="rocket" class="bi bi-check2-circle text-xl lg:text-2xl mr-2" aria-hidden="true"></i>
+                    <span>THW-Theorie kostenlos lernen</span>
                 </a>
 
                 <!-- Anonym Text -->
