@@ -5,287 +5,496 @@
 
 @push('styles')
 <style>
-    * { box-sizing: border-box; }
+    .contact-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
 
-    .contact-wrapper { min-height: 100vh; background: #f3f4f6; position: relative; overflow-x: hidden; }
+    .dashboard-header {
+        margin-bottom: 2rem;
+        padding-top: 1rem;
+    }
 
-    .contact-container { max-width: 800px; margin: 0 auto; padding: 2rem; position: relative; z-index: 1; }
+    /* Radio Options Grid */
+    .radio-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+    }
 
-    .contact-header { text-align: center; margin-bottom: 3rem; padding-top: 1rem; }
+    @media (max-width: 640px) {
+        .radio-grid {
+            grid-template-columns: 1fr;
+        }
+        .contact-container {
+            padding: 1rem;
+        }
+    }
 
-    .contact-header h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 0.5rem; line-height: 1.2; display: inline-block; background: linear-gradient(90deg, #fbbf24, #f59e0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .radio-option {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 0.75rem;
+        padding: 1rem;
+        cursor: pointer;
+        transition: all var(--transition-normal);
+    }
 
-    .contact-subtitle { font-size: 1.1rem; color: #4b5563; margin-bottom: 0; }
+    .radio-option:hover {
+        border-color: rgba(255, 255, 255, 0.15);
+        background: rgba(255, 255, 255, 0.05);
+    }
 
-    .alert-box { border-radius: 10px; padding: 1.5rem; margin-bottom: 2rem; display: flex; gap: 1rem; }
+    .radio-option:has(input[type="radio"]:checked) {
+        background: rgba(251, 191, 36, 0.08);
+        border-color: rgba(251, 191, 36, 0.3);
+    }
 
-    .alert-success { background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(34, 197, 94, 0.05) 100%); border: 1px solid #22c55e; }
+    .radio-label {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        cursor: pointer;
+    }
 
-    .alert-error { background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(239, 68, 68, 0.05) 100%); border: 1px solid #ef4444; }
+    .radio-label-icon {
+        font-size: 1.25rem;
+        color: var(--text-muted);
+        flex-shrink: 0;
+        margin-top: 0.1rem;
+    }
 
-    .alert-icon { font-size: 1.5rem; flex-shrink: 0; }
+    .radio-option:has(input[type="radio"]:checked) .radio-label-icon {
+        color: var(--gold-start);
+    }
 
-    .alert-content h3 { margin: 0 0 0.5rem 0; font-weight: 700; font-size: 1rem; }
+    .radio-label-content {
+        flex: 1;
+    }
 
-    .alert-content p, .alert-content li { margin: 0; font-size: 0.95rem; }
+    .radio-label-title {
+        font-weight: 600;
+        color: var(--text-primary);
+        display: block;
+        font-size: 0.9rem;
+        margin-bottom: 0.25rem;
+    }
 
-    .alert-success .alert-content h3, .alert-success .alert-content p { color: #16a34a; }
-    .alert-error .alert-content h3, .alert-error .alert-content p, .alert-error .alert-content li { color: #dc2626; }
+    .radio-label-desc {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+    }
 
-    .card { background: white; border-radius: 10px; border: 1px solid #e5e7eb; padding: 2rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); }
+    .radio-label input[type="radio"] {
+        display: none;
+    }
 
-    .form-group { margin-bottom: 1.5rem; }
+    /* Form Groups */
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
 
-    .form-label { display: block; font-weight: 600; color: #1f2937; margin-bottom: 0.75rem; font-size: 0.95rem; }
+    .form-label {
+        display: block;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+    }
 
-    .required { color: #ef4444; }
+    .required {
+        color: var(--error);
+    }
 
-    .form-input, .form-select, .form-textarea { width: 100%; padding: 0.75rem 1rem; border: 1px solid #d1d5db; border-radius: 8px; font-size: 1rem; transition: all 0.3s; font-family: inherit; }
+    .help-text {
+        color: var(--text-muted);
+        font-size: 0.8rem;
+        margin-top: 0.4rem;
+    }
 
-    .form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: #00337F; box-shadow: 0 0 0 3px rgba(0, 51, 127, 0.1); }
+    /* Checkbox Group */
+    .checkbox-group {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        padding: 1rem;
+        background: rgba(0, 51, 127, 0.08);
+        border: 1px solid rgba(0, 51, 127, 0.2);
+        border-radius: 0.75rem;
+        margin-bottom: 1.5rem;
+    }
 
-    .form-textarea { resize: vertical; min-height: 150px; }
+    .checkbox-input {
+        width: 1.25rem;
+        height: 1.25rem;
+        margin-top: 0.15rem;
+        accent-color: var(--gold-start);
+        cursor: pointer;
+        flex-shrink: 0;
+    }
 
-    .help-text { color: #6b7280; font-size: 0.85rem; margin-top: 0.4rem; }
+    .checkbox-label {
+        cursor: pointer;
+        flex: 1;
+    }
 
-    .radio-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+    .checkbox-label-text {
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0.25rem;
+        display: block;
+        font-size: 0.9rem;
+    }
 
-    .radio-option { border: 2px solid #e5e7eb; border-radius: 8px; padding: 1.25rem; cursor: pointer; transition: all 0.3s; }
+    .checkbox-description {
+        color: var(--text-secondary);
+        font-size: 0.85rem;
+    }
 
-    .radio-option:hover { border-color: #00337F; background: #f9fafb; }
+    /* Conditional Fields */
+    .conditional-field {
+        animation: slideDown 0.3s ease-out;
+    }
 
-    .radio-option input[type="radio"]:checked { margin-right: 0; }
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            max-height: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            max-height: 500px;
+            transform: translateY(0);
+        }
+    }
 
-    .radio-option:has(input[type="radio"]:checked) { background: linear-gradient(135deg, rgba(0, 51, 127, 0.05) 0%, rgba(0, 63, 153, 0.05) 100%); border-color: #00337F; box-shadow: 0 0 0 3px rgba(0, 51, 127, 0.1); }
+    /* Hermine Fields Box */
+    .hermine-fields-box {
+        background: rgba(0, 51, 127, 0.06);
+        border: 1px solid rgba(0, 51, 127, 0.15);
+        border-radius: 0.75rem;
+        padding: 1.25rem;
+        margin-bottom: 1.5rem;
+    }
 
-    .radio-label { display: flex; align-items: flex-start; gap: 0.75rem; cursor: pointer; }
+    .hermine-fields-box h3 {
+        font-weight: 600;
+        color: var(--thw-blue-light);
+        margin: 0 0 1rem 0;
+        font-size: 0.95rem;
+    }
 
-    .radio-label-icon { font-size: 1.5rem; flex-shrink: 0; }
+    .hermine-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
 
-    .radio-label-content { flex: 1; }
+    @media (max-width: 500px) {
+        .hermine-grid {
+            grid-template-columns: 1fr;
+        }
+    }
 
-    .radio-label-title { font-weight: 600; color: #1f2937; display: block; margin-bottom: 0.25rem; }
+    /* Character Counter */
+    .char-count {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+    }
 
-    .radio-label-desc { font-size: 0.85rem; color: #6b7280; }
+    /* Privacy Text */
+    .privacy-text {
+        font-size: 0.8rem;
+        text-align: center;
+        color: var(--text-muted);
+        margin-top: 1.5rem;
+    }
 
-    .checkbox-group { display: flex; align-items: flex-start; gap: 0.75rem; padding: 1.25rem; background: linear-gradient(135deg, rgba(0, 51, 127, 0.05) 0%, rgba(0, 63, 153, 0.05) 100%); border: 1px solid #dbeafe; border-radius: 8px; margin-bottom: 1.5rem; }
+    /* Alert Styling */
+    .alert-compact {
+        padding: 1rem 1.25rem;
+        border-radius: 0.75rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
 
-    .checkbox-input { width: 1.25rem; height: 1.25rem; margin-top: 0.15rem; accent-color: #00337F; cursor: pointer; flex-shrink: 0; }
+    .alert-compact-icon {
+        font-size: 1.25rem;
+        flex-shrink: 0;
+    }
 
-    .checkbox-label { cursor: pointer; flex: 1; }
+    .alert-compact-content {
+        flex: 1;
+    }
 
-    .checkbox-label-text { font-weight: 600; color: #1f2937; margin-bottom: 0.4rem; display: block; }
+    .alert-compact-title {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0.25rem;
+    }
 
-    .checkbox-description { color: #6b7280; font-size: 0.9rem; margin-bottom: 0.5rem; }
+    .alert-compact-desc {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+    }
 
-    .conditional-field { animation: slideDown 0.3s ease-out; }
+    .alert-compact ul {
+        list-style: disc;
+        margin-left: 1.25rem;
+        margin-top: 0.5rem;
+    }
 
-    @keyframes slideDown { from { opacity: 0; max-height: 0; transform: translateY(-10px); } to { opacity: 1; max-height: 500px; transform: translateY(0); } }
+    .alert-compact li {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        margin-bottom: 0.25rem;
+    }
 
-    .button { width: 100%; padding: 0.875rem 1.5rem; font-weight: 600; border: none; border-radius: 8px; cursor: pointer; transition: all 0.3s; font-size: 1rem; }
+    /* Light Mode Overrides */
+    html.light-mode .radio-option {
+        background: #ffffff;
+        border-color: rgba(0, 51, 127, 0.15);
+    }
 
-    .button-primary { background: linear-gradient(135deg, #00337F 0%, #003F99 100%); color: white; }
+    html.light-mode .radio-option:hover {
+        background: rgba(0, 51, 127, 0.03);
+        border-color: rgba(0, 51, 127, 0.25);
+    }
 
-    .button-primary:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0, 51, 127, 0.3); }
+    html.light-mode .radio-option:has(input[type="radio"]:checked) {
+        background: rgba(217, 119, 6, 0.08);
+        border-color: rgba(217, 119, 6, 0.4);
+    }
 
-    .button-primary:disabled { opacity: 0.7; cursor: not-allowed; }
+    html.light-mode .radio-option:has(input[type="radio"]:checked) .radio-label-icon {
+        color: #d97706;
+    }
 
-    .privacy-text { font-size: 0.8rem; text-align: center; color: #6b7280; margin-top: 1.5rem; }
+    html.light-mode .checkbox-group {
+        background: linear-gradient(135deg, rgba(0, 51, 127, 0.06) 0%, rgba(0, 77, 179, 0.04) 100%);
+        border-color: rgba(0, 51, 127, 0.2);
+    }
 
-    .char-count { font-size: 0.85rem; color: #9ca3af; }
+    html.light-mode .hermine-fields-box {
+        background: linear-gradient(135deg, rgba(0, 51, 127, 0.05) 0%, rgba(0, 77, 179, 0.03) 100%);
+        border-color: rgba(0, 51, 127, 0.15);
+    }
 
-    @media (max-width: 768px) {
-        .contact-container { padding: 1rem; }
-        .contact-header h1 { font-size: 2rem; }
-        .card { padding: 1.5rem; }
-        .radio-grid { grid-template-columns: 1fr; }
+    html.light-mode .hermine-fields-box h3 {
+        color: var(--thw-blue);
+    }
+
+    /* Light Mode: Textarea mit sichtbarem Rahmen */
+    html.light-mode .textarea-glass {
+        background: #ffffff !important;
+        border: 1px solid rgba(0, 51, 127, 0.2) !important;
+        color: #1e293b !important;
+    }
+
+    html.light-mode .textarea-glass:focus {
+        border-color: var(--thw-blue) !important;
+        box-shadow: 0 0 0 3px rgba(0, 51, 127, 0.1) !important;
+    }
+
+    html.light-mode .textarea-glass::placeholder {
+        color: #94a3b8 !important;
     }
 </style>
 @endpush
 
 @section('content')
-<div class="contact-wrapper">
-    <div class="contact-container">
-        <!-- Header -->
-        <div class="contact-header">
-            <h1>Kontakt & Feedback</h1>
-            <p class="contact-subtitle">Dein Feedback ist mir wichtig! Schreib mir bei Fragen, Ideen oder Problemen.</p>
+<div class="contact-container">
+    <!-- Header -->
+    <header class="dashboard-header">
+        <h1 class="page-title">Kontakt & <span>Feedback</span></h1>
+        <p class="page-subtitle">Dein Feedback ist mir wichtig! Schreib mir bei Fragen, Ideen oder Problemen.</p>
+    </header>
+
+    <!-- Success Message -->
+    @if(session('success'))
+        <div class="alert-compact glass-success">
+            <i class="bi bi-check-circle-fill alert-compact-icon text-success"></i>
+            <div class="alert-compact-content">
+                <div class="alert-compact-title">Nachricht gesendet!</div>
+                <div class="alert-compact-desc">{{ session('success') }}</div>
+            </div>
         </div>
+    @endif
 
-        <!-- Success Message -->
-        @if(session('success'))
-            <div class="alert-box alert-success">
-                <div class="alert-icon"><i class="bi bi-check-circle-fill text-green-500"></i></div>
-                <div class="alert-content">
-                    <h3>Nachricht gesendet!</h3>
-                    <p>{{ session('success') }}</p>
-                </div>
+    <!-- Error Messages -->
+    @if($errors->any())
+        <div class="alert-compact glass-error">
+            <i class="bi bi-x-circle-fill alert-compact-icon text-error"></i>
+            <div class="alert-compact-content">
+                <div class="alert-compact-title">Bitte überprüfe deine Eingaben:</div>
+                <ul>
+                    @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
             </div>
-        @endif
+        </div>
+    @endif
 
-        <!-- Error Messages -->
-        @if($errors->any())
-            <div class="alert-box alert-error">
-                <div class="alert-icon"><i class="bi bi-x-circle-fill text-red-500"></i></div>
-                <div class="alert-content">
-                    <h3>Bitte überprüfe deine Eingaben:</h3>
-                    <ul style="list-style: disc; margin-left: 1.5rem; margin-top: 0.5rem;">
-                        @foreach($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            </div>
-        @endif
+    <!-- Contact Form -->
+    <div class="glass-tl" style="padding: 1.5rem;">
+        <form method="POST" action="{{ route('contact.submit') }}" id="contactForm">
+            @csrf
 
-        <!-- Contact Form -->
-        <div class="card">
-            <form method="POST" action="{{ route('contact.submit') }}" id="contactForm">
-                @csrf
+            <!-- Honeypot -->
+            <input type="text" name="website" style="display:none !important;" tabindex="-1" autocomplete="off">
 
-                <!-- Honeypot -->
-                <input type="text" name="website" style="display:none !important;" tabindex="-1" autocomplete="off">
+            <!-- Category Selection -->
+            <div class="form-group">
+                <label class="form-label">Was möchtest du mir mitteilen? <span class="required">*</span></label>
+                <div class="radio-grid">
+                    <div class="radio-option">
+                        <label class="radio-label">
+                            <input type="radio" name="type" value="feedback"
+                                   onchange="updateFormType(this.value)"
+                                   {{ old('type') == 'feedback' ? 'checked' : '' }} required>
+                            <span class="radio-label-icon"><i class="bi bi-chat-dots"></i></span>
+                            <div class="radio-label-content">
+                                <span class="radio-label-title">Feedback</span>
+                                <span class="radio-label-desc">Lob, Kritik, Verbesserungsvorschläge</span>
+                            </div>
+                        </label>
+                    </div>
 
-                <!-- Category Selection -->
-                <div class="form-group">
-                    <label class="form-label">Was möchtest du mir mitteilen? <span class="required">*</span></label>
-                    <div class="radio-grid">
-                        <div class="radio-option">
-                            <label class="radio-label">
-                                <input type="radio" name="type" value="feedback" 
-                                       onchange="updateFormType(this.value)"
-                                       {{ old('type') == 'feedback' ? 'checked' : '' }} required>
-                                <div class="radio-label-content">
-                                    <span class="radio-label-icon"><i class="bi bi-chat-dots"></i></span>
-                                    <span class="radio-label-title">Feedback</span>
-                                    <span class="radio-label-desc">Lob, Kritik, Verbesserungsvorschläge</span>
-                                </div>
-                            </label>
-                        </div>
+                    <div class="radio-option">
+                        <label class="radio-label">
+                            <input type="radio" name="type" value="feature"
+                                   onchange="updateFormType(this.value)"
+                                   {{ old('type') == 'feature' ? 'checked' : '' }} required>
+                            <span class="radio-label-icon"><i class="bi bi-lightbulb"></i></span>
+                            <div class="radio-label-content">
+                                <span class="radio-label-title">Feature-Wunsch</span>
+                                <span class="radio-label-desc">Neue Funktionen vorschlagen</span>
+                            </div>
+                        </label>
+                    </div>
 
-                        <div class="radio-option">
-                            <label class="radio-label">
-                                <input type="radio" name="type" value="feature" 
-                                       onchange="updateFormType(this.value)"
-                                       {{ old('type') == 'feature' ? 'checked' : '' }} required>
-                                <div class="radio-label-content">
-                                    <span class="radio-label-icon"><i class="bi bi-lightbulb"></i></span>
-                                    <span class="radio-label-title">Feature-Wunsch</span>
-                                    <span class="radio-label-desc">Neue Funktionen vorschlagen</span>
-                                </div>
-                            </label>
-                        </div>
+                    <div class="radio-option">
+                        <label class="radio-label">
+                            <input type="radio" name="type" value="bug"
+                                   onchange="updateFormType(this.value)"
+                                   {{ old('type') == 'bug' ? 'checked' : '' }} required>
+                            <span class="radio-label-icon"><i class="bi bi-bug"></i></span>
+                            <div class="radio-label-content">
+                                <span class="radio-label-title">Fehler melden</span>
+                                <span class="radio-label-desc">Etwas funktioniert nicht?</span>
+                            </div>
+                        </label>
+                    </div>
 
-                        <div class="radio-option">
-                            <label class="radio-label">
-                                <input type="radio" name="type" value="bug" 
-                                       onchange="updateFormType(this.value)"
-                                       {{ old('type') == 'bug' ? 'checked' : '' }} required>
-                                <div class="radio-label-content">
-                                    <span class="radio-label-icon"><i class="bi bi-bug"></i></span>
-                                    <span class="radio-label-title">Fehler melden</span>
-                                    <span class="radio-label-desc">Etwas funktioniert nicht?</span>
-                                </div>
-                            </label>
-                        </div>
-
-                        <div class="radio-option">
-                            <label class="radio-label">
-                                <input type="radio" name="type" value="other" 
-                                       onchange="updateFormType(this.value)"
-                                       {{ old('type') == 'other' ? 'checked' : '' }} required>
-                                <div class="radio-label-content">
-                                    <span class="radio-label-icon"><i class="bi bi-envelope"></i></span>
-                                    <span class="radio-label-title">Sonstiges</span>
-                                    <span class="radio-label-desc">Allgemeine Anfrage</span>
-                                </div>
-                            </label>
-                        </div>
+                    <div class="radio-option">
+                        <label class="radio-label">
+                            <input type="radio" name="type" value="other"
+                                   onchange="updateFormType(this.value)"
+                                   {{ old('type') == 'other' ? 'checked' : '' }} required>
+                            <span class="radio-label-icon"><i class="bi bi-envelope"></i></span>
+                            <div class="radio-label-content">
+                                <span class="radio-label-title">Sonstiges</span>
+                                <span class="radio-label-desc">Allgemeine Anfrage</span>
+                            </div>
+                        </label>
                     </div>
                 </div>
+            </div>
 
-                <!-- Email -->
-                <div class="form-group">
-                    <label for="email" class="form-label">Deine E-Mail-Adresse <span class="required">*</span></label>
-                    <input type="email" id="email" name="email" 
-                           value="{{ old('email', auth()->user()->email ?? '') }}"
-                           class="form-input @error('email') border-red-500 @enderror" required>
-                    <p class="help-text">Du erhältst eine Kopie deiner Anfrage an diese Adresse</p>
-                </div>
+            <!-- Email -->
+            <div class="form-group">
+                <label for="email" class="form-label">Deine E-Mail-Adresse <span class="required">*</span></label>
+                <input type="email" id="email" name="email"
+                       value="{{ old('email', auth()->user()->email ?? '') }}"
+                       class="input-glass @error('email') border-red-500 @enderror"
+                       placeholder="deine@email.de"
+                       required>
+                <p class="help-text">Du erhältst eine Kopie deiner Anfrage an diese Adresse</p>
+            </div>
 
-                <!-- Hermine Contact -->
-                <div class="checkbox-group">
-                    <input type="checkbox" id="hermine_contact" name="hermine_contact" value="1"
-                           onchange="toggleHermineFields()"
-                           {{ old('hermine_contact') ? 'checked' : '' }} class="checkbox-input">
-                    <label for="hermine_contact" class="checkbox-label">
-                        <span class="checkbox-label-text"><i class="bi bi-phone"></i> Kontakt über Hermine</span>
-                        <span class="checkbox-description">
-                            Ich bin einverstanden, dass ich über die THW-Messenger-App Hermine kontaktiert werde
-                        </span>
-                    </label>
-                </div>
+            <!-- Hermine Contact -->
+            <div class="checkbox-group">
+                <input type="checkbox" id="hermine_contact" name="hermine_contact" value="1"
+                       onchange="toggleHermineFields()"
+                       {{ old('hermine_contact') ? 'checked' : '' }} class="checkbox-input">
+                <label for="hermine_contact" class="checkbox-label">
+                    <span class="checkbox-label-text"><i class="bi bi-phone"></i> Kontakt über Hermine</span>
+                    <span class="checkbox-description">
+                        Ich bin einverstanden, dass ich über die THW-Messenger-App Hermine kontaktiert werde
+                    </span>
+                </label>
+            </div>
 
-                <!-- Hermine Fields (conditional) -->
-                <div id="hermineFields" class="hidden conditional-field" style="display: none; background: linear-gradient(135deg, rgba(0, 51, 127, 0.05) 0%, rgba(0, 63, 153, 0.05) 100%); border: 1px solid #dbeafe; border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem;">
-                    <h3 style="font-weight: 600; color: #00337F; margin: 0 0 1rem 0;"><i class="bi bi-person"></i> Deine Hermine-Daten</h3>
-                    
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
-                        <div>
-                            <label for="vorname" class="form-label">Vorname <span class="required">*</span></label>
-                            <input type="text" id="vorname" name="vorname" value="{{ old('vorname') }}"
-                                   class="form-input" placeholder="Max">
-                        </div>
-                        <div>
-                            <label for="nachname" class="form-label">Nachname <span class="required">*</span></label>
-                            <input type="text" id="nachname" name="nachname" value="{{ old('nachname') }}"
-                                   class="form-input" placeholder="Mustermann">
-                        </div>
-                    </div>
-                    
+            <!-- Hermine Fields (conditional) -->
+            <div id="hermineFields" class="hermine-fields-box conditional-field" style="display: none;">
+                <h3><i class="bi bi-person"></i> Deine Hermine-Daten</h3>
+
+                <div class="hermine-grid">
                     <div>
-                        <label for="ortsverband" class="form-label">Ortsverband <span class="required">*</span></label>
-                        <input type="text" id="ortsverband" name="ortsverband" value="{{ old('ortsverband') }}"
-                               class="form-input" placeholder="z.B. OV Musterstadt">
+                        <label for="vorname" class="form-label">Vorname <span class="required">*</span></label>
+                        <input type="text" id="vorname" name="vorname" value="{{ old('vorname') }}"
+                               class="input-glass" placeholder="Max">
+                    </div>
+                    <div>
+                        <label for="nachname" class="form-label">Nachname <span class="required">*</span></label>
+                        <input type="text" id="nachname" name="nachname" value="{{ old('nachname') }}"
+                               class="input-glass" placeholder="Mustermann">
                     </div>
                 </div>
 
-                <!-- Bug Location (conditional) -->
-                <div id="bugFields" class="hidden conditional-field" style="display: none; margin-bottom: 1.5rem;">
-                    <label for="error_location" class="form-label"><i class="bi bi-bug"></i> Wo ist der Fehler aufgetreten? <span class="required">*</span></label>
-                    <select id="error_location" name="error_location" class="form-select">
-                        <option value="">Bitte auswählen...</option>
-                        <option value="dashboard" {{ old('error_location') == 'dashboard' ? 'selected' : '' }}>Dashboard</option>
-                        <option value="questions" {{ old('error_location') == 'questions' ? 'selected' : '' }}>Fragen üben</option>
-                        <option value="failed_questions" {{ old('error_location') == 'failed_questions' ? 'selected' : '' }}>Fehler wiederholen</option>
-                        <option value="statistics" {{ old('error_location') == 'statistics' ? 'selected' : '' }}>Statistiken</option>
-                        <option value="achievements" {{ old('error_location') == 'achievements' ? 'selected' : '' }}>Achievements</option>
-                        <option value="profile" {{ old('error_location') == 'profile' ? 'selected' : '' }}>Profil</option>
-                        <option value="login" {{ old('error_location') == 'login' ? 'selected' : '' }}>Login/Registrierung</option>
-                        <option value="other" {{ old('error_location') == 'other' ? 'selected' : '' }}>Sonstiges</option>
-                    </select>
+                <div>
+                    <label for="ortsverband" class="form-label">Ortsverband <span class="required">*</span></label>
+                    <input type="text" id="ortsverband" name="ortsverband" value="{{ old('ortsverband') }}"
+                           class="input-glass" placeholder="z.B. OV Musterstadt">
                 </div>
+            </div>
 
-                <!-- Message -->
-                <div class="form-group">
-                    <label for="message" class="form-label">
-                        <span id="messageLabel">Deine Nachricht</span> <span class="required">*</span>
-                    </label>
-                    <textarea id="message" name="message" required minlength="10" maxlength="5000"
-                              class="form-textarea @error('message') border-red-500 @enderror"
-                              placeholder="Schreib mir dein Anliegen...">{{ old('message') }}</textarea>
-                    <div style="display: flex; justify-content: space-between; margin-top: 0.5rem;">
-                        <p class="help-text">Mindestens 10 Zeichen</p>
-                        <p class="char-count"><span id="charCount">0</span> / 5000</p>
-                    </div>
+            <!-- Bug Location (conditional) -->
+            <div id="bugFields" class="conditional-field form-group" style="display: none;">
+                <label for="error_location" class="form-label"><i class="bi bi-bug"></i> Wo ist der Fehler aufgetreten? <span class="required">*</span></label>
+                <select id="error_location" name="error_location" class="select-glass">
+                    <option value="">Bitte auswählen...</option>
+                    <option value="dashboard" {{ old('error_location') == 'dashboard' ? 'selected' : '' }}>Dashboard</option>
+                    <option value="questions" {{ old('error_location') == 'questions' ? 'selected' : '' }}>Fragen üben</option>
+                    <option value="failed_questions" {{ old('error_location') == 'failed_questions' ? 'selected' : '' }}>Fehler wiederholen</option>
+                    <option value="statistics" {{ old('error_location') == 'statistics' ? 'selected' : '' }}>Statistiken</option>
+                    <option value="achievements" {{ old('error_location') == 'achievements' ? 'selected' : '' }}>Achievements</option>
+                    <option value="profile" {{ old('error_location') == 'profile' ? 'selected' : '' }}>Profil</option>
+                    <option value="login" {{ old('error_location') == 'login' ? 'selected' : '' }}>Login/Registrierung</option>
+                    <option value="other" {{ old('error_location') == 'other' ? 'selected' : '' }}>Sonstiges</option>
+                </select>
+            </div>
+
+            <!-- Message -->
+            <div class="form-group">
+                <label for="message" class="form-label">
+                    <span id="messageLabel">Deine Nachricht</span> <span class="required">*</span>
+                </label>
+                <textarea id="message" name="message" required minlength="10" maxlength="5000"
+                          class="textarea-glass @error('message') border-red-500 @enderror"
+                          placeholder="Schreib mir dein Anliegen..."
+                          style="min-height: 150px;">{{ old('message') }}</textarea>
+                <div style="display: flex; justify-content: space-between; margin-top: 0.5rem;">
+                    <p class="help-text">Mindestens 10 Zeichen</p>
+                    <p class="char-count"><span id="charCount">0</span> / 5000</p>
                 </div>
+            </div>
 
-                <!-- Submit Button -->
-                <button type="submit" id="submitBtn" class="button button-primary"><i class="bi bi-send"></i> Nachricht absenden</button>
+            <!-- Submit Button -->
+            <button type="submit" id="submitBtn" class="btn-primary" style="width: 100%;">
+                Nachricht absenden
+            </button>
 
-                <p class="privacy-text"><i class="bi bi-lock"></i> Deine Daten werden vertraulich behandelt und nicht an Dritte weitergegeben.</p>
-            </form>
-        </div>
+            <p class="privacy-text"><i class="bi bi-lock"></i> Deine Daten werden vertraulich behandelt und nicht an Dritte weitergegeben.</p>
+        </form>
     </div>
 </div>
 
@@ -294,10 +503,10 @@
         const bugFields = document.getElementById('bugFields');
         const messageLabel = document.getElementById('messageLabel');
         const errorLocation = document.getElementById('error_location');
-        
+
         bugFields.style.display = 'none';
         errorLocation.removeAttribute('required');
-        
+
         if (type === 'bug') {
             bugFields.style.display = 'block';
             errorLocation.setAttribute('required', 'required');
@@ -317,7 +526,7 @@
         const vorname = document.getElementById('vorname');
         const nachname = document.getElementById('nachname');
         const ortsverband = document.getElementById('ortsverband');
-        
+
         if (checkbox.checked) {
             fields.style.display = 'block';
             vorname.setAttribute('required', 'required');
@@ -341,6 +550,26 @@
         const submitBtn = document.getElementById('submitBtn');
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Wird gesendet...';
+    });
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize character count
+        const message = document.getElementById('message');
+        if (message.value) {
+            document.getElementById('charCount').textContent = message.value.length;
+        }
+
+        // Initialize hermine fields if checked
+        if (document.getElementById('hermine_contact').checked) {
+            toggleHermineFields();
+        }
+
+        // Initialize form type
+        const selectedType = document.querySelector('input[name="type"]:checked');
+        if (selectedType) {
+            updateFormType(selectedType.value);
+        }
     });
 </script>
 
