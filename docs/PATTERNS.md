@@ -123,35 +123,171 @@ return redirect()->route('...');
 <x-gamification-notifications />
 ```
 
-## Dashboard Design Pattern
+## Design System: Dark Mode Glassmorphism + Bento Grid
+
+Das Standard-Design verwendet ein modernes Dark-Mode-Glassmorphism mit asymmetrischen Formen und Bento-Grid-Layout.
+
+### Seitenstruktur
 
 ```html
-<div class="dashboard-wrapper">
-    <div class="dashboard-container">
-        <div class="dashboard-header">
-            <h1 class="dashboard-greeting">📚 <span>Titel mit Gradient</span></h1>
-            <p class="dashboard-subtitle">Beschreibung</p>
-        </div>
+<div class="dashboard-container">
+    <!-- Header: Links ausgerichtet, nicht zentriert -->
+    <header class="dashboard-header">
+        <h1 class="page-title">Prefix <span>Gold-Gradient Text</span></h1>
+        <p class="page-subtitle">Beschreibung</p>
+    </header>
 
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-icon">👥</div>
-                <div class="stat-value">{{ $count }}</div>
-                <div class="stat-label">Label</div>
+    <!-- Stats als horizontale Pills -->
+    <div class="stats-row">
+        <div class="stat-pill">
+            <span class="stat-pill-icon text-warning"><i class="bi bi-fire"></i></span>
+            <div>
+                <div class="stat-pill-value">42</div>
+                <div class="stat-pill-label">Label</div>
             </div>
         </div>
+    </div>
 
-        <div class="info-card">
-            <h2 class="info-title">Abschnitt</h2>
-            <!-- Inhalt -->
-        </div>
+    <!-- Bento Grid Layout -->
+    <div class="bento-grid">
+        <div class="glass-gold bento-main">Hauptinhalt (2 Spalten)</div>
+        <div class="glass-tl bento-side">Sidebar-Widget</div>
+        <div class="glass-br bento-side">Sidebar-Widget</div>
+        <div class="glass-slash bento-wide">Volle Breite</div>
+    </div>
+
+    <!-- Section Headers -->
+    <div class="section-header">
+        <h2 class="section-title">Abschnitt</h2>
+        <a href="#" class="section-link">Alle anzeigen</a>
     </div>
 </div>
 ```
 
-**Wichtige CSS-Klassen:**
-- `.dashboard-greeting span` - Gold-Gradient Text
-- `.stat-card` - Hover-Effekt mit translateY(-4px)
-- `.btn-primary` - Gradient Background + Hover-Animation
-- `.action-btn-progress` - Gold-Gradient für wichtige Aktionen
-- `.action-btn-delete` - Rot-Gradient für Lösch-Aktionen
+### Bento Grid Klassen
+
+| Klasse | Spalten | Verwendung |
+|--------|---------|------------|
+| `.bento-main` | 2 cols, 2 rows | Hauptkarte (Feature) |
+| `.bento-side` | 1 col | Sidebar-Widgets |
+| `.bento-wide` | 3 cols | Volle Breite |
+| `.bento-2of3` | 2 cols | Zwei Drittel |
+| `.bento-1of3` | 1 col | Ein Drittel |
+
+### Glass Card Varianten
+
+```html
+<!-- Standard Glass -->
+<div class="glass">Inhalt</div>
+
+<!-- Asymmetrische Varianten (wichtig: kein generischer AI-Look!) -->
+<div class="glass-tl">Top-Left betont (2rem/0.75rem Ecken)</div>
+<div class="glass-br">Bottom-Right betont</div>
+<div class="glass-slash">Diagonal (0.5rem/2rem/0.5rem/2rem)</div>
+<div class="glass-organic">Organische Form (blob-artig)</div>
+
+<!-- Lensflare-Glow Cards (farbiger Glow im Hintergrund) -->
+<div class="glass-gold">Gold-Glow - für Premium/Highlights</div>
+<div class="glass-blue">Blau-Glow</div>
+<div class="glass-purple">Lila-Glow</div>
+<div class="glass-cyan">Cyan-Glow</div>
+<div class="glass-green">Grün-Glow (z.B. Success)</div>
+
+<!-- Semantische Cards -->
+<div class="glass-thw">THW-Blau getönt</div>
+<div class="glass-success">Erfolg (grün)</div>
+<div class="glass-error">Fehler (rot)</div>
+<div class="glass-warning">Warnung (orange)</div>
+```
+
+### Button Varianten
+
+```html
+<!-- Primär: Gold-Gradient -->
+<button class="btn-primary">Hauptaktion</button>
+<button class="btn-primary btn-sm">Klein</button>
+<button class="btn-primary btn-lg">Groß</button>
+
+<!-- Sekundär: THW-Blau -->
+<button class="btn-secondary">Sekundäre Aktion</button>
+
+<!-- Ghost: Transparent mit Border -->
+<button class="btn-ghost">Tertiäre Aktion</button>
+
+<!-- Danger: Rot -->
+<button class="btn-danger">Löschen</button>
+```
+
+### Formular-Elemente
+
+```html
+<label class="label-glass">Label</label>
+<input type="text" class="input-glass" placeholder="Eingabe...">
+<select class="select-glass">...</select>
+<textarea class="textarea-glass"></textarea>
+<input type="checkbox" class="checkbox-glass">
+```
+
+### Badges
+
+```html
+<span class="badge-glass">Standard</span>
+<span class="badge-gold">Gold/Premium</span>
+<span class="badge-thw">THW-Blau</span>
+<span class="badge-success">Erfolg</span>
+<span class="badge-error">Fehler</span>
+```
+
+### Utility-Klassen
+
+```html
+<!-- Text -->
+<span class="text-gradient-gold">Gold-Gradient Text</span>
+<span class="text-gold">Gold Text</span>
+<span class="text-dark-primary">Primärtext</span>
+<span class="text-dark-secondary">Sekundärtext</span>
+<span class="text-dark-muted">Gedämpfter Text</span>
+
+<!-- Hover-Effekte -->
+<div class="glass hover-lift">Hebt sich bei Hover</div>
+
+<!-- Glow-Effekte -->
+<div class="glow-gold">Gold-Glow</div>
+<div class="glow-thw">THW-Blau-Glow</div>
+
+<!-- Progress -->
+<div class="progress-glass">
+    <div class="progress-fill-gold" style="width: 75%"></div>
+</div>
+```
+
+### CSS Custom Properties (wichtigste)
+
+```css
+/* Hintergründe */
+--bg-base: #0a0a0b;
+--bg-elevated: #121214;
+--bg-surface: #1a1a1d;
+
+/* Gold-Gradient */
+--gold-start: #fbbf24;
+--gold-end: #f59e0b;
+--gradient-gold: linear-gradient(90deg, var(--gold-start), var(--gold-end));
+
+/* THW-Blau */
+--thw-blue: #00337F;
+
+/* Text */
+--text-primary: #f5f5f5;
+--text-secondary: #a1a1aa;
+--text-muted: #71717a;
+```
+
+### Wichtige Design-Regeln
+
+1. **Asymmetrie nutzen** - Vermeide generischen "AI-Look" durch unterschiedliche border-radius
+2. **Links ausrichten** - Header nicht zentrieren, sondern links ausgerichtet
+3. **Stats als Pills** - Horizontal, nicht als Grid-Cards
+4. **Section Headers** - Mit linkem Gold-Akzent (`border-left: 3px solid var(--gold-start)`)
+5. **Hover-Effekte** - `.hover-lift` für interaktive Cards
+6. **Light Mode** - Automatisch via `html.light-mode` Klasse (CSS überschreibt Variablen)

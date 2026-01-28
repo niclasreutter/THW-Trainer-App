@@ -22,24 +22,42 @@ git commit -m "EMOJI: Beschreibung (max 4 Wörter)"
 | ⚡ | Performance |
 | 🔒 | Security |
 
-### 2. Design-Pattern (Seitenüberschriften)
+### 2. Design-System: Dark Mode Glassmorphism
+
+**Standard-Layout (Bento Grid):**
 ```html
-<h1 class="page-title"><span>Titel</span></h1>
-<p class="page-subtitle">Beschreibung</p>
+<div class="dashboard-container">
+    <header class="dashboard-header">
+        <h1 class="page-title">Prefix <span>Gold-Text</span></h1>
+        <p class="page-subtitle">Beschreibung</p>
+    </header>
+
+    <div class="stats-row">
+        <div class="stat-pill">...</div>
+    </div>
+
+    <div class="bento-grid">
+        <div class="glass-gold bento-main">Hauptinhalt</div>
+        <div class="glass-tl bento-side">Widget</div>
+    </div>
+</div>
 ```
-```css
-.page-title span {
-    background: linear-gradient(90deg, #fbbf24, #f59e0b);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-```
+
+**Glass Card Varianten:**
+- `.glass` - Standard
+- `.glass-gold`, `.glass-blue`, `.glass-purple` - Lensflare-Glow
+- `.glass-tl`, `.glass-br`, `.glass-slash` - Asymmetrisch
+- `.glass-success`, `.glass-error`, `.glass-warning` - Semantisch
+
+**Buttons:** `.btn-primary` (Gold) | `.btn-secondary` (THW-Blau) | `.btn-ghost` | `.btn-danger`
 
 **Wichtig:**
 - **Keine Emojis** im UI verwenden
 - **Icons nur sinnvoll** einsetzen (z.B. Status-Badges, nicht in Buttons)
 - **Buttons ohne Icons** - cleaner und professioneller
+- **Asymmetrie nutzen** - Vermeide generischen "AI-Look"
 - Bootstrap Icons (`bi bi-*`) für notwendige Icons
+- Details: **[docs/PATTERNS.md](docs/PATTERNS.md)**
 
 ### 3. Nach jeder Änderung
 ```bash
@@ -81,4 +99,4 @@ fetch(url, { cache: 'no-store' });
 - **[docs/FILE-GUIDE.md](docs/FILE-GUIDE.md)** - Datei-Navigation, wo was ist
 
 ---
-*Letzte Aktualisierung: 27. Januar 2026*
+*Letzte Aktualisierung: 28. Januar 2026*

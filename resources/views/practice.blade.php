@@ -244,6 +244,137 @@
     .shake {
         animation: shake 0.4s ease;
     }
+
+    /* ============================================
+       LIGHT MODE OVERRIDES
+       ============================================ */
+
+    /* Question Card in Light Mode */
+    html.light-mode .question-card {
+        background: #ffffff !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        border: 1px solid rgba(0, 51, 127, 0.12) !important;
+        box-shadow: 0 4px 20px rgba(0, 51, 127, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+    }
+
+    /* Answer Options in Light Mode */
+    html.light-mode .answer-option {
+        background: #f8fafc !important;
+        border: 2px solid rgba(0, 51, 127, 0.12) !important;
+    }
+
+    html.light-mode .answer-option:hover {
+        background: rgba(217, 119, 6, 0.06) !important;
+        border-color: rgba(217, 119, 6, 0.4) !important;
+    }
+
+    html.light-mode .answer-option.selected {
+        background: rgba(217, 119, 6, 0.1) !important;
+        border-color: #d97706 !important;
+    }
+
+    /* Checkbox in Light Mode */
+    html.light-mode .answer-checkbox {
+        border: 2px solid rgba(0, 51, 127, 0.25) !important;
+        background: #ffffff !important;
+    }
+
+    html.light-mode .answer-checkbox:checked {
+        background: #d97706 !important;
+        border-color: #d97706 !important;
+    }
+
+    /* Result States in Light Mode */
+    html.light-mode .answer-correct {
+        background: rgba(34, 197, 94, 0.12) !important;
+        border-color: rgba(34, 197, 94, 0.4) !important;
+    }
+
+    html.light-mode .answer-correct-missed {
+        background: rgba(34, 197, 94, 0.06) !important;
+        border-color: rgba(34, 197, 94, 0.25) !important;
+    }
+
+    html.light-mode .answer-wrong {
+        background: rgba(239, 68, 68, 0.12) !important;
+        border-color: rgba(239, 68, 68, 0.4) !important;
+    }
+
+    html.light-mode .answer-neutral {
+        background: #f1f5f9 !important;
+        border-color: rgba(0, 51, 127, 0.08) !important;
+        opacity: 0.7;
+    }
+
+    /* Bookmark Button in Light Mode */
+    html.light-mode .bookmark-btn {
+        background: rgba(0, 51, 127, 0.04) !important;
+        border: 1px solid rgba(0, 51, 127, 0.1) !important;
+    }
+
+    html.light-mode .bookmark-btn:hover {
+        background: rgba(217, 119, 6, 0.08) !important;
+        border-color: rgba(217, 119, 6, 0.25) !important;
+    }
+
+    html.light-mode .bookmark-btn.active {
+        background: rgba(217, 119, 6, 0.15) !important;
+        border-color: #d97706 !important;
+    }
+
+    /* Mobile Header in Light Mode */
+    html.light-mode .mobile-header {
+        background: rgba(0, 51, 127, 0.03) !important;
+        border-bottom: 1px solid rgba(0, 51, 127, 0.08) !important;
+    }
+
+    /* Mode Badge in Light Mode */
+    html.light-mode .mode-badge {
+        background: rgba(217, 119, 6, 0.1) !important;
+        border: 1px solid rgba(217, 119, 6, 0.2) !important;
+        color: #b45309 !important;
+    }
+
+    /* Progress Bar in Light Mode */
+    html.light-mode .progress-glass {
+        background: rgba(0, 51, 127, 0.08) !important;
+    }
+
+    html.light-mode .progress-fill-gold {
+        background: linear-gradient(90deg, #d97706, #b45309) !important;
+    }
+
+    /* Text colors in Light Mode */
+    html.light-mode .text-dark-primary {
+        color: #1e293b !important;
+    }
+
+    html.light-mode .text-dark-secondary {
+        color: #475569 !important;
+    }
+
+    html.light-mode .text-dark-muted {
+        color: #64748b !important;
+    }
+
+    html.light-mode .text-gold {
+        color: #d97706 !important;
+    }
+
+    /* Bookmark Icon in Light Mode - bessere Sichtbarkeit */
+    html.light-mode .bookmark-btn svg path {
+        stroke: rgba(0, 51, 127, 0.5) !important;
+    }
+
+    html.light-mode .bookmark-btn:hover svg path {
+        stroke: #d97706 !important;
+    }
+
+    html.light-mode .bookmark-btn.active svg path {
+        stroke: #d97706 !important;
+        fill: #d97706 !important;
+    }
 </style>
 @endpush
 
