@@ -3,7 +3,7 @@
 @section('title', $ortsverband->name . ' bearbeiten')
 
 @section('content')
-<div class="dashboard-container" style="max-width: 700px;">
+<div class="dashboard-container" style="max-width: 800px; margin: 0 auto;">
     <header class="dashboard-header">
         <h1 class="page-title">Ortsverband <span>bearbeiten</span></h1>
         <p class="page-subtitle">{{ $ortsverband->name }}</p>

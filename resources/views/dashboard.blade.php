@@ -82,14 +82,6 @@
         .dashboard-container { padding: 1rem; }
     }
 
-    /* Stats row - horizontal pills, not cards */
-    .stats-row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.75rem;
-        margin-bottom: 2rem;
-    }
-
     /* Action card styling */
     .action-title {
         font-size: 1.75rem;

@@ -301,6 +301,14 @@
         letter-spacing: 0.5px;
     }
 
+    /* Stats row - horizontal pills layout */
+    .stats-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-bottom: 2rem;
+    }
+
     /* Widget block - varied heights */
     .widget-tall {
         min-height: 280px;
@@ -1597,6 +1605,7 @@ html.light-mode .btn-ghost:hover {
 /* Inputs in light mode */
 html.light-mode .input-glass,
 html.light-mode .select-glass,
+html.light-mode .textarea-glass,
 html.light-mode textarea.input-glass {
     background: #ffffff !important;
     border: 1px solid rgba(0, 51, 127, 0.15) !important;
@@ -1605,6 +1614,7 @@ html.light-mode textarea.input-glass {
 
 html.light-mode .input-glass:focus,
 html.light-mode .select-glass:focus,
+html.light-mode .textarea-glass:focus,
 html.light-mode textarea.input-glass:focus {
     border-color: #00337F !important;
     box-shadow: 0 0 0 3px rgba(0, 51, 127, 0.1) !important;
