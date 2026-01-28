@@ -1,8 +1,9 @@
-<!-- Modal Format (für AJAX) - Fragen-Liste - Glassmorphism -->
+<!-- Questions Index Modal - Glassmorphism Alpine.js -->
 <div class="modal-header-glass">
     <h2>Fragen in {{ $lernpool->name }}</h2>
-    <button class="modal-close-btn" onclick="document.getElementById('genericModalBackdrop').classList.remove('active')">&times;</button>
+    <button class="modal-close-btn" type="button">&times;</button>
 </div>
+
 <div class="modal-body-glass">
     @if($questions->count() > 0)
         <div style="max-height: 400px; overflow-y: auto;">
@@ -23,7 +24,6 @@
                         <div style="display: flex; gap: 0.5rem; flex-shrink: 0;">
                             <a href="{{ route('ortsverband.lernpools.questions.edit', [$ortsverband, $lernpool, $question]) }}"
                                class="modal-trigger btn-icon-action btn-icon-edit"
-                               data-modal-type="edit"
                                title="Bearbeiten">
                                 <i class="bi bi-pencil"></i>
                             </a>
@@ -40,46 +40,16 @@
             @endforeach
         </div>
     @else
-        <div style="text-align: center; padding: 2rem;">
-            <div style="font-size: 2rem; color: var(--text-muted); margin-bottom: 0.75rem; opacity: 0.6;"><i class="bi bi-question-circle"></i></div>
+        <div style="text-align: center; padding: 2.5rem;">
+            <div style="font-size: 2.5rem; color: var(--text-muted); margin-bottom: 1rem; opacity: 0.5;">
+                <i class="bi bi-question-circle"></i>
+            </div>
             <p style="color: var(--text-secondary); font-size: 0.9rem; margin: 0;">Noch keine Fragen hinzugefügt</p>
         </div>
     @endif
 </div>
-<div class="modal-footer-glass">
-    <button type="button" class="btn-ghost" onclick="document.getElementById('genericModalBackdrop').classList.remove('active')">Zurück</button>
-    <a href="{{ route('ortsverband.lernpools.questions.create', [$ortsverband, $lernpool]) }}" class="btn-primary modal-trigger" data-modal-type="create">Neue Frage</a>
-</div>
 
-<style>
-.btn-icon-action {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    border-radius: 0.5rem;
-    font-size: 0.85rem;
-    cursor: pointer;
-    transition: all 0.2s;
-    border: none;
-    background: transparent;
-}
-.btn-icon-edit {
-    background: rgba(59, 130, 246, 0.15);
-    color: #3b82f6;
-    text-decoration: none;
-}
-.btn-icon-edit:hover {
-    background: rgba(59, 130, 246, 0.25);
-    transform: scale(1.05);
-}
-.btn-icon-delete {
-    background: rgba(239, 68, 68, 0.15);
-    color: #ef4444;
-}
-.btn-icon-delete:hover {
-    background: rgba(239, 68, 68, 0.25);
-    transform: scale(1.05);
-}
-</style>
+<div class="modal-footer-glass">
+    <button type="button" class="btn-ghost modal-close-btn">Zurück</button>
+    <a href="{{ route('ortsverband.lernpools.questions.create', [$ortsverband, $lernpool]) }}" class="btn-primary modal-trigger">Neue Frage</a>
+</div>

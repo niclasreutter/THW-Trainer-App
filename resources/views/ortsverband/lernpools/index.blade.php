@@ -3,7 +3,7 @@
 @section('title', $ortsverband->name . ' · Lernpools')
 
 @section('content')
-<div class="dashboard-container">
+<div class="dashboard-container" x-data="lernpoolManager()">
     <header class="dashboard-header">
         <h1 class="page-title">Lernpools <span>verwalten</span></h1>
         <p class="page-subtitle">{{ $ortsverband->name }}</p>
@@ -54,7 +54,7 @@
                 <h2 class="section-title" style="font-size: 1.25rem;">Alle Lernpools</h2>
             </div>
             <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
-                <button id="openCreateModal" class="btn-primary btn-sm">Neuer Lernpool</button>
+                <button @click="openModal('create')" class="btn-primary btn-sm">Neuer Lernpool</button>
                 <a href="{{ route('ortsverband.show', $ortsverband) }}" class="btn-ghost btn-sm">Zurück</a>
             </div>
         </div>
@@ -138,15 +138,15 @@
 
                     <!-- Actions -->
                     <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; padding-top: 0.75rem; border-top: 1px solid rgba(255,255,255,0.1);">
-                        <a href="{{ route('ortsverband.lernpools.show', [$ortsverband, $pool]) }}" class="action-link modal-trigger" data-modal-type="show">
+                        <button @click="loadModal('{{ route('ortsverband.lernpools.show', [$ortsverband, $pool]) }}')" class="action-link">
                             Details
-                        </a>
-                        <a href="{{ route('ortsverband.lernpools.edit', [$ortsverband, $pool]) }}" class="action-link modal-trigger" data-modal-type="edit">
+                        </button>
+                        <button @click="loadModal('{{ route('ortsverband.lernpools.edit', [$ortsverband, $pool]) }}')" class="action-link">
                             Bearbeiten
-                        </a>
-                        <a href="{{ route('ortsverband.lernpools.questions.index', [$ortsverband, $pool]) }}" class="action-link modal-trigger" data-modal-type="questions">
+                        </button>
+                        <button @click="loadModal('{{ route('ortsverband.lernpools.questions.index', [$ortsverband, $pool]) }}')" class="action-link">
                             Fragen
-                        </a>
+                        </button>
                         <form action="{{ route('ortsverband.lernpools.destroy', [$ortsverband, $pool]) }}" method="POST" style="display: inline;" onsubmit="return confirm('Lernpool wirklich löschen?');">
                             @csrf
                             @method('DELETE')
@@ -163,80 +163,120 @@
             <div class="empty-state-icon"><i class="bi bi-collection"></i></div>
             <h3 class="empty-state-title">Keine Lernpools</h3>
             <p class="empty-state-desc">Erstelle deinen ersten Lernpool, um loszulegen.</p>
-            <button id="openCreateModalEmpty" class="btn-primary btn-sm">Neuer Lernpool</button>
+            <button @click="openModal('create')" class="btn-primary btn-sm">Neuer Lernpool</button>
         </div>
         @endif
     </div>
-</div>
 
-<!-- Modal für neuen Lernpool -->
-<div id="createModal" class="modal-overlay-glass" style="display: none;">
-    <div class="modal-glass" style="max-width: 550px;">
-        <div class="modal-header-glass">
-            <h2>Neuer Lernpool</h2>
-            <button id="closeCreateModal" class="modal-close-btn">&times;</button>
-        </div>
-        <form id="createLernpoolForm" action="{{ route('ortsverband.lernpools.store', $ortsverband) }}" method="POST">
-            @csrf
-            <div class="modal-body-glass">
-                <div style="margin-bottom: 1.25rem;">
-                    <label for="name" style="display: block; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem; font-size: 0.9rem;">
-                        Name <span style="color: #ef4444;">*</span>
-                    </label>
-                    <input type="text" name="name" id="name" class="input-glass"
-                           placeholder="z.B. Grundlagen Erste Hilfe" required>
+    <!-- Alpine.js Modal System -->
+    <div x-show="isOpen"
+         x-cloak
+         class="modal-overlay-alpine"
+         x-transition:enter="transition ease-out duration-200"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-150"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         @click.self="closeModal()"
+         @keydown.escape.window="closeModal()">
+
+        <div class="modal-container-alpine"
+             x-show="isOpen"
+             x-transition:enter="transition ease-out duration-200"
+             x-transition:enter-start="opacity-0 translate-y-4 scale-95"
+             x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+             x-transition:leave="transition ease-in duration-150"
+             x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+             x-transition:leave-end="opacity-0 translate-y-4 scale-95"
+             @click.stop>
+
+            <!-- Loading State -->
+            <template x-if="isLoading">
+                <div class="modal-loading-alpine">
+                    <div class="spinner-alpine"></div>
+                    <div class="modal-loading-text">Lädt...</div>
                 </div>
+            </template>
 
-                <div style="margin-bottom: 1.25rem;">
-                    <label for="description" style="display: block; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem; font-size: 0.9rem;">
-                        Beschreibung <span style="color: #ef4444;">*</span>
-                    </label>
-                    <textarea name="description" id="description" rows="4" class="textarea-glass"
-                              placeholder="Beschreibung des Lernpools..." required></textarea>
-                </div>
-
-                <div style="margin-bottom: 1.25rem;">
-                    <label for="tags" style="display: block; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem; font-size: 0.9rem;">
-                        Tags <span style="color: var(--text-muted); font-weight: normal;">(optional)</span>
-                    </label>
-                    @if($allTags->isNotEmpty())
-                        <div style="margin-bottom: 0.5rem;">
-                            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                                @foreach($allTags as $tag)
-                                    <button type="button" onclick="addTagToModal('{{ $tag }}')" class="tag-suggestion-btn">
-                                        + {{ $tag }}
-                                    </button>
-                                @endforeach
-                            </div>
-                        </div>
-                    @endif
-                    <input type="text" name="tags" id="tags" class="input-glass"
-                           placeholder="z.B. ZTR, B FGr (mit Komma trennen)">
-                </div>
-
+            <!-- Create Form (Inline) -->
+            <template x-if="modalType === 'create' && !isLoading">
                 <div>
-                    <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer;">
-                        <input type="checkbox" name="is_active" id="is_active" value="1" checked style="width: 1.25rem; height: 1.25rem;">
-                        <span style="font-weight: 600; color: var(--text-primary);">Sofort aktivieren</span>
-                    </label>
+                    <div class="modal-header-alpine">
+                        <h2>Neuer Lernpool</h2>
+                        <button @click="closeModal()" class="modal-close-alpine">&times;</button>
+                    </div>
+                    <form action="{{ route('ortsverband.lernpools.store', $ortsverband) }}" method="POST">
+                        @csrf
+                        <div class="modal-body-alpine">
+                            <div class="form-group-alpine">
+                                <label class="form-label-alpine">
+                                    Name <span class="required-alpine">*</span>
+                                </label>
+                                <input type="text" name="name" class="input-alpine" placeholder="z.B. Grundlagen Erste Hilfe" required>
+                            </div>
+
+                            <div class="form-group-alpine">
+                                <label class="form-label-alpine">
+                                    Beschreibung <span class="required-alpine">*</span>
+                                </label>
+                                <textarea name="description" rows="4" class="textarea-alpine" placeholder="Beschreibung des Lernpools..." required></textarea>
+                            </div>
+
+                            <div class="form-group-alpine">
+                                <label class="form-label-alpine">
+                                    Tags <span class="optional-alpine">(optional)</span>
+                                </label>
+                                @if($allTags->isNotEmpty())
+                                <div class="tag-suggestions-alpine">
+                                    @foreach($allTags as $tag)
+                                        <button type="button" @click="addTag('{{ $tag }}')" class="tag-btn-alpine">+ {{ $tag }}</button>
+                                    @endforeach
+                                </div>
+                                @endif
+                                <input type="text" name="tags" x-model="tagInput" class="input-alpine" placeholder="z.B. ZTR, B FGr (mit Komma trennen)">
+                            </div>
+
+                            <label class="checkbox-alpine">
+                                <input type="checkbox" name="is_active" value="1" checked>
+                                <span>Sofort aktivieren</span>
+                            </label>
+                        </div>
+
+                        <div class="modal-footer-alpine">
+                            <button type="button" @click="closeModal()" class="btn-ghost">Abbrechen</button>
+                            <button type="submit" class="btn-primary">Erstellen</button>
+                        </div>
+                    </form>
                 </div>
-            </div>
+            </template>
 
-            <div class="modal-footer-glass">
-                <button type="button" id="cancelCreateModal" class="btn-ghost">Abbrechen</button>
-                <button type="submit" class="btn-primary">Erstellen</button>
-            </div>
-        </form>
+            <!-- Dynamic Content (from AJAX) -->
+            <template x-if="modalType === 'dynamic' && !isLoading">
+                <div x-html="modalContent"></div>
+            </template>
+        </div>
     </div>
-</div>
 
-<!-- Generisches Modal für Show/Edit/Fragen -->
-<div id="genericModalBackdrop" class="modal-overlay-glass" style="display: none;">
-    <div id="genericModal" class="modal-glass" style="max-width: 600px;"></div>
+    <!-- Toast Container -->
+    <div x-show="toast.show"
+         x-cloak
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0 translate-x-full"
+         x-transition:enter-end="opacity-100 translate-x-0"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100 translate-x-0"
+         x-transition:leave-end="opacity-0 translate-x-full"
+         :class="toast.type === 'success' ? 'toast-success-alpine' : 'toast-error-alpine'"
+         class="toast-alpine">
+        <span x-text="(toast.type === 'success' ? '✓ ' : '✗ ') + toast.message"></span>
+    </div>
 </div>
 
 @push('styles')
 <style>
+    [x-cloak] { display: none !important; }
+
     .pool-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -275,24 +315,6 @@
         background: rgba(239, 68, 68, 0.15);
     }
 
-    .tag-suggestion-btn {
-        background: rgba(251, 191, 36, 0.15);
-        color: var(--gold-start);
-        padding: 0.3rem 0.6rem;
-        border-radius: 0.5rem;
-        font-size: 0.75rem;
-        font-weight: 600;
-        border: 1px solid rgba(251, 191, 36, 0.3);
-        cursor: pointer;
-        transition: all 0.2s;
-    }
-
-    .tag-suggestion-btn:hover {
-        background: var(--gradient-gold);
-        color: #1e3a5f;
-        transform: translateY(-1px);
-    }
-
     .empty-state {
         text-align: center;
     }
@@ -317,48 +339,216 @@
         margin-bottom: 1rem;
     }
 
-    .modal-overlay-glass.active {
-        display: flex !important;
+    /* Alpine.js Modal Styles */
+    .modal-overlay-alpine {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.75);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        padding: 1rem;
     }
 
-    .modal-close-btn {
-        background: rgba(255, 255, 255, 0.1);
-        border: none;
-        color: var(--text-secondary);
-        width: 32px;
-        height: 32px;
-        border-radius: 0.5rem;
-        cursor: pointer;
-        font-size: 1.25rem;
-        transition: all 0.2s;
-    }
-
-    .modal-close-btn:hover {
-        background: rgba(255, 255, 255, 0.2);
+    .modal-container-alpine {
+        background: linear-gradient(135deg, rgba(26, 26, 29, 0.98) 0%, rgba(20, 20, 23, 0.99) 100%);
+        backdrop-filter: blur(40px);
+        -webkit-backdrop-filter: blur(40px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 1.25rem;
+        box-shadow:
+            0 0 0 1px rgba(255, 255, 255, 0.05),
+            0 25px 60px rgba(0, 0, 0, 0.5),
+            0 0 100px rgba(251, 191, 36, 0.03);
+        max-width: 600px;
+        width: 100%;
+        max-height: 90vh;
+        overflow-y: auto;
+        position: relative;
         color: var(--text-primary);
     }
 
-    /* Loading Animation for Modal */
-    .modal-loading {
+    .modal-container-alpine::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(251, 191, 36, 0.3), transparent);
+    }
+
+    .modal-header-alpine {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .modal-header-alpine h2 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin: 0;
+    }
+
+    .modal-close-alpine {
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: var(--text-secondary);
+        width: 36px;
+        height: 36px;
+        border-radius: 0.625rem;
+        cursor: pointer;
+        font-size: 1.5rem;
+        line-height: 1;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal-close-alpine:hover {
+        background: rgba(255, 255, 255, 0.15);
+        border-color: rgba(255, 255, 255, 0.2);
+        color: var(--text-primary);
+        transform: scale(1.05);
+    }
+
+    .modal-body-alpine {
+        padding: 1.5rem;
+    }
+
+    .modal-footer-alpine {
+        padding: 1rem 1.5rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.75rem;
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 0 0 1.25rem 1.25rem;
+    }
+
+    /* Form Elements */
+    .form-group-alpine {
+        margin-bottom: 1.25rem;
+    }
+
+    .form-label-alpine {
+        display: block;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    .required-alpine {
+        color: #ef4444;
+    }
+
+    .optional-alpine {
+        color: var(--text-muted);
+        font-weight: normal;
+    }
+
+    .input-alpine,
+    .textarea-alpine,
+    .modal-container-alpine input[type="text"],
+    .modal-container-alpine input[type="number"],
+    .modal-container-alpine textarea {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 0.625rem;
+        padding: 0.75rem 1rem;
+        color: var(--text-primary);
+        font-size: 0.9rem;
+        transition: all 0.2s;
+    }
+
+    .input-alpine:focus,
+    .textarea-alpine:focus,
+    .modal-container-alpine input:focus,
+    .modal-container-alpine textarea:focus {
+        outline: none;
+        border-color: var(--gold-start);
+        box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.1);
+        background: rgba(255, 255, 255, 0.08);
+    }
+
+    .input-alpine::placeholder,
+    .textarea-alpine::placeholder,
+    .modal-container-alpine input::placeholder,
+    .modal-container-alpine textarea::placeholder {
+        color: var(--text-muted);
+    }
+
+    .tag-suggestions-alpine {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        margin-bottom: 0.75rem;
+    }
+
+    .tag-btn-alpine {
+        background: rgba(251, 191, 36, 0.12);
+        color: var(--gold-start);
+        padding: 0.35rem 0.75rem;
+        border-radius: 0.5rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        border: 1px solid rgba(251, 191, 36, 0.25);
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .tag-btn-alpine:hover {
+        background: var(--gradient-gold);
+        color: #1e3a5f;
+        border-color: transparent;
+        transform: translateY(-1px);
+    }
+
+    .checkbox-alpine {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        cursor: pointer;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    .checkbox-alpine input {
+        width: 1.25rem;
+        height: 1.25rem;
+        accent-color: var(--gold-start);
+    }
+
+    /* Loading State */
+    .modal-loading-alpine {
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        padding: 3rem 2rem;
+        padding: 4rem 2rem;
         text-align: center;
     }
 
-    .spinner {
-        width: 40px;
-        height: 40px;
+    .spinner-alpine {
+        width: 44px;
+        height: 44px;
         border: 3px solid rgba(255, 255, 255, 0.1);
         border-top: 3px solid var(--gold-start);
         border-radius: 50%;
-        animation: spin 0.8s linear infinite;
+        animation: spinAlpine 0.8s linear infinite;
         margin-bottom: 1rem;
     }
 
-    @keyframes spin {
+    @keyframes spinAlpine {
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
     }
@@ -369,138 +559,555 @@
         font-weight: 500;
     }
 
+    /* Toast */
+    .toast-alpine {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 14px 20px;
+        border-radius: 0.75rem;
+        font-weight: 600;
+        font-size: 0.9rem;
+        z-index: 10001;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        color: white;
+    }
+
+    .toast-success-alpine {
+        background: linear-gradient(135deg, #22c55e, #16a34a);
+    }
+
+    .toast-error-alpine {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+    }
+
+    /* Transitions */
+    .transition { transition-property: all; }
+    .ease-out { transition-timing-function: cubic-bezier(0, 0, 0.2, 1); }
+    .ease-in { transition-timing-function: cubic-bezier(0.4, 0, 1, 1); }
+    .duration-200 { transition-duration: 200ms; }
+    .duration-150 { transition-duration: 150ms; }
+    .duration-300 { transition-duration: 300ms; }
+    .opacity-0 { opacity: 0; }
+    .opacity-100 { opacity: 1; }
+    .translate-y-4 { transform: translateY(1rem); }
+    .translate-y-0 { transform: translateY(0); }
+    .translate-x-full { transform: translateX(100%); }
+    .translate-x-0 { transform: translateX(0); }
+    .scale-95 { transform: scale(0.95); }
+    .scale-100 { transform: scale(1); }
+
     @media (max-width: 768px) {
         .pool-grid {
             grid-template-columns: 1fr;
         }
+
+        .modal-container-alpine {
+            margin: 0.5rem;
+            max-height: 95vh;
+        }
+    }
+
+    /* Modal Content Styling (for AJAX loaded content) */
+    .modal-header-glass {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .modal-header-glass h2 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin: 0;
+    }
+
+    .modal-body-glass {
+        padding: 1.5rem;
+    }
+
+    /* ===== LIGHT MODE MODAL STYLES ===== */
+    html.light-mode .modal-overlay-alpine {
+        background: rgba(0, 0, 0, 0.4);
+    }
+
+    html.light-mode .modal-container-alpine {
+        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%) !important;
+        border: 1px solid rgba(0, 0, 0, 0.1) !important;
+        box-shadow:
+            0 0 0 1px rgba(0, 0, 0, 0.05),
+            0 25px 60px rgba(0, 0, 0, 0.15),
+            0 0 100px rgba(0, 51, 127, 0.05);
+        color: #1a1a1d !important;
+    }
+
+    html.light-mode .modal-container-alpine::before {
+        background: linear-gradient(90deg, transparent, rgba(0, 51, 127, 0.3), transparent);
+    }
+
+    html.light-mode .modal-header-glass {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+    }
+
+    html.light-mode .modal-header-glass h2 {
+        color: #1a1a1d !important;
+    }
+
+    html.light-mode .modal-body-glass {
+        color: #1a1a1d !important;
+    }
+
+    html.light-mode .modal-footer-glass {
+        background: rgba(0, 0, 0, 0.03) !important;
+        border-top: 1px solid rgba(0, 0, 0, 0.08) !important;
+    }
+
+    /* Glass-subtle in light mode */
+    html.light-mode .modal-container-alpine .glass-subtle {
+        background: rgba(0, 0, 0, 0.03) !important;
+        border: 1px solid rgba(0, 0, 0, 0.08) !important;
+        color: #1a1a1d !important;
+    }
+
+    /* Buttons in light mode */
+    html.light-mode .modal-container-alpine .btn-ghost,
+    html.light-mode .modal-footer-glass .btn-ghost {
+        background: transparent !important;
+        border: 1px solid rgba(0, 51, 127, 0.2) !important;
+        color: #00337F !important;
+    }
+
+    html.light-mode .modal-container-alpine .btn-ghost:hover,
+    html.light-mode .modal-footer-glass .btn-ghost:hover {
+        background: rgba(0, 51, 127, 0.06) !important;
+        border-color: #00337F !important;
+    }
+
+    html.light-mode .modal-container-alpine .btn-primary,
+    html.light-mode .modal-footer-glass .btn-primary {
+        background: linear-gradient(135deg, #fbbf24, #f59e0b) !important;
+        color: #1e3a5f !important;
+    }
+
+    html.light-mode .modal-container-alpine .btn-secondary,
+    html.light-mode .modal-footer-glass .btn-secondary {
+        background: linear-gradient(135deg, #00337F, #004AAD) !important;
+        color: white !important;
+    }
+
+    /* Inputs in light mode */
+    html.light-mode .modal-container-alpine input[type="text"],
+    html.light-mode .modal-container-alpine input[type="number"],
+    html.light-mode .modal-container-alpine textarea,
+    html.light-mode .modal-container-alpine .input-alpine,
+    html.light-mode .modal-container-alpine .textarea-alpine {
+        background: #ffffff !important;
+        border: 1px solid rgba(0, 0, 0, 0.15) !important;
+        color: #1a1a1d !important;
+    }
+
+    html.light-mode .modal-container-alpine input:focus,
+    html.light-mode .modal-container-alpine textarea:focus {
+        border-color: #00337F !important;
+        box-shadow: 0 0 0 3px rgba(0, 51, 127, 0.1) !important;
+    }
+
+    html.light-mode .modal-container-alpine input::placeholder,
+    html.light-mode .modal-container-alpine textarea::placeholder {
+        color: #9ca3af !important;
+    }
+
+    /* Close button in light mode */
+    html.light-mode .modal-close-btn:not(.btn-ghost) {
+        background: rgba(0, 0, 0, 0.05) !important;
+        border: 1px solid rgba(0, 0, 0, 0.1) !important;
+        color: #6b7280 !important;
+    }
+
+    html.light-mode .modal-close-btn:not(.btn-ghost):hover {
+        background: rgba(0, 0, 0, 0.1) !important;
+        color: #1a1a1d !important;
+    }
+
+    /* Icon buttons in light mode */
+    html.light-mode .modal-container-alpine .btn-icon-edit {
+        background: rgba(59, 130, 246, 0.1) !important;
+        color: #2563eb !important;
+    }
+
+    html.light-mode .modal-container-alpine .btn-icon-delete {
+        background: rgba(239, 68, 68, 0.1) !important;
+        color: #dc2626 !important;
+    }
+
+    /* Section headers in light mode */
+    html.light-mode .modal-container-alpine .section-header {
+        border-left-color: #00337F !important;
+    }
+
+    html.light-mode .modal-container-alpine .section-title {
+        color: #1a1a1d !important;
+    }
+
+    /* Text colors in light mode */
+    html.light-mode .modal-container-alpine p,
+    html.light-mode .modal-container-alpine span,
+    html.light-mode .modal-container-alpine div,
+    html.light-mode .modal-container-alpine label {
+        color: inherit;
+    }
+
+    /* Badge styling in light mode */
+    html.light-mode .modal-container-alpine .badge-success {
+        background: linear-gradient(135deg, #22c55e, #16a34a) !important;
+        color: white !important;
+    }
+
+    .modal-footer-glass {
+        padding: 1rem 1.5rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.75rem;
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 0 0 1.25rem 1.25rem;
+    }
+
+    /* X close button (top right) */
+    .modal-close-btn:not(.btn-ghost) {
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: var(--text-secondary);
+        width: 36px;
+        height: 36px;
+        border-radius: 0.625rem;
+        cursor: pointer;
+        font-size: 1.5rem;
+        line-height: 1;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal-close-btn:not(.btn-ghost):hover {
+        background: rgba(255, 255, 255, 0.15);
+        border-color: rgba(255, 255, 255, 0.2);
+        color: var(--text-primary);
+    }
+
+    /* Text close button (btn-ghost in footer) */
+    .modal-footer-glass .btn-ghost.modal-close-btn {
+        width: auto;
+        height: auto;
+        font-size: 0.9rem;
+        padding: 0.625rem 1.25rem;
+    }
+
+    /* Modal buttons - base styles (dark mode) */
+    .modal-container-alpine .btn-ghost,
+    .modal-footer-glass .btn-ghost {
+        background: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        color: var(--text-secondary);
+        padding: 0.625rem 1.25rem;
+        border-radius: 0.625rem;
+        font-weight: 600;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .modal-container-alpine .btn-ghost:hover,
+    .modal-footer-glass .btn-ghost:hover {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(255, 255, 255, 0.25);
+        color: var(--text-primary);
+    }
+
+    .modal-container-alpine .btn-primary,
+    .modal-footer-glass .btn-primary {
+        background: linear-gradient(135deg, #fbbf24, #f59e0b);
+        border: none;
+        color: #1e3a5f;
+        padding: 0.625rem 1.25rem;
+        border-radius: 0.625rem;
+        font-weight: 600;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal-container-alpine .btn-primary:hover,
+    .modal-footer-glass .btn-primary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 15px rgba(251, 191, 36, 0.3);
+    }
+
+    .modal-container-alpine .btn-secondary,
+    .modal-footer-glass .btn-secondary {
+        background: linear-gradient(135deg, #00337F, #004AAD);
+        border: none;
+        color: white;
+        padding: 0.625rem 1.25rem;
+        border-radius: 0.625rem;
+        font-weight: 600;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .modal-container-alpine .btn-secondary:hover,
+    .modal-footer-glass .btn-secondary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 15px rgba(0, 51, 127, 0.3);
+    }
+
+    /* Icon Buttons for Questions */
+    .btn-icon-action {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        border-radius: 0.5rem;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: none;
+        background: transparent;
+    }
+
+    .btn-icon-edit {
+        background: rgba(59, 130, 246, 0.15);
+        color: #3b82f6;
+        text-decoration: none;
+    }
+
+    .btn-icon-edit:hover {
+        background: rgba(59, 130, 246, 0.25);
+        transform: scale(1.05);
+    }
+
+    .btn-icon-delete {
+        background: rgba(239, 68, 68, 0.15);
+        color: #ef4444;
+    }
+
+    .btn-icon-delete:hover {
+        background: rgba(239, 68, 68, 0.25);
+        transform: scale(1.05);
+    }
+
+    /* Answer Checkbox Styling */
+    .answer-checkbox-toggle {
+        position: relative;
+        cursor: pointer;
+        min-width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .answer-checkbox {
+        position: absolute;
+        opacity: 0;
+        cursor: pointer;
+    }
+
+    .checkbox-custom {
+        width: 28px;
+        height: 28px;
+        border: 2.5px solid rgba(255, 255, 255, 0.2);
+        border-radius: 0.5rem;
+        background: rgba(255, 255, 255, 0.05);
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .answer-checkbox-toggle:hover .checkbox-custom {
+        border-color: var(--gold-start);
+        background: rgba(251, 191, 36, 0.1);
+    }
+
+    .answer-checkbox:checked + .checkbox-custom {
+        background: var(--gradient-gold);
+        border-color: transparent;
+    }
+
+    .answer-checkbox:checked + .checkbox-custom::after {
+        content: '\2713';
+        color: #1e3a5f;
+        font-size: 1rem;
+        font-weight: bold;
+        line-height: 1;
+    }
+
+    /* Checkbox Light Mode Styles */
+    html.light-mode .modal-container-alpine .checkbox-custom {
+        border: 2.5px solid rgba(0, 0, 0, 0.2) !important;
+        background: rgba(0, 0, 0, 0.03) !important;
+    }
+
+    html.light-mode .modal-container-alpine .answer-checkbox-toggle:hover .checkbox-custom {
+        border-color: #00337F !important;
+        background: rgba(0, 51, 127, 0.1) !important;
+    }
+
+    html.light-mode .modal-container-alpine .answer-checkbox:checked + .checkbox-custom {
+        background: linear-gradient(135deg, #fbbf24, #f59e0b) !important;
+        border-color: transparent !important;
+    }
+
+    /* "Sofort aktivieren" checkbox in Light Mode */
+    html.light-mode .modal-container-alpine .checkbox-alpine span {
+        color: #1a1a1d !important;
     }
 </style>
 @endpush
 
+@push('alpine-components')
 <script>
-    // Tag-Suggestion Funktionalität
-    function addTagToModal(tag) {
-        const input = document.getElementById('tags');
-        const currentValue = input.value.trim();
+// Lernpool Manager als globale Funktion für Alpine.js
+window.lernpoolManager = function() {
+    return {
+        isOpen: false,
+        isLoading: false,
+        modalType: null,
+        modalContent: '',
+        tagInput: '',
+        toast: {
+            show: false,
+            message: '',
+            type: 'success'
+        },
 
-        const existingTags = currentValue.split(',').map(t => t.trim());
-        if (existingTags.includes(tag)) {
-            return;
-        }
-
-        if (currentValue === '') {
-            input.value = tag;
-        } else {
-            input.value = currentValue + ', ' + tag;
-        }
-
-        input.focus();
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-        const modal = document.getElementById('createModal');
-        const openBtn = document.getElementById('openCreateModal');
-        const openBtnEmpty = document.getElementById('openCreateModalEmpty');
-        const closeBtn = document.getElementById('closeCreateModal');
-        const cancelBtn = document.getElementById('cancelCreateModal');
-        const form = document.getElementById('createLernpoolForm');
-
-        function openModal() {
-            modal.style.display = 'flex';
+        openModal(type) {
+            this.modalType = type;
+            this.isOpen = true;
+            this.isLoading = false;
             document.body.style.overflow = 'hidden';
-        }
+        },
 
-        if (openBtn) openBtn.addEventListener('click', openModal);
-        if (openBtnEmpty) openBtnEmpty.addEventListener('click', openModal);
+        async loadModal(url) {
+            this.modalType = 'dynamic';
+            this.isOpen = true;
+            this.isLoading = true;
+            document.body.style.overflow = 'hidden';
 
-        function closeModal() {
-            modal.style.display = 'none';
-            document.body.style.overflow = 'auto';
-            form.reset();
-        }
-
-        closeBtn.addEventListener('click', closeModal);
-        cancelBtn.addEventListener('click', closeModal);
-
-        modal.addEventListener('click', function(e) {
-            if (e.target === modal) closeModal();
-        });
-
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape' && modal.style.display === 'flex') closeModal();
-        });
-    });
-
-    // Generic Modal Loader
-    document.addEventListener('DOMContentLoaded', function() {
-        const genericModal = document.getElementById('genericModal');
-        const genericModalBackdrop = document.getElementById('genericModalBackdrop');
-
-        function closeGenericModal() {
-            genericModalBackdrop.style.display = 'none';
-            document.body.style.overflow = 'auto';
-            genericModal.innerHTML = '';
-        }
-
-        genericModalBackdrop.addEventListener('click', function(e) {
-            if (e.target === genericModalBackdrop) closeGenericModal();
-        });
-
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape' && genericModalBackdrop.style.display === 'flex') closeGenericModal();
-        });
-
-        document.addEventListener('click', function(e) {
-            const trigger = e.target.closest('.modal-trigger');
-            if (trigger && trigger.href) {
-                e.preventDefault();
-                e.stopPropagation();
-
-                const baseUrl = trigger.href;
+            try {
                 const cacheBuster = '_t=' + Date.now();
-                const url = baseUrl + (baseUrl.includes('?') ? '&' : '?') + 'ajax=1&' + cacheBuster;
+                const fetchUrl = url + (url.includes('?') ? '&' : '?') + 'ajax=1&' + cacheBuster;
 
-                genericModal.innerHTML = '<div class="modal-loading"><div class="spinner"></div><div class="modal-loading-text">Lädt...</div></div>';
-                genericModalBackdrop.style.display = 'flex';
-
-                fetch(url, {
+                const response = await fetch(fetchUrl, {
                     method: 'GET',
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest',
                         'Accept': 'text/html',
-                        'Cache-Control': 'no-cache, no-store, must-revalidate',
-                        'Pragma': 'no-cache'
+                        'Cache-Control': 'no-cache, no-store, must-revalidate'
                     },
                     credentials: 'same-origin',
                     cache: 'no-store'
-                })
-                .then(response => response.text())
-                .then(html => {
-                    genericModal.innerHTML = html;
-                    document.body.style.overflow = 'hidden';
-                })
-                .catch(error => {
-                    console.error('Error loading modal:', error);
-                    genericModal.innerHTML = '<div class="modal-header-glass"><h2>Fehler</h2><button class="modal-close-btn" onclick="document.getElementById(\'genericModalBackdrop\').style.display=\'none\'">&times;</button></div><div class="modal-body-glass"><p style="color: var(--text-secondary);">Fehler beim Laden des Inhalts.</p></div>';
                 });
-                return false;
+
+                if (!response.ok) throw new Error('Fetch failed');
+
+                this.modalContent = await response.text();
+                this.isLoading = false;
+
+                // Re-attach event handlers after content loads
+                this.$nextTick(() => {
+                    this.attachModalEventHandlers();
+                });
+            } catch (error) {
+                console.error('Error loading modal:', error);
+                this.modalContent = `
+                    <div class="modal-header-glass">
+                        <h2>Fehler</h2>
+                        <button class="modal-close-btn" onclick="Alpine.$data(document.querySelector('[x-data]')).closeModal()">&times;</button>
+                    </div>
+                    <div class="modal-body-glass">
+                        <p style="color: var(--text-secondary);">Fehler beim Laden des Inhalts.</p>
+                    </div>
+                `;
+                this.isLoading = false;
             }
-        });
+        },
 
-        // Event-Delegation für Submit-Buttons
-        document.addEventListener('click', function(e) {
-            const submitBtn = e.target.closest('#submitFinishBtn, #submitContinueBtn');
-            if (!submitBtn) return;
+        closeModal() {
+            this.isOpen = false;
+            this.modalContent = '';
+            this.modalType = null;
+            document.body.style.overflow = 'auto';
+        },
 
-            e.preventDefault();
-            e.stopPropagation();
+        addTag(tag) {
+            const current = this.tagInput.trim();
+            const existingTags = current.split(',').map(t => t.trim()).filter(t => t);
 
-            const action = submitBtn.id === 'submitContinueBtn' ? 'continue' : 'finish';
+            if (!existingTags.includes(tag)) {
+                this.tagInput = existingTags.length ? current + ', ' + tag : tag;
+            }
+        },
+
+        showToast(message, type = 'success') {
+            this.toast = { show: true, message, type };
+            setTimeout(() => {
+                this.toast.show = false;
+            }, 3000);
+        },
+
+        attachModalEventHandlers() {
+            const self = this;
+
+            // Close button handler
+            document.querySelectorAll('.modal-close-btn').forEach(btn => {
+                btn.onclick = () => self.closeModal();
+            });
+
+            // Modal trigger links (for navigation within modals)
+            document.querySelectorAll('.modal-trigger').forEach(trigger => {
+                trigger.onclick = (e) => {
+                    e.preventDefault();
+                    self.loadModal(trigger.href);
+                };
+            });
+
+            // Submit buttons for create question
+            const submitFinishBtn = document.getElementById('submitFinishBtn');
+            const submitContinueBtn = document.getElementById('submitContinueBtn');
+
+            if (submitFinishBtn) {
+                submitFinishBtn.onclick = () => this.handleQuestionSubmit('finish');
+            }
+            if (submitContinueBtn) {
+                submitContinueBtn.onclick = () => this.handleQuestionSubmit('continue');
+            }
+
+            // Update button for edit question
+            const updateBtn = document.getElementById('updateQuestionBtn');
+            if (updateBtn) {
+                updateBtn.onclick = () => this.handleQuestionUpdate();
+            }
+
+            // Delete buttons
+            document.querySelectorAll('.btn-icon-delete').forEach(btn => {
+                btn.onclick = () => this.handleQuestionDelete(btn);
+            });
+        },
+
+        async handleQuestionSubmit(action) {
             const form = document.getElementById('createQuestionForm');
-            if (!form) {
-                alert('Fehler: Formular nicht gefunden!');
-                return;
-            }
+            if (!form) return;
 
             const loesungCheckboxes = form.querySelectorAll('input[name="loesung[]"]:checked');
             if (loesungCheckboxes.length === 0) {
@@ -517,89 +1124,61 @@
                     input.reportValidity();
                 }
             });
-
             if (!allValid) return;
 
             const formData = new FormData(form);
-            const buttons = form.querySelectorAll('#submitFinishBtn, #submitContinueBtn');
             const formAction = form.getAttribute('action');
+            const buttons = form.querySelectorAll('#submitFinishBtn, #submitContinueBtn');
 
             buttons.forEach(btn => {
                 btn.disabled = true;
                 btn.style.opacity = '0.6';
             });
 
-            fetch(formAction, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Accept': 'application/json'
-                },
-                credentials: 'same-origin'
-            })
-            .then(response => response.json())
-            .then(data => {
+            try {
+                const response = await fetch(formAction, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    },
+                    credentials: 'same-origin'
+                });
+
+                const data = await response.json();
+
                 if (data.success) {
-                    showToastNotification(data.message, 'success');
+                    this.showToast(data.message, 'success');
 
                     if (action === 'continue') {
-                        let createUrl;
-                        if (formAction.endsWith('/store')) {
-                            createUrl = formAction.replace(/\/store$/, '/create');
-                        } else if (formAction.includes('/questions')) {
-                            createUrl = formAction.replace(/\/questions.*$/, '/questions/create');
-                        } else {
-                            return;
-                        }
-
-                        createUrl += '?ajax=1&_t=' + Date.now();
-
-                        fetch(createUrl, {
-                            headers: {
-                                'X-Requested-With': 'XMLHttpRequest',
-                                'Cache-Control': 'no-cache'
-                            }
-                        })
-                        .then(response => response.text())
-                        .then(html => {
-                            genericModal.innerHTML = html;
-                        });
+                        let createUrl = formAction.replace(/\/store$/, '/create')
+                            .replace(/\/questions.*$/, '/questions/create');
+                        this.loadModal(createUrl);
                     } else {
-                        genericModalBackdrop.style.display = 'none';
+                        this.closeModal();
                         setTimeout(() => location.reload(), 300);
                     }
                 } else {
-                    showToastNotification(data.message || 'Fehler beim Speichern', 'error');
+                    this.showToast(data.message || 'Fehler beim Speichern', 'error');
                     buttons.forEach(btn => {
                         btn.disabled = false;
                         btn.style.opacity = '1';
                     });
                 }
-            })
-            .catch(error => {
+            } catch (error) {
                 console.error('Error:', error);
-                showToastNotification('Fehler beim Speichern', 'error');
+                this.showToast('Fehler beim Speichern', 'error');
                 buttons.forEach(btn => {
                     btn.disabled = false;
                     btn.style.opacity = '1';
                 });
-            });
-        });
-
-        // Event-Delegation für Update-Button
-        document.addEventListener('click', function(e) {
-            const updateBtn = e.target.closest('#updateQuestionBtn');
-            if (!updateBtn) return;
-
-            e.preventDefault();
-            e.stopPropagation();
-
-            const form = document.getElementById('editQuestionForm');
-            if (!form) {
-                alert('Fehler: Formular nicht gefunden!');
-                return;
             }
+        },
+
+        async handleQuestionUpdate() {
+            const form = document.getElementById('editQuestionForm');
+            if (!form) return;
 
             const loesungCheckboxes = form.querySelectorAll('input[name="loesung[]"]:checked');
             if (loesungCheckboxes.length === 0) {
@@ -616,130 +1195,83 @@
                     input.reportValidity();
                 }
             });
-
             if (!allValid) return;
 
+            const updateBtn = document.getElementById('updateQuestionBtn');
             const formData = new FormData(form);
             const formAction = form.getAttribute('action');
 
             updateBtn.disabled = true;
             updateBtn.style.opacity = '0.6';
 
-            fetch(formAction, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Accept': 'application/json'
-                },
-                credentials: 'same-origin'
-            })
-            .then(response => response.json())
-            .then(data => {
+            try {
+                const response = await fetch(formAction, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    },
+                    credentials: 'same-origin'
+                });
+
+                const data = await response.json();
+
                 if (data.success) {
-                    showToastNotification(data.message, 'success');
-                    genericModalBackdrop.style.display = 'none';
+                    this.showToast(data.message, 'success');
+                    this.closeModal();
                     setTimeout(() => location.reload(), 300);
                 } else {
-                    showToastNotification(data.message || 'Fehler beim Aktualisieren', 'error');
+                    this.showToast(data.message || 'Fehler beim Aktualisieren', 'error');
                     updateBtn.disabled = false;
                     updateBtn.style.opacity = '1';
                 }
-            })
-            .catch(error => {
+            } catch (error) {
                 console.error('Error:', error);
-                showToastNotification('Fehler beim Aktualisieren', 'error');
+                this.showToast('Fehler beim Aktualisieren', 'error');
                 updateBtn.disabled = false;
                 updateBtn.style.opacity = '1';
-            });
-        });
+            }
+        },
 
-        // Event-Delegation für Delete-Buttons
-        document.addEventListener('click', function(e) {
-            const deleteBtn = e.target.closest('.btn-icon-delete');
-            if (!deleteBtn) return;
-
-            e.preventDefault();
-            e.stopPropagation();
-
-            const questionId = deleteBtn.getAttribute('data-question-id');
-            const deleteUrl = deleteBtn.getAttribute('data-delete-url');
-
+        async handleQuestionDelete(btn) {
+            const deleteUrl = btn.getAttribute('data-delete-url');
             if (!confirm('Möchtest du diese Frage wirklich löschen?')) return;
 
             const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
 
-            deleteBtn.disabled = true;
-            deleteBtn.style.opacity = '0.5';
+            btn.disabled = true;
+            btn.style.opacity = '0.5';
 
-            fetch(deleteUrl, {
-                method: 'POST',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRF-TOKEN': csrfToken,
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ _method: 'DELETE' }),
-                credentials: 'same-origin'
-            })
-            .then(response => {
+            try {
+                const response = await fetch(deleteUrl, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ _method: 'DELETE' }),
+                    credentials: 'same-origin'
+                });
+
                 if (response.ok) {
-                    showToastNotification('Frage gelöscht', 'success');
+                    this.showToast('Frage gelöscht', 'success');
                     setTimeout(() => location.reload(), 500);
                 } else {
                     throw new Error('Fehler beim Löschen');
                 }
-            })
-            .catch(error => {
+            } catch (error) {
                 console.error('Error:', error);
-                showToastNotification('Fehler beim Löschen', 'error');
-                deleteBtn.disabled = false;
-                deleteBtn.style.opacity = '1';
-            });
-        });
-
-        // Toast Notification
-        window.showToastNotification = function(message, type) {
-            const toast = document.createElement('div');
-            toast.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                padding: 14px 20px;
-                background: ${type === 'success' ? 'linear-gradient(135deg, #22c55e, #16a34a)' : 'linear-gradient(135deg, #ef4444, #dc2626)'};
-                color: white;
-                border-radius: 0.75rem;
-                font-weight: 600;
-                font-size: 0.9rem;
-                z-index: 10000;
-                box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-                animation: slideInRight 0.3s ease-out;
-            `;
-            toast.textContent = (type === 'success' ? '✓ ' : '✗ ') + message;
-            document.body.appendChild(toast);
-
-            setTimeout(() => {
-                toast.style.animation = 'slideOutRight 0.3s ease-in';
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
-        };
-
-        if (!document.getElementById('toast-animations')) {
-            const style = document.createElement('style');
-            style.id = 'toast-animations';
-            style.textContent = `
-                @keyframes slideInRight {
-                    from { transform: translateX(100%); opacity: 0; }
-                    to { transform: translateX(0); opacity: 1; }
-                }
-                @keyframes slideOutRight {
-                    from { transform: translateX(0); opacity: 1; }
-                    to { transform: translateX(100%); opacity: 0; }
-                }
-            `;
-            document.head.appendChild(style);
+                this.showToast('Fehler beim Löschen', 'error');
+                btn.disabled = false;
+                btn.style.opacity = '1';
+            }
         }
-    });
+    };
+};
 </script>
+@endpush
+
 @endsection
