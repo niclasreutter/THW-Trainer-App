@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.landing')
 
 @section('title', 'Statistiken - THW Trainer')
 @section('description', 'Öffentliche Statistiken über alle beantworteten Fragen im THW-Trainer.')
