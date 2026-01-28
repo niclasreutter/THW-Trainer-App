@@ -25,7 +25,7 @@
                         style="padding: 0.5rem 1.5rem; background-color: #2563eb; color: white; font-size: 0.875rem; font-weight: 500; border-radius: 0.5rem; border: none; cursor: pointer; transition: background-color 0.2s;">
                     Verstanden
                 </button>
-                <a href="{{ route('datenschutz') }}" 
+                <a href="{{ route('landing.datenschutz') }}" 
                    style="padding: 0.5rem 1.5rem; border: 1px solid #d1d5db; color: #374151; font-size: 0.875rem; font-weight: 500; border-radius: 0.5rem; text-decoration: none; text-align: center; transition: background-color 0.2s; display: block;">
                     Datenschutz
                 </a>

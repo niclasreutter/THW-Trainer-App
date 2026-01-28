@@ -533,9 +533,9 @@
         <div class="auth-footer">
             © 2026 THW-Trainer
             <span class="auth-footer-divider">•</span>
-            <a href="{{ route('datenschutz') }}">Datenschutz</a>
+            <a href="{{ route('landing.datenschutz') }}">Datenschutz</a>
             <span class="auth-footer-divider">•</span>
-            <a href="{{ route('impressum') }}">Impressum</a>
+            <a href="{{ route('landing.impressum') }}">Impressum</a>
         </div>
     </div>
 

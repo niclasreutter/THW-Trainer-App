@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\OrtsverbandInvitation;
+use App\Helpers\DomainHelper;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -72,6 +73,12 @@ class RegisteredUserController extends Controller
             }
         }
 
-        return redirect(route('dashboard', absolute: false));
+        // In Production: Redirect zur App-Domain
+        // In Development: Normale Redirect-Logik
+        $dashboardUrl = config('domains.development')
+            ? route('dashboard')
+            : DomainHelper::appUrl('/dashboard');
+
+        return redirect($dashboardUrl);
     }
 }

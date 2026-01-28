@@ -1919,3 +1919,351 @@ html.light-mode ::-webkit-scrollbar-thumb:hover {
         font-size: 1.5rem;
     }
 }
+
+/* ============================================
+   LANDING PAGE STYLES (Light Mode Only)
+   For thw-trainer.de marketing site
+   ============================================ */
+
+/* === Landing Navbar === */
+.landing-navbar {
+    background: #ffffff;
+    border-bottom: 1px solid rgba(0, 51, 127, 0.1);
+    box-shadow: 0 2px 12px rgba(0, 51, 127, 0.06);
+}
+
+.landing-navbar-container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.landing-navbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none;
+}
+
+.landing-navbar-links {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.landing-nav-link {
+    color: #475569;
+    font-weight: 500;
+    text-decoration: none;
+    transition: color 0.2s ease;
+    font-size: 0.95rem;
+}
+
+.landing-nav-link:hover {
+    color: #00337F;
+}
+
+.landing-navbar-auth {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.landing-btn-ghost {
+    padding: 0.625rem 1.25rem;
+    color: #00337F;
+    font-weight: 600;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+}
+
+.landing-btn-ghost:hover {
+    background: rgba(0, 51, 127, 0.05);
+}
+
+.landing-btn-primary {
+    padding: 0.625rem 1.25rem;
+    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+    color: #1e3a8a;
+    font-weight: 700;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(251, 191, 36, 0.3);
+    font-size: 0.9rem;
+}
+
+.landing-btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(251, 191, 36, 0.4);
+}
+
+.landing-mobile-menu-btn {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #00337F;
+    cursor: pointer;
+    padding: 0.5rem;
+}
+
+@media (max-width: 768px) {
+    .landing-navbar-links,
+    .landing-navbar-auth {
+        display: none;
+    }
+
+    .landing-mobile-menu-btn {
+        display: block;
+    }
+}
+
+/* === Landing Mobile Menu === */
+.landing-mobile-menu {
+    background: #ffffff;
+    border-top: 1px solid rgba(0, 51, 127, 0.1);
+    padding: 1rem;
+}
+
+.landing-mobile-menu-links {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.landing-mobile-link {
+    display: block;
+    padding: 0.75rem 1rem;
+    color: #475569;
+    font-weight: 500;
+    text-decoration: none;
+    border-radius: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+.landing-mobile-link:hover {
+    background: rgba(0, 51, 127, 0.05);
+    color: #00337F;
+}
+
+.landing-mobile-menu-auth {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(0, 51, 127, 0.1);
+}
+
+/* === Landing Hero Section === */
+.landing-hero {
+    background: linear-gradient(to bottom, #00337F 0%, rgba(0, 51, 127, 0.85) 60%, rgba(0, 51, 127, 0.7) 100%);
+    min-height: 60vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 1rem;
+}
+
+.landing-hero-content {
+    width: 100%;
+}
+
+.landing-hero-gradient-text {
+    display: inline-block;
+    background: linear-gradient(90deg, #fbbf24, #f59e0b);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.landing-hero-btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem 2rem;
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    color: #1e3a8a;
+    font-weight: 700;
+    font-size: 1.1rem;
+    border-radius: 0.75rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 20px rgba(251, 191, 36, 0.4);
+}
+
+.landing-hero-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(251, 191, 36, 0.5);
+}
+
+.landing-hero-btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem 2rem;
+    background: transparent;
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 1rem;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    border-radius: 0.75rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.landing-hero-btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.8);
+}
+
+/* === Landing Feature Cards === */
+.landing-feature-card {
+    background: #ffffff;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0, 51, 127, 0.08);
+    transition: all 0.3s ease;
+    border: 1px solid rgba(0, 51, 127, 0.06);
+}
+
+.landing-feature-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(0, 51, 127, 0.12);
+}
+
+.landing-feature-icon {
+    font-size: 2.5rem;
+    color: #00337F;
+    margin-bottom: 0.75rem;
+}
+
+/* === Landing FAQ Section === */
+.landing-faq-item {
+    background: #ffffff;
+    border-radius: 0.75rem;
+    box-shadow: 0 2px 12px rgba(0, 51, 127, 0.06);
+    border: 1px solid rgba(0, 51, 127, 0.08);
+    overflow: hidden;
+}
+
+.landing-faq-toggle {
+    width: 100%;
+    text-align: left;
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.landing-faq-toggle:hover {
+    background: rgba(0, 51, 127, 0.03);
+}
+
+.landing-faq-icon {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #00337F;
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+}
+
+.landing-faq-content {
+    padding: 0 1.5rem 1.25rem 1.5rem;
+}
+
+/* === Landing Footer === */
+.landing-footer {
+    background: #00337F;
+    color: #ffffff;
+    padding: 3rem 0 0 0;
+}
+
+.landing-footer-container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 1.5rem 2rem 1.5rem;
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1.5fr;
+    gap: 2rem;
+}
+
+@media (max-width: 768px) {
+    .landing-footer-container {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .landing-footer-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+.landing-footer-links {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.landing-footer-links a {
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.2s ease;
+}
+
+.landing-footer-links a:hover {
+    color: #fbbf24;
+}
+
+.landing-footer-support-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.625rem 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 0.85rem;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.landing-footer-support-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: #fbbf24;
+}
+
+.landing-footer-copyright {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 1.5rem;
+    text-align: center;
+}
+
+.landing-footer-copyright-container {
+    max-width: 1280px;
+    margin: 0 auto;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* === THW Blue Color Utility === */
+.text-thw-blue {
+    color: #00337F;
+}
+
+.bg-thw-blue {
+    background-color: #00337F;
+}

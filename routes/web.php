@@ -1,98 +1,30 @@
 <?php
 
+/*
+|--------------------------------------------------------------------------
+| Application Routes (app.thw-trainer.de)
+|--------------------------------------------------------------------------
+|
+| Diese Routes sind für die authentifizierte Anwendung.
+| Sie werden unter app.thw-trainer.de ausgeliefert.
+| Öffentliche Landing-Routes sind in routes/landing.php.
+|
+*/
+
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 
-
-Route::get('/', function () {
-    return view('home');
-})->name('home');
-
-Route::get('/impressum', function () {
-    return view('impressum');
-})->name('impressum');
-
-Route::get('/datenschutz', function () {
-    return view('datenschutz');
-})->name('datenschutz');
-
-// Offline-Seite für PWA
-Route::get('/offline', function () {
-    return view('offline');
-})->name('offline');
-
-// Sitemap für SEO
-Route::get('/sitemap.xml', [\App\Http\Controllers\SitemapController::class, 'index'])->name('sitemap');
-
-// Kontaktformular (öffentlich zugänglich)
-Route::get('/kontakt', [\App\Http\Controllers\ContactController::class, 'index'])->name('contact.index');
-Route::post('/kontakt', [\App\Http\Controllers\ContactController::class, 'store'])
-    ->middleware('throttle:3,60') // Max 3 Anfragen pro Stunde
-    ->name('contact.submit');
-
-// Öffentliche Statistik-Seite
-Route::get('/statistik', [\App\Http\Controllers\StatisticsController::class, 'index'])->name('statistics');
-
-// Dynamische robots.txt basierend auf Umgebung
+// robots.txt für App-Subdomain (blockiert Crawler)
 Route::get('/robots.txt', function () {
-    $isTestEnvironment = app()->environment('testing') || str_contains(request()->getHost(), 'test.') || config('app.environment_type') === 'testing';
-    
-    if ($isTestEnvironment) {
-        return response("User-agent: *\nDisallow: /", 200)
-            ->header('Content-Type', 'text/plain');
-    } else {
-        $robotsContent = "User-agent: *
-Allow: /
-Allow: /register
-Allow: /login
-Allow: /guest/*
-Allow: /assets/*
-Allow: /build/*
+    $robotsContent = "User-agent: *
+Disallow: /
 
-# Wichtige Seiten für Crawler
-Allow: /
-Allow: /guest/practice/menu
-Allow: /guest/exam
+# App-Subdomain sollte nicht gecrawlt werden
+# Öffentliche Inhalte sind unter thw-trainer.de verfügbar";
 
-# Geschützte Bereiche
-Disallow: /dashboard
-Disallow: /practice
-Disallow: /exam
-Disallow: /admin
-Disallow: /profile
-Disallow: /failed
-Disallow: /bookmarks
-
-# Admin und private Bereiche
-Disallow: /admin/*
-Disallow: /api/*
-Disallow: /telescope/*
-
-# Cache und temporäre Dateien
-Disallow: /storage/*
-Disallow: /vendor/*
-Disallow: /node_modules/*
-
-# Sitemap
-Sitemap: " . url('/sitemap.xml') . "
-
-# Crawl-Delay für bessere Performance
-Crawl-delay: 1";
-        
-        return response($robotsContent, 200)
-            ->header('Content-Type', 'text/plain');
-    }
-});
-
-// Guest Routes (ohne Auth)
-Route::prefix('guest')->name('guest.')->group(function () {
-    Route::get('/practice-menu', [\App\Http\Controllers\GuestPracticeController::class, 'menu'])->name('practice.menu');
-    Route::get('/practice/all', [\App\Http\Controllers\GuestPracticeController::class, 'all'])->name('practice.all');
-    Route::get('/practice', [\App\Http\Controllers\GuestPracticeController::class, 'show'])->name('practice.index');
-    Route::post('/practice', [\App\Http\Controllers\GuestPracticeController::class, 'submit'])->name('practice.submit');
-    Route::get('/exam', [\App\Http\Controllers\GuestExamController::class, 'start'])->name('exam.index');
-    Route::post('/exam/submit', [\App\Http\Controllers\GuestExamController::class, 'submit'])->name('exam.submit');
+    return response($robotsContent, 200)
+        ->header('Content-Type', 'text/plain');
 });
 
 Route::get('/dashboard', function () {
@@ -134,11 +66,13 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-// Contact Routes (verfügbar für alle - auch Gäste)
-Route::get('/kontakt', [\App\Http\Controllers\ContactController::class, 'index'])->name('contact.index');
-Route::post('/kontakt', [\App\Http\Controllers\ContactController::class, 'store'])
-    ->middleware('throttle:3,60') // 3 Anfragen pro 60 Minuten
-    ->name('contact.submit');
+// Contact Routes - Nur in Production als Redirect zur Landing-Domain
+// In Development werden die Landing-Routes direkt verwendet
+if (!config('domains.development', true)) {
+    Route::get('/kontakt', function () {
+        return redirect('https://' . config('domains.landing') . '/kontakt');
+    })->name('contact.index');
+}
 
 Route::middleware('auth')->group(function () {
     // Practice Menu und Modi

@@ -292,8 +292,8 @@
                         <div class="flex items-center justify-between text-sm text-dark-muted">
                             <div>
                                 &copy; {{ date('Y') }} THW-Trainer &ndash;
-                                <a href="{{ route('impressum') }}" class="text-gold hover:text-gold-light transition-colors">Impressum</a> &middot;
-                                <a href="{{ route('datenschutz') }}" class="text-gold hover:text-gold-light transition-colors">Datenschutz</a>
+                                <a href="{{ route('landing.impressum') }}" class="text-gold hover:text-gold-light transition-colors">Impressum</a> &middot;
+                                <a href="{{ route('landing.datenschutz') }}" class="text-gold hover:text-gold-light transition-colors">Datenschutz</a>
                             </div>
                             <div>
                                 <a href="https://paypal.me/reuttern" target="_blank" rel="noopener" class="text-gold hover:text-gold-light transition-colors">Unterstützen</a>

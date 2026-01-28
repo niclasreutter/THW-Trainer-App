@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends(isset($isLanding) && $isLanding ? 'layouts.landing' : 'layouts.app')
 
 @section('title', 'Anonym üben - THW Theorie ohne Anmeldung')
 @section('description', 'THW Theorie anonym üben ohne Anmeldung. Wähle aus verschiedenen Übungsmodi und starte sofort mit dem Lernen. Kostenlos und ohne Registrierung.')
@@ -245,7 +245,7 @@
 
         <!-- Hauptaktionen -->
         <div class="main-actions">
-            <a href="{{ route('guest.practice.all') }}" class="action-card" style="text-decoration: none;">
+            <a href="{{ route('landing.guest.practice.all') }}" class="action-card" style="text-decoration: none;">
                 <div class="action-card-header">
                     <div class="action-card-icon yellow">📚</div>
                     <span class="action-card-badge">Grundausbildung</span>
@@ -258,7 +258,7 @@
                 </span>
             </a>
 
-            <a href="{{ route('guest.exam.index') }}" class="action-card" style="text-decoration: none;">
+            <a href="{{ route('landing.guest.exam.index') }}" class="action-card" style="text-decoration: none;">
                 <div class="action-card-header">
                     <div class="action-card-icon blue">🎓</div>
                     <span class="action-card-badge">Prüfung</span>
@@ -274,7 +274,7 @@
 
         <!-- Zurück zur Homepage -->
         <div style="text-align: center;">
-            <a href="{{ route('home') }}"
+            <a href="{{ route('landing.home') }}"
                style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; background: rgba(255, 255, 255, 0.8); color: #4b5563; font-weight: 600; border-radius: 0.75rem; text-decoration: none; transition: all 0.2s ease; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);"
                onmouseover="this.style.background='white'; this.style.boxShadow='0 4px 12px rgba(0, 0, 0, 0.15)'"
                onmouseout="this.style.background='rgba(255, 255, 255, 0.8)'; this.style.boxShadow='0 1px 3px rgba(0, 0, 0, 0.1)'">

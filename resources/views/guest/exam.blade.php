@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends(isset($isLanding) && $isLanding ? 'layouts.landing' : 'layouts.app')
 @section('title', 'THW Prüfungssimulation anonym - 40 Fragen ohne Anmeldung')
 @section('description', 'THW Prüfungssimulation anonym: Teste dich mit 40 zufälligen Fragen in 30 Minuten ohne Anmeldung. Sofortige Auswertung und Ergebnisanzeige!')
 
@@ -97,7 +97,7 @@
         </div>
         
         <!-- Fragenbereich -->
-        <form id="exam-form" method="POST" action="{{ route('guest.exam.submit') }}">
+        <form id="exam-form" method="POST" action="{{ route('landing.guest.exam.submit') }}">
             @csrf
             
             @foreach($fragen as $index => $frage)
@@ -599,17 +599,17 @@
             
             <!-- Action Buttons -->
             <div class="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
-                <a href="{{ route('guest.exam.index') }}" 
+                <a href="{{ route('landing.guest.exam.index') }}" 
                    class="inline-flex items-center justify-center px-6 py-3 font-bold rounded-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
                    style="background: linear-gradient(to right, #00337F, #002A66); color: white;">
                     🎓 Neue Prüfung
                 </a>
-                <a href="{{ route('guest.practice.all') }}" 
+                <a href="{{ route('landing.guest.practice.all') }}" 
                    class="inline-flex items-center justify-center px-6 py-3 font-bold rounded-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
                    style="background: linear-gradient(to right, #facc15, #f59e0b); color: white;">
                     📚 Weiter üben
                 </a>
-                <a href="{{ route('home') }}" 
+                <a href="{{ route('landing.home') }}" 
                    class="inline-flex items-center justify-center px-6 py-3 font-bold rounded-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
                    style="background: linear-gradient(to right, #4b5563, #374151); color: white;">
                     🏠 Startseite

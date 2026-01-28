@@ -74,7 +74,7 @@
 
                 <!-- Action Buttons -->
                 <div style="display: grid; gap: 1rem; margin-top: 2rem;">
-                    <a href="{{ route('home') }}"
+                    <a href="{{ route('landing.home') }}"
                        class="btn-primary"
                        style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 1rem 1.5rem; border-radius: 0.75rem; font-weight: 700; text-decoration: none; color: white;">
                         <span>🏠</span>

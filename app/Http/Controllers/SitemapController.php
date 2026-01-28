@@ -35,8 +35,8 @@ class SitemapController extends Controller
         $sitemap .= $this->addUrl(route('dashboard'), '0.6', 'weekly');
 
         // Rechtliches
-        $sitemap .= $this->addUrl(route('impressum'), '0.3', 'yearly');
-        $sitemap .= $this->addUrl(route('datenschutz'), '0.3', 'yearly');
+        $sitemap .= $this->addUrl(route('landing.impressum'), '0.3', 'yearly');
+        $sitemap .= $this->addUrl(route('landing.datenschutz'), '0.3', 'yearly');
 
         $sitemap .= '</urlset>';
 

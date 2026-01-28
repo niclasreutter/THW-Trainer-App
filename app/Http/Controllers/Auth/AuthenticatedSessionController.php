@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Helpers\DomainHelper;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -28,7 +29,13 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        // In Production: Redirect zur App-Domain
+        // In Development: Normale Redirect-Logik
+        $dashboardUrl = config('domains.development')
+            ? route('dashboard')
+            : DomainHelper::appUrl('/dashboard');
+
+        return redirect()->intended($dashboardUrl);
     }
 
     /**
@@ -42,6 +49,11 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerateToken();
 
-        return redirect('/');
+        // Nach Logout zur Landing-Seite
+        $homeUrl = config('domains.development')
+            ? route('landing.home')
+            : DomainHelper::landingUrl('/');
+
+        return redirect($homeUrl);
     }
 }

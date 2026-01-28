@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends(isset($isLanding) && $isLanding ? 'layouts.landing' : 'layouts.app')
 @section('title', 'THW Theorie a        /* Practice Container ohne Margins */
         #guestPracticeContainer {
             margin: 0 !important;
@@ -537,7 +537,7 @@
     @if($question)
         <!-- Mobile: Kompakter Header -->
         <div class="sm:hidden mb-2 flex items-center justify-between p-2 bg-white border-b">
-            <a href="{{ route('guest.practice.menu') }}" class="p-2 hover:bg-gray-100 rounded-lg">
+            <a href="{{ route('landing.guest.practice.menu') }}" class="p-2 hover:bg-gray-100 rounded-lg">
                 <svg class="w-5 h-5 text-blue-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                 </svg>
@@ -564,7 +564,7 @@
                     Anonym üben
                 @endif
             </h2>
-            <a href="{{ route('guest.practice.menu') }}" class="text-blue-600 hover:text-blue-800 text-sm">← Zurück zum Menü</a>
+            <a href="{{ route('landing.guest.practice.menu') }}" class="text-blue-600 hover:text-blue-800 text-sm">← Zurück zum Menü</a>
         </div>
         
         <!-- Anonymes Üben Hinweis nur auf Desktop -->
@@ -582,7 +582,7 @@
             </div>
         </div>
         
-        <form method="POST" action="{{ route('guest.practice.submit') }}" id="guestPracticeForm">
+        <form method="POST" action="{{ route('landing.guest.practice.submit') }}" id="guestPracticeForm">
             @csrf
             <input type="hidden" name="question_id" value="{{ $question->id }}">
             
@@ -748,7 +748,7 @@
                     Antwort absenden
                 </button>
             @else
-                <a href="{{ route('guest.practice.index') }}" class="w-full block text-center font-bold text-xs sm:text-base py-2.5 sm:py-2.5 px-4 rounded-lg no-underline transition-all duration-300" 
+                <a href="{{ route('landing.guest.practice.index') }}" class="w-full block text-center font-bold text-xs sm:text-base py-2.5 sm:py-2.5 px-4 rounded-lg no-underline transition-all duration-300" 
                    style="background-color: #1e3a8a; color: #fbbf24; box-shadow: 0 0 15px rgba(30, 58, 138, 0.3);"
                    onmouseover="this.style.backgroundColor='#fbbf24'; this.style.color='#1e3a8a'; this.style.transform='scale(1.02)'; this.style.boxShadow='0 0 20px rgba(251, 191, 36, 0.4)';"
                    onmouseout="this.style.backgroundColor='#1e3a8a'; this.style.color='#fbbf24'; this.style.transform='scale(1)'; this.style.boxShadow='0 0 15px rgba(30, 58, 138, 0.3)';">
@@ -856,8 +856,8 @@
     @else
         <div class="text-center text-lg mb-4">Du hast alle Fragen in diesem Modus bearbeitet! 🎉</div>
         <div class="text-center">
-            <a href="{{ route('guest.practice.menu') }}" class="inline-block bg-blue-900 text-yellow-400 px-6 py-2 rounded font-bold hover:bg-yellow-400 hover:text-blue-900 hover:shadow-lg hover:scale-105 transition-all duration-300 mr-4">Zurück zum Übungsmenü</a>
-            <a href="{{ route('home') }}" class="inline-block bg-gray-600 text-white px-6 py-2 rounded font-bold hover:bg-gray-700 hover:shadow-lg hover:scale-105 transition-all duration-300">Zur Startseite</a>
+            <a href="{{ route('landing.guest.practice.menu') }}" class="inline-block bg-blue-900 text-yellow-400 px-6 py-2 rounded font-bold hover:bg-yellow-400 hover:text-blue-900 hover:shadow-lg hover:scale-105 transition-all duration-300 mr-4">Zurück zum Übungsmenü</a>
+            <a href="{{ route('landing.home') }}" class="inline-block bg-gray-600 text-white px-6 py-2 rounded font-bold hover:bg-gray-700 hover:shadow-lg hover:scale-105 transition-all duration-300">Zur Startseite</a>
         </div>
     @endif
 </div>

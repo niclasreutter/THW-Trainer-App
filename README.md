@@ -219,6 +219,199 @@ php artisan view:cache
 
 </details>
 
+---
+
+## 🌐 Multi-Domain Architektur (Plesk-Deployment)
+
+Die THW-Trainer App verwendet eine Multi-Domain-Architektur:
+
+| Domain | Zweck | Design |
+|--------|-------|--------|
+| **thw-trainer.de** | Öffentliche Landingpage, SEO, Guest-Modus | Light Mode |
+| **app.thw-trainer.de** | Authentifizierte App mit allen Features | Dark Mode (Glassmorphism) |
+
+### **Plesk-Konfiguration Schritt für Schritt**
+
+<details>
+<summary><b>📋 1. Haupt-Domain einrichten (thw-trainer.de)</b></summary>
+
+1. In Plesk eine neue **Website** anlegen für `thw-trainer.de`
+2. **Document Root** auf `/httpdocs` setzen (Standard)
+3. Das Laravel-Projekt in `/httpdocs` hochladen
+4. **Document Root** anpassen auf `/httpdocs/public`
+   - Websites & Domains → thw-trainer.de → Hosting-Einstellungen
+   - Document Root: `/httpdocs/public`
+
+</details>
+
+<details>
+<summary><b>📋 2. Subdomain einrichten (app.thw-trainer.de)</b></summary>
+
+1. Websites & Domains → **Subdomain hinzufügen**
+2. Subdomain-Name: `app`
+3. **WICHTIG**: Document Root auf das gleiche Verzeichnis wie die Hauptdomain setzen:
+   - Document Root: `thw-trainer.de/httpdocs/public`
+   - **NICHT** ein separates Verzeichnis erstellen!
+
+> Die Subdomain muss auf das **gleiche** `public/`-Verzeichnis zeigen, da beide Domains dieselbe Laravel-Installation nutzen.
+
+</details>
+
+<details>
+<summary><b>📋 3. SSL-Zertifikate einrichten</b></summary>
+
+Für beide Domains SSL aktivieren:
+
+1. Websites & Domains → thw-trainer.de → SSL/TLS-Zertifikate
+2. **Let's Encrypt** auswählen und Zertifikat anfordern
+3. "HTTPS dauerhaft umleiten" aktivieren
+4. Wiederholen für `app.thw-trainer.de`
+
+**Oder**: Wildcard-Zertifikat für `*.thw-trainer.de` verwenden
+
+</details>
+
+<details>
+<summary><b>📋 4. Environment-Variablen (.env) konfigurieren</b></summary>
+
+In der `.env` Datei auf dem Server:
+
+```env
+# App-Konfiguration
+APP_ENV=production
+APP_DEBUG=false
+APP_URL=https://app.thw-trainer.de
+
+# Domain-Konfiguration (WICHTIG!)
+LANDING_DOMAIN=thw-trainer.de
+APP_DOMAIN=app.thw-trainer.de
+
+# Session-Domain für Cross-Domain Cookie-Sharing
+SESSION_DOMAIN=.thw-trainer.de
+
+# Datenbank
+DB_CONNECTION=mysql
+DB_HOST=localhost
+DB_DATABASE=thw_trainer
+DB_USERNAME=dein_db_user
+DB_PASSWORD=dein_db_passwort
+
+# Session & Cache
+SESSION_DRIVER=database
+CACHE_DRIVER=file
+```
+
+**Wichtige Hinweise:**
+- `SESSION_DOMAIN=.thw-trainer.de` (mit Punkt am Anfang!) erlaubt Session-Sharing zwischen Domains
+- `APP_URL` sollte auf `app.thw-trainer.de` zeigen (für URL-Generierung)
+
+</details>
+
+<details>
+<summary><b>📋 5. PHP-Einstellungen in Plesk</b></summary>
+
+Empfohlene PHP-Einstellungen:
+
+1. Websites & Domains → PHP-Einstellungen
+2. PHP-Version: **8.2** oder höher
+3. Wichtige Einstellungen:
+   ```
+   memory_limit = 256M
+   max_execution_time = 60
+   upload_max_filesize = 10M
+   post_max_size = 12M
+   ```
+
+</details>
+
+<details>
+<summary><b>📋 6. Deployment-Befehle (nach Upload)</b></summary>
+
+Nach dem Hochladen des Codes auf den Server per SSH ausführen:
+
+```bash
+cd /var/www/vhosts/thw-trainer.de/httpdocs
+
+# Dependencies installieren
+composer install --no-dev --optimize-autoloader
+
+# Environment-Cache
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+
+# Storage-Link erstellen
+php artisan storage:link
+
+# Datenbank migrieren
+php artisan migrate --force
+
+# Frontend-Assets (falls auf Server gebaut)
+npm install --production
+npm run build
+```
+
+</details>
+
+<details>
+<summary><b>📋 7. Verzeichnisberechtigungen</b></summary>
+
+Sicherstellen, dass folgende Verzeichnisse schreibbar sind:
+
+```bash
+chmod -R 775 storage
+chmod -R 775 bootstrap/cache
+chown -R www-data:www-data storage bootstrap/cache
+```
+
+Oder in Plesk unter "Hosting-Einstellungen" den Benutzer prüfen.
+
+</details>
+
+### **So funktioniert das Routing**
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                        DNS                                       │
+│  thw-trainer.de      →  Server IP                               │
+│  app.thw-trainer.de  →  Server IP                               │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                      Plesk/Apache                                │
+│  Beide Domains zeigen auf: /httpdocs/public/index.php           │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                    Laravel Routing                               │
+│                                                                  │
+│  Request: thw-trainer.de/*                                       │
+│    → routes/landing.php (Light Mode, SEO, Guest-Modus)          │
+│                                                                  │
+│  Request: app.thw-trainer.de/*                                  │
+│    → routes/web.php (Dark Mode, Auth, Dashboard)                │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### **Troubleshooting**
+
+| Problem | Lösung |
+|---------|--------|
+| Session wird nicht geteilt | `SESSION_DOMAIN=.thw-trainer.de` prüfen (mit Punkt!) |
+| 404 auf Subdomain | Document Root muss auf gleiches `/public` zeigen |
+| CSS/JS laden nicht | `APP_URL` in .env prüfen, `npm run build` ausführen |
+| Login leitet falsch weiter | `LANDING_DOMAIN` und `APP_DOMAIN` in .env prüfen |
+| Mixed Content Warnung | SSL für beide Domains aktivieren |
+
+### **Lokale Entwicklung**
+
+In der lokalen Entwicklungsumgebung (`APP_ENV=local`) werden beide Route-Files geladen und sind unter `localhost` erreichbar:
+- Landing-Routes mit `landing.*` Prefix
+- App-Routes ohne Prefix
+- Kein Domain-basiertes Routing nötig
+
 ## 📁 Projektstruktur
 
 <details>

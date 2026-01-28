@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends(isset($isLanding) && $isLanding ? 'layouts.landing' : 'layouts.app')
 @section('title', 'THW Prüfungssimulation anonym - 40 Fragen ohne Anmeldung')
 @section('description', 'THW Prüfungssimulation anonym: Teste dich mit 40 zufälligen Fragen in 30 Minuten ohne Anmeldung. Sofortige Auswertung und Ergebnisanzeige!')
 @section('content')
@@ -56,7 +56,7 @@
     <script>
         let timeLeft = 30 * 60;
         const timerEl = document.getElementById('exam-timer');
-        const formEl = document.querySelector('form[action="{{ route('guest.exam.submit') }}"]');
+        const formEl = document.querySelector('form[action="{{ route('landing.guest.exam.submit') }}"]');
         function updateTimer() {
             const min = Math.floor(timeLeft / 60).toString().padStart(2, '0');
             const sec = (timeLeft % 60).toString().padStart(2, '0');
@@ -76,7 +76,7 @@
     @if(isset($fragen) && $fragen->count())
     <div class="mb-4 flex items-center justify-between">
         <h2 class="text-2xl font-bold">Prüfung: 40 Fragen (Anonym)</h2>
-        <a href="{{ route('guest.practice.menu') }}" class="text-blue-600 hover:text-blue-800 text-sm">← Zurück zum Menü</a>
+        <a href="{{ route('landing.guest.practice.menu') }}" class="text-blue-600 hover:text-blue-800 text-sm">← Zurück zum Menü</a>
     </div>
     
     @if(isset($submitted))
@@ -120,7 +120,7 @@
     
     @endif
     
-    <form method="POST" action="{{ route('guest.exam.submit') }}">
+    <form method="POST" action="{{ route('landing.guest.exam.submit') }}">
             @csrf
             @foreach($fragen as $nr => $frage)
                 <input type="hidden" name="fragen_ids[]" value="{{ $frage->id }}">
@@ -272,17 +272,17 @@
         @if(isset($submitted))
         <!-- Action Buttons -->
         <div class="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
-            <a href="{{ route('guest.exam.index') }}" 
+            <a href="{{ route('landing.guest.exam.index') }}" 
                class="inline-flex items-center justify-center px-6 py-3 font-bold rounded-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
                style="background: linear-gradient(to right, #00337F, #002A66); color: white; box-shadow: 0 4px 15px rgba(0, 51, 127, 0.4), 0 0 20px rgba(0, 51, 127, 0.3), 0 0 40px rgba(0, 51, 127, 0.1);">
                 🎓 Neue Prüfung
             </a>
-            <a href="{{ route('guest.practice.all') }}" 
+            <a href="{{ route('landing.guest.practice.all') }}" 
                class="inline-flex items-center justify-center px-6 py-3 font-bold rounded-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
                style="background: linear-gradient(to right, #facc15, #f59e0b); color: white; box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4), 0 0 20px rgba(251, 191, 36, 0.3), 0 0 40px rgba(251, 191, 36, 0.1);">
                 📚 Weiter üben
             </a>
-            <a href="{{ route('home') }}" 
+            <a href="{{ route('landing.home') }}" 
                class="inline-flex items-center justify-center px-6 py-3 font-bold rounded-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
                style="background: linear-gradient(to right, #4b5563, #374151); color: white; box-shadow: 0 4px 15px rgba(75, 85, 99, 0.4), 0 0 20px rgba(75, 85, 99, 0.3), 0 0 40px rgba(75, 85, 99, 0.1);">
                 🏠 Startseite
@@ -290,7 +290,7 @@
         </div>
         @endif
     @else
-        <div class="text-center text-lg">Keine Fragen gefunden. <a href="{{ route('guest.exam.index') }}" class="text-blue-900 underline">Neue Simulation starten</a></div>
+        <div class="text-center text-lg">Keine Fragen gefunden. <a href="{{ route('landing.guest.exam.index') }}" class="text-blue-900 underline">Neue Simulation starten</a></div>
     @endif
 </div>
 @endsection
