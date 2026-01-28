@@ -69,17 +69,8 @@
                                 <a href="{{ route('gamification.leaderboard') }}" class="dropdown-item-glass">
                                     Leaderboard
                                 </a>
-                                <a href="{{ route('statistics') }}" class="dropdown-item-glass">
-                                    Statistik
-                                </a>
                             </div>
                         </div>
-
-                        <!-- Kontakt -->
-                        <a href="{{ route('contact.index') }}"
-                           class="nav-link-glass {{ request()->routeIs('contact.*') ? 'active' : '' }}">
-                            Kontakt
-                        </a>
 
                         <!-- Ortsverband -->
                         <a href="{{ route('ortsverband.index') }}"
@@ -87,14 +78,6 @@
                             Ortsverband
                         </a>
                     @endauth
-
-                    @guest
-                        <!-- Öffentliche Statistik (für Gäste) -->
-                        <a href="{{ route('statistics') }}"
-                           class="nav-link-glass {{ request()->routeIs('statistics') ? 'active' : '' }}">
-                            Statistik
-                        </a>
-                    @endguest
 
                     @auth
                         @if(Auth::user()->useroll === 'admin')
@@ -356,16 +339,7 @@
                     <a href="{{ route('gamification.leaderboard') }}" class="block px-3 py-2 text-sm text-dark-secondary hover:text-gold hover:bg-glass-white-5 rounded-md transition-colors duration-200">
                         Leaderboard
                     </a>
-                    <a href="{{ route('statistics') }}" class="block px-3 py-2 text-sm text-dark-secondary hover:text-gold hover:bg-glass-white-5 rounded-md transition-colors duration-200">
-                        Statistik
-                    </a>
                 </div>
-
-                <!-- Kontakt -->
-                <a href="{{ route('contact.index') }}"
-                   class="block px-3 py-2 text-base font-medium text-dark-primary hover:text-gold hover:bg-glass-white-5 rounded-md transition-colors duration-200 {{ request()->routeIs('contact.*') ? 'text-gold bg-glass-white-5' : '' }}">
-                    Kontakt & Feedback
-                </a>
 
                 <!-- Ortsverband -->
                 <a href="{{ route('ortsverband.index') }}"
@@ -412,10 +386,6 @@
             @endauth
 
             @guest
-                <a href="{{ route('statistics') }}"
-                   class="block px-3 py-2 text-base font-medium text-dark-primary hover:text-gold hover:bg-glass-white-5 rounded-md transition-colors duration-200 {{ request()->routeIs('statistics') ? 'text-gold bg-glass-white-5' : '' }}">
-                    Statistik
-                </a>
                 <a href="{{ route('login') }}"
                    class="block px-3 py-2 text-base font-medium text-dark-primary hover:text-gold hover:bg-glass-white-5 rounded-md transition-colors duration-200">
                     Anmelden
