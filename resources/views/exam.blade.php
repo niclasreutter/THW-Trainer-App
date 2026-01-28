@@ -4,249 +4,451 @@
 
 @push('styles')
 <style>
-    /* CACHE BUST - EXAM VIEW NO MOBILE FOOTER - 2025-10-21-19:15 */
-    
-    /* Sticky Footer Layout für Exam - NUR DESKTOP */
-    @media (min-width: 641px) {
-        body {
-            display: flex !important;
-            flex-direction: column !important;
-            min-height: 100vh !important;
-        }
-        
-        main {
-            flex: 1 0 auto !important;
-            padding-top: 1rem !important;
-            padding-bottom: 1rem !important;
-        }
-        
-        footer {
-            flex-shrink: 0 !important;
-        }
-    }
-    
+    /* Exam Page - Dark Mode Glassmorphism */
+
     /* Mobile: Footer verstecken */
     @media (max-width: 640px) {
         footer {
             display: none !important;
         }
-        
-        /* Extra Padding für Mobile Browser-UI */
+
         main {
-            padding-bottom: 180px !important; /* Fallback */
-            padding-bottom: calc(120px + env(safe-area-inset-bottom, 60px)) !important;
+            padding-bottom: calc(80px + env(safe-area-inset-bottom, 40px)) !important;
         }
     }
-    
-    /* Exam Container - kompakt ohne unnötige Höhe */
+
+    /* Exam Container */
     #examContainer {
-        margin: 0 auto !important;
-        padding: 0.75rem !important;
-        border-radius: 0 !important;
-        box-shadow: none !important;
-        max-width: 100% !important;
-        width: 100% !important;
-        background: white !important;
+        max-width: 900px;
+        margin: 0 auto;
     }
-    
-    /* Desktop: Container mit Schatten und Rundungen - GLEICHE BREITE WIE PRACTICE */
+
+    /* Question Card */
+    .exam-card {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 20px;
+        padding: 1.5rem;
+    }
+
     @media (min-width: 641px) {
-        #examContainer {
-            margin: 1rem auto !important;
-            padding: 2.5rem !important;
-            border-radius: 16px !important;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.05) !important;
-            max-width: 950px !important;
-            width: 95% !important;
-            transition: all 0.3s ease !important;
+        .exam-card {
+            padding: 2rem;
+            border-radius: 8px 24px 8px 24px;
         }
-        
-        #examContainer:hover {
-            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.15), 0 5px 15px rgba(0, 0, 0, 0.08) !important;
+    }
+
+    /* Timer */
+    .exam-timer {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: linear-gradient(135deg, rgba(251, 191, 36, 0.15), rgba(245, 158, 11, 0.1));
+        border: 1px solid rgba(251, 191, 36, 0.3);
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 1.125rem;
+        color: var(--gold);
+        font-variant-numeric: tabular-nums;
+    }
+
+    .exam-timer.warning {
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(239, 68, 68, 0.1));
+        border-color: rgba(239, 68, 68, 0.4);
+        color: #f87171;
+        animation: timerPulse 1s infinite;
+    }
+
+    @keyframes timerPulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+    }
+
+    /* Answer Option */
+    .exam-answer {
+        display: flex;
+        align-items: flex-start;
+        padding: 1rem 1.25rem;
+        background: rgba(255, 255, 255, 0.02);
+        border: 2px solid rgba(255, 255, 255, 0.08);
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        gap: 0.875rem;
+    }
+
+    .exam-answer:hover {
+        background: rgba(0, 51, 127, 0.1);
+        border-color: rgba(0, 51, 127, 0.4);
+    }
+
+    .exam-answer.selected {
+        background: rgba(0, 51, 127, 0.15);
+        border-color: var(--thw-blue);
+    }
+
+    /* Exam Checkbox */
+    .exam-checkbox {
+        appearance: none;
+        -webkit-appearance: none;
+        width: 24px;
+        height: 24px;
+        min-width: 24px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 6px;
+        background: rgba(255, 255, 255, 0.05);
+        cursor: pointer;
+        transition: all 0.2s ease;
+        position: relative;
+        margin-top: 2px;
+    }
+
+    .exam-checkbox:checked {
+        background: var(--thw-blue);
+        border-color: var(--thw-blue);
+    }
+
+    .exam-checkbox:checked::after {
+        content: '✓';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: white;
+        font-size: 14px;
+        font-weight: bold;
+    }
+
+    /* Question Bubbles Grid */
+    .bubbles-grid {
+        display: grid;
+        grid-template-columns: repeat(8, 1fr);
+        gap: 0.5rem;
+    }
+
+    @media (max-width: 640px) {
+        .bubbles-grid {
+            grid-template-columns: repeat(5, 1fr);
         }
+    }
+
+    .question-bubble {
+        aspect-ratio: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        background: rgba(255, 255, 255, 0.05);
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        color: var(--text-secondary);
+    }
+
+    .question-bubble:hover {
+        transform: scale(1.1);
+        border-color: rgba(251, 191, 36, 0.5);
+    }
+
+    .question-bubble.answered {
+        background: rgba(34, 197, 94, 0.2);
+        border-color: rgba(34, 197, 94, 0.5);
+        color: #4ade80;
+    }
+
+    .question-bubble.marked {
+        background: rgba(251, 191, 36, 0.2);
+        border-color: rgba(251, 191, 36, 0.5);
+        color: var(--gold);
+    }
+
+    .question-bubble.current {
+        border-color: var(--gold);
+        box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.3);
+    }
+
+    /* Mark Button */
+    .mark-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        padding: 0.375rem 0.75rem;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .mark-btn:hover {
+        background: rgba(251, 191, 36, 0.1);
+        border-color: rgba(251, 191, 36, 0.3);
+    }
+
+    .mark-btn.active {
+        background: rgba(251, 191, 36, 0.2);
+        border-color: var(--gold);
+        color: var(--gold);
+    }
+
+    /* Result States */
+    .result-correct {
+        background: rgba(34, 197, 94, 0.15) !important;
+        border-color: rgba(34, 197, 94, 0.5) !important;
+    }
+
+    .result-correct-missed {
+        background: rgba(34, 197, 94, 0.08) !important;
+        border-color: rgba(34, 197, 94, 0.3) !important;
+    }
+
+    .result-wrong {
+        background: rgba(239, 68, 68, 0.15) !important;
+        border-color: rgba(239, 68, 68, 0.5) !important;
+    }
+
+    .result-neutral {
+        background: rgba(255, 255, 255, 0.02) !important;
+        border-color: rgba(255, 255, 255, 0.06) !important;
+        opacity: 0.6;
+    }
+
+    /* Progress Result Bar */
+    .result-bar {
+        position: relative;
+        height: 1.25rem;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        overflow: visible;
+    }
+
+    .result-bar-fill {
+        height: 100%;
+        border-radius: 10px;
+        background: linear-gradient(90deg, var(--gold), var(--gold-dark));
+        transition: width 0.5s ease;
+    }
+
+    .result-bar-marker {
+        position: absolute;
+        top: 0;
+        left: 80%;
+        height: 100%;
+        width: 3px;
+        background: var(--error);
+        border-radius: 2px;
+    }
+
+    .result-bar-label {
+        position: absolute;
+        top: -1.5rem;
+        left: 80%;
+        transform: translateX(-50%);
+        font-size: 0.625rem;
+        font-weight: 700;
+        color: var(--error);
+        background: rgba(239, 68, 68, 0.2);
+        padding: 0.125rem 0.375rem;
+        border-radius: 4px;
     }
 </style>
 @endpush
 
 @section('content')
-<!-- Exam Container - wie Practice -->
-<div class="max-w-xl mx-auto mt-0 sm:mt-4 p-3 sm:p-4 bg-white sm:rounded-lg sm:shadow-lg sm:hover:shadow-xl sm:transition-shadow sm:duration-300" 
-     id="examContainer">
+<div class="p-4 sm:p-6 sm:py-8" id="examContainer">
     @if(!isset($submitted))
-        <!-- Header mit Titel und Timer -->
-        <div class="mb-3">
-            <div class="flex justify-between items-center mb-2">
-                <h2 class="text-lg font-bold text-blue-900">🎓 THW Prüfung</h2>
-                <div id="exam-timer" class="text-lg font-bold text-blue-900 bg-gradient-to-r from-yellow-200 to-yellow-300 px-3 py-1 rounded-lg shadow-md" 
-                     style="box-shadow: 0 0 10px rgba(251, 191, 36, 0.4);">
-                    30:00
+        <div class="exam-card">
+            <!-- Header -->
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h1 class="text-xl font-bold text-dark-primary">THW Prüfung</h1>
+                    <p class="text-dark-muted text-sm">40 Fragen in 30 Minuten</p>
+                </div>
+                <div class="exam-timer" id="exam-timer">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <span id="timer-display">30:00</span>
                 </div>
             </div>
-            
-            <!-- Fortschrittsbalken -->
-            <div class="text-xs text-gray-600">
-                <div class="flex justify-between mb-1">
-                    <span>Fortschritt</span>
-                    <span id="progress-text">0/40 beantwortet</span>
+
+            <!-- Progress Bar -->
+            <div class="mb-6">
+                <div class="flex items-center justify-between mb-2 text-sm">
+                    <span class="text-dark-secondary">Fortschritt</span>
+                    <span class="text-dark-muted" id="progress-text">0/40 beantwortet</span>
                 </div>
-                <div class="w-full bg-gray-200 rounded-full h-2">
-                    <div id="progress-bar" class="h-2 rounded-full transition-all duration-300 bg-yellow-400" 
-                         style="width: 0%; box-shadow: 0 0 10px rgba(251, 191, 36, 0.6), 0 0 20px rgba(251, 191, 36, 0.4);"></div>
+                <div class="progress-glass h-2">
+                    <div class="progress-fill-gold" id="progress-bar" style="width: 0%;"></div>
                 </div>
             </div>
-        </div>
-        
-        <!-- Fragenbereich -->
-        <form id="exam-form" method="POST" action="{{ route('exam.submit') }}">
-            @csrf
-            
-            @foreach($fragen as $index => $frage)
-                <input type="hidden" name="fragen_ids[]" value="{{ $frage->id }}">
 
-                @php
-                    // Shuffle answers like in practice mode
-                    $answersOriginal = [
-                        ['letter' => 'A', 'text' => $frage->antwort_a],
-                        ['letter' => 'B', 'text' => $frage->antwort_b],
-                        ['letter' => 'C', 'text' => $frage->antwort_c],
-                    ];
+            <!-- Question Form -->
+            <form id="exam-form" method="POST" action="{{ route('exam.submit') }}">
+                @csrf
 
-                    $answers = $answersOriginal;
-                    shuffle($answers);
+                @foreach($fragen as $index => $frage)
+                    <input type="hidden" name="fragen_ids[]" value="{{ $frage->id }}">
 
-                    // Create mapping: Position -> Letter
-                    $mappingArray = [];
-                    foreach ($answers as $ansIndex => $answer) {
-                        $mappingArray[$ansIndex] = $answer['letter'];
-                    }
+                    @php
+                        $answersOriginal = [
+                            ['letter' => 'A', 'text' => $frage->antwort_a],
+                            ['letter' => 'B', 'text' => $frage->antwort_b],
+                            ['letter' => 'C', 'text' => $frage->antwort_c],
+                        ];
 
-                    $mappingJson = json_encode($mappingArray);
-                @endphp
+                        $answers = $answersOriginal;
+                        shuffle($answers);
 
-                <input type="hidden" name="answer_mappings[{{ $index }}]" value="{{ $mappingJson }}">
+                        $mappingArray = [];
+                        foreach ($answers as $ansIndex => $answer) {
+                            $mappingArray[$ansIndex] = $answer['letter'];
+                        }
 
-                <div class="question-slide" data-question="{{ $index }}" style="display: {{ $index === 0 ? 'block' : 'none' }};">
-                    <!-- Fragen-Info -->
-                    <div class="mb-3">
-                        <div class="text-xs text-gray-500 mb-2">
-                            Frage {{ $index + 1 }} von 40
-                            <span class="mx-1">•</span>
-                            LA {{ $frage->lernabschnitt ?? '-' }}.{{ $frage->nummer ?? '-' }}
+                        $mappingJson = json_encode($mappingArray);
+                    @endphp
+
+                    <input type="hidden" name="answer_mappings[{{ $index }}]" value="{{ $mappingJson }}">
+
+                    <div class="question-slide" data-question="{{ $index }}" style="display: {{ $index === 0 ? 'block' : 'none' }};">
+                        <!-- Question Header -->
+                        <div class="flex items-start justify-between mb-4">
+                            <div>
+                                <div class="text-xs text-dark-muted mb-2">
+                                    Frage {{ $index + 1 }} von 40
+                                    <span class="mx-1 opacity-50">|</span>
+                                    LA {{ $frage->lernabschnitt ?? '-' }}.{{ $frage->nummer ?? '-' }}
+                                </div>
+                                <p class="text-dark-primary text-base sm:text-lg leading-relaxed">
+                                    {{ $frage->frage }}
+                                </p>
+                            </div>
                         </div>
-                        <h3 class="text-base font-bold text-gray-900 mb-3">{{ $frage->frage }}</h3>
 
-                        <!-- Markieren Button -->
+                        <!-- Mark Button -->
                         <button type="button"
                                 onclick="toggleMark({{ $index }})"
                                 id="mark-btn-{{ $index }}"
-                                class="text-xs px-3 py-1 rounded-lg border-2 transition-all duration-200 hover:scale-105"
-                                style="border-color: #d1d5db; background-color: white; color: #6b7280;">
-                            🔖 Markieren
+                                class="mark-btn mb-4">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
+                            </svg>
+                            <span id="mark-text-{{ $index }}">Markieren</span>
                         </button>
-                    </div>
 
-                    <!-- Antwortoptionen (shuffled) -->
-                    <div class="space-y-2 mb-4">
-                        @foreach($answers as $ansIndex => $answer)
-                            <label class="flex items-start p-3 rounded-lg border-2 border-gray-200 hover:border-blue-300 hover:bg-blue-50 cursor-pointer transition-all duration-200">
-                                <input type="checkbox"
-                                       name="answer[{{ $index }}][]"
-                                       value="{{ $ansIndex }}"
-                                       onchange="updateAnswerStatus({{ $index }})"
-                                       class="mt-1 w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2">
-                                <span class="ml-3 text-sm text-gray-900">
-                                    {{ $answer['text'] }}
-                                </span>
-                            </label>
-                        @endforeach
+                        <!-- Answer Options -->
+                        <div class="flex flex-col gap-3 mb-6">
+                            @foreach($answers as $ansIndex => $answer)
+                                <label class="exam-answer" onclick="updateAnswerStyle(this, {{ $index }})">
+                                    <input type="checkbox"
+                                           name="answer[{{ $index }}][]"
+                                           value="{{ $ansIndex }}"
+                                           onchange="updateAnswerStatus({{ $index }})"
+                                           class="exam-checkbox">
+                                    <span class="text-dark-primary text-sm sm:text-base flex-1">
+                                        {{ $answer['text'] }}
+                                    </span>
+                                </label>
+                            @endforeach
+                        </div>
+                    </div>
+                @endforeach
+
+                <!-- Navigation -->
+                <div class="flex items-center justify-between gap-3 pt-4 border-t border-glass-subtle">
+                    <button type="button"
+                            onclick="previousQuestion()"
+                            id="prev-btn"
+                            class="btn-ghost px-4 py-2"
+                            disabled>
+                        Zurück
+                    </button>
+
+                    <span class="text-dark-muted text-sm font-medium" id="current-question">1/40</span>
+
+                    <button type="button"
+                            onclick="nextQuestion()"
+                            id="next-btn"
+                            class="btn-secondary px-4 py-2">
+                        Weiter
+                    </button>
+                </div>
+
+                <!-- Question Overview Toggle -->
+                <div class="mt-6 pt-4 border-t border-glass-subtle">
+                    <button type="button"
+                            onclick="toggleOverview()"
+                            class="w-full flex items-center justify-between text-sm text-dark-secondary hover:text-gold transition-colors p-2 rounded-lg hover:bg-white/5">
+                        <span>Fragenübersicht</span>
+                        <svg id="overview-icon" class="w-4 h-4 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </button>
+
+                    <div id="overview-container" class="hidden mt-4">
+                        <!-- Legend -->
+                        <div class="flex flex-wrap gap-4 text-xs mb-4">
+                            <div class="flex items-center gap-1.5">
+                                <div class="w-3 h-3 rounded bg-success/30 border border-success/50"></div>
+                                <span class="text-dark-muted">Beantwortet</span>
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <div class="w-3 h-3 rounded bg-white/5 border border-white/10"></div>
+                                <span class="text-dark-muted">Offen</span>
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <div class="w-3 h-3 rounded bg-gold/30 border border-gold/50"></div>
+                                <span class="text-dark-muted">Markiert</span>
+                            </div>
+                        </div>
+
+                        <!-- Bubbles Grid -->
+                        <div class="bubbles-grid">
+                            @for($i = 0; $i < 40; $i++)
+                                <button type="button"
+                                        onclick="goToQuestion({{ $i }})"
+                                        id="bubble-{{ $i }}"
+                                        class="question-bubble {{ $i === 0 ? 'current' : '' }}">
+                                    {{ $i + 1 }}
+                                </button>
+                            @endfor
+                        </div>
                     </div>
                 </div>
-            @endforeach
-            
-            <!-- Navigation Buttons -->
-            <div class="flex justify-between items-center gap-3 mb-3 pt-3 border-t">
-                <button type="button" 
-                        onclick="previousQuestion()" 
-                        id="prev-btn"
-                        class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
-                    ⬅️ Zurück
-                </button>
-                
-                <span class="text-xs font-medium text-gray-600" id="current-question">1/40</span>
-                
-                <button type="button" 
-                        onclick="nextQuestion()" 
-                        id="next-btn"
-                        class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors duration-200">
-                    Weiter ➡️
-                </button>
-            </div>
-            
-            <!-- Fragenübersicht Toggle -->
-            <div class="border-t pt-3">
-                <button type="button" 
-                        onclick="toggleOverview()" 
-                        class="w-full flex justify-between items-center text-left text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors duration-200 p-2 hover:bg-gray-50 rounded">
-                    <span>📊 Fragenübersicht</span>
-                    <svg id="overview-icon" class="w-4 h-4 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                    </svg>
-                </button>
-                
-                <div id="overview-container" class="mt-3 hidden">
-                    <div class="flex gap-3 text-xs mb-3">
-                        <div class="flex items-center">
-                            <div class="w-3 h-3 rounded-full bg-green-500 mr-1"></div>
-                            <span>Beantwortet</span>
-                        </div>
-                        <div class="flex items-center">
-                            <div class="w-3 h-3 rounded-full bg-gray-300 mr-1"></div>
-                            <span>Offen</span>
-                        </div>
-                        <div class="flex items-center">
-                            <div class="w-3 h-3 rounded-full bg-yellow-400 mr-1"></div>
-                            <span>Markiert</span>
-                        </div>
-                    </div>
-                    
-                    <div class="grid grid-cols-4 gap-2" style="display: grid !important; grid-template-columns: repeat(4, 1fr) !important;">
-                        @for($i = 0; $i < 40; $i++)
-                            <button type="button" 
-                                    onclick="goToQuestion({{ $i }})"
-                                    id="bubble-{{ $i }}"
-                                    class="h-10 flex items-center justify-center rounded-lg text-sm font-semibold cursor-pointer transition-all duration-200 hover:scale-105"
-                                    style="background-color: #e5e7eb; color: #374151; border: 2px solid #d1d5db;">
-                                {{ $i + 1 }}
-                            </button>
-                        @endfor
-                    </div>
-                </div>
-            </div>
-        </form>
-        
+            </form>
+        </div>
+
         <script>
             // State Management
             let currentQuestion = 0;
             const totalQuestions = {{ count($fragen) }};
-            let answers = new Array(totalQuestions).fill(false); // Ob Frage beantwortet
-            let marked = new Array(totalQuestions).fill(false); // Ob Frage markiert
+            let answers = new Array(totalQuestions).fill(false);
+            let marked = new Array(totalQuestions).fill(false);
             let timeLeft = 30 * 60;
-            
+
             // Timer
             const timerEl = document.getElementById('exam-timer');
+            const timerDisplay = document.getElementById('timer-display');
+
             function updateTimer() {
                 const min = Math.floor(timeLeft / 60).toString().padStart(2, '0');
                 const sec = (timeLeft % 60).toString().padStart(2, '0');
-                timerEl.textContent = `${min}:${sec}`;
-                
-                // Warnung bei 5 Minuten
+                timerDisplay.textContent = `${min}:${sec}`;
+
+                // Warning at 5 minutes
                 if (timeLeft <= 300) {
-                    timerEl.style.background = 'linear-gradient(to right, #fee2e2, #fecaca)';
-                    timerEl.style.animation = 'pulse 1s infinite';
+                    timerEl.classList.add('warning');
                 }
-                
+
                 if (timeLeft <= 0) {
-                    timerEl.textContent = '00:00';
+                    timerDisplay.textContent = '00:00';
                     submitExam();
                 } else {
                     timeLeft--;
@@ -254,7 +456,7 @@
                 }
             }
             updateTimer();
-            
+
             // Navigation
             function showQuestion(index) {
                 document.querySelectorAll('.question-slide').forEach(slide => {
@@ -262,143 +464,122 @@
                 });
                 document.querySelector(`[data-question="${index}"]`).style.display = 'block';
                 currentQuestion = index;
-                
+
                 // Update UI
                 document.getElementById('current-question').textContent = `${index + 1}/40`;
                 document.getElementById('prev-btn').disabled = index === 0;
-                
-                // Update Bubbles
-                document.querySelectorAll('.question-bubble').forEach(bubble => {
-                    const bubbleIndex = parseInt(bubble.textContent.trim()) - 1;
-                    if (bubbleIndex === index) {
-                        bubble.style.borderColor = '#3b82f6';
-                        bubble.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.3)';
-                    } else {
-                        bubble.style.borderColor = marked[bubbleIndex] ? '#f59e0b' : (answers[bubbleIndex] ? '#059669' : '#d1d5db');
-                        bubble.style.boxShadow = 'none';
+
+                // Update next button text
+                const nextBtn = document.getElementById('next-btn');
+                if (index === totalQuestions - 1) {
+                    nextBtn.textContent = 'Abschließen';
+                } else {
+                    nextBtn.textContent = 'Weiter';
+                }
+
+                // Update bubbles
+                document.querySelectorAll('.question-bubble').forEach((bubble, i) => {
+                    bubble.classList.remove('current');
+                    if (i === index) {
+                        bubble.classList.add('current');
                     }
                 });
-                
-                // Scroll to top
+
                 window.scrollTo(0, 0);
             }
-            
+
             function nextQuestion() {
                 if (currentQuestion < totalQuestions - 1) {
                     showQuestion(currentQuestion + 1);
                 } else {
-                    // Letzte Frage -> Zur Übersichtsseite
                     showSubmitOverview();
                 }
             }
-            
+
             function previousQuestion() {
                 if (currentQuestion > 0) {
                     showQuestion(currentQuestion - 1);
                 }
             }
-            
+
             function goToQuestion(index) {
                 showQuestion(index);
-                // Scroll zurück nach oben
-                window.scrollTo({ top: 0, behavior: 'smooth' });
             }
-            
-            // Antwort-Status aktualisieren
+
+            // Answer handling
+            function updateAnswerStyle(label, questionIndex) {
+                const checkbox = label.querySelector('input[type="checkbox"]');
+                setTimeout(() => {
+                    if (checkbox.checked) {
+                        label.classList.add('selected');
+                    } else {
+                        label.classList.remove('selected');
+                    }
+                }, 0);
+            }
+
             function updateAnswerStatus(index) {
                 const checkboxes = document.querySelectorAll(`input[name="answer[${index}][]"]`);
                 const isAnswered = Array.from(checkboxes).some(cb => cb.checked);
                 answers[index] = isAnswered;
-                
+
                 const bubble = document.getElementById(`bubble-${index}`);
-                if (isAnswered) {
-                    bubble.style.backgroundColor = '#10b981';
-                    bubble.style.color = 'white';
-                    bubble.style.borderColor = '#059669';
-                } else if (!marked[index]) {
-                    bubble.style.backgroundColor = '#e5e7eb';
-                    bubble.style.color = '#374151';
-                    bubble.style.borderColor = '#d1d5db';
+                if (isAnswered && !marked[index]) {
+                    bubble.classList.add('answered');
+                    bubble.classList.remove('marked');
+                } else if (!isAnswered && !marked[index]) {
+                    bubble.classList.remove('answered');
                 }
-                
+
+                // Update label styles
+                checkboxes.forEach(cb => {
+                    const label = cb.closest('.exam-answer');
+                    if (cb.checked) {
+                        label.classList.add('selected');
+                    } else {
+                        label.classList.remove('selected');
+                    }
+                });
+
                 updateProgress();
             }
-            
-            // Frage markieren
+
+            // Marking
             function toggleMark(index) {
                 marked[index] = !marked[index];
                 const bubble = document.getElementById(`bubble-${index}`);
                 const btn = document.getElementById(`mark-btn-${index}`);
-                
+                const text = document.getElementById(`mark-text-${index}`);
+
                 if (marked[index]) {
-                    bubble.style.backgroundColor = '#fbbf24';
-                    bubble.style.color = 'white';
-                    bubble.style.borderColor = '#f59e0b';
-                    btn.style.backgroundColor = '#fbbf24';
-                    btn.style.color = 'white';
-                    btn.style.borderColor = '#f59e0b';
-                    btn.textContent = '🔖 Markiert';
+                    bubble.classList.add('marked');
+                    bubble.classList.remove('answered');
+                    btn.classList.add('active');
+                    text.textContent = 'Markiert';
                 } else {
+                    bubble.classList.remove('marked');
+                    btn.classList.remove('active');
+                    text.textContent = 'Markieren';
                     if (answers[index]) {
-                        bubble.style.backgroundColor = '#10b981';
-                        bubble.style.color = 'white';
-                        bubble.style.borderColor = '#059669';
-                    } else {
-                        bubble.style.backgroundColor = '#e5e7eb';
-                        bubble.style.color = '#374151';
-                        bubble.style.borderColor = '#d1d5db';
+                        bubble.classList.add('answered');
                     }
-                    btn.style.backgroundColor = 'white';
-                    btn.style.color = '#6b7280';
-                    btn.style.borderColor = '#d1d5db';
-                    btn.textContent = '🔖 Markieren';
                 }
             }
-            
-            // Fortschritt aktualisieren mit Meilenstein-Erkennung
+
+            // Progress
             function updateProgress() {
                 const answeredCount = answers.filter(a => a).length;
                 const percent = (answeredCount / totalQuestions) * 100;
 
-                // Vorherigen Fortschritt abrufen
-                const previousPercent = parseFloat(sessionStorage.getItem('examProgressPercent') || '0');
-
-                // Meilensteine: 25%, 50%, 75%, 100%
-                const milestones = [25, 50, 75, 100];
-                let triggeredMilestone = null;
-
-                // Prüfen ob ein Meilenstein überschritten wurde
-                for (const milestone of milestones) {
-                    if (previousPercent < milestone && percent >= milestone) {
-                        triggeredMilestone = milestone;
-                        break;
-                    }
-                }
-
-                // Glow-Burst Effekt triggern
-                if (triggeredMilestone !== null) {
-                    const progressBar = document.getElementById('progress-bar');
-                    if (progressBar) {
-                        progressBar.classList.add('progress-milestone');
-                        setTimeout(() => {
-                            progressBar.classList.remove('progress-milestone');
-                        }, 800);
-                    }
-                    console.log(`🎉 Prüfungs-Meilenstein erreicht: ${triggeredMilestone}%`);
-                }
-
-                // Aktuellen Fortschritt speichern
-                sessionStorage.setItem('examProgressPercent', percent.toString());
-
                 document.getElementById('progress-text').textContent = `${answeredCount}/40 beantwortet`;
                 document.getElementById('progress-bar').style.width = `${percent}%`;
             }
-            
-            // Übersicht Toggle
+
+            // Overview toggle
             function toggleOverview() {
                 const container = document.getElementById('overview-container');
                 const icon = document.getElementById('overview-icon');
-                
+
                 if (container.classList.contains('hidden')) {
                     container.classList.remove('hidden');
                     icon.style.transform = 'rotate(180deg)';
@@ -407,259 +588,235 @@
                     icon.style.transform = 'rotate(0deg)';
                 }
             }
-            
-            // Übersichtsseite vor dem Absenden
+
+            // Submit overview
             function showSubmitOverview() {
                 const unanswered = answers.reduce((acc, answered, index) => {
                     if (!answered) acc.push(index + 1);
                     return acc;
                 }, []);
-                
+
                 const markedCount = marked.filter(m => m).length;
                 const answeredCount = answers.filter(a => a).length;
-                
-                // Verstecke alle Fragen
+
+                // Hide all questions
                 document.querySelectorAll('.question-slide').forEach(slide => {
                     slide.style.display = 'none';
                 });
-                
-                // Erstelle Übersicht in einem neuen Slide
+
+                // Create overview
                 let message = `<div class="question-slide" id="submit-overview" style="display: block;">`;
-                message += `<div class="text-center p-6">`;
-                message += `<h2 class="text-xl font-bold mb-4">Prüfung abschließen?</h2>`;
-                message += `<div class="mb-6">`;
-                message += `<p class="text-base mb-2"><strong>${answeredCount} von 40</strong> Fragen beantwortet</p>`;
-                
+                message += `<div class="text-center py-8">`;
+                message += `<h2 class="text-2xl font-bold text-dark-primary mb-4">Prüfung abschließen?</h2>`;
+                message += `<div class="glass-subtle p-6 rounded-xl mb-6 text-left max-w-md mx-auto">`;
+                message += `<p class="text-dark-primary text-lg mb-2"><span class="text-gold font-bold">${answeredCount}</span> von 40 Fragen beantwortet</p>`;
+
                 if (unanswered.length > 0) {
-                    message += `<p class="text-red-600 font-medium mb-2 text-sm">⚠️ ${unanswered.length} Fragen noch offen</p>`;
-                    message += `<p class="text-xs text-gray-600">Fragen: ${unanswered.join(', ')}</p>`;
+                    message += `<p class="text-error font-medium mb-2">${unanswered.length} Fragen noch offen</p>`;
+                    message += `<p class="text-dark-muted text-xs">Fragen: ${unanswered.join(', ')}</p>`;
                 }
-                
+
                 if (markedCount > 0) {
-                    message += `<p class="text-yellow-600 font-medium mt-3 text-sm">🔖 ${markedCount} Fragen markiert</p>`;
+                    message += `<p class="text-gold font-medium mt-3">${markedCount} Fragen markiert</p>`;
                 }
-                
+
                 message += `</div>`;
-                message += `<div class="flex flex-col gap-3">`;
-                message += `<button type="button" onclick="backToPrüfung()" class="w-full px-4 py-3 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300">⬅️ Zurück zur Prüfung</button>`;
-                message += `<button type="button" onclick="confirmSubmit()" class="w-full px-4 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700">✓ Prüfung abgeben</button>`;
+                message += `<div class="flex flex-col gap-3 max-w-sm mx-auto">`;
+                message += `<button type="button" onclick="backToPrüfung()" class="btn-ghost py-3">Zurück zur Prüfung</button>`;
+                message += `<button type="button" onclick="confirmSubmit()" class="btn-primary py-3">Prüfung abgeben</button>`;
                 message += `</div>`;
                 message += `</div>`;
                 message += `</div>`;
-                
-                // Füge Übersicht zum Form hinzu (nicht ersetzen!)
+
+                // Add to form
                 const form = document.getElementById('exam-form');
                 const existingOverview = document.getElementById('submit-overview');
                 if (existingOverview) {
                     existingOverview.remove();
                 }
                 form.insertAdjacentHTML('beforeend', message);
-                
-                // Verstecke Navigation
-                document.querySelector('.border-t.pt-3').style.display = 'none';
+
+                // Hide navigation
+                document.querySelector('.border-t.border-glass-subtle').style.display = 'none';
             }
-            
-            // Zurück zur Prüfung
+
             function backToPrüfung() {
                 const overview = document.getElementById('submit-overview');
                 if (overview) {
                     overview.remove();
                 }
-                // Zeige Navigation wieder
-                document.querySelector('.border-t.pt-3').style.display = 'block';
-                // Zeige letzte Frage
+                document.querySelector('.border-t.border-glass-subtle').style.display = 'flex';
                 showQuestion(currentQuestion);
             }
-            
-            // Prüfung bestätigen und abgeben
+
             function confirmSubmit() {
                 document.getElementById('exam-form').submit();
             }
-            
+
             // Initial state
             updateProgress();
         </script>
-        
+
     @else
-        <!-- Ergebnis-Ansicht -->
-        <div class="p-4">
-            @if(isset($gamification_result) && $gamification_result)
-                <div class="mb-4 p-3 bg-green-100 border border-green-300 rounded-lg shadow-md animate-pulse">
-                    <div class="flex items-center">
-                        <div class="text-2xl mr-3">🎉</div>
-                        <div>
-                            <div class="text-sm font-medium text-green-800">
-                                Prüfung bestanden! +{{ $gamification_result['points_awarded'] }} Punkte!
-                                @if($gamification_result['level_up'])
-                                    🎊 Level UP! Neues Level: {{ $gamification_result['new_level'] }}
-                                @endif
+        <!-- Results View -->
+        <div class="exam-card">
+            <!-- Result Header -->
+            <div class="text-center mb-8">
+                @if(isset($gamification_result) && $gamification_result)
+                    <div class="glass-success p-4 rounded-xl mb-6 inline-block">
+                        <div class="flex items-center gap-3">
+                            <span class="text-3xl">🎉</span>
+                            <div class="text-left">
+                                <div class="text-lg font-bold text-dark-primary">
+                                    +{{ $gamification_result['points_awarded'] }} Punkte!
+                                    @if($gamification_result['level_up'])
+                                        Level UP!
+                                    @endif
+                                </div>
+                                <div class="text-sm text-dark-secondary">{{ $gamification_result['reason'] }}</div>
                             </div>
-                            <div class="text-xs text-green-600">{{ $gamification_result['reason'] }}</div>
                         </div>
                     </div>
+                @endif
+
+                <div class="text-6xl mb-4">{{ $passed ? '🎉' : '😔' }}</div>
+
+                <div class="inline-block px-6 py-3 rounded-xl mb-4 {{ $passed ? 'glass-success' : 'glass-error' }}">
+                    <span class="text-3xl font-bold text-dark-primary">
+                        {{ round(($correctCount/$total)*100) }}%
+                    </span>
+                    <span class="text-lg font-medium text-dark-secondary ml-2">
+                        {{ $passed ? 'Bestanden' : 'Nicht Bestanden' }}
+                    </span>
                 </div>
-            @endif
-            
-            <div class="mb-4 p-4 text-center rounded-lg shadow-md {{ $passed ? 'text-green-800' : 'text-red-800' }}" 
-                 style="{{ $passed ? 'background-color: rgba(34, 197, 94, 0.1); border: 2px solid rgba(34, 197, 94, 0.3);' : 'background-color: rgba(239, 68, 68, 0.1); border: 2px solid rgba(239, 68, 68, 0.3);' }}">
-                <div class="text-3xl mb-2">{{ $passed ? '🎉' : '😔' }}</div>
-                <div class="text-lg font-bold">
-                    {{ round(($correctCount/$total)*100) }}% {{ $passed ? 'Bestanden' : 'Nicht Bestanden' }}
+
+                @php
+                    $percent = $total > 0 ? round($correctCount / $total * 100) : 0;
+                @endphp
+
+                <!-- Result Progress Bar -->
+                <div class="max-w-md mx-auto mb-4">
+                    <div class="result-bar">
+                        <div class="result-bar-fill" style="width: {{ $percent }}%;"></div>
+                        <div class="result-bar-marker"></div>
+                        <div class="result-bar-label">80%</div>
+                    </div>
                 </div>
+
+                <p class="text-dark-secondary">
+                    {{ $correctCount }} von {{ $total }} richtig
+                </p>
             </div>
-            
-            @php
-                $percent = $total > 0 ? round($correctCount / $total * 100) : 0;
-            @endphp
-            
-            <div class="w-full bg-gray-200 rounded-full h-4 mb-2 relative">
-                <div class="bg-yellow-400 h-4 rounded-full shadow-lg" style="width: {{ $percent }}%;"></div>
-                <div class="absolute flex items-center" style="left: 80%; top: 0; height: 100%;">
-                    <div class="w-1 h-4 bg-red-500 rounded-full"></div>
-                    <div class="ml-1 text-xs font-bold text-red-600 bg-white px-1 rounded">80%</div>
-                </div>
-            </div>
-            
-            <div class="text-center mb-4 text-sm text-gray-600">
-                {{ $correctCount }} von {{ $total }} richtig
-                <span class="ml-2 text-xs font-bold">{{ $percent }}% erreicht</span>
-            </div>
-            
-            <!-- Action Buttons -->
-            <div class="mb-6 flex flex-col gap-3">
-                <a href="{{ route('dashboard') }}" 
-                   class="inline-flex items-center justify-center px-6 py-3 font-bold rounded-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
-                   style="background: linear-gradient(to right, #4b5563, #374151); color: white;">
-                    🏠 Dashboard
+
+            <!-- Action Button -->
+            <div class="flex justify-center mb-8">
+                <a href="{{ route('dashboard') }}" class="btn-secondary px-8 py-3">
+                    Zum Dashboard
                 </a>
             </div>
-            
-            <!-- Fragenübersicht mit Auswertung -->
-            <div class="space-y-4">
-                <h3 class="text-lg font-bold text-gray-900 mb-4">📋 Detaillierte Auswertung</h3>
-                
-                @foreach($results as $index => $result)
-                    @php
-                        $frage = $result['frage'];
-                        $userAnswer = $result['userAnswer'];
-                        $solution = $result['solution'];
-                        $isCorrect = $result['isCorrect'];
-                        $mappingArray = $result['mapping'] ?? [];
 
-                        // Prepare answers in shuffled order (based on mapping)
-                        $answersOriginal = [
-                            ['letter' => 'A', 'text' => $frage->antwort_a],
-                            ['letter' => 'B', 'text' => $frage->antwort_b],
-                            ['letter' => 'C', 'text' => $frage->antwort_c],
-                        ];
+            <!-- Detailed Results -->
+            <div class="border-t border-glass-subtle pt-6">
+                <h3 class="text-lg font-bold text-dark-primary mb-4">Detaillierte Auswertung</h3>
 
-                        // Sort according to mapping
-                        if ($mappingArray) {
-                            $displayAnswers = [];
-                            foreach ($mappingArray as $position => $letter) {
-                                foreach ($answersOriginal as $ans) {
-                                    if ($ans['letter'] === $letter) {
-                                        $displayAnswers[$position] = $ans;
-                                        break;
+                <div class="flex flex-col gap-4">
+                    @foreach($results as $index => $result)
+                        @php
+                            $frage = $result['frage'];
+                            $userAnswer = $result['userAnswer'];
+                            $solution = $result['solution'];
+                            $isCorrect = $result['isCorrect'];
+                            $mappingArray = $result['mapping'] ?? [];
+
+                            $answersOriginal = [
+                                ['letter' => 'A', 'text' => $frage->antwort_a],
+                                ['letter' => 'B', 'text' => $frage->antwort_b],
+                                ['letter' => 'C', 'text' => $frage->antwort_c],
+                            ];
+
+                            if ($mappingArray) {
+                                $displayAnswers = [];
+                                foreach ($mappingArray as $position => $letter) {
+                                    foreach ($answersOriginal as $ans) {
+                                        if ($ans['letter'] === $letter) {
+                                            $displayAnswers[$position] = $ans;
+                                            break;
+                                        }
                                     }
                                 }
+                                ksort($displayAnswers);
+                            } else {
+                                $displayAnswers = $answersOriginal;
                             }
-                            ksort($displayAnswers);
-                        } else {
-                            $displayAnswers = $answersOriginal;
-                        }
-                    @endphp
+                        @endphp
 
-                    <div class="border-2 rounded-lg p-4 {{ $isCorrect ? 'border-green-300 bg-green-50' : 'border-red-300 bg-red-50' }}">
-                        <!-- Fragen-Header -->
-                        <div class="flex items-start justify-between mb-3">
-                            <div class="flex-1">
-                                <div class="flex items-center gap-2 mb-2">
-                                    <span class="text-2xl">{{ $isCorrect ? '✅' : '❌' }}</span>
-                                    <span class="text-xs font-semibold {{ $isCorrect ? 'text-green-700' : 'text-red-700' }}">
-                                        Frage {{ $index + 1 }} von 40
-                                    </span>
-                                    <span class="text-xs text-gray-500">
-                                        • LA {{ $frage->lernabschnitt ?? '-' }}.{{ $frage->nummer ?? '-' }}
-                                    </span>
+                        <div class="glass-subtle p-4 rounded-xl {{ $isCorrect ? 'border-l-4 border-l-success' : 'border-l-4 border-l-error' }}">
+                            <!-- Question Header -->
+                            <div class="flex items-start gap-3 mb-3">
+                                <span class="text-2xl">{{ $isCorrect ? '✅' : '❌' }}</span>
+                                <div class="flex-1">
+                                    <div class="flex items-center gap-2 text-xs text-dark-muted mb-1">
+                                        <span>Frage {{ $index + 1 }}</span>
+                                        <span class="opacity-50">|</span>
+                                        <span>LA {{ $frage->lernabschnitt ?? '-' }}.{{ $frage->nummer ?? '-' }}</span>
+                                    </div>
+                                    <p class="text-dark-primary text-sm font-medium">{{ $frage->frage }}</p>
                                 </div>
-                                <h4 class="text-sm font-bold text-gray-900">{{ $frage->frage }}</h4>
                             </div>
-                        </div>
 
-                        <!-- Antwortoptionen (in shuffled order) -->
-                        <div class="space-y-2">
-                            @foreach($displayAnswers as $answerIndex => $answer)
-                                @php
-                                    $originalLetter = $answer['letter'];
-                                    $isUserAnswer = $userAnswer->contains($originalLetter);
-                                    $isSolution = $solution->contains($originalLetter);
+                            <!-- Answers -->
+                            <div class="flex flex-col gap-2 ml-9">
+                                @foreach($displayAnswers as $answerIndex => $answer)
+                                    @php
+                                        $originalLetter = $answer['letter'];
+                                        $isUserAnswer = $userAnswer->contains($originalLetter);
+                                        $isSolution = $solution->contains($originalLetter);
 
-                                    // Farbe bestimmen
-                                    if ($isSolution && $isUserAnswer) {
-                                        // Richtig ausgewählt
-                                        $bgColor = 'bg-green-100';
-                                        $borderColor = 'border-green-400';
-                                        $textColor = 'text-green-900';
-                                        $icon = '✓';
-                                    } elseif ($isSolution && !$isUserAnswer) {
-                                        // Nicht ausgewählt aber richtig
-                                        $bgColor = 'bg-green-50';
-                                        $borderColor = 'border-green-300';
-                                        $textColor = 'text-green-800';
-                                        $icon = '✓';
-                                    } elseif (!$isSolution && $isUserAnswer) {
-                                        // Falsch ausgewählt
-                                        $bgColor = 'bg-red-100';
-                                        $borderColor = 'border-red-400';
-                                        $textColor = 'text-red-900';
-                                        $icon = '✗';
-                                    } else {
-                                        // Nicht relevant
-                                        $bgColor = 'bg-gray-50';
-                                        $borderColor = 'border-gray-200';
-                                        $textColor = 'text-gray-700';
+                                        $stateClass = '';
                                         $icon = '';
-                                    }
-                                @endphp
 
-                                <div class="flex items-start p-3 rounded-lg border-2 {{ $bgColor }} {{ $borderColor }}">
-                                    <div class="flex items-center min-w-0 flex-1">
-                                        @if($isUserAnswer)
-                                            <span class="w-5 h-5 mr-3 flex-shrink-0 text-lg">{{ $icon }}</span>
-                                        @else
-                                            <span class="w-5 h-5 mr-3 flex-shrink-0"></span>
-                                        @endif
-                                        <span class="text-sm {{ $textColor }}">
+                                        if ($isSolution && $isUserAnswer) {
+                                            $stateClass = 'result-correct';
+                                            $icon = '✓';
+                                        } elseif ($isSolution && !$isUserAnswer) {
+                                            $stateClass = 'result-correct-missed';
+                                            $icon = '✓';
+                                        } elseif (!$isSolution && $isUserAnswer) {
+                                            $stateClass = 'result-wrong';
+                                            $icon = '✗';
+                                        } else {
+                                            $stateClass = 'result-neutral';
+                                        }
+                                    @endphp
+
+                                    <div class="flex items-start gap-2 p-2 rounded-lg border {{ $stateClass }}">
+                                        <span class="w-5 h-5 flex items-center justify-center text-sm flex-shrink-0">
+                                            @if($isUserAnswer) {{ $icon }} @endif
+                                        </span>
+                                        <span class="text-dark-primary text-sm flex-1">
                                             {{ $answer['text'] }}
                                         </span>
+                                        @if($isSolution && !$isUserAnswer)
+                                            <span class="text-xs font-medium px-2 py-0.5 rounded bg-success/20 text-success flex-shrink-0">
+                                                Richtig
+                                            </span>
+                                        @endif
                                     </div>
-                                    @if($isSolution && !$isUserAnswer)
-                                        <span class="ml-2 text-xs font-semibold text-green-700 bg-green-200 px-2 py-1 rounded flex-shrink-0">
-                                            Richtig
-                                        </span>
-                                    @endif
-                                </div>
-                            @endforeach
-                        </div>
-                        
-                        <!-- Zusammenfassung -->
-                        <div class="mt-3 pt-3 border-t {{ $isCorrect ? 'border-green-200' : 'border-red-200' }}">
-                            <div class="flex items-center justify-between text-xs">
-                                <span class="{{ $isCorrect ? 'text-green-700' : 'text-red-700' }} font-medium">
-                                    @if($isCorrect)
-                                        ✓ Richtig beantwortet
-                                    @else
-                                        ✗ Falsch beantwortet
-                                    @endif
+                                @endforeach
+                            </div>
+
+                            <!-- Summary -->
+                            <div class="mt-3 pt-3 border-t border-glass-subtle flex items-center justify-between text-xs ml-9">
+                                <span class="{{ $isCorrect ? 'text-success' : 'text-error' }} font-medium">
+                                    {{ $isCorrect ? '✓ Richtig' : '✗ Falsch' }}
                                 </span>
-                                <span class="text-gray-600">
+                                <span class="text-dark-muted">
                                     Lösung: {{ $solution->join(', ') }}
                                 </span>
                             </div>
                         </div>
-                    </div>
-                @endforeach
+                    @endforeach
+                </div>
             </div>
         </div>
     @endif

@@ -1,4 +1,4 @@
-<nav x-data="{ open: false }" style="background-color: #00337F;">
+<nav x-data="{ open: false }" class="nav-glass">
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
@@ -7,57 +7,49 @@
                 <div class="shrink-0 flex items-center">
                     <a href="/">
                         <img src="{{ asset('logo-thwtrainer_w.png') }}" alt="THW-Trainer Logo" style="height:100%;max-height:2.5rem;width:auto;" class="mr-2 inline-block align-middle" />
-                        <!-- <span class="font-bold text-white text-xl hover:text-yellow-400 transition align-middle">THW-Trainer</span> -->
                     </a>
                     @if(app()->environment('testing') || str_contains(request()->getHost(), 'test.') || config('app.environment_type') === 'testing')
-                        <span class="bg-red-600 text-white px-2 py-1 rounded text-sm font-bold ml-2">Test-System!</span>
+                        <span class="badge-error ml-2">Test-System!</span>
                     @endif
                 </div>
 
                 <!-- Navigation Links -->
-                <div class="hidden space-x-6 sm:-my-px sm:ms-10 sm:flex items-center">
+                <div class="hidden space-x-2 sm:-my-px sm:ms-10 sm:flex items-center">
                     @auth
-                        <a href="{{ route('dashboard') }}" 
-                           class="inline-flex items-center px-3 py-2 text-sm font-medium text-white hover:text-yellow-400 transition-colors duration-200 relative group {{ request()->routeIs('dashboard') ? 'text-yellow-400' : '' }}">
-                            <span>Dashboard</span>
-                            @if(request()->routeIs('dashboard'))
-                                <div class="absolute -bottom-1 left-0 w-full h-0.5 bg-yellow-400"></div>
-                            @else
-                                <div class="absolute -bottom-1 left-0 w-0 h-0.5 bg-yellow-400 transition-all duration-200 group-hover:w-full"></div>
-                            @endif
+                        <a href="{{ route('dashboard') }}"
+                           class="nav-link-glass {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+                            Dashboard
                         </a>
 
                         <!-- Lernen Dropdown -->
                         <div class="relative">
-                            <button onclick="document.getElementById('learningDropdown').classList.toggle('hidden')" class="inline-flex items-center px-3 py-2 text-sm font-medium text-white hover:text-yellow-400 transition-colors duration-200 relative group">
-                                <span class="flex items-center">
-                                    <span>Lernen</span>
-                                    <svg class="ml-1 h-4 w-4 transition-transform duration-200 group-hover:rotate-180" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
-                                </span>
-                                <div class="absolute -bottom-1 left-0 w-0 h-0.5 bg-yellow-400 transition-all duration-200 group-hover:w-full"></div>
+                            <button onclick="document.getElementById('learningDropdown').classList.toggle('hidden')"
+                                    class="nav-link-glass flex items-center gap-1">
+                                <span>Lernen</span>
+                                <svg class="h-4 w-4 transition-transform duration-200" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
                             </button>
-                            <div id="learningDropdown" class="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl z-50 hidden border border-gray-200">
-                                <a href="{{ route('lehrgaenge.index') }}" class="block px-4 py-3 text-gray-700 hover:bg-blue-900 hover:text-yellow-400 transition-colors duration-200">
+                            <div id="learningDropdown" class="absolute left-0 mt-2 w-56 dropdown-glass hidden z-50">
+                                <a href="{{ route('lehrgaenge.index') }}" class="dropdown-item-glass">
                                     Lehrgänge
                                 </a>
-                                <a href="{{ route('practice.menu') }}" class="block px-4 py-3 text-gray-700 hover:bg-blue-900 hover:text-yellow-400 transition-colors duration-200">
+                                <a href="{{ route('practice.menu') }}" class="dropdown-item-glass">
                                     Übungsmenü
                                 </a>
-                                <a href="{{ route('bookmarks.index') }}" class="block px-4 py-3 text-gray-700 hover:bg-blue-900 hover:text-yellow-400 transition-colors duration-200">
+                                <a href="{{ route('bookmarks.index') }}" class="dropdown-item-glass">
                                     Gespeicherte Fragen
                                 </a>
                                 @php
-                                    $failedArr = is_array(Auth::user()->exam_failed_questions ?? null) 
-                                        ? Auth::user()->exam_failed_questions 
+                                    $failedArr = is_array(Auth::user()->exam_failed_questions ?? null)
+                                        ? Auth::user()->exam_failed_questions
                                         : (is_string(Auth::user()->exam_failed_questions) ? json_decode(Auth::user()->exam_failed_questions, true) ?? [] : []);
                                 @endphp
                                 @if($failedArr && count($failedArr) > 0)
-                                    <a href="{{ route('failed.index') }}" class="block px-4 py-3 text-gray-700 hover:bg-blue-900 hover:text-yellow-400 transition-colors duration-200 flex items-center justify-between">
+                                    <a href="{{ route('failed.index') }}" class="dropdown-item-glass flex items-center justify-between">
                                         <span>Fehler wiederholen</span>
-                                        <span class="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">{{ count($failedArr) }}</span>
+                                        <span class="badge-error text-xs">{{ count($failedArr) }}</span>
                                     </a>
                                 @endif
-                                <a href="{{ route('exam.index') }}" class="block px-4 py-3 text-gray-700 hover:bg-blue-900 hover:text-yellow-400 transition-colors duration-200">
+                                <a href="{{ route('exam.index') }}" class="dropdown-item-glass">
                                     Prüfung
                                 </a>
                             </div>
@@ -65,192 +57,179 @@
 
                         <!-- Gamification Dropdown -->
                         <div class="relative">
-                            <button onclick="document.getElementById('gamificationDropdown').classList.toggle('hidden')" class="inline-flex items-center px-3 py-2 text-sm font-medium text-white hover:text-yellow-400 transition-colors duration-200 relative group">
-                                <span class="flex items-center">
-                                    <span>Gamification</span>
-                                    <svg class="ml-1 h-4 w-4 transition-transform duration-200 group-hover:rotate-180" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
-                                </span>
-                                <div class="absolute -bottom-1 left-0 w-0 h-0.5 bg-yellow-400 transition-all duration-200 group-hover:w-full"></div>
+                            <button onclick="document.getElementById('gamificationDropdown').classList.toggle('hidden')"
+                                    class="nav-link-glass flex items-center gap-1">
+                                <span>Gamification</span>
+                                <svg class="h-4 w-4 transition-transform duration-200" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
                             </button>
-                            <div id="gamificationDropdown" class="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl z-50 hidden border border-gray-200">
-                                <a href="{{ route('gamification.achievements') }}" class="block px-4 py-3 text-gray-700 hover:bg-blue-900 hover:text-yellow-400 transition-colors duration-200">
+                            <div id="gamificationDropdown" class="absolute left-0 mt-2 w-56 dropdown-glass hidden z-50">
+                                <a href="{{ route('gamification.achievements') }}" class="dropdown-item-glass">
                                     Achievements
                                 </a>
-                                <a href="{{ route('gamification.leaderboard') }}" class="block px-4 py-3 text-gray-700 hover:bg-blue-900 hover:text-yellow-400 transition-colors duration-200">
+                                <a href="{{ route('gamification.leaderboard') }}" class="dropdown-item-glass">
                                     Leaderboard
                                 </a>
-                                <a href="{{ route('statistics') }}" class="block px-4 py-3 text-gray-700 hover:bg-blue-900 hover:text-yellow-400 transition-colors duration-200">
+                                <a href="{{ route('statistics') }}" class="dropdown-item-glass">
                                     Statistik
                                 </a>
                             </div>
                         </div>
 
-                        <!-- Kontakt (nur für eingeloggte User) -->
+                        <!-- Kontakt -->
                         <a href="{{ route('contact.index') }}"
-                           class="inline-flex items-center px-3 py-2 text-sm font-medium text-white hover:text-yellow-400 transition-colors duration-200 relative group {{ request()->routeIs('contact.*') ? 'text-yellow-400' : '' }}">
-                            <span>Kontakt</span>
-                            @if(request()->routeIs('contact.*'))
-                                <div class="absolute -bottom-1 left-0 w-full h-0.5 bg-yellow-400"></div>
-                            @else
-                                <div class="absolute -bottom-1 left-0 w-0 h-0.5 bg-yellow-400 transition-all duration-200 group-hover:w-full"></div>
-                            @endif
+                           class="nav-link-glass {{ request()->routeIs('contact.*') ? 'active' : '' }}">
+                            Kontakt
                         </a>
 
                         <!-- Ortsverband -->
                         <a href="{{ route('ortsverband.index') }}"
-                           class="inline-flex items-center px-3 py-2 text-sm font-medium text-white hover:text-yellow-400 transition-colors duration-200 relative group {{ request()->routeIs('ortsverband.*') ? 'text-yellow-400' : '' }}">
-                            <span>Ortsverband</span>
-                            @if(request()->routeIs('ortsverband.*'))
-                                <div class="absolute -bottom-1 left-0 w-full h-0.5 bg-yellow-400"></div>
-                            @else
-                                <div class="absolute -bottom-1 left-0 w-0 h-0.5 bg-yellow-400 transition-all duration-200 group-hover:w-full"></div>
-                            @endif
+                           class="nav-link-glass {{ request()->routeIs('ortsverband.*') ? 'active' : '' }}">
+                            Ortsverband
                         </a>
                     @endauth
-                    
+
                     @guest
                         <!-- Öffentliche Statistik (für Gäste) -->
                         <a href="{{ route('statistics') }}"
-                           class="inline-flex items-center px-3 py-2 text-sm font-medium text-white hover:text-yellow-400 transition-colors duration-200 relative group {{ request()->routeIs('statistics') ? 'text-yellow-400' : '' }}">
-                            <span>Statistik</span>
-                            @if(request()->routeIs('statistics'))
-                                <div class="absolute -bottom-1 left-0 w-full h-0.5 bg-yellow-400"></div>
-                            @else
-                                <div class="absolute -bottom-1 left-0 w-0 h-0.5 bg-yellow-400 transition-all duration-200 group-hover:w-full"></div>
-                            @endif
+                           class="nav-link-glass {{ request()->routeIs('statistics') ? 'active' : '' }}">
+                            Statistik
                         </a>
                     @endguest
-                    
-                        @auth
-                            @if(Auth::user()->useroll === 'admin')
-                                <div class="relative ml-2">
-                                    <button onclick="document.getElementById('adminDropdown').classList.toggle('hidden')" class="inline-flex items-center px-3 py-2 text-sm font-medium text-white hover:text-yellow-400 transition-colors duration-200 relative group">
-                                        <span class="flex items-center">
-                                            <span>Administration</span>
-                                            <svg class="ml-1 h-4 w-4 transition-transform duration-200 group-hover:rotate-180" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
-                                        </span>
-                                        <div class="absolute -bottom-1 left-0 w-0 h-0.5 bg-yellow-400 transition-all duration-200 group-hover:w-full"></div>
-                                    </button>
-                                    <div id="adminDropdown" class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl z-50 hidden border border-gray-200">
-                                        <a href="{{ route('admin.dashboard') }}" class="block px-4 py-3 text-gray-700 hover:bg-blue-900 hover:text-yellow-400 transition-colors duration-200">
-                                            Admin Dashboard
-                                        </a>
-                                        <a href="/admin/questions" class="block px-4 py-3 text-gray-700 hover:bg-blue-900 hover:text-yellow-400 transition-colors duration-200">
-                                            Fragen
-                                        </a>
-                                        <a href="{{ route('admin.lehrgaenge.index') }}" class="block px-4 py-3 text-gray-700 hover:bg-blue-900 hover:text-yellow-400 transition-colors duration-200">
-                                            Lehrgänge
-                                        </a>
-                                        <a href="/admin/users" class="block px-4 py-3 text-gray-700 hover:bg-blue-900 hover:text-yellow-400 transition-colors duration-200">
-                                            Nutzerverwaltung
-                                        </a>
-                                        <a href="{{ route('admin.newsletter.create') }}" class="block px-4 py-3 text-gray-700 hover:bg-blue-900 hover:text-yellow-400 transition-colors duration-200">
-                                            Newsletter
-                                        </a>
-                                        <a href="{{ route('admin.lehrgang-issues.index') }}" class="block px-4 py-3 text-gray-700 hover:bg-blue-900 hover:text-yellow-400 transition-colors duration-200 flex items-center justify-between">
-                                            <span>Fehlermeldungen</span>
-                                            @php
-                                                // Cache open issues count for 5 minutes
-                                                $openIssuesCount = cache()->remember('admin_open_issues_count', 300, function() {
-                                                    return \App\Models\LehrgangQuestionIssue::where('status', 'open')->count();
-                                                });
-                                            @endphp
-                                            @if($openIssuesCount > 0)
-                                                <span class="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">{{ $openIssuesCount }}</span>
-                                            @endif
-                                        </a>
-                                        <a href="{{ route('admin.contact-messages.index') }}" class="block px-4 py-3 text-gray-700 hover:bg-blue-900 hover:text-yellow-400 transition-colors duration-200 flex items-center justify-between">
-                                            <span>Kontaktanfragen</span>
-                                            @php
-                                                // Cache unread count for 5 minutes
-                                                $unreadCount = cache()->remember('admin_unread_messages_count', 300, function() {
-                                                    return \App\Models\ContactMessage::where('is_read', false)->count();
-                                                });
-                                            @endphp
-                                            @if($unreadCount > 0)
-                                                <span class="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">{{ $unreadCount }}</span>
-                                            @endif
-                                        </a>
-                                        <a href="{{ route('admin.ortsverband.index') }}" class="block px-4 py-3 text-gray-700 hover:bg-blue-900 hover:text-yellow-400 transition-colors duration-200">
-                                            Ortsverbände
-                                        </a>
-                                    </div>
+
+                    @auth
+                        @if(Auth::user()->useroll === 'admin')
+                            <div class="relative ml-2">
+                                <button onclick="document.getElementById('adminDropdown').classList.toggle('hidden')"
+                                        class="nav-link-glass flex items-center gap-1">
+                                    <span>Administration</span>
+                                    <svg class="h-4 w-4 transition-transform duration-200" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                                </button>
+                                <div id="adminDropdown" class="absolute right-0 mt-2 w-48 dropdown-glass hidden z-50">
+                                    <a href="{{ route('admin.dashboard') }}" class="dropdown-item-glass">
+                                        Admin Dashboard
+                                    </a>
+                                    <a href="/admin/questions" class="dropdown-item-glass">
+                                        Fragen
+                                    </a>
+                                    <a href="{{ route('admin.lehrgaenge.index') }}" class="dropdown-item-glass">
+                                        Lehrgänge
+                                    </a>
+                                    <a href="/admin/users" class="dropdown-item-glass">
+                                        Nutzerverwaltung
+                                    </a>
+                                    <a href="{{ route('admin.newsletter.create') }}" class="dropdown-item-glass">
+                                        Newsletter
+                                    </a>
+                                    <a href="{{ route('admin.lehrgang-issues.index') }}" class="dropdown-item-glass flex items-center justify-between">
+                                        <span>Fehlermeldungen</span>
+                                        @php
+                                            $openIssuesCount = cache()->remember('admin_open_issues_count', 300, function() {
+                                                return \App\Models\LehrgangQuestionIssue::where('status', 'open')->count();
+                                            });
+                                        @endphp
+                                        @if($openIssuesCount > 0)
+                                            <span class="badge-error text-xs">{{ $openIssuesCount }}</span>
+                                        @endif
+                                    </a>
+                                    <a href="{{ route('admin.contact-messages.index') }}" class="dropdown-item-glass flex items-center justify-between">
+                                        <span>Kontaktanfragen</span>
+                                        @php
+                                            $unreadCount = cache()->remember('admin_unread_messages_count', 300, function() {
+                                                return \App\Models\ContactMessage::where('is_read', false)->count();
+                                            });
+                                        @endphp
+                                        @if($unreadCount > 0)
+                                            <span class="badge-error text-xs">{{ $unreadCount }}</span>
+                                        @endif
+                                    </a>
+                                    <a href="{{ route('admin.ortsverband.index') }}" class="dropdown-item-glass">
+                                        Ortsverbände
+                                    </a>
                                 </div>
-                            @endif
-                        @endauth
+                            </div>
+                        @endif
+                    @endauth
                 </div>
             </div>
 
-            <!-- Settings Dropdown -->
+            <!-- Theme Toggle & Settings -->
+            <div class="hidden sm:flex sm:items-center sm:ms-6 gap-2">
+                <!-- Theme Toggle -->
+                <button type="button" onclick="toggleTheme()" class="theme-toggle" title="Farbschema wechseln">
+                    <svg class="icon-moon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+                    </svg>
+                    <svg class="icon-sun" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+                    </svg>
+                </button>
+
             @auth
             @php
-                // Ungelesene Notifications aus DB
                 $notificationCount = Auth::user()->unreadNotifications()->count();
             @endphp
-            <div class="hidden sm:flex sm:items-center sm:ms-6">
                 <!-- User Dropdown -->
                 <div class="relative">
-                    <button onclick="document.getElementById('userDropdown').classList.toggle('hidden')" class="inline-flex items-center px-3 py-2 text-sm font-medium text-white hover:text-yellow-400 transition-colors duration-200 relative group">
-                        <span class="flex items-center">
-                            <span class="relative">
-                                {{ Auth::user()->name }}
-                                @if($notificationCount > 0)
-                                    <span class="absolute -top-2 -right-6 inline-flex items-center justify-center w-4 h-4 text-[10px] font-bold text-white bg-red-500 rounded-full">
-                                        {{ $notificationCount }}
-                                    </span>
-                                @endif
-                            </span>
-                            <svg class="ml-1 h-4 w-4 transition-transform duration-200 group-hover:rotate-180" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                    <button onclick="document.getElementById('userDropdown').classList.toggle('hidden')"
+                            class="nav-link-glass flex items-center gap-1">
+                        <span class="relative">
+                            {{ Auth::user()->name }}
+                            @if($notificationCount > 0)
+                                <span class="absolute -top-2 -right-6 inline-flex items-center justify-center w-4 h-4 text-[10px] font-bold text-white bg-error rounded-full">
+                                    {{ $notificationCount }}
+                                </span>
+                            @endif
                         </span>
-                        <div class="absolute -bottom-1 left-0 w-0 h-0.5 bg-yellow-400 transition-all duration-200 group-hover:w-full"></div>
+                        <svg class="h-4 w-4 transition-transform duration-200" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
                     </button>
-                    <div id="userDropdown" class="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-xl z-50 hidden border border-gray-200">
+                    <div id="userDropdown" class="absolute right-0 mt-2 w-64 dropdown-glass hidden z-50">
                         <!-- Gamification Stats im Dropdown -->
-                        <div class="px-4 py-3 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-purple-50">
-                            <div class="text-xs font-semibold text-gray-600 mb-2">Deine Stats</div>
+                        <div class="px-4 py-3 border-b border-glass-subtle">
+                            <div class="text-xs font-semibold text-dark-muted mb-2 uppercase tracking-wide">Deine Stats</div>
                             <div class="space-y-1.5">
-                                <div class="flex items-center justify-between bg-yellow-500/10 rounded-lg px-3 py-1.5">
-                                    <span class="text-sm font-medium text-gray-700"><i class="bi bi-star-fill mr-1"></i>Level</span>
-                                    <span class="text-sm font-bold text-yellow-600">{{ Auth::user()->level ?? 1 }}</span>
+                                <div class="flex items-center justify-between glass-subtle px-3 py-1.5 rounded-lg">
+                                    <span class="text-sm font-medium text-dark-secondary">Level</span>
+                                    <span class="text-sm font-bold text-gradient-gold">{{ Auth::user()->level ?? 1 }}</span>
                                 </div>
-                                <div class="flex items-center justify-between bg-green-500/10 rounded-lg px-3 py-1.5">
-                                    <span class="text-sm font-medium text-gray-700"><i class="bi bi-gem mr-1"></i>Punkte</span>
-                                    <span class="text-sm font-bold text-green-600">{{ number_format(Auth::user()->points ?? 0) }}</span>
+                                <div class="flex items-center justify-between glass-subtle px-3 py-1.5 rounded-lg">
+                                    <span class="text-sm font-medium text-dark-secondary">Punkte</span>
+                                    <span class="text-sm font-bold text-success">{{ number_format(Auth::user()->points ?? 0) }}</span>
                                 </div>
                                 @if((Auth::user()->streak_days ?? 0) > 0)
-                                    <div class="flex items-center justify-between bg-orange-500/10 rounded-lg px-3 py-1.5">
-                                        <span class="text-sm font-medium text-gray-700"><i class="bi bi-fire mr-1"></i>Streak</span>
-                                        <span class="text-sm font-bold text-orange-600">{{ Auth::user()->streak_days }} Tage</span>
+                                    <div class="flex items-center justify-between glass-subtle px-3 py-1.5 rounded-lg">
+                                        <span class="text-sm font-medium text-dark-secondary">Streak</span>
+                                        <span class="text-sm font-bold text-warning">{{ Auth::user()->streak_days }} Tage</span>
                                     </div>
                                 @endif
                             </div>
                         </div>
 
                         <!-- Mitteilungen Link -->
-                        <button onclick="document.getElementById('userDropdown').classList.add('hidden'); document.getElementById('notificationsDropdown').classList.remove('hidden');" class="w-full text-left px-4 py-3 text-gray-700 hover:bg-blue-900 hover:text-yellow-400 transition-colors duration-200 flex items-center justify-between border-b border-gray-100">
+                        <button onclick="document.getElementById('userDropdown').classList.add('hidden'); document.getElementById('notificationsDropdown').classList.remove('hidden');"
+                                class="w-full dropdown-item-glass flex items-center justify-between border-b border-glass-subtle">
                             <span>Mitteilungen</span>
                             @if($notificationCount > 0)
-                                <span class="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">{{ $notificationCount }}</span>
+                                <span class="badge-error text-xs">{{ $notificationCount }}</span>
                             @endif
                         </button>
 
-                        <a href="{{ route('profile') }}" class="block px-4 py-3 text-gray-700 hover:bg-blue-900 hover:text-yellow-400 transition-colors duration-200">
+                        <a href="{{ route('profile') }}" class="dropdown-item-glass">
                             Profil
                         </a>
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
-                            <button type="submit" class="w-full text-left px-4 py-3 text-gray-700 hover:bg-blue-900 hover:text-yellow-400 transition-colors duration-200">
+                            <button type="submit" class="w-full dropdown-item-glass text-left">
                                 Logout
                             </button>
                         </form>
                     </div>
 
-                    <!-- Notifications Dropdown (separate, opened from userDropdown) -->
-                    <div id="notificationsDropdown" class="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-xl z-50 hidden border border-gray-200">
-                        <div class="px-4 py-3 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-purple-50">
+                    <!-- Notifications Dropdown -->
+                    <div id="notificationsDropdown" class="absolute right-0 mt-2 w-80 dropdown-glass hidden z-50">
+                        <div class="px-4 py-3 border-b border-glass-subtle">
                             <div class="flex items-center justify-between">
-                                <h3 class="text-sm font-semibold text-gray-700">Mitteilungen</h3>
-                                <span class="text-xs text-gray-500">{{ $notificationCount }} neu</span>
+                                <h3 class="text-sm font-semibold text-dark-primary">Mitteilungen</h3>
+                                <span class="text-xs text-dark-muted">{{ $notificationCount }} neu</span>
                             </div>
                         </div>
                         <div class="max-h-96 overflow-y-auto">
@@ -258,33 +237,34 @@
                                 $recentNotifications = Auth::user()->notifications()->limit(10)->get();
                             @endphp
                             @forelse($recentNotifications as $notification)
-                                <div class="block px-4 py-3 hover:bg-gray-50 transition-colors duration-200 border-b border-gray-100 {{ $notification->is_read ? 'bg-white' : 'bg-blue-50' }}"
+                                <div class="block px-4 py-3 hover:bg-glass-white-5 transition-colors duration-200 border-b border-glass-subtle {{ $notification->is_read ? '' : 'bg-glass-thw-5' }}"
                                      onclick="markNotificationAsRead({{ $notification->id }})">
                                     <div class="flex items-start space-x-3">
-                                        <span class="text-2xl"><i class="bi bi-bell"></i></span>
+                                        <span class="text-2xl text-dark-secondary"><i class="bi bi-bell"></i></span>
                                         <div class="flex-1">
-                                            <p class="text-sm font-medium text-gray-800">{{ $notification->title }}</p>
-                                            <p class="text-xs text-gray-600 mt-1">{{ $notification->message }}</p>
-                                            <p class="text-xs text-gray-400 mt-1">{{ $notification->created_at->diffForHumans() }}</p>
+                                            <p class="text-sm font-medium text-dark-primary">{{ $notification->title }}</p>
+                                            <p class="text-xs text-dark-secondary mt-1">{{ $notification->message }}</p>
+                                            <p class="text-xs text-dark-muted mt-1">{{ $notification->created_at->diffForHumans() }}</p>
                                         </div>
                                         @if(!$notification->is_read)
-                                            <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
+                                            <span class="w-2 h-2 bg-gold rounded-full"></span>
                                         @endif
                                     </div>
                                 </div>
                             @empty
-                                <div class="px-4 py-8 text-center text-gray-500">
+                                <div class="px-4 py-8 text-center text-dark-muted">
                                     <p class="text-sm">Keine Mitteilungen vorhanden</p>
                                 </div>
                             @endforelse
                         </div>
-                        <div class="px-4 py-2 border-t border-gray-200 bg-gray-50 flex items-center justify-between">
-                            <button onclick="document.getElementById('notificationsDropdown').classList.add('hidden'); document.getElementById('userDropdown').classList.remove('hidden');" class="text-xs text-blue-600 hover:text-blue-800 font-medium">
-                                ← Zurück
+                        <div class="px-4 py-2 border-t border-glass-subtle flex items-center justify-between">
+                            <button onclick="document.getElementById('notificationsDropdown').classList.add('hidden'); document.getElementById('userDropdown').classList.remove('hidden');"
+                                    class="text-xs text-gold hover:text-gold-light font-medium transition-colors">
+                                Zurück
                             </button>
                             @if($recentNotifications->count() > 0)
-                                <a href="{{ route('notifications.index') }}" class="text-xs text-blue-600 hover:text-blue-800 font-medium">
-                                    Alle anzeigen →
+                                <a href="{{ route('notifications.index') }}" class="text-xs text-gold hover:text-gold-light font-medium transition-colors">
+                                    Alle anzeigen
                                 </a>
                             @endif
                         </div>
@@ -295,23 +275,28 @@
 
             <!-- Login/Register Links for Guests -->
             @guest
-            <div class="hidden sm:flex sm:items-center sm:ms-6 space-x-8">
-                <a href="{{ route('login') }}"
-                   class="text-white hover:text-yellow-400 font-medium text-sm transition-colors duration-200 relative group">
-                    <span>Anmelden</span>
-                    <div class="absolute -bottom-1 left-0 w-0 h-0.5 bg-yellow-400 transition-all duration-200 group-hover:w-full"></div>
+            <div class="hidden sm:flex sm:items-center sm:ms-6 gap-2">
+                <!-- Theme Toggle for Guests -->
+                <button type="button" onclick="toggleTheme()" class="theme-toggle" title="Farbschema wechseln">
+                    <svg class="icon-moon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+                    </svg>
+                    <svg class="icon-sun" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+                    </svg>
+                </button>
+                <a href="{{ route('login') }}" class="nav-link-glass">
+                    Anmelden
                 </a>
-                <a href="{{ route('register') }}"
-                   class="text-white hover:text-yellow-400 font-medium text-sm transition-colors duration-200 relative group">
-                    <span>Registrieren</span>
-                    <div class="absolute -bottom-1 left-0 w-0 h-0.5 bg-yellow-400 transition-all duration-200 group-hover:w-full"></div>
+                <a href="{{ route('register') }}" class="btn-primary btn-sm">
+                    Registrieren
                 </a>
             </div>
             @endguest
 
             <!-- Hamburger -->
             <div class="-me-2 flex items-center sm:hidden">
-                <button @click="open = ! open" class="inline-flex items-center justify-center p-2 rounded-md text-white hover:text-yellow-400 hover:bg-blue-800 focus:outline-none focus:bg-blue-800 focus:text-yellow-400 transition duration-150 ease-in-out">
+                <button @click="open = ! open" class="inline-flex items-center justify-center p-2 rounded-md text-dark-primary hover:text-gold hover:bg-glass-white-5 focus:outline-none focus:bg-glass-white-10 focus:text-gold transition duration-150 ease-in-out">
                     <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
                         <path :class="{'hidden': open, 'inline-flex': ! open }" class="inline-flex" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                         <path :class="{'hidden': ! open, 'inline-flex': open }" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -322,118 +307,121 @@
     </div>
 
     <!-- Responsive Navigation Menu -->
-    <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden bg-blue-900">
+    <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden" style="background: var(--bg-overlay);">
         <div class="pt-2 pb-3 space-y-1 px-4">
             @auth
                 <a href="{{ route('dashboard') }}"
-                   class="block px-3 py-2 text-base font-medium text-white hover:text-yellow-400 hover:bg-blue-800 rounded-md transition-colors duration-200 {{ request()->routeIs('dashboard') ? 'text-yellow-400 bg-blue-800' : '' }}">
+                   class="block px-3 py-2 text-base font-medium text-dark-primary hover:text-gold hover:bg-glass-white-5 rounded-md transition-colors duration-200 {{ request()->routeIs('dashboard') ? 'text-gold bg-glass-white-5' : '' }}">
                     Dashboard
                 </a>
-                
+
                 <!-- Lernen Section -->
-                <div class="px-3 py-2 text-base font-medium text-white">
+                <div class="px-3 py-2 text-xs font-semibold text-dark-muted uppercase tracking-wide">
                     Lernen
                 </div>
-                <div class="ml-6 space-y-1">
-                    <a href="{{ route('practice.menu') }}" class="block px-3 py-2 text-sm text-gray-300 hover:text-yellow-400 hover:bg-blue-800 rounded-md transition-colors duration-200">
+                <div class="ml-4 space-y-1">
+                    <a href="{{ route('lehrgaenge.index') }}" class="block px-3 py-2 text-sm text-dark-secondary hover:text-gold hover:bg-glass-white-5 rounded-md transition-colors duration-200">
+                        Lehrgänge
+                    </a>
+                    <a href="{{ route('practice.menu') }}" class="block px-3 py-2 text-sm text-dark-secondary hover:text-gold hover:bg-glass-white-5 rounded-md transition-colors duration-200">
                         Übungsmenü
                     </a>
-                    <a href="{{ route('bookmarks.index') }}" class="block px-3 py-2 text-sm text-gray-300 hover:text-yellow-400 hover:bg-blue-800 rounded-md transition-colors duration-200">
+                    <a href="{{ route('bookmarks.index') }}" class="block px-3 py-2 text-sm text-dark-secondary hover:text-gold hover:bg-glass-white-5 rounded-md transition-colors duration-200">
                         Gespeicherte Fragen
                     </a>
                     @php
-                        $failedArr = is_array(Auth::user()->exam_failed_questions ?? null) 
-                            ? Auth::user()->exam_failed_questions 
+                        $failedArr = is_array(Auth::user()->exam_failed_questions ?? null)
+                            ? Auth::user()->exam_failed_questions
                             : (is_string(Auth::user()->exam_failed_questions) ? json_decode(Auth::user()->exam_failed_questions, true) ?? [] : []);
                     @endphp
                     @if($failedArr && count($failedArr) > 0)
-                        <a href="{{ route('failed.index') }}" class="block px-3 py-2 text-sm text-gray-300 hover:text-yellow-400 hover:bg-blue-800 rounded-md transition-colors duration-200 flex items-center justify-between">
+                        <a href="{{ route('failed.index') }}" class="block px-3 py-2 text-sm text-dark-secondary hover:text-gold hover:bg-glass-white-5 rounded-md transition-colors duration-200 flex items-center justify-between">
                             <span>Fehler wiederholen</span>
-                            <span class="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">{{ count($failedArr) }}</span>
+                            <span class="badge-error text-xs">{{ count($failedArr) }}</span>
                         </a>
                     @endif
-                    <a href="{{ route('exam.index') }}" class="block px-3 py-2 text-sm text-gray-300 hover:text-yellow-400 hover:bg-blue-800 rounded-md transition-colors duration-200">
+                    <a href="{{ route('exam.index') }}" class="block px-3 py-2 text-sm text-dark-secondary hover:text-gold hover:bg-glass-white-5 rounded-md transition-colors duration-200">
                         Prüfung
                     </a>
                 </div>
-                
+
                 <!-- Gamification Section -->
-                <div class="px-3 py-2 text-base font-medium text-white">
+                <div class="px-3 py-2 text-xs font-semibold text-dark-muted uppercase tracking-wide">
                     Gamification
                 </div>
-                <div class="ml-6 space-y-1">
-                    <a href="{{ route('gamification.achievements') }}" class="block px-3 py-2 text-sm text-gray-300 hover:text-yellow-400 hover:bg-blue-800 rounded-md transition-colors duration-200">
+                <div class="ml-4 space-y-1">
+                    <a href="{{ route('gamification.achievements') }}" class="block px-3 py-2 text-sm text-dark-secondary hover:text-gold hover:bg-glass-white-5 rounded-md transition-colors duration-200">
                         Achievements
                     </a>
-                    <a href="{{ route('gamification.leaderboard') }}" class="block px-3 py-2 text-sm text-gray-300 hover:text-yellow-400 hover:bg-blue-800 rounded-md transition-colors duration-200">
+                    <a href="{{ route('gamification.leaderboard') }}" class="block px-3 py-2 text-sm text-dark-secondary hover:text-gold hover:bg-glass-white-5 rounded-md transition-colors duration-200">
                         Leaderboard
                     </a>
-                    <a href="{{ route('statistics') }}" class="block px-3 py-2 text-sm text-gray-300 hover:text-yellow-400 hover:bg-blue-800 rounded-md transition-colors duration-200">
+                    <a href="{{ route('statistics') }}" class="block px-3 py-2 text-sm text-dark-secondary hover:text-gold hover:bg-glass-white-5 rounded-md transition-colors duration-200">
                         Statistik
                     </a>
                 </div>
-                
-                <!-- Kontakt (nur für eingeloggte User) -->
+
+                <!-- Kontakt -->
                 <a href="{{ route('contact.index') }}"
-                   class="block px-3 py-2 text-base font-medium text-white hover:text-yellow-400 hover:bg-blue-800 rounded-md transition-colors duration-200 {{ request()->routeIs('contact.*') ? 'text-yellow-400 bg-blue-800' : '' }}">
+                   class="block px-3 py-2 text-base font-medium text-dark-primary hover:text-gold hover:bg-glass-white-5 rounded-md transition-colors duration-200 {{ request()->routeIs('contact.*') ? 'text-gold bg-glass-white-5' : '' }}">
                     Kontakt & Feedback
                 </a>
 
                 <!-- Ortsverband -->
                 <a href="{{ route('ortsverband.index') }}"
-                   class="block px-3 py-2 text-base font-medium text-white hover:text-yellow-400 hover:bg-blue-800 rounded-md transition-colors duration-200 {{ request()->routeIs('ortsverband.*') ? 'text-yellow-400 bg-blue-800' : '' }}">
+                   class="block px-3 py-2 text-base font-medium text-dark-primary hover:text-gold hover:bg-glass-white-5 rounded-md transition-colors duration-200 {{ request()->routeIs('ortsverband.*') ? 'text-gold bg-glass-white-5' : '' }}">
                     Ortsverband
                 </a>
-                
+
                 @if(Auth::user()->useroll === 'admin')
-                    <div class="px-3 py-2 text-base font-medium text-white">
+                    <div class="px-3 py-2 text-xs font-semibold text-dark-muted uppercase tracking-wide">
                         Administration
                     </div>
-                    <div class="ml-6 space-y-1">
-                        <a href="{{ route('admin.dashboard') }}" class="block px-3 py-2 text-sm text-gray-300 hover:text-yellow-400 hover:bg-blue-800 rounded-md transition-colors duration-200">
+                    <div class="ml-4 space-y-1">
+                        <a href="{{ route('admin.dashboard') }}" class="block px-3 py-2 text-sm text-dark-secondary hover:text-gold hover:bg-glass-white-5 rounded-md transition-colors duration-200">
                             Admin Dashboard
                         </a>
-                        <a href="/admin/questions" class="block px-3 py-2 text-sm text-gray-300 hover:text-yellow-400 hover:bg-blue-800 rounded-md transition-colors duration-200">
+                        <a href="/admin/questions" class="block px-3 py-2 text-sm text-dark-secondary hover:text-gold hover:bg-glass-white-5 rounded-md transition-colors duration-200">
                             Fragen
                         </a>
-                        <a href="{{ route('admin.lehrgaenge.index') }}" class="block px-3 py-2 text-sm text-gray-300 hover:text-yellow-400 hover:bg-blue-800 rounded-md transition-colors duration-200">
+                        <a href="{{ route('admin.lehrgaenge.index') }}" class="block px-3 py-2 text-sm text-dark-secondary hover:text-gold hover:bg-glass-white-5 rounded-md transition-colors duration-200">
                             Lehrgänge
                         </a>
-                        <a href="/admin/users" class="block px-3 py-2 text-sm text-gray-300 hover:text-yellow-400 hover:bg-blue-800 rounded-md transition-colors duration-200">
+                        <a href="/admin/users" class="block px-3 py-2 text-sm text-dark-secondary hover:text-gold hover:bg-glass-white-5 rounded-md transition-colors duration-200">
                             Nutzerverwaltung
                         </a>
-                        <a href="{{ route('admin.newsletter.create') }}" class="block px-3 py-2 text-sm text-gray-300 hover:text-yellow-400 hover:bg-blue-800 rounded-md transition-colors duration-200">
+                        <a href="{{ route('admin.newsletter.create') }}" class="block px-3 py-2 text-sm text-dark-secondary hover:text-gold hover:bg-glass-white-5 rounded-md transition-colors duration-200">
                             Newsletter
                         </a>
-                        <a href="{{ route('admin.contact-messages.index') }}" class="block px-3 py-2 text-sm text-gray-300 hover:text-yellow-400 hover:bg-blue-800 rounded-md transition-colors duration-200 flex items-center justify-between">
+                        <a href="{{ route('admin.contact-messages.index') }}" class="block px-3 py-2 text-sm text-dark-secondary hover:text-gold hover:bg-glass-white-5 rounded-md transition-colors duration-200 flex items-center justify-between">
                             <span>Kontaktanfragen</span>
                             @php
-                                // Cache unread count for 5 minutes
                                 $unreadCount = cache()->remember('admin_unread_messages_count', 300, function() {
                                     return \App\Models\ContactMessage::where('is_read', false)->count();
                                 });
                             @endphp
                             @if($unreadCount > 0)
-                                <span class="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">{{ $unreadCount }}</span>
+                                <span class="badge-error text-xs">{{ $unreadCount }}</span>
                             @endif
                         </a>
-                        <a href="{{ route('admin.ortsverband.index') }}" class="block px-3 py-2 text-sm text-gray-300 hover:text-yellow-400 hover:bg-blue-800 rounded-md transition-colors duration-200">
+                        <a href="{{ route('admin.ortsverband.index') }}" class="block px-3 py-2 text-sm text-dark-secondary hover:text-gold hover:bg-glass-white-5 rounded-md transition-colors duration-200">
                             Ortsverbände
                         </a>
                     </div>
                 @endif
             @endauth
+
             @guest
                 <a href="{{ route('statistics') }}"
-                   class="block px-3 py-2 text-base font-medium text-white hover:text-yellow-400 hover:bg-blue-800 rounded-md transition-colors duration-200 {{ request()->routeIs('statistics') ? 'text-yellow-400 bg-blue-800' : '' }}">
+                   class="block px-3 py-2 text-base font-medium text-dark-primary hover:text-gold hover:bg-glass-white-5 rounded-md transition-colors duration-200 {{ request()->routeIs('statistics') ? 'text-gold bg-glass-white-5' : '' }}">
                     Statistik
                 </a>
                 <a href="{{ route('login') }}"
-                   class="block px-3 py-2 text-base font-medium text-white hover:text-yellow-400 hover:bg-blue-800 rounded-md transition-colors duration-200">
+                   class="block px-3 py-2 text-base font-medium text-dark-primary hover:text-gold hover:bg-glass-white-5 rounded-md transition-colors duration-200">
                     Anmelden
                 </a>
                 <a href="{{ route('register') }}"
-                   class="block px-3 py-2 text-base font-medium text-white hover:text-yellow-400 hover:bg-blue-800 rounded-md transition-colors duration-200">
+                   class="block px-3 py-2 text-base font-medium text-dark-primary hover:text-gold hover:bg-glass-white-5 rounded-md transition-colors duration-200">
                     Registrieren
                 </a>
             @endguest
@@ -441,29 +429,29 @@
 
         <!-- Responsive Settings Options -->
         @auth
-        <div class="pt-4 pb-1 border-t border-gray-600">
+        <div class="pt-4 pb-1 border-t border-glass-subtle">
             <div class="px-4">
-                <div class="font-medium text-base text-white">{{ Auth::user()->name }}</div>
-                <div class="font-medium text-sm text-gray-300">{{ Auth::user()->email }}</div>
+                <div class="font-medium text-base text-dark-primary">{{ Auth::user()->name }}</div>
+                <div class="font-medium text-sm text-dark-muted">{{ Auth::user()->email }}</div>
             </div>
 
             <div class="mt-3 space-y-1 px-4">
                 <!-- Gamification Stats -->
-                <div class="mb-3 p-3 bg-blue-800 rounded-lg">
-                    <div class="text-xs font-semibold text-gray-300 mb-2">Deine Stats</div>
+                <div class="mb-3 p-3 glass rounded-lg">
+                    <div class="text-xs font-semibold text-dark-muted mb-2 uppercase tracking-wide">Deine Stats</div>
                     <div class="grid grid-cols-3 gap-2 text-center">
                         <div>
-                            <div class="text-lg font-bold text-yellow-400">{{ Auth::user()->level ?? 1 }}</div>
-                            <div class="text-xs text-gray-300">Level</div>
+                            <div class="text-lg font-bold text-gradient-gold">{{ Auth::user()->level ?? 1 }}</div>
+                            <div class="text-xs text-dark-muted">Level</div>
                         </div>
                         <div>
-                            <div class="text-lg font-bold text-green-400">{{ number_format(Auth::user()->points ?? 0) }}</div>
-                            <div class="text-xs text-gray-300">Punkte</div>
+                            <div class="text-lg font-bold text-success">{{ number_format(Auth::user()->points ?? 0) }}</div>
+                            <div class="text-xs text-dark-muted">Punkte</div>
                         </div>
                         @if((Auth::user()->streak_days ?? 0) > 0)
                         <div>
-                            <div class="text-lg font-bold text-orange-400">{{ Auth::user()->streak_days }}</div>
-                            <div class="text-xs text-gray-300">Streak</div>
+                            <div class="text-lg font-bold text-warning">{{ Auth::user()->streak_days }}</div>
+                            <div class="text-xs text-dark-muted">Streak</div>
                         </div>
                         @endif
                     </div>
@@ -474,23 +462,39 @@
                     $mobileNotificationCount = Auth::user()->unreadNotifications()->count();
                 @endphp
                 <a href="{{ route('notifications.index') }}"
-                   class="block px-3 py-2 text-base font-medium text-white hover:text-yellow-400 hover:bg-blue-800 rounded-md transition-colors duration-200 flex items-center justify-between">
+                   class="block px-3 py-2 text-base font-medium text-dark-primary hover:text-gold hover:bg-glass-white-5 rounded-md transition-colors duration-200 flex items-center justify-between">
                     <span>Mitteilungen</span>
                     @if($mobileNotificationCount > 0)
-                        <span class="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">{{ $mobileNotificationCount }}</span>
+                        <span class="badge-error text-xs">{{ $mobileNotificationCount }}</span>
                     @endif
                 </a>
 
                 <a href="{{ route('profile') }}"
-                   class="block px-3 py-2 text-base font-medium text-white hover:text-yellow-400 hover:bg-blue-800 rounded-md transition-colors duration-200">
+                   class="block px-3 py-2 text-base font-medium text-dark-primary hover:text-gold hover:bg-glass-white-5 rounded-md transition-colors duration-200">
                     Profil
                 </a>
+
+                <!-- Theme Toggle Mobile -->
+                <button type="button" onclick="toggleTheme()"
+                        class="w-full px-3 py-2 text-base font-medium text-dark-primary hover:text-gold hover:bg-glass-white-5 rounded-md transition-colors duration-200 flex items-center justify-between">
+                    <span>Farbschema</span>
+                    <span class="flex items-center gap-2 text-sm text-dark-muted">
+                        <span class="light-mode-hidden">Dunkel</span>
+                        <span class="dark-mode-hidden">Hell</span>
+                        <svg class="w-5 h-5 icon-moon light-mode-hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+                        </svg>
+                        <svg class="w-5 h-5 icon-sun dark-mode-hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+                        </svg>
+                    </span>
+                </button>
 
                 <!-- Authentication -->
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <button type="submit"
-                            class="w-full text-left px-3 py-2 text-base font-medium text-white hover:text-yellow-400 hover:bg-blue-800 rounded-md transition-colors duration-200">
+                            class="w-full text-left px-3 py-2 text-base font-medium text-dark-primary hover:text-gold hover:bg-glass-white-5 rounded-md transition-colors duration-200">
                         Logout
                     </button>
                 </form>
@@ -528,7 +532,6 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Optional: Badge aktualisieren oder Seite neu laden
                 location.reload();
             }
         })

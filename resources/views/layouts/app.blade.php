@@ -1,12 +1,21 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
+        <!-- Theme initialization (prevents flash) -->
+        <script>
+            (function() {
+                var theme = localStorage.getItem('theme');
+                if (theme === 'light') {
+                    document.documentElement.classList.add('light-mode');
+                }
+            })();
+        </script>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <title>@hasSection('title')@yield('title') - THW-Trainer@else THW-Trainer - Dein digitaler Begleiter für THW Theorie @endif</title>
-        
+
         <!-- SEO Meta Tags -->
         <meta name="description" content="@hasSection('description')@yield('description')@else THW-Trainer: Bereite dich optimal auf deine THW-Prüfung vor. Kostenlose Theoriefragen, Prüfungssimulation und Lernfortschritt. Jetzt anonym oder mit Account üben! @endif">
         <meta name="keywords" content="THW, Technisches Hilfswerk, Theorie, Prüfung, Übung, Lernfortschritt, kostenlos, Simulation">
@@ -17,7 +26,7 @@
         @else
             <meta name="robots" content="index, follow">
         @endif
-        
+
         <!-- Open Graph / Facebook -->
         <meta property="og:type" content="website">
         <meta property="og:url" content="{{ url()->current() }}">
@@ -25,21 +34,21 @@
         <meta property="og:description" content="@hasSection('description')@yield('description')@else THW-Trainer: Bereite dich optimal auf deine THW-Prüfung vor. Kostenlose Theoriefragen, Prüfungssimulation und Lernfortschritt. @endif">
         <meta property="og:image" content="{{ asset('logo-thwtrainer.png') }}">
         <meta property="og:locale" content="de_DE">
-        
+
         <!-- Twitter -->
         <meta property="twitter:card" content="summary_large_image">
         <meta property="twitter:url" content="{{ url()->current() }}">
         <meta property="twitter:title" content="@hasSection('title')@yield('title') - THW-Trainer @else THW-Trainer - Dein digitaler Begleiter für THW-Theorie @endif">
         <meta property="twitter:description" content="@hasSection('description')@yield('description')@else THW-Trainer: Bereite dich optimal auf deine THW-Prüfung vor. Kostenlose Theoriefragen, Prüfungssimulation und Lernfortschritt. @endif">
         <meta property="twitter:image" content="{{ asset('logo-thwtrainer.png') }}">
-        
+
         <!-- Favicons -->
         <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}?v={{ filemtime(public_path('favicon.ico')) }}">
         <link rel="shortcut icon" href="{{ asset('favicon.ico') }}?v={{ filemtime(public_path('favicon.ico')) }}">
         <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon.ico') }}?v={{ filemtime(public_path('favicon.ico')) }}">
         <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('favicon.ico') }}?v={{ filemtime(public_path('favicon.ico')) }}">
         <link rel="apple-touch-icon" href="{{ asset('favicon.ico') }}?v={{ filemtime(public_path('favicon.ico')) }}">
-        
+
         <!-- Canonical URL -->
         <link rel="canonical" href="{{ url()->current() }}">
 
@@ -52,10 +61,10 @@
         <meta name="format-detection" content="telephone=no">
         <meta name="msapplication-TileColor" content="#00337F">
         <meta name="application-name" content="THW-Trainer">
-        
+
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700,800&display=swap" rel="stylesheet" />
 
         <!-- PWA Manifest -->
         <link rel="manifest" href="{{ asset('manifest.json') }}">
@@ -109,264 +118,330 @@
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-        <!-- Global Sticky Footer CSS -->
-        <style>
-            /* CACHE BUST v1.0 - GLOBAL STICKY FOOTER - 2025-10-21-17:15 */
-            body {
-                display: flex !important;
-                flex-direction: column !important;
-                min-height: 100vh !important;
-            }
-            
-            main {
-                flex: 1 0 auto !important;
-            }
-            
-            footer {
-                flex-shrink: 0 !important;
-            }
-        </style>
-        
         @stack('styles')
     </head>
-    <body class="font-sans antialiased bg-[#FDFDFC]">
-            @include('layouts.navigation')
+    <body class="font-sans antialiased" x-data="{ sidebarOpen: false }">
+        <div class="min-h-screen flex">
+            <!-- Sidebar (Desktop) -->
+            @auth
+            <aside class="hidden lg:flex lg:flex-col lg:w-64 lg:fixed lg:inset-y-0 sidebar-glass">
+                <!-- Logo -->
+                <div class="flex items-center gap-3 px-6 py-5 border-b border-glass-subtle">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-gold flex items-center justify-center">
+                        <img src="{{ asset('logo-thwtrainer_w.png') }}" alt="THW" class="w-7 h-7">
+                    </div>
+                    <span class="font-bold text-dark-primary tracking-tight">THW-Trainer</span>
+                </div>
 
-            <!-- Page Heading -->
-            @isset($header)
-                <header class="bg-white dark:bg-gray-800 shadow">
-                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                        {{ $header }}
+                <!-- Navigation -->
+                <nav class="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
+                    <a href="{{ route('dashboard') }}"
+                       class="sidebar-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+                        <i class="bi bi-house-door"></i>
+                        Dashboard
+                    </a>
+
+                    <a href="{{ route('practice.menu') }}"
+                       class="sidebar-link {{ request()->routeIs('practice.*') ? 'active' : '' }}">
+                        <i class="bi bi-book"></i>
+                        Theorie Lernen
+                    </a>
+
+                    <a href="{{ route('exam.index') }}"
+                       class="sidebar-link {{ request()->routeIs('exam.*') ? 'active' : '' }}">
+                        <i class="bi bi-clipboard-check"></i>
+                        Prüfung
+                    </a>
+
+                    <a href="{{ route('lehrgaenge.index') }}"
+                       class="sidebar-link {{ request()->routeIs('lehrgaenge.*') ? 'active' : '' }}">
+                        <i class="bi bi-mortarboard"></i>
+                        Lehrgänge
+                    </a>
+
+                    <a href="{{ route('statistics') }}"
+                       class="sidebar-link {{ request()->routeIs('statistics') ? 'active' : '' }}">
+                        <i class="bi bi-bar-chart"></i>
+                        Statistiken
+                    </a>
+
+                    @php
+                        $userOV = auth()->user()->ortsverbände->first();
+                    @endphp
+                    @if($userOV)
+                    <div class="pt-4 mt-4 border-t border-glass-subtle">
+                        <p class="px-3 mb-3 text-xs font-semibold text-dark-muted uppercase tracking-wider">Ortsverband</p>
+
+                        <a href="{{ route('ortsverband.index') }}"
+                           class="sidebar-link {{ request()->routeIs('ortsverband.*') ? 'active' : '' }}">
+                            <i class="bi bi-people"></i>
+                            {{ $userOV->name }}
+                        </a>
+                    </div>
+                    @endif
+
+                    @if(auth()->user()->useroll === 'admin')
+                    <div class="pt-4 mt-4 border-t border-glass-subtle">
+                        <p class="px-3 mb-3 text-xs font-semibold text-dark-muted uppercase tracking-wider">Admin</p>
+
+                        <a href="{{ route('admin.users.index') }}"
+                           class="sidebar-link {{ request()->routeIs('admin.*') ? 'active' : '' }}">
+                            <i class="bi bi-gear"></i>
+                            Verwaltung
+                        </a>
+                    </div>
+                    @endif
+                </nav>
+
+                <!-- User Menu -->
+                <div class="px-4 py-4 border-t border-glass-subtle">
+                    <div class="flex items-center gap-3 px-3 py-2">
+                        <div class="w-9 h-9 rounded-full bg-thw-blue/20 flex items-center justify-center">
+                            <span class="text-sm font-semibold text-gold">
+                                {{ substr(auth()->user()->name, 0, 1) }}
+                            </span>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium text-dark-primary truncate">{{ auth()->user()->name }}</p>
+                            <p class="text-xs text-dark-muted truncate">Level {{ auth()->user()->level ?? 1 }}</p>
+                        </div>
+                        <button type="button" onclick="toggleTheme()" class="theme-toggle-sm" title="Farbschema">
+                            <i class="bi bi-moon-fill icon-moon"></i>
+                            <i class="bi bi-sun-fill icon-sun"></i>
+                        </button>
+                    </div>
+
+                    <div class="flex items-center gap-2 mt-3 px-3">
+                        <a href="{{ route('profile') }}" class="sidebar-link-sm flex-1">
+                            <i class="bi bi-person"></i>
+                            Profil
+                        </a>
+                        <form method="POST" action="{{ route('logout') }}" class="flex-1">
+                            @csrf
+                            <button type="submit" class="sidebar-link-sm w-full text-left">
+                                <i class="bi bi-box-arrow-right"></i>
+                                Logout
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </aside>
+            @endauth
+
+            <!-- Main Content -->
+            <div class="flex-1 @auth lg:pl-64 @endauth flex flex-col min-h-screen">
+                <!-- Mobile Header -->
+                <header class="lg:hidden sticky top-0 z-40 mobile-header-glass">
+                    <div class="flex items-center justify-between px-4 py-3">
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 rounded-lg bg-gradient-gold flex items-center justify-center">
+                                <img src="{{ asset('logo-thwtrainer_w.png') }}" alt="THW" class="w-5 h-5">
+                            </div>
+                            <span class="font-semibold text-dark-primary">THW-Trainer</span>
+                        </div>
+
+                        <div class="flex items-center gap-2">
+                            <button type="button" onclick="toggleTheme()" class="theme-toggle-sm" title="Farbschema">
+                                <i class="bi bi-moon-fill icon-moon"></i>
+                                <i class="bi bi-sun-fill icon-sun"></i>
+                            </button>
+                            @auth
+                            <button @click="sidebarOpen = true" class="p-2 text-dark-muted hover:text-dark-primary">
+                                <i class="bi bi-list text-xl"></i>
+                            </button>
+                            @else
+                            <a href="{{ route('login') }}" class="btn-ghost btn-sm">Anmelden</a>
+                            @endauth
+                        </div>
                     </div>
                 </header>
-            @endisset
 
-                        <!-- Page Content -->
-            <main>
-                @yield('content')
-            </main>
-        
-        <!-- Gamification Notifications -->
-        @include('components.gamification-notifications')
-        
-        <!-- Achievement Popup -->
-        @include('components.achievement-popup')
-        
-        <!-- Cookie Banner -->
-        @include('components.cookie-banner')
-        
-        <footer class="bg-white border-t border-gray-200 py-6 mt-8">
-            <div class="max-w-7xl mx-auto px-4">
-                <!-- Unterstützung -->
-                <div class="text-center mb-4">
-                    <p class="text-gray-600 text-sm mb-2">
-                        Diese Webseite wird kostenlos zur Verfügung gestellt
-                    </p>
-                    <a href="https://paypal.me/reuttern"
-                       target="_blank"
-                       rel="noopener"
-                       style="display: inline-flex; align-items: center; gap: 0.5rem; background-color: #00337F; color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 500; text-decoration: none; transition: background-color 0.2s;"
-                       onmouseover="this.style.backgroundColor='#002a66'"
-                       onmouseout="this.style.backgroundColor='#00337F'">
-                        <i class="bi bi-cup-hot"></i>
-                        <span>Unterstütze mich</span>
-                    </a>
-                </div>
-                
-                <!-- Links -->
-                <div class="text-center text-gray-500 text-sm">
-                    &copy; {{ date('Y') }} THW-Trainer &ndash; 
-                    <a href="{{ route('impressum') }}" class="text-blue-900 hover:underline">Impressum</a> &middot; 
-                    <a href="{{ route('datenschutz') }}" class="text-blue-900 hover:underline">Datenschutz</a>
-                </div>
-                
-                <!-- Creator -->
-                <div class="text-center text-gray-400 text-xs mt-2">
-                    Erstellt von <a href="https://niclas-reutter.de" target="_blank" rel="noopener" class="text-blue-600 hover:underline">niclas-reutter.de</a>
-                </div>
-            </div>
-        </footer>
+                <!-- Page Content -->
+                <main class="flex-1 px-4 py-6 lg:px-8 lg:py-8 @auth pb-20 lg:pb-8 @endauth">
+                    @yield('content')
+                </main>
 
-        <!-- PWA Install Banner (nur Mobile) -->
-        <div id="pwaInstallBanner" class="fixed bottom-0 left-0 right-0 bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-2xl transform translate-y-full transition-transform duration-300 z-50 md:hidden">
-            <div class="p-4 flex items-center justify-between gap-3">
-                <div class="flex items-center gap-3 flex-1">
-                    <img src="{{ asset('logo-thwtrainer_w.png') }}" alt="THW Trainer" class="w-12 h-12 rounded-lg shadow-lg">
-                    <div class="flex-1">
-                        <h3 class="font-bold text-sm">THW Trainer App</h3>
-                        <p class="text-xs opacity-90">Als App installieren für schnelleren Zugriff</p>
+                <!-- Footer (Desktop only, within main content) -->
+                <footer class="footer-glass mt-auto hidden lg:block">
+                    <div class="max-w-7xl mx-auto px-4 py-6">
+                        <div class="flex items-center justify-between text-sm text-dark-muted">
+                            <div>
+                                &copy; {{ date('Y') }} THW-Trainer &ndash;
+                                <a href="{{ route('impressum') }}" class="text-gold hover:text-gold-light transition-colors">Impressum</a> &middot;
+                                <a href="{{ route('datenschutz') }}" class="text-gold hover:text-gold-light transition-colors">Datenschutz</a>
+                            </div>
+                            <div>
+                                <a href="https://paypal.me/reuttern" target="_blank" rel="noopener" class="text-gold hover:text-gold-light transition-colors">Unterstützen</a>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <div class="flex gap-2">
-                    <button id="pwaInstallBtn" class="bg-white text-blue-600 px-4 py-2 rounded-lg font-bold text-sm hover:bg-blue-50 transition-colors whitespace-nowrap">
-                        Installieren
-                    </button>
-                    <button id="pwaCloseBanner" class="text-white hover:text-blue-200 px-2 text-lg">
-                        ✕
-                    </button>
-                </div>
+                </footer>
+
+                <!-- Bottom Navigation (Mobile) -->
+                @auth
+                <nav class="lg:hidden fixed bottom-0 inset-x-0 bottom-nav-glass pb-safe z-40">
+                    <div class="flex items-center justify-around py-2">
+                        <a href="{{ route('dashboard') }}" class="bottom-nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+                            <i class="bi bi-house-door{{ request()->routeIs('dashboard') ? '-fill' : '' }}"></i>
+                            <span>Home</span>
+                        </a>
+
+                        <a href="{{ route('practice.menu') }}" class="bottom-nav-item {{ request()->routeIs('practice.*') ? 'active' : '' }}">
+                            <i class="bi bi-book{{ request()->routeIs('practice.*') ? '-fill' : '' }}"></i>
+                            <span>Lernen</span>
+                        </a>
+
+                        <a href="{{ route('exam.index') }}" class="bottom-nav-item {{ request()->routeIs('exam.*') ? 'active' : '' }}">
+                            <i class="bi bi-clipboard{{ request()->routeIs('exam.*') ? '-check-fill' : '' }}"></i>
+                            <span>Prüfung</span>
+                        </a>
+
+                        <a href="{{ route('statistics') }}" class="bottom-nav-item {{ request()->routeIs('statistics') ? 'active' : '' }}">
+                            <i class="bi bi-bar-chart{{ request()->routeIs('statistics') ? '-fill' : '' }}"></i>
+                            <span>Stats</span>
+                        </a>
+
+                        <a href="{{ route('profile') }}" class="bottom-nav-item {{ request()->routeIs('profile') ? 'active' : '' }}">
+                            <i class="bi bi-person{{ request()->routeIs('profile') ? '-fill' : '' }}"></i>
+                            <span>Profil</span>
+                        </a>
+                    </div>
+                </nav>
+                @endauth
             </div>
         </div>
 
-        <!-- Service Worker Registration & PWA Install Logic -->
+        <!-- Mobile Sidebar Overlay -->
+        @auth
+        <div x-show="sidebarOpen"
+             x-transition:enter="transition ease-out duration-200"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition ease-in duration-150"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             class="lg:hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
+             @click="sidebarOpen = false"
+             style="display: none;">
+        </div>
+
+        <!-- Mobile Sidebar -->
+        <aside x-show="sidebarOpen"
+               x-transition:enter="transition ease-out duration-200"
+               x-transition:enter-start="translate-x-full"
+               x-transition:enter-end="translate-x-0"
+               x-transition:leave="transition ease-in duration-150"
+               x-transition:leave-start="translate-x-0"
+               x-transition:leave-end="translate-x-full"
+               class="lg:hidden fixed inset-y-0 right-0 z-50 w-72 sidebar-glass"
+               style="display: none;">
+            <div class="flex items-center justify-between px-6 py-5 border-b border-glass-subtle">
+                <span class="font-bold text-dark-primary">Menü</span>
+                <button @click="sidebarOpen = false" class="p-2 text-dark-muted hover:text-dark-primary">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+
+            <nav class="px-4 py-6 space-y-1">
+                <a href="{{ route('lehrgaenge.index') }}" class="sidebar-link {{ request()->routeIs('lehrgaenge.*') ? 'active' : '' }}">
+                    <i class="bi bi-mortarboard"></i>
+                    Lehrgänge
+                </a>
+
+                @php
+                    $userOV = auth()->user()->ortsverbände->first();
+                @endphp
+                @if($userOV)
+                <a href="{{ route('ortsverband.index') }}" class="sidebar-link {{ request()->routeIs('ortsverband.*') ? 'active' : '' }}">
+                    <i class="bi bi-people"></i>
+                    Ortsverband
+                </a>
+                @endif
+
+                @if(auth()->user()->useroll === 'admin')
+                <div class="pt-4 mt-4 border-t border-glass-subtle">
+                    <p class="px-3 mb-3 text-xs font-semibold text-dark-muted uppercase tracking-wider">Admin</p>
+                    <a href="{{ route('admin.users.index') }}" class="sidebar-link {{ request()->routeIs('admin.*') ? 'active' : '' }}">
+                        <i class="bi bi-gear"></i>
+                        Verwaltung
+                    </a>
+                </div>
+                @endif
+            </nav>
+
+            <div class="absolute bottom-0 inset-x-0 px-4 py-4 border-t border-glass-subtle">
+                <div class="flex items-center gap-3 px-3 py-2">
+                    <div class="w-9 h-9 rounded-full bg-thw-blue/20 flex items-center justify-center">
+                        <span class="text-sm font-semibold text-gold">
+                            {{ substr(auth()->user()->name, 0, 1) }}
+                        </span>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-medium text-dark-primary truncate">{{ auth()->user()->name }}</p>
+                        <p class="text-xs text-dark-muted">Level {{ auth()->user()->level ?? 1 }}</p>
+                    </div>
+                </div>
+
+                <form method="POST" action="{{ route('logout') }}" class="mt-3">
+                    @csrf
+                    <button type="submit" class="sidebar-link w-full">
+                        <i class="bi bi-box-arrow-right"></i>
+                        Abmelden
+                    </button>
+                </form>
+            </div>
+        </aside>
+        @endauth
+
+        <!-- Gamification Notifications -->
+        @include('components.gamification-notifications')
+
+        <!-- Achievement Popup -->
+        @include('components.achievement-popup')
+
+        <!-- Cookie Banner -->
+        @include('components.cookie-banner')
+
+        <!-- Theme Toggle Script -->
         <script>
-            // Service Worker Registration
+            // Theme Management
+            (function() {
+                const savedTheme = localStorage.getItem('theme');
+                if (savedTheme === 'light') {
+                    document.documentElement.classList.add('light-mode');
+                    document.body.classList.add('light-mode');
+                } else if (savedTheme === 'dark') {
+                    document.documentElement.classList.remove('light-mode');
+                    document.body.classList.remove('light-mode');
+                }
+            })();
+
+            function toggleTheme() {
+                const html = document.documentElement;
+                const body = document.body;
+                const isLightMode = html.classList.contains('light-mode');
+
+                if (isLightMode) {
+                    html.classList.remove('light-mode');
+                    body.classList.remove('light-mode');
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    html.classList.add('light-mode');
+                    body.classList.add('light-mode');
+                    localStorage.setItem('theme', 'light');
+                }
+            }
+        </script>
+
+        <!-- Service Worker Registration -->
+        <script>
             if ('serviceWorker' in navigator) {
                 window.addEventListener('load', () => {
                     navigator.serviceWorker.register('/sw.js')
-                        .then(registration => {
-                            console.log('✅ ServiceWorker registered:', registration.scope);
-                            
-                            // Check for updates periodically
-                            setInterval(() => {
-                                registration.update();
-                            }, 1000 * 60 * 60); // Check every hour
-                        })
-                        .catch(error => {
-                            console.log('❌ ServiceWorker registration failed:', error);
-                        });
+                        .then(registration => console.log('SW registered'))
+                        .catch(error => console.log('SW failed:', error));
                 });
             }
-
-            // PWA Install Banner Logic
-            let deferredPrompt;
-            const installBanner = document.getElementById('pwaInstallBanner');
-            const installBtn = document.getElementById('pwaInstallBtn');
-            const closeBanner = document.getElementById('pwaCloseBanner');
-
-            // Check if already installed or dismissed
-            const pwaInstalled = localStorage.getItem('pwa_installed') === 'true';
-            const pwaDismissed = localStorage.getItem('pwa_banner_dismissed') === 'true';
-            const dismissedTime = parseInt(localStorage.getItem('pwa_banner_dismissed_time') || '0');
-            const daysSinceDismissal = (Date.now() - dismissedTime) / (1000 * 60 * 60 * 24);
-
-            // Debug: Check PWA capabilities
-            console.log('🔍 PWA Debug:', {
-                userAgent: navigator.userAgent,
-                standalone: window.matchMedia('(display-mode: standalone)').matches,
-                isMobile: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
-                hasBeforeInstallPrompt: 'onbeforeinstallprompt' in window,
-                pwaInstalled: pwaInstalled,
-                pwaDismissed: pwaDismissed
-            });
-
-            // Listen for the beforeinstallprompt event
-            window.addEventListener('beforeinstallprompt', (e) => {
-                console.log('✅ beforeinstallprompt event fired!');
-                e.preventDefault();
-                deferredPrompt = e;
-                
-                // Show banner if not installed and not recently dismissed (7 days)
-                if (!pwaInstalled && (!pwaDismissed || daysSinceDismissal > 7)) {
-                    console.log('📲 Showing install banner...');
-                    setTimeout(() => {
-                        if (installBanner) {
-                            installBanner.classList.remove('translate-y-full');
-                        }
-                    }, 2000); // Show after 2 seconds
-                } else {
-                    console.log('⏸️ Banner not shown:', { pwaInstalled, pwaDismissed, daysSinceDismissal });
-                }
-            });
-
-            // For iOS/Safari: Show manual install instructions
-            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-            const isInStandaloneMode = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-            
-            if (isIOS && !isInStandaloneMode && !pwaInstalled) {
-                console.log('📱 iOS detected - showing manual install instructions');
-                setTimeout(() => {
-                    showIOSInstallInstructions();
-                }, 3000);
-            }
-
-            // Install button click
-            if (installBtn) {
-                installBtn.addEventListener('click', async () => {
-                    if (!deferredPrompt) return;
-                    
-                    deferredPrompt.prompt();
-                    const { outcome } = await deferredPrompt.userChoice;
-                    
-                    if (outcome === 'accepted') {
-                        console.log('✅ PWA installed');
-                        localStorage.setItem('pwa_installed', 'true');
-                        if (installBanner) {
-                            installBanner.classList.add('translate-y-full');
-                        }
-                    } else {
-                        console.log('❌ PWA installation dismissed');
-                    }
-                    
-                    deferredPrompt = null;
-                });
-            }
-
-            // Close banner button
-            if (closeBanner) {
-                closeBanner.addEventListener('click', () => {
-                    if (installBanner) {
-                        installBanner.classList.add('translate-y-full');
-                    }
-                    localStorage.setItem('pwa_banner_dismissed', 'true');
-                    localStorage.setItem('pwa_banner_dismissed_time', Date.now().toString());
-                });
-            }
-
-            // Check if app is already installed
-            window.addEventListener('appinstalled', () => {
-                console.log('✅ PWA installed via event');
-                localStorage.setItem('pwa_installed', 'true');
-                if (installBanner) {
-                    installBanner.classList.add('translate-y-full');
-                }
-            });
-
-            // Hide banner when running as PWA
-            if (window.matchMedia('(display-mode: standalone)').matches || 
-                window.navigator.standalone === true) {
-                localStorage.setItem('pwa_installed', 'true');
-                if (installBanner) {
-                    installBanner.remove();
-                }
-            }
-
-            /**
-             * Show iOS install instructions
-             */
-            function showIOSInstallInstructions() {
-                const banner = document.createElement('div');
-                banner.id = 'iosInstallBanner';
-                banner.className = 'fixed bottom-0 left-0 right-0 bg-blue-600 text-white shadow-2xl z-50 p-4 md:hidden';
-                banner.innerHTML = `
-                    <div class="max-w-lg mx-auto">
-                        <div class="flex items-start gap-3">
-                            <img src="{{ asset('logo-thwtrainer_w.png') }}" alt="THW Trainer" class="w-12 h-12 rounded-lg">
-                            <div class="flex-1">
-                                <h3 class="font-bold mb-1">THW Trainer als App installieren</h3>
-                                <p class="text-sm opacity-90 mb-2">
-                                    Tippe auf <span class="inline-flex items-center px-2 py-1 bg-white bg-opacity-20 rounded">
-                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                            <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/>
-                                        </svg>
-                                    </span> (Safari Menü) und dann auf 
-                                    <strong>"Zum Home-Bildschirm"</strong>
-                                </p>
-                            </div>
-                            <button onclick="this.parentElement.parentElement.parentElement.remove(); localStorage.setItem('ios_install_dismissed', 'true')" 
-                                    class="text-white hover:text-gray-200 text-xl">✕</button>
-                        </div>
-                    </div>
-                `;
-                
-                // Don't show if already dismissed
-                if (localStorage.getItem('ios_install_dismissed') === 'true') {
-                    return;
-                }
-                
-                document.body.appendChild(banner);
-            }
-
         </script>
 
         <!-- Page-specific scripts -->
