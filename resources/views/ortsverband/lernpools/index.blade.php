@@ -2,489 +2,343 @@
 
 @section('title', $ortsverband->name . ' · Lernpools')
 
+@section('content')
+<div class="dashboard-container">
+    <header class="dashboard-header">
+        <h1 class="page-title">Lernpools <span>verwalten</span></h1>
+        <p class="page-subtitle">{{ $ortsverband->name }}</p>
+    </header>
+
+    <!-- Stats Row -->
+    @php
+        $activePools = $lernpools->where('is_active', true)->count();
+        $totalParticipants = $lernpools->sum(fn($pool) => $pool->getEnrollmentCount());
+        $avgProgress = $lernpools->count() ? round($lernpools->avg(fn($pool) => $pool->getAverageProgress())) : 0;
+    @endphp
+
+    <div class="stats-row">
+        <div class="stat-pill">
+            <span class="stat-pill-icon"><i class="bi bi-collection"></i></span>
+            <div>
+                <div class="stat-pill-value">{{ $lernpools->count() }}</div>
+                <div class="stat-pill-label">Lernpools</div>
+            </div>
+        </div>
+        <div class="stat-pill">
+            <span class="stat-pill-icon text-success"><i class="bi bi-check-circle"></i></span>
+            <div>
+                <div class="stat-pill-value">{{ $activePools }}</div>
+                <div class="stat-pill-label">Aktiv</div>
+            </div>
+        </div>
+        <div class="stat-pill">
+            <span class="stat-pill-icon text-info"><i class="bi bi-people"></i></span>
+            <div>
+                <div class="stat-pill-value">{{ $totalParticipants }}</div>
+                <div class="stat-pill-label">Lernende</div>
+            </div>
+        </div>
+        <div class="stat-pill">
+            <span class="stat-pill-icon text-gold"><i class="bi bi-graph-up"></i></span>
+            <div>
+                <div class="stat-pill-value">{{ $avgProgress }}%</div>
+                <div class="stat-pill-label">Fortschritt</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="glass-gold" style="padding: 1.5rem; border-radius: 1rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem;">
+            <div class="section-header" style="margin-bottom: 0; padding-left: 0; border-left: none;">
+                <h2 class="section-title" style="font-size: 1.25rem;">Alle Lernpools</h2>
+            </div>
+            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                <button id="openCreateModal" class="btn-primary btn-sm">Neuer Lernpool</button>
+                <a href="{{ route('ortsverband.show', $ortsverband) }}" class="btn-ghost btn-sm">Zurück</a>
+            </div>
+        </div>
+
+        <!-- Tags Filter -->
+        @if($allTags->isNotEmpty())
+        <div class="glass-subtle" style="padding: 0.75rem 1rem; border-radius: 0.75rem; margin-bottom: 1.25rem;">
+            <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+                <span style="font-weight: 600; color: var(--text-secondary); font-size: 0.85rem;">Filter:</span>
+                <a href="{{ route('ortsverband.lernpools.index', $ortsverband) }}"
+                   class="{{ !$selectedTag ? 'btn-primary' : 'btn-ghost' }} btn-sm">
+                    Alle
+                </a>
+                @foreach($allTags as $tag)
+                    <a href="{{ route('ortsverband.lernpools.index', ['ortsverband' => $ortsverband, 'tag' => $tag]) }}"
+                       class="{{ $selectedTag === $tag ? 'btn-primary' : 'btn-ghost' }} btn-sm">
+                        {{ $tag }}
+                    </a>
+                @endforeach
+            </div>
+        </div>
+        @endif
+
+        <!-- Pool Grid -->
+        @if($lernpools->count() > 0)
+        <div class="pool-grid">
+            @foreach($lernpools as $pool)
+                @php
+                    $progress = round($pool->getAverageProgress());
+                    $enrollments = $pool->getEnrollmentCount();
+                    $questions = $pool->getQuestionCount();
+                @endphp
+                <div class="glass-subtle pool-card">
+                    <div style="display: flex; justify-content: space-between; align-items: start; gap: 0.75rem; margin-bottom: 0.75rem;">
+                        <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin: 0;">{{ $pool->name }}</h3>
+                        @if($pool->is_active)
+                            <span class="badge-success" style="font-size: 0.65rem;">Aktiv</span>
+                        @else
+                            <span class="badge-glass" style="font-size: 0.65rem;">Inaktiv</span>
+                        @endif
+                    </div>
+
+                    @if($pool->tags && count($pool->tags) > 0)
+                    <div style="display: flex; gap: 0.25rem; flex-wrap: wrap; margin-bottom: 0.75rem;">
+                        @foreach($pool->tags as $tag)
+                            <span class="badge-thw" style="font-size: 0.6rem; padding: 0.15rem 0.4rem;">{{ $tag }}</span>
+                        @endforeach
+                    </div>
+                    @endif
+
+                    <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1rem; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                        {{ Str::limit($pool->description, 100) }}
+                    </p>
+
+                    <!-- Stats -->
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; padding: 0.75rem 0; border-top: 1px solid rgba(255,255,255,0.1); border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 0.75rem;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 1.25rem; font-weight: 800; color: var(--text-primary);">{{ $questions }}</div>
+                            <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase;">Fragen</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 1.25rem; font-weight: 800; color: var(--text-primary);">{{ $enrollments }}</div>
+                            <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase;">Teilnehmer</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 1.25rem; font-weight: 800; color: var(--gold-start);">{{ $progress }}%</div>
+                            <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase;">Fortschritt</div>
+                        </div>
+                    </div>
+
+                    <!-- Progress Bar -->
+                    <div style="margin-bottom: 1rem;">
+                        <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.25rem;">
+                            <span>Lernfortschritt</span>
+                            <span>{{ $progress }}%</span>
+                        </div>
+                        <div style="height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden;">
+                            <div style="height: 100%; background: var(--gradient-gold); width: {{ $progress }}%; border-radius: 2px;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; padding-top: 0.75rem; border-top: 1px solid rgba(255,255,255,0.1);">
+                        <a href="{{ route('ortsverband.lernpools.show', [$ortsverband, $pool]) }}" class="action-link modal-trigger" data-modal-type="show">
+                            Details
+                        </a>
+                        <a href="{{ route('ortsverband.lernpools.edit', [$ortsverband, $pool]) }}" class="action-link modal-trigger" data-modal-type="edit">
+                            Bearbeiten
+                        </a>
+                        <a href="{{ route('ortsverband.lernpools.questions.index', [$ortsverband, $pool]) }}" class="action-link modal-trigger" data-modal-type="questions">
+                            Fragen
+                        </a>
+                        <form action="{{ route('ortsverband.lernpools.destroy', [$ortsverband, $pool]) }}" method="POST" style="display: inline;" onsubmit="return confirm('Lernpool wirklich löschen?');">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="action-link action-link-danger">
+                                Löschen
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+        @else
+        <div class="empty-state" style="padding: 3rem;">
+            <div class="empty-state-icon"><i class="bi bi-collection"></i></div>
+            <h3 class="empty-state-title">Keine Lernpools</h3>
+            <p class="empty-state-desc">Erstelle deinen ersten Lernpool, um loszulegen.</p>
+            <button id="openCreateModalEmpty" class="btn-primary btn-sm">Neuer Lernpool</button>
+        </div>
+        @endif
+    </div>
+</div>
+
+<!-- Modal für neuen Lernpool -->
+<div id="createModal" class="modal-overlay-glass" style="display: none;">
+    <div class="modal-glass" style="max-width: 550px;">
+        <div class="modal-header-glass">
+            <h2>Neuer Lernpool</h2>
+            <button id="closeCreateModal" class="modal-close-btn">&times;</button>
+        </div>
+        <form id="createLernpoolForm" action="{{ route('ortsverband.lernpools.store', $ortsverband) }}" method="POST">
+            @csrf
+            <div class="modal-body-glass">
+                <div style="margin-bottom: 1.25rem;">
+                    <label for="name" style="display: block; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem; font-size: 0.9rem;">
+                        Name <span style="color: #ef4444;">*</span>
+                    </label>
+                    <input type="text" name="name" id="name" class="input-glass"
+                           placeholder="z.B. Grundlagen Erste Hilfe" required>
+                </div>
+
+                <div style="margin-bottom: 1.25rem;">
+                    <label for="description" style="display: block; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem; font-size: 0.9rem;">
+                        Beschreibung <span style="color: #ef4444;">*</span>
+                    </label>
+                    <textarea name="description" id="description" rows="4" class="textarea-glass"
+                              placeholder="Beschreibung des Lernpools..." required></textarea>
+                </div>
+
+                <div style="margin-bottom: 1.25rem;">
+                    <label for="tags" style="display: block; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem; font-size: 0.9rem;">
+                        Tags <span style="color: var(--text-muted); font-weight: normal;">(optional)</span>
+                    </label>
+                    @if($allTags->isNotEmpty())
+                        <div style="margin-bottom: 0.5rem;">
+                            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                @foreach($allTags as $tag)
+                                    <button type="button" onclick="addTagToModal('{{ $tag }}')" class="tag-suggestion-btn">
+                                        + {{ $tag }}
+                                    </button>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+                    <input type="text" name="tags" id="tags" class="input-glass"
+                           placeholder="z.B. ZTR, B FGr (mit Komma trennen)">
+                </div>
+
+                <div>
+                    <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer;">
+                        <input type="checkbox" name="is_active" id="is_active" value="1" checked style="width: 1.25rem; height: 1.25rem;">
+                        <span style="font-weight: 600; color: var(--text-primary);">Sofort aktivieren</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="modal-footer-glass">
+                <button type="button" id="cancelCreateModal" class="btn-ghost">Abbrechen</button>
+                <button type="submit" class="btn-primary">Erstellen</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Generisches Modal für Show/Edit/Fragen -->
+<div id="genericModalBackdrop" class="modal-overlay-glass" style="display: none;">
+    <div id="genericModal" class="modal-glass" style="max-width: 600px;"></div>
+</div>
+
 @push('styles')
 <style>
-    * {
-        box-sizing: border-box;
-    }
-
-    .dashboard-wrapper {
-        min-height: 100vh;
-        background: #f3f4f6;
-        position: relative;
-        overflow-x: hidden;
-    }
-
-    .dashboard-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 2rem;
-        position: relative;
-        z-index: 1;
-    }
-
-    .dashboard-header {
-        text-align: center;
-        margin-bottom: 3rem;
-        padding-top: 1rem;
-    }
-
-    .dashboard-greeting {
-        font-size: 2.5rem;
-        font-weight: 800;
-        color: #00337F;
-        margin-bottom: 0.5rem;
-        line-height: 1.2;
-    }
-
-    .dashboard-greeting span {
-        display: inline-block;
-        background: linear-gradient(90deg, #fbbf24, #f59e0b);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-    }
-
-    .dashboard-subtitle {
-        font-size: 1.1rem;
-        color: #4b5563;
-        margin-bottom: 0;
-    }
-
-    .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 2rem;
-    }
-
-    .stat-card {
-        background: white;
-        padding: 1.5rem;
-        border-radius: 1.25rem;
-        text-align: center;
-        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
-        border: 1px solid #e2e8f0;
-        transition: transform 0.2s, box-shadow 0.2s;
-    }
-
-    .stat-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 20px 40px rgba(15, 23, 42, 0.12);
-    }
-
-    .stat-icon {
-        font-size: 2.5rem;
-        margin-bottom: 0.75rem;
-    }
-
-    .stat-value {
-        font-size: 2.25rem;
-        font-weight: 800;
-        color: #00337F;
-    }
-
-    .stat-label {
-        font-size: 0.9rem;
-        color: #6b7280;
-    }
-
-    .info-card {
-        background: white;
-        padding: 2rem;
-        border-radius: 1.25rem;
-        margin-bottom: 1.5rem;
-        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
-        border: 1px solid #e2e8f0;
-    }
-
-    .info-title {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: #00337F;
-        margin: 0 0 1.5rem 0;
-    }
-
-    .button-group {
-        display: flex;
-        gap: 0.75rem;
-        flex-wrap: wrap;
-        margin-bottom: 1.5rem;
-    }
-
-    .btn {
-        padding: 0.75rem 1.5rem;
-        border-radius: 0.75rem;
-        font-weight: 600;
-        font-size: 0.95rem;
-        text-decoration: none;
-        border: none;
-        cursor: pointer;
-        transition: all 0.2s;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .btn-primary {
-        background: linear-gradient(135deg, #2563eb, #1e40af);
-        color: white;
-    }
-
-    .btn-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 25px rgba(37, 99, 235, 0.3);
-    }
-
-    .btn-secondary {
-        background: #f3f4f6;
-        color: #00337F;
-        border: 1px solid #e5e7eb;
-    }
-
-    .btn-secondary:hover {
-        background: #e5e7eb;
-    }
-
     .pool-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-        gap: 1.5rem;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1rem;
     }
 
     .pool-card {
-        background: white;
-        border: 1px solid #e5e7eb;
-        border-radius: 1.25rem;
-        padding: 1.5rem;
-        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
-        transition: all 0.2s;
+        padding: 1.25rem;
+        border-radius: 0.875rem;
         display: flex;
         flex-direction: column;
     }
 
-    .pool-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 15px 40px rgba(15, 23, 42, 0.12);
-        border-color: #cbd5f5;
-    }
-
-    .pool-card-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        gap: 1rem;
-        margin-bottom: 1rem;
-    }
-
-    .pool-card-header h3 {
-        margin: 0;
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: #00337F;
-        flex: 1;
-    }
-
-    .status-badge {
-        padding: 0.35rem 0.85rem;
-        border-radius: 999px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.04em;
-        white-space: nowrap;
-    }
-
-    .status-active {
-        background: rgba(34, 197, 94, 0.1);
-        color: #15803d;
-        border: 1px solid rgba(34, 197, 94, 0.3);
-    }
-
-    .status-inactive {
-        background: rgba(107, 114, 128, 0.1);
-        color: #374151;
-        border: 1px solid rgba(107, 114, 128, 0.3);
-    }
-
-    .pool-card-desc {
-        color: #4b5563;
-        font-size: 0.95rem;
-        margin: 0 0 1rem 0;
-        line-height: 1.5;
-    }
-
-    .pool-card-stats {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 1rem;
-        margin: 1.25rem 0;
-        padding: 1rem 0;
-        border-top: 1px solid #e5e7eb;
-        border-bottom: 1px solid #e5e7eb;
-    }
-
-    .pool-stat {
-        text-align: center;
-    }
-
-    .pool-stat-value {
-        font-size: 1.75rem;
-        font-weight: 700;
-        color: #00337F;
-        margin-bottom: 0.25rem;
-    }
-
-    .pool-stat-label {
-        font-size: 0.8rem;
-        color: #6b7280;
-        text-transform: uppercase;
-        letter-spacing: 0.03em;
-    }
-
-    .pool-card-progress {
-        margin: 1rem 0;
-    }
-
-    .progress-label {
-        display: flex;
-        justify-content: space-between;
-        font-size: 0.85rem;
-        color: #6b7280;
-        margin-bottom: 0.5rem;
-    }
-
-    .progress-bar-container {
-        width: 100%;
-        height: 8px;
-        background: #e5e7eb;
-        border-radius: 999px;
-        overflow: hidden;
-    }
-
-    .progress-bar {
-        height: 100%;
-        background: linear-gradient(90deg, #2563eb, #1e40af);
-        border-radius: 999px;
-        transition: width 0.3s ease;
-    }
-
-    .pool-card-actions {
-        margin-top: auto;
-        display: flex;
-        gap: 0.75rem;
-        flex-wrap: wrap;
-        padding-top: 1rem;
-        border-top: 1px solid #e5e7eb;
-    }
-
     .action-link {
-        font-size: 0.9rem;
+        font-size: 0.8rem;
         font-weight: 600;
-        color: #2563eb;
+        color: var(--gold-start);
         text-decoration: none;
-        transition: color 0.2s;
-        padding: 0.35rem 0.75rem;
-        border-radius: 0.5rem;
+        transition: all 0.2s;
+        padding: 0.35rem 0.65rem;
+        border-radius: 0.4rem;
+        background: none;
+        border: none;
+        cursor: pointer;
     }
 
     .action-link:hover {
-        color: #1e40af;
-        background: rgba(37, 99, 235, 0.08);
+        background: rgba(251, 191, 36, 0.15);
+    }
+
+    .action-link-danger {
+        color: #ef4444;
+    }
+
+    .action-link-danger:hover {
+        background: rgba(239, 68, 68, 0.15);
+    }
+
+    .tag-suggestion-btn {
+        background: rgba(251, 191, 36, 0.15);
+        color: var(--gold-start);
+        padding: 0.3rem 0.6rem;
+        border-radius: 0.5rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        border: 1px solid rgba(251, 191, 36, 0.3);
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .tag-suggestion-btn:hover {
+        background: var(--gradient-gold);
+        color: #1e3a5f;
+        transform: translateY(-1px);
     }
 
     .empty-state {
         text-align: center;
-        padding: 3rem 1rem;
-        color: #6b7280;
     }
 
-    .empty-state p {
-        font-size: 1.05rem;
-        margin-bottom: 1.5rem;
+    .empty-state-icon {
+        font-size: 2.5rem;
+        color: var(--text-muted);
+        margin-bottom: 0.75rem;
+        opacity: 0.6;
     }
 
-    /* Modal Styles */
-    .modal-backdrop {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.5);
-        backdrop-filter: blur(4px);
-        z-index: 1000;
-        animation: fadeIn 0.3s ease;
-    }
-
-    .modal-backdrop.active {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    @keyframes fadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
-    }
-
-    .modal {
-        background: white;
-        border-radius: 1.5rem;
-        box-shadow: 0 20px 60px rgba(15, 23, 42, 0.15);
-        width: 90%;
-        max-width: 600px;
-        max-height: 90vh;
-        overflow-y: auto;
-        animation: slideUp 0.3s ease;
-        position: relative;
-    }
-
-    #genericModal {
-        width: 90%;
-        max-width: 600px;
-    }
-
-    #genericModal .modal {
-        width: 100%;
-        max-width: 100%;
-    }
-
-    @keyframes slideUp {
-        from { transform: translateY(30px); opacity: 0; }
-        to { transform: translateY(0); opacity: 1; }
-    }
-
-    .modal-header {
-        padding: 2rem;
-        border-bottom: 1px solid #e5e7eb;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .modal-header h2 {
-        margin: 0;
-        font-size: 1.75rem;
+    .empty-state-title {
+        font-size: 1.1rem;
         font-weight: 700;
-        color: #00337F;
+        color: var(--text-primary);
+        margin-bottom: 0.25rem;
     }
 
-    .modal-close {
-        background: none;
+    .empty-state-desc {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        margin-bottom: 1rem;
+    }
+
+    .modal-overlay-glass.active {
+        display: flex !important;
+    }
+
+    .modal-close-btn {
+        background: rgba(255, 255, 255, 0.1);
         border: none;
-        font-size: 1.5rem;
+        color: var(--text-secondary);
+        width: 32px;
+        height: 32px;
+        border-radius: 0.5rem;
         cursor: pointer;
-        color: #6b7280;
-        transition: color 0.2s;
-        padding: 0;
-        width: 2rem;
-        height: 2rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        font-size: 1.25rem;
+        transition: all 0.2s;
     }
 
-    .modal-close:hover {
-        color: #1f2937;
+    .modal-close-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+        color: var(--text-primary);
     }
 
-    .modal-body {
-        padding: 2rem;
-    }
-
-    .form-group {
-        margin-bottom: 1.5rem;
-    }
-
-    .form-label {
-        display: block;
-        font-size: 0.95rem;
-        font-weight: 600;
-        color: #00337F;
-        margin-bottom: 0.5rem;
-    }
-
-    .form-label .required {
-        color: #dc2626;
-    }
-
-    .form-input, .form-textarea {
-        width: 100%;
-        padding: 0.75rem;
-        border: 2px solid #e5e7eb;
-        border-radius: 0.75rem;
-        font-size: 0.95rem;
-        transition: border-color 0.2s;
-        font-family: inherit;
-    }
-
-    .form-input:focus, .form-textarea:focus {
-        outline: none;
-        border-color: #2563eb;
-        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-    }
-
-    .form-input.error, .form-textarea.error {
-        border-color: #dc2626;
-    }
-
-    .form-textarea {
-        resize: vertical;
-    }
-
-    .form-checkbox {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-    }
-
-    .form-checkbox input {
-        width: 1.25rem;
-        height: 1.25rem;
-        cursor: pointer;
-    }
-
-    .form-checkbox label {
-        font-size: 0.95rem;
-        font-weight: 600;
-        color: #00337F;
-        cursor: pointer;
-        margin: 0;
-    }
-
-    .form-error {
-        color: #dc2626;
-        font-size: 0.85rem;
-        margin-top: 0.25rem;
-    }
-
-    .modal-footer {
-        padding: 1.5rem 2rem;
-        border-top: 1px solid #e5e7eb;
-        display: flex;
-        gap: 1rem;
-        flex-wrap: wrap;
-    }
-
-    .modal-footer .btn {
-        flex: 1;
-        min-width: 120px;
-        justify-content: center;
-    }
-
-    .btn-modal-close {
-        background: #f3f4f6;
-        color: #00337F;
-        border: 1px solid #e5e7eb;
-    }
-
-    .btn-modal-close:hover {
-        background: #e5e7eb;
-    }
-
-    /* Loading Animation */
+    /* Loading Animation for Modal */
     .modal-loading {
         display: flex;
         flex-direction: column;
@@ -495,10 +349,10 @@
     }
 
     .spinner {
-        width: 50px;
-        height: 50px;
-        border: 4px solid #e5e7eb;
-        border-top: 4px solid #2563eb;
+        width: 40px;
+        height: 40px;
+        border: 3px solid rgba(255, 255, 255, 0.1);
+        border-top: 3px solid var(--gold-start);
         border-radius: 50%;
         animation: spin 0.8s linear infinite;
         margin-bottom: 1rem;
@@ -510,287 +364,18 @@
     }
 
     .modal-loading-text {
-        color: #6b7280;
-        font-size: 1rem;
+        color: var(--text-secondary);
+        font-size: 0.9rem;
         font-weight: 500;
     }
 
-    @media (max-width: 480px) {
-        .dashboard-container { padding: 1rem; }
-        .info-card { padding: 1.25rem; }
-        .dashboard-greeting { font-size: 1.75rem; }
-        .pool-grid { grid-template-columns: 1fr; }
-        .pool-card-stats { grid-template-columns: 1fr; }
-        
-        .modal {
-            width: 95%;
-            max-height: 95vh;
-            border-radius: 1rem;
-        }
-        
-        .modal-header {
-            padding: 1.5rem;
-        }
-        
-        .modal-header h2 {
-            font-size: 1.5rem;
-        }
-        
-        .modal-body {
-            padding: 1.5rem;
-        }
-        
-        .modal-footer {
-            padding: 1rem 1.5rem;
+    @media (max-width: 768px) {
+        .pool-grid {
+            grid-template-columns: 1fr;
         }
     }
 </style>
 @endpush
-
-@section('content')
-<div class="dashboard-wrapper">
-    <div class="dashboard-container">
-        <div class="dashboard-header">
-            <h1 class="dashboard-greeting">📚 <span>Lernpools</span></h1>
-            <p class="dashboard-subtitle">Verwalte Lernpools für {{ $ortsverband->name }}</p>
-        </div>
-
-        <!-- Schnellstatistiken -->
-        @php
-            $activePools = $lernpools->where('is_active', true)->count();
-            $totalParticipants = $lernpools->sum(fn($pool) => $pool->getEnrollmentCount());
-            $avgProgress = $lernpools->count() ? round($lernpools->avg(fn($pool) => $pool->getAverageProgress())) : 0;
-        @endphp
-
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-icon">📊</div>
-                <div class="stat-value">{{ $lernpools->count() }}</div>
-                <div class="stat-label">Lernpools</div>
-            </div>
-
-            <div class="stat-card">
-                <div class="stat-icon">✅</div>
-                <div class="stat-value">{{ $activePools }}</div>
-                <div class="stat-label">Aktiv</div>
-            </div>
-
-            <div class="stat-card">
-                <div class="stat-icon">👥</div>
-                <div class="stat-value">{{ $totalParticipants }}</div>
-                <div class="stat-label">Lernende</div>
-            </div>
-
-            <div class="stat-card">
-                <div class="stat-icon">📈</div>
-                <div class="stat-value">{{ $avgProgress }}%</div>
-                <div class="stat-label">Ø Fortschritt</div>
-            </div>
-        </div>
-
-        <!-- Lernpools verwaltbar -->
-        <div class="info-card">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                <h2 class="info-title" style="margin: 0;">Alle Lernpools</h2>
-                <span style="color: #6b7280; font-weight: 600;">{{ $lernpools->count() }} Pools</span>
-            </div>
-
-            <!-- Tags-Filter -->
-            @if($allTags->isNotEmpty())
-                <div style="margin-bottom: 1.5rem; padding: 1rem; background: #f9fafb; border-radius: 0.75rem; border: 1px solid #e5e7eb;">
-                    <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
-                        <span style="font-weight: 600; color: #00337F; white-space: nowrap;">🏷️ Filter:</span>
-                        <a href="{{ route('ortsverband.lernpools.index', $ortsverband) }}"
-                           class="btn btn-secondary"
-                           style="padding: 0.5rem 1rem; font-size: 0.85rem; {{ !$selectedTag ? 'background: #2563eb; color: white;' : '' }}">
-                            Alle
-                        </a>
-                        @foreach($allTags as $tag)
-                            <a href="{{ route('ortsverband.lernpools.index', ['ortsverband' => $ortsverband, 'tag' => $tag]) }}"
-                               class="btn btn-secondary"
-                               style="padding: 0.5rem 1rem; font-size: 0.85rem; {{ $selectedTag === $tag ? 'background: #2563eb; color: white;' : '' }}">
-                                {{ $tag }}
-                            </a>
-                        @endforeach
-                    </div>
-                </div>
-            @endif
-
-            <div class="button-group">
-                <button id="openCreateModal" class="btn btn-primary">
-                    ➕ Neuer Lernpool
-                </button>
-                <a href="{{ route('ortsverband.show', $ortsverband) }}" class="btn btn-secondary">
-                    ← Zurück zum Ortsverband
-                </a>
-            </div>
-
-            @if($lernpools->count() > 0)
-                <div class="pool-grid">
-                    @foreach($lernpools as $pool)
-                        @php
-                            $progress = round($pool->getAverageProgress());
-                            $enrollments = $pool->getEnrollmentCount();
-                            $questions = $pool->getQuestionCount();
-                        @endphp
-                        <div class="pool-card">
-                            <div class="pool-card-header">
-                                <h3>{{ $pool->name }}</h3>
-                                <span class="status-badge {{ $pool->is_active ? 'status-active' : 'status-inactive' }}">
-                                    {{ $pool->is_active ? '🟢 Aktiv' : '⚫ Inaktiv' }}
-                                </span>
-                            </div>
-
-                            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem; min-height: 1.75rem;">
-                                @if($pool->tags && count($pool->tags) > 0)
-                                    @foreach($pool->tags as $tag)
-                                        <span style="background: #dbeafe; color: #1e40af; padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600;">
-                                            🏷️ {{ $tag }}
-                                        </span>
-                                    @endforeach
-                                @endif
-                            </div>
-
-                            <p class="pool-card-desc">{{ Str::limit($pool->description, 120) }}</p>
-
-                            <div class="pool-card-stats">
-                                <div class="pool-stat">
-                                    <div class="pool-stat-value">{{ $questions }}</div>
-                                    <div class="pool-stat-label">Fragen</div>
-                                </div>
-                                <div class="pool-stat">
-                                    <div class="pool-stat-value">{{ $enrollments }}</div>
-                                    <div class="pool-stat-label">Teilnehmer</div>
-                                </div>
-                                <div class="pool-stat">
-                                    <div class="pool-stat-value">{{ $progress }}%</div>
-                                    <div class="pool-stat-label">Fortschritt</div>
-                                </div>
-                            </div>
-
-                            <div class="pool-card-progress">
-                                <div class="progress-label">
-                                    <span>Durchschnittlicher Lernfortschritt</span>
-                                    <strong>{{ $progress }}%</strong>
-                                </div>
-                                <div class="progress-bar-container">
-                                    <div class="progress-bar" style="width: {{ $progress }}%"></div>
-                                </div>
-                            </div>
-
-                            <div class="pool-card-actions">
-                                <a href="{{ route('ortsverband.lernpools.show', [$ortsverband, $pool]) }}" class="action-link modal-trigger" data-modal-type="show">
-                                    👁️ Details
-                                </a>
-                                <a href="{{ route('ortsverband.lernpools.edit', [$ortsverband, $pool]) }}" class="action-link modal-trigger" data-modal-type="edit">
-                                    ✏️ Bearbeiten
-                                </a>
-                                <a href="{{ route('ortsverband.lernpools.questions.index', [$ortsverband, $pool]) }}" class="action-link modal-trigger" data-modal-type="questions">
-                                    ❓ Fragen
-                                </a>
-                                <form action="{{ route('ortsverband.lernpools.destroy', [$ortsverband, $pool]) }}" method="POST" style="display: inline;" onsubmit="return confirm('Lernpool wirklich löschen?');">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="action-link" style="background: none; border: none; padding: 0; cursor: pointer; color: #dc2626;">
-                                        🗑️ Löschen
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-            @else
-                <div class="empty-state">
-                    <p>📭 Noch keine Lernpools erstellt</p>
-                    <button id="openCreateModalEmpty" class="btn btn-primary">
-                        ➕ Neuen Lernpool erstellen
-                    </button>
-                </div>
-            @endif
-        </div>
-
-<!-- Modal für neuen Lernpool -->
-<div id="createModal" class="modal-backdrop">
-    <div class="modal">
-        <div class="modal-header">
-            <h2>Neuer Lernpool</h2>
-            <button id="closeCreateModal" class="modal-close">✕</button>
-        </div>
-        <form id="createLernpoolForm" action="{{ route('ortsverband.lernpools.store', $ortsverband) }}" method="POST">
-            @csrf
-            <div class="modal-body">
-                <div class="form-group">
-                    <label for="name" class="form-label">
-                        Name <span class="required">*</span>
-                    </label>
-                    <input type="text" name="name" id="name" class="form-input" 
-                           placeholder="z.B. Grundlagen Erste Hilfe" required>
-                    <p class="form-error" id="nameError" style="display: none;"></p>
-                </div>
-
-                <div class="form-group">
-                    <label for="description" class="form-label">
-                        Beschreibung <span class="required">*</span>
-                    </label>
-                    <textarea name="description" id="description" rows="5" class="form-textarea"
-                              placeholder="Beschreibung des Lernpools..." required></textarea>
-                    <p class="form-error" id="descriptionError" style="display: none;"></p>
-                </div>
-
-                <div class="form-group">
-                    <label for="tags" class="form-label">
-                        Schlagwörter / Tags
-                    </label>
-                    @if($allTags->isNotEmpty())
-                        <div style="margin-bottom: 0.75rem;">
-                            <p style="font-size: 0.85rem; color: #6b7280; margin-bottom: 0.5rem;">
-                                Vorhandene Tags (zum Hinzufügen anklicken):
-                            </p>
-                            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                                @foreach($allTags as $tag)
-                                    <button type="button" onclick="addTagToModal('{{ $tag }}')" class="tag-suggestion-index" style="background: #e0f2fe; color: #0c4a6e; padding: 0.35rem 0.75rem; border-radius: 999px; font-size: 0.8rem; font-weight: 600; border: 1px solid #7dd3fc; cursor: pointer; transition: all 0.2s;">
-                                        + {{ $tag }}
-                                    </button>
-                                @endforeach
-                            </div>
-                        </div>
-                    @endif
-                    <input type="text" name="tags" id="tags" class="form-input"
-                           placeholder="z.B. ZTR, B FGr, N FGr (mit Komma trennen)">
-                    <p style="font-size: 0.85rem; color: #6b7280; margin-top: 0.25rem;">
-                        Mehrere Tags mit Komma trennen (z.B. "ZTR, B FGr, N FGr")
-                    </p>
-                    <p class="form-error" id="tagsError" style="display: none;"></p>
-                </div>
-
-                <div class="form-group">
-                    <div class="form-checkbox">
-                        <input type="checkbox" name="is_active" id="is_active" value="1" checked>
-                        <label for="is_active">Sofort aktivieren</label>
-                    </div>
-                </div>
-            </div>
-
-            <div class="modal-footer">
-                <button type="button" id="cancelCreateModal" class="btn btn-modal-close">
-                    Abbrechen
-                </button>
-                <button type="submit" class="btn btn-primary">
-                    ✓ Erstellen
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<style>
-    .tag-suggestion-index:hover {
-        background: #0ea5e9 !important;
-        color: white !important;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
-    }
-</style>
 
 <script>
     // Tag-Suggestion Funktionalität
@@ -798,20 +383,17 @@
         const input = document.getElementById('tags');
         const currentValue = input.value.trim();
 
-        // Prüfe ob Tag bereits vorhanden ist
         const existingTags = currentValue.split(',').map(t => t.trim());
         if (existingTags.includes(tag)) {
-            return; // Tag bereits vorhanden
+            return;
         }
 
-        // Füge Tag hinzu
         if (currentValue === '') {
             input.value = tag;
         } else {
             input.value = currentValue + ', ' + tag;
         }
 
-        // Fokussiere Input
         input.focus();
     }
 
@@ -823,92 +405,63 @@
         const cancelBtn = document.getElementById('cancelCreateModal');
         const form = document.getElementById('createLernpoolForm');
 
-        // Function to open modal
         function openModal() {
-            modal.classList.add('active');
+            modal.style.display = 'flex';
             document.body.style.overflow = 'hidden';
         }
 
-        // Open Modal
-        if (openBtn) {
-            openBtn.addEventListener('click', openModal);
-        }
-        if (openBtnEmpty) {
-            openBtnEmpty.addEventListener('click', openModal);
-        }
+        if (openBtn) openBtn.addEventListener('click', openModal);
+        if (openBtnEmpty) openBtnEmpty.addEventListener('click', openModal);
 
-        // Close Modal
         function closeModal() {
-            modal.classList.remove('active');
+            modal.style.display = 'none';
             document.body.style.overflow = 'auto';
             form.reset();
-            document.getElementById('nameError').style.display = 'none';
-            document.getElementById('descriptionError').style.display = 'none';
         }
 
         closeBtn.addEventListener('click', closeModal);
         cancelBtn.addEventListener('click', closeModal);
 
-        // Close on backdrop click
         modal.addEventListener('click', function(e) {
-            if (e.target === modal) {
-                closeModal();
-            }
+            if (e.target === modal) closeModal();
         });
 
-        // Close on Escape key
         document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape' && modal.classList.contains('active')) {
-                closeModal();
-            }
-        });
-
-        // Form submission - just submit normally (page will reload on redirect)
-        form.addEventListener('submit', function(e) {
-            // Allow normal form submission - no preventDefault
-            // Laravel will redirect after successful creation
+            if (e.key === 'Escape' && modal.style.display === 'flex') closeModal();
         });
     });
 
-    // Generic Modal Loader für Show/Edit/Fragen
+    // Generic Modal Loader
     document.addEventListener('DOMContentLoaded', function() {
         const genericModal = document.getElementById('genericModal');
         const genericModalBackdrop = document.getElementById('genericModalBackdrop');
 
         function closeGenericModal() {
-            genericModalBackdrop.classList.remove('active');
+            genericModalBackdrop.style.display = 'none';
             document.body.style.overflow = 'auto';
             genericModal.innerHTML = '';
         }
 
-        // Close on backdrop click
         genericModalBackdrop.addEventListener('click', function(e) {
-            if (e.target === genericModalBackdrop) {
-                closeGenericModal();
-            }
+            if (e.target === genericModalBackdrop) closeGenericModal();
         });
 
-        // Close on Escape key
         document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape' && genericModalBackdrop.classList.contains('active')) {
-                closeGenericModal();
-            }
+            if (e.key === 'Escape' && genericModalBackdrop.style.display === 'flex') closeGenericModal();
         });
 
-        // Use event delegation for modal triggers (für dynamisch geladene Inhalte)
         document.addEventListener('click', function(e) {
             const trigger = e.target.closest('.modal-trigger');
             if (trigger && trigger.href) {
                 e.preventDefault();
                 e.stopPropagation();
-                // Füge ajax=1 und Cache-Buster Parameter hinzu
+
                 const baseUrl = trigger.href;
                 const cacheBuster = '_t=' + Date.now();
                 const url = baseUrl + (baseUrl.includes('?') ? '&' : '?') + 'ajax=1&' + cacheBuster;
 
-                // WICHTIG: Modal-Inhalt sofort leeren und Loading-Animation zeigen
-                genericModal.innerHTML = '<div class="modal"><div class="modal-body modal-loading"><div class="spinner"></div><div class="modal-loading-text">Lädt...</div></div></div>';
-                genericModalBackdrop.classList.add('active');
+                genericModal.innerHTML = '<div class="modal-loading"><div class="spinner"></div><div class="modal-loading-text">Lädt...</div></div>';
+                genericModalBackdrop.style.display = 'flex';
 
                 fetch(url, {
                     method: 'GET',
@@ -923,21 +476,19 @@
                 })
                 .then(response => response.text())
                 .then(html => {
-                    // Ersetze komplett den Modal-Inhalt
-                    genericModal.innerHTML = '<div class="modal">' + html + '</div>';
+                    genericModal.innerHTML = html;
                     document.body.style.overflow = 'hidden';
                 })
                 .catch(error => {
                     console.error('Error loading modal:', error);
-                    genericModal.innerHTML = '<div class="modal"><div class="modal-header"><h2>Fehler</h2><button class="modal-close" onclick="document.getElementById(\'genericModalBackdrop\').classList.remove(\'active\')">✕</button></div><div class="modal-body"><p>Fehler beim Laden des Inhalts.</p></div></div>';
+                    genericModal.innerHTML = '<div class="modal-header-glass"><h2>Fehler</h2><button class="modal-close-btn" onclick="document.getElementById(\'genericModalBackdrop\').style.display=\'none\'">&times;</button></div><div class="modal-body-glass"><p style="color: var(--text-secondary);">Fehler beim Laden des Inhalts.</p></div>';
                 });
                 return false;
             }
         });
 
-        // Event-Delegation für dynamisch geladene Submit-Buttons im Modal
+        // Event-Delegation für Submit-Buttons
         document.addEventListener('click', function(e) {
-            // Prüfe ob es ein Submit-Button im Fragen-Formular ist
             const submitBtn = e.target.closest('#submitFinishBtn, #submitContinueBtn');
             if (!submitBtn) return;
 
@@ -945,23 +496,18 @@
             e.stopPropagation();
 
             const action = submitBtn.id === 'submitContinueBtn' ? 'continue' : 'finish';
-            console.log('Submit Button geklickt:', action);
-
             const form = document.getElementById('createQuestionForm');
             if (!form) {
-                console.error('Form nicht gefunden');
                 alert('Fehler: Formular nicht gefunden!');
                 return;
             }
 
-            // Prüfe ob mindestens eine Lösung ausgewählt ist
             const loesungCheckboxes = form.querySelectorAll('input[name="loesung[]"]:checked');
             if (loesungCheckboxes.length === 0) {
-                alert('Bitte wähle mindestens eine richtige Antwort aus (A, B oder C)!');
+                alert('Bitte wähle mindestens eine richtige Antwort aus!');
                 return;
             }
 
-            // Prüfe required Felder
             const requiredInputs = form.querySelectorAll('[required]');
             let allValid = true;
             requiredInputs.forEach(input => {
@@ -972,21 +518,12 @@
                 }
             });
 
-            if (!allValid) {
-                console.log('Validierung fehlgeschlagen');
-                return;
-            }
-
-            console.log('Validierung OK, sende Formular...');
+            if (!allValid) return;
 
             const formData = new FormData(form);
             const buttons = form.querySelectorAll('#submitFinishBtn, #submitContinueBtn');
-
-            // WICHTIG: getAttribute verwenden, nicht form.action (wegen name="action" Konflikt)
             const formAction = form.getAttribute('action');
-            console.log('Form Action URL:', formAction);
 
-            // Disable buttons während Submit
             buttons.forEach(btn => {
                 btn.disabled = true;
                 btn.style.opacity = '0.6';
@@ -1003,30 +540,21 @@
             })
             .then(response => response.json())
             .then(data => {
-                console.log('Response:', data);
                 if (data.success) {
-                    showToastNotification('✓ ' + data.message, 'success');
+                    showToastNotification(data.message, 'success');
 
                     if (action === 'continue') {
-                        console.log('Lade neues Formular...');
-
-                        // Baue die korrekte Create-URL aus der Form Action
-                        // z.B. /ortsverband/1/lernpools/2/questions/store -> /ortsverband/1/lernpools/2/questions/create
                         let createUrl;
                         if (formAction.endsWith('/store')) {
                             createUrl = formAction.replace(/\/store$/, '/create');
                         } else if (formAction.includes('/questions')) {
-                            // Fallback: füge /create nach /questions hinzu
                             createUrl = formAction.replace(/\/questions.*$/, '/questions/create');
                         } else {
-                            console.error('Konnte Create-URL nicht generieren von:', formAction);
                             return;
                         }
 
                         createUrl += '?ajax=1&_t=' + Date.now();
-                        console.log('Create URL:', createUrl);
 
-                        // Lade Modal neu mit leerem Formular
                         fetch(createUrl, {
                             headers: {
                                 'X-Requested-With': 'XMLHttpRequest',
@@ -1035,19 +563,14 @@
                         })
                         .then(response => response.text())
                         .then(html => {
-                            genericModal.innerHTML = '<div class="modal">' + html + '</div>';
-                            console.log('Neues Formular geladen');
+                            genericModal.innerHTML = html;
                         });
                     } else {
-                        console.log('Schließe Modal...');
-                        // Schließe Modal und lade Seite neu
-                        genericModalBackdrop.classList.remove('active');
-                        setTimeout(() => {
-                            location.reload();
-                        }, 300);
+                        genericModalBackdrop.style.display = 'none';
+                        setTimeout(() => location.reload(), 300);
                     }
                 } else {
-                    showToastNotification('✗ ' + (data.message || 'Fehler beim Speichern'), 'error');
+                    showToastNotification(data.message || 'Fehler beim Speichern', 'error');
                     buttons.forEach(btn => {
                         btn.disabled = false;
                         btn.style.opacity = '1';
@@ -1056,7 +579,7 @@
             })
             .catch(error => {
                 console.error('Error:', error);
-                showToastNotification('✗ Fehler beim Speichern der Frage', 'error');
+                showToastNotification('Fehler beim Speichern', 'error');
                 buttons.forEach(btn => {
                     btn.disabled = false;
                     btn.style.opacity = '1';
@@ -1064,7 +587,7 @@
             });
         });
 
-        // Event-Delegation für Update-Button im Edit-Modal
+        // Event-Delegation für Update-Button
         document.addEventListener('click', function(e) {
             const updateBtn = e.target.closest('#updateQuestionBtn');
             if (!updateBtn) return;
@@ -1072,23 +595,18 @@
             e.preventDefault();
             e.stopPropagation();
 
-            console.log('Update Button geklickt');
-
             const form = document.getElementById('editQuestionForm');
             if (!form) {
-                console.error('Edit Form nicht gefunden');
                 alert('Fehler: Formular nicht gefunden!');
                 return;
             }
 
-            // Prüfe ob mindestens eine Lösung ausgewählt ist
             const loesungCheckboxes = form.querySelectorAll('input[name="loesung[]"]:checked');
             if (loesungCheckboxes.length === 0) {
-                alert('Bitte wähle mindestens eine richtige Antwort aus (A, B oder C)!');
+                alert('Bitte wähle mindestens eine richtige Antwort aus!');
                 return;
             }
 
-            // Prüfe required Felder
             const requiredInputs = form.querySelectorAll('[required]');
             let allValid = true;
             requiredInputs.forEach(input => {
@@ -1099,12 +617,7 @@
                 }
             });
 
-            if (!allValid) {
-                console.log('Validierung fehlgeschlagen');
-                return;
-            }
-
-            console.log('Validierung OK, sende Update...');
+            if (!allValid) return;
 
             const formData = new FormData(form);
             const formAction = form.getAttribute('action');
@@ -1123,23 +636,19 @@
             })
             .then(response => response.json())
             .then(data => {
-                console.log('Update Response:', data);
                 if (data.success) {
-                    showToastNotification('✓ ' + data.message, 'success');
-                    // Schließe Modal und lade Seite neu
-                    genericModalBackdrop.classList.remove('active');
-                    setTimeout(() => {
-                        location.reload();
-                    }, 300);
+                    showToastNotification(data.message, 'success');
+                    genericModalBackdrop.style.display = 'none';
+                    setTimeout(() => location.reload(), 300);
                 } else {
-                    showToastNotification('✗ ' + (data.message || 'Fehler beim Aktualisieren'), 'error');
+                    showToastNotification(data.message || 'Fehler beim Aktualisieren', 'error');
                     updateBtn.disabled = false;
                     updateBtn.style.opacity = '1';
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                showToastNotification('✗ Fehler beim Aktualisieren der Frage', 'error');
+                showToastNotification('Fehler beim Aktualisieren', 'error');
                 updateBtn.disabled = false;
                 updateBtn.style.opacity = '1';
             });
@@ -1156,13 +665,8 @@
             const questionId = deleteBtn.getAttribute('data-question-id');
             const deleteUrl = deleteBtn.getAttribute('data-delete-url');
 
-            if (!confirm('Möchtest du diese Frage wirklich löschen? Dies kann nicht rückgängig gemacht werden.')) {
-                return;
-            }
+            if (!confirm('Möchtest du diese Frage wirklich löschen?')) return;
 
-            console.log('Lösche Frage:', questionId);
-
-            // CSRF Token aus Meta-Tag holen
             const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
 
             deleteBtn.disabled = true;
@@ -1176,47 +680,43 @@
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({
-                    _method: 'DELETE'
-                }),
+                body: JSON.stringify({ _method: 'DELETE' }),
                 credentials: 'same-origin'
             })
             .then(response => {
                 if (response.ok) {
-                    showToastNotification('✓ Frage erfolgreich gelöscht', 'success');
-                    // Reload nach kurzer Verzögerung
-                    setTimeout(() => {
-                        location.reload();
-                    }, 500);
+                    showToastNotification('Frage gelöscht', 'success');
+                    setTimeout(() => location.reload(), 500);
                 } else {
                     throw new Error('Fehler beim Löschen');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                showToastNotification('✗ Fehler beim Löschen der Frage', 'error');
+                showToastNotification('Fehler beim Löschen', 'error');
                 deleteBtn.disabled = false;
                 deleteBtn.style.opacity = '1';
             });
         });
 
-        // Toast-Benachrichtigung Funktion
+        // Toast Notification
         window.showToastNotification = function(message, type) {
             const toast = document.createElement('div');
             toast.style.cssText = `
                 position: fixed;
                 top: 20px;
                 right: 20px;
-                padding: 16px 24px;
-                background: ${type === 'success' ? '#10b981' : '#ef4444'};
+                padding: 14px 20px;
+                background: ${type === 'success' ? 'linear-gradient(135deg, #22c55e, #16a34a)' : 'linear-gradient(135deg, #ef4444, #dc2626)'};
                 color: white;
-                border-radius: 8px;
+                border-radius: 0.75rem;
                 font-weight: 600;
+                font-size: 0.9rem;
                 z-index: 10000;
                 box-shadow: 0 10px 40px rgba(0,0,0,0.3);
                 animation: slideInRight 0.3s ease-out;
             `;
-            toast.textContent = message;
+            toast.textContent = (type === 'success' ? '✓ ' : '✗ ') + message;
             document.body.appendChild(toast);
 
             setTimeout(() => {
@@ -1225,7 +725,6 @@
             }, 3000);
         };
 
-        // Animation CSS hinzufügen (falls noch nicht vorhanden)
         if (!document.getElementById('toast-animations')) {
             const style = document.createElement('style');
             style.id = 'toast-animations';
@@ -1243,10 +742,4 @@
         }
     });
 </script>
-
-<!-- Generisches Modal für Show/Edit/Fragen -->
-<div id="genericModalBackdrop" class="modal-backdrop">
-    <div id="genericModal"></div>
-</div>
-
 @endsection

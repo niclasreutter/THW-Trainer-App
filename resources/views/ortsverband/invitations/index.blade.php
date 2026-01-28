@@ -2,519 +2,309 @@
 
 @section('title', $ortsverband->name . ' - Einladungen')
 
-@push('styles')
-<style>
-    * {
-        box-sizing: border-box;
-    }
-
-    .dashboard-wrapper {
-        min-height: 100vh;
-        background: #f3f4f6;
-        position: relative;
-        overflow-x: hidden;
-    }
-
-    .dashboard-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 2rem;
-        position: relative;
-        z-index: 1;
-    }
-
-    .dashboard-header {
-        text-align: center;
-        margin-bottom: 3rem;
-        padding-top: 1rem;
-    }
-
-    .dashboard-greeting {
-        font-size: 2.5rem;
-        font-weight: 800;
-        color: #00337F;
-        margin-bottom: 0.5rem;
-        line-height: 1.2;
-    }
-
-    .dashboard-greeting span {
-        display: inline-block;
-        background: linear-gradient(90deg, #fbbf24, #f59e0b);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-    }
-
-    .dashboard-subtitle {
-        font-size: 1.1rem;
-        color: #4b5563;
-        margin-bottom: 0;
-    }
-
-    .section-card {
-        background: white;
-        border-radius: 1.5rem;
-        padding: 2rem;
-        margin-bottom: 2rem;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    }
-
-    .section-title {
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: #00337F;
-        margin-bottom: 1.5rem;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .form-group {
-        margin-bottom: 1.5rem;
-    }
-
-    .form-label {
-        display: block;
-        font-size: 0.9rem;
-        font-weight: 600;
-        color: #374151;
-        margin-bottom: 0.5rem;
-    }
-
-    .form-input {
-        width: 100%;
-        padding: 0.875rem 1rem;
-        border: 2px solid #e5e7eb;
-        border-radius: 0.75rem;
-        font-size: 1rem;
-        transition: all 0.3s ease;
-        background: white;
-    }
-
-    .form-input:focus {
-        outline: none;
-        border-color: #00337F;
-        box-shadow: 0 0 0 3px rgba(0, 51, 127, 0.1);
-    }
-
-    .form-row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1rem;
-    }
-
-    @media (max-width: 600px) {
-        .form-row { grid-template-columns: 1fr; }
-    }
-
-    .btn {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-        padding: 0.875rem 1.5rem;
-        border-radius: 0.75rem;
-        font-weight: 700;
-        font-size: 1rem;
-        text-decoration: none;
-        transition: all 0.3s ease;
-        border: none;
-        cursor: pointer;
-    }
-
-    .btn-primary {
-        background: linear-gradient(135deg, #00337F 0%, #002a66 100%);
-        color: white;
-        width: 100%;
-    }
-
-    .btn-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 40px rgba(0, 51, 127, 0.3);
-    }
-
-    .btn-small {
-        padding: 0.5rem 1rem;
-        font-size: 0.85rem;
-        width: auto;
-    }
-
-    .btn-success {
-        background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
-        color: white;
-    }
-
-    .btn-danger {
-        background: #fee2e2;
-        color: #dc2626;
-    }
-
-    .btn-danger:hover {
-        background: #fca5a5;
-    }
-
-    .btn-outline {
-        background: white;
-        border: 2px solid #e5e7eb;
-        color: #374151;
-    }
-
-    .btn-outline:hover {
-        border-color: #00337F;
-        color: #00337F;
-    }
-
-    .invitation-card {
-        background: #f9fafb;
-        border-radius: 1rem;
-        padding: 1.25rem;
-        margin-bottom: 1rem;
-        border: 2px solid transparent;
-        transition: all 0.3s ease;
-    }
-
-    .invitation-card:hover {
-        border-color: #00337F;
-        background: white;
-    }
-
-    .invitation-card.active {
-        border-color: #22c55e;
-    }
-
-    .invitation-card.inactive {
-        border-color: #fbbf24;
-        opacity: 0.7;
-    }
-
-    .invitation-card.expired {
-        border-color: #ef4444;
-        opacity: 0.6;
-    }
-
-    .invitation-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: start;
-        margin-bottom: 0.75rem;
-    }
-
-    .invitation-name {
-        font-size: 1.1rem;
-        font-weight: 700;
-        color: #00337F;
-    }
-
-    .invitation-meta {
-        font-size: 0.85rem;
-        color: #6b7280;
-    }
-
-    .badge {
-        display: inline-block;
-        padding: 0.25rem 0.75rem;
-        border-radius: 2rem;
-        font-size: 0.7rem;
-        font-weight: 700;
-        text-transform: uppercase;
-    }
-
-    .badge-active {
-        background: rgba(34, 197, 94, 0.1);
-        color: #16a34a;
-    }
-
-    .badge-inactive {
-        background: rgba(251, 191, 36, 0.1);
-        color: #b45309;
-    }
-
-    .badge-expired {
-        background: rgba(239, 68, 68, 0.1);
-        color: #dc2626;
-    }
-
-    .copy-box {
-        display: flex;
-        gap: 0.5rem;
-        margin: 0.75rem 0;
-    }
-
-    .copy-input {
-        flex: 1;
-        padding: 0.5rem 0.75rem;
-        border: 2px solid #e5e7eb;
-        border-radius: 0.5rem;
-        font-size: 0.85rem;
-        font-family: monospace;
-        background: white;
-    }
-
-    .copy-btn {
-        padding: 0.5rem 0.75rem;
-        background: #00337F;
-        color: white;
-        border: none;
-        border-radius: 0.5rem;
-        cursor: pointer;
-        font-size: 0.85rem;
-        transition: all 0.3s ease;
-    }
-
-    .copy-btn:hover {
-        background: #002a66;
-    }
-
-    .copy-btn.copied {
-        background: #16a34a;
-    }
-
-    .stats-row {
-        display: flex;
-        gap: 1.5rem;
-        margin-top: 0.75rem;
-        font-size: 0.85rem;
-        color: #6b7280;
-    }
-
-    .action-buttons {
-        display: flex;
-        gap: 0.5rem;
-    }
-
-    .alert {
-        padding: 1rem 1.5rem;
-        border-radius: 1rem;
-        margin-bottom: 1.5rem;
-    }
-
-    .alert-success {
-        background: rgba(34, 197, 94, 0.1);
-        border: 1px solid rgba(34, 197, 94, 0.3);
-        color: #166534;
-    }
-
-    .alert-error {
-        background: rgba(239, 68, 68, 0.1);
-        border: 1px solid rgba(239, 68, 68, 0.3);
-        color: #991b1b;
-    }
-
-    .empty-state {
-        text-align: center;
-        padding: 2rem;
-        color: #6b7280;
-    }
-
-    @media (max-width: 480px) {
-        .dashboard-container { padding: 1rem; }
-        .section-card { padding: 1.25rem; }
-        .dashboard-greeting { font-size: 1.75rem; }
-        .invitation-header { flex-direction: column; gap: 0.5rem; }
-        .copy-box { flex-direction: column; }
-        .stats-row { flex-direction: column; gap: 0.5rem; }
-    }
-</style>
-@endpush
-
 @section('content')
-<div class="dashboard-wrapper">
-    <div class="dashboard-container">
-        <div class="dashboard-header">
-            <h1 class="dashboard-greeting">🔗 <span>Einladungen verwalten</span></h1>
-            <p class="dashboard-subtitle">{{ $ortsverband->name }}</p>
-        </div>
+<div class="dashboard-container">
+    <header class="dashboard-header">
+        <h1 class="page-title">Einladungen <span>verwalten</span></h1>
+        <p class="page-subtitle">{{ $ortsverband->name }}</p>
+    </header>
 
-        @if(session('success'))
-        <div class="alert alert-success">
-            ✓ {{ session('success') }}
+    @if(session('success'))
+    <div class="alert-compact glass-success" style="margin-bottom: 1.5rem;">
+        <i class="bi bi-check-circle alert-compact-icon"></i>
+        <div class="alert-compact-content">
+            <div class="alert-compact-title">{{ session('success') }}</div>
         </div>
-        @endif
+        <button onclick="this.parentElement.remove()" style="background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 1.25rem;">&times;</button>
+    </div>
+    @endif
 
-        @if(session('error'))
-        <div class="alert alert-error">
-            ✗ {{ session('error') }}
+    @if(session('error'))
+    <div class="alert-compact glass-error" style="margin-bottom: 1.5rem;">
+        <i class="bi bi-exclamation-triangle alert-compact-icon"></i>
+        <div class="alert-compact-content">
+            <div class="alert-compact-title">{{ session('error') }}</div>
         </div>
-        @endif
+        <button onclick="this.parentElement.remove()" style="background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 1.25rem;">&times;</button>
+    </div>
+    @endif
 
+    <!-- Bento Grid -->
+    <div class="bento-grid-inv">
         <!-- Neue Einladung erstellen -->
-        <div class="section-card">
-            <h2 class="section-title">➕ Neue Einladung erstellen</h2>
+        <div class="glass-gold bento-create-inv">
+            <div class="section-header" style="margin-bottom: 1.25rem; padding-left: 0; border-left: none;">
+                <h2 class="section-title" style="font-size: 1.25rem;">Neue Einladung erstellen</h2>
+            </div>
 
             <form action="{{ route('ortsverband.invitations.store', $ortsverband) }}" method="POST">
                 @csrf
 
-                <div class="form-group">
-                    <label for="name" class="form-label">Bezeichnung</label>
-                    <input type="text" 
-                           id="name" 
-                           name="name" 
-                           class="form-input" 
+                <div style="margin-bottom: 1.25rem;">
+                    <label for="name" style="display: block; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem; font-size: 0.9rem;">
+                        Bezeichnung <span style="color: #ef4444;">*</span>
+                    </label>
+                    <input type="text"
+                           id="name"
+                           name="name"
+                           class="input-glass"
                            placeholder="z.B. Grundausbildung 2024, Neue Helfer..."
                            required>
                 </div>
 
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="max_uses" class="form-label">Maximale Nutzungen (optional)</label>
-                        <input type="number" 
-                               id="max_uses" 
-                               name="max_uses" 
-                               class="form-input" 
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
+                    <div>
+                        <label for="max_uses" style="display: block; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem; font-size: 0.9rem;">
+                            Max. Nutzungen <span style="color: var(--text-muted); font-weight: normal;">(optional)</span>
+                        </label>
+                        <input type="number"
+                               id="max_uses"
+                               name="max_uses"
+                               class="input-glass"
                                placeholder="Unbegrenzt"
                                min="1">
                     </div>
 
-                    <div class="form-group">
-                        <label for="expires_at" class="form-label">Gültig bis (optional)</label>
+                    <div>
+                        <label for="expires_at" style="display: block; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem; font-size: 0.9rem;">
+                            Gültig bis <span style="color: var(--text-muted); font-weight: normal;">(optional)</span>
+                        </label>
                         <input type="date"
                                id="expires_at"
                                name="expires_at"
-                               class="form-input"
+                               class="input-glass"
                                min="{{ date('Y-m-d') }}"
                                max="{{ now()->addYears(10)->format('Y-m-d') }}">
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-primary">
-                    🔗 Einladung erstellen
+                <button type="submit" class="btn-primary" style="width: 100%;">
+                    Einladung erstellen
                 </button>
             </form>
         </div>
 
         <!-- Bestehende Einladungen -->
-        <div class="section-card">
-            <h2 class="section-title">📋 Bestehende Einladungen</h2>
+        <div class="glass-tl bento-list-inv">
+            <div class="section-header" style="margin-bottom: 1rem; padding-left: 0.75rem;">
+                <h2 class="section-title" style="font-size: 1.1rem;">Bestehende Einladungen</h2>
+            </div>
 
-            @forelse($invitations as $invitation)
-            @php
-                $statusClass = $invitation->is_expired ? 'expired' : ($invitation->is_active ? 'active' : 'inactive');
-                $badgeClass = $invitation->is_expired ? 'badge-expired' : ($invitation->is_active ? 'badge-active' : 'badge-inactive');
-                $statusText = $invitation->is_expired ? 'Abgelaufen' : ($invitation->is_active ? 'Aktiv' : 'Pausiert');
-            @endphp
+            <div class="invitations-list">
+                @forelse($invitations as $invitation)
+                @php
+                    $statusClass = $invitation->is_expired ? 'glass-error' : ($invitation->is_active ? 'glass-success' : 'glass-warning');
+                    $statusText = $invitation->is_expired ? 'Abgelaufen' : ($invitation->is_active ? 'Aktiv' : 'Pausiert');
+                    $badgeClass = $invitation->is_expired ? 'badge-error' : ($invitation->is_active ? 'badge-success' : 'badge-gold');
+                @endphp
 
-            <div class="invitation-card {{ $statusClass }}">
-                <div class="invitation-header">
-                    <div>
-                        <div class="invitation-name">{{ $invitation->name }}</div>
-                        <div class="invitation-meta">
-                            Erstellt: {{ $invitation->created_at->format('d.m.Y H:i') }}
-                            @if($invitation->expires_at)
-                                • Gültig bis: {{ $invitation->expires_at->format('d.m.Y') }}
-                            @endif
+                <div class="{{ $statusClass }} invitation-card-item">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.75rem;">
+                        <div>
+                            <div style="font-weight: 700; color: var(--text-primary); margin-bottom: 0.25rem;">{{ $invitation->name }}</div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted);">
+                                Erstellt: {{ $invitation->created_at->format('d.m.Y H:i') }}
+                                @if($invitation->expires_at)
+                                    | Gültig bis: {{ $invitation->expires_at->format('d.m.Y') }}
+                                @endif
+                            </div>
                         </div>
+                        <span class="{{ $badgeClass }}" style="font-size: 0.65rem;">{{ $statusText }}</span>
                     </div>
-                    <span class="badge {{ $badgeClass }}">{{ $statusText }}</span>
-                </div>
 
-                <div class="copy-box">
-                    <input type="text" 
-                           class="copy-input" 
-                           value="{{ route('register', ['code' => $invitation->code]) }}" 
-                           readonly 
-                           id="link-{{ $invitation->id }}">
-                    <button type="button" class="copy-btn" onclick="copyToClipboard('link-{{ $invitation->id }}', this)">
-                        📋 Kopieren
-                    </button>
-                </div>
+                    <!-- Link Copy -->
+                    <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+                        <input type="text"
+                               class="input-glass"
+                               value="{{ route('register', ['code' => $invitation->code]) }}"
+                               readonly
+                               id="link-{{ $invitation->id }}"
+                               style="flex: 1; font-size: 0.8rem; padding: 0.5rem 0.75rem; font-family: monospace;">
+                        <button type="button" class="btn-secondary btn-sm" onclick="copyToClipboard('link-{{ $invitation->id }}', this)">
+                            Kopieren
+                        </button>
+                    </div>
 
-                <div class="copy-box">
-                    <input type="text"
-                           class="copy-input"
-                           value="{{ $invitation->code }}"
-                           readonly
-                           id="code-{{ $invitation->id }}"
-                           style="font-weight: bold;">
-                    <button type="button" class="copy-btn" onclick="copyToClipboard('code-{{ $invitation->id }}', this)">
-                        📋 Code kopieren
-                    </button>
-                    <button type="button" class="copy-btn" onclick="showQRCode({{ $invitation->id }}, '{{ route('ortsverband.invitations.qrcode', [$ortsverband, $invitation]) }}')" style="background: #f59e0b;">
-                        📱 QR-Code
-                    </button>
-                </div>
+                    <!-- Code Copy & QR -->
+                    <div style="display: flex; gap: 0.5rem; margin-bottom: 0.75rem;">
+                        <input type="text"
+                               class="input-glass"
+                               value="{{ $invitation->code }}"
+                               readonly
+                               id="code-{{ $invitation->id }}"
+                               style="flex: 1; font-size: 0.85rem; padding: 0.5rem 0.75rem; font-weight: 700;">
+                        <button type="button" class="btn-secondary btn-sm" onclick="copyToClipboard('code-{{ $invitation->id }}', this)">
+                            Code
+                        </button>
+                        <button type="button" class="btn-primary btn-sm" onclick="showQRCode({{ $invitation->id }}, '{{ route('ortsverband.invitations.qrcode', [$ortsverband, $invitation]) }}')">
+                            QR
+                        </button>
+                    </div>
 
-                <div class="stats-row">
-                    <span>👥 {{ $invitation->current_uses }} Nutzungen</span>
-                    @if($invitation->max_uses)
-                        <span>📊 Max: {{ $invitation->max_uses }}</span>
-                    @else
-                        <span>📊 Unbegrenzt</span>
+                    <!-- Stats -->
+                    <div style="display: flex; gap: 1rem; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.75rem;">
+                        <span><i class="bi bi-people"></i> {{ $invitation->current_uses }} Nutzungen</span>
+                        <span><i class="bi bi-graph-up"></i> {{ $invitation->max_uses ? 'Max: ' . $invitation->max_uses : 'Unbegrenzt' }}</span>
+                    </div>
+
+                    @if(!$invitation->is_expired)
+                    <div style="display: flex; gap: 0.5rem;">
+                        <form action="{{ route('ortsverband.invitations.toggle', [$ortsverband, $invitation]) }}" method="POST" style="display: inline;">
+                            @csrf
+                            @method('PUT')
+                            <button type="submit" class="btn-ghost btn-sm">
+                                {{ $invitation->is_active ? 'Pausieren' : 'Aktivieren' }}
+                            </button>
+                        </form>
+
+                        <form action="{{ route('ortsverband.invitations.destroy', [$ortsverband, $invitation]) }}"
+                              method="POST"
+                              style="display: inline;"
+                              onsubmit="return confirm('Möchtest du diese Einladung wirklich löschen?')">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn-danger btn-sm">Löschen</button>
+                        </form>
+                    </div>
                     @endif
                 </div>
-
-                @if(!$invitation->is_expired)
-                <div class="action-buttons" style="margin-top: 1rem;">
-                    <form action="{{ route('ortsverband.invitations.toggle', [$ortsverband, $invitation]) }}" method="POST" style="display: inline;">
-                        @csrf
-                        @method('PUT')
-                        <button type="submit" class="btn btn-small btn-outline">
-                            @if($invitation->is_active)
-                                ⏸️ Pausieren
-                            @else
-                                ▶️ Aktivieren
-                            @endif
-                        </button>
-                    </form>
-
-                    <form action="{{ route('ortsverband.invitations.destroy', [$ortsverband, $invitation]) }}" 
-                          method="POST" 
-                          style="display: inline;"
-                          onsubmit="return confirm('Möchtest du diese Einladung wirklich löschen?')">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-small btn-danger">
-                            🗑️ Löschen
-                        </button>
-                    </form>
+                @empty
+                <div class="empty-state" style="padding: 2rem;">
+                    <div class="empty-state-icon"><i class="bi bi-link-45deg"></i></div>
+                    <h3 class="empty-state-title">Keine Einladungen</h3>
+                    <p class="empty-state-desc">Erstelle deine erste Einladung, um Mitglieder einzuladen.</p>
                 </div>
-                @endif
+                @endforelse
             </div>
-            @empty
-            <div class="empty-state">
-                <div style="font-size: 3rem; margin-bottom: 1rem;">🔗</div>
-                <h3 style="color: #00337F; margin-bottom: 0.5rem;">Keine Einladungen vorhanden</h3>
-                <p>Erstelle deine erste Einladung, um Mitglieder einzuladen.</p>
-            </div>
-            @endforelse
         </div>
+    </div>
 
-        <div style="text-align: center; margin-top: 2rem;">
-            <a href="{{ route('ortsverband.dashboard', $ortsverband) }}" style="color: #6b7280; text-decoration: none; font-size: 0.9rem;">
-                ← Zurück zum Dashboard
-            </a>
-        </div>
+    <!-- Back Link -->
+    <div style="text-align: center; margin-top: 2rem;">
+        <a href="{{ route('ortsverband.dashboard', $ortsverband) }}" class="btn-ghost btn-sm">
+            <i class="bi bi-arrow-left"></i> Zurück zum Dashboard
+        </a>
     </div>
 </div>
 
 <!-- QR-Code Modal -->
-<div id="qr-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center;">
-    <div style="background: white; border-radius: 1.5rem; padding: 2rem; max-width: 500px; width: 90%; text-align: center; position: relative;">
-        <button onclick="closeQRModal()" style="position: absolute; top: 1rem; right: 1rem; background: #f3f4f6; border: none; border-radius: 0.5rem; width: 2.5rem; height: 2.5rem; cursor: pointer; font-size: 1.5rem; color: #6b7280;">
-            ×
-        </button>
-
-        <h3 style="color: #00337F; margin-bottom: 1rem; font-size: 1.5rem; font-weight: 700;">
-            📱 QR-Code Einladung
-        </h3>
-
-        <p style="color: #6b7280; margin-bottom: 1.5rem; font-size: 0.9rem;">
-            Scannen Sie diesen QR-Code, um direkt zur Registrierungsseite zu gelangen.
-        </p>
-
-        <div id="qr-code-container" style="display: flex; justify-content: center; margin-bottom: 1.5rem;">
-            <img id="qr-code-image" src="" alt="QR Code" style="max-width: 100%; height: auto; border-radius: 1rem; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+<div id="qr-modal" class="modal-overlay-glass" style="display: none;">
+    <div class="modal-glass" style="max-width: 400px; text-align: center;">
+        <div class="modal-header-glass">
+            <h2 style="font-size: 1.25rem;">QR-Code Einladung</h2>
+            <button onclick="closeQRModal()" class="modal-close-btn">&times;</button>
         </div>
-
-        <div style="display: flex; gap: 0.5rem; justify-content: center;">
-            <button onclick="downloadQRCode()" class="btn btn-primary btn-small">
-                💾 Herunterladen
-            </button>
-            <button onclick="printQRCode()" class="btn btn-small" style="background: #f59e0b; color: white;">
-                🖨️ Drucken
-            </button>
+        <div class="modal-body-glass">
+            <p style="color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 0.85rem;">
+                Scannen Sie diesen QR-Code, um direkt zur Registrierungsseite zu gelangen.
+            </p>
+            <div id="qr-code-container" style="display: flex; justify-content: center; margin-bottom: 1.5rem;">
+                <img id="qr-code-image" src="" alt="QR Code" style="max-width: 100%; height: auto; border-radius: 0.75rem;">
+            </div>
+            <div style="display: flex; gap: 0.75rem; justify-content: center;">
+                <button onclick="downloadQRCode()" class="btn-primary btn-sm">Herunterladen</button>
+                <button onclick="printQRCode()" class="btn-secondary btn-sm">Drucken</button>
+            </div>
         </div>
     </div>
 </div>
+
+@push('styles')
+<style>
+    .bento-grid-inv {
+        display: grid;
+        grid-template-columns: 1fr 1.5fr;
+        gap: 1rem;
+    }
+
+    .bento-create-inv {
+        padding: 1.5rem;
+        height: fit-content;
+    }
+
+    .bento-list-inv {
+        padding: 1.5rem;
+    }
+
+    .invitations-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        max-height: 500px;
+        overflow-y: auto;
+    }
+
+    .invitation-card-item {
+        padding: 1rem;
+        border-radius: 0.75rem;
+    }
+
+    .modal-close-btn {
+        background: rgba(255, 255, 255, 0.1);
+        border: none;
+        color: var(--text-secondary);
+        width: 32px;
+        height: 32px;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        font-size: 1.25rem;
+        transition: all 0.2s;
+    }
+
+    .modal-close-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+        color: var(--text-primary);
+    }
+
+    .alert-compact {
+        padding: 0.875rem 1rem;
+        border-radius: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .alert-compact-icon { font-size: 1.25rem; }
+    .alert-compact-content { flex: 1; }
+    .alert-compact-title { font-size: 0.9rem; font-weight: 600; color: var(--text-primary); }
+
+    .empty-state {
+        text-align: center;
+    }
+
+    .empty-state-icon {
+        font-size: 2rem;
+        color: var(--text-muted);
+        margin-bottom: 0.75rem;
+        opacity: 0.6;
+    }
+
+    .empty-state-title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 0.25rem;
+    }
+
+    .empty-state-desc {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+    }
+
+    @media (max-width: 900px) {
+        .bento-grid-inv {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .invitation-card-item > div:first-child {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+    }
+</style>
+@endpush
 
 <script>
 let currentQRCodeUrl = '';
@@ -526,12 +316,10 @@ function copyToClipboard(inputId, button) {
 
     navigator.clipboard.writeText(input.value).then(() => {
         const originalText = button.innerHTML;
-        button.innerHTML = '✓ Kopiert!';
-        button.classList.add('copied');
+        button.innerHTML = 'Kopiert!';
 
         setTimeout(() => {
             button.innerHTML = originalText;
-            button.classList.remove('copied');
         }, 2000);
     });
 }
@@ -544,7 +332,6 @@ function showQRCode(invitationId, qrCodeUrl) {
     img.src = qrCodeUrl;
     modal.style.display = 'flex';
 
-    // Schließen bei Klick außerhalb
     modal.onclick = function(e) {
         if (e.target === modal) {
             closeQRModal();
@@ -581,7 +368,6 @@ function printQRCode() {
     }, 250);
 }
 
-// ESC-Taste zum Schließen
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
         closeQRModal();
