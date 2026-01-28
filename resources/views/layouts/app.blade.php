@@ -147,6 +147,12 @@
                         Theorie Lernen
                     </a>
 
+                    <a href="{{ route('bookmarks.index') }}"
+                       class="sidebar-link {{ request()->routeIs('bookmarks.*') ? 'active' : '' }}">
+                        <i class="bi bi-bookmark"></i>
+                        Gespeicherte Fragen
+                    </a>
+
                     <a href="{{ route('exam.index') }}"
                        class="sidebar-link {{ request()->routeIs('exam.*') ? 'active' : '' }}">
                         <i class="bi bi-clipboard-check"></i>
@@ -164,6 +170,22 @@
                         <i class="bi bi-bar-chart"></i>
                         Statistiken
                     </a>
+
+                    <a href="{{ route('gamification.leaderboard') }}"
+                       class="sidebar-link {{ request()->routeIs('gamification.*') ? 'active' : '' }}">
+                        <i class="bi bi-trophy"></i>
+                        Rangliste
+                    </a>
+
+                    <div class="pt-4 mt-4 border-t border-glass-subtle">
+                        <p class="px-3 mb-3 text-xs font-semibold text-dark-muted uppercase tracking-wider">Sonstiges</p>
+
+                        <a href="{{ route('contact.index') }}"
+                           class="sidebar-link {{ request()->routeIs('contact.*') ? 'active' : '' }}">
+                            <i class="bi bi-envelope"></i>
+                            Kontakt
+                        </a>
+                    </div>
 
                     @php
                         $userOV = auth()->user()->ortsverbände->first();
@@ -343,9 +365,19 @@
             </div>
 
             <nav class="px-4 py-6 space-y-1">
+                <a href="{{ route('bookmarks.index') }}" class="sidebar-link {{ request()->routeIs('bookmarks.*') ? 'active' : '' }}">
+                    <i class="bi bi-bookmark"></i>
+                    Gespeicherte Fragen
+                </a>
+
                 <a href="{{ route('lehrgaenge.index') }}" class="sidebar-link {{ request()->routeIs('lehrgaenge.*') ? 'active' : '' }}">
                     <i class="bi bi-mortarboard"></i>
                     Lehrgänge
+                </a>
+
+                <a href="{{ route('gamification.leaderboard') }}" class="sidebar-link {{ request()->routeIs('gamification.*') ? 'active' : '' }}">
+                    <i class="bi bi-trophy"></i>
+                    Rangliste
                 </a>
 
                 @php
@@ -357,6 +389,14 @@
                     Ortsverband
                 </a>
                 @endif
+
+                <div class="pt-4 mt-4 border-t border-glass-subtle">
+                    <p class="px-3 mb-3 text-xs font-semibold text-dark-muted uppercase tracking-wider">Sonstiges</p>
+                    <a href="{{ route('contact.index') }}" class="sidebar-link {{ request()->routeIs('contact.*') ? 'active' : '' }}">
+                        <i class="bi bi-envelope"></i>
+                        Kontakt
+                    </a>
+                </div>
 
                 @if(auth()->user()->useroll === 'admin')
                 <div class="pt-4 mt-4 border-t border-glass-subtle">
