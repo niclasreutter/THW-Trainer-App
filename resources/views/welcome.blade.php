@@ -38,7 +38,7 @@
                                 <li>• Keine Registrierung nötig</li>
                                 <li>• Perfekt zum Testen</li>
                             </ul>
-                            <a href="{{ route('guest.practice.menu') }}" class="block w-full bg-yellow-600 text-white font-bold px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg hover:bg-yellow-700 text-center transition-colors text-sm sm:text-base">
+                            <a href="{{ route('landing.guest.practice.menu') }}" class="block w-full bg-yellow-600 text-white font-bold px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg hover:bg-yellow-700 text-center transition-colors text-sm sm:text-base">
                                 Jetzt üben
                             </a>
                         </div>

@@ -55,7 +55,7 @@
 
                 <!-- Anonym Text -->
                 <div class="mt-4">
-                    <a href="{{ route('guest.practice.menu') }}"
+                    <a href="{{ route('landing.guest.practice.menu') }}"
                        class="text-sm lg:text-base text-blue-900 underline font-medium hover:text-yellow-400 transition-colors duration-300"
                        aria-label="Anonym ohne Registrierung üben">
                         Anonym ohne Login üben

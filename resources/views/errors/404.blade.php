@@ -89,7 +89,7 @@
                             <span>Zum Dashboard</span>
                         </a>
                     @else
-                        <a href="{{ route('guest.practice.menu') }}"
+                        <a href="{{ route('landing.guest.practice.menu') }}"
                            class="btn-secondary"
                            style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 1rem 1.5rem; border-radius: 0.75rem; font-weight: 700; text-decoration: none; color: #1e40af;">
                             <span>🎯</span>

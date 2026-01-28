@@ -592,7 +592,7 @@
             </form>
 
             <!-- Guest Access Button -->
-            <a href="{{ route('guest.practice.menu') }}" class="auth-secondary-btn">Als Gast üben</a>
+            <a href="{{ route('landing.guest.practice.menu') }}" class="auth-secondary-btn">Als Gast üben</a>
 
             <!-- Divider -->
             <div class="auth-divider"></div>
