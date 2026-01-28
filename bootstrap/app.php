@@ -14,6 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
             $isDevelopment = env('APP_ENV', 'local') === 'local';
             $landingDomain = env('LANDING_DOMAIN', 'thw-trainer.de');
             $appDomain = env('APP_DOMAIN', 'app.thw-trainer.de');
+            $devDomain = env('DEV_DOMAIN', 'dev.thw-trainer.de');
 
             if ($isDevelopment) {
                 // Development: Alle Routes ohne Domain-Constraint
@@ -30,8 +31,14 @@ return Application::configure(basePath: dirname(__DIR__))
                     ->domain($landingDomain)
                     ->group(base_path('routes/landing.php'));
 
+                // App Routes für app.thw-trainer.de
                 Route::middleware('web')
                     ->domain($appDomain)
+                    ->group(base_path('routes/web.php'));
+
+                // App Routes für dev.thw-trainer.de (Development/Testing)
+                Route::middleware('web')
+                    ->domain($devDomain)
                     ->group(base_path('routes/web.php'));
             }
         },

@@ -28,6 +28,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Development/Testing Domain
+    |--------------------------------------------------------------------------
+    |
+    | The subdomain for development/testing environment.
+    | This domain also shows the full application like app.thw-trainer.de.
+    |
+    */
+
+    'dev' => env('DEV_DOMAIN', 'dev.thw-trainer.de'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Development Mode
     |--------------------------------------------------------------------------
     |
