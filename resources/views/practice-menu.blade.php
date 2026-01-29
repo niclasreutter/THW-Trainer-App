@@ -3,12 +3,6 @@
 
 @push('styles')
 <style>
-    /* Prevent horizontal scroll globally */
-    html, body {
-        overflow-x: hidden !important;
-        max-width: 100vw !important;
-    }
-
     .dashboard-container {
         max-width: 1200px;
         margin: 0 auto;

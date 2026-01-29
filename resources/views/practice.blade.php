@@ -35,15 +35,9 @@
             display: none !important;
         }
 
-        body {
-            overflow-x: hidden !important;
-            overflow-y: hidden !important;
-        }
-
         main {
             padding: 0 !important;
             min-height: 100dvh !important;
-            height: 100dvh !important;
         }
     }
 
@@ -269,13 +263,18 @@
             bottom: 0;
             left: 0;
             right: 0;
-            background: var(--bg-primary);
+            background: var(--bg-base);
             padding: 1rem 1.5rem;
             padding-bottom: calc(1rem + env(safe-area-inset-bottom, 20px));
             border-top: 1px solid rgba(255, 255, 255, 0.08);
             z-index: 100;
             margin: 0;
         }
+    }
+
+    /* Light Mode Button Wrapper */
+    html.light-mode .submit-button-wrapper {
+        border-top-color: rgba(0, 51, 127, 0.1);
     }
 
     /* Mode Badge */
