@@ -256,13 +256,15 @@
         }
     }
 
-    /* Submit Button Wrapper - Desktop */
+    /* ========== SUBMIT BUTTON WRAPPER ==========*/
+
+    /* Desktop: flex layout */
     .submit-button-wrapper {
         margin-top: auto;
         flex-shrink: 0;
     }
 
-    /* Mobile: Fixed Bottom Button */
+    /* Mobile: Fixed bottom positioning (independent of theme) */
     @media (max-width: 640px) {
         .submit-button-wrapper {
             margin-top: initial !important;
@@ -270,13 +272,13 @@
         }
     }
 
-    /* Submit Button Wrapper - Dark Mode (Default) */
+    /* Dark Mode (Default) - independent of layout */
     .submit-button-wrapper {
         background-color: rgba(15, 23, 42, 0.95) !important;
         border-top: 1px solid rgba(255, 255, 255, 0.06) !important;
     }
 
-    /* Light Mode Button Background - must override inline styles */
+    /* Light Mode - independent of layout */
     html.light-mode .submit-button-wrapper {
         background-color: rgba(255, 255, 255, 0.95) !important;
         border-top: 1px solid rgba(0, 0, 0, 0.08) !important;
