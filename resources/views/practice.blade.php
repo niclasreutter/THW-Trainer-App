@@ -251,11 +251,30 @@
         }
     }
 
-    /* Submit Button Wrapper - Desktop */
-    @media (min-width: 641px) {
-        .submit-button-wrapper {
-            margin-top: auto;
-            flex-shrink: 0;
+    /* Submit Button Wrapper */
+    .submit-button-wrapper {
+        margin-top: auto;
+        flex-shrink: 0;
+    }
+
+    /* Mobile: Fixed Bottom Button - MUSS in beiden Modi identisch sein */
+    @media (max-width: 640px) {
+        body .submit-button-wrapper {
+            position: fixed !important;
+            bottom: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            margin: 0 !important;
+            padding: 1rem 1.5rem 1.5rem 1.5rem !important;
+            background-color: #f3f4f6 !important; /* Light mode bg */
+            border-top: 1px solid rgba(0, 51, 127, 0.1) !important;
+            z-index: 100 !important;
+        }
+
+        /* Dark Mode Override */
+        html:not(.light-mode) body .submit-button-wrapper {
+            background-color: #0a0a0b !important; /* Dark mode bg */
+            border-top-color: rgba(255, 255, 255, 0.08) !important;
         }
     }
 
@@ -667,7 +686,7 @@
                 </div>
 
                 <!-- Submit/Next Button -->
-                <div class="submit-button-wrapper sm:relative sm:inset-auto sm:bg-transparent sm:p-0 sm:border-0 sm:z-auto fixed bottom-0 left-0 right-0 z-[100] p-4 pb-6 border-t" style="background: var(--bg-base); border-color: var(--glass-border);">
+                <div class="submit-button-wrapper">
                     @if(!isset($isCorrect))
                         <button type="submit" id="submitBtn" class="btn-primary w-full py-4 text-base" disabled>
                             Antwort absenden
