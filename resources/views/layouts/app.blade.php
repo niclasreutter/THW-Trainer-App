@@ -324,7 +324,7 @@
                 </header>
 
                 <!-- Page Content -->
-                <main class="flex-1 px-4 py-6 lg:px-8 lg:py-8 @auth pb-20 lg:pb-8 @endauth">
+                <main class="flex-1 @if(!str_contains(request()->path(), 'admin/')) px-4 lg:px-8 @endif py-6 lg:py-8 @auth pb-20 lg:pb-8 @endauth">
                     @yield('content')
                 </main>
 

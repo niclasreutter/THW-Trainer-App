@@ -1457,11 +1457,24 @@
     select {
         background-color: var(--bg-surface);
         color: var(--text-primary);
-        border: 1px solid var(--glass-border);
+        border: 1px solid #d1d5db;
         border-radius: 0.5rem;
         padding: 0.625rem 1rem;
         font-family: inherit;
         transition: all var(--transition-fast);
+    }
+
+    /* Light Mode: Input Border Anpassung */
+    .light-mode input[type="text"],
+    .light-mode input[type="email"],
+    .light-mode input[type="password"],
+    .light-mode input[type="number"],
+    .light-mode input[type="date"],
+    .light-mode input[type="time"],
+    .light-mode textarea,
+    .light-mode select {
+        border-color: #e5e7eb;
+        background-color: #ffffff;
     }
 
     input[type="text"]:focus,
@@ -1474,7 +1487,6 @@
     select:focus {
         outline: none;
         border-color: var(--gold);
-        background-color: var(--bg-elevated);
         box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.1);
     }
 }
