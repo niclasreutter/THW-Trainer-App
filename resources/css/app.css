@@ -1845,6 +1845,24 @@ html.light-mode select option {
     color: #1e293b !important;
 }
 
+/* Light Mode: Fix transparency-based backgrounds in admin pages */
+html.light-mode [style*="rgba(255, 255, 255, 0.03)"],
+html.light-mode [style*="rgba(255, 255, 255, 0.05)"] {
+    background-color: #ffffff !important;
+}
+
+html.light-mode [style*="rgba(255, 255, 255, 0.1)"] {
+    border-color: #d1d5db !important;
+    background-color: #ffffff !important;
+}
+
+/* Light Mode: Message cards and content areas */
+html.light-mode .message-item,
+html.light-mode [style*="border: 1px solid rgba(255, 255, 255, 0.1)"] {
+    background-color: #ffffff !important;
+    border-color: #d1d5db !important;
+}
+
 /* Progress bars in light mode */
 html.light-mode .progress-glass,
 html.light-mode .lehrgang-progress-bar {
