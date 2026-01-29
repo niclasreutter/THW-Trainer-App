@@ -251,30 +251,24 @@
         }
     }
 
-    /* Submit Button Wrapper */
+    /* Submit Button Wrapper - Desktop */
     .submit-button-wrapper {
         margin-top: auto;
         flex-shrink: 0;
     }
 
-    /* Mobile: Fixed Bottom Button - MUSS in beiden Modi identisch sein */
+    /* Mobile: Fixed Bottom Button */
     @media (max-width: 640px) {
-        body .submit-button-wrapper {
+        #practiceContainer .question-card form .submit-button-wrapper {
             position: fixed !important;
             bottom: 0 !important;
             left: 0 !important;
             right: 0 !important;
             margin: 0 !important;
             padding: 1rem 1.5rem 1.5rem 1.5rem !important;
-            background-color: #f3f4f6 !important; /* Light mode bg */
-            border-top: 1px solid rgba(0, 51, 127, 0.1) !important;
-            z-index: 100 !important;
-        }
-
-        /* Dark Mode Override */
-        html:not(.light-mode) body .submit-button-wrapper {
-            background-color: #0a0a0b !important; /* Dark mode bg */
-            border-top-color: rgba(255, 255, 255, 0.08) !important;
+            z-index: 9999 !important;
+            background-color: var(--bg-base) !important;
+            border-top: 1px solid var(--glass-border) !important;
         }
     }
 
@@ -817,41 +811,6 @@
 
             // Show popups on page load
             document.addEventListener('DOMContentLoaded', function() {
-                // Force button to be fixed on mobile - MUST run after DOM is ready
-                if (window.innerWidth <= 640) {
-                    const wrapper = document.querySelector('.submit-button-wrapper');
-                    if (wrapper) {
-                        console.log('Fixing button position for mobile');
-
-                        // Set background based on theme
-                        const isDark = !document.documentElement.classList.contains('light-mode');
-                        console.log('Is Dark Mode:', isDark);
-
-                        const bgColor = isDark ? '#0a0a0b' : '#f3f4f6';
-                        const borderColor = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 51, 127, 0.1)';
-
-                        // Use cssText to override all styles at once with !important
-                        wrapper.style.cssText = `
-                            position: fixed !important;
-                            bottom: 0 !important;
-                            left: 0 !important;
-                            right: 0 !important;
-                            z-index: 9999 !important;
-                            margin: 0 !important;
-                            padding: 1rem 1.5rem 1.5rem 1.5rem !important;
-                            background-color: ${bgColor} !important;
-                            border-top: 1px solid ${borderColor} !important;
-                            display: block !important;
-                            visibility: visible !important;
-                            opacity: 1 !important;
-                        `;
-
-                        console.log('Button styles applied:', wrapper.style.cssText);
-                    } else {
-                        console.error('Submit button wrapper not found!');
-                    }
-                }
-
                 // Show Gamification Popup
                 const gamificationPopup = document.getElementById('gamificationPopup');
                 if (gamificationPopup) {
