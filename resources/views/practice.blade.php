@@ -260,15 +260,7 @@
     /* Mobile: Fixed Bottom Button */
     @media (max-width: 640px) {
         #practiceContainer .question-card form .submit-button-wrapper {
-            position: fixed !important;
-            bottom: 0 !important;
-            left: 0 !important;
-            right: 0 !important;
-            margin: 0 !important;
-            padding: 1rem 1.5rem 1.5rem 1.5rem !important;
-            z-index: 9999 !important;
-            background-color: var(--bg-base) !important;
-            border-top: 1px solid var(--glass-border) !important;
+            /* Inline styles have priority - don't override here */
         }
     }
 
