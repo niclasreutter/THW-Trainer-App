@@ -650,7 +650,7 @@
                 <input type="hidden" name="answer_mapping" value="{{ $mappingJson }}">
 
                 <!-- Question Content -->
-                <div class="mb-6" id="questionContent">
+                <div id="questionContent">
                     <!-- Question Meta -->
                     <div class="flex items-center gap-2 mb-3 text-xs text-dark-muted">
                         <span>ID: {{ $question->id }}</span>
