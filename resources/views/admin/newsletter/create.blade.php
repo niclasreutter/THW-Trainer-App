@@ -3,38 +3,6 @@
 @section('title', 'Newsletter erstellen - Admin')
 @section('description', 'Newsletter an alle User mit E-Mail-Zustimmung senden')
 
-@push('styles')
-<style>
-    .dashboard-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 2rem;
-    }
-
-    .dashboard-header {
-        margin-bottom: 2.5rem;
-        padding-top: 1rem;
-        max-width: 600px;
-    }
-
-    .bento-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr 1fr 1fr;
-        gap: 1rem;
-        margin-bottom: 2rem;
-    }
-
-    @media (max-width: 900px) {
-        .bento-grid { grid-template-columns: 1fr 1fr; }
-    }
-
-    @media (max-width: 600px) {
-        .bento-grid { grid-template-columns: 1fr; }
-        .dashboard-container { padding: 1rem; }
-    }
-</style>
-@endpush
-
 @section('content')
 <div class="dashboard-container">
     <!-- Header -->
