@@ -40,6 +40,12 @@
             display: none !important;
         }
 
+        /* Fix the main layout container - removes min-h-screen constraint */
+        body > div.flex-1 {
+            min-height: auto !important;
+            height: 100dvh !important;
+        }
+
         main {
             padding: 0 !important;
             padding-bottom: 0 !important;
