@@ -32,13 +32,6 @@ Route::get('/datenschutz', function () {
     return view('landing.datenschutz');
 })->name('landing.datenschutz');
 
-// Kontaktformular
-Route::get('/kontakt', [\App\Http\Controllers\ContactController::class, 'index'])
-    ->name('landing.contact.index');
-Route::post('/kontakt', [\App\Http\Controllers\ContactController::class, 'store'])
-    ->middleware('throttle:3,60')
-    ->name('landing.contact.submit');
-
 // Öffentliche Statistik
 Route::get('/statistik', [\App\Http\Controllers\StatisticsController::class, 'index'])
     ->name('landing.statistics');
@@ -71,8 +64,6 @@ Allow: /
 Allow: /guest/practice-menu
 Allow: /guest/exam
 Allow: /statistik
-Allow: /kontakt
-
 # App-Subdomain wird separat gecrawlt
 # Siehe: app.thw-trainer.de/robots.txt
 

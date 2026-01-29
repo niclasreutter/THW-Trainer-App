@@ -18,7 +18,6 @@
             <div class="landing-footer-links">
                 <a href="{{ route('landing.home') }}">Startseite</a>
                 <a href="{{ route('landing.statistics') }}">Statistiken</a>
-                <a href="{{ route('landing.contact.index') }}">Kontakt</a>
             </div>
         </div>
 
