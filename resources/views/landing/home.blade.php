@@ -45,14 +45,14 @@
                 {{-- CTA Buttons --}}
                 <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
                     @php
-                        $registerUrl = config('domains.development')
-                            ? route('register')
-                            : 'https://' . config('domains.app') . '/register';
+                        $appUrl = config('domains.development')
+                            ? route('dashboard')
+                            : 'https://' . config('domains.app');
                     @endphp
-                    <a href="{{ $registerUrl }}"
+                    <a href="{{ $appUrl }}"
                        class="landing-hero-btn-primary"
-                       aria-label="Jetzt kostenlos THW-Theorie lernen starten">
-                        THW-Theorie kostenlos lernen
+                       aria-label="Jetzt zur THW-Theorie App">
+                        Jetzt zur App
                     </a>
 
                     <a href="{{ route('landing.guest.practice.menu') }}"
