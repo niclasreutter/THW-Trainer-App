@@ -251,37 +251,11 @@
         }
     }
 
-    /* Submit Button Wrapper */
-    .submit-button-wrapper {
-        margin-top: auto;
-        flex-shrink: 0;
-    }
-
-    @media (max-width: 640px) {
+    /* Submit Button Wrapper - Desktop */
+    @media (min-width: 641px) {
         .submit-button-wrapper {
-            position: fixed !important;
-            bottom: 0 !important;
-            left: 0 !important;
-            right: 0 !important;
-            background: var(--bg-base) !important;
-            padding: 1rem 1.5rem 1.5rem 1.5rem !important;
-            border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
-            z-index: 100 !important;
-            margin: 0 !important;
-        }
-
-        /* Light Mode Button Wrapper */
-        html.light-mode .submit-button-wrapper {
-            border-top-color: rgba(0, 51, 127, 0.1) !important;
-        }
-    }
-
-    /* iOS Safe Area */
-    @supports (padding-bottom: env(safe-area-inset-bottom)) {
-        @media (max-width: 640px) {
-            .submit-button-wrapper {
-                padding-bottom: calc(1.5rem + env(safe-area-inset-bottom)) !important;
-            }
+            margin-top: auto;
+            flex-shrink: 0;
         }
     }
 
@@ -693,7 +667,7 @@
                 </div>
 
                 <!-- Submit/Next Button -->
-                <div class="submit-button-wrapper">
+                <div class="submit-button-wrapper sm:relative sm:inset-auto sm:bg-transparent sm:p-0 sm:border-0 sm:z-auto fixed bottom-0 left-0 right-0 z-[100] p-4 pb-6 border-t" style="background: var(--bg-base); border-color: var(--glass-border);">
                     @if(!isset($isCorrect))
                         <button type="submit" id="submitBtn" class="btn-primary w-full py-4 text-base" disabled>
                             Antwort absenden
