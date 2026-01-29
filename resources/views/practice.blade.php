@@ -270,6 +270,12 @@
         }
     }
 
+    /* Submit Button Wrapper - Dark Mode (Default) */
+    .submit-button-wrapper {
+        background-color: rgba(15, 23, 42, 0.95) !important;
+        border-top: 1px solid rgba(255, 255, 255, 0.06) !important;
+    }
+
     /* Light Mode Button Background - must override inline styles */
     html.light-mode .submit-button-wrapper {
         background-color: rgba(255, 255, 255, 0.95) !important;
@@ -684,7 +690,7 @@
                 </div>
 
                 <!-- Submit/Next Button -->
-                <div class="submit-button-wrapper" style="position: fixed !important; bottom: env(safe-area-inset-bottom, 0px) !important; left: 0 !important; right: 0 !important; z-index: 9999 !important; margin: 0 !important; padding: 1rem 1.5rem calc(1.5rem + env(safe-area-inset-bottom, 0px)) 1.5rem !important; width: 100% !important; box-sizing: border-box !important; background-color: rgba(15, 23, 42, 0.95) !important; border-top: 1px solid rgba(255, 255, 255, 0.06) !important;">
+                <div class="submit-button-wrapper" style="position: fixed !important; bottom: env(safe-area-inset-bottom, 0px) !important; left: 0 !important; right: 0 !important; z-index: 9999 !important; margin: 0 !important; padding: 1rem 1.5rem calc(1.5rem + env(safe-area-inset-bottom, 0px)) 1.5rem !important; width: 100% !important; box-sizing: border-box !important;">
                     @if(!isset($isCorrect))
                         <button type="submit" id="submitBtn" class="btn-primary w-full py-4 text-base" disabled>
                             Antwort absenden
