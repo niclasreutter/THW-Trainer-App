@@ -3,54 +3,90 @@
 @section('title', 'Newsletter erstellen - Admin')
 @section('description', 'Newsletter an alle User mit E-Mail-Zustimmung senden')
 
+@push('styles')
+<style>
+    .dashboard-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .dashboard-header {
+        margin-bottom: 2.5rem;
+        padding-top: 1rem;
+        max-width: 600px;
+    }
+
+    .bento-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr 1fr;
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    @media (max-width: 900px) {
+        .bento-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 600px) {
+        .bento-grid { grid-template-columns: 1fr; }
+        .dashboard-container { padding: 1rem; }
+    }
+</style>
+@endpush
+
 @section('content')
-<div class="max-w-7xl mx-auto p-6">
-    <div class="mb-6 flex justify-between items-center">
-        <h1 class="text-3xl font-bold text-blue-800">📧 Newsletter erstellen</h1>
-        <a href="{{ route('admin.users.index') }}" class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700">
-            ← Zurück zur Übersicht
-        </a>
-    </div>
+<div class="dashboard-container">
+    <!-- Header -->
+    <header class="dashboard-header">
+        <h1 class="page-title">Newsletter <span>erstellen</span></h1>
+        <p class="page-subtitle">Newsletter an alle User mit E-Mail-Zustimmung senden</p>
+    </header>
 
     <!-- Info-Hinweis -->
-    <div class="mb-6 p-4 bg-blue-50 border-2 border-blue-300 rounded-lg">
-        <div class="flex items-start gap-2">
-            <div class="text-xl">ℹ️</div>
+    <div class="glass mb-6" style="padding: 1.25rem;">
+        <div style="display: flex; align-items: start; gap: 0.75rem;">
+            <i class="bi bi-info-circle text-gold" style="font-size: 1.25rem;"></i>
             <div>
-                <h3 class="font-bold text-blue-800 mb-1">Verfügbare Platzhalter:</h3>
-                <p class="text-sm text-blue-700">
-                    <code class="bg-blue-100 px-2 py-1 rounded">@{{name}}</code> - Name des Users |
-                    <code class="bg-blue-100 px-2 py-1 rounded">@{{email}}</code> - E-Mail |
-                    <code class="bg-blue-100 px-2 py-1 rounded">@{{level}}</code> - Level |
-                    <code class="bg-blue-100 px-2 py-1 rounded">@{{points}}</code> - Punkte |
-                    <code class="bg-blue-100 px-2 py-1 rounded">@{{streak}}</code> - Streak
+                <h3 style="font-weight: 700; color: var(--text-primary); margin-bottom: 0.5rem;">Verfügbare Platzhalter:</h3>
+                <p style="font-size: 0.875rem; color: var(--text-secondary);">
+                    <code style="background: rgba(255, 255, 255, 0.1); padding: 0.25rem 0.5rem; border-radius: 0.25rem;">@{{name}}</code> - Name des Users |
+                    <code style="background: rgba(255, 255, 255, 0.1); padding: 0.25rem 0.5rem; border-radius: 0.25rem;">@{{email}}</code> - E-Mail |
+                    <code style="background: rgba(255, 255, 255, 0.1); padding: 0.25rem 0.5rem; border-radius: 0.25rem;">@{{level}}</code> - Level |
+                    <code style="background: rgba(255, 255, 255, 0.1); padding: 0.25rem 0.5rem; border-radius: 0.25rem;">@{{points}}</code> - Punkte |
+                    <code style="background: rgba(255, 255, 255, 0.1); padding: 0.25rem 0.5rem; border-radius: 0.25rem;">@{{streak}}</code> - Streak
                 </p>
             </div>
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="bento-grid" style="grid-template-columns: 1fr 1fr;">
         <!-- Editor Seite -->
-        <div class="bg-white rounded-lg shadow-md p-6">
-            <h2 class="text-xl font-semibold text-blue-800 mb-4">📝 Newsletter bearbeiten</h2>
+        <div class="glass-gold hover-lift" style="padding: 1.5rem;">
+            <h2 style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="bi bi-pencil text-gold"></i>
+                Newsletter bearbeiten
+            </h2>
             
             <form id="newsletterForm">
                 @csrf
                 
                 <!-- Betreff -->
                 <div class="mb-4">
-                    <label for="subject" class="block text-sm font-medium text-gray-700 mb-2">Betreff</label>
+                    <label for="subject" style="display: block; font-size: 0.875rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">Betreff</label>
                     <input type="text" id="subject" name="subject" required
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                           placeholder="z.B. Neue Features im THW-Trainer">
+                           style="width: 100%; padding: 0.625rem 1rem; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 0.5rem; color: var(--text-primary); outline: none; transition: all 0.2s;"
+                           placeholder="z.B. Neue Features im THW-Trainer"
+                           onfocus="this.style.borderColor='var(--gold-start)'; this.style.background='rgba(255, 255, 255, 0.08)';"
+                           onblur="this.style.borderColor='rgba(255, 255, 255, 0.1)'; this.style.background='rgba(255, 255, 255, 0.05)';">
                 </div>
 
                 <!-- Rich-Text Editor mit Formatierungs-Toolbar -->
                 <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Inhalt</label>
+                    <label style="display: block; font-size: 0.875rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">Inhalt</label>
                     
                     <!-- Formatierungs-Toolbar -->
-                    <div class="mb-2 p-2 bg-gray-100 border rounded-t-lg flex flex-wrap gap-2">
+                    <div class="mb-2 p-2 border rounded-t-lg flex flex-wrap gap-2" style="background: rgba(255, 255, 255, 0.05); border-color: rgba(255, 255, 255, 0.1);">
                         <button type="button" onclick="formatText('bold')" 
                                 style="padding: 6px 12px; background-color: #374151; color: white; border: none; border-radius: 4px; font-size: 14px; cursor: pointer; font-weight: bold;">
                             B
@@ -97,7 +133,7 @@
                     </div>
                     
                     <!-- Komponenten-Toolbar -->
-                    <div class="mb-2 p-2 bg-blue-50 border-x border-b rounded-b-lg flex flex-wrap gap-2">
+                    <div class="mb-2 p-2 border-x border-b rounded-b-lg flex flex-wrap gap-2" style="background: rgba(251, 191, 36, 0.05); border-color: rgba(255, 255, 255, 0.1);">
                         <button type="button" onclick="insertPlaceholder()" 
                                 style="padding: 6px 12px; background-color: #3b82f6; color: white; border: none; border-radius: 4px; font-size: 14px; cursor: pointer; transition: all 0.2s;" 
                                 onmouseover="this.style.backgroundColor='#2563eb'" 
@@ -144,8 +180,9 @@
                     
                     <!-- ContentEditable Editor -->
                     <div id="editor" contenteditable="true"
-                         style="min-height: 400px; padding: 16px; background: white; border: 1px solid #d1d5db; border-radius: 8px; outline: none; overflow-y: auto; max-height: 600px;"
-                         class="focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                         style="min-height: 400px; padding: 16px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; outline: none; overflow-y: auto; max-height: 600px; color: var(--text-primary);"
+                         onfocus="this.style.borderColor='var(--gold-start)'; this.style.background='rgba(255, 255, 255, 0.05)';"
+                         onblur="this.style.borderColor='rgba(255, 255, 255, 0.1)'; this.style.background='rgba(255, 255, 255, 0.03)';">
                         <p>Hier deinen Newsletter-Inhalt schreiben...</p>
                     </div>
                     <input type="hidden" id="content" name="content">
@@ -153,17 +190,11 @@
 
                 <!-- Aktionen -->
                 <div style="display: flex; gap: 12px;">
-                    <button type="button" id="sendTestBtn" 
-                            style="flex: 1; background-color: #eab308; color: white; padding: 12px 24px; border-radius: 8px; font-weight: bold; font-size: 14px; border: none; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);"
-                            onmouseover="this.style.backgroundColor='#ca8a04'; this.style.boxShadow='0 6px 12px rgba(0, 0, 0, 0.15)';"
-                            onmouseout="this.style.backgroundColor='#eab308'; this.style.boxShadow='0 4px 6px rgba(0, 0, 0, 0.1)';">
-                        🧪 Test-Mail an mich
+                    <button type="button" id="sendTestBtn" class="btn-secondary" style="flex: 1;">
+                        Test-Mail an mich
                     </button>
-                    <button type="button" id="sendAllBtn"
-                            style="flex: 1; background-color: #2563eb; color: white; padding: 12px 24px; border-radius: 8px; font-weight: bold; font-size: 14px; border: none; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);"
-                            onmouseover="this.style.backgroundColor='#1d4ed8'; this.style.boxShadow='0 6px 12px rgba(0, 0, 0, 0.15)';"
-                            onmouseout="this.style.backgroundColor='#2563eb'; this.style.boxShadow='0 4px 6px rgba(0, 0, 0, 0.1)';">
-                        📧 An alle senden
+                    <button type="button" id="sendAllBtn" class="btn-primary" style="flex: 1;">
+                        An alle senden
                     </button>
                 </div>
             </form>
@@ -173,11 +204,14 @@
         </div>
 
         <!-- Vorschau Seite -->
-        <div class="bg-white rounded-lg shadow-md p-6">
-            <h2 class="text-xl font-semibold text-blue-800 mb-4">👁️ Vorschau</h2>
-            <div class="border-2 border-gray-200 rounded-lg p-4 bg-gray-50 overflow-auto" style="max-height: 600px;">
-                <div id="preview" class="bg-white p-4 rounded">
-                    <p class="text-gray-400 italic">Die Vorschau erscheint hier...</p>
+        <div class="glass-tl hover-lift" style="padding: 1.5rem;">
+            <h2 style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="bi bi-eye text-gold"></i>
+                Vorschau
+            </h2>
+            <div style="border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 0.5rem; padding: 1rem; background: rgba(255, 255, 255, 0.03); overflow: auto; max-height: 600px;">
+                <div id="preview" style="background: rgba(255, 255, 255, 0.05); padding: 1rem; border-radius: 0.5rem;">
+                    <p style="color: var(--text-muted); font-style: italic;">Die Vorschau erscheint hier...</p>
                 </div>
             </div>
         </div>
@@ -185,25 +219,30 @@
 
     <!-- Newsletter-Historie -->
     @if(isset($newsletters) && count($newsletters) > 0)
-    <div class="mt-8 bg-white rounded-lg shadow-md p-6">
-        <h2 class="text-xl font-semibold text-blue-800 mb-4">📜 Zuletzt gesendet</h2>
-        <div class="overflow-x-auto">
-            <table class="min-w-full">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th class="px-4 py-2 text-left text-sm font-semibold text-gray-700">Betreff</th>
-                        <th class="px-4 py-2 text-left text-sm font-semibold text-gray-700">Empfänger</th>
-                        <th class="px-4 py-2 text-left text-sm font-semibold text-gray-700">Gesendet von</th>
-                        <th class="px-4 py-2 text-left text-sm font-semibold text-gray-700">Datum</th>
+    <div class="glass mt-8" style="padding: 1.5rem;">
+        <h2 style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
+            <i class="bi bi-clock-history text-gold"></i>
+            Zuletzt gesendet
+        </h2>
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="border-bottom: 2px solid rgba(255, 255, 255, 0.1);">
+                        <th style="padding: 0.75rem 1rem; text-align: left; font-size: 0.875rem; font-weight: 600; color: var(--text-secondary);">Betreff</th>
+                        <th style="padding: 0.75rem 1rem; text-align: left; font-size: 0.875rem; font-weight: 600; color: var(--text-secondary);">Empfänger</th>
+                        <th style="padding: 0.75rem 1rem; text-align: left; font-size: 0.875rem; font-weight: 600; color: var(--text-secondary);">Gesendet von</th>
+                        <th style="padding: 0.75rem 1rem; text-align: left; font-size: 0.875rem; font-weight: 600; color: var(--text-secondary);">Datum</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-200">
+                <tbody>
                     @foreach($newsletters as $newsletter)
-                    <tr class="hover:bg-gray-50">
-                        <td class="px-4 py-3 text-sm">{{ $newsletter->subject }}</td>
-                        <td class="px-4 py-3 text-sm">{{ $newsletter->recipients_count }}</td>
-                        <td class="px-4 py-3 text-sm">{{ $newsletter->sender->name ?? 'Unbekannt' }}</td>
-                        <td class="px-4 py-3 text-sm">{{ $newsletter->sent_at?->format('d.m.Y H:i') ?? '-' }}</td>
+                    <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.06); transition: all 0.2s;"
+                        onmouseover="this.style.background='rgba(255, 255, 255, 0.03)'"
+                        onmouseout="this.style.background='transparent'">
+                        <td style="padding: 0.875rem 1rem; font-size: 0.875rem; color: var(--text-primary);">{{ $newsletter->subject }}</td>
+                        <td style="padding: 0.875rem 1rem; font-size: 0.875rem; color: var(--text-secondary);">{{ $newsletter->recipients_count }}</td>
+                        <td style="padding: 0.875rem 1rem; font-size: 0.875rem; color: var(--text-secondary);">{{ $newsletter->sender->name ?? 'Unbekannt' }}</td>
+                        <td style="padding: 0.875rem 1rem; font-size: 0.875rem; color: var(--text-muted);">{{ $newsletter->sent_at?->format('d.m.Y H:i') ?? '-' }}</td>
                     </tr>
                     @endforeach
                 </tbody>
@@ -366,14 +405,15 @@ document.getElementById('sendTestBtn').addEventListener('click', function() {
     const btn = this;
     const subject = document.getElementById('subject').value;
     const content = document.getElementById('content').value;
-    
+
     if (!subject || !content) {
         showMessage('Bitte fülle Betreff und Inhalt aus!', 'error');
         return;
     }
-    
+
     btn.disabled = true;
-    btn.textContent = '⏳ Wird gesendet...';
+    const originalText = btn.textContent;
+    btn.textContent = 'Wird gesendet...';
     
     fetch(testRoute, {
         method: 'POST',
@@ -396,7 +436,7 @@ document.getElementById('sendTestBtn').addEventListener('click', function() {
     })
     .finally(() => {
         btn.disabled = false;
-        btn.textContent = '🧪 Test-Mail an mich';
+        btn.textContent = 'Test-Mail an mich';
     });
 });
 
@@ -405,18 +445,19 @@ document.getElementById('sendAllBtn').addEventListener('click', function() {
     const btn = this;
     const subject = document.getElementById('subject').value;
     const content = document.getElementById('content').value;
-    
+
     if (!subject || !content) {
         showMessage('Bitte fülle Betreff und Inhalt aus!', 'error');
         return;
     }
-    
+
     if (!confirm('Newsletter wirklich an alle User mit E-Mail-Zustimmung senden?')) {
         return;
     }
-    
+
     btn.disabled = true;
-    btn.textContent = '⏳ Wird gesendet...';
+    const originalText = btn.textContent;
+    btn.textContent = 'Wird gesendet...';
     
     fetch(sendRoute, {
         method: 'POST',
@@ -445,18 +486,23 @@ document.getElementById('sendAllBtn').addEventListener('click', function() {
     })
     .finally(() => {
         btn.disabled = false;
-        btn.textContent = '📧 An alle senden';
+        btn.textContent = 'An alle senden';
     });
 });
 
 // Status-Nachricht anzeigen
 function showMessage(message, type) {
     const statusDiv = document.getElementById('statusMessage');
-    statusDiv.className = 'mt-4 p-4 rounded-lg ' + 
-        (type === 'success' ? 'bg-green-50 border-2 border-green-500 text-green-700' : 'bg-red-50 border-2 border-red-500 text-red-700');
+    if (type === 'success') {
+        statusDiv.className = 'glass-success';
+        statusDiv.style.cssText = 'margin-top: 1rem; padding: 1rem; border-radius: 0.5rem;';
+    } else {
+        statusDiv.className = 'glass-error';
+        statusDiv.style.cssText = 'margin-top: 1rem; padding: 1rem; border-radius: 0.5rem;';
+    }
     statusDiv.textContent = message;
     statusDiv.classList.remove('hidden');
-    
+
     setTimeout(() => {
         statusDiv.classList.add('hidden');
     }, 5000);
