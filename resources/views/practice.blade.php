@@ -264,6 +264,18 @@
         }
     }
 
+    /* Light Mode Button Background */
+    .light-mode .submit-button-wrapper {
+        background-color: rgba(255, 255, 255, 0.95) !important;
+        border-top: 1px solid rgba(0, 0, 0, 0.08) !important;
+    }
+
+    /* Dark Mode Button Background */
+    .dark-mode .submit-button-wrapper {
+        background-color: rgba(15, 23, 42, 0.95) !important;
+        border-top: 1px solid rgba(255, 255, 255, 0.06) !important;
+    }
+
     /* Mode Badge */
     .mode-badge {
         display: inline-flex;
@@ -672,7 +684,7 @@
                 </div>
 
                 <!-- Submit/Next Button -->
-                <div class="submit-button-wrapper" style="position: fixed; bottom: 0; left: 0; right: 0; z-index: 9999; margin: 0 !important; padding: 1rem 1.5rem 1.5rem 1.5rem !important; background-color: rgba(15, 23, 42, 0.95) !important; border-top: 1px solid rgba(255, 255, 255, 0.06) !important; width: 100% !important; box-sizing: border-box !important;">
+                <div class="submit-button-wrapper" style="position: fixed !important; bottom: 0 !important; left: 0 !important; right: 0 !important; z-index: 9999 !important; margin: 0 !important; padding: 1rem 1.5rem 1.5rem 1.5rem !important; width: 100% !important; box-sizing: border-box !important;">
                     @if(!isset($isCorrect))
                         <button type="submit" id="submitBtn" class="btn-primary w-full py-4 text-base" disabled>
                             Antwort absenden
