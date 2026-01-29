@@ -1309,6 +1309,139 @@
         background: var(--gradient-gold);
         font-weight: 600;
     }
+
+    /* --- Dashboard Container Layout --- */
+
+    /* Main Container - ALLE Admin-Seiten verwenden diese Breite */
+    .dashboard-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .dashboard-header {
+        margin-bottom: 2.5rem;
+        padding-top: 1rem;
+        max-width: 600px;
+    }
+
+    /* Bento Grid Layout */
+    .bento-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr 1fr;
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .bento-side {
+        padding: 1.25rem;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .bento-wide {
+        grid-column: span 4;
+        padding: 1.5rem;
+    }
+
+    .bento-half {
+        grid-column: span 2;
+        padding: 1.5rem;
+    }
+
+    .bento-third {
+        grid-column: span 1;
+        padding: 1.5rem;
+    }
+
+    .bento-main {
+        grid-column: span 2;
+        grid-row: span 2;
+        padding: 1.5rem;
+    }
+
+    .bento-2of3 {
+        grid-column: span 2;
+        padding: 1.5rem;
+    }
+
+    .bento-1of3 {
+        grid-column: span 1;
+        padding: 1.5rem;
+    }
+
+    /* Responsive Bento Grid */
+    @media (max-width: 900px) {
+        .bento-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+        .bento-wide {
+            grid-column: span 2;
+        }
+        .bento-half {
+            grid-column: span 2;
+        }
+        .bento-third {
+            grid-column: span 1;
+        }
+        .bento-main {
+            grid-column: span 2;
+        }
+        .bento-2of3 {
+            grid-column: span 2;
+        }
+        .bento-1of3 {
+            grid-column: span 1;
+        }
+    }
+
+    @media (max-width: 600px) {
+        .dashboard-container {
+            padding: 1rem;
+        }
+        .bento-grid {
+            grid-template-columns: 1fr;
+        }
+        .bento-wide,
+        .bento-half,
+        .bento-third,
+        .bento-side,
+        .bento-main,
+        .bento-2of3,
+        .bento-1of3 {
+            grid-column: span 1;
+        }
+    }
+
+    /* Section Headers */
+    .section-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        padding-left: 1rem;
+        border-left: 3px solid var(--gold-start);
+    }
+
+    .section-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        letter-spacing: -0.02em;
+    }
+
+    .section-link {
+        margin-left: auto;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--gold);
+        text-decoration: none;
+        transition: color var(--transition-fast);
+    }
+
+    .section-link:hover {
+        color: var(--gold-light);
+    }
 }
 
 /* === Utility Layer === */

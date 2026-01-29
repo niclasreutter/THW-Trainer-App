@@ -283,11 +283,118 @@ Das Standard-Design verwendet ein modernes Dark-Mode-Glassmorphism mit asymmetri
 --text-muted: #71717a;
 ```
 
+### Layout-Maße und Abstände (Dashboard-Standard)
+
+**WICHTIG:** Alle Admin-Seiten verwenden diese Container-Klassen (jetzt global in app.css verfügbar):
+
+**Container (max-width 1200px):**
+```html
+<div class="dashboard-container">
+    <!-- Gesamter Seiteninhalt -->
+</div>
+```
+```css
+.dashboard-container {
+    max-width: 1200px;        /* KRITISCH: ALLE Admin-Seiten */
+    margin: 0 auto;           /* Zentriert horizontal */
+    padding: 2rem;            /* Desktop: 32px rundum */
+}
+
+@media (max-width: 600px) {
+    .dashboard-container {
+        padding: 1rem;        /* Mobile: 16px rundum */
+    }
+}
+```
+
+**Header (links ausgerichtet, nicht volle Breite):**
+```html
+<header class="dashboard-header">
+    <h1 class="page-title">Text <span>mit Gold-Gradient</span></h1>
+    <p class="page-subtitle">Beschreibung</p>
+</header>
+```
+```css
+.dashboard-header {
+    margin-bottom: 2.5rem;    /* 40px Abstand nach unten */
+    padding-top: 1rem;        /* 16px Abstand nach oben */
+    max-width: 600px;         /* Nicht volle Breite! */
+}
+```
+
+**Bento Grid (4-spaltig, responsive):**
+```html
+<div class="bento-grid">
+    <div class="glass-gold bento-main">2x2 Hauptcard</div>
+    <div class="glass-tl bento-side">1x1 Sidebar</div>
+    <div class="glass-br bento-side">1x1 Sidebar</div>
+    <div class="glass-slash bento-wide">Volle Breite</div>
+</div>
+```
+```css
+.bento-grid {
+    grid-template-columns: 1fr 1fr 1fr 1fr;  /* 4 gleiche Spalten */
+    gap: 1rem;                                /* 16px zwischen Cards */
+    margin-bottom: 2rem;                      /* 32px zum nächsten Block */
+}
+
+/* Grid-Span Klassen */
+.bento-main      { grid-column: span 2; grid-row: span 2; padding: 1.5rem; }  /* 2x2 */
+.bento-wide      { grid-column: span 4; padding: 1.5rem; }  /* Volle Breite */
+.bento-half      { grid-column: span 2; padding: 1.5rem; }  /* Halbe Breite */
+.bento-third     { grid-column: span 1; padding: 1.5rem; }  /* Ein Drittel */
+.bento-2of3      { grid-column: span 2; padding: 1.5rem; }  /* Zwei Drittel */
+.bento-1of3      { grid-column: span 1; padding: 1.5rem; }  /* Ein Drittel */
+.bento-side      { padding: 1.25rem; }                       /* Kleine Sidebar-Cards */
+```
+
+**Section Headers (mit Gold-Akzent links):**
+```html
+<div class="section-header">
+    <h2 class="section-title">Abschnittstitel</h2>
+    <a href="#" class="section-link">Alle anzeigen</a>
+</div>
+```
+```css
+.section-header {
+    margin-bottom: 1rem;              /* Abstand zu Inhalt darunter */
+    padding-left: 1rem;               /* Abstand von linkem Gold-Border */
+    border-left: 3px solid var(--gold-start);  /* GOLD-AKZENT */
+}
+```
+
+**Standard-Abstände (IMMER einhalten):**
+```css
+/* Container */
+.dashboard-container         { padding: 2rem; }  /* Desktop */
+.dashboard-container         { padding: 1rem; }  /* Mobile */
+
+/* Header */
+.dashboard-header            { margin-bottom: 2.5rem; padding-top: 1rem; }
+
+/* Grids/Rows */
+.bento-grid, .stats-row      { margin-bottom: 2rem; }
+.bento-grid                  { gap: 1rem; }
+
+/* Cards */
+.glass (große Cards)         { padding: 1.5rem; }
+.bento-side (kleine Cards)   { padding: 1.25rem; }
+
+/* Sections */
+.section-header              { margin-bottom: 1rem; }
+
+/* Zwischen großen Blöcken */
+Cards zu nächstem Block      { margin-bottom: 2rem; }
+Innerhalb Cards (Header etc) { margin-bottom: 1rem bis 1.5rem; }
+```
+
 ### Wichtige Design-Regeln
 
-1. **Asymmetrie nutzen** - Vermeide generischen "AI-Look" durch unterschiedliche border-radius
-2. **Links ausrichten** - Header nicht zentrieren, sondern links ausgerichtet
-3. **Stats als Pills** - Horizontal, nicht als Grid-Cards
-4. **Section Headers** - Mit linkem Gold-Akzent (`border-left: 3px solid var(--gold-start)`)
-5. **Hover-Effekte** - `.hover-lift` für interaktive Cards
-6. **Light Mode** - Automatisch via `html.light-mode` Klasse (CSS überschreibt Variablen)
+1. **Max-Width 1200px** - ALLE Admin-Seiten verwenden diese Breite (wie Dashboard)
+2. **Asymmetrie nutzen** - Vermeide generischen "AI-Look" durch unterschiedliche border-radius
+3. **Links ausrichten** - Header nicht zentrieren, sondern links ausgerichtet
+4. **Stats als Pills** - Horizontal, nicht als Grid-Cards
+5. **Section Headers** - Mit linkem Gold-Akzent (`border-left: 3px solid var(--gold-start)`)
+6. **Hover-Effekte** - `.hover-lift` für interaktive Cards
+7. **Light Mode** - Automatisch via `html.light-mode` Klasse (CSS überschreibt Variablen)
+8. **Padding konsistent** - 1.25rem für kleine, 1.5rem für große Cards

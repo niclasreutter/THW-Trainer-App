@@ -2,544 +2,449 @@
 @section('title', 'Fortschritt bearbeiten - THW Trainer Admin')
 
 @section('content')
-    <div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-        <div class="max-w-7xl mx-auto p-6">
-            <!-- Header -->
-            <div class="flex items-center justify-between mb-8">
-                <div class="flex items-center">
-                    <div class="text-4xl mr-4">📊</div>
-                    <div>
-                        <h1 class="text-3xl font-bold text-blue-800">Fortschritt bearbeiten</h1>
-                        <p class="text-gray-600">Verwalte den Lernfortschritt des Benutzers</p>
-                    </div>
-                </div>
-                <a href="{{ route('admin.users.index') }}" 
-                   style="display: inline-flex; align-items: center; padding: 12px 24px; background-color: #6b7280; color: white; border-radius: 8px; text-decoration: none; font-weight: 600; transition: all 0.2s; box-shadow: 0 4px 15px rgba(107, 114, 128, 0.4), 0 0 20px rgba(107, 114, 128, 0.3), 0 0 40px rgba(107, 114, 128, 0.1);"
-                   onmouseover="this.style.backgroundColor='#4b5563'; this.style.transform='scale(1.05)'; this.style.boxShadow='0 6px 20px rgba(75, 85, 99, 0.5), 0 0 30px rgba(75, 85, 99, 0.4), 0 0 50px rgba(75, 85, 99, 0.2)'"
-                   onmouseout="this.style.backgroundColor='#6b7280'; this.style.transform='scale(1)'; this.style.boxShadow='0 4px 15px rgba(107, 114, 128, 0.4), 0 0 20px rgba(107, 114, 128, 0.3), 0 0 40px rgba(107, 114, 128, 0.1)'">
-                    <svg style="width: 16px; height: 16px; margin-right: 8px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-                    </svg>
-                    Zurück zur Nutzerverwaltung
-                </a>
+<div class="dashboard-container">
+    <!-- Header -->
+    <header class="dashboard-header">
+        <h1 class="page-title">Fortschritt <span>bearbeiten</span></h1>
+        <p class="page-subtitle">Verwalte den Lernfortschritt von {{ $user->name }}</p>
+    </header>
+
+    <!-- Benutzer Info Card -->
+    <div class="glass-gold" style="padding: 1.5rem; margin-bottom: 2rem;">
+        <div style="display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;">
+            <div style="width: 64px; height: 64px; border-radius: 50%; background: var(--gradient-gold); display: flex; align-items: center; justify-content: center;">
+                <i class="bi bi-person" style="font-size: 1.75rem; color: var(--thw-blue-dark);"></i>
             </div>
-            
-            <!-- Benutzer Info -->
-            <div class="mb-8 bg-white rounded-2xl shadow-xl p-8 border border-blue-100">
-                <div class="flex items-center">
-                    <div class="text-4xl mr-6">👤</div>
-                    <div class="flex-1">
-                        <h2 class="text-2xl font-bold text-blue-800">{{ $user->name }}</h2>
-                        <div class="text-gray-600 mb-2">{{ $user->email }}</div>
-                        <div class="flex items-center gap-4 text-sm">
-                            @if($user->email_verified_at)
-                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                    ✅ E-Mail bestätigt
-                                </span>
-                            @else
-                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                    ❌ E-Mail nicht bestätigt
-                                </span>
-                            @endif
-                            <span class="text-gray-500">
-                                Registriert: {{ $user->created_at->format('d.m.Y') }}
-                            </span>
-                        </div>
-                    </div>
+            <div style="flex: 1; min-width: 200px;">
+                <h2 style="font-size: 1.5rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.25rem;">{{ $user->name }}</h2>
+                <div style="color: var(--text-secondary); margin-bottom: 0.5rem;">{{ $user->email }}</div>
+                <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+                    @if($user->email_verified_at)
+                        <span class="badge-success"><i class="bi bi-check"></i> E-Mail verifiziert</span>
+                    @else
+                        <span class="badge-error"><i class="bi bi-x"></i> E-Mail nicht verifiziert</span>
+                    @endif
+                    <span class="badge-glass">Registriert: {{ $user->created_at->format('d.m.Y') }}</span>
                 </div>
             </div>
-        
-            @if(session('success'))
-                <div class="mb-6 p-6 bg-gradient-to-r from-green-50 to-emerald-50 border-l-4 border-green-400 rounded-xl shadow-lg">
-                    <div class="flex items-center">
-                        <div class="text-2xl mr-3">✅</div>
-                        <div class="text-green-800 font-medium">{{ session('success') }}</div>
-                    </div>
-                </div>
-            @endif
-            
-            <form method="POST" action="{{ route('admin.users.progress.update', $user->id) }}" class="space-y-8">
-                @csrf
-                @method('PUT')
-                
-                <!-- Lehrgänge Sektion mit Dropdowns -->
-                @if($lehrgangData && !$lehrgangData->isEmpty())
-                    <div class="mb-8">
-                        <h2 class="text-2xl font-bold text-blue-800 mb-4 flex items-center">
-                            <span class="mr-3">📚</span>
-                            Lehrgänge - Fortschritt verwalten
-                        </h2>
-                        
-                        @foreach($lehrgangData as $lehrgangId => $data)
-                            <!-- Lehrgang Dropdown -->
-                            <div class="bg-white rounded-lg shadow-md border border-gray-200 mb-4">
-                                <button type="button" 
-                                        onclick="toggleLehrgangDropdown('lehrgang-{{ $lehrgangId }}')"
-                                        class="w-full flex items-center justify-between p-6 hover:bg-gray-50 transition-colors">
-                                    <div class="text-left flex-1">
-                                        <h3 class="text-lg font-bold text-blue-800 flex items-center">
-                                            📖 {{ $data['lehrgang']->lehrgang }}
-                                        </h3>
-                                        <div class="flex items-center gap-6 mt-2 text-sm">
-                                            <span class="text-gray-600">
-                                                <strong>{{ $data['totalSolved'] }}/{{ $data['totalQuestions'] }}</strong> Fragen gemeistert
-                                            </span>
-                                            <div class="flex items-center gap-2 flex-1 max-w-xs">
-                                                <div class="w-full bg-gray-300 rounded-full h-2">
-                                                    <div class="bg-yellow-400 h-2 rounded-full transition-all duration-500" 
-                                                         style="width: {{ $data['totalPercent'] }}%; box-shadow: 0 0 10px rgba(251, 191, 36, 0.6), 0 0 20px rgba(251, 191, 36, 0.4), 0 0 30px rgba(251, 191, 36, 0.2);"></div>
-                                                </div>
-                                                <span class="text-xs font-bold text-gray-600 min-w-fit">{{ $data['totalPercent'] }}%</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <svg id="lehrgang-{{ $lehrgangId }}-arrow" class="w-6 h-6 text-gray-400 transform transition-transform ml-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                                    </svg>
-                                </button>
-                                
-                                <!-- Dropdown Content -->
-                                <div id="lehrgang-{{ $lehrgangId }}" class="hidden border-t border-gray-200">
-                                    <!-- Gemeisterte Fragen Section -->
-                                    <div class="p-6">
-                                        <div class="flex items-center justify-between mb-4">
-                                            <div class="flex items-center">
-                                                <div class="text-2xl mr-3">✅</div>
-                                                <div>
-                                                    <h4 class="font-bold text-green-800">Gemeisterte Fragen (2x in Folge gelöst)</h4>
-                                                    <p class="text-sm text-gray-600">{{ $data['totalSolved'] }} Fragen</p>
-                                                </div>
-                                            </div>
-                                            <div class="flex gap-2">
-                                                <button type="button" onclick="selectAllLehrgangQuestions('lehrgang-{{ $lehrgangId }}-questions', true)" 
-                                                        style="display: inline-flex; align-items: center; padding: 8px 16px; background-color: #2563eb; color: white; border-radius: 8px; border: none; cursor: pointer; font-weight: 500; transition: all 0.2s; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);"
-                                                        onmouseover="this.style.backgroundColor='#1d4ed8'; this.style.transform='scale(1.05)'"
-                                                        onmouseout="this.style.backgroundColor='#2563eb'; this.style.transform='scale(1)'">
-                                                    <svg style="width: 16px; height: 16px; margin-right: 8px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                                    </svg>
-                                                    Alle auswählen
-                                                </button>
-                                                <button type="button" onclick="selectAllLehrgangQuestions('lehrgang-{{ $lehrgangId }}-questions', false)" 
-                                                        style="display: inline-flex; align-items: center; padding: 8px 16px; background-color: #fbbf24; color: #1e3a8a; border-radius: 8px; border: none; cursor: pointer; font-weight: 500; transition: all 0.2s; box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4);"
-                                                        onmouseover="this.style.backgroundColor='#f59e0b'; this.style.transform='scale(1.05)'"
-                                                        onmouseout="this.style.backgroundColor='#fbbf24'; this.style.transform='scale(1)'">
-                                                    <svg style="width: 16px; height: 16px; margin-right: 8px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                                    </svg>
-                                                    Alle abwählen
-                                                </button>
-                                            </div>
-                                        </div>
-                                        
-                                        <!-- Fragen Grid -->
-                                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3" id="lehrgang-{{ $lehrgangId }}-questions">
-                                            @foreach($data['questions'] as $question)
-                                                @php
-                                                    $progress = $data['progressData'][$question->id] ?? null;
-                                                    $isSolved = $progress && $progress->solved;
-                                                @endphp
-                                                <label class="flex items-start bg-gray-50 rounded-lg p-3 hover:bg-green-50 transition-colors cursor-pointer border {{ $isSolved ? 'border-green-400 bg-green-50' : 'border-gray-200' }}">
-                                                    <input type="checkbox" 
-                                                           name="lehrgang_{{ $lehrgangId }}_solved[]" 
-                                                           value="{{ $question->id }}"
-                                                           @if($isSolved) checked @endif
-                                                           class="mt-1 mr-3 accent-green-600 w-4 h-4">
-                                                    <div class="flex-1 min-w-0">
-                                                        <div class="text-sm font-medium text-blue-800">Frage {{ $question->nummer }}</div>
-                                                        <div class="text-xs text-gray-600 truncate">{{ Str::limit($question->frage, 50) }}</div>
-                                                        <div class="text-xs text-gray-500 mt-1">LA: {{ $question->lernabschnitt }}</div>
-                                                        @if($progress)
-                                                            <div class="text-xs text-green-600 font-semibold mt-1">✓ {{ $progress->consecutive_correct }}x richtig</div>
-                                                        @endif
-                                                    </div>
-                                                </label>
-                                            @endforeach
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
-                @endif
-                
-                
-                @csrf
-                @method('PUT')
-                
-                <!-- Statistiken Dashboard -->
-                @php
-                    // Berechne echten Fortschritt inkl. 1x richtige Antworten
-                    $progressData = \App\Models\UserQuestionProgress::where('user_id', $user->id)->get();
-                    $totalProgressPoints = 0;
-                    foreach ($progressData as $prog) {
-                        $totalProgressPoints += min($prog->consecutive_correct, 2);
-                    }
-                    $maxProgressPoints = $questions->count() * 2;
-                    $trueProgressPercent = $maxProgressPoints > 0 ? round(($totalProgressPoints / $maxProgressPoints) * 100) : 0;
-                @endphp
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                    <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-                        <div class="flex items-center">
-                            <div class="text-4xl mr-4">✅</div>
-                            <div>
-                                <div class="text-3xl font-bold text-green-800" id="solvedCount">{{ count($solved) }}</div>
-                                <div class="text-sm text-green-600 font-medium">Gemeisterte Fragen</div>
-                                <div class="text-xs text-gray-500 mt-1">2x richtig in Folge</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-                        <div class="flex items-center">
-                            <div class="text-4xl mr-4">🔄</div>
-                            <div>
-                                <div class="text-3xl font-bold text-red-800" id="failedCount">{{ isset($failed) ? count($failed) : 0 }}</div>
-                                <div class="text-sm text-red-600 font-medium">Wiederholungsfragen</div>
-                                <div class="text-xs text-gray-500 mt-1">Aus Prüfungen</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-                        <div class="flex items-center">
-                            <div class="text-4xl mr-4">📊</div>
-                            <div>
-                                <div class="text-3xl font-bold text-blue-800">{{ $trueProgressPercent }}%</div>
-                                <div class="text-sm text-blue-600 font-medium">Gesamt-Fortschritt</div>
-                                <div class="text-xs text-gray-500 mt-1">Inkl. 1x richtige</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Info-Box: Neue 2x-richtig Logik -->
-                <div class="bg-blue-50 border-l-4 border-blue-500 p-6 mb-6 rounded-lg">
-                    <div class="flex items-start">
-                        <div class="text-2xl mr-3">ℹ️</div>
-                        <div>
-                            <h3 class="text-lg font-bold text-blue-900 mb-2">Wichtig: "2x richtig in Folge" Logik</h3>
-                            <p class="text-sm text-blue-800 mb-2">
-                                Seit dem Update müssen User jede Frage <strong>2x hintereinander richtig</strong> beantworten, um sie zu meistern.
-                            </p>
-                            <ul class="text-sm text-blue-700 list-disc list-inside space-y-1">
-                                <li><strong>Gelöste Fragen:</strong> Wurden mindestens 2x richtig in Folge beantwortet</li>
-                                <li><strong>Wiederholungsfragen:</strong> Nur aus Prüfungen (nicht aus Übungen)</li>
-                                <li>Beim Speichern wird automatisch die <code class="bg-blue-100 px-1 rounded">user_question_progress</code> Tabelle aktualisiert</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Gelöste Fragen -->
-                <div class="bg-white rounded-lg shadow-md border border-gray-200 mb-6">
-                    <div class="p-6">
-                        <div class="flex items-center justify-between mb-6">
-                            <div class="flex items-center">
-                                <div class="text-4xl mr-4">✅</div>
-                                <div>
-                                    <h2 class="text-2xl font-bold text-green-800 mb-2">Gemeisterte Fragen (2x richtig)</h2>
-                                    <p class="text-gray-600">Fragen die mindestens 2x in Folge richtig beantwortet wurden</p>
-                                </div>
-                            </div>
-                            <div class="flex gap-2">
-                                <button type="button" onclick="toggleSection('solved-questions')" 
-                                        style="display: inline-flex; align-items: center; padding: 8px 16px; background-color: #6b7280; color: white; border-radius: 8px; border: none; cursor: pointer; font-weight: 500; transition: all 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"
-                                        onmouseover="this.style.backgroundColor='#4b5563'; this.style.transform='scale(1.05)'"
-                                        onmouseout="this.style.backgroundColor='#6b7280'; this.style.transform='scale(1)'">
-                                    <svg id="solved-arrow" style="width: 16px; height: 16px; margin-right: 8px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                                    </svg>
-                                    <span id="solved-toggle-text">Aufklappen</span>
-                                </button>
-                                <button type="button" onclick="selectAll('solved_questions', true)" 
-                                        style="display: inline-flex; align-items: center; padding: 8px 16px; background-color: #2563eb; color: white; border-radius: 8px; border: none; cursor: pointer; font-weight: 500; transition: all 0.2s; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4), 0 0 20px rgba(37, 99, 235, 0.3), 0 0 40px rgba(37, 99, 235, 0.1);"
-                                        onmouseover="this.style.backgroundColor='#1d4ed8'; this.style.transform='scale(1.05)'; this.style.boxShadow='0 6px 20px rgba(29, 78, 216, 0.5), 0 0 30px rgba(29, 78, 216, 0.4), 0 0 50px rgba(29, 78, 216, 0.2)'"
-                                        onmouseout="this.style.backgroundColor='#2563eb'; this.style.transform='scale(1)'; this.style.boxShadow='0 4px 15px rgba(37, 99, 235, 0.4), 0 0 20px rgba(37, 99, 235, 0.3), 0 0 40px rgba(37, 99, 235, 0.1)'">
-                                    <svg style="width: 16px; height: 16px; margin-right: 8px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                    </svg>
-                                    Alle auswählen
-                                </button>
-                                <button type="button" onclick="selectAll('solved_questions', false)" 
-                                        style="display: inline-flex; align-items: center; padding: 8px 16px; background-color: #fbbf24; color: #1e3a8a; border-radius: 8px; border: none; cursor: pointer; font-weight: 500; transition: all 0.2s; box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4), 0 0 20px rgba(251, 191, 36, 0.3), 0 0 40px rgba(251, 191, 36, 0.1);"
-                                        onmouseover="this.style.backgroundColor='#f59e0b'; this.style.transform='scale(1.05)'; this.style.boxShadow='0 6px 20px rgba(245, 158, 11, 0.5), 0 0 30px rgba(245, 158, 11, 0.4), 0 0 50px rgba(245, 158, 11, 0.2)'"
-                                        onmouseout="this.style.backgroundColor='#fbbf24'; this.style.transform='scale(1)'; this.style.boxShadow='0 4px 15px rgba(251, 191, 36, 0.4), 0 0 20px rgba(251, 191, 36, 0.3), 0 0 40px rgba(251, 191, 36, 0.1)'">
-                                    <svg style="width: 16px; height: 16px; margin-right: 8px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                    </svg>
-                                    Alle abwählen
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div id="solved-questions-content" class="hidden px-6 pb-6">
-                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-                            @foreach($questions as $question)
-                                <label class="flex items-start bg-gray-50 rounded-lg p-3 hover:bg-green-50 transition-colors cursor-pointer border border-gray-200">
-                                    <input type="checkbox" name="solved_questions[]" value="{{ $question->id }}" 
-                                           @if(in_array($question->id, $solved)) checked @endif 
-                                           class="mt-1 mr-3 accent-green-600 w-4 h-4">
-                                    <div class="flex-1 min-w-0">
-                                        <div class="text-sm font-medium text-blue-800">Frage {{ $question->id }}</div>
-                                        <div class="text-xs text-gray-600 truncate">{{ Str::limit($question->frage, 50) }}</div>
-                                        <div class="text-xs text-gray-500 mt-1">LA: {{ $question->lernabschnitt }}</div>
-                                    </div>
-                                </label>
-                            @endforeach
-                        </div>
-                    </div>
-                </div>
-            
-                <!-- Wiederholungsfragen -->
-                <div class="bg-white rounded-lg shadow-md border border-gray-200 mb-6">
-                    <div class="p-6">
-                        <div class="flex items-center justify-between mb-6">
-                            <div class="flex items-center">
-                                <div class="text-4xl mr-4">🔄</div>
-                                <div>
-                                    <h2 class="text-2xl font-bold text-red-800 mb-2">Wiederholungsfragen</h2>
-                                    <p class="text-gray-600">Markiere Fragen, die in der Prüfung falsch beantwortet wurden</p>
-                                </div>
-                            </div>
-                            <div class="flex gap-2">
-                                <button type="button" onclick="toggleSection('failed-questions')" 
-                                        style="display: inline-flex; align-items: center; padding: 8px 16px; background-color: #6b7280; color: white; border-radius: 8px; border: none; cursor: pointer; font-weight: 500; transition: all 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"
-                                        onmouseover="this.style.backgroundColor='#4b5563'; this.style.transform='scale(1.05)'"
-                                        onmouseout="this.style.backgroundColor='#6b7280'; this.style.transform='scale(1)'">
-                                    <svg id="failed-arrow" style="width: 16px; height: 16px; margin-right: 8px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                                    </svg>
-                                    <span id="failed-toggle-text">Aufklappen</span>
-                                </button>
-                                <button type="button" onclick="selectAll('exam_failed_questions', true)" 
-                                        style="display: inline-flex; align-items: center; padding: 8px 16px; background-color: #ef4444; color: white; border-radius: 8px; border: none; cursor: pointer; font-weight: 500; transition: all 0.2s; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4), 0 0 20px rgba(239, 68, 68, 0.3), 0 0 40px rgba(239, 68, 68, 0.1);"
-                                        onmouseover="this.style.backgroundColor='#dc2626'; this.style.transform='scale(1.05)'; this.style.boxShadow='0 6px 20px rgba(220, 38, 38, 0.5), 0 0 30px rgba(220, 38, 38, 0.4), 0 0 50px rgba(220, 38, 38, 0.2)'"
-                                        onmouseout="this.style.backgroundColor='#ef4444'; this.style.transform='scale(1)'; this.style.boxShadow='0 4px 15px rgba(239, 68, 68, 0.4), 0 0 20px rgba(239, 68, 68, 0.3), 0 0 40px rgba(239, 68, 68, 0.1)'">
-                                    <svg style="width: 16px; height: 16px; margin-right: 8px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                    </svg>
-                                    Alle auswählen
-                                </button>
-                                <button type="button" onclick="selectAll('exam_failed_questions', false)" 
-                                        style="display: inline-flex; align-items: center; padding: 8px 16px; background-color: #fbbf24; color: #1e3a8a; border-radius: 8px; border: none; cursor: pointer; font-weight: 500; transition: all 0.2s; box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4), 0 0 20px rgba(251, 191, 36, 0.3), 0 0 40px rgba(251, 191, 36, 0.1);"
-                                        onmouseover="this.style.backgroundColor='#f59e0b'; this.style.transform='scale(1.05)'; this.style.boxShadow='0 6px 20px rgba(245, 158, 11, 0.5), 0 0 30px rgba(245, 158, 11, 0.4), 0 0 50px rgba(245, 158, 11, 0.2)'"
-                                        onmouseout="this.style.backgroundColor='#fbbf24'; this.style.transform='scale(1)'; this.style.boxShadow='0 4px 15px rgba(251, 191, 36, 0.4), 0 0 20px rgba(251, 191, 36, 0.3), 0 0 40px rgba(251, 191, 36, 0.1)'">
-                                    <svg style="width: 16px; height: 16px; margin-right: 8px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                    </svg>
-                                    Alle abwählen
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div id="failed-questions-content" class="hidden px-6 pb-6">
-                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-                            @foreach($questions as $question)
-                                <label class="flex items-start bg-gray-50 rounded-lg p-3 hover:bg-red-50 transition-colors cursor-pointer border border-gray-200">
-                                    <input type="checkbox" name="exam_failed_questions[]" value="{{ $question->id }}" 
-                                           @if(isset($failed) && in_array($question->id, $failed)) checked @endif 
-                                           class="mt-1 mr-3 accent-red-600 w-4 h-4">
-                                    <div class="flex-1 min-w-0">
-                                        <div class="text-sm font-medium text-blue-800">Frage {{ $question->id }}</div>
-                                        <div class="text-xs text-gray-600 truncate">{{ Str::limit($question->frage, 50) }}</div>
-                                        <div class="text-xs text-gray-500 mt-1">LA: {{ $question->lernabschnitt }}</div>
-                                    </div>
-                                </label>
-                            @endforeach
-                        </div>
-                    </div>
-                </div>
-            
-                <!-- Aktionen -->
-                <div class="bg-white rounded-lg shadow-md p-6 border-2 border-blue-200">
-                    <div class="text-center mb-6">
-                        <div class="text-4xl mb-4">💾</div>
-                        <h3 class="text-xl font-semibold text-blue-800 mb-2">Änderungen speichern</h3>
-                        <p class="text-sm text-gray-600">Vergiss nicht, deine Änderungen zu speichern!</p>
-                    </div>
-                    
-                    <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-                        <button type="submit" 
-                                style="display: inline-flex; align-items: center; justify-content: center; padding: 16px 32px; background-color: #059669; color: white; font-size: 18px; font-weight: bold; border-radius: 12px; border: none; cursor: pointer; transition: all 0.2s; box-shadow: 0 8px 16px rgba(5, 150, 105, 0.3);"
-                                onmouseover="this.style.backgroundColor='#047857'; this.style.transform='scale(1.05)'; this.style.boxShadow='0 12px 24px rgba(4, 120, 87, 0.4)'"
-                                onmouseout="this.style.backgroundColor='#059669'; this.style.transform='scale(1)'; this.style.boxShadow='0 8px 16px rgba(5, 150, 105, 0.3)'">
-                            <svg style="width: 24px; height: 24px; margin-right: 12px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                            💾 ÄNDERUNGEN SPEICHERN
-                        </button>
-                    </div>
-                    
-                    <div class="mt-6 pt-4 border-t border-gray-200">
-                        <div class="flex flex-col sm:flex-row justify-center gap-4">
-                            <a href="{{ route('admin.users.edit', $user->id) }}" 
-                               style="display: inline-flex; align-items: center; justify-content: center; padding: 8px 16px; background-color: #8b5cf6; color: white; border-radius: 8px; text-decoration: none; font-weight: 500; transition: all 0.2s; box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4), 0 0 20px rgba(139, 92, 246, 0.3), 0 0 40px rgba(139, 92, 246, 0.1);"
-                               onmouseover="this.style.backgroundColor='#7c3aed'; this.style.transform='scale(1.05)'; this.style.boxShadow='0 6px 20px rgba(124, 58, 237, 0.5), 0 0 30px rgba(124, 58, 237, 0.4), 0 0 50px rgba(124, 58, 237, 0.2)'"
-                               onmouseout="this.style.backgroundColor='#8b5cf6'; this.style.transform='scale(1)'; this.style.boxShadow='0 4px 15px rgba(139, 92, 246, 0.4), 0 0 20px rgba(139, 92, 246, 0.3), 0 0 40px rgba(139, 92, 246, 0.1)'">
-                                <svg style="width: 16px; height: 16px; margin-right: 8px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                                </svg>
-                                👤 Benutzer bearbeiten
-                            </a>
-                            <a href="{{ route('admin.users.index') }}" 
-                               style="display: inline-flex; align-items: center; justify-content: center; padding: 8px 16px; background-color: #6b7280; color: white; border-radius: 8px; text-decoration: none; font-weight: 500; transition: all 0.2s; box-shadow: 0 4px 15px rgba(107, 114, 128, 0.4), 0 0 20px rgba(107, 114, 128, 0.3), 0 0 40px rgba(107, 114, 128, 0.1);"
-                               onmouseover="this.style.backgroundColor='#4b5563'; this.style.transform='scale(1.05)'; this.style.boxShadow='0 6px 20px rgba(75, 85, 99, 0.5), 0 0 30px rgba(75, 85, 99, 0.4), 0 0 50px rgba(75, 85, 99, 0.2)'"
-                               onmouseout="this.style.backgroundColor='#6b7280'; this.style.transform='scale(1)'; this.style.boxShadow='0 4px 15px rgba(107, 114, 128, 0.4), 0 0 20px rgba(107, 114, 128, 0.3), 0 0 40px rgba(107, 114, 128, 0.1)'">
-                                <svg style="width: 16px; height: 16px; margin-right: 8px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-                                </svg>
-                                📋 Zur Übersicht
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- (Lehrgang-Bearbeitungssektion entfernt - neue Dropdown-Struktur verwendet) -->
-        </form>
+            <a href="{{ route('admin.users.index') }}" class="btn-ghost">
+                <i class="bi bi-arrow-left"></i> Zurück zur Nutzerverwaltung
+            </a>
+        </div>
     </div>
 
-    <script>
-        function toggleSection(sectionId) {
-            const content = document.getElementById(sectionId + '-content');
-            const arrow = document.getElementById(sectionId + '-arrow');
-            const text = document.getElementById(sectionId + '-toggle-text');
-            
-            if (content.classList.contains('hidden')) {
-                content.classList.remove('hidden');
-                arrow.setAttribute('d', 'M5 15l7-7 7 7'); // Arrow up
-                text.textContent = 'Einklappen';
-            } else {
-                content.classList.add('hidden');
-                arrow.setAttribute('d', 'M19 9l-7 7-7-7'); // Arrow down
-                text.textContent = 'Aufklappen';
+    @if(session('success'))
+        <div class="alert-glass success" style="margin-bottom: 1.5rem;">
+            <i class="bi bi-check-circle" style="font-size: 1.25rem; color: var(--success);"></i>
+            <span>{{ session('success') }}</span>
+        </div>
+    @endif
+
+    <form method="POST" action="{{ route('admin.users.progress.update', $user->id) }}">
+        @csrf
+        @method('PUT')
+
+        <!-- Lehrgänge Sektion mit Dropdowns -->
+        @if($lehrgangData && !$lehrgangData->isEmpty())
+            <div class="section-header" style="margin-bottom: 1.5rem; padding-left: 1rem; border-left: 3px solid var(--gold-start);">
+                <h2 class="section-title">Lehrgänge - Fortschritt verwalten</h2>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2rem;">
+                @foreach($lehrgangData as $lehrgangId => $data)
+                    <div class="glass-tl" style="overflow: hidden;">
+                        <button type="button"
+                                onclick="toggleLehrgangDropdown('lehrgang-{{ $lehrgangId }}')"
+                                style="width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 1.25rem 1.5rem; background: transparent; border: none; cursor: pointer; text-align: left;">
+                            <div style="flex: 1;">
+                                <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 0.5rem;">
+                                    <i class="bi bi-journal-text text-gold"></i>
+                                    {{ $data['lehrgang']->lehrgang }}
+                                </h3>
+                                <div style="display: flex; align-items: center; gap: 1rem; margin-top: 0.5rem; flex-wrap: wrap;">
+                                    <span style="color: var(--text-secondary); font-size: 0.9rem;">
+                                        <strong>{{ $data['totalSolved'] }}/{{ $data['totalQuestions'] }}</strong> Fragen gemeistert
+                                    </span>
+                                    <div style="display: flex; align-items: center; gap: 0.5rem; flex: 1; max-width: 200px;">
+                                        <div class="progress-glass" style="flex: 1;">
+                                            <div class="progress-fill-gold" style="width: {{ $data['totalPercent'] }}%;"></div>
+                                        </div>
+                                        <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); min-width: fit-content;">{{ $data['totalPercent'] }}%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <i class="bi bi-chevron-down" id="lehrgang-{{ $lehrgangId }}-arrow" style="font-size: 1.25rem; color: var(--text-muted); transition: transform 0.2s;"></i>
+                        </button>
+
+                        <!-- Dropdown Content -->
+                        <div id="lehrgang-{{ $lehrgangId }}" class="hidden" style="border-top: 1px solid rgba(255, 255, 255, 0.06); padding: 1.5rem;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.75rem;">
+                                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                    <i class="bi bi-check-circle text-success" style="font-size: 1.5rem;"></i>
+                                    <div>
+                                        <h4 style="font-weight: 700; color: var(--success);">Gemeisterte Fragen (2x in Folge gelöst)</h4>
+                                        <p style="font-size: 0.85rem; color: var(--text-muted);">{{ $data['totalSolved'] }} Fragen</p>
+                                    </div>
+                                </div>
+                                <div style="display: flex; gap: 0.5rem;">
+                                    <button type="button" onclick="selectAllLehrgangQuestions('lehrgang-{{ $lehrgangId }}-questions', true)" class="btn-secondary btn-sm">
+                                        <i class="bi bi-check-all"></i> Alle auswählen
+                                    </button>
+                                    <button type="button" onclick="selectAllLehrgangQuestions('lehrgang-{{ $lehrgangId }}-questions', false)" class="btn-ghost btn-sm">
+                                        <i class="bi bi-x-lg"></i> Alle abwählen
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Fragen Grid -->
+                            <div id="lehrgang-{{ $lehrgangId }}-questions" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.75rem;">
+                                @foreach($data['questions'] as $question)
+                                    @php
+                                        $progress = $data['progressData'][$question->id] ?? null;
+                                        $isSolved = $progress && $progress->solved;
+                                    @endphp
+                                    <label class="question-checkbox {{ $isSolved ? 'checked' : '' }}" style="display: flex; align-items: flex-start; padding: 0.75rem; background: rgba(255, 255, 255, 0.03); border: 1px solid {{ $isSolved ? 'rgba(34, 197, 94, 0.3)' : 'rgba(255, 255, 255, 0.06)' }}; border-radius: 0.75rem; cursor: pointer; transition: all 0.2s;">
+                                        <input type="checkbox"
+                                               name="lehrgang_{{ $lehrgangId }}_solved[]"
+                                               value="{{ $question->id }}"
+                                               @if($isSolved) checked @endif
+                                               class="checkbox-glass" style="margin-top: 0.125rem; margin-right: 0.75rem;">
+                                        <div style="flex: 1; min-width: 0;">
+                                            <div style="font-size: 0.875rem; font-weight: 600; color: var(--text-primary);">Frage {{ $question->nummer }}</div>
+                                            <div style="font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ Str::limit($question->frage, 40) }}</div>
+                                            <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.25rem;">LA: {{ $question->lernabschnitt }}</div>
+                                            @if($progress)
+                                                <div style="font-size: 0.7rem; color: var(--success); font-weight: 600; margin-top: 0.25rem;"><i class="bi bi-check"></i> {{ $progress->consecutive_correct }}x richtig</div>
+                                            @endif
+                                        </div>
+                                    </label>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        @endif
+
+        <!-- Statistiken Dashboard -->
+        @php
+            $progressData = \App\Models\UserQuestionProgress::where('user_id', $user->id)->get();
+            $totalProgressPoints = 0;
+            foreach ($progressData as $prog) {
+                $totalProgressPoints += min($prog->consecutive_correct, 2);
             }
+            $maxProgressPoints = $questions->count() * 2;
+            $trueProgressPercent = $maxProgressPoints > 0 ? round(($totalProgressPoints / $maxProgressPoints) * 100) : 0;
+        @endphp
+
+        <div class="section-header" style="margin-bottom: 1.5rem; padding-left: 1rem; border-left: 3px solid var(--gold-start);">
+            <h2 class="section-title">Statistik-Übersicht</h2>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+            <div class="glass-green" style="padding: 1.5rem;">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <i class="bi bi-check-circle" style="font-size: 2rem; color: var(--success);"></i>
+                    <div>
+                        <div id="solvedCount" style="font-size: 2rem; font-weight: 800; color: var(--success);">{{ count($solved) }}</div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted);">Gemeisterte Fragen</div>
+                        <div style="font-size: 0.7rem; color: var(--text-muted);">2x richtig in Folge</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-error" style="padding: 1.5rem; background: rgba(239, 68, 68, 0.08) !important;">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <i class="bi bi-arrow-repeat" style="font-size: 2rem; color: var(--error);"></i>
+                    <div>
+                        <div id="failedCount" style="font-size: 2rem; font-weight: 800; color: var(--error);">{{ isset($failed) ? count($failed) : 0 }}</div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted);">Wiederholungsfragen</div>
+                        <div style="font-size: 0.7rem; color: var(--text-muted);">Aus Prüfungen</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-blue" style="padding: 1.5rem;">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <i class="bi bi-bar-chart" style="font-size: 2rem; color: var(--info);"></i>
+                    <div>
+                        <div style="font-size: 2rem; font-weight: 800;" class="text-gradient-gold">{{ $trueProgressPercent }}%</div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted);">Gesamt-Fortschritt</div>
+                        <div style="font-size: 0.7rem; color: var(--text-muted);">Inkl. 1x richtige</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info-Box: Neue 2x-richtig Logik -->
+        <div class="glass-accent" style="padding: 1.5rem; margin-bottom: 2rem;">
+            <div style="display: flex; align-items: flex-start; gap: 1rem;">
+                <i class="bi bi-info-circle" style="font-size: 1.5rem; color: var(--gold);"></i>
+                <div>
+                    <h3 style="font-size: 1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.5rem;">Wichtig: "2x richtig in Folge" Logik</h3>
+                    <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.5rem;">
+                        Seit dem Update müssen User jede Frage <strong>2x hintereinander richtig</strong> beantworten, um sie zu meistern.
+                    </p>
+                    <ul style="font-size: 0.8rem; color: var(--text-muted); list-style: disc; list-style-position: inside; display: flex; flex-direction: column; gap: 0.25rem;">
+                        <li><strong>Gelöste Fragen:</strong> Wurden mindestens 2x richtig in Folge beantwortet</li>
+                        <li><strong>Wiederholungsfragen:</strong> Nur aus Prüfungen (nicht aus Übungen)</li>
+                        <li>Beim Speichern wird automatisch die <code style="background: rgba(255, 255, 255, 0.1); padding: 0.125rem 0.375rem; border-radius: 0.25rem;">user_question_progress</code> Tabelle aktualisiert</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gelöste Fragen -->
+        <div class="glass" style="margin-bottom: 2rem; overflow: hidden;">
+            <div style="padding: 1.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; border-bottom: 1px solid rgba(255, 255, 255, 0.06);">
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <i class="bi bi-check-circle text-success" style="font-size: 2rem;"></i>
+                    <div>
+                        <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--success);">Gemeisterte Fragen (2x richtig)</h2>
+                        <p style="font-size: 0.85rem; color: var(--text-muted);">Fragen die mindestens 2x in Folge richtig beantwortet wurden</p>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                    <button type="button" onclick="toggleSection('solved-questions')" class="btn-ghost btn-sm">
+                        <i class="bi bi-chevron-down" id="solved-questions-arrow"></i>
+                        <span id="solved-questions-toggle-text">Aufklappen</span>
+                    </button>
+                    <button type="button" onclick="selectAll('solved_questions', true)" class="btn-secondary btn-sm">
+                        <i class="bi bi-check-all"></i> Alle auswählen
+                    </button>
+                    <button type="button" onclick="selectAll('solved_questions', false)" class="btn-ghost btn-sm">
+                        <i class="bi bi-x-lg"></i> Alle abwählen
+                    </button>
+                </div>
+            </div>
+
+            <div id="solved-questions-content" class="hidden" style="padding: 1.5rem;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.75rem;">
+                    @foreach($questions as $question)
+                        @php $isSolved = in_array($question->id, $solved); @endphp
+                        <label class="question-checkbox {{ $isSolved ? 'checked' : '' }}" style="display: flex; align-items: flex-start; padding: 0.75rem; background: rgba(255, 255, 255, 0.03); border: 1px solid {{ $isSolved ? 'rgba(34, 197, 94, 0.3)' : 'rgba(255, 255, 255, 0.06)' }}; border-radius: 0.75rem; cursor: pointer; transition: all 0.2s;">
+                            <input type="checkbox" name="solved_questions[]" value="{{ $question->id }}"
+                                   @if($isSolved) checked @endif
+                                   class="checkbox-glass" style="margin-top: 0.125rem; margin-right: 0.75rem;">
+                            <div style="flex: 1; min-width: 0;">
+                                <div style="font-size: 0.875rem; font-weight: 600; color: var(--text-primary);">Frage {{ $question->id }}</div>
+                                <div style="font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ Str::limit($question->frage, 40) }}</div>
+                                <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.25rem;">LA: {{ $question->lernabschnitt }}</div>
+                            </div>
+                        </label>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+
+        <!-- Wiederholungsfragen -->
+        <div class="glass" style="margin-bottom: 2rem; overflow: hidden;">
+            <div style="padding: 1.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; border-bottom: 1px solid rgba(255, 255, 255, 0.06);">
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <i class="bi bi-arrow-repeat text-error" style="font-size: 2rem;"></i>
+                    <div>
+                        <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--error);">Wiederholungsfragen</h2>
+                        <p style="font-size: 0.85rem; color: var(--text-muted);">Markiere Fragen, die in der Prüfung falsch beantwortet wurden</p>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                    <button type="button" onclick="toggleSection('failed-questions')" class="btn-ghost btn-sm">
+                        <i class="bi bi-chevron-down" id="failed-questions-arrow"></i>
+                        <span id="failed-questions-toggle-text">Aufklappen</span>
+                    </button>
+                    <button type="button" onclick="selectAll('exam_failed_questions', true)" class="btn-danger btn-sm">
+                        <i class="bi bi-check-all"></i> Alle auswählen
+                    </button>
+                    <button type="button" onclick="selectAll('exam_failed_questions', false)" class="btn-ghost btn-sm">
+                        <i class="bi bi-x-lg"></i> Alle abwählen
+                    </button>
+                </div>
+            </div>
+
+            <div id="failed-questions-content" class="hidden" style="padding: 1.5rem;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.75rem;">
+                    @foreach($questions as $question)
+                        @php $isFailed = isset($failed) && in_array($question->id, $failed); @endphp
+                        <label class="question-checkbox {{ $isFailed ? 'checked-error' : '' }}" style="display: flex; align-items: flex-start; padding: 0.75rem; background: rgba(255, 255, 255, 0.03); border: 1px solid {{ $isFailed ? 'rgba(239, 68, 68, 0.3)' : 'rgba(255, 255, 255, 0.06)' }}; border-radius: 0.75rem; cursor: pointer; transition: all 0.2s;">
+                            <input type="checkbox" name="exam_failed_questions[]" value="{{ $question->id }}"
+                                   @if($isFailed) checked @endif
+                                   class="checkbox-glass" style="margin-top: 0.125rem; margin-right: 0.75rem;">
+                            <div style="flex: 1; min-width: 0;">
+                                <div style="font-size: 0.875rem; font-weight: 600; color: var(--text-primary);">Frage {{ $question->id }}</div>
+                                <div style="font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ Str::limit($question->frage, 40) }}</div>
+                                <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.25rem;">LA: {{ $question->lernabschnitt }}</div>
+                            </div>
+                        </label>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+
+        <!-- Aktionen -->
+        <div class="glass-gold" style="padding: 2rem; text-align: center;">
+            <i class="bi bi-save" style="font-size: 2.5rem; color: var(--gold); margin-bottom: 1rem; display: block;"></i>
+            <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.5rem;">Änderungen speichern</h3>
+            <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1.5rem;">Vergiss nicht, deine Änderungen zu speichern!</p>
+
+            <button type="submit" class="btn-primary btn-lg" style="margin-bottom: 1.5rem;">
+                <i class="bi bi-check-lg"></i> Änderungen speichern
+            </button>
+
+            <div style="border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 1.5rem; display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+                <a href="{{ route('admin.users.edit', $user->id) }}" class="btn-secondary btn-sm">
+                    <i class="bi bi-person"></i> Benutzer bearbeiten
+                </a>
+                <a href="{{ route('admin.users.index') }}" class="btn-ghost btn-sm">
+                    <i class="bi bi-list"></i> Zur Übersicht
+                </a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    function toggleSection(sectionId) {
+        const content = document.getElementById(sectionId + '-content');
+        const arrow = document.getElementById(sectionId + '-arrow');
+        const text = document.getElementById(sectionId + '-toggle-text');
+
+        if (content.classList.contains('hidden')) {
+            content.classList.remove('hidden');
+            arrow.classList.remove('bi-chevron-down');
+            arrow.classList.add('bi-chevron-up');
+            text.textContent = 'Einklappen';
+        } else {
+            content.classList.add('hidden');
+            arrow.classList.remove('bi-chevron-up');
+            arrow.classList.add('bi-chevron-down');
+            text.textContent = 'Aufklappen';
         }
-        
-        function toggleLehrgangDropdown(dropdownId) {
-            const content = document.getElementById(dropdownId);
-            const arrow = document.getElementById(dropdownId + '-arrow');
-            
-            if (content.classList.contains('hidden')) {
-                content.classList.remove('hidden');
-                arrow.style.transform = 'rotate(180deg)';
+    }
+
+    function toggleLehrgangDropdown(dropdownId) {
+        const content = document.getElementById(dropdownId);
+        const arrow = document.getElementById(dropdownId + '-arrow');
+
+        if (content.classList.contains('hidden')) {
+            content.classList.remove('hidden');
+            arrow.classList.remove('bi-chevron-down');
+            arrow.classList.add('bi-chevron-up');
+        } else {
+            content.classList.add('hidden');
+            arrow.classList.remove('bi-chevron-up');
+            arrow.classList.add('bi-chevron-down');
+        }
+    }
+
+    function selectAllLehrgangQuestions(containerSelector, checked) {
+        const container = document.getElementById(containerSelector);
+        const checkboxes = container.querySelectorAll('input[type="checkbox"]');
+        checkboxes.forEach(cb => {
+            cb.checked = checked;
+            const label = cb.closest('label');
+            if (checked) {
+                label.style.borderColor = 'rgba(34, 197, 94, 0.3)';
+                label.style.background = 'rgba(34, 197, 94, 0.08)';
             } else {
-                content.classList.add('hidden');
-                arrow.style.transform = 'rotate(0deg)';
+                label.style.borderColor = 'rgba(255, 255, 255, 0.06)';
+                label.style.background = 'rgba(255, 255, 255, 0.03)';
             }
-        }
-        
-        function selectAllLehrgangQuestions(containerSelector, checked) {
-            const container = document.getElementById(containerSelector);
-            const checkboxes = container.querySelectorAll('input[type="checkbox"]');
-            checkboxes.forEach(cb => {
-                cb.checked = checked;
-                const label = cb.closest('label');
-                if (checked) {
-                    label.classList.add('border-green-400', 'bg-green-50');
-                    label.classList.remove('border-gray-200', 'bg-gray-50');
+        });
+        showFeedback(checked ? 'Alle ausgewählt' : 'Alle abgewählt');
+    }
+
+    function selectAll(name, checked) {
+        const checkboxes = document.querySelectorAll('input[name="'+name+'[]"]');
+        const isError = name === 'exam_failed_questions';
+        checkboxes.forEach(cb => {
+            cb.checked = checked;
+            const label = cb.closest('label');
+            if (checked) {
+                if (isError) {
+                    label.style.borderColor = 'rgba(239, 68, 68, 0.3)';
+                    label.style.background = 'rgba(239, 68, 68, 0.08)';
                 } else {
-                    label.classList.add('border-gray-200', 'bg-gray-50');
-                    label.classList.remove('border-green-400', 'bg-green-50');
+                    label.style.borderColor = 'rgba(34, 197, 94, 0.3)';
+                    label.style.background = 'rgba(34, 197, 94, 0.08)';
                 }
-            });
+            } else {
+                label.style.borderColor = 'rgba(255, 255, 255, 0.06)';
+                label.style.background = 'rgba(255, 255, 255, 0.03)';
+            }
+        });
+
+        updateCounters();
+        showFeedback(checked ? 'Alle ausgewählt' : 'Alle abgewählt');
+    }
+
+    function updateCounters() {
+        const solvedCount = document.querySelectorAll('input[name="solved_questions[]"]:checked').length;
+        const failedCount = document.querySelectorAll('input[name="exam_failed_questions[]"]:checked').length;
+
+        animateCounter('solvedCount', solvedCount);
+        animateCounter('failedCount', failedCount);
+    }
+
+    function animateCounter(elementId, newValue) {
+        const element = document.getElementById(elementId);
+        if (!element) return;
+        const currentValue = parseInt(element.textContent);
+
+        if (currentValue !== newValue) {
+            element.style.transform = 'scale(1.2)';
+            setTimeout(() => {
+                element.textContent = newValue;
+                element.style.transform = 'scale(1)';
+            }, 150);
         }
-        
-        function selectAll(name, checked) {
-            const checkboxes = document.querySelectorAll('input[name="'+name+'[]"]');
-            checkboxes.forEach(cb => {
-                cb.checked = checked;
-                // Add visual feedback
-                const label = cb.closest('label');
-                if (checked) {
-                    label.classList.add('ring-2', 'ring-green-500', 'ring-opacity-50');
-                } else {
-                    label.classList.remove('ring-2', 'ring-green-500', 'ring-opacity-50');
-                }
-            });
-            
-            // Update counter with animation
+    }
+
+    function showFeedback(message) {
+        const feedback = document.createElement('div');
+        feedback.style.cssText = 'position: fixed; top: 1rem; right: 1rem; padding: 0.875rem 1.5rem; background: var(--gradient-gold); color: var(--thw-blue-dark); font-weight: 600; border-radius: 0.75rem; z-index: 9999; transform: translateX(100%); transition: transform 0.3s ease; box-shadow: 0 8px 25px rgba(251, 191, 36, 0.4);';
+        feedback.textContent = message;
+        document.body.appendChild(feedback);
+
+        setTimeout(() => {
+            feedback.style.transform = 'translateX(0)';
+        }, 100);
+
+        setTimeout(() => {
+            feedback.style.transform = 'translateX(calc(100% + 1rem))';
+            setTimeout(() => {
+                document.body.removeChild(feedback);
+            }, 300);
+        }, 2000);
+    }
+
+    // Event listener for checkbox changes
+    document.addEventListener('change', function(e) {
+        if (e.target.type === 'checkbox') {
             updateCounters();
-            
-            // Show feedback
-            showFeedback(checked ? 'Alle ausgewählt' : 'Alle abgewählt');
-        }
-        
-        function updateCounters() {
-            const solvedCount = document.querySelectorAll('input[name="solved_questions[]"]:checked').length;
-            const failedCount = document.querySelectorAll('input[name="exam_failed_questions[]"]:checked').length;
-            
-            // Animate counter changes
-            animateCounter('solvedCount', solvedCount);
-            animateCounter('failedCount', failedCount);
-        }
-        
-        function animateCounter(elementId, newValue) {
-            const element = document.getElementById(elementId);
-            const currentValue = parseInt(element.textContent);
-            
-            if (currentValue !== newValue) {
-                element.style.transform = 'scale(1.2)';
-                element.style.color = '#059669';
-                
-                setTimeout(() => {
-                    element.textContent = newValue;
-                    element.style.transform = 'scale(1)';
-                    element.style.color = '';
-                }, 150);
-            }
-        }
-        
-        function showFeedback(message) {
-            // Create temporary feedback element
-            const feedback = document.createElement('div');
-            feedback.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-xl shadow-lg z-50 transform translate-x-full transition-transform duration-300';
-            feedback.textContent = message;
-            document.body.appendChild(feedback);
-            
-            // Show feedback
-            setTimeout(() => {
-                feedback.style.transform = 'translateX(0)';
-            }, 100);
-            
-            // Hide feedback
-            setTimeout(() => {
-                feedback.style.transform = 'translateX(100%)';
-                setTimeout(() => {
-                    document.body.removeChild(feedback);
-                }, 300);
-            }, 2000);
-        }
-        
-        // Event listener for checkbox changes
-        document.addEventListener('change', function(e) {
-            if (e.target.type === 'checkbox') {
-                updateCounters();
-                
-                // Add visual feedback to individual checkboxes
-                const label = e.target.closest('label');
-                if (e.target.checked) {
-                    label.classList.add('ring-2', 'ring-green-500', 'ring-opacity-50');
+
+            const label = e.target.closest('label');
+            const isError = e.target.name === 'exam_failed_questions[]';
+
+            if (e.target.checked) {
+                if (isError) {
+                    label.style.borderColor = 'rgba(239, 68, 68, 0.3)';
+                    label.style.background = 'rgba(239, 68, 68, 0.08)';
                 } else {
-                    label.classList.remove('ring-2', 'ring-green-500', 'ring-opacity-50');
+                    label.style.borderColor = 'rgba(34, 197, 94, 0.3)';
+                    label.style.background = 'rgba(34, 197, 94, 0.08)';
                 }
+            } else {
+                label.style.borderColor = 'rgba(255, 255, 255, 0.06)';
+                label.style.background = 'rgba(255, 255, 255, 0.03)';
             }
-        });
-        
-        // Add hover effects to question cards
-        document.addEventListener('DOMContentLoaded', function() {
-            const labels = document.querySelectorAll('label[class*="group"]');
-            labels.forEach(label => {
-                label.addEventListener('mouseenter', function() {
-                    this.style.transform = 'translateY(-2px)';
-                });
-                
-                label.addEventListener('mouseleave', function() {
-                    this.style.transform = 'translateY(0)';
-                });
-            });
-        });
-    </script>
+        }
+    });
+</script>
+
+<style>
+    .question-checkbox:hover {
+        border-color: rgba(255, 255, 255, 0.15) !important;
+        background: rgba(255, 255, 255, 0.06) !important;
+    }
+</style>
 @endsection
