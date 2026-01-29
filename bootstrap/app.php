@@ -11,13 +11,13 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
         using: function () {
             // Direkt env() verwenden, da config() hier noch nicht verfügbar ist
-            $isDevelopment = env('APP_ENV', 'local') === 'local';
+            $appEnv = env('APP_ENV', 'local');
+            $isDevelopment = $appEnv === 'local';
             $landingDomain = env('LANDING_DOMAIN', 'thw-trainer.de');
             $appDomain = env('APP_DOMAIN', 'app.thw-trainer.de');
-            $devDomain = env('DEV_DOMAIN', 'dev.thw-trainer.de');
 
             if ($isDevelopment) {
-                // Development: Alle Routes ohne Domain-Constraint
+                // Development (local): Alle Routes ohne Domain-Constraint
                 // Landing Routes zuerst (spezifischere Routes)
                 Route::middleware('web')
                     ->group(base_path('routes/landing.php'));
@@ -26,19 +26,14 @@ return Application::configure(basePath: dirname(__DIR__))
                 Route::middleware('web')
                     ->group(base_path('routes/web.php'));
             } else {
-                // Production: Domain-basiertes Routing
+                // Production/Testing: Domain-basiertes Routing
                 Route::middleware('web')
                     ->domain($landingDomain)
                     ->group(base_path('routes/landing.php'));
 
-                // App Routes für app.thw-trainer.de
+                // App Routes (app.thw-trainer.de oder dev.thw-trainer.de je nach ENV)
                 Route::middleware('web')
                     ->domain($appDomain)
-                    ->group(base_path('routes/web.php'));
-
-                // App Routes für dev.thw-trainer.de (Development/Testing)
-                Route::middleware('web')
-                    ->domain($devDomain)
                     ->group(base_path('routes/web.php'));
             }
         },
