@@ -259,28 +259,28 @@
 
     @media (max-width: 640px) {
         .submit-button-wrapper {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: var(--bg-base);
-            padding: 1rem 1.5rem 1.5rem 1.5rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.08);
-            z-index: 100;
-            margin: 0;
+            position: fixed !important;
+            bottom: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            background: var(--bg-base) !important;
+            padding: 1rem 1.5rem 1.5rem 1.5rem !important;
+            border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+            z-index: 100 !important;
+            margin: 0 !important;
         }
 
         /* Light Mode Button Wrapper */
         html.light-mode .submit-button-wrapper {
-            border-top-color: rgba(0, 51, 127, 0.1);
+            border-top-color: rgba(0, 51, 127, 0.1) !important;
         }
     }
 
-    /* iOS Safe Area - muss außerhalb der media query für @supports */
+    /* iOS Safe Area */
     @supports (padding-bottom: env(safe-area-inset-bottom)) {
         @media (max-width: 640px) {
             .submit-button-wrapper {
-                padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));
+                padding-bottom: calc(1.5rem + env(safe-area-inset-bottom)) !important;
             }
         }
     }
