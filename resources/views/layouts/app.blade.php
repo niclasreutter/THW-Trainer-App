@@ -512,7 +512,7 @@
                 </div>
 
                 <!-- User Section -->
-                <div class="flex items-center gap-3 px-3 py-2">
+                <a href="{{ route('profile') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-glass-subtle transition-colors">
                     <div class="w-9 h-9 rounded-full bg-thw-blue/20 flex items-center justify-center">
                         <span class="text-sm font-semibold text-gold">
                             {{ substr(auth()->user()->name, 0, 1) }}
@@ -522,7 +522,8 @@
                         <p class="text-sm font-medium text-dark-primary truncate">{{ auth()->user()->name }}</p>
                         <p class="text-xs text-dark-muted">Level {{ auth()->user()->level ?? 1 }}</p>
                     </div>
-                </div>
+                    <i class="bi bi-chevron-right text-dark-muted"></i>
+                </a>
 
                 <form method="POST" action="{{ route('logout') }}" class="mt-3">
                     @csrf
