@@ -262,11 +262,20 @@
     .submit-button-wrapper {
         margin-top: auto;
         flex-shrink: 0;
+        box-sizing: border-box;
     }
 
     /* Mobile: Fixed bottom positioning (independent of theme) */
     @media (max-width: 640px) {
         .submit-button-wrapper {
+            position: fixed !important;
+            bottom: env(safe-area-inset-bottom, 0px) !important;
+            left: 0 !important;
+            right: 0 !important;
+            z-index: 9999 !important;
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 1rem 1.5rem calc(1.5rem + env(safe-area-inset-bottom, 0px)) 1.5rem !important;
             margin-top: initial !important;
             flex-shrink: initial !important;
         }
@@ -692,7 +701,7 @@
                 </div>
 
                 <!-- Submit/Next Button -->
-                <div class="submit-button-wrapper" style="position: fixed !important; bottom: env(safe-area-inset-bottom, 0px) !important; left: 0 !important; right: 0 !important; z-index: 9999 !important; margin: 0 !important; padding: 1rem 1.5rem calc(1.5rem + env(safe-area-inset-bottom, 0px)) 1.5rem !important; width: 100% !important; box-sizing: border-box !important;">
+                <div class="submit-button-wrapper">
                     @if(!isset($isCorrect))
                         <button type="submit" id="submitBtn" class="btn-primary w-full py-4 text-base" disabled>
                             Antwort absenden
