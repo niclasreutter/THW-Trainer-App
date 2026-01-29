@@ -42,11 +42,7 @@
                 <!-- Betreff -->
                 <div class="mb-4">
                     <label for="subject" style="display: block; font-size: 0.875rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">Betreff</label>
-                    <input type="text" id="subject" name="subject" required
-                           style="width: 100%; padding: 0.625rem 1rem; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 0.5rem; color: var(--text-primary); outline: none; transition: all 0.2s;"
-                           placeholder="z.B. Neue Features im THW-Trainer"
-                           onfocus="this.style.borderColor='var(--gold-start)'; this.style.background='rgba(255, 255, 255, 0.08)';"
-                           onblur="this.style.borderColor='rgba(255, 255, 255, 0.1)'; this.style.background='rgba(255, 255, 255, 0.05)';">
+                    <input type="text" id="subject" name="subject" required placeholder="z.B. Neue Features im THW-Trainer">
                 </div>
 
                 <!-- Rich-Text Editor mit Formatierungs-Toolbar -->

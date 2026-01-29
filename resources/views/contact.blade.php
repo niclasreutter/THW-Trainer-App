@@ -5,18 +5,6 @@
 
 @push('styles')
 <style>
-    .dashboard-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 2rem;
-    }
-
-    .dashboard-header {
-        margin-bottom: 2.5rem;
-        padding-top: 1rem;
-        max-width: 600px;
-    }
-
     .contact-form-wrapper {
         max-width: 800px;
     }
