@@ -836,11 +836,14 @@
                             bottom: 0 !important;
                             left: 0 !important;
                             right: 0 !important;
-                            z-index: 100 !important;
+                            z-index: 9999 !important;
                             margin: 0 !important;
                             padding: 1rem 1.5rem 1.5rem 1.5rem !important;
                             background-color: ${bgColor} !important;
                             border-top: 1px solid ${borderColor} !important;
+                            display: block !important;
+                            visibility: visible !important;
+                            opacity: 1 !important;
                         `;
 
                         console.log('Button styles applied:', wrapper.style.cssText);
