@@ -256,6 +256,14 @@
         flex-shrink: 0;
     }
 
+    /* Mobile: Fixed Bottom Button */
+    @media (max-width: 640px) {
+        .submit-button-wrapper {
+            margin-top: initial !important;
+            flex-shrink: initial !important;
+        }
+    }
+
     /* Light Mode Button Background - must override inline styles */
     html.light-mode .submit-button-wrapper {
         background-color: rgba(255, 255, 255, 0.95) !important;
