@@ -35,9 +35,28 @@
             display: none !important;
         }
 
-        /* Hide bottom navigation during practice */
+        /* Hide bottom navigation during practice - ALL nav elements */
+        nav {
+            display: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            height: 0 !important;
+        }
+
         nav.bottom-nav-glass {
             display: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            height: 0 !important;
+            position: absolute !important;
+            bottom: auto !important;
+        }
+
+        nav.lg\\:hidden {
+            display: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            height: 0 !important;
         }
 
         /* Fix the main layout container - removes min-h-screen constraint */
