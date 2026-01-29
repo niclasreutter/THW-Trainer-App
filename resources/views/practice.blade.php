@@ -680,7 +680,7 @@
                 </div>
 
                 <!-- Submit/Next Button -->
-                <div class="submit-button-wrapper">
+                <div class="submit-button-wrapper" style="position: fixed; bottom: 0; left: 0; right: 0; z-index: 9999; margin: 0; padding: 1rem 1.5rem 1.5rem 1.5rem; background-color: var(--bg-base); border-top: 1px solid var(--glass-border);">
                     @if(!isset($isCorrect))
                         <button type="submit" id="submitBtn" class="btn-primary w-full py-4 text-base" disabled>
                             Antwort absenden
