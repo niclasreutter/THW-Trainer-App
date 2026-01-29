@@ -822,19 +822,28 @@
                     const wrapper = document.querySelector('.submit-button-wrapper');
                     if (wrapper) {
                         console.log('Fixing button position for mobile');
-                        wrapper.style.setProperty('position', 'fixed', 'important');
-                        wrapper.style.setProperty('bottom', '0', 'important');
-                        wrapper.style.setProperty('left', '0', 'important');
-                        wrapper.style.setProperty('right', '0', 'important');
-                        wrapper.style.setProperty('z-index', '100', 'important');
-                        wrapper.style.setProperty('margin', '0', 'important');
-                        wrapper.style.setProperty('padding', '1rem 1.5rem 1.5rem 1.5rem', 'important');
 
                         // Set background based on theme
                         const isDark = !document.documentElement.classList.contains('light-mode');
                         console.log('Is Dark Mode:', isDark);
-                        wrapper.style.setProperty('background-color', isDark ? '#0a0a0b' : '#f3f4f6', 'important');
-                        wrapper.style.setProperty('border-top', isDark ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 51, 127, 0.1)', 'important');
+
+                        const bgColor = isDark ? '#0a0a0b' : '#f3f4f6';
+                        const borderColor = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 51, 127, 0.1)';
+
+                        // Use cssText to override all styles at once with !important
+                        wrapper.style.cssText = `
+                            position: fixed !important;
+                            bottom: 0 !important;
+                            left: 0 !important;
+                            right: 0 !important;
+                            z-index: 100 !important;
+                            margin: 0 !important;
+                            padding: 1rem 1.5rem 1.5rem 1.5rem !important;
+                            background-color: ${bgColor} !important;
+                            border-top: 1px solid ${borderColor} !important;
+                        `;
+
+                        console.log('Button styles applied:', wrapper.style.cssText);
                     } else {
                         console.error('Submit button wrapper not found!');
                     }
