@@ -29,7 +29,7 @@ return Application::configure(basePath: dirname(__DIR__))
                     ->group(base_path('routes/web.php'));
             } else {
                 // Local/Testing/Dev: Alle Routes ohne Domain-Constraint
-                // Landing Routes zuerst (spezifischere Routes)
+                // Landing Routes zuerst
                 Route::middleware('web')
                     ->group(base_path('routes/landing.php'));
 
