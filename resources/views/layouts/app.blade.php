@@ -193,10 +193,62 @@
                     <div class="pt-4 mt-4 border-t border-glass-subtle">
                         <p class="px-3 mb-3 text-xs font-semibold text-dark-muted uppercase tracking-wider">Admin</p>
 
+                        <a href="{{ route('admin.dashboard') }}"
+                           class="sidebar-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+                            <i class="bi bi-speedometer2"></i>
+                            Dashboard
+                        </a>
+
                         <a href="{{ route('admin.users.index') }}"
-                           class="sidebar-link {{ request()->routeIs('admin.*') ? 'active' : '' }}">
-                            <i class="bi bi-gear"></i>
-                            Verwaltung
+                           class="sidebar-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
+                            <i class="bi bi-people"></i>
+                            Nutzer
+                        </a>
+
+                        <a href="{{ route('admin.questions.index') }}"
+                           class="sidebar-link {{ request()->routeIs('admin.questions.*') ? 'active' : '' }}">
+                            <i class="bi bi-question-circle"></i>
+                            Fragen
+                        </a>
+
+                        <a href="{{ route('admin.lehrgaenge.index') }}"
+                           class="sidebar-link {{ request()->routeIs('admin.lehrgaenge.*') ? 'active' : '' }}">
+                            <i class="bi bi-mortarboard"></i>
+                            Lehrgänge
+                        </a>
+
+                        <a href="{{ route('admin.ortsverband.index') }}"
+                           class="sidebar-link {{ request()->routeIs('admin.ortsverband.*') ? 'active' : '' }}">
+                            <i class="bi bi-building"></i>
+                            Ortsverbände
+                        </a>
+
+                        <a href="{{ route('admin.lehrgang-issues.index') }}"
+                           class="sidebar-link {{ request()->routeIs('admin.lehrgang-issues.*') ? 'active' : '' }}">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            Fehlermeldungen
+                            @php
+                                $openIssuesCount = cache()->remember('admin_open_issues_count', 300, function() {
+                                    return \App\Models\LehrgangQuestionIssue::where('status', 'open')->count();
+                                });
+                            @endphp
+                            @if($openIssuesCount > 0)
+                                <span class="badge-error text-xs ml-auto">{{ $openIssuesCount }}</span>
+                            @endif
+                        </a>
+
+                        <a href="{{ route('admin.contact-messages.index') }}"
+                           class="sidebar-link {{ request()->routeIs('admin.contact-messages.*') ? 'active' : '' }}">
+                            <i class="bi bi-envelope"></i>
+                            Kontaktanfragen
+                            @php
+                                $unreadContactCount = cache()->remember('admin_unread_messages_count', 300, function() {
+                                    return \App\Models\ContactMessage::where('is_read', false)->count();
+                                });
+                            @endphp
+                            @if($unreadContactCount > 0)
+                                <span class="badge-error text-xs ml-auto">{{ $unreadContactCount }}</span>
+                            @endif
                         </a>
                     </div>
                     @endif
@@ -376,9 +428,56 @@
                 @if(auth()->user()->useroll === 'admin')
                 <div class="pt-4 mt-4 border-t border-glass-subtle">
                     <p class="px-3 mb-3 text-xs font-semibold text-dark-muted uppercase tracking-wider">Admin</p>
-                    <a href="{{ route('admin.users.index') }}" class="sidebar-link {{ request()->routeIs('admin.*') ? 'active' : '' }}">
-                        <i class="bi bi-gear"></i>
-                        Verwaltung
+
+                    <a href="{{ route('admin.dashboard') }}" class="sidebar-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+                        <i class="bi bi-speedometer2"></i>
+                        Dashboard
+                    </a>
+
+                    <a href="{{ route('admin.users.index') }}" class="sidebar-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
+                        <i class="bi bi-people"></i>
+                        Nutzer
+                    </a>
+
+                    <a href="{{ route('admin.questions.index') }}" class="sidebar-link {{ request()->routeIs('admin.questions.*') ? 'active' : '' }}">
+                        <i class="bi bi-question-circle"></i>
+                        Fragen
+                    </a>
+
+                    <a href="{{ route('admin.lehrgaenge.index') }}" class="sidebar-link {{ request()->routeIs('admin.lehrgaenge.*') ? 'active' : '' }}">
+                        <i class="bi bi-mortarboard"></i>
+                        Lehrgänge
+                    </a>
+
+                    <a href="{{ route('admin.ortsverband.index') }}" class="sidebar-link {{ request()->routeIs('admin.ortsverband.*') ? 'active' : '' }}">
+                        <i class="bi bi-building"></i>
+                        Ortsverbände
+                    </a>
+
+                    <a href="{{ route('admin.lehrgang-issues.index') }}" class="sidebar-link {{ request()->routeIs('admin.lehrgang-issues.*') ? 'active' : '' }}">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        Fehlermeldungen
+                        @php
+                            $mobileOpenIssuesCount = cache()->remember('admin_open_issues_count', 300, function() {
+                                return \App\Models\LehrgangQuestionIssue::where('status', 'open')->count();
+                            });
+                        @endphp
+                        @if($mobileOpenIssuesCount > 0)
+                            <span class="badge-error text-xs ml-auto">{{ $mobileOpenIssuesCount }}</span>
+                        @endif
+                    </a>
+
+                    <a href="{{ route('admin.contact-messages.index') }}" class="sidebar-link {{ request()->routeIs('admin.contact-messages.*') ? 'active' : '' }}">
+                        <i class="bi bi-envelope"></i>
+                        Kontaktanfragen
+                        @php
+                            $mobileUnreadContactCount = cache()->remember('admin_unread_messages_count', 300, function() {
+                                return \App\Models\ContactMessage::where('is_read', false)->count();
+                            });
+                        @endphp
+                        @if($mobileUnreadContactCount > 0)
+                            <span class="badge-error text-xs ml-auto">{{ $mobileUnreadContactCount }}</span>
+                        @endif
                     </a>
                 </div>
                 @endif

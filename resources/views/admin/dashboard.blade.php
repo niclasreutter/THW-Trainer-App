@@ -1,572 +1,584 @@
 @extends('layouts.app')
 
-@section('title', 'Admin Dashboard - THW Trainer')
+@section('title', 'Admin Dashboard')
 @section('description', 'Übersicht über System-Status, Benutzerstatistiken und Lernfortschritt')
 
 @push('styles')
 <style>
-    * { box-sizing: border-box; }
+    .dashboard-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
 
-    .admin-wrapper { min-height: 100vh; background: #f3f4f6; position: relative; overflow-x: hidden; }
+    .dashboard-header {
+        margin-bottom: 2.5rem;
+        padding-top: 1rem;
+        max-width: 600px;
+    }
 
-    .admin-container { max-width: 1200px; margin: 0 auto; padding: 2rem; position: relative; z-index: 1; }
+    /* Bento Grid Layout */
+    .bento-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr 1fr;
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
 
-    .admin-header { text-align: center; margin-bottom: 3rem; }
+    .bento-side {
+        padding: 1.25rem;
+        display: flex;
+        flex-direction: column;
+    }
 
-    .admin-header h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 0.5rem; line-height: 1.2; display: inline-block; background: linear-gradient(90deg, #fbbf24, #f59e0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .bento-wide {
+        grid-column: span 4;
+        padding: 1.5rem;
+    }
 
-    .admin-subtitle { font-size: 1.1rem; color: #4b5563; margin: 0; }
+    .bento-half {
+        grid-column: span 2;
+        padding: 1.5rem;
+    }
 
-    .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+    .bento-third {
+        grid-column: span 1;
+        padding: 1.5rem;
+    }
 
-    .stat-card { background: white; border: 1px solid #e5e7eb; border-radius: 10px; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); transition: all 0.3s; }
+    @media (max-width: 900px) {
+        .bento-grid { grid-template-columns: 1fr 1fr; }
+        .bento-wide { grid-column: span 2; }
+        .bento-half { grid-column: span 2; }
+        .bento-third { grid-column: span 1; }
+    }
 
-    .stat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
+    @media (max-width: 600px) {
+        .bento-grid { grid-template-columns: 1fr; }
+        .bento-wide, .bento-half, .bento-third, .bento-side { grid-column: span 1; }
+        .dashboard-container { padding: 1rem; }
+    }
 
-    .stat-card.system-status { background: white; padding: 1rem; }
+    /* Section headers */
+    .section-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        padding-left: 1rem;
+        border-left: 3px solid var(--gold-start);
+    }
 
-    .stat-label { font-size: 0.85rem; color: #6b7280; margin-bottom: 0.5rem; font-weight: 500; }
+    .section-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        letter-spacing: -0.02em;
+    }
 
-    .stat-value { font-size: 1.75rem; font-weight: 800; color: #1f2937; margin-bottom: 0.25rem; }
+    /* KPI Cards */
+    .kpi-value {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: var(--text-primary);
+        line-height: 1.1;
+    }
 
-    .stat-subtext { font-size: 0.8rem; color: #9ca3af; }
+    .kpi-label {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.5rem;
+    }
 
-    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+    .kpi-sub {
+        font-size: 0.85rem;
+        margin-top: 0.5rem;
+    }
 
-    .kpi-card { background: white; border: 1px solid #e5e7eb; border-radius: 10px; padding: 2rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); display: flex; align-items: center; justify-content: space-between; transition: all 0.3s; }
-
-    .kpi-card:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); }
-
-    .kpi-content h3 { font-size: 0.9rem; color: #6b7280; margin: 0 0 0.5rem 0; font-weight: 500; }
-
-    .kpi-value { font-size: 2.5rem; font-weight: 800; color: #00337F; margin: 0; }
-
-    .kpi-sub { font-size: 0.8rem; color: #9ca3af; margin: 0.3rem 0 0 0; }
-
-    .kpi-icon { width: 70px; height: 70px; background: linear-gradient(135deg, rgba(0, 51, 127, 0.1) 0%, rgba(0, 51, 127, 0.05) 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 2rem; }
-
-    .card { background: white; border: 1px solid #e5e7eb; border-radius: 10px; padding: 2rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); }
-
-    .card h3 { font-size: 1.25rem; font-weight: 700; color: #1f2937; margin: 0 0 1.5rem 0; display: flex; align-items: center; gap: 0.75rem; }
-
-    .card-icon { font-size: 1.3rem; color: #00337F; }
-
-    .stat-row { display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; border-bottom: 1px solid #f3f4f6; }
+    /* Stat rows */
+    .stat-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
 
     .stat-row:last-child { border-bottom: none; }
 
-    .stat-label-col { color: #6b7280; font-size: 0.95rem; }
+    .stat-row-label {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+    }
 
-    .stat-value-col { font-weight: 700; color: #1f2937; font-size: 1rem; }
+    .stat-row-value {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--text-primary);
+    }
 
-    .stat-value-col.success { color: #22c55e; }
+    /* Leaderboard */
+    .leaderboard-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.875rem 1rem;
+        border-radius: 0.75rem;
+        margin-bottom: 0.5rem;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        transition: all 0.2s;
+    }
 
-    .stat-value-col.warning { color: #f59e0b; }
+    .leaderboard-item:hover {
+        background: rgba(255, 255, 255, 0.06);
+        transform: translateX(4px);
+    }
 
-    .stat-value-col.primary { color: #00337F; }
+    .leaderboard-item.top-rank {
+        background: linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, rgba(245, 158, 11, 0.05) 100%);
+        border: 1px solid rgba(251, 191, 36, 0.2);
+    }
 
-    .leaderboard-item { display: flex; align-items: center; justify-content: space-between; padding: 1rem; border-radius: 8px; margin-bottom: 0.75rem; background: #f9fafb; border: 1px solid #e5e7eb; transition: all 0.3s; }
+    .leaderboard-rank {
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 0.5rem;
+        font-weight: 700;
+        font-size: 0.9rem;
+    }
 
-    .leaderboard-item:hover { background: #ffffff; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); }
+    .leaderboard-info {
+        flex: 1;
+        min-width: 0;
+    }
 
-    .leaderboard-item.top-rank { background: linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, rgba(245, 158, 11, 0.05) 100%); border: 1px solid rgba(251, 191, 36, 0.3); }
+    .leaderboard-name {
+        font-weight: 600;
+        color: var(--text-primary);
+        font-size: 0.9rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 
-    .medal { font-size: 1.5rem; margin-right: 1rem; }
+    .leaderboard-level {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+    }
 
-    .user-info { flex: 1; }
+    .leaderboard-score {
+        text-align: right;
+    }
 
-    .user-name { font-weight: 700; color: #1f2937; font-size: 0.95rem; }
+    .leaderboard-points {
+        font-weight: 700;
+        font-size: 0.9rem;
+    }
 
-    .user-level { font-size: 0.8rem; color: #9ca3af; }
-
-    .user-stats { text-align: right; }
-
-    .user-score { font-weight: 700; color: #00337F; font-size: 1rem; }
-
-    .user-details { font-size: 0.8rem; color: #9ca3af; }
-
-    .action-buttons { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
-
-    .action-btn { display: flex; align-items: center; gap: 0.75rem; padding: 1.25rem; border-radius: 10px; text-decoration: none; color: white; font-weight: 600; transition: all 0.3s; border: none; cursor: pointer; }
-
-    .action-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2); }
-
-    .action-btn.primary { background: linear-gradient(135deg, #00337F 0%, #003F99 100%); }
-
-    .action-btn.success { background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); }
-
-    .action-btn.warning { background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: #1f2937; }
-
-    .action-btn.info { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
-
-    .section-title { font-size: 1.3rem; font-weight: 700; color: #1f2937; margin: 2rem 0 1.5rem 0; }
-
-    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
-
-    .status-indicator { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
-
-    .status-ok { background: #22c55e; }
-
-    .status-error { background: #ef4444; }
-
-    .status-warning { background: #f59e0b; }
+    .leaderboard-details {
+        font-size: 0.7rem;
+        color: var(--text-muted);
+    }
 
     /* Charts */
-    .charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
-    .chart-card { background: white; border: 1px solid #e5e7eb; border-radius: 10px; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); }
-    .chart-card h3 { font-size: 1rem; font-weight: 700; color: #1f2937; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
-    .chart-container { position: relative; height: 280px; }
-
-    @media (max-width: 768px) {
-        .admin-container { padding: 1rem; }
-        .admin-header h1 { font-size: 1.75rem; }
-        .stat-grid { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; }
-        .kpi-grid { grid-template-columns: 1fr; }
-        .kpi-card { flex-direction: column; text-align: center; }
-        .kpi-icon { margin-top: 1rem; }
-        .action-buttons { grid-template-columns: 1fr; }
-        .card { padding: 1.5rem; }
-        .charts-grid { grid-template-columns: 1fr; }
-        .chart-container { height: 220px; }
+    .chart-container {
+        height: 240px;
+        position: relative;
     }
+
 </style>
 @endpush
 
 @section('content')
+<div class="dashboard-container">
+    <!-- Header -->
+    <header class="dashboard-header">
+        <h1 class="page-title">Admin <span>Dashboard</span></h1>
+        <p class="page-subtitle">System-Status, Benutzer und Lernfortschritt</p>
+    </header>
 
-<div class="admin-wrapper">
-    <div class="admin-container">
-        <!-- Header -->
-        <div class="admin-header">
-            <h1>Admin Dashboard</h1>
-            <p class="admin-subtitle">Übersicht über System-Status, Benutzer und Lernfortschritt</p>
-        </div>
-
-        <!-- System Status -->
-        <div class="section-title">System Status</div>
-        <div class="stat-grid">
-            <div class="stat-card system-status">
-                <div class="stat-label">Datenbank</div>
-                <div style="display: flex; align-items: center; gap: 0.75rem;">
-                    <span class="status-indicator {{ $systemStatus['database']['status'] === 'ok' ? 'status-ok' : 'status-error' }}"></span>
-                    <span class="stat-value" style="margin: 0; font-size: 1rem;">{{ ucfirst($systemStatus['database']['status']) }}</span>
-                </div>
-                <p class="stat-subtext">{{ $systemStatus['database']['message'] }}</p>
-            </div>
-            
-            <div class="stat-card system-status">
-                <div class="stat-label">Cache</div>
-                <div style="display: flex; align-items: center; gap: 0.75rem;">
-                    <span class="status-indicator {{ $systemStatus['cache']['status'] === 'ok' ? 'status-ok' : 'status-error' }}"></span>
-                    <span class="stat-value" style="margin: 0; font-size: 1rem;">{{ ucfirst($systemStatus['cache']['status']) }}</span>
-                </div>
-                <p class="stat-subtext">{{ $systemStatus['cache']['message'] }}</p>
-            </div>
-            
-            <div class="stat-card system-status">
-                <div class="stat-label">Storage</div>
-                <div style="display: flex; align-items: center; gap: 0.75rem;">
-                    <span class="status-indicator {{ $systemStatus['storage']['status'] === 'ok' ? 'status-ok' : 'status-error' }}"></span>
-                    <span class="stat-value" style="margin: 0; font-size: 1rem;">{{ ucfirst($systemStatus['storage']['status']) }}</span>
-                </div>
-                <p class="stat-subtext">{{ $systemStatus['storage']['message'] }}</p>
-            </div>
-            
-            <div class="stat-card system-status">
-                <div class="stat-label">Nutzer Online</div>
-                <div style="display: flex; align-items: center; gap: 0.75rem;">
-                    <span class="status-indicator {{ $systemStatus['online_users']['status'] === 'ok' ? 'status-ok' : 'status-warning' }}"></span>
-                    <span class="stat-value" style="margin: 0; font-size: 1.5rem;">{{ $systemStatus['online_users']['count'] }}</span>
-                </div>
-                <p class="stat-subtext">{{ $systemStatus['online_users']['message'] }}</p>
+    <!-- System Status Pills -->
+    <div class="stats-row">
+        <div class="stat-pill">
+            <span class="stat-pill-icon {{ $systemStatus['database']['status'] === 'ok' ? 'text-success' : 'text-error' }}">
+                <i class="bi bi-database{{ $systemStatus['database']['status'] === 'ok' ? '-check' : '-x' }}"></i>
+            </span>
+            <div>
+                <div class="stat-pill-value">{{ ucfirst($systemStatus['database']['status']) }}</div>
+                <div class="stat-pill-label">Datenbank</div>
             </div>
         </div>
 
-        <!-- KPI Cards -->
-        <div class="section-title">Wichtige Kennzahlen</div>
-        <div class="kpi-grid">
-            <!-- Gesamt Benutzer -->
-            <div class="kpi-card">
-                <div class="kpi-content">
-                    <h3>Gesamt Benutzer</h3>
-                    <p class="kpi-value">{{ $totalUsers }}</p>
-                    <p class="kpi-sub">+{{ $newUsersToday }} heute</p>
-                </div>
-                <div class="kpi-icon"><i class="bi bi-people"></i></div>
-            </div>
-
-            <!-- E-Mail bestätigt -->
-            <div class="kpi-card">
-                <div class="kpi-content">
-                    <h3>E-Mail bestätigt</h3>
-                    <p class="kpi-value">{{ $verifiedUsers }}</p>
-                    <p class="kpi-sub">{{ $verificationRate }}% Rate</p>
-                </div>
-                <div class="kpi-icon"><i class="bi bi-check-circle-fill text-green-500"></i></div>
-            </div>
-
-            <!-- Gesamt Fragen -->
-            <div class="kpi-card">
-                <div class="kpi-content">
-                    <h3>Gesamt Fragen</h3>
-                    <p class="kpi-value">{{ $totalQuestions }}</p>
-                    <p class="kpi-sub">{{ $learningSections }} Lernabschnitte</p>
-                </div>
-                <div class="kpi-icon"><i class="bi bi-question-circle"></i></div>
-            </div>
-
-            <!-- Beantwortete Fragen -->
-            <div class="kpi-card">
-                <div class="kpi-content">
-                    <h3>Beantwortete Fragen</h3>
-                    <p class="kpi-value">{{ number_format($totalAnsweredQuestions) }}</p>
-                    <p class="kpi-sub">{{ $wrongAnswerRate }}% Falsch</p>
-                </div>
-                <div class="kpi-icon"><i class="bi bi-bar-chart"></i></div>
+        <div class="stat-pill">
+            <span class="stat-pill-icon {{ $systemStatus['cache']['status'] === 'ok' ? 'text-success' : 'text-error' }}">
+                <i class="bi bi-lightning{{ $systemStatus['cache']['status'] === 'ok' ? '-charge' : '' }}"></i>
+            </span>
+            <div>
+                <div class="stat-pill-value">{{ ucfirst($systemStatus['cache']['status']) }}</div>
+                <div class="stat-pill-label">Cache</div>
             </div>
         </div>
 
-        <!-- Detail Cards -->
-        <div class="section-title">Detaillierte Statistiken</div>
-        <div class="grid-2">
-            <!-- Fragen-Statistik -->
-            <div class="card">
-                <h3><span class="card-icon"><i class="bi bi-graph-down"></i></span> Fragen-Statistik</h3>
-                <div class="stat-row">
-                    <span class="stat-label-col">Gesamt beantwortet</span>
-                    <span class="stat-value-col">{{ number_format($totalAnsweredQuestions) }}</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label-col">Richtig</span>
-                    <span class="stat-value-col success">{{ number_format($totalCorrectAnswers) }}</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label-col">Falsch</span>
-                    <span class="stat-value-col" style="color: #ef4444;">{{ number_format($totalWrongAnswers) }}</span>
-                </div>
-                <div class="stat-row" style="border-bottom: 2px solid #e5e7eb; padding: 1.5rem 0;">
-                    <span class="stat-label-col" style="font-weight: 700; color: #1f2937;">Erfolgsrate</span>
-                    <span class="stat-value-col primary" style="font-size: 1.25rem;">{{ $totalAnsweredQuestions > 0 ? round((($totalCorrectAnswers / $totalAnsweredQuestions) * 100), 1) : 0 }}%</span>
-                </div>
-            </div>
-
-            <!-- Benutzer-Aktivität -->
-            <div class="card">
-                <h3><span class="card-icon"><i class="bi bi-graph-up"></i></span> Benutzer-Aktivität</h3>
-                <div class="stat-row">
-                    <span class="stat-label-col">Heute</span>
-                    <span class="stat-value-col">{{ $userActivity['today'] }}</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label-col">Diese Woche</span>
-                    <span class="stat-value-col">{{ $userActivity['this_week'] }}</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label-col">Diesen Monat</span>
-                    <span class="stat-value-col">{{ $userActivity['this_month'] }}</span>
-                </div>
-            </div>
-
-            <!-- Lernfortschritt -->
-            <div class="card">
-                <h3><span class="card-icon"><i class="bi bi-mortarboard"></i></span> Lernfortschritt</h3>
-                <div class="stat-row">
-                    <span class="stat-label-col">Gesamt Punkte</span>
-                    <span class="stat-value-col warning">{{ number_format($learningProgress['total_points']) }}</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label-col">Mit Erfolgen</span>
-                    <span class="stat-value-col">{{ $learningProgress['users_with_achievements'] }}</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label-col">Ø Fortschritt</span>
-                    <span class="stat-value-col primary">{{ $learningProgress['average_progress'] }}%</span>
-                </div>
+        <div class="stat-pill">
+            <span class="stat-pill-icon {{ $systemStatus['storage']['status'] === 'ok' ? 'text-success' : 'text-error' }}">
+                <i class="bi bi-hdd{{ $systemStatus['storage']['status'] === 'ok' ? '' : '-fill' }}"></i>
+            </span>
+            <div>
+                <div class="stat-pill-value">{{ ucfirst($systemStatus['storage']['status']) }}</div>
+                <div class="stat-pill-label">Storage</div>
             </div>
         </div>
 
-        <!-- Leaderboard Section -->
-        <div class="section-title">Leaderboard Top-10</div>
-        <div class="card">
-            <div style="max-height: 400px; overflow-y: auto;">
+        <div class="stat-pill">
+            <span class="stat-pill-icon text-gold">
+                <i class="bi bi-person-check"></i>
+            </span>
+            <div>
+                <div class="stat-pill-value">{{ $systemStatus['online_users']['count'] }}</div>
+                <div class="stat-pill-label">Online</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- KPI Bento Grid -->
+    <div class="bento-grid">
+        <!-- Benutzer KPI -->
+        <div class="glass-gold bento-side hover-lift">
+            <div class="kpi-label">Gesamt Benutzer</div>
+            <div class="kpi-value">{{ number_format($totalUsers) }}</div>
+            <div class="kpi-sub text-success">+{{ $newUsersToday }} heute</div>
+        </div>
+
+        <!-- E-Mail bestätigt -->
+        <div class="glass-tl bento-side hover-lift">
+            <div class="kpi-label">E-Mail bestätigt</div>
+            <div class="kpi-value">{{ number_format($verifiedUsers) }}</div>
+            <div class="kpi-sub text-dark-secondary">{{ $verificationRate }}% Rate</div>
+        </div>
+
+        <!-- Fragen KPI -->
+        <div class="glass-br bento-side hover-lift">
+            <div class="kpi-label">Gesamt Fragen</div>
+            <div class="kpi-value">{{ number_format($totalQuestions) }}</div>
+            <div class="kpi-sub text-dark-secondary">{{ $learningSections }} Lernabschnitte</div>
+        </div>
+
+        <!-- Beantwortete Fragen -->
+        <div class="glass-slash bento-side hover-lift">
+            <div class="kpi-label">Beantwortet</div>
+            <div class="kpi-value">{{ number_format($totalAnsweredQuestions) }}</div>
+            <div class="kpi-sub text-warning">{{ $wrongAnswerRate }}% Falsch</div>
+        </div>
+    </div>
+
+    <!-- Detail Statistiken -->
+    <div class="section-header">
+        <h2 class="section-title">Detaillierte Statistiken</h2>
+    </div>
+
+    <div class="bento-grid" style="margin-bottom: 2rem;">
+        <!-- Fragen-Statistik -->
+        <div class="glass-tl bento-third">
+            <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="bi bi-graph-down text-gold"></i>
+                Fragen-Statistik
+            </div>
+            <div class="stat-row">
+                <span class="stat-row-label">Gesamt beantwortet</span>
+                <span class="stat-row-value">{{ number_format($totalAnsweredQuestions) }}</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-row-label">Richtig</span>
+                <span class="stat-row-value text-success">{{ number_format($totalCorrectAnswers) }}</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-row-label">Falsch</span>
+                <span class="stat-row-value text-error">{{ number_format($totalWrongAnswers) }}</span>
+            </div>
+            <div style="margin-top: 1rem; padding: 0.75rem; background: rgba(255, 255, 255, 0.05); border-radius: 0.5rem; display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-weight: 600; color: var(--text-primary);">Erfolgsrate</span>
+                <span class="text-gradient-gold" style="font-size: 1.25rem; font-weight: 800;">{{ $totalAnsweredQuestions > 0 ? round((($totalCorrectAnswers / $totalAnsweredQuestions) * 100), 1) : 0 }}%</span>
+            </div>
+        </div>
+
+        <!-- Benutzer-Aktivität -->
+        <div class="glass-br bento-third">
+            <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="bi bi-graph-up text-gold"></i>
+                Benutzer-Aktivität
+            </div>
+            <div class="stat-row">
+                <span class="stat-row-label">Heute</span>
+                <span class="stat-row-value">{{ $userActivity['today'] }}</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-row-label">Diese Woche</span>
+                <span class="stat-row-value">{{ $userActivity['this_week'] }}</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-row-label">Diesen Monat</span>
+                <span class="stat-row-value">{{ $userActivity['this_month'] }}</span>
+            </div>
+        </div>
+
+        <!-- Lernfortschritt -->
+        <div class="glass-slash bento-third">
+            <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="bi bi-mortarboard text-gold"></i>
+                Lernfortschritt
+            </div>
+            <div class="stat-row">
+                <span class="stat-row-label">Gesamt Punkte</span>
+                <span class="stat-row-value text-warning">{{ number_format($learningProgress['total_points']) }}</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-row-label">Mit Erfolgen</span>
+                <span class="stat-row-value">{{ $learningProgress['users_with_achievements'] }}</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-row-label">Ø Fortschritt</span>
+                <span class="stat-row-value" style="color: var(--thw-blue);">{{ $learningProgress['average_progress'] }}%</span>
+            </div>
+        </div>
+
+        <!-- Leaderboard -->
+        <div class="glass bento-third">
+            <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="bi bi-trophy text-gold"></i>
+                Leaderboard Top-10
+            </div>
+            <div style="max-height: 280px; overflow-y: auto;">
                 @forelse($leaderboard as $index => $user)
                     @php
                         $position = $index + 1;
-                        $medal = match($position) {
-                            1 => '🥇',
-                            2 => '🥈', 
-                            3 => '🥉',
-                            default => ''
-                        };
+                        $isTopRank = $position <= 3;
+                        $medalColors = [1 => '#fbbf24', 2 => '#9ca3af', 3 => '#d97706'];
                     @endphp
-                    <div class="leaderboard-item {{ $position <= 3 ? 'top-rank' : '' }}">
-                        <div style="display: flex; align-items: center; flex: 1;">
-                            <span class="medal">{{ $medal ?: $position . '.' }}</span>
-                            <div class="user-info">
-                                <div class="user-name">{{ $user['name'] }}</div>
-                                <div class="user-level">Level {{ $user['level'] }}</div>
-                            </div>
+                    <div class="leaderboard-item {{ $isTopRank ? 'top-rank' : '' }}">
+                        <div class="leaderboard-rank" style="background: {{ $isTopRank ? 'rgba(251, 191, 36, 0.2)' : 'rgba(255, 255, 255, 0.05)' }}; color: {{ $medalColors[$position] ?? 'var(--text-muted)' }};">
+                            @if($position <= 3)
+                                <i class="bi bi-trophy-fill"></i>
+                            @else
+                                {{ $position }}
+                            @endif
                         </div>
-                        <div class="user-stats">
-                            <div class="user-score">{{ number_format($user['score']) }} Punkte</div>
-                            <div class="user-details">{{ $user['solved_questions'] }} Fragen • {{ $user['exam_passed'] }} Prüfungen</div>
+                        <div class="leaderboard-info">
+                            <div class="leaderboard-name">{{ $user['name'] }}</div>
+                            <div class="leaderboard-level">Level {{ $user['level'] }}</div>
+                        </div>
+                        <div class="leaderboard-score">
+                            <div class="leaderboard-points {{ $isTopRank ? 'text-gradient-gold' : '' }}">{{ number_format($user['score']) }}</div>
+                            <div class="leaderboard-details">{{ $user['solved_questions'] }} Fragen</div>
                         </div>
                     </div>
                 @empty
-                    <div style="text-align: center; padding: 3rem 1rem; color: #9ca3af;">
-                        <div style="font-size: 3rem; margin-bottom: 1rem;"><i class="bi bi-people"></i></div>
-                        <p>Noch keine Benutzer-Daten verfügbar</p>
+                    <div style="text-align: center; padding: 2rem; color: var(--text-muted);">
+                        <i class="bi bi-people" style="font-size: 2rem; margin-bottom: 0.5rem; display: block;"></i>
+                        Keine Daten
                     </div>
                 @endforelse
             </div>
         </div>
+    </div>
 
-        <!-- Statistiken Charts (30 Tage inkl. heute) -->
-        <div class="section-title">Statistiken (letzte 30 Tage)</div>
-        <div class="charts-grid">
-            <!-- Chart 1: Aktive Benutzer + Registrierungen -->
-            <div class="chart-card">
-                <h3><i class="bi bi-people"></i> Benutzeraktivität</h3>
-                <div class="chart-container">
-                    <canvas id="userActivityChart"></canvas>
-                </div>
+    <!-- Charts -->
+    <div class="section-header">
+        <h2 class="section-title">Statistiken (letzte 30 Tage)</h2>
+    </div>
+
+    <div class="bento-grid" style="margin-bottom: 2rem;">
+        <div class="glass bento-third">
+            <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="bi bi-people text-gold"></i>
+                Benutzeraktivität
             </div>
-
-            <!-- Chart 2: Beantwortete Fragen (Total, Richtig, Falsch) -->
-            <div class="chart-card">
-                <h3><i class="bi bi-question-circle"></i> Beantwortete Fragen</h3>
-                <div class="chart-container">
-                    <canvas id="questionsChart"></canvas>
-                </div>
-            </div>
-
-            <!-- Chart 3: User-Verlauf -->
-            <div class="chart-card">
-                <h3><i class="bi bi-graph-up-arrow"></i> User-Wachstum</h3>
-                <div class="chart-container">
-                    <canvas id="userGrowthChart"></canvas>
-                </div>
+            <div class="chart-container">
+                <canvas id="userActivityChart"></canvas>
             </div>
         </div>
 
-        <!-- Quick Actions -->
-        <div class="section-title">Schnellaktionen</div>
-        <div class="action-buttons">
-            <a href="{{ route('admin.questions.index') }}" class="action-btn warning">
-                <span><i class="bi bi-question-circle"></i></span>
-                <span>Fragen verwalten</span>
-            </a>
-            <a href="{{ route('admin.users.index') }}" class="action-btn primary">
-                <span><i class="bi bi-people"></i></span>
-                <span>Benutzer verwalten</span>
-            </a>
-            <a href="{{ route('admin.newsletter.create') }}" class="action-btn success">
-                <span><i class="bi bi-envelope"></i></span>
-                <span>Newsletter senden</span>
-            </a>
-            <a href="{{ route('admin.contact-messages.index') }}" class="action-btn info">
-                <span><i class="bi bi-chat-dots"></i></span>
-                <span>Kontaktanfragen</span>
-                @php
-                    $unreadCount = \App\Models\ContactMessage::where('is_read', false)->count();
-                @endphp
-                @if($unreadCount > 0)
-                    <span style="margin-left: auto; background: #ef4444; color: white; font-size: 0.8rem; font-weight: 700; padding: 0.25rem 0.75rem; border-radius: 9999px;">{{ $unreadCount }}</span>
-                @endif
-            </a>
-            <a href="{{ route('dashboard') }}" class="action-btn primary">
-                <span>←</span>
-                <span>Zurück zum Dashboard</span>
-            </a>
+        <div class="glass bento-third">
+            <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="bi bi-question-circle text-gold"></i>
+                Beantwortete Fragen
+            </div>
+            <div class="chart-container">
+                <canvas id="questionsChart"></canvas>
+            </div>
+        </div>
+
+        <div class="glass bento-half">
+            <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="bi bi-graph-up-arrow text-gold"></i>
+                User-Wachstum
+            </div>
+            <div class="chart-container">
+                <canvas id="userGrowthChart"></canvas>
+            </div>
         </div>
     </div>
-</div>
 
+</div>
 @endsection
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Warte bis Chart.js geladen ist
     if (typeof Chart === 'undefined') {
-        console.error('❌ Chart.js konnte nicht geladen werden!');
+        console.error('Chart.js konnte nicht geladen werden');
         return;
     }
 
-    console.log('✅ Chart.js geladen');
+    // Theme-abhängige Farben
+    const isLightMode = document.documentElement.classList.contains('light-mode');
+    const gridColor = isLightMode ? 'rgba(0, 0, 0, 0.08)' : 'rgba(255, 255, 255, 0.08)';
+    const textColor = isLightMode ? '#374151' : '#a1a1aa';
 
-    // Chart.js Globale Konfiguration
-    Chart.defaults.font.family = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
-    Chart.defaults.color = '#6b7280';
+    Chart.defaults.font.family = "'Figtree', -apple-system, BlinkMacSystemFont, sans-serif";
+    Chart.defaults.color = textColor;
 
-    // Gemeinsame Chart-Optionen
     const commonOptions = {
         responsive: true,
         maintainAspectRatio: false,
-        interaction: {
-            mode: 'index',
-            intersect: false,
-        },
+        interaction: { mode: 'index', intersect: false },
         plugins: {
             legend: {
                 display: true,
                 position: 'top',
-                labels: {
-                    usePointStyle: true,
-                    padding: 15,
-                    font: { size: 11 }
-                }
+                labels: { usePointStyle: true, padding: 12, font: { size: 10 } }
             },
             tooltip: {
-                backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                padding: 12,
-                borderRadius: 8,
-                titleFont: { size: 13, weight: 'bold' },
-                bodyFont: { size: 12 }
+                backgroundColor: isLightMode ? 'rgba(255, 255, 255, 0.95)' : 'rgba(0, 0, 0, 0.9)',
+                titleColor: isLightMode ? '#1f2937' : '#f5f5f5',
+                bodyColor: isLightMode ? '#374151' : '#a1a1aa',
+                borderColor: isLightMode ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.1)',
+                borderWidth: 1,
+                padding: 10,
+                cornerRadius: 6,
             }
         },
         scales: {
-            y: {
-                beginAtZero: true,
-                grid: { color: '#f3f4f6' },
-                ticks: { font: { size: 10 } }
-            },
-            x: {
-                grid: { display: false },
-                ticks: {
-                    font: { size: 9 },
-                    maxRotation: 45,
-                    minRotation: 45
-                }
-            }
+            y: { beginAtZero: true, grid: { color: gridColor }, ticks: { font: { size: 9 } } },
+            x: { grid: { display: false }, ticks: { font: { size: 8 }, maxRotation: 45, minRotation: 45 } }
         }
     };
 
-    // Chart 1: Benutzeraktivität (Aktive + Registrierungen)
-    try {
-        new Chart(document.getElementById('userActivityChart'), {
-            type: 'line',
-            data: {
-                labels: {!! json_encode($chartData['labels']) !!},
-                datasets: [
-                    {
-                        label: 'Aktive Benutzer',
-                        data: {!! json_encode($chartData['active']) !!},
-                        borderColor: '#0066CC',
-                        backgroundColor: 'rgba(0, 102, 204, 0.1)',
-                        borderWidth: 2,
-                        fill: true,
-                        tension: 0.4,
-                        pointRadius: 2,
-                        pointHoverRadius: 5
-                    },
-                    {
-                        label: 'Neue Registrierungen',
-                        data: {!! json_encode($chartData['registrations']) !!},
-                        borderColor: '#16a34a',
-                        backgroundColor: 'rgba(22, 163, 74, 0.1)',
-                        borderWidth: 2,
-                        fill: true,
-                        tension: 0.4,
-                        pointRadius: 2,
-                        pointHoverRadius: 5
-                    }
-                ]
-            },
-            options: commonOptions
-        });
-        console.log('✅ Benutzeraktivität Chart erstellt');
-    } catch (error) {
-        console.error('❌ Fehler bei Benutzeraktivität Chart:', error);
-    }
+    // Chart 1: Benutzeraktivität
+    new Chart(document.getElementById('userActivityChart'), {
+        type: 'line',
+        data: {
+            labels: {!! json_encode($chartData['labels']) !!},
+            datasets: [
+                {
+                    label: 'Aktive Benutzer',
+                    data: {!! json_encode($chartData['active']) !!},
+                    borderColor: '#fbbf24',
+                    backgroundColor: 'rgba(251, 191, 36, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 1,
+                    pointHoverRadius: 4
+                },
+                {
+                    label: 'Registrierungen',
+                    data: {!! json_encode($chartData['registrations']) !!},
+                    borderColor: '#22c55e',
+                    backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 1,
+                    pointHoverRadius: 4
+                }
+            ]
+        },
+        options: commonOptions
+    });
 
-    // Chart 2: Beantwortete Fragen (Total, Richtig, Falsch)
-    try {
-        new Chart(document.getElementById('questionsChart'), {
-            type: 'line',
-            data: {
-                labels: {!! json_encode($chartData['labels']) !!},
-                datasets: [
-                    {
-                        label: 'Gesamt',
-                        data: {!! json_encode($chartData['questionsTotal']) !!},
-                        borderColor: '#6b7280',
-                        backgroundColor: 'rgba(107, 114, 128, 0.1)',
-                        borderWidth: 2,
-                        fill: true,
-                        tension: 0.4,
-                        pointRadius: 2,
-                        pointHoverRadius: 5
-                    },
-                    {
-                        label: 'Richtig',
-                        data: {!! json_encode($chartData['questionsCorrect']) !!},
-                        borderColor: '#22c55e',
-                        backgroundColor: 'rgba(34, 197, 94, 0.1)',
-                        borderWidth: 2,
-                        fill: true,
-                        tension: 0.4,
-                        pointRadius: 2,
-                        pointHoverRadius: 5
-                    },
-                    {
-                        label: 'Falsch',
-                        data: {!! json_encode($chartData['questionsWrong']) !!},
-                        borderColor: '#ef4444',
-                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                        borderWidth: 2,
-                        fill: true,
-                        tension: 0.4,
-                        pointRadius: 2,
-                        pointHoverRadius: 5
-                    }
-                ]
-            },
-            options: commonOptions
-        });
-        console.log('✅ Fragen Chart erstellt');
-    } catch (error) {
-        console.error('❌ Fehler bei Fragen Chart:', error);
-    }
+    // Chart 2: Beantwortete Fragen
+    new Chart(document.getElementById('questionsChart'), {
+        type: 'line',
+        data: {
+            labels: {!! json_encode($chartData['labels']) !!},
+            datasets: [
+                {
+                    label: 'Gesamt',
+                    data: {!! json_encode($chartData['questionsTotal']) !!},
+                    borderColor: '#6b7280',
+                    backgroundColor: 'rgba(107, 114, 128, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 1,
+                    pointHoverRadius: 4
+                },
+                {
+                    label: 'Richtig',
+                    data: {!! json_encode($chartData['questionsCorrect']) !!},
+                    borderColor: '#22c55e',
+                    backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 1,
+                    pointHoverRadius: 4
+                },
+                {
+                    label: 'Falsch',
+                    data: {!! json_encode($chartData['questionsWrong']) !!},
+                    borderColor: '#ef4444',
+                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 1,
+                    pointHoverRadius: 4
+                }
+            ]
+        },
+        options: commonOptions
+    });
 
     // Chart 3: User-Wachstum
-    try {
-        new Chart(document.getElementById('userGrowthChart'), {
-            type: 'line',
-            data: {
-                labels: {!! json_encode($chartData['labels']) !!},
-                datasets: [
-                    {
-                        label: 'Gesamtanzahl User',
-                        data: {!! json_encode($chartData['userCount']) !!},
-                        borderColor: '#8b5cf6',
-                        backgroundColor: 'rgba(139, 92, 246, 0.1)',
-                        borderWidth: 3,
-                        fill: true,
-                        tension: 0.4,
-                        pointRadius: 2,
-                        pointHoverRadius: 5
-                    },
-                    {
-                        label: 'Unbestätigte Accounts',
-                        data: {!! json_encode($chartData['unverifiedCount']) !!},
-                        borderColor: '#f59e0b',
-                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
-                        borderWidth: 2,
-                        fill: true,
-                        tension: 0.4,
-                        pointRadius: 2,
-                        pointHoverRadius: 5
-                    }
-                ]
-            },
-            options: commonOptions
-        });
-        console.log('✅ User-Wachstum Chart erstellt');
-    } catch (error) {
-        console.error('❌ Fehler bei User-Wachstum Chart:', error);
-    }
+    new Chart(document.getElementById('userGrowthChart'), {
+        type: 'line',
+        data: {
+            labels: {!! json_encode($chartData['labels']) !!},
+            datasets: [
+                {
+                    label: 'Gesamtanzahl User',
+                    data: {!! json_encode($chartData['userCount']) !!},
+                    borderColor: '#00337F',
+                    backgroundColor: 'rgba(0, 51, 127, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 1,
+                    pointHoverRadius: 4
+                },
+                {
+                    label: 'Unbestätigt',
+                    data: {!! json_encode($chartData['unverifiedCount']) !!},
+                    borderColor: '#f59e0b',
+                    backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 1,
+                    pointHoverRadius: 4
+                }
+            ]
+        },
+        options: commonOptions
+    });
 });
 </script>
 @endpush
