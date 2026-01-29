@@ -3,16 +3,24 @@
 
 @push('styles')
 <style>
+    /* Prevent horizontal scroll globally */
+    html, body {
+        overflow-x: hidden !important;
+        max-width: 100vw !important;
+    }
+
     .dashboard-container {
         max-width: 1200px;
         margin: 0 auto;
         padding: 2rem;
         overflow-x: hidden;
+        box-sizing: border-box;
     }
 
-    /* Prevent horizontal scroll globally */
-    body {
-        overflow-x: hidden;
+    /* Ensure all children don't overflow */
+    .dashboard-container * {
+        max-width: 100%;
+        box-sizing: border-box;
     }
 
     .dashboard-header {
@@ -65,13 +73,21 @@
         .bento-main, .bento-wide, .bento-side {
             grid-column: span 1;
         }
-        .dashboard-container { padding: 1rem; }
+        .dashboard-container {
+            padding: 1rem;
+            width: 100%;
+            max-width: 100vw;
+        }
 
-        /* Prevent horizontal scroll */
+        /* Stats row horizontal scroll if needed */
         .stats-row {
+            flex-wrap: nowrap;
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
             padding-bottom: 0.5rem;
+            margin: 0 -1rem;
+            padding-left: 1rem;
+            padding-right: 1rem;
         }
     }
 

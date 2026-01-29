@@ -56,7 +56,7 @@
     @media (max-width: 640px) {
         #practiceContainer {
             padding: 0 !important;
-            height: 100dvh;
+            min-height: 100dvh;
             display: flex;
             flex-direction: column;
         }
@@ -79,10 +79,12 @@
             flex-direction: column;
             border-radius: 0;
             border: none;
-            min-height: 100dvh;
-            height: 100dvh;
+            height: auto;
+            min-height: auto;
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
+            /* Platz für fixed button unten */
+            padding-bottom: calc(80px + env(safe-area-inset-bottom, 20px));
         }
 
         .question-card form {
@@ -263,10 +265,16 @@
 
     @media (max-width: 640px) {
         .submit-button-wrapper {
-            padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
-            background: linear-gradient(to top, var(--bg-primary) 80%, transparent);
-            margin: 0 -1.5rem -1.5rem -1.5rem;
-            padding: 1rem 1.5rem calc(1rem + env(safe-area-inset-bottom, 0px)) 1.5rem;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-primary);
+            padding: 1rem 1.5rem;
+            padding-bottom: calc(1rem + env(safe-area-inset-bottom, 20px));
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            z-index: 100;
+            margin: 0;
         }
     }
 
