@@ -66,13 +66,11 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-// Contact Routes - Nur in Production als Redirect zur Landing-Domain
-// In Development werden die Landing-Routes direkt verwendet
-if (!config('domains.development', true)) {
-    Route::get('/kontakt', function () {
-        return redirect('https://' . config('domains.landing') . '/kontakt');
-    })->name('contact.index');
-}
+// Contact Routes - für eingeloggte Nutzer
+Route::middleware('auth')->group(function () {
+    Route::get('/kontakt', [\App\Http\Controllers\ContactController::class, 'index'])->name('contact.index');
+    Route::post('/kontakt', [\App\Http\Controllers\ContactController::class, 'store'])->name('contact.submit');
+});
 
 Route::middleware('auth')->group(function () {
     // Practice Menu und Modi

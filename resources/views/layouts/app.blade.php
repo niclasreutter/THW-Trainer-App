@@ -174,6 +174,12 @@
                         Rangliste
                     </a>
 
+                    <a href="{{ route('contact.index') }}"
+                       class="sidebar-link {{ request()->routeIs('contact.*') ? 'active' : '' }}">
+                        <i class="bi bi-envelope"></i>
+                        Kontakt
+                    </a>
+
                     @php
                         $userOV = auth()->user()->ortsverbände->first();
                     @endphp
@@ -330,7 +336,8 @@
                                 &copy; {{ date('Y') }} THW-Trainer &ndash;
                                 <a href="{{ route('landing.impressum') }}" class="text-gold hover:text-gold-light transition-colors">Impressum</a> &middot;
                                 <a href="{{ route('landing.datenschutz') }}" class="text-gold hover:text-gold-light transition-colors">Datenschutz</a> &middot;
-                                <a href="{{ route('landing.statistics') }}" class="text-gold hover:text-gold-light transition-colors">Statistik</a>
+                                <a href="{{ route('landing.statistics') }}" class="text-gold hover:text-gold-light transition-colors">Statistik</a> &middot;
+                                <a href="{{ route('contact.index') }}" class="text-gold hover:text-gold-light transition-colors">Kontakt</a>
                             </div>
                             <div>
                                 <a href="https://paypal.me/reuttern" target="_blank" rel="noopener" class="text-gold hover:text-gold-light transition-colors">Unterstützen</a>
@@ -493,6 +500,10 @@
                         <span class="text-dark-muted/50">·</span>
                         <a href="{{ route('landing.datenschutz') }}" class="text-gold hover:text-gold-light transition-colors">
                             Datenschutz
+                        </a>
+                        <span class="text-dark-muted/50">·</span>
+                        <a href="{{ route('contact.index') }}" class="text-gold hover:text-gold-light transition-colors">
+                            Kontakt
                         </a>
                     </div>
                 </div>
