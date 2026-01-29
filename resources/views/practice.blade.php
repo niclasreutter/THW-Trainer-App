@@ -787,27 +787,6 @@
         @endif
 
         <script>
-            // Force button to be fixed on mobile - works in both Dark and Light mode
-            (function() {
-                if (window.innerWidth <= 640) {
-                    const wrapper = document.querySelector('.submit-button-wrapper');
-                    if (wrapper) {
-                        wrapper.style.position = 'fixed';
-                        wrapper.style.bottom = '0';
-                        wrapper.style.left = '0';
-                        wrapper.style.right = '0';
-                        wrapper.style.zIndex = '100';
-                        wrapper.style.margin = '0';
-                        wrapper.style.padding = '1rem 1.5rem 1.5rem 1.5rem';
-
-                        // Set background based on theme
-                        const isDark = !document.documentElement.classList.contains('light-mode');
-                        wrapper.style.backgroundColor = isDark ? '#0a0a0b' : '#f3f4f6';
-                        wrapper.style.borderTop = isDark ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 51, 127, 0.1)';
-                    }
-                }
-            })();
-
             // Update selection style on label
             function updateSelectionStyle(label) {
                 const checkbox = label.querySelector('input[type="checkbox"]');
@@ -838,6 +817,29 @@
 
             // Show popups on page load
             document.addEventListener('DOMContentLoaded', function() {
+                // Force button to be fixed on mobile - MUST run after DOM is ready
+                if (window.innerWidth <= 640) {
+                    const wrapper = document.querySelector('.submit-button-wrapper');
+                    if (wrapper) {
+                        console.log('Fixing button position for mobile');
+                        wrapper.style.setProperty('position', 'fixed', 'important');
+                        wrapper.style.setProperty('bottom', '0', 'important');
+                        wrapper.style.setProperty('left', '0', 'important');
+                        wrapper.style.setProperty('right', '0', 'important');
+                        wrapper.style.setProperty('z-index', '100', 'important');
+                        wrapper.style.setProperty('margin', '0', 'important');
+                        wrapper.style.setProperty('padding', '1rem 1.5rem 1.5rem 1.5rem', 'important');
+
+                        // Set background based on theme
+                        const isDark = !document.documentElement.classList.contains('light-mode');
+                        console.log('Is Dark Mode:', isDark);
+                        wrapper.style.setProperty('background-color', isDark ? '#0a0a0b' : '#f3f4f6', 'important');
+                        wrapper.style.setProperty('border-top', isDark ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 51, 127, 0.1)', 'important');
+                    } else {
+                        console.error('Submit button wrapper not found!');
+                    }
+                }
+
                 // Show Gamification Popup
                 const gamificationPopup = document.getElementById('gamificationPopup');
                 if (gamificationPopup) {
