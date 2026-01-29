@@ -52,7 +52,7 @@
                     <a href="{{ $appUrl }}"
                        class="landing-hero-btn-primary"
                        aria-label="Jetzt zur THW-Theorie App">
-                        Jetzt zur App
+                        Jetzt Kostenlos Lernen
                     </a>
 
                     <a href="{{ route('landing.guest.practice.menu') }}"
