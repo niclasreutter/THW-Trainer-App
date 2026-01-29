@@ -1315,8 +1315,11 @@
     /* Main Container - ALLE Admin-Seiten verwenden diese Breite */
     .dashboard-container {
         max-width: 1200px;
-        margin: 0 auto;
+        margin-left: auto;
+        margin-right: auto;
         padding: 2rem;
+        width: 100%;
+        box-sizing: border-box;
     }
 
     .dashboard-header {
@@ -1441,6 +1444,38 @@
 
     .section-link:hover {
         color: var(--gold-light);
+    }
+
+    /* === Input Fields (Dark & Light Mode Kompatibel) === */
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="number"],
+    input[type="date"],
+    input[type="time"],
+    textarea,
+    select {
+        background-color: var(--bg-surface);
+        color: var(--text-primary);
+        border: 1px solid var(--glass-border);
+        border-radius: 0.5rem;
+        padding: 0.625rem 1rem;
+        font-family: inherit;
+        transition: all var(--transition-fast);
+    }
+
+    input[type="text"]:focus,
+    input[type="email"]:focus,
+    input[type="password"]:focus,
+    input[type="number"]:focus,
+    input[type="date"]:focus,
+    input[type="time"]:focus,
+    textarea:focus,
+    select:focus {
+        outline: none;
+        border-color: var(--gold);
+        background-color: var(--bg-elevated);
+        box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.1);
     }
 }
 
