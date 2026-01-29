@@ -31,11 +31,12 @@
 
     /* Mobile: Navigation & Footer ausblenden */
     @media (max-width: 640px) {
-        footer, nav {
+        /* Hide ALL navigation and header elements */
+        footer, nav, header {
             display: none !important;
         }
 
-        /* Hide bottom navigation during practice - ALL nav elements */
+        /* Hide all nav elements specifically */
         nav {
             display: none !important;
             margin: 0 !important;
@@ -53,6 +54,14 @@
         }
 
         nav.lg\\:hidden {
+            display: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            height: 0 !important;
+        }
+
+        /* Hide mobile header */
+        header {
             display: none !important;
             margin: 0 !important;
             padding: 0 !important;
