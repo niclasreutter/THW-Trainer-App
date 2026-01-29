@@ -42,6 +42,7 @@
 
         main {
             padding: 0 !important;
+            padding-bottom: 0 !important;
             height: auto !important;
             position: static !important;
         }
