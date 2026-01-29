@@ -2,184 +2,202 @@
 
 @section('title', 'Nachricht ansehen - Admin')
 
-@section('content')
+@push('styles')
 <style>
-    /* CACHE BUST v1.0 - ADMIN CONTACT SHOW - 2025-10-20-22:00 */
     .badge {
         display: inline-block;
-        padding: 6px 16px;
-        border-radius: 12px;
-        font-size: 14px;
+        padding: 0.35rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.875rem;
         font-weight: 600;
     }
-    .badge-feedback { background-color: #dbeafe; color: #1e40af; }
-    .badge-feature { background-color: #fef3c7; color: #92400e; }
-    .badge-bug { background-color: #fee2e2; color: #991b1b; }
-    .badge-other { background-color: #e5e7eb; color: #374151; }
-    
-    .info-box {
-        background: #f9fafb;
-        border-left: 4px solid #3b82f6;
-        padding: 16px;
-        margin-bottom: 16px;
-        border-radius: 8px;
+    .badge-feedback { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
+    .badge-feature { background: rgba(251, 191, 36, 0.2); color: #fbbf24; }
+    .badge-bug { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+    .badge-other { background: rgba(255, 255, 255, 0.1); color: var(--text-secondary); }
+
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 1rem;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 0.5rem;
+        margin-bottom: 0.75rem;
     }
-    
-    .message-box {
-        background: white;
-        border: 2px solid #e5e7eb;
-        padding: 24px;
-        border-radius: 12px;
-        white-space: pre-wrap;
-        word-wrap: break-word;
-        line-height: 1.6;
+    .info-row:last-child {
+        margin-bottom: 0;
     }
 </style>
+@endpush
 
-<div class="max-w-4xl mx-auto p-4 sm:p-6">
-    <!-- Back Button -->
-    <div class="mb-6">
-        <a href="{{ route('admin.contact-messages.index') }}" 
-           class="inline-flex items-center px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-bold text-sm hover:bg-gray-300 transition">
-            ← Zurück zur Übersicht
+@section('content')
+<div class="dashboard-container" style="max-width: 900px;">
+    <header class="dashboard-header">
+        <h1 class="page-title">Kontaktanfrage <span>Details</span></h1>
+        <p class="page-subtitle">{{ $contactMessage->email }}</p>
+    </header>
+
+    <div style="margin-bottom: 2rem;">
+        <a href="{{ route('admin.contact-messages.index') }}" class="btn-secondary" style="padding: 0.625rem 1.25rem;">
+            Zuruck zur Ubersicht
         </a>
     </div>
 
     @if(session('success'))
-        <div class="mb-6 p-4 bg-green-50 border-2 border-green-300 rounded-lg text-green-800 font-bold">
-            {{ session('success') }}
+        <div class="glass-success" style="padding: 1.25rem; margin-bottom: 2rem; display: flex; gap: 1rem; align-items: flex-start;">
+            <i class="bi bi-check-circle" style="font-size: 1.25rem; flex-shrink: 0;"></i>
+            <div>
+                <strong>Erfolg!</strong>
+                <p style="margin: 0.25rem 0 0 0;">{{ session('success') }}</p>
+            </div>
         </div>
     @endif
 
-    <!-- Main Card -->
-    <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-        <!-- Header -->
-        <div class="bg-gradient-to-r from-blue-900 to-blue-700 p-6 text-white">
-            <div class="flex items-start justify-between gap-4 mb-4">
-                <div>
-                    <h1 class="text-2xl font-bold mb-2">📬 Kontaktanfrage</h1>
+    <div class="glass-thw hover-lift" style="padding: 1.5rem; margin-bottom: 2rem;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
+            <div>
+                <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; margin-bottom: 0.5rem;">
                     <span class="badge badge-{{ $contactMessage->type }}">{{ $contactMessage->type_label }}</span>
-                </div>
-                <div class="text-right">
-                    <div class="text-sm opacity-90">Eingegangen am</div>
-                    <div class="font-bold">{{ $contactMessage->created_at->format('d.m.Y H:i') }} Uhr</div>
-                    <div class="text-xs opacity-75">{{ $contactMessage->created_at->diffForHumans() }}</div>
+                    @if(!$contactMessage->is_read)
+                        <span style="display: inline-block; background: rgba(251, 191, 36, 0.2); color: #fbbf24; padding: 0.35rem 0.75rem; border-radius: 9999px; font-size: 0.875rem; font-weight: 600;">
+                            Ungelesen
+                        </span>
+                    @else
+                        <span style="display: inline-block; background: rgba(34, 197, 94, 0.2); color: #22c55e; padding: 0.35rem 0.75rem; border-radius: 9999px; font-size: 0.875rem; font-weight: 600;">
+                            Gelesen
+                        </span>
+                    @endif
                 </div>
             </div>
-            
-            @if(!$contactMessage->is_read)
-                <div class="bg-yellow-500 text-yellow-900 px-4 py-2 rounded-lg font-bold text-sm inline-block">
-                    🔴 Noch nicht gelesen
-                </div>
-            @else
-                <div class="bg-green-500 text-green-900 px-4 py-2 rounded-lg font-bold text-sm inline-block">
-                    ✅ Gelesen am {{ $contactMessage->read_at->format('d.m.Y H:i') }} Uhr
-                </div>
-            @endif
+            <div style="text-align: right;">
+                <div style="font-size: 0.85rem; color: var(--text-muted);">Eingegangen am</div>
+                <div style="font-weight: 700; color: var(--text-primary);">{{ $contactMessage->created_at->format('d.m.Y H:i') }} Uhr</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted);">{{ $contactMessage->created_at->diffForHumans() }}</div>
+            </div>
         </div>
 
-        <!-- Content -->
-        <div class="p-6">
-            <!-- Absender Info -->
-            <div class="info-box">
-                <h2 class="font-bold text-lg text-blue-900 mb-3">👤 Absender</h2>
-                <div class="space-y-2">
-                    <div>
-                        <span class="font-bold text-gray-700">E-Mail:</span>
-                        <a href="mailto:{{ $contactMessage->email }}" class="text-blue-600 hover:underline ml-2">
-                            {{ $contactMessage->email }}
-                        </a>
+        @if($contactMessage->is_read)
+            <div style="font-size: 0.85rem; color: var(--text-muted);">
+                Gelesen am {{ $contactMessage->read_at->format('d.m.Y H:i') }} Uhr
+            </div>
+        @endif
+    </div>
+
+    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;">
+        <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+            <div class="glass hover-lift" style="padding: 1.5rem;">
+                <h3 style="font-size: 1.1rem; font-weight: 700; margin: 0 0 1rem 0;">Absender</h3>
+
+                <div class="info-row">
+                    <span style="color: var(--text-secondary); font-weight: 600;">E-Mail:</span>
+                    <a href="mailto:{{ $contactMessage->email }}" style="color: var(--gold-start); font-weight: 500;">
+                        {{ $contactMessage->email }}
+                    </a>
+                </div>
+
+                @if($contactMessage->user)
+                    <div class="info-row">
+                        <span style="color: var(--text-secondary); font-weight: 600;">Registrierter User:</span>
+                        <span style="color: var(--text-primary); font-weight: 500;">{{ $contactMessage->user->name }} (ID: {{ $contactMessage->user->id }})</span>
                     </div>
-                    
-                    @if($contactMessage->user)
-                        <div>
-                            <span class="font-bold text-gray-700">Registrierter User:</span>
-                            <span class="ml-2">{{ $contactMessage->user->name }} (ID: {{ $contactMessage->user->id }})</span>
-                        </div>
-                    @else
-                        <div class="text-gray-500 text-sm">Nicht registrierter Nutzer</div>
-                    @endif
-                </div>
-            </div>
-
-            <!-- Hermine Kontakt -->
-            @if($contactMessage->hermine_contact)
-                <div class="info-box" style="border-left-color: #3b82f6;">
-                    <h2 class="font-bold text-lg text-blue-900 mb-3">📱 Hermine-Kontakt gewünscht</h2>
-                    <div class="space-y-2">
-                        <div>
-                            <span class="font-bold text-gray-700">Name:</span>
-                            <span class="ml-2">{{ $contactMessage->vorname }} {{ $contactMessage->nachname }}</span>
-                        </div>
-                        <div>
-                            <span class="font-bold text-gray-700">Ortsverband:</span>
-                            <span class="ml-2">{{ $contactMessage->ortsverband }}</span>
-                        </div>
-                    </div>
-                </div>
-            @endif
-
-            <!-- Bug Location -->
-            @if($contactMessage->type === 'bug' && $contactMessage->error_location)
-                <div class="info-box" style="border-left-color: #ef4444;">
-                    <h2 class="font-bold text-lg text-red-900 mb-3">🐛 Fehler aufgetreten bei</h2>
-                    <div class="text-gray-800">{{ ucfirst($contactMessage->error_location) }}</div>
-                </div>
-            @endif
-
-            <!-- Message -->
-            <div class="mb-6">
-                <h2 class="font-bold text-lg text-gray-900 mb-3">💬 Nachricht</h2>
-                <div class="message-box">{{ $contactMessage->message }}</div>
-            </div>
-
-            <!-- Technische Details (für Admin) -->
-            <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                <h2 class="font-bold text-sm text-gray-700 mb-2">🔧 Technische Details</h2>
-                <div class="text-xs text-gray-600 space-y-1">
-                    <div><strong>ID:</strong> {{ $contactMessage->id }}</div>
-                    <div><strong>IP-Adresse:</strong> {{ $contactMessage->ip_address }}</div>
-                    <div><strong>User-Agent:</strong> {{ $contactMessage->user_agent }}</div>
-                    <div><strong>Erstellt:</strong> {{ $contactMessage->created_at->format('d.m.Y H:i:s') }}</div>
-                    @if($contactMessage->is_read)
-                        <div><strong>Gelesen:</strong> {{ $contactMessage->read_at->format('d.m.Y H:i:s') }}</div>
-                    @endif
-                </div>
-            </div>
-
-            <!-- Actions -->
-            <div class="mt-6 flex gap-3 flex-wrap">
-                <a href="mailto:{{ $contactMessage->email }}" 
-                   class="px-6 py-3 bg-blue-900 text-yellow-400 rounded-lg font-bold hover:bg-yellow-400 hover:text-blue-900 transition">
-                    📧 E-Mail antworten
-                </a>
-                
-                @if(!$contactMessage->is_read)
-                    <form method="POST" action="{{ route('admin.contact-messages.mark-read', $contactMessage) }}" class="inline">
-                        @csrf
-                        @method('PATCH')
-                        <button type="submit" class="px-6 py-3 bg-green-600 text-white rounded-lg font-bold hover:bg-green-700 transition">
-                            ✅ Als gelesen markieren
-                        </button>
-                    </form>
                 @else
-                    <form method="POST" action="{{ route('admin.contact-messages.mark-unread', $contactMessage) }}" class="inline">
+                    <div class="info-row">
+                        <span style="color: var(--text-muted); font-size: 0.9rem;">Nicht registrierter Nutzer</span>
+                    </div>
+                @endif
+            </div>
+
+            @if($contactMessage->hermine_contact)
+                <div class="glass hover-lift" style="padding: 1.5rem; border-left: 3px solid var(--thw-blue);">
+                    <h3 style="font-size: 1.1rem; font-weight: 700; margin: 0 0 1rem 0;">Hermine-Kontakt gewunscht</h3>
+
+                    <div class="info-row">
+                        <span style="color: var(--text-secondary); font-weight: 600;">Name:</span>
+                        <span style="color: var(--text-primary); font-weight: 500;">{{ $contactMessage->vorname }} {{ $contactMessage->nachname }}</span>
+                    </div>
+
+                    <div class="info-row">
+                        <span style="color: var(--text-secondary); font-weight: 600;">Ortsverband:</span>
+                        <span style="color: var(--text-primary); font-weight: 500;">{{ $contactMessage->ortsverband }}</span>
+                    </div>
+                </div>
+            @endif
+
+            @if($contactMessage->type === 'bug' && $contactMessage->error_location)
+                <div class="glass-error hover-lift" style="padding: 1.5rem;">
+                    <h3 style="font-size: 1.1rem; font-weight: 700; margin: 0 0 1rem 0;">Fehler aufgetreten bei</h3>
+                    <p style="color: var(--text-primary); font-weight: 500; margin: 0;">{{ ucfirst($contactMessage->error_location) }}</p>
+                </div>
+            @endif
+
+            <div class="glass hover-lift" style="padding: 1.5rem;">
+                <h3 style="font-size: 1.1rem; font-weight: 700; margin: 0 0 1rem 0;">Nachricht</h3>
+                <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1); padding: 1.25rem; border-radius: 0.75rem; white-space: pre-wrap; word-wrap: break-word; line-height: 1.6; color: var(--text-secondary);">{{ $contactMessage->message }}</div>
+            </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+            <div class="glass hover-lift" style="padding: 1.5rem;">
+                <h3 style="font-size: 1rem; font-weight: 700; margin: 0 0 1rem 0;">Aktionen</h3>
+
+                <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                    <a href="mailto:{{ $contactMessage->email }}" class="btn-primary" style="padding: 0.75rem 1rem; text-align: center;">
+                        E-Mail antworten
+                    </a>
+
+                    @if(!$contactMessage->is_read)
+                        <form method="POST" action="{{ route('admin.contact-messages.mark-read', $contactMessage) }}">
+                            @csrf
+                            @method('PATCH')
+                            <button type="submit" class="btn-secondary" style="width: 100%; padding: 0.75rem 1rem;">
+                                Als gelesen markieren
+                            </button>
+                        </form>
+                    @else
+                        <form method="POST" action="{{ route('admin.contact-messages.mark-unread', $contactMessage) }}">
+                            @csrf
+                            @method('PATCH')
+                            <button type="submit" class="btn-secondary" style="width: 100%; padding: 0.75rem 1rem;">
+                                Als ungelesen markieren
+                            </button>
+                        </form>
+                    @endif
+
+                    <form method="POST" action="{{ route('admin.contact-messages.destroy', $contactMessage) }}"
+                          onsubmit="return confirm('Wirklich loschen? Diese Aktion kann nicht ruckgangig gemacht werden!')">
                         @csrf
-                        @method('PATCH')
-                        <button type="submit" class="px-6 py-3 bg-yellow-600 text-white rounded-lg font-bold hover:bg-yellow-700 transition">
-                            🔴 Als ungelesen markieren
+                        @method('DELETE')
+                        <button type="submit" class="btn-danger" style="width: 100%; padding: 0.75rem 1rem;">
+                            Loschen
                         </button>
                     </form>
-                @endif
-                
-                <form method="POST" action="{{ route('admin.contact-messages.destroy', $contactMessage) }}" 
-                      onsubmit="return confirm('Wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden!')" class="inline">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="px-6 py-3 bg-red-600 text-white rounded-lg font-bold hover:bg-red-700 transition">
-                        🗑️ Löschen
-                    </button>
-                </form>
+                </div>
+            </div>
+
+            <div class="glass hover-lift" style="padding: 1.5rem;">
+                <h3 style="font-size: 1rem; font-weight: 700; margin: 0 0 1rem 0;">Technische Details</h3>
+
+                <div style="font-size: 0.85rem; color: var(--text-muted);">
+                    <div style="padding-bottom: 0.5rem; margin-bottom: 0.5rem; border-bottom: 1px solid rgba(255, 255, 255, 0.06);">
+                        <span style="font-weight: 600;">ID:</span> {{ $contactMessage->id }}
+                    </div>
+                    <div style="padding-bottom: 0.5rem; margin-bottom: 0.5rem; border-bottom: 1px solid rgba(255, 255, 255, 0.06);">
+                        <span style="font-weight: 600;">IP-Adresse:</span> {{ $contactMessage->ip_address }}
+                    </div>
+                    <div style="padding-bottom: 0.5rem; margin-bottom: 0.5rem; border-bottom: 1px solid rgba(255, 255, 255, 0.06); word-break: break-all;">
+                        <span style="font-weight: 600;">User-Agent:</span><br>
+                        <span style="font-size: 0.8rem;">{{ $contactMessage->user_agent }}</span>
+                    </div>
+                    <div style="padding-bottom: 0.5rem; margin-bottom: 0.5rem; border-bottom: 1px solid rgba(255, 255, 255, 0.06);">
+                        <span style="font-weight: 600;">Erstellt:</span> {{ $contactMessage->created_at->format('d.m.Y H:i:s') }}
+                    </div>
+                    @if($contactMessage->is_read)
+                        <div>
+                            <span style="font-weight: 600;">Gelesen:</span> {{ $contactMessage->read_at->format('d.m.Y H:i:s') }}
+                        </div>
+                    @endif
+                </div>
             </div>
         </div>
     </div>

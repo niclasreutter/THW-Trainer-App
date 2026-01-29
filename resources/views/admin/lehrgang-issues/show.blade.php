@@ -1,250 +1,295 @@
 @extends('layouts.app')
 @section('title', 'Fehlermeldung - Admin')
 
+@push('styles')
+<style>
+    .answer-option {
+        padding: 1rem;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 0.5rem;
+        border-left: 3px solid var(--thw-blue);
+        margin-bottom: 0.75rem;
+    }
+    .answer-option:last-child {
+        margin-bottom: 0;
+    }
+    .answer-letter {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        background: var(--thw-blue);
+        color: white;
+        font-weight: 700;
+        border-radius: 50%;
+        margin-right: 1rem;
+        flex-shrink: 0;
+    }
+    .chat-message {
+        display: flex;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+    }
+    .chat-message:last-child {
+        margin-bottom: 0;
+    }
+    .chat-avatar {
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: 50%;
+        background: var(--thw-blue);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.875rem;
+        flex-shrink: 0;
+    }
+    .chat-bubble {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 0.75rem;
+        border-top-left-radius: 0;
+        padding: 1rem;
+        flex: 1;
+    }
+    .status-badge {
+        display: inline-block;
+        padding: 0.35rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+    .status-open { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+    .status-in_review { background: rgba(251, 191, 36, 0.2); color: #fbbf24; }
+    .status-resolved { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+    .status-rejected { background: rgba(255, 255, 255, 0.1); color: var(--text-secondary); }
+</style>
+@endpush
+
 @section('content')
-<div class="min-h-screen bg-gray-100 py-8 px-4">
-    <div class="max-w-7xl mx-auto">
-        <!-- Header with Back Button -->
-        <div class="flex items-center justify-between mb-8">
+<div class="dashboard-container">
+    <header class="dashboard-header">
+        <h1 class="page-title">Fehlermeldung <span>Details</span></h1>
+        @if($issue->lehrgangQuestion)
+            <p class="page-subtitle">{{ $issue->lehrgangQuestion->lehrgang->lehrgang }}</p>
+        @else
+            <p class="page-subtitle" style="color: var(--error);">Frage wurde geloscht</p>
+        @endif
+    </header>
+
+    <div style="margin-bottom: 2rem;">
+        <a href="{{ route('admin.lehrgang-issues.index') }}" class="btn-secondary" style="padding: 0.625rem 1.25rem;">
+            Zuruck zur Ubersicht
+        </a>
+    </div>
+
+    @if(session('success'))
+        <div class="glass-success" style="padding: 1.25rem; margin-bottom: 2rem; display: flex; gap: 1rem; align-items: flex-start;">
+            <i class="bi bi-check-circle" style="font-size: 1.25rem; flex-shrink: 0;"></i>
             <div>
-                <h1 class="text-4xl font-bold text-gray-900 mb-2">🐛 Fehlermeldung</h1>
-                @if($issue->lehrgangQuestion)
-                    <p class="text-lg text-gray-600">{{ $issue->lehrgangQuestion->lehrgang->lehrgang }}</p>
-                @else
-                    <p class="text-lg text-red-600 font-semibold">⚠️ Frage wurde gelöscht</p>
-                @endif
+                <strong>Erfolg!</strong>
+                <p style="margin: 0.25rem 0 0 0;">{{ session('success') }}</p>
             </div>
-            <a href="{{ route('admin.lehrgang-issues.index') }}" class="text-blue-600 hover:text-blue-800 font-bold text-lg">← Zurück</a>
+        </div>
+    @endif
+
+    @if($issue->lehrgangQuestion)
+        <div class="glass hover-lift" style="padding: 1.5rem; margin-bottom: 2rem;">
+            <h3 style="font-size: 1.1rem; font-weight: 700; margin: 0 0 1.5rem 0;">Frage</h3>
+
+            <div style="background: rgba(255, 255, 255, 0.03); padding: 1.25rem; border-radius: 0.75rem; border-left: 3px solid var(--gold-start); margin-bottom: 1.5rem;">
+                <p style="font-size: 1rem; font-weight: 600; color: var(--text-primary); line-height: 1.6; margin: 0;">
+                    {{ $issue->lehrgangQuestion->frage }}
+                </p>
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+                <div class="answer-option">
+                    <div style="display: flex; align-items: flex-start;">
+                        <span class="answer-letter">A</span>
+                        <p style="margin: 0; color: var(--text-secondary); line-height: 1.5; padding-top: 0.25rem;">{{ $issue->lehrgangQuestion->antwort_a }}</p>
+                    </div>
+                </div>
+
+                <div class="answer-option">
+                    <div style="display: flex; align-items: flex-start;">
+                        <span class="answer-letter">B</span>
+                        <p style="margin: 0; color: var(--text-secondary); line-height: 1.5; padding-top: 0.25rem;">{{ $issue->lehrgangQuestion->antwort_b }}</p>
+                    </div>
+                </div>
+
+                <div class="answer-option">
+                    <div style="display: flex; align-items: flex-start;">
+                        <span class="answer-letter">C</span>
+                        <p style="margin: 0; color: var(--text-secondary); line-height: 1.5; padding-top: 0.25rem;">{{ $issue->lehrgangQuestion->antwort_c }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); padding: 1rem; border-radius: 0.5rem;">
+                <p style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin: 0 0 0.25rem 0;">Richtige Antwort(en):</p>
+                <p style="font-size: 1.25rem; font-weight: 700; color: #22c55e; margin: 0;">{{ $issue->lehrgangQuestion->loesung }}</p>
+            </div>
+
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin: 1rem 0 0 0;">Frage-ID: {{ $issue->lehrgangQuestion->id }}</p>
+        </div>
+    @else
+        <div class="glass-error" style="padding: 1.5rem; margin-bottom: 2rem;">
+            <p style="font-weight: 600; margin: 0 0 0.5rem 0;">Diese Frage wurde geloscht oder existiert nicht mehr.</p>
+            <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0;">Frage-ID war: {{ $issue->lehrgang_question_id }}</p>
+        </div>
+    @endif
+
+    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;">
+        <div class="glass hover-lift" style="padding: 1.5rem;">
+            <h3 style="font-size: 1.1rem; font-weight: 700; margin: 0 0 1.5rem 0;">Meldungsdetails</h3>
+
+            <div style="display: grid; gap: 1rem; margin-bottom: 1.5rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; background: rgba(255, 255, 255, 0.03); border-radius: 0.5rem;">
+                    <span style="color: var(--text-secondary); font-weight: 600;">Gesamtmeldungen:</span>
+                    <span style="background: rgba(59, 130, 246, 0.2); color: #3b82f6; padding: 0.35rem 0.75rem; border-radius: 9999px; font-weight: 700;">{{ $issue->report_count }}x</span>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; background: rgba(255, 255, 255, 0.03); border-radius: 0.5rem;">
+                    <span style="color: var(--text-secondary); font-weight: 600;">Zuletzt gemeldet von:</span>
+                    <span style="color: var(--text-primary); font-weight: 500;">{{ $issue->reportedByUser?->name ?? 'Anonym' }}</span>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; background: rgba(255, 255, 255, 0.03); border-radius: 0.5rem;">
+                    <span style="color: var(--text-secondary); font-weight: 600;">Zuletzt aktualisiert:</span>
+                    <span style="color: var(--text-primary); font-weight: 500;">{{ $issue->updated_at ? $issue->updated_at->format('d.m.Y H:i') : 'Nicht verfugbar' }}</span>
+                </div>
+            </div>
+
+            <div style="border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 1.5rem;">
+                <h4 style="font-size: 1rem; font-weight: 600; margin: 0 0 1rem 0; color: var(--text-primary);">Meldungen</h4>
+
+                <div style="max-height: 400px; overflow-y: auto; background: rgba(255, 255, 255, 0.02); border-radius: 0.5rem; padding: 1rem; border: 1px solid rgba(255, 255, 255, 0.06);">
+                    @forelse($issue->reports as $report)
+                        <div class="chat-message">
+                            <div class="chat-avatar">
+                                {{ substr($report->user?->name ?? 'A', 0, 1) }}
+                            </div>
+                            <div class="chat-bubble">
+                                <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.5rem;">
+                                    <span style="font-weight: 600; color: var(--text-primary); font-size: 0.9rem;">{{ $report->user?->name ?? 'Anonym' }}</span>
+                                    <span style="font-size: 0.75rem; color: var(--text-muted);">{{ $report->created_at->format('d.m.Y H:i') }}</span>
+                                </div>
+                                @if($report->message)
+                                    <p style="margin: 0; color: var(--text-secondary); font-size: 0.95rem; line-height: 1.5;">{{ $report->message }}</p>
+                                @else
+                                    <p style="margin: 0; color: var(--text-muted); font-size: 0.9rem; font-style: italic;">Keine Nachricht</p>
+                                @endif
+                            </div>
+                        </div>
+                    @empty
+                        <div class="chat-message">
+                            <div class="chat-avatar">
+                                {{ substr($issue->reportedByUser?->name ?? 'A', 0, 1) }}
+                            </div>
+                            <div class="chat-bubble">
+                                <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.5rem;">
+                                    <span style="font-weight: 600; color: var(--text-primary); font-size: 0.9rem;">{{ $issue->reportedByUser?->name ?? 'Anonym' }}</span>
+                                    <span style="font-size: 0.75rem; color: var(--text-muted);">{{ $issue->updated_at ? $issue->updated_at->format('d.m.Y H:i') : '' }}</span>
+                                </div>
+                                @if($issue->latest_message)
+                                    <p style="margin: 0; color: var(--text-secondary); font-size: 0.95rem; line-height: 1.5;">{{ $issue->latest_message }}</p>
+                                @else
+                                    <p style="margin: 0; color: var(--text-muted); font-size: 0.9rem; font-style: italic;">Keine Nachricht</p>
+                                @endif
+                            </div>
+                        </div>
+                    @endforelse
+                </div>
+            </div>
         </div>
 
-        <!-- Success Message -->
-        @if(session('success'))
-            <div class="bg-green-50 border-l-4 border-green-500 p-4 mb-8 text-green-800 rounded-r-lg">
-                ✓ {{ session('success') }}
-            </div>
-        @endif
+        <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+            <div class="glass hover-lift" style="padding: 1.5rem;">
+                <h3 style="font-size: 1rem; font-weight: 700; margin: 0 0 1rem 0;">Informationen</h3>
 
-        <!-- Full Width Question Card at Top -->
-        @if($issue->lehrgangQuestion)
-            <div class="bg-white rounded-lg shadow-lg p-8 mb-8">
-                <h2 class="text-2xl font-bold text-gray-900 mb-6">📋 Frage</h2>
-                
-                <div class="mb-6 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-100">
-                    <p class="text-lg font-semibold text-gray-800 leading-relaxed">
-                        {{ $issue->lehrgangQuestion->frage }}
-                    </p>
-                </div>
-
-                <!-- Answer Options -->
-                <div class="space-y-4 mb-8">
-                    <div class="p-4 bg-gray-50 rounded-lg border-l-4 border-blue-400">
-                        <div class="flex gap-4">
-                            <span class="inline-flex items-center justify-center w-10 h-10 bg-blue-500 text-white font-bold rounded-full flex-shrink-0">A</span>
-                            <p class="text-gray-700 leading-relaxed pt-1">{{ $issue->lehrgangQuestion->antwort_a }}</p>
-                        </div>
-                    </div>
-
-                    <div class="p-4 bg-gray-50 rounded-lg border-l-4 border-blue-400">
-                        <div class="flex gap-4">
-                            <span class="inline-flex items-center justify-center w-10 h-10 bg-blue-500 text-white font-bold rounded-full flex-shrink-0">B</span>
-                            <p class="text-gray-700 leading-relaxed pt-1">{{ $issue->lehrgangQuestion->antwort_b }}</p>
-                        </div>
-                    </div>
-
-                    <div class="p-4 bg-gray-50 rounded-lg border-l-4 border-blue-400">
-                        <div class="flex gap-4">
-                            <span class="inline-flex items-center justify-center w-10 h-10 bg-blue-500 text-white font-bold rounded-full flex-shrink-0">C</span>
-                            <p class="text-gray-700 leading-relaxed pt-1">{{ $issue->lehrgangQuestion->antwort_c }}</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Solution -->
-                <div class="p-4 bg-green-50 rounded-lg border border-green-200">
-                    <p class="text-sm font-semibold text-gray-600 mb-2">✓ Richtige Antwort(en):</p>
-                    <p class="text-xl font-bold text-green-600">{{ $issue->lehrgangQuestion->loesung }}</p>
-                </div>
-
-                <p class="text-xs text-gray-500 mt-4">Frage-ID: {{ $issue->lehrgangQuestion->id }}</p>
-            </div>
-        @else
-            <div class="bg-red-50 border-l-4 border-red-400 p-8 rounded-r-lg mb-8">
-                <p class="text-red-800 font-semibold text-lg">⚠️ Diese Frage wurde gelöscht oder existiert nicht mehr.</p>
-                <p class="text-red-700 text-sm mt-2">Frage-ID war: {{ $issue->lehrgang_question_id }}</p>
-            </div>
-        @endif
-
-        <!-- 2/3 Left and 1/3 Right Layout -->
-        <div class="flex flex-col lg:flex-row gap-8 lg:items-stretch">
-            
-            <!-- Left Column: Report Details (2/3 width) -->
-            <div class="w-full flex" style="flex: 0 0 calc(66.666% - 1.5rem);">
-                <div class="bg-white rounded-lg shadow-lg p-8 flex flex-col flex-1">
-                    <h2 class="text-2xl font-bold text-gray-900 mb-6">📊 Meldungsdetails</h2>
-                    
-                    <!-- Overview Section -->
-                    <div class="space-y-5 mb-6">
-                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                            <span class="text-gray-700 font-semibold">Gesamtmeldungen:</span>
-                            <span class="bg-blue-100 text-blue-800 px-4 py-2 rounded-full font-bold text-lg">{{ $issue->report_count }}×</span>
+                <div style="font-size: 0.9rem;">
+                    @if($issue->lehrgangQuestion)
+                        <div style="padding-bottom: 0.75rem; margin-bottom: 0.75rem; border-bottom: 1px solid rgba(255, 255, 255, 0.06);">
+                            <p style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin: 0 0 0.25rem 0;">Lehrgang</p>
+                            <p style="color: var(--text-primary); font-weight: 600; margin: 0;">{{ $issue->lehrgangQuestion->lehrgang->lehrgang }}</p>
                         </div>
 
-                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                            <span class="text-gray-700 font-semibold">Zuletzt gemeldet von:</span>
-                            <span class="text-gray-800 font-medium">{{ $issue->reportedByUser?->name ?? 'Anonym' }}</span>
+                        <div style="padding-bottom: 0.75rem; margin-bottom: 0.75rem; border-bottom: 1px solid rgba(255, 255, 255, 0.06);">
+                            <p style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin: 0 0 0.25rem 0;">Lernabschnitt</p>
+                            <p style="color: var(--text-primary); font-weight: 600; margin: 0;">{{ $issue->lehrgangQuestion->lernabschnitt }}</p>
                         </div>
 
-                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                            <span class="text-gray-700 font-semibold">Zuletzt aktualisiert:</span>
-                            <span class="text-gray-800 font-medium">{{ $issue->updated_at ? $issue->updated_at->format('d.m.Y H:i') : 'Nicht verfügbar' }}</span>
+                        <div style="padding-bottom: 0.75rem; margin-bottom: 0.75rem; border-bottom: 1px solid rgba(255, 255, 255, 0.06);">
+                            <p style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin: 0 0 0.25rem 0;">Frage-Nr.</p>
+                            <p style="color: var(--text-primary); font-weight: 600; margin: 0;">{{ $issue->lehrgangQuestion->nummer }}</p>
                         </div>
-                    </div>
+                    @else
+                        <div style="background: rgba(239, 68, 68, 0.1); padding: 0.75rem; border-radius: 0.5rem; border: 1px solid rgba(239, 68, 68, 0.2); margin-bottom: 0.75rem;">
+                            <p style="color: var(--error); font-size: 0.8rem; font-weight: 600; margin: 0;">Frage wurde geloscht</p>
+                        </div>
+                    @endif
 
-                    <!-- Chat-like Message Display -->
-                    <div class="flex-1 flex flex-col min-h-0">
-                        <div class="border-t border-gray-200 pt-4 mb-3">
-                            <h3 class="text-lg font-semibold text-gray-700 mb-3">💬 Meldungen</h3>
-                        </div>
-                        
-                        <!-- Scrollable chat area -->
-                        <div class="flex-1 overflow-y-auto bg-gray-50 rounded-lg p-4 border border-gray-200 space-y-4">
-                            @forelse($issue->reports as $report)
-                                <!-- User Message Bubble -->
-                                <div class="flex items-start gap-3">
-                                    <div class="flex-shrink-0 w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold text-sm">
-                                        {{ substr($report->user?->name ?? 'A', 0, 1) }}
-                                    </div>
-                                    <div class="flex-1">
-                                        <div class="flex items-baseline justify-between mb-2">
-                                            <span class="font-semibold text-gray-900 text-sm">{{ $report->user?->name ?? 'Anonym' }}</span>
-                                            <span class="text-xs text-gray-500">{{ $report->created_at->format('d.m.Y H:i') }}</span>
-                                        </div>
-                                        @if($report->message)
-                                            <div class="bg-white rounded-lg rounded-tl-none p-4 shadow-sm border border-gray-200">
-                                                <p class="text-gray-800 text-base leading-relaxed">{{ $report->message }}</p>
-                                            </div>
-                                        @endif
-                                    </div>
-                                </div>
-                            @empty
-                                <!-- Fallback: Show old latest_message if no reports exist yet -->
-                                <div class="flex items-start gap-3">
-                                    <div class="flex-shrink-0 w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold text-sm">
-                                        {{ substr($issue->reportedByUser?->name ?? 'A', 0, 1) }}
-                                    </div>
-                                    <div class="flex-1">
-                                        <div class="flex items-baseline justify-between mb-2">
-                                            <span class="font-semibold text-gray-900 text-sm">{{ $issue->reportedByUser?->name ?? 'Anonym' }}</span>
-                                            <span class="text-xs text-gray-500">{{ $issue->updated_at ? $issue->updated_at->format('d.m.Y H:i') : '' }}</span>
-                                        </div>
-                                        @if($issue->latest_message)
-                                            <div class="bg-white rounded-lg rounded-tl-none p-4 shadow-sm border border-gray-200">
-                                                <p class="text-gray-800 text-base leading-relaxed">{{ $issue->latest_message }}</p>
-                                            </div>
-                                        @endif
-                                    </div>
-                                </div>
-                            @endforelse
-                        </div>
+                    <div>
+                        <p style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin: 0 0 0.5rem 0;">Status</p>
+                        <span class="status-badge status-{{ $issue->status }}">
+                            @if($issue->status === 'open') Offen
+                            @elseif($issue->status === 'in_review') In Bearbeitung
+                            @elseif($issue->status === 'resolved') Gelost
+                            @else Abgelehnt
+                            @endif
+                        </span>
                     </div>
                 </div>
             </div>
 
-            <!-- Right Column: Info and Admin (1/3 width) -->
-            <div class="w-full flex flex-col gap-8" style="flex: 0 0 calc(33.333% - 1.5rem);">
-                <!-- Info Card -->
-                <div class="bg-white rounded-lg shadow-lg p-6">
-                    <h3 class="text-lg font-bold text-gray-900 mb-4">ℹ️ Informationen</h3>
-                    
-                    <div class="space-y-4 text-sm">
-                        @if($issue->lehrgangQuestion)
-                            <div class="pb-3 border-b">
-                                <p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Lehrgang</p>
-                                <p class="text-gray-800 font-semibold">{{ $issue->lehrgangQuestion->lehrgang->lehrgang }}</p>
-                            </div>
+            <div class="glass hover-lift" style="padding: 1.5rem;">
+                <h3 style="font-size: 1rem; font-weight: 700; margin: 0 0 1rem 0;">Bearbeitung</h3>
 
-                            <div class="pb-3 border-b">
-                                <p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Lernabschnitt</p>
-                                <p class="text-gray-800 font-semibold">{{ $issue->lehrgangQuestion->lernabschnitt }}</p>
-                            </div>
+                <form method="POST" action="{{ route('admin.lehrgang-issues.update', ['lehrgang_issue' => $issue->id]) }}">
+                    @csrf
+                    @method('PUT')
 
-                            <div class="pb-3 border-b">
-                                <p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Frage-Nr.</p>
-                                <p class="text-gray-800 font-semibold">{{ $issue->lehrgangQuestion->nummer }}</p>
-                            </div>
-                        @else
-                            <div class="p-3 bg-red-50 rounded-lg border border-red-200">
-                                <p class="text-red-700 text-xs font-semibold">Frage wurde gelöscht</p>
-                            </div>
-                        @endif
+                    <div style="margin-bottom: 1rem;">
+                        <label class="label-glass" style="margin-bottom: 0.5rem; display: block; font-size: 0.85rem;">Status</label>
+                        <select name="status" class="select-glass" style="padding: 0.625rem 1rem;">
+                            <option value="open" {{ $issue->status === 'open' ? 'selected' : '' }}>Offen</option>
+                            <option value="in_review" {{ $issue->status === 'in_review' ? 'selected' : '' }}>In Bearbeitung</option>
+                            <option value="resolved" {{ $issue->status === 'resolved' ? 'selected' : '' }}>Gelost</option>
+                            <option value="rejected" {{ $issue->status === 'rejected' ? 'selected' : '' }}>Abgelehnt</option>
+                        </select>
+                    </div>
 
-                        <div class="pt-2">
-                            <p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Status</p>
-                            <span class="inline-block px-3 py-1 rounded-full text-xs font-bold
-                                @if($issue->status === 'open') bg-red-100 text-red-800
-                                @elseif($issue->status === 'in_review') bg-yellow-100 text-yellow-800
-                                @elseif($issue->status === 'resolved') bg-green-100 text-green-800
-                                @else bg-gray-100 text-gray-800
-                                @endif">
-                                @if($issue->status === 'open') 🔴 Offen
-                                @elseif($issue->status === 'in_review') 🟡 In Bearbeitung
-                                @elseif($issue->status === 'resolved') 🟢 Gelöst
-                                @else ⚫ Abgelehnt
-                                @endif
-                            </span>
+                    <div style="margin-bottom: 1rem;">
+                        <label class="label-glass" style="margin-bottom: 0.5rem; display: block; font-size: 0.85rem;">Notizen</label>
+                        <textarea name="admin_notes"
+                                  class="textarea-glass"
+                                  style="padding: 0.625rem 1rem; min-height: 100px; resize: vertical;"
+                                  maxlength="1000"
+                                  placeholder="Notizen...">{{ $issue->admin_notes ?? '' }}</textarea>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">
+                            <span id="noteCount">{{ strlen($issue->admin_notes ?? '') }}</span>/1000
                         </div>
                     </div>
-                </div>
-                
-                <!-- Admin Panel -->
-                <div class="bg-white rounded-lg shadow-lg p-6 flex flex-col">
-                    <h2 class="text-lg font-bold text-gray-900 mb-3">⚙️ Bearbeitung</h2>
-                    
-                    <form method="POST" action="{{ route('admin.lehrgang-issues.update', ['lehrgang_issue' => $issue->id]) }}" class="space-y-4 flex flex-col flex-1">
-                        @csrf
-                        @method('PUT')
-                        
-                        <!-- Status Select -->
-                        <div>
-                            <label class="block text-xs font-bold text-gray-700 mb-2 uppercase">Status</label>
-                            <select name="status" class="w-full border-2 border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition">
-                                <option value="open" {{ $issue->status === 'open' ? 'selected' : '' }}>🔴 Offen</option>
-                                <option value="in_review" {{ $issue->status === 'in_review' ? 'selected' : '' }}>🟡 In Bearbeitung</option>
-                                <option value="resolved" {{ $issue->status === 'resolved' ? 'selected' : '' }}>🟢 Gelöst</option>
-                                <option value="rejected" {{ $issue->status === 'rejected' ? 'selected' : '' }}>⚫ Abgelehnt</option>
-                            </select>
-                        </div>
 
-                        <!-- Admin Notes -->
-                        <div class="flex-1 flex flex-col min-h-0">
-                            <label class="block text-xs font-bold text-gray-700 mb-2 uppercase">Notizen</label>
-                            <textarea name="admin_notes" 
-                                      class="w-full border-2 border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition resize-none flex-1"
-                                      maxlength="1000"
-                                      placeholder="Notizen...">{{ $issue->admin_notes ?? '' }}</textarea>
-                            <div class="text-xs text-gray-500 mt-1">
-                                <span id="noteCount">{{ strlen($issue->admin_notes ?? '') }}</span>/1000
-                            </div>
-                        </div>
+                    <div style="display: flex; gap: 0.5rem; padding-top: 0.5rem; border-top: 1px solid rgba(255, 255, 255, 0.06);">
+                        <button type="submit" class="btn-primary" style="flex: 1; padding: 0.625rem 1rem; font-size: 0.9rem;">
+                            Speichern
+                        </button>
 
-                        <!-- Buttons -->
-                        <div class="flex gap-2 pt-2 border-t mt-auto">
-                            <button type="submit" class="flex-1 px-3 py-2 bg-blue-600 text-white font-bold text-sm rounded-lg hover:bg-blue-700 transition">
-                                ✓ Speichern
-                            </button>
-                            
-                            <button type="button" onclick="confirmDelete()" class="flex-1 px-3 py-2 bg-red-600 text-white font-bold text-sm rounded-lg hover:bg-red-700 transition">
-                                🗑️ Löschen
-                            </button>
-                        </div>
-                    </form>
-                </div>
+                        <button type="button" onclick="confirmDelete()" class="btn-danger" style="flex: 1; padding: 0.625rem 1rem; font-size: 0.9rem;">
+                            Loschen
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Hidden Delete Form -->
 <form id="deleteForm" method="POST" action="{{ route('admin.lehrgang-issues.destroy', ['lehrgang_issue' => $issue->id]) }}" style="display: none;">
     @csrf
     @method('DELETE')
@@ -252,12 +297,11 @@
 
 <script>
     function confirmDelete() {
-        if (confirm('Willst du diese Fehlermeldung wirklich löschen?')) {
+        if (confirm('Willst du diese Fehlermeldung wirklich loschen?')) {
             document.getElementById('deleteForm').submit();
         }
     }
-    
-    // Character Counter
+
     document.querySelector('textarea[name="admin_notes"]').addEventListener('input', function() {
         document.getElementById('noteCount').textContent = this.value.length;
     });

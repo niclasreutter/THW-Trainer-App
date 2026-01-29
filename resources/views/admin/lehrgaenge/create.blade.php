@@ -1,38 +1,64 @@
 @extends('layouts.app')
 
+@section('title', 'Neuer Lehrgang')
+
 @section('content')
-<div class="container mx-auto px-4 py-8 max-w-2xl">
-    <h1 class="text-3xl font-bold mb-8">Neuer Lehrgang</h1>
+<div class="dashboard-container" style="max-width: 800px;">
+    <header class="dashboard-header">
+        <h1 class="page-title">Neuer <span>Lehrgang</span></h1>
+        <p class="page-subtitle">Erstelle einen neuen Lehrgang mit Fragen</p>
+    </header>
 
-    <form action="{{ route('admin.lehrgaenge.store') }}" method="POST" class="bg-white rounded-lg shadow p-6">
-        @csrf
+    <div class="glass hover-lift" style="padding: 1.5rem;">
+        <form action="{{ route('admin.lehrgaenge.store') }}" method="POST">
+            @csrf
 
-        <div class="mb-6">
-            <label for="lehrgang" class="block text-sm font-bold mb-2">Lehrgang Name *</label>
-            <input type="text" id="lehrgang" name="lehrgang" class="w-full border rounded px-3 py-2 @error('lehrgang') border-red-500 @enderror"
-                   value="{{ old('lehrgang') }}" placeholder="z.B. Grundlagen der Sicherheit">
-            @error('lehrgang')
-                <span class="text-red-500 text-sm mt-1 block">{{ $message }}</span>
-            @enderror
-        </div>
+            <div style="margin-bottom: 1.5rem;">
+                <label for="lehrgang" class="label-glass" style="margin-bottom: 0.5rem; display: block;">
+                    Lehrgang Name <span style="color: var(--error);">*</span>
+                </label>
+                <input
+                    type="text"
+                    id="lehrgang"
+                    name="lehrgang"
+                    class="input-glass @error('lehrgang') border-error @enderror"
+                    value="{{ old('lehrgang') }}"
+                    required
+                    placeholder="z.B. Grundlagen der Sicherheit"
+                    style="padding: 0.75rem 1rem;"
+                >
+                @error('lehrgang')
+                    <span style="color: var(--error); font-size: 0.85rem; margin-top: 0.25rem; display: block;">{{ $message }}</span>
+                @enderror
+            </div>
 
-        <div class="mb-6">
-            <label for="beschreibung" class="block text-sm font-bold mb-2">Beschreibung *</label>
-            <textarea id="beschreibung" name="beschreibung" rows="4" class="w-full border rounded px-3 py-2 @error('beschreibung') border-red-500 @enderror"
-                      placeholder="Kurze Beschreibung des Lehrgangs...">{{ old('beschreibung') }}</textarea>
-            @error('beschreibung')
-                <span class="text-red-500 text-sm mt-1 block">{{ $message }}</span>
-            @enderror
-        </div>
+            <div style="margin-bottom: 1.5rem;">
+                <label for="beschreibung" class="label-glass" style="margin-bottom: 0.5rem; display: block;">
+                    Beschreibung <span style="color: var(--error);">*</span>
+                </label>
+                <textarea
+                    id="beschreibung"
+                    name="beschreibung"
+                    rows="6"
+                    class="textarea-glass @error('beschreibung') border-error @enderror"
+                    required
+                    placeholder="Kurze Beschreibung des Lehrgangs..."
+                    style="padding: 0.75rem 1rem;"
+                >{{ old('beschreibung') }}</textarea>
+                @error('beschreibung')
+                    <span style="color: var(--error); font-size: 0.85rem; margin-top: 0.25rem; display: block;">{{ $message }}</span>
+                @enderror
+            </div>
 
-        <div class="flex gap-4">
-            <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded font-bold">
-                Erstellen
-            </button>
-            <a href="{{ route('admin.lehrgaenge.index') }}" class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-2 rounded font-bold">
-                Abbrechen
-            </a>
-        </div>
-    </form>
+            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 2rem;">
+                <button type="submit" class="btn-primary" style="padding: 0.75rem 1.5rem; flex: 1; min-width: 150px;">
+                    Erstellen
+                </button>
+                <a href="{{ route('admin.lehrgaenge.index') }}" class="btn-secondary" style="padding: 0.75rem 1.5rem; flex: 1; min-width: 150px; text-align: center;">
+                    Abbrechen
+                </a>
+            </div>
+        </form>
+    </div>
 </div>
 @endsection
