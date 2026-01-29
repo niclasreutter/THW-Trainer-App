@@ -385,6 +385,20 @@
             </nav>
 
             <div class="absolute bottom-0 inset-x-0 px-4 py-4 border-t border-glass-subtle">
+                <!-- Footer Links -->
+                <div class="mb-4 pb-4 border-b border-glass-subtle">
+                    <div class="flex flex-wrap gap-2 text-xs">
+                        <a href="{{ route('landing.impressum') }}" class="text-gold hover:text-gold-light transition-colors">
+                            Impressum
+                        </a>
+                        <span class="text-dark-muted/50">·</span>
+                        <a href="{{ route('landing.datenschutz') }}" class="text-gold hover:text-gold-light transition-colors">
+                            Datenschutz
+                        </a>
+                    </div>
+                </div>
+
+                <!-- User Section -->
                 <div class="flex items-center gap-3 px-3 py-2">
                     <div class="w-9 h-9 rounded-full bg-thw-blue/20 flex items-center justify-center">
                         <span class="text-sm font-semibold text-gold">
