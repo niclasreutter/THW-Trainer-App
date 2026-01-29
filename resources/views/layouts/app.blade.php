@@ -169,9 +169,15 @@
                     </a>
 
                     <a href="{{ route('gamification.leaderboard') }}"
-                       class="sidebar-link {{ request()->routeIs('gamification.*') ? 'active' : '' }}">
+                       class="sidebar-link {{ request()->routeIs('gamification.leaderboard') ? 'active' : '' }}">
                         <i class="bi bi-trophy"></i>
                         Rangliste
+                    </a>
+
+                    <a href="{{ route('gamification.achievements') }}"
+                       class="sidebar-link {{ request()->routeIs('gamification.achievements') ? 'active' : '' }}">
+                        <i class="bi bi-award"></i>
+                        Achievements
                     </a>
 
                     <a href="{{ route('contact.index') }}"
@@ -419,9 +425,14 @@
                     Lehrgänge
                 </a>
 
-                <a href="{{ route('gamification.leaderboard') }}" class="sidebar-link {{ request()->routeIs('gamification.*') ? 'active' : '' }}">
+                <a href="{{ route('gamification.leaderboard') }}" class="sidebar-link {{ request()->routeIs('gamification.leaderboard') ? 'active' : '' }}">
                     <i class="bi bi-trophy"></i>
                     Rangliste
+                </a>
+
+                <a href="{{ route('gamification.achievements') }}" class="sidebar-link {{ request()->routeIs('gamification.achievements') ? 'active' : '' }}">
+                    <i class="bi bi-award"></i>
+                    Achievements
                 </a>
 
                 @php
