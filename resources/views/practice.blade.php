@@ -37,10 +37,13 @@
 
         body {
             overflow-x: hidden !important;
+            overflow-y: hidden !important;
         }
 
         main {
-            padding-bottom: calc(60px + env(safe-area-inset-bottom, 40px)) !important;
+            padding: 0 !important;
+            min-height: 100dvh !important;
+            height: 100dvh !important;
         }
     }
 
@@ -48,6 +51,15 @@
     #practiceContainer {
         max-width: 900px;
         margin: 0 auto;
+    }
+
+    @media (max-width: 640px) {
+        #practiceContainer {
+            padding: 0 !important;
+            height: 100dvh;
+            display: flex;
+            flex-direction: column;
+        }
     }
 
     /* Question Card Styling */
@@ -58,6 +70,30 @@
         border: 1px solid rgba(255, 255, 255, 0.08);
         border-radius: 20px;
         padding: 1.5rem;
+    }
+
+    @media (max-width: 640px) {
+        .question-card {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            border-radius: 0;
+            border: none;
+            min-height: 100dvh;
+            height: 100dvh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .question-card form {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .question-card #questionContent {
+            flex: 1;
+        }
     }
 
     @media (min-width: 641px) {
@@ -205,16 +241,32 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 0.75rem;
+        padding: 0.75rem 1rem;
+        padding-top: calc(0.75rem + env(safe-area-inset-top, 0px));
         background: rgba(255, 255, 255, 0.03);
         border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-        margin: -1rem -1rem 1rem -1rem;
-        border-radius: 20px 20px 0 0;
+        margin: -1.5rem -1.5rem 1rem -1.5rem;
+        flex-shrink: 0;
     }
 
     @media (min-width: 641px) {
         .mobile-header {
             display: none;
+        }
+    }
+
+    /* Submit Button Wrapper */
+    .submit-button-wrapper {
+        margin-top: auto;
+        flex-shrink: 0;
+    }
+
+    @media (max-width: 640px) {
+        .submit-button-wrapper {
+            padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+            background: linear-gradient(to top, var(--bg-primary) 80%, transparent);
+            margin: 0 -1.5rem -1.5rem -1.5rem;
+            padding: 1rem 1.5rem calc(1rem + env(safe-area-inset-bottom, 0px)) 1.5rem;
         }
     }
 
@@ -626,15 +678,17 @@
                 </div>
 
                 <!-- Submit/Next Button -->
-                @if(!isset($isCorrect))
-                    <button type="submit" id="submitBtn" class="btn-primary w-full py-4 text-base" disabled>
-                        Antwort absenden
-                    </button>
-                @else
-                    <a href="{{ route('practice.index') }}" class="btn-primary w-full py-4 text-base text-center block">
-                        Nächste Frage
-                    </a>
-                @endif
+                <div class="submit-button-wrapper">
+                    @if(!isset($isCorrect))
+                        <button type="submit" id="submitBtn" class="btn-primary w-full py-4 text-base" disabled>
+                            Antwort absenden
+                        </button>
+                    @else
+                        <a href="{{ route('practice.index') }}" class="btn-primary w-full py-4 text-base text-center block">
+                            Nächste Frage
+                        </a>
+                    @endif
+                </div>
             </form>
         </div>
 

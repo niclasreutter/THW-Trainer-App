@@ -7,6 +7,12 @@
         max-width: 1200px;
         margin: 0 auto;
         padding: 2rem;
+        overflow-x: hidden;
+    }
+
+    /* Prevent horizontal scroll globally */
+    body {
+        overflow-x: hidden;
     }
 
     .dashboard-header {
@@ -60,6 +66,13 @@
             grid-column: span 1;
         }
         .dashboard-container { padding: 1rem; }
+
+        /* Prevent horizontal scroll */
+        .stats-row {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 0.5rem;
+        }
     }
 
     /* Stats Row */
@@ -187,6 +200,32 @@
 
     @media (max-width: 768px) {
         .sections-grid { grid-template-columns: 1fr; }
+    }
+
+    /* Detailed Stats Grid - Responsive */
+    .detailed-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+    }
+
+    @media (max-width: 600px) {
+        .detailed-stats-grid {
+            grid-template-columns: 1fr;
+            gap: 0.75rem;
+        }
+
+        .stat-card {
+            padding: 1rem;
+        }
+
+        .stat-icon {
+            font-size: 1.5rem;
+        }
+
+        .stat-value {
+            font-size: 1.25rem;
+        }
     }
 
     .section-link {
@@ -368,7 +407,7 @@
 
         <!-- Detaillierte Stats -->
         <div class="glass-slash bento-wide">
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+            <div class="detailed-stats-grid">
                 <div class="stat-card stat-card-failed">
                     <div class="stat-icon"><i class="bi bi-x-circle"></i></div>
                     <div class="stat-content">
