@@ -78,7 +78,7 @@
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
             /* Platz für fixed button unten */
-            padding-bottom: calc(80px + env(safe-area-inset-bottom, 20px));
+            padding-bottom: 100px;
         }
 
         .question-card form {
@@ -264,17 +264,25 @@
             left: 0;
             right: 0;
             background: var(--bg-base);
-            padding: 1rem 1.5rem;
-            padding-bottom: calc(1rem + env(safe-area-inset-bottom, 20px));
+            padding: 1rem 1.5rem 1.5rem 1.5rem;
             border-top: 1px solid rgba(255, 255, 255, 0.08);
             z-index: 100;
             margin: 0;
         }
+
+        /* Light Mode Button Wrapper */
+        html.light-mode .submit-button-wrapper {
+            border-top-color: rgba(0, 51, 127, 0.1);
+        }
     }
 
-    /* Light Mode Button Wrapper */
-    html.light-mode .submit-button-wrapper {
-        border-top-color: rgba(0, 51, 127, 0.1);
+    /* iOS Safe Area - muss außerhalb der media query für @supports */
+    @supports (padding-bottom: env(safe-area-inset-bottom)) {
+        @media (max-width: 640px) {
+            .submit-button-wrapper {
+                padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));
+            }
+        }
     }
 
     /* Mode Badge */
