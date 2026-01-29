@@ -787,6 +787,27 @@
         @endif
 
         <script>
+            // Force button to be fixed on mobile - works in both Dark and Light mode
+            (function() {
+                if (window.innerWidth <= 640) {
+                    const wrapper = document.querySelector('.submit-button-wrapper');
+                    if (wrapper) {
+                        wrapper.style.position = 'fixed';
+                        wrapper.style.bottom = '0';
+                        wrapper.style.left = '0';
+                        wrapper.style.right = '0';
+                        wrapper.style.zIndex = '100';
+                        wrapper.style.margin = '0';
+                        wrapper.style.padding = '1rem 1.5rem 1.5rem 1.5rem';
+
+                        // Set background based on theme
+                        const isDark = !document.documentElement.classList.contains('light-mode');
+                        wrapper.style.backgroundColor = isDark ? '#0a0a0b' : '#f3f4f6';
+                        wrapper.style.borderTop = isDark ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 51, 127, 0.1)';
+                    }
+                }
+            })();
+
             // Update selection style on label
             function updateSelectionStyle(label) {
                 const checkbox = label.querySelector('input[type="checkbox"]');
