@@ -15,6 +15,14 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 
+// Root-Route für App-Subdomain - Redirect zu Dashboard oder Login
+Route::get('/', function () {
+    if (auth()->check()) {
+        return redirect()->route('dashboard');
+    }
+    return redirect()->route('login');
+})->name('app.home');
+
 // robots.txt für App-Subdomain (blockiert Crawler)
 Route::get('/robots.txt', function () {
     $robotsContent = "User-agent: *
