@@ -397,16 +397,18 @@
                x-transition:leave="transition ease-in duration-150"
                x-transition:leave-start="translate-x-0"
                x-transition:leave-end="translate-x-full"
-               class="lg:hidden fixed inset-y-0 right-0 z-50 w-72 sidebar-glass"
+               class="lg:hidden fixed inset-y-0 right-0 z-50 w-72 sidebar-glass flex flex-col"
                style="display: none;">
-            <div class="flex items-center justify-between px-6 py-5 border-b border-glass-subtle">
+            <!-- Header -->
+            <div class="flex-shrink-0 flex items-center justify-between px-6 py-5 border-b border-glass-subtle">
                 <span class="font-bold text-dark-primary">Menü</span>
                 <button @click="sidebarOpen = false" class="p-2 text-dark-muted hover:text-dark-primary">
                     <i class="bi bi-x-lg"></i>
                 </button>
             </div>
 
-            <nav class="px-4 py-6 space-y-1">
+            <!-- Scrollable Navigation -->
+            <nav class="flex-1 overflow-y-auto px-4 py-6 space-y-1">
                 <a href="{{ route('bookmarks.index') }}" class="sidebar-link {{ request()->routeIs('bookmarks.*') ? 'active' : '' }}">
                     <i class="bi bi-bookmark"></i>
                     Gespeicherte Fragen
@@ -490,7 +492,8 @@
                 @endif
             </nav>
 
-            <div class="absolute bottom-0 inset-x-0 px-4 py-4 border-t border-glass-subtle">
+            <!-- Fixed Footer -->
+            <div class="flex-shrink-0 px-4 py-4 border-t border-glass-subtle">
                 <!-- Footer Links -->
                 <div class="mb-4 pb-4 border-b border-glass-subtle">
                     <div class="flex flex-wrap gap-2 text-xs">
