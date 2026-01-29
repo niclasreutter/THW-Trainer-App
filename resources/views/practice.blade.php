@@ -35,6 +35,11 @@
             display: none !important;
         }
 
+        /* Hide bottom navigation during practice */
+        nav.bottom-nav-glass {
+            display: none !important;
+        }
+
         main {
             padding: 0 !important;
             height: auto !important;
