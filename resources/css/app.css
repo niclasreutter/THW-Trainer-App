@@ -1788,23 +1788,61 @@ html.light-mode .btn-ghost:hover {
     border-color: #00337F !important;
 }
 
-/* Inputs in light mode */
+/* Inputs in light mode - ALL form elements (global overrides) */
+html.light-mode input[type="text"],
+html.light-mode input[type="email"],
+html.light-mode input[type="password"],
+html.light-mode input[type="number"],
+html.light-mode input[type="date"],
+html.light-mode input[type="time"],
+html.light-mode input[type="search"],
+html.light-mode textarea,
+html.light-mode select,
 html.light-mode .input-glass,
 html.light-mode .select-glass,
 html.light-mode .textarea-glass,
 html.light-mode textarea.input-glass {
     background: #ffffff !important;
-    border: 1px solid rgba(0, 51, 127, 0.15) !important;
+    border: 1px solid #d1d5db !important;
     color: #1e293b !important;
+    border-radius: 0.5rem !important;
 }
 
+html.light-mode input[type="text"]::placeholder,
+html.light-mode input[type="email"]::placeholder,
+html.light-mode input[type="password"]::placeholder,
+html.light-mode input[type="number"]::placeholder,
+html.light-mode input[type="date"]::placeholder,
+html.light-mode input[type="time"]::placeholder,
+html.light-mode input[type="search"]::placeholder,
+html.light-mode textarea::placeholder,
+html.light-mode .input-glass::placeholder,
+html.light-mode .textarea-glass::placeholder {
+    color: #9ca3af !important;
+}
+
+html.light-mode input[type="text"]:focus,
+html.light-mode input[type="email"]:focus,
+html.light-mode input[type="password"]:focus,
+html.light-mode input[type="number"]:focus,
+html.light-mode input[type="date"]:focus,
+html.light-mode input[type="time"]:focus,
+html.light-mode input[type="search"]:focus,
+html.light-mode textarea:focus,
+html.light-mode select:focus,
 html.light-mode .input-glass:focus,
 html.light-mode .select-glass:focus,
 html.light-mode .textarea-glass:focus,
 html.light-mode textarea.input-glass:focus {
     border-color: #00337F !important;
     box-shadow: 0 0 0 3px rgba(0, 51, 127, 0.1) !important;
-    background: #fff !important;
+    background: #ffffff !important;
+    outline: none !important;
+}
+
+html.light-mode select option {
+    background: #ffffff !important;
+    color: #1e293b !important;
 }
 
 /* Progress bars in light mode */
