@@ -79,6 +79,8 @@
             -webkit-overflow-scrolling: touch;
             /* Platz für fixed button unten */
             padding-bottom: 100px;
+            /* Allow fixed positioned children to escape */
+            will-change: transform;
         }
 
         .question-card form {
@@ -264,13 +266,7 @@
         }
     }
 
-    /* Submit Button Base - Dark Mode Default */
-    .submit-button-wrapper {
-        background-color: rgba(15, 23, 42, 0.95) !important;
-        border-top: 1px solid rgba(255, 255, 255, 0.06) !important;
-    }
-
-    /* Light Mode Button Background */
+    /* Light Mode Button Background - must override inline styles */
     html.light-mode .submit-button-wrapper {
         background-color: rgba(255, 255, 255, 0.95) !important;
         border-top: 1px solid rgba(0, 0, 0, 0.08) !important;
@@ -682,20 +678,20 @@
                         </div>
                     @endif
                 </div>
-
-                <!-- Submit/Next Button -->
-                <div class="submit-button-wrapper" style="position: fixed !important; bottom: 0 !important; left: 0 !important; right: 0 !important; z-index: 9999 !important; margin: 0 !important; padding: 1rem 1.5rem 1.5rem 1.5rem !important; width: 100% !important; box-sizing: border-box !important;">
-                    @if(!isset($isCorrect))
-                        <button type="submit" id="submitBtn" class="btn-primary w-full py-4 text-base" disabled>
-                            Antwort absenden
-                        </button>
-                    @else
-                        <a href="{{ route('practice.index') }}" class="btn-primary w-full py-4 text-base text-center block">
-                            Nächste Frage
-                        </a>
-                    @endif
-                </div>
             </form>
+
+            <!-- Submit/Next Button - Outside form to stay fixed -->
+            <div class="submit-button-wrapper" style="position: fixed !important; bottom: 0 !important; left: 0 !important; right: 0 !important; z-index: 9999 !important; margin: 0 !important; padding: 1rem 1.5rem 1.5rem 1.5rem !important; width: 100% !important; box-sizing: border-box !important; background-color: rgba(15, 23, 42, 0.95) !important; border-top: 1px solid rgba(255, 255, 255, 0.06) !important;">
+                @if(!isset($isCorrect))
+                    <button type="submit" form="practiceForm" id="submitBtn" class="btn-primary w-full py-4 text-base" disabled>
+                        Antwort absenden
+                    </button>
+                @else
+                    <a href="{{ route('practice.index') }}" class="btn-primary w-full py-4 text-base text-center block">
+                        Nächste Frage
+                    </a>
+                @endif
+            </div>
         </div>
 
         <!-- Gamification Popup -->
