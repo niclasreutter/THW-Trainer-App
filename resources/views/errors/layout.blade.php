@@ -1,27 +1,35 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="de" class="{{ session('theme', 'dark') === 'light' ? 'light-mode' : '' }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title') | THW-Trainer</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-        }
-    </style>
+    @vite(['resources/css/app.css'])
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700,800&display=swap" rel="stylesheet" />
 </head>
-<body class="bg-gray-50">
+<body>
     <div class="min-h-screen flex items-center justify-center p-4">
-        <div class="max-w-md w-full text-center">
+        <div class="max-w-lg w-full">
             @yield('content')
 
-            <!-- Footer Info -->
-            <div class="mt-8 text-sm text-gray-500">
-                <p>THW-Trainer - Dein digitaler Lernbegleiter</p>
+            <!-- Footer -->
+            <div class="text-center mt-8">
+                <p class="text-sm" style="color: var(--text-muted);">
+                    THW-Trainer - Dein digitaler Lernbegleiter
+                </p>
             </div>
         </div>
     </div>
+
+    <script>
+        // Theme aus localStorage laden
+        (function() {
+            const theme = localStorage.getItem('theme') || 'dark';
+            if (theme === 'light') {
+                document.documentElement.classList.add('light-mode');
+            }
+        })();
+    </script>
 </body>
 </html>
-
