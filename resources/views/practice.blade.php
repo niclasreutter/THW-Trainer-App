@@ -37,7 +37,8 @@
 
         main {
             padding: 0 !important;
-            min-height: 100dvh !important;
+            height: auto !important;
+            position: static !important;
         }
     }
 
