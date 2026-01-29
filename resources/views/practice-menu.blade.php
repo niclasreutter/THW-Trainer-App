@@ -206,10 +206,16 @@
         display: grid;
         grid-template-columns: repeat(2, 1fr);
         gap: 1rem;
+        margin-bottom: 2rem;
     }
 
     @media (max-width: 768px) {
         .sections-grid { grid-template-columns: 1fr; }
+    }
+
+    /* Override global .glass styles for section links */
+    .sections-grid .glass {
+        padding: 1.25rem;
     }
 
     /* Detailed Stats Grid - Responsive */
@@ -242,9 +248,11 @@
         display: flex;
         align-items: center;
         gap: 1rem;
-        padding: 1.25rem;
         text-decoration: none;
         transition: all var(--transition-normal);
+        /* Explicit sizing to prevent bento-grid interference */
+        width: 100%;
+        min-height: auto;
     }
 
     .section-link:hover {
