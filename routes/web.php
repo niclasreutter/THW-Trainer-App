@@ -15,6 +15,27 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 
+// Debug-Route zum Prüfen der Route-Konfiguration (temporär)
+Route::get('/debug-routes', function () {
+    if (!config('app.debug')) {
+        abort(404);
+    }
+
+    $routes = collect(Route::getRoutes())->map(fn($r) => [
+        'uri' => $r->uri(),
+        'name' => $r->getName(),
+        'methods' => implode('|', $r->methods()),
+    ])->filter(fn($r) => str_starts_with($r['name'] ?? '', 'landing.'))->values();
+
+    return response()->json([
+        'app_env' => env('APP_ENV'),
+        'landing_domain' => env('LANDING_DOMAIN'),
+        'app_domain' => env('APP_DOMAIN'),
+        'landing_routes_count' => $routes->count(),
+        'landing_routes' => $routes,
+    ]);
+});
+
 // robots.txt für App-Subdomain (blockiert Crawler)
 Route::get('/robots.txt', function () {
     $robotsContent = "User-agent: *
