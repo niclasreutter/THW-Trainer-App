@@ -4,64 +4,47 @@
 
 @push('styles')
 <style>
-    /* RESPONSIVE ADMIN DESIGN */
-    body { background: #f3f4f6 !important; }
-    
-    .admin-wrapper { 
-        background: #f3f4f6; 
-        padding: 2rem; 
-        min-height: 100vh;
-    }
-    
-    .admin-container { 
-        max-width: 1400px; 
-        margin: 0 auto; 
-    }
-    
-    .page-header { 
-        display: flex; 
-        justify-content: space-between; 
-        align-items: center; 
-        margin-bottom: 2rem; 
-        flex-wrap: wrap; 
-        gap: 1rem; 
-    }
-    
-    .page-title {
-        font-size: 2rem;
-        font-weight: 800;
-        margin: 0;
-        display: inline-block;
-        background: linear-gradient(90deg, #fbbf24, #f59e0b);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-    }
-    
-    .btn { 
-        display: inline-flex; 
-        align-items: center; 
-        gap: 0.5rem; 
-        padding: 0.75rem 1.5rem; 
-        border-radius: 8px; 
-        font-weight: 600; 
-        text-decoration: none; 
-        transition: all 0.2s;
-        cursor: pointer;
+    .dashboard-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
     }
 
-    .btn-primary { 
-        background: linear-gradient(135deg, #00337F 0%, #003F99 100%); 
-        color: white; 
-        border: none;
+    .dashboard-header {
+        margin-bottom: 2.5rem;
+        padding-top: 1rem;
+        max-width: 600px;
     }
 
-    .btn-secondary { 
-        background: white; 
-        color: #6b7280; 
-        border: 1px solid #d1d5db; 
+    .bento-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr 1fr;
+        gap: 1rem;
+        margin-bottom: 2rem;
     }
-    
+
+    .bento-wide {
+        grid-column: span 4;
+        padding: 1.5rem;
+    }
+
+    .bento-third {
+        grid-column: span 1;
+        padding: 1.5rem;
+    }
+
+    @media (max-width: 900px) {
+        .bento-grid { grid-template-columns: 1fr 1fr; }
+        .bento-wide { grid-column: span 2; }
+        .bento-third { grid-column: span 1; }
+    }
+
+    @media (max-width: 600px) {
+        .bento-grid { grid-template-columns: 1fr; }
+        .bento-wide, .bento-third { grid-column: span 1; }
+        .dashboard-container { padding: 1rem; }
+    }
+
     /* Desktop Table (768px+ screens) */
     @media (min-width: 768px) {
         .desktop-table {
@@ -74,351 +57,311 @@
 
     /* Mobile Cards (under 768px) */
     @media (max-width: 767px) {
-        .admin-wrapper {
-            padding: 0.5rem;
-        }
-        
         .desktop-table {
             display: none !important;
         }
         .mobile-cards {
             display: block !important;
         }
-
-        .page-header {
-            flex-direction: column;
-            align-items: stretch;
-            text-align: center;
-        }
-        
-        .page-title {
-            font-size: 1.5rem;
-        }
-
-        .btn {
-            padding: 1rem 1.5rem;
-            font-size: 1rem;
-            justify-content: center;
-        }
-    }
-
-    /* Touch-optimized inputs on mobile */
-    @media (max-width: 767px) {
-        input, textarea, button {
-            font-size: 16px !important; /* Prevents zoom on iOS */
-        }
-        
-        button[type="button"] {
-            min-height: 48px; /* Better touch targets */
-        }
-    } 
-        padding: 0.75rem 1.5rem; 
-        border-radius: 8px; 
-        text-decoration: none; 
-        font-weight: 600; 
-    }
-    
-    .btn-primary { 
-        background: #00337F; 
-        color: white; 
-    }
-    
-    .btn-secondary { 
-        background: #e5e7eb; 
-        color: #374151; 
     }
 </style>
 @endpush
 
 
 @section('content')
-<div class="admin-wrapper">
-    <div class="admin-container">
-        <!-- Header -->
-        <div class="page-header">
-            <h1 class="page-title">Fragenverwaltung</h1>
-            <div style="display: flex; gap: 1rem;">
-                <a href="{{ route('admin.dashboard') }}" class="btn btn-secondary">← Admin Dashboard</a>
-                <a href="{{ route('admin.users.index') }}" class="btn btn-primary"><i class="bi bi-people"></i> Benutzer</a>
+<div class="dashboard-container">
+    <!-- Header -->
+    <header class="dashboard-header">
+        <h1 class="page-title">Fragen <span>Verwaltung</span></h1>
+        <p class="page-subtitle">Verwalte alle Fragen, Lernabschnitte und Antworten</p>
+    </header>
+
+    <!-- Status Messages -->
+    @if(session('success'))
+        <div class="glass-success" style="padding: 1.25rem; margin-bottom: 2rem; display: flex; gap: 1rem; align-items: start;">
+            <i class="bi bi-check-circle text-success" style="font-size: 1.25rem;"></i>
+            <div>
+                <strong style="color: var(--text-primary); font-weight: 700;">Erfolg!</strong>
+                <p style="color: var(--text-secondary); margin: 0.25rem 0 0 0;">{{ session('success') }}</p>
+            </div>
+        </div>
+    @endif
+
+    @if($errors->any())
+        <div class="glass-error" style="padding: 1.25rem; margin-bottom: 2rem; display: flex; gap: 1rem; align-items: start;">
+            <i class="bi bi-x-circle text-error" style="font-size: 1.25rem;"></i>
+            <div>
+                <strong style="color: var(--text-primary); font-weight: 700;">Fehler!</strong>
+                <ul style="color: var(--text-secondary); margin: 0.25rem 0 0 0; padding-left: 1.25rem;">
+                    @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        </div>
+    @endif
+
+    <!-- Stats Row -->
+    <div class="stats-row">
+        <div class="stat-pill">
+            <span class="stat-pill-icon text-gold">
+                <i class="bi bi-card-text"></i>
+            </span>
+            <div>
+                <div class="stat-pill-value">{{ $questions->count() }}</div>
+                <div class="stat-pill-label">Gesamt Fragen</div>
             </div>
         </div>
 
-        <!-- Status Messages -->
-        @if(session('success'))
-            <div style="background: rgba(34, 197, 94, 0.1); border: 1px solid #22c55e; border-radius: 10px; padding: 1.5rem; margin-bottom: 2rem; display: flex; gap: 1rem;">
-                <span><i class="bi bi-check-circle-fill text-green-500"></i></span>
-                <div>
-                    <strong style="color: #16a34a;">Erfolg!</strong>
-                    <p style="color: #16a34a; margin: 0;">{{ session('success') }}</p>
-                </div>
-            </div>
-        @endif
-
-        @if($errors->any())
-            <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; border-radius: 10px; padding: 1.5rem; margin-bottom: 2rem; display: flex; gap: 1rem;">
-                <span><i class="bi bi-x-circle-fill text-red-500"></i></span>
-                <div>
-                    <strong style="color: #dc2626;">Fehler!</strong>
-                    <ul style="color: #dc2626; margin: 0; padding-left: 1rem;">
-                        @foreach($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            </div>
-        @endif
-
-        <!-- Statistiken -->
-        <div style="margin-bottom: 2rem;">
-            <h2 style="font-size: 1.3rem; font-weight: 700; color: #1f2937; margin-bottom: 1.5rem;">Statistiken</h2>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
-                <div style="background: white; border: 1px solid #e5e7eb; border-radius: 10px; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); display: flex; gap: 1rem; align-items: center;">
-                    <div style="font-size: 2rem;"><i class="bi bi-card-text"></i></div>
-                    <div>
-                        <h3 style="margin: 0 0 0.5rem 0; color: #6b7280; font-size: 0.9rem; font-weight: 500;">Gesamt Fragen</h3>
-                        <p style="font-size: 1.75rem; font-weight: 800; color: #00337F; margin: 0;">{{ $questions->count() }}</p>
-                    </div>
-                </div>
-
-                <div style="background: white; border: 1px solid #e5e7eb; border-radius: 10px; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); display: flex; gap: 1rem; align-items: center;">
-                    <div style="font-size: 2rem;"><i class="bi bi-book"></i></div>
-                    <div>
-                        <h3 style="margin: 0 0 0.5rem 0; color: #6b7280; font-size: 0.9rem; font-weight: 500;">Lernabschnitte</h3>
-                        <p style="font-size: 1.75rem; font-weight: 800; color: #00337F; margin: 0;">{{ $questions->pluck('lernabschnitt')->unique()->count() }}</p>
-                    </div>
-                </div>
-
-                <div style="background: white; border: 1px solid #e5e7eb; border-radius: 10px; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); display: flex; gap: 1rem; align-items: center;">
-                    <div style="font-size: 2rem;"><i class="bi bi-hash"></i></div>
-                    <div>
-                        <h3 style="margin: 0 0 0.5rem 0; color: #6b7280; font-size: 0.9rem; font-weight: 500;">Höchste ID</h3>
-                        <p style="font-size: 1.75rem; font-weight: 800; color: #00337F; margin: 0;">{{ $questions->max('id') ?? 0 }}</p>
-                    </div>
-                </div>
+        <div class="stat-pill">
+            <span class="stat-pill-icon text-thw-blue">
+                <i class="bi bi-book"></i>
+            </span>
+            <div>
+                <div class="stat-pill-value">{{ $questions->pluck('lernabschnitt')->unique()->count() }}</div>
+                <div class="stat-pill-label">Lernabschnitte</div>
             </div>
         </div>
 
-        <!-- Neue Frage hinzufügen -->
-        <div style="background: white; border: 1px solid #e5e7eb; border-radius: 10px; padding: 2rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); margin-bottom: 2rem;">
-            <h3 style="font-size: 1.3rem; font-weight: 700; color: #1f2937; margin: 0 0 1.5rem 0;">Neue Frage hinzufügen</h3>
+        <div class="stat-pill">
+            <span class="stat-pill-icon text-success">
+                <i class="bi bi-hash"></i>
+            </span>
+            <div>
+                <div class="stat-pill-value">{{ $questions->max('id') ?? 0 }}</div>
+                <div class="stat-pill-label">Höchste ID</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Neue Frage hinzufügen -->
+    <div class="glass-gold hover-lift" style="padding: 1.5rem; margin-bottom: 2rem;">
+        <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin: 0 0 1.25rem 0; display: flex; align-items: center; gap: 0.5rem;">
+            <i class="bi bi-plus-circle text-gold"></i>
+            Neue Frage hinzufügen
+        </h3>
             
             <form method="POST" action="{{ route('admin.questions.store') }}">
                 @csrf
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
                     <div>
-                        <label style="font-weight: 600; color: #1f2937; margin-bottom: 0.5rem; font-size: 0.95rem; display: block;">
-                            Lernabschnitt <span style="color: #ef4444;">*</span>
+                        <label style="font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem; font-size: 0.875rem; display: block;">
+                            Lernabschnitt <span style="color: var(--error);">*</span>
                         </label>
-                        <input type="text" name="lernabschnitt" value="{{ old('lernabschnitt') }}" 
+                        <input type="text" name="lernabschnitt" value="{{ old('lernabschnitt') }}"
                                placeholder="z.B. 1" required
-                               style="width: 100%; padding: 0.75rem 1rem; border: 1px solid #d1d5db; border-radius: 8px; font-size: 1rem;">
+                               style="width: 100%; padding: 0.625rem 1rem; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 0.5rem; color: var(--text-primary); outline: none;">
                     </div>
-                    
+
                     <div>
-                        <label style="font-weight: 600; color: #1f2937; margin-bottom: 0.5rem; font-size: 0.95rem; display: block;">
-                            Nummer <span style="color: #ef4444;">*</span>
+                        <label style="font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem; font-size: 0.875rem; display: block;">
+                            Nummer <span style="color: var(--error);">*</span>
                         </label>
-                        <input type="text" name="nummer" value="{{ old('nummer') }}" 
+                        <input type="text" name="nummer" value="{{ old('nummer') }}"
                                placeholder="z.B. 1.1" required
-                               style="width: 100%; padding: 0.75rem 1rem; border: 1px solid #d1d5db; border-radius: 8px; font-size: 1rem;">
+                               style="width: 100%; padding: 0.625rem 1rem; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 0.5rem; color: var(--text-primary); outline: none;">
                     </div>
                     
                     <div>
-                        <label style="font-weight: 600; color: #1f2937; margin-bottom: 0.5rem; font-size: 0.95rem; display: block;">
-                            Lösung(en) <span style="color: #ef4444;">*</span>
-                            <small style="color: #6b7280; font-weight: 400; display: block;">Mehrere Antworten möglich</small>
+                        <label style="font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem; font-size: 0.875rem; display: block;">
+                            Lösung(en) <span style="color: var(--error);">*</span>
+                            <small style="color: var(--text-muted); font-weight: 400; display: block;">Mehrere Antworten möglich</small>
                         </label>
-                        <div style="display: flex; gap: 0.75rem; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 8px; background: white;">
-                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; padding: 0.5rem; border-radius: 6px; transition: background 0.2s;" 
-                                   onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='transparent'">
-                                <input type="checkbox" name="loesung[]" value="A" 
+                        <div style="display: flex; gap: 0.75rem; padding: 0.75rem; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 0.5rem; background: rgba(255, 255, 255, 0.03);">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; padding: 0.5rem; border-radius: 0.375rem; transition: background 0.2s;"
+                                   onmouseover="this.style.background='rgba(255, 255, 255, 0.05)'" onmouseout="this.style.background='transparent'">
+                                <input type="checkbox" name="loesung[]" value="A"
                                        {{ is_array(old('loesung')) && in_array('A', old('loesung')) ? 'checked' : '' }}
                                        style="width: 18px; height: 18px;">
-                                <span style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: #1e40af; padding: 0.25rem 0.75rem; border-radius: 6px; font-weight: 700; font-size: 1rem;">A</span>
+                                <span style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: #0c0a09; padding: 0.25rem 0.75rem; border-radius: 0.375rem; font-weight: 700; font-size: 1rem;">A</span>
                             </label>
-                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; padding: 0.5rem; border-radius: 6px; transition: background 0.2s;"
-                                   onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='transparent'">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; padding: 0.5rem; border-radius: 0.375rem; transition: background 0.2s;"
+                                   onmouseover="this.style.background='rgba(255, 255, 255, 0.05)'" onmouseout="this.style.background='transparent'">
                                 <input type="checkbox" name="loesung[]" value="B"
                                        {{ is_array(old('loesung')) && in_array('B', old('loesung')) ? 'checked' : '' }}
                                        style="width: 18px; height: 18px;">
-                                <span style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: #1e40af; padding: 0.25rem 0.75rem; border-radius: 6px; font-weight: 700; font-size: 1rem;">B</span>
+                                <span style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: #0c0a09; padding: 0.25rem 0.75rem; border-radius: 0.375rem; font-weight: 700; font-size: 1rem;">B</span>
                             </label>
-                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; padding: 0.5rem; border-radius: 6px; transition: background 0.2s;"
-                                   onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='transparent'">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; padding: 0.5rem; border-radius: 0.375rem; transition: background 0.2s;"
+                                   onmouseover="this.style.background='rgba(255, 255, 255, 0.05)'" onmouseout="this.style.background='transparent'">
                                 <input type="checkbox" name="loesung[]" value="C"
                                        {{ is_array(old('loesung')) && in_array('C', old('loesung')) ? 'checked' : '' }}
                                        style="width: 18px; height: 18px;">
-                                <span style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: #1e40af; padding: 0.25rem 0.75rem; border-radius: 6px; font-weight: 700; font-size: 1rem;">C</span>
+                                <span style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: #0c0a09; padding: 0.25rem 0.75rem; border-radius: 0.375rem; font-weight: 700; font-size: 1rem;">C</span>
                             </label>
                         </div>
                     </div>
                 </div>
 
                 <div style="margin-bottom: 1.5rem;">
-                    <label style="font-weight: 600; color: #1f2937; margin-bottom: 0.5rem; font-size: 0.95rem; display: block;">
-                        Frage <span style="color: #ef4444;">*</span>
+                    <label style="font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem; font-size: 0.875rem; display: block;">
+                        Frage <span style="color: var(--error);">*</span>
                     </label>
-                    <textarea name="frage" required placeholder="Fragentext eingeben..." 
-                              style="width: 100%; padding: 0.75rem 1rem; border: 1px solid #d1d5db; border-radius: 8px; font-size: 1rem; resize: vertical; min-height: 80px;">{{ old('frage') }}</textarea>
+                    <textarea name="frage" required placeholder="Fragentext eingeben..."
+                              style="width: 100%; padding: 0.75rem 1rem; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 0.5rem; color: var(--text-primary); resize: vertical; min-height: 80px; outline: none;">{{ old('frage') }}</textarea>
                 </div>
 
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
                     <div>
-                        <label style="font-weight: 600; color: #1f2937; margin-bottom: 0.5rem; font-size: 0.95rem; display: block;">
-                            Antwort A <span style="color: #ef4444;">*</span>
+                        <label style="font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem; font-size: 0.875rem; display: block;">
+                            Antwort A <span style="color: var(--error);">*</span>
                         </label>
-                        <textarea name="antwort_a" required placeholder="Antwort A..." 
-                                  style="width: 100%; padding: 0.75rem 1rem; border: 1px solid #d1d5db; border-radius: 8px; font-size: 1rem; resize: vertical; min-height: 60px;">{{ old('antwort_a') }}</textarea>
+                        <textarea name="antwort_a" required placeholder="Antwort A..."
+                                  style="width: 100%; padding: 0.75rem 1rem; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 0.5rem; color: var(--text-primary); resize: vertical; min-height: 60px; outline: none;">{{ old('antwort_a') }}</textarea>
                     </div>
-                    
+
                     <div>
-                        <label style="font-weight: 600; color: #1f2937; margin-bottom: 0.5rem; font-size: 0.95rem; display: block;">
-                            Antwort B <span style="color: #ef4444;">*</span>
+                        <label style="font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem; font-size: 0.875rem; display: block;">
+                            Antwort B <span style="color: var(--error);">*</span>
                         </label>
-                        <textarea name="antwort_b" required placeholder="Antwort B..." 
-                                  style="width: 100%; padding: 0.75rem 1rem; border: 1px solid #d1d5db; border-radius: 8px; font-size: 1rem; resize: vertical; min-height: 60px;">{{ old('antwort_b') }}</textarea>
+                        <textarea name="antwort_b" required placeholder="Antwort B..."
+                                  style="width: 100%; padding: 0.75rem 1rem; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 0.5rem; color: var(--text-primary); resize: vertical; min-height: 60px; outline: none;">{{ old('antwort_b') }}</textarea>
                     </div>
-                    
+
                     <div>
-                        <label style="font-weight: 600; color: #1f2937; margin-bottom: 0.5rem; font-size: 0.95rem; display: block;">
-                            Antwort C <span style="color: #ef4444;">*</span>
+                        <label style="font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem; font-size: 0.875rem; display: block;">
+                            Antwort C <span style="color: var(--error);">*</span>
                         </label>
-                        <textarea name="antwort_c" required placeholder="Antwort C..." 
-                                  style="width: 100%; padding: 0.75rem 1rem; border: 1px solid #d1d5db; border-radius: 8px; font-size: 1rem; resize: vertical; min-height: 60px;">{{ old('antwort_c') }}</textarea>
+                        <textarea name="antwort_c" required placeholder="Antwort C..."
+                                  style="width: 100%; padding: 0.75rem 1rem; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 0.5rem; color: var(--text-primary); resize: vertical; min-height: 60px; outline: none;">{{ old('antwort_c') }}</textarea>
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-primary"
-                        style="background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: white; padding: 0.75rem 1.5rem;">
-                    <i class="bi bi-floppy"></i> Frage speichern
+                <button type="submit" class="btn-primary">
+                    Frage speichern
                 </button>
             </form>
         </div>
 
-        <!-- Fragen-Liste -->
-        <div style="background: white; border: 1px solid #e5e7eb; border-radius: 10px; padding: 2rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);">
-            <h3 style="font-size: 1.3rem; font-weight: 700; color: #1f2937; margin: 0 0 1.5rem 0;">Alle Fragen ({{ $questions->count() }})</h3>
-            
+    <!-- Fragen-Liste -->
+    <div class="glass hover-lift" style="padding: 1.5rem;">
+            <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin: 0 0 1.25rem 0; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="bi bi-list-check text-gold"></i>
+                Alle Fragen ({{ $questions->count() }})
+            </h3>
+
             @if($questions->count() > 0)
                 <!-- Desktop Tabelle (versteckt auf mobil) -->
                 <div style="overflow-x: auto; display: block;" class="desktop-table">
-                    <table style="width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden;">
-                        <thead style="background: linear-gradient(135deg, #00337F 0%, #003F99 100%);">
-                            <tr>
-                                <th style="color: white; padding: 1rem; text-align: left; font-weight: 600;">ID</th>
-                                <th style="color: white; padding: 1rem; text-align: left; font-weight: 600;">Lernabschnitt</th>
-                                <th style="color: white; padding: 1rem; text-align: left; font-weight: 600;">Nummer</th>
-                                <th style="color: white; padding: 1rem; text-align: left; font-weight: 600;">Frage</th>
-                                <th style="color: white; padding: 1rem; text-align: left; font-weight: 600;">Lösung</th>
-                                <th style="color: white; padding: 1rem; text-align: left; font-weight: 600;">Aktionen</th>
+                    <table style="width: 100%; border-collapse: collapse; border-radius: 0.5rem; overflow: hidden;">
+                        <thead>
+                            <tr style="border-bottom: 2px solid rgba(255, 255, 255, 0.1);">
+                                <th style="color: var(--text-secondary); padding: 0.75rem 1rem; text-align: left; font-weight: 600; font-size: 0.875rem;">ID</th>
+                                <th style="color: var(--text-secondary); padding: 0.75rem 1rem; text-align: left; font-weight: 600; font-size: 0.875rem;">Lernabschnitt</th>
+                                <th style="color: var(--text-secondary); padding: 0.75rem 1rem; text-align: left; font-weight: 600; font-size: 0.875rem;">Nummer</th>
+                                <th style="color: var(--text-secondary); padding: 0.75rem 1rem; text-align: left; font-weight: 600; font-size: 0.875rem;">Frage</th>
+                                <th style="color: var(--text-secondary); padding: 0.75rem 1rem; text-align: left; font-weight: 600; font-size: 0.875rem;">Lösung</th>
+                                <th style="color: var(--text-secondary); padding: 0.75rem 1rem; text-align: left; font-weight: 600; font-size: 0.875rem;">Aktionen</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($questions as $question)
-                                <tr style="border-bottom: 1px solid #e5e7eb;" id="question-{{ $question->id }}">
-                                    <td style="padding: 1rem; font-weight: 600;">{{ $question->id }}</td>
-                                    
+                                <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.06); transition: all 0.2s;" id="question-{{ $question->id }}"
+                                    onmouseover="this.style.background='rgba(255, 255, 255, 0.03)'"
+                                    onmouseout="this.style.background='transparent'">
+                                    <td style="padding: 0.875rem 1rem; font-weight: 600; color: var(--text-muted); font-size: 0.875rem;">{{ $question->id }}</td>
+
                                     <!-- Lernabschnitt - Inline editierbar -->
-                                    <td style="padding: 1rem;">
-                                        <input type="text" 
-                                               value="{{ $question->lernabschnitt }}" 
-                                               data-field="lernabschnitt" 
+                                    <td style="padding: 0.875rem 1rem;">
+                                        <input type="text"
+                                               value="{{ $question->lernabschnitt }}"
+                                               data-field="lernabschnitt"
                                                data-id="{{ $question->id }}"
                                                onchange="updateQuestion(this)"
-                                               style="border: 1px solid #e5e7eb; background: #f9fafb; width: 100%; padding: 0.5rem; border-radius: 6px; font-size: 1rem; transition: all 0.2s;"
-                                               onfocus="this.style.background='white'; this.style.borderColor='#00337F'; this.style.boxShadow='0 0 0 2px rgba(0, 51, 127, 0.1)';"
-                                               onblur="this.style.background='#f9fafb'; this.style.borderColor='#e5e7eb'; this.style.boxShadow='none';">
+                                               style="border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(255, 255, 255, 0.03); width: 100%; padding: 0.5rem; border-radius: 0.375rem; font-size: 0.875rem; color: var(--text-primary); outline: none; transition: all 0.2s;"
+                                               onfocus="this.style.background='rgba(255, 255, 255, 0.06)'; this.style.borderColor='var(--gold-start)';"
+                                               onblur="this.style.background='rgba(255, 255, 255, 0.03)'; this.style.borderColor='rgba(255, 255, 255, 0.1)';">
                                     </td>
                                     
                                     <!-- Nummer - Inline editierbar -->
-                                    <td style="padding: 1rem;">
-                                        <input type="text" 
-                                               value="{{ $question->nummer }}" 
-                                               data-field="nummer" 
+                                    <td style="padding: 0.875rem 1rem;">
+                                        <input type="text"
+                                               value="{{ $question->nummer }}"
+                                               data-field="nummer"
                                                data-id="{{ $question->id }}"
                                                onchange="updateQuestion(this)"
-                                               style="border: 1px solid #e5e7eb; background: #f9fafb; width: 100%; padding: 0.5rem; border-radius: 6px; font-size: 1rem; transition: all 0.2s;"
-                                               onfocus="this.style.background='white'; this.style.borderColor='#00337F'; this.style.boxShadow='0 0 0 2px rgba(0, 51, 127, 0.1)';"
-                                               onblur="this.style.background='#f9fafb'; this.style.borderColor='#e5e7eb'; this.style.boxShadow='none';">
+                                               style="border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(255, 255, 255, 0.03); width: 100%; padding: 0.5rem; border-radius: 0.375rem; font-size: 0.875rem; color: var(--text-primary); outline: none; transition: all 0.2s;"
+                                               onfocus="this.style.background='rgba(255, 255, 255, 0.06)'; this.style.borderColor='var(--gold-start)';"
+                                               onblur="this.style.background='rgba(255, 255, 255, 0.03)'; this.style.borderColor='rgba(255, 255, 255, 0.1)';">
                                     </td>
-                                    
+
                                     <!-- Frage - Inline editierbar -->
-                                    <td style="padding: 1rem; max-width: 400px;">
-                                        <textarea data-field="frage" 
+                                    <td style="padding: 0.875rem 1rem; max-width: 400px;">
+                                        <textarea data-field="frage"
                                                   data-id="{{ $question->id }}"
                                                   onchange="updateQuestion(this)"
-                                                  style="border: 1px solid #e5e7eb; background: #f9fafb; width: 100%; min-height: 80px; padding: 0.5rem; border-radius: 6px; font-size: 1rem; resize: vertical; font-family: inherit; transition: all 0.2s;"
-                                                  onfocus="this.style.background='white'; this.style.borderColor='#00337F'; this.style.boxShadow='0 0 0 2px rgba(0, 51, 127, 0.1)';"
-                                                  onblur="this.style.background='#f9fafb'; this.style.borderColor='#e5e7eb'; this.style.boxShadow='none';">{{ $question->frage }}</textarea>
+                                                  style="border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(255, 255, 255, 0.03); width: 100%; min-height: 80px; padding: 0.5rem; border-radius: 0.375rem; font-size: 0.875rem; color: var(--text-primary); resize: vertical; font-family: inherit; outline: none; transition: all 0.2s;"
+                                                  onfocus="this.style.background='rgba(255, 255, 255, 0.06)'; this.style.borderColor='var(--gold-start)';"
+                                                  onblur="this.style.background='rgba(255, 255, 255, 0.03)'; this.style.borderColor='rgba(255, 255, 255, 0.1)';">{{ $question->frage }}</textarea>
                                     </td>
                                     
                                     <!-- Lösung - Kompakte Buttons für Mehrfachauswahl -->
-                                    <td style="padding: 1rem;">
+                                    <td style="padding: 0.875rem 1rem;">
                                         <div data-field="loesung" data-id="{{ $question->id }}" style="display: flex; gap: 0.25rem; flex-wrap: wrap;">
                                             @php
                                                 $solutions = explode(',', $question->loesung);
                                             @endphp
                                             <button type="button"
-                                                    data-value="A" 
+                                                    data-value="A"
                                                     onclick="toggleSolution(this)"
-                                                    style="border: 2px solid {{ in_array('A', $solutions) ? '#16a34a' : '#d1d5db' }}; 
-                                                           background: {{ in_array('A', $solutions) ? 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)' : 'white' }}; 
-                                                           color: {{ in_array('A', $solutions) ? 'white' : '#6b7280' }}; 
-                                                           padding: 0.25rem 0.5rem; 
-                                                           border-radius: 6px; 
-                                                           font-weight: 600; 
-                                                           font-size: 0.9rem; 
-                                                           cursor: pointer; 
+                                                    style="border: 2px solid {{ in_array('A', $solutions) ? 'var(--success)' : 'rgba(255, 255, 255, 0.1)' }};
+                                                           background: {{ in_array('A', $solutions) ? 'var(--success)' : 'rgba(255, 255, 255, 0.03)' }};
+                                                           color: {{ in_array('A', $solutions) ? 'white' : 'var(--text-muted)' }};
+                                                           padding: 0.25rem 0.5rem;
+                                                           border-radius: 0.375rem;
+                                                           font-weight: 600;
+                                                           font-size: 0.875rem;
+                                                           cursor: pointer;
                                                            min-width: 32px;
                                                            transition: all 0.2s;">A</button>
                                             <button type="button"
-                                                    data-value="B" 
+                                                    data-value="B"
                                                     onclick="toggleSolution(this)"
-                                                    style="border: 2px solid {{ in_array('B', $solutions) ? '#16a34a' : '#d1d5db' }}; 
-                                                           background: {{ in_array('B', $solutions) ? 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)' : 'white' }}; 
-                                                           color: {{ in_array('B', $solutions) ? 'white' : '#6b7280' }}; 
-                                                           padding: 0.25rem 0.5rem; 
-                                                           border-radius: 6px; 
-                                                           font-weight: 600; 
-                                                           font-size: 0.9rem; 
-                                                           cursor: pointer; 
+                                                    style="border: 2px solid {{ in_array('B', $solutions) ? 'var(--success)' : 'rgba(255, 255, 255, 0.1)' }};
+                                                           background: {{ in_array('B', $solutions) ? 'var(--success)' : 'rgba(255, 255, 255, 0.03)' }};
+                                                           color: {{ in_array('B', $solutions) ? 'white' : 'var(--text-muted)' }};
+                                                           padding: 0.25rem 0.5rem;
+                                                           border-radius: 0.375rem;
+                                                           font-weight: 600;
+                                                           font-size: 0.875rem;
+                                                           cursor: pointer;
                                                            min-width: 32px;
                                                            transition: all 0.2s;">B</button>
                                             <button type="button"
-                                                    data-value="C" 
+                                                    data-value="C"
                                                     onclick="toggleSolution(this)"
-                                                    style="border: 2px solid {{ in_array('C', $solutions) ? '#16a34a' : '#d1d5db' }}; 
-                                                           background: {{ in_array('C', $solutions) ? 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)' : 'white' }}; 
-                                                           color: {{ in_array('C', $solutions) ? 'white' : '#6b7280' }}; 
-                                                           padding: 0.25rem 0.5rem; 
-                                                           border-radius: 6px; 
-                                                           font-weight: 600; 
-                                                           font-size: 0.9rem; 
-                                                           cursor: pointer; 
+                                                    style="border: 2px solid {{ in_array('C', $solutions) ? 'var(--success)' : 'rgba(255, 255, 255, 0.1)' }};
+                                                           background: {{ in_array('C', $solutions) ? 'var(--success)' : 'rgba(255, 255, 255, 0.03)' }};
+                                                           color: {{ in_array('C', $solutions) ? 'white' : 'var(--text-muted)' }};
+                                                           padding: 0.25rem 0.5rem;
+                                                           border-radius: 0.375rem;
+                                                           font-weight: 600;
+                                                           font-size: 0.875rem;
+                                                           cursor: pointer;
                                                            min-width: 32px;
                                                            transition: all 0.2s;">C</button>
                                         </div>
                                     </td>
                                     
-                                    <td style="padding: 1rem;">
+                                    <td style="padding: 0.875rem 1rem;">
                                         <div style="display: flex; gap: 0.5rem; align-items: center;">
                                             <!-- Status Indicator -->
-                                            <div id="status-{{ $question->id }}" style="width: 8px; height: 8px; border-radius: 50%; background: #22c55e;"></div>
-                                            
+                                            <div id="status-{{ $question->id }}" style="width: 8px; height: 8px; border-radius: 50%; background: var(--success);"></div>
+
                                             <!-- Antworten bearbeiten Button -->
-                                            <button onclick="toggleAnswers({{ $question->id }})" 
-                                                    style="background: #00337F; color: white; padding: 0.5rem 0.75rem; border-radius: 6px; border: none; font-size: 0.8rem; cursor: pointer;">
-                                                <i class="bi bi-pencil"></i> Antworten
+                                            <button onclick="toggleAnswers({{ $question->id }})" class="btn-secondary"
+                                                    style="padding: 0.5rem 0.75rem; font-size: 0.75rem;">
+                                                Antworten
                                             </button>
-                                            
+
                                             <!-- Löschen Button -->
-                                            <form method="POST" action="{{ route('admin.questions.destroy', $question->id) }}" 
-                                                  style="display: inline;" 
+                                            <form method="POST" action="{{ route('admin.questions.destroy', $question->id) }}"
+                                                  style="display: inline;"
                                                   onsubmit="return confirm('Frage wirklich löschen?')">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" 
-                                                        style="background: #ef4444; color: white; padding: 0.5rem 0.75rem; border-radius: 6px; border: none; font-size: 0.8rem; cursor: pointer;">
+                                                <button type="submit" class="btn-ghost"
+                                                        style="padding: 0.5rem 0.75rem; color: var(--error); font-size: 0.75rem;">
                                                     <i class="bi bi-trash"></i>
                                                 </button>
                                             </form>
@@ -427,35 +370,35 @@
                                 </tr>
                                 
                                 <!-- Antworten Row (versteckt by default) -->
-                                <tr id="answers-{{ $question->id }}" style="display: none; background: #f8fafc; border-bottom: 1px solid #e5e7eb;">
+                                <tr id="answers-{{ $question->id }}" style="display: none; background: rgba(255, 255, 255, 0.02); border-bottom: 1px solid rgba(255, 255, 255, 0.06);">
                                     <td colspan="6" style="padding: 1rem;">
                                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
                                             <div>
-                                                <label style="font-weight: 600; color: #1f2937; margin-bottom: 0.5rem; font-size: 0.9rem; display: block;">Antwort A:</label>
-                                                <textarea data-field="antwort_a" 
+                                                <label style="font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem; font-size: 0.875rem; display: block;">Antwort A:</label>
+                                                <textarea data-field="antwort_a"
                                                           data-id="{{ $question->id }}"
                                                           onchange="updateQuestion(this)"
-                                                          style="width: 100%; padding: 0.75rem; border: 1px solid #e5e7eb; background: #f9fafb; border-radius: 6px; font-size: 0.9rem; resize: vertical; min-height: 80px; transition: all 0.2s;"
-                                                          onfocus="this.style.background='white'; this.style.borderColor='#00337F'; this.style.boxShadow='0 0 0 2px rgba(0, 51, 127, 0.1)';"
-                                                          onblur="this.style.background='#f9fafb'; this.style.borderColor='#e5e7eb'; this.style.boxShadow='none';">{{ $question->antwort_a }}</textarea>
+                                                          style="width: 100%; padding: 0.75rem; border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(255, 255, 255, 0.03); border-radius: 0.375rem; font-size: 0.875rem; color: var(--text-primary); resize: vertical; min-height: 80px; outline: none; transition: all 0.2s;"
+                                                          onfocus="this.style.background='rgba(255, 255, 255, 0.06)'; this.style.borderColor='var(--gold-start)';"
+                                                          onblur="this.style.background='rgba(255, 255, 255, 0.03)'; this.style.borderColor='rgba(255, 255, 255, 0.1)';">{{ $question->antwort_a }}</textarea>
                                             </div>
                                             <div>
-                                                <label style="font-weight: 600; color: #1f2937; margin-bottom: 0.5rem; font-size: 0.9rem; display: block;">Antwort B:</label>
-                                                <textarea data-field="antwort_b" 
+                                                <label style="font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem; font-size: 0.875rem; display: block;">Antwort B:</label>
+                                                <textarea data-field="antwort_b"
                                                           data-id="{{ $question->id }}"
                                                           onchange="updateQuestion(this)"
-                                                          style="width: 100%; padding: 0.75rem; border: 1px solid #e5e7eb; background: #f9fafb; border-radius: 6px; font-size: 0.9rem; resize: vertical; min-height: 80px; transition: all 0.2s;"
-                                                          onfocus="this.style.background='white'; this.style.borderColor='#00337F'; this.style.boxShadow='0 0 0 2px rgba(0, 51, 127, 0.1)';"
-                                                          onblur="this.style.background='#f9fafb'; this.style.borderColor='#e5e7eb'; this.style.boxShadow='none';">{{ $question->antwort_b }}</textarea>
+                                                          style="width: 100%; padding: 0.75rem; border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(255, 255, 255, 0.03); border-radius: 0.375rem; font-size: 0.875rem; color: var(--text-primary); resize: vertical; min-height: 80px; outline: none; transition: all 0.2s;"
+                                                          onfocus="this.style.background='rgba(255, 255, 255, 0.06)'; this.style.borderColor='var(--gold-start)';"
+                                                          onblur="this.style.background='rgba(255, 255, 255, 0.03)'; this.style.borderColor='rgba(255, 255, 255, 0.1)';">{{ $question->antwort_b }}</textarea>
                                             </div>
                                             <div>
-                                                <label style="font-weight: 600; color: #1f2937; margin-bottom: 0.5rem; font-size: 0.9rem; display: block;">Antwort C:</label>
-                                                <textarea data-field="antwort_c" 
+                                                <label style="font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem; font-size: 0.875rem; display: block;">Antwort C:</label>
+                                                <textarea data-field="antwort_c"
                                                           data-id="{{ $question->id }}"
                                                           onchange="updateQuestion(this)"
-                                                          style="width: 100%; padding: 0.75rem; border: 1px solid #e5e7eb; background: #f9fafb; border-radius: 6px; font-size: 0.9rem; resize: vertical; min-height: 80px; transition: all 0.2s;"
-                                                          onfocus="this.style.background='white'; this.style.borderColor='#00337F'; this.style.boxShadow='0 0 0 2px rgba(0, 51, 127, 0.1)';"
-                                                          onblur="this.style.background='#f9fafb'; this.style.borderColor='#e5e7eb'; this.style.boxShadow='none';">{{ $question->antwort_c }}</textarea>
+                                                          style="width: 100%; padding: 0.75rem; border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(255, 255, 255, 0.03); border-radius: 0.375rem; font-size: 0.875rem; color: var(--text-primary); resize: vertical; min-height: 80px; outline: none; transition: all 0.2s;"
+                                                          onfocus="this.style.background='rgba(255, 255, 255, 0.06)'; this.style.borderColor='var(--gold-start)';"
+                                                          onblur="this.style.background='rgba(255, 255, 255, 0.03)'; this.style.borderColor='rgba(255, 255, 255, 0.1)';">{{ $question->antwort_c }}</textarea>
                                             </div>
                                         </div>
                                     </td>
