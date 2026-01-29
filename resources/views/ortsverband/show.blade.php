@@ -290,6 +290,18 @@
 
 @push('styles')
 <style>
+    .dashboard-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .dashboard-header {
+        margin-bottom: 2.5rem;
+        padding-top: 1rem;
+        max-width: 600px;
+    }
+
     .bento-grid-show {
         display: grid;
         grid-template-columns: 2fr 1fr;
@@ -434,6 +446,12 @@
         }
         .bento-lernpools { grid-row: span 1; }
         .bento-info-wide, .bento-leave { grid-column: span 1; }
+    }
+
+    @media (max-width: 768px) {
+        .dashboard-container {
+            padding: 1rem;
+        }
     }
 </style>
 @endpush

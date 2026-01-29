@@ -211,6 +211,18 @@
 
 @push('styles')
 <style>
+    .dashboard-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .dashboard-header {
+        margin-bottom: 2.5rem;
+        padding-top: 1rem;
+        max-width: 600px;
+    }
+
     .bento-grid-inv {
         display: grid;
         grid-template-columns: 1fr 1.5fr;
@@ -294,6 +306,12 @@
     @media (max-width: 900px) {
         .bento-grid-inv {
             grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .dashboard-container {
+            padding: 1rem;
         }
     }
 

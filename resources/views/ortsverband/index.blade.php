@@ -97,6 +97,18 @@
 
 @push('styles')
 <style>
+    .dashboard-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .dashboard-header {
+        margin-bottom: 2.5rem;
+        padding-top: 1rem;
+        max-width: 600px;
+    }
+
     .bento-grid-ov {
         display: grid;
         grid-template-columns: 2fr 1fr;
@@ -134,6 +146,9 @@
     .alert-compact-title { font-size: 0.9rem; font-weight: 600; color: var(--text-primary); }
 
     @media (max-width: 768px) {
+        .dashboard-container {
+            padding: 1rem;
+        }
         .bento-grid-ov {
             grid-template-columns: 1fr;
         }

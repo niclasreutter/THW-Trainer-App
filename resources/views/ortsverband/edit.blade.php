@@ -3,7 +3,7 @@
 @section('title', $ortsverband->name . ' bearbeiten')
 
 @section('content')
-<div class="dashboard-container" style="max-width: 800px; margin: 0 auto;">
+<div class="dashboard-container">
     <header class="dashboard-header">
         <h1 class="page-title">Ortsverband <span>bearbeiten</span></h1>
         <p class="page-subtitle">{{ $ortsverband->name }}</p>
@@ -94,6 +94,18 @@
 
 @push('styles')
 <style>
+    .dashboard-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .dashboard-header {
+        margin-bottom: 2.5rem;
+        padding-top: 1rem;
+        max-width: 600px;
+    }
+
     .alert-compact {
         padding: 0.875rem 1rem;
         border-radius: 0.75rem;
@@ -105,6 +117,12 @@
     .alert-compact-icon { font-size: 1.25rem; margin-top: 0.1rem; }
     .alert-compact-content { flex: 1; }
     .alert-compact-title { font-size: 0.9rem; font-weight: 600; color: var(--text-primary); }
+
+    @media (max-width: 768px) {
+        .dashboard-container {
+            padding: 1rem;
+        }
+    }
 </style>
 @endpush
 @endsection

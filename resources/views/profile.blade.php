@@ -279,6 +279,18 @@
 
 @push('styles')
 <style>
+    .dashboard-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .dashboard-header {
+        margin-bottom: 2.5rem;
+        padding-top: 1rem;
+        max-width: 600px;
+    }
+
     .bento-grid-profile {
         display: grid;
         grid-template-columns: 1.5fr 1fr;
@@ -511,6 +523,12 @@
 
         .bento-danger {
             grid-column: span 1;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .dashboard-container {
+            padding: 1rem;
         }
     }
 

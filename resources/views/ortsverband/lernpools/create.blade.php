@@ -24,9 +24,9 @@
     }
 
     .dashboard-header {
-        text-align: center;
-        margin-bottom: 2rem;
+        margin-bottom: 2.5rem;
         padding-top: 1rem;
+        max-width: 600px;
     }
 
     .dashboard-greeting {
@@ -172,6 +172,12 @@
 
     .back-link:hover {
         color: #1e40af;
+    }
+
+    @media (max-width: 768px) {
+        .dashboard-container {
+            padding: 1rem;
+        }
     }
 </style>
 @endpush

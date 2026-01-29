@@ -5,15 +5,20 @@
 
 @push('styles')
 <style>
-    .contact-container {
-        max-width: 800px;
+    .dashboard-container {
+        max-width: 1200px;
         margin: 0 auto;
         padding: 2rem;
     }
 
     .dashboard-header {
-        margin-bottom: 2rem;
+        margin-bottom: 2.5rem;
         padding-top: 1rem;
+        max-width: 600px;
+    }
+
+    .contact-form-wrapper {
+        max-width: 800px;
     }
 
     /* Radio Options Grid */
@@ -28,7 +33,7 @@
         .radio-grid {
             grid-template-columns: 1fr;
         }
-        .contact-container {
+        .dashboard-container {
             padding: 1rem;
         }
     }
@@ -310,7 +315,7 @@
 @endpush
 
 @section('content')
-<div class="contact-container">
+<div class="dashboard-container">
     <!-- Header -->
     <header class="dashboard-header">
         <h1 class="page-title">Kontakt & <span>Feedback</span></h1>
@@ -344,6 +349,7 @@
     @endif
 
     <!-- Contact Form -->
+    <div class="contact-form-wrapper">
     <div class="glass-tl" style="padding: 1.5rem;">
         <form method="POST" action="{{ route('contact.submit') }}" id="contactForm">
             @csrf
@@ -495,6 +501,7 @@
 
             <p class="privacy-text"><i class="bi bi-lock"></i> Deine Daten werden vertraulich behandelt und nicht an Dritte weitergegeben.</p>
         </form>
+    </div>
     </div>
 </div>
 

@@ -4,6 +4,18 @@
 
 @push('styles')
 <style>
+    .dashboard-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .dashboard-header {
+        margin-bottom: 2.5rem;
+        padding-top: 1rem;
+        max-width: 600px;
+    }
+
     .lernpool-card {
         background: white;
         border: 1px solid #e5e7eb;
@@ -119,11 +131,17 @@
         font-size: 3rem;
         margin-bottom: 1rem;
     }
+
+    @media (max-width: 768px) {
+        .dashboard-container {
+            padding: 1rem;
+        }
+    }
 </style>
 @endpush
 
 @section('content')
-<div class="container mx-auto px-4 py-8 max-w-4xl">
+<div class="dashboard-container">
     <!-- Header -->
     <div class="mb-8">
         <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ $ortsverband->name }}</h1>
