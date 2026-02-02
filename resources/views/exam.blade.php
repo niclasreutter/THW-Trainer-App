@@ -4,62 +4,18 @@
 
 @push('styles')
 <style>
-    /* Exam Page - Dark Mode Glassmorphism */
+    /* ==========================================
+       EXAM PAGE - MOBILE OPTIMIERT
+       ========================================== */
 
-    /* Mobile: Navigation & Footer ausblenden */
+    /* Mobile: App Navigation & Footer ausblenden */
     @media (max-width: 640px) {
-        /* Hide ALL navigation and header elements */
         footer, nav, header {
             display: none !important;
         }
-
-        /* Hide all nav elements specifically */
-        nav {
-            display: none !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            height: 0 !important;
-        }
-
-        nav.bottom-nav-glass {
-            display: none !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            height: 0 !important;
-            position: absolute !important;
-            bottom: auto !important;
-        }
-
-        nav.lg\\:hidden {
-            display: none !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            height: 0 !important;
-        }
-
-        /* Hide mobile header */
-        header {
-            display: none !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            height: 0 !important;
-        }
-
-        /* Fix the main layout container */
-        body > div.flex-1 {
-            min-height: auto !important;
-            height: 100dvh !important;
-        }
-
-        main {
-            padding: 0 !important;
-            padding-bottom: 0 !important;
-            height: auto !important;
-            position: static !important;
-        }
     }
 
-    /* Exam Container */
+    /* Container */
     #examContainer {
         max-width: 900px;
         margin: 0 auto;
@@ -68,13 +24,11 @@
     @media (max-width: 640px) {
         #examContainer {
             padding: 0 !important;
-            min-height: 100dvh;
-            display: flex;
-            flex-direction: column;
+            padding-bottom: 0 !important;
         }
     }
 
-    /* Question Card */
+    /* Exam Card */
     .exam-card {
         background: rgba(255, 255, 255, 0.03);
         backdrop-filter: blur(12px);
@@ -86,14 +40,10 @@
 
     @media (max-width: 640px) {
         .exam-card {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
             border-radius: 0;
             border: none;
-            height: auto;
-            min-height: auto;
-            padding-bottom: 140px; /* Platz für fixed buttons unten */
+            min-height: 100dvh;
+            padding-bottom: 160px;
         }
     }
 
@@ -104,7 +54,7 @@
         }
     }
 
-    /* Mobile Header für Exam */
+    /* Mobile Header */
     .exam-mobile-header {
         display: none;
     }
@@ -119,12 +69,8 @@
             background: rgba(255, 255, 255, 0.03);
             border-bottom: 1px solid rgba(255, 255, 255, 0.06);
             margin: -1.5rem -1.5rem 1rem -1.5rem;
-            flex-shrink: 0;
         }
-    }
 
-    /* Desktop Header ausblenden auf Mobile */
-    @media (max-width: 640px) {
         .exam-desktop-header {
             display: none !important;
         }
@@ -180,7 +126,7 @@
         border-color: var(--thw-blue);
     }
 
-    /* Exam Checkbox */
+    /* Checkbox */
     .exam-checkbox {
         appearance: none;
         -webkit-appearance: none;
@@ -212,7 +158,7 @@
         font-weight: bold;
     }
 
-    /* Question Bubbles Grid */
+    /* Question Bubbles */
     .bubbles-grid {
         display: grid;
         grid-template-columns: repeat(8, 1fr);
@@ -310,7 +256,7 @@
         opacity: 0.6;
     }
 
-    /* Progress Result Bar */
+    /* Result Bar */
     .result-bar {
         position: relative;
         height: 1.25rem;
@@ -349,131 +295,80 @@
         border-radius: 4px;
     }
 
-    /* ========== FIXED NAVIGATION BUTTONS (Mobile) ========== */
-    .exam-nav-wrapper {
-        margin-top: auto;
-        flex-shrink: 0;
-        box-sizing: border-box;
+    /* ==========================================
+       FIXIERTE NAVIGATION UNTEN (Glassmorphism)
+       ========================================== */
+
+    .exam-nav-fixed {
+        display: none;
     }
 
     @media (max-width: 640px) {
-        .exam-nav-wrapper {
-            position: fixed !important;
-            bottom: 0 !important;
-            left: 0 !important;
-            right: 0 !important;
-            z-index: 99999 !important;
-            width: 100% !important;
-            margin: 0 !important;
-            padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom, 0px)) 1rem !important;
-            background-color: rgba(15, 23, 42, 0.98) !important;
-            border-top: 1px solid rgba(255, 255, 255, 0.06) !important;
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-        }
-    }
-
-    /* Mobile: Fragenübersicht als Fullscreen Overlay */
-    @media (max-width: 640px) {
-        #overview-container {
-            position: fixed !important;
-            top: 0 !important;
-            left: 0 !important;
-            right: 0 !important;
-            bottom: 0 !important;
-            z-index: 9999 !important;
-            background: rgba(15, 23, 42, 0.98) !important;
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            padding: 1rem !important;
-            padding-top: calc(1rem + env(safe-area-inset-top, 0px)) !important;
-            padding-bottom: calc(140px + env(safe-area-inset-bottom, 0px)) !important;
-            overflow-y: auto !important;
-            margin: 0 !important;
+        .exam-nav-fixed {
+            display: block;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 9999;
+            padding: 0.75rem 1rem;
+            padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 -4px 30px rgba(0, 0, 0, 0.3);
         }
 
-        #overview-container.hidden {
-            display: none !important;
-        }
-
-        /* Close Button für Mobile Overlay */
-        .overview-close-btn {
-            display: flex !important;
-            position: absolute;
-            top: calc(0.75rem + env(safe-area-inset-top, 0px));
-            right: 1rem;
-            padding: 0.5rem;
-            color: var(--text-secondary);
-            z-index: 10;
-        }
-
-        /* Desktop: Question Overview Toggle verstecken */
-        .question-overview-toggle {
+        /* Desktop Navigation verstecken auf Mobile */
+        .exam-nav-desktop {
             display: none !important;
         }
     }
 
     @media (min-width: 641px) {
-        .overview-close-btn {
-            display: none !important;
+        .exam-nav-desktop {
+            display: flex;
         }
     }
 
-    /* Mobile Progress Stats Bar */
+    /* Mobile Stats */
     .exam-mobile-stats {
-        display: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1.5rem;
+        padding-bottom: 0.5rem;
+        margin-bottom: 0.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        font-size: 0.8rem;
     }
 
-    @media (max-width: 640px) {
-        .exam-mobile-stats {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 1rem;
-            padding: 0.5rem 0;
-            margin-bottom: 0.5rem;
-            font-size: 0.75rem;
-        }
-
-        .exam-mobile-stats .stat-item {
-            display: flex;
-            align-items: center;
-            gap: 0.25rem;
-        }
-
-        .exam-mobile-stats .stat-answered {
-            color: #4ade80;
-        }
-
-        .exam-mobile-stats .stat-open {
-            color: var(--text-secondary);
-        }
-
-        .exam-mobile-stats .stat-marked {
-            color: var(--gold);
-        }
+    .exam-mobile-stats .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
     }
 
-    /* ============================================
-       LIGHT MODE OVERRIDES
-       ============================================ */
+    .exam-mobile-stats .stat-answered { color: #4ade80; }
+    .exam-mobile-stats .stat-open { color: var(--text-secondary); }
+    .exam-mobile-stats .stat-marked { color: var(--gold); }
 
-    /* Exam Card in Light Mode */
+    /* ==========================================
+       LIGHT MODE
+       ========================================== */
+
     html.light-mode .exam-card {
         background: #ffffff !important;
-        backdrop-filter: none !important;
-        -webkit-backdrop-filter: none !important;
         border: 1px solid rgba(0, 51, 127, 0.12) !important;
-        box-shadow: 0 4px 20px rgba(0, 51, 127, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+        box-shadow: 0 4px 20px rgba(0, 51, 127, 0.08) !important;
     }
 
-    /* Mobile Header in Light Mode */
     html.light-mode .exam-mobile-header {
         background: rgba(0, 51, 127, 0.03) !important;
         border-bottom: 1px solid rgba(0, 51, 127, 0.08) !important;
     }
 
-    /* Timer in Light Mode */
     html.light-mode .exam-timer {
         background: linear-gradient(135deg, rgba(217, 119, 6, 0.12), rgba(180, 83, 9, 0.08)) !important;
         border: 1px solid rgba(217, 119, 6, 0.25) !important;
@@ -486,7 +381,6 @@
         color: #dc2626 !important;
     }
 
-    /* Answer Options in Light Mode */
     html.light-mode .exam-answer {
         background: #f8fafc !important;
         border: 2px solid rgba(0, 51, 127, 0.12) !important;
@@ -502,7 +396,6 @@
         border-color: var(--thw-blue) !important;
     }
 
-    /* Checkbox in Light Mode */
     html.light-mode .exam-checkbox {
         border: 2px solid rgba(0, 51, 127, 0.25) !important;
         background: #ffffff !important;
@@ -513,7 +406,6 @@
         border-color: var(--thw-blue) !important;
     }
 
-    /* Question Bubbles in Light Mode */
     html.light-mode .question-bubble {
         background: #f1f5f9 !important;
         border: 2px solid rgba(0, 51, 127, 0.12) !important;
@@ -541,7 +433,6 @@
         box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.2) !important;
     }
 
-    /* Mark Button in Light Mode */
     html.light-mode .mark-btn {
         background: rgba(0, 51, 127, 0.04) !important;
         border: 1px solid rgba(0, 51, 127, 0.1) !important;
@@ -559,7 +450,20 @@
         color: #b45309 !important;
     }
 
-    /* Result States in Light Mode */
+    html.light-mode .exam-nav-fixed {
+        background: rgba(255, 255, 255, 0.9) !important;
+        border-top: 1px solid rgba(0, 51, 127, 0.1) !important;
+        box-shadow: 0 -4px 30px rgba(0, 51, 127, 0.1) !important;
+    }
+
+    html.light-mode .exam-mobile-stats {
+        border-bottom-color: rgba(0, 51, 127, 0.08) !important;
+    }
+
+    html.light-mode .exam-mobile-stats .stat-open {
+        color: #64748b !important;
+    }
+
     html.light-mode .result-correct {
         background: rgba(34, 197, 94, 0.12) !important;
         border-color: rgba(34, 197, 94, 0.4) !important;
@@ -578,10 +482,8 @@
     html.light-mode .result-neutral {
         background: #f1f5f9 !important;
         border-color: rgba(0, 51, 127, 0.08) !important;
-        opacity: 0.7;
     }
 
-    /* Progress Bar in Light Mode */
     html.light-mode .progress-glass {
         background: rgba(0, 51, 127, 0.08) !important;
     }
@@ -590,79 +492,26 @@
         background: linear-gradient(90deg, #d97706, #b45309) !important;
     }
 
-    /* Fixed Navigation in Light Mode */
-    html.light-mode .exam-nav-wrapper {
-        background-color: rgba(255, 255, 255, 0.98) !important;
-        border-top: 1px solid rgba(0, 51, 127, 0.1) !important;
-    }
+    html.light-mode .text-dark-primary { color: #1e293b !important; }
+    html.light-mode .text-dark-secondary { color: #475569 !important; }
+    html.light-mode .text-dark-muted { color: #64748b !important; }
+    html.light-mode .text-gold { color: #d97706 !important; }
 
-    /* Text colors in Light Mode */
-    html.light-mode .text-dark-primary {
-        color: #1e293b !important;
-    }
-
-    html.light-mode .text-dark-secondary {
-        color: #475569 !important;
-    }
-
-    html.light-mode .text-dark-muted {
-        color: #64748b !important;
-    }
-
-    html.light-mode .text-gold {
-        color: #d97706 !important;
-    }
-
-    /* Glass-subtle in Light Mode */
     html.light-mode .glass-subtle {
         background: #f8fafc !important;
         border: 1px solid rgba(0, 51, 127, 0.08) !important;
     }
 
-    /* Border colors in Light Mode */
     html.light-mode .border-glass-subtle {
         border-color: rgba(0, 51, 127, 0.08) !important;
     }
 
-    /* Overview Legend in Light Mode */
-    html.light-mode #overview-container .text-dark-muted {
-        color: #64748b !important;
-    }
-
-    html.light-mode #overview-container .bg-success\/30 {
-        background: rgba(34, 197, 94, 0.15) !important;
-    }
-
-    html.light-mode #overview-container .border-success\/50 {
-        border-color: rgba(34, 197, 94, 0.35) !important;
-    }
-
-    html.light-mode #overview-container .bg-white\/5 {
-        background: #f1f5f9 !important;
-    }
-
-    html.light-mode #overview-container .border-white\/10 {
-        border-color: rgba(0, 51, 127, 0.1) !important;
-    }
-
-    html.light-mode #overview-container .bg-gold\/30 {
-        background: rgba(217, 119, 6, 0.15) !important;
-    }
-
-    html.light-mode #overview-container .border-gold\/50 {
-        border-color: rgba(217, 119, 6, 0.35) !important;
-    }
-
-    /* Light Mode: Overlay Background */
-    @media (max-width: 640px) {
-        html.light-mode #overview-container {
-            background: rgba(255, 255, 255, 0.98) !important;
-        }
-
-        html.light-mode .overview-close-btn {
-            color: #475569 !important;
-        }
-    }
+    html.light-mode #overview-container .bg-success\/30 { background: rgba(34, 197, 94, 0.15) !important; }
+    html.light-mode #overview-container .border-success\/50 { border-color: rgba(34, 197, 94, 0.35) !important; }
+    html.light-mode #overview-container .bg-white\/5 { background: #f1f5f9 !important; }
+    html.light-mode #overview-container .border-white\/10 { border-color: rgba(0, 51, 127, 0.1) !important; }
+    html.light-mode #overview-container .bg-gold\/30 { background: rgba(217, 119, 6, 0.15) !important; }
+    html.light-mode #overview-container .border-gold\/50 { border-color: rgba(217, 119, 6, 0.35) !important; }
 </style>
 @endpush
 
@@ -672,7 +521,7 @@
         <div class="exam-card">
             <!-- Mobile Header -->
             <div class="exam-mobile-header">
-                <a href="{{ route('dashboard') }}" class="p-2 text-dark-secondary hover:text-gold transition-colors">
+                <a href="{{ route('dashboard') }}" class="p-2 -ml-2 text-dark-secondary hover:text-gold transition-colors">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                     </svg>
@@ -685,11 +534,7 @@
                     <span id="timer-display-mobile">30:00</span>
                 </div>
 
-                <button type="button" onclick="toggleOverview()" class="p-2 text-dark-secondary hover:text-gold transition-colors">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
-                    </svg>
-                </button>
+                <span class="text-dark-muted text-sm font-medium" id="current-question-mobile">1/40</span>
             </div>
 
             <!-- Desktop Header -->
@@ -788,52 +633,28 @@
                     </div>
                 @endforeach
 
-                <!-- Navigation -->
-                <div class="exam-nav-wrapper">
-                    <!-- Mobile Stats -->
-                    <div class="exam-mobile-stats">
-                        <div class="stat-item stat-answered">
-                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                            </svg>
-                            <span id="mobile-answered-count">0</span>
-                        </div>
-                        <div class="stat-item stat-open">
-                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                            <span id="mobile-open-count">40</span>
-                        </div>
-                        <div class="stat-item stat-marked">
-                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
-                            </svg>
-                            <span id="mobile-marked-count">0</span>
-                        </div>
-                    </div>
+                <!-- Desktop Navigation -->
+                <div class="exam-nav-desktop flex items-center justify-between gap-3 pt-4 border-t border-glass-subtle">
+                    <button type="button"
+                            onclick="previousQuestion()"
+                            id="prev-btn"
+                            class="btn-ghost px-4 py-2"
+                            disabled>
+                        Zurück
+                    </button>
 
-                    <div class="flex items-center justify-between gap-3 pt-3 sm:pt-4 border-t border-glass-subtle">
-                        <button type="button"
-                                onclick="previousQuestion()"
-                                id="prev-btn"
-                                class="btn-ghost px-4 py-2"
-                                disabled>
-                            Zurück
-                        </button>
+                    <span class="text-dark-muted text-sm font-medium" id="current-question">1/40</span>
 
-                        <span class="text-dark-muted text-sm font-medium" id="current-question">1/40</span>
-
-                        <button type="button"
-                                onclick="nextQuestion()"
-                                id="next-btn"
-                                class="btn-secondary px-4 py-2">
-                            Weiter
-                        </button>
-                    </div>
+                    <button type="button"
+                            onclick="nextQuestion()"
+                            id="next-btn"
+                            class="btn-secondary px-4 py-2">
+                        Weiter
+                    </button>
                 </div>
 
-                <!-- Question Overview Toggle (Desktop only) -->
-                <div class="question-overview-toggle mt-6 pt-4 border-t border-glass-subtle">
+                <!-- Question Overview Toggle -->
+                <div class="mt-6 pt-4 border-t border-glass-subtle">
                     <button type="button"
                             onclick="toggleOverview()"
                             class="w-full flex items-center justify-between text-sm text-dark-secondary hover:text-gold transition-colors p-2 rounded-lg hover:bg-white/5">
@@ -842,53 +663,85 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                         </svg>
                     </button>
+
+                    <div id="overview-container" class="hidden mt-4">
+                        <!-- Legend -->
+                        <div class="flex flex-wrap gap-4 text-xs mb-4">
+                            <div class="flex items-center gap-1.5">
+                                <div class="w-3 h-3 rounded bg-success/30 border border-success/50"></div>
+                                <span class="text-dark-muted">Beantwortet</span>
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <div class="w-3 h-3 rounded bg-white/5 border border-white/10"></div>
+                                <span class="text-dark-muted">Offen</span>
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <div class="w-3 h-3 rounded bg-gold/30 border border-gold/50"></div>
+                                <span class="text-dark-muted">Markiert</span>
+                            </div>
+                        </div>
+
+                        <!-- Bubbles Grid -->
+                        <div class="bubbles-grid">
+                            @for($i = 0; $i < 40; $i++)
+                                <button type="button"
+                                        onclick="goToQuestion({{ $i }})"
+                                        id="bubble-{{ $i }}"
+                                        class="question-bubble {{ $i === 0 ? 'current' : '' }}">
+                                    {{ $i + 1 }}
+                                </button>
+                            @endfor
+                        </div>
+                    </div>
                 </div>
             </form>
+        </div>
 
-            <!-- Fragenübersicht Overlay (Mobile: Fullscreen, Desktop: Inline) -->
-            <div id="overview-container" class="hidden mt-4">
-                <!-- Mobile Close Button -->
-                <button type="button" onclick="toggleOverview()" class="overview-close-btn">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        <!-- FIXIERTE MOBILE NAVIGATION (Glassmorphism) -->
+        <div class="exam-nav-fixed">
+            <!-- Stats -->
+            <div class="exam-mobile-stats">
+                <div class="stat-item stat-answered">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                     </svg>
+                    <span id="mobile-answered-count">0</span>
+                </div>
+                <div class="stat-item stat-open">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <span id="mobile-open-count">40</span>
+                </div>
+                <div class="stat-item stat-marked">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
+                    </svg>
+                    <span id="mobile-marked-count">0</span>
+                </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="flex items-center justify-between gap-3">
+                <button type="button"
+                        onclick="previousQuestion()"
+                        id="prev-btn-mobile"
+                        class="btn-ghost px-4 py-2.5 flex-1"
+                        disabled>
+                    Zurück
                 </button>
 
-                <!-- Title (Mobile) -->
-                <h2 class="text-lg font-bold text-dark-primary mb-4 sm:hidden">Fragenübersicht</h2>
-
-                <!-- Legend -->
-                <div class="flex flex-wrap gap-4 text-xs mb-4">
-                    <div class="flex items-center gap-1.5">
-                        <div class="w-3 h-3 rounded bg-success/30 border border-success/50"></div>
-                        <span class="text-dark-muted">Beantwortet</span>
-                    </div>
-                    <div class="flex items-center gap-1.5">
-                        <div class="w-3 h-3 rounded bg-white/5 border border-white/10"></div>
-                        <span class="text-dark-muted">Offen</span>
-                    </div>
-                    <div class="flex items-center gap-1.5">
-                        <div class="w-3 h-3 rounded bg-gold/30 border border-gold/50"></div>
-                        <span class="text-dark-muted">Markiert</span>
-                    </div>
-                </div>
-
-                <!-- Bubbles Grid -->
-                <div class="bubbles-grid">
-                    @for($i = 0; $i < 40; $i++)
-                        <button type="button"
-                                onclick="goToQuestion({{ $i }}); toggleOverview();"
-                                id="bubble-{{ $i }}"
-                                class="question-bubble {{ $i === 0 ? 'current' : '' }}">
-                            {{ $i + 1 }}
-                        </button>
-                    @endfor
-                </div>
+                <button type="button"
+                        onclick="nextQuestion()"
+                        id="next-btn-mobile"
+                        class="btn-secondary px-4 py-2.5 flex-1">
+                    Weiter
+                </button>
             </div>
         </div>
 
         <script>
-            // State Management
+            // State
             let currentQuestion = 0;
             const totalQuestions = {{ count($fragen) }};
             let answers = new Array(totalQuestions).fill(false);
@@ -909,7 +762,6 @@
                 if (timerDisplay) timerDisplay.textContent = timeString;
                 if (timerDisplayMobile) timerDisplayMobile.textContent = timeString;
 
-                // Warning at 5 minutes
                 if (timeLeft <= 300) {
                     if (timerEl) timerEl.classList.add('warning');
                     if (timerElMobile) timerElMobile.classList.add('warning');
@@ -926,7 +778,7 @@
             }
             updateTimer();
 
-            // Mobile Stats Update
+            // Mobile Stats
             function updateMobileStats() {
                 const answeredCount = answers.filter(a => a).length;
                 const openCount = totalQuestions - answeredCount;
@@ -950,23 +802,22 @@
                 currentQuestion = index;
 
                 // Update UI
-                document.getElementById('current-question').textContent = `${index + 1}/40`;
+                const questionText = `${index + 1}/40`;
+                document.getElementById('current-question').textContent = questionText;
+                document.getElementById('current-question-mobile').textContent = questionText;
+
                 document.getElementById('prev-btn').disabled = index === 0;
+                document.getElementById('prev-btn-mobile').disabled = index === 0;
 
                 // Update next button text
-                const nextBtn = document.getElementById('next-btn');
-                if (index === totalQuestions - 1) {
-                    nextBtn.textContent = 'Abschließen';
-                } else {
-                    nextBtn.textContent = 'Weiter';
-                }
+                const isLast = index === totalQuestions - 1;
+                document.getElementById('next-btn').textContent = isLast ? 'Abschließen' : 'Weiter';
+                document.getElementById('next-btn-mobile').textContent = isLast ? 'Abschließen' : 'Weiter';
 
                 // Update bubbles
                 document.querySelectorAll('.question-bubble').forEach((bubble, i) => {
                     bubble.classList.remove('current');
-                    if (i === index) {
-                        bubble.classList.add('current');
-                    }
+                    if (i === index) bubble.classList.add('current');
                 });
 
                 window.scrollTo(0, 0);
@@ -994,11 +845,7 @@
             function updateAnswerStyle(label, questionIndex) {
                 const checkbox = label.querySelector('input[type="checkbox"]');
                 setTimeout(() => {
-                    if (checkbox.checked) {
-                        label.classList.add('selected');
-                    } else {
-                        label.classList.remove('selected');
-                    }
+                    label.classList.toggle('selected', checkbox.checked);
                 }, 0);
             }
 
@@ -1015,14 +862,8 @@
                     bubble.classList.remove('answered');
                 }
 
-                // Update label styles
                 checkboxes.forEach(cb => {
-                    const label = cb.closest('.exam-answer');
-                    if (cb.checked) {
-                        label.classList.add('selected');
-                    } else {
-                        label.classList.remove('selected');
-                    }
+                    cb.closest('.exam-answer').classList.toggle('selected', cb.checked);
                 });
 
                 updateProgress();
@@ -1044,12 +885,9 @@
                     bubble.classList.remove('marked');
                     btn.classList.remove('active');
                     text.textContent = 'Markieren';
-                    if (answers[index]) {
-                        bubble.classList.add('answered');
-                    }
+                    if (answers[index]) bubble.classList.add('answered');
                 }
 
-                // Update mobile stats
                 updateMobileStats();
             }
 
@@ -1061,7 +899,6 @@
                 document.getElementById('progress-text').textContent = `${answeredCount}/40 beantwortet`;
                 document.getElementById('progress-bar').style.width = `${percent}%`;
 
-                // Update mobile stats
                 updateMobileStats();
             }
 
@@ -1089,12 +926,10 @@
                 const markedCount = marked.filter(m => m).length;
                 const answeredCount = answers.filter(a => a).length;
 
-                // Hide all questions
                 document.querySelectorAll('.question-slide').forEach(slide => {
                     slide.style.display = 'none';
                 });
 
-                // Create overview
                 let message = `<div class="question-slide" id="submit-overview" style="display: block;">`;
                 message += `<div class="text-center py-8">`;
                 message += `<h2 class="text-2xl font-bold text-dark-primary mb-4">Prüfung abschließen?</h2>`;
@@ -1115,27 +950,20 @@
                 message += `<button type="button" onclick="backToPrüfung()" class="btn-ghost py-3">Zurück zur Prüfung</button>`;
                 message += `<button type="button" onclick="confirmSubmit()" class="btn-primary py-3">Prüfung abgeben</button>`;
                 message += `</div>`;
-                message += `</div>`;
-                message += `</div>`;
+                message += `</div></div>`;
 
-                // Add to form
                 const form = document.getElementById('exam-form');
                 const existingOverview = document.getElementById('submit-overview');
-                if (existingOverview) {
-                    existingOverview.remove();
-                }
+                if (existingOverview) existingOverview.remove();
                 form.insertAdjacentHTML('beforeend', message);
 
-                // Hide navigation
-                document.querySelector('.border-t.border-glass-subtle').style.display = 'none';
+                document.querySelector('.exam-nav-desktop').style.display = 'none';
             }
 
             function backToPrüfung() {
                 const overview = document.getElementById('submit-overview');
-                if (overview) {
-                    overview.remove();
-                }
-                document.querySelector('.border-t.border-glass-subtle').style.display = 'flex';
+                if (overview) overview.remove();
+                document.querySelector('.exam-nav-desktop').style.display = 'flex';
                 showQuestion(currentQuestion);
             }
 
@@ -1143,7 +971,7 @@
                 document.getElementById('exam-form').submit();
             }
 
-            // Initial state
+            // Initial
             updateProgress();
             updateMobileStats();
         </script>
@@ -1185,7 +1013,6 @@
                     $percent = $total > 0 ? round($correctCount / $total * 100) : 0;
                 @endphp
 
-                <!-- Result Progress Bar -->
                 <div class="max-w-md mx-auto mb-4">
                     <div class="result-bar">
                         <div class="result-bar-fill" style="width: {{ $percent }}%;"></div>
@@ -1199,14 +1026,12 @@
                 </p>
             </div>
 
-            <!-- Action Button -->
             <div class="flex justify-center mb-8">
                 <a href="{{ route('dashboard') }}" class="btn-secondary px-8 py-3">
                     Zum Dashboard
                 </a>
             </div>
 
-            <!-- Detailed Results -->
             <div class="border-t border-glass-subtle pt-6">
                 <h3 class="text-lg font-bold text-dark-primary mb-4">Detaillierte Auswertung</h3>
 
@@ -1242,7 +1067,6 @@
                         @endphp
 
                         <div class="glass-subtle p-4 rounded-xl {{ $isCorrect ? 'border-l-4 border-l-success' : 'border-l-4 border-l-error' }}">
-                            <!-- Question Header -->
                             <div class="flex items-start gap-3 mb-3">
                                 <span class="text-2xl">{{ $isCorrect ? '✅' : '❌' }}</span>
                                 <div class="flex-1">
@@ -1255,7 +1079,6 @@
                                 </div>
                             </div>
 
-                            <!-- Answers -->
                             <div class="flex flex-col gap-2 ml-9">
                                 @foreach($displayAnswers as $answerIndex => $answer)
                                     @php
@@ -1296,7 +1119,6 @@
                                 @endforeach
                             </div>
 
-                            <!-- Summary -->
                             <div class="mt-3 pt-3 border-t border-glass-subtle flex items-center justify-between text-xs ml-9">
                                 <span class="{{ $isCorrect ? 'text-success' : 'text-error' }} font-medium">
                                     {{ $isCorrect ? '✓ Richtig' : '✗ Falsch' }}
