@@ -359,17 +359,63 @@
     @media (max-width: 640px) {
         .exam-nav-wrapper {
             position: fixed !important;
-            bottom: env(safe-area-inset-bottom, 0px) !important;
+            bottom: 0 !important;
             left: 0 !important;
             right: 0 !important;
-            z-index: 9999 !important;
+            z-index: 99999 !important;
             width: 100% !important;
             margin: 0 !important;
-            padding: 0.75rem 1rem calc(1rem + env(safe-area-inset-bottom, 0px)) 1rem !important;
+            padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom, 0px)) 1rem !important;
             background-color: rgba(15, 23, 42, 0.98) !important;
             border-top: 1px solid rgba(255, 255, 255, 0.06) !important;
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
+        }
+    }
+
+    /* Mobile: Fragenübersicht als Fullscreen Overlay */
+    @media (max-width: 640px) {
+        #overview-container {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            z-index: 9999 !important;
+            background: rgba(15, 23, 42, 0.98) !important;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 1rem !important;
+            padding-top: calc(1rem + env(safe-area-inset-top, 0px)) !important;
+            padding-bottom: calc(140px + env(safe-area-inset-bottom, 0px)) !important;
+            overflow-y: auto !important;
+            margin: 0 !important;
+        }
+
+        #overview-container.hidden {
+            display: none !important;
+        }
+
+        /* Close Button für Mobile Overlay */
+        .overview-close-btn {
+            display: flex !important;
+            position: absolute;
+            top: calc(0.75rem + env(safe-area-inset-top, 0px));
+            right: 1rem;
+            padding: 0.5rem;
+            color: var(--text-secondary);
+            z-index: 10;
+        }
+
+        /* Desktop: Question Overview Toggle verstecken */
+        .question-overview-toggle {
+            display: none !important;
+        }
+    }
+
+    @media (min-width: 641px) {
+        .overview-close-btn {
+            display: none !important;
         }
     }
 
@@ -606,6 +652,17 @@
     html.light-mode #overview-container .border-gold\/50 {
         border-color: rgba(217, 119, 6, 0.35) !important;
     }
+
+    /* Light Mode: Overlay Background */
+    @media (max-width: 640px) {
+        html.light-mode #overview-container {
+            background: rgba(255, 255, 255, 0.98) !important;
+        }
+
+        html.light-mode .overview-close-btn {
+            color: #475569 !important;
+        }
+    }
 </style>
 @endpush
 
@@ -775,8 +832,8 @@
                     </div>
                 </div>
 
-                <!-- Question Overview Toggle -->
-                <div class="mt-6 pt-4 border-t border-glass-subtle">
+                <!-- Question Overview Toggle (Desktop only) -->
+                <div class="question-overview-toggle mt-6 pt-4 border-t border-glass-subtle">
                     <button type="button"
                             onclick="toggleOverview()"
                             class="w-full flex items-center justify-between text-sm text-dark-secondary hover:text-gold transition-colors p-2 rounded-lg hover:bg-white/5">
@@ -785,38 +842,49 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                         </svg>
                     </button>
-
-                    <div id="overview-container" class="hidden mt-4">
-                        <!-- Legend -->
-                        <div class="flex flex-wrap gap-4 text-xs mb-4">
-                            <div class="flex items-center gap-1.5">
-                                <div class="w-3 h-3 rounded bg-success/30 border border-success/50"></div>
-                                <span class="text-dark-muted">Beantwortet</span>
-                            </div>
-                            <div class="flex items-center gap-1.5">
-                                <div class="w-3 h-3 rounded bg-white/5 border border-white/10"></div>
-                                <span class="text-dark-muted">Offen</span>
-                            </div>
-                            <div class="flex items-center gap-1.5">
-                                <div class="w-3 h-3 rounded bg-gold/30 border border-gold/50"></div>
-                                <span class="text-dark-muted">Markiert</span>
-                            </div>
-                        </div>
-
-                        <!-- Bubbles Grid -->
-                        <div class="bubbles-grid">
-                            @for($i = 0; $i < 40; $i++)
-                                <button type="button"
-                                        onclick="goToQuestion({{ $i }})"
-                                        id="bubble-{{ $i }}"
-                                        class="question-bubble {{ $i === 0 ? 'current' : '' }}">
-                                    {{ $i + 1 }}
-                                </button>
-                            @endfor
-                        </div>
-                    </div>
                 </div>
             </form>
+
+            <!-- Fragenübersicht Overlay (Mobile: Fullscreen, Desktop: Inline) -->
+            <div id="overview-container" class="hidden mt-4">
+                <!-- Mobile Close Button -->
+                <button type="button" onclick="toggleOverview()" class="overview-close-btn">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+
+                <!-- Title (Mobile) -->
+                <h2 class="text-lg font-bold text-dark-primary mb-4 sm:hidden">Fragenübersicht</h2>
+
+                <!-- Legend -->
+                <div class="flex flex-wrap gap-4 text-xs mb-4">
+                    <div class="flex items-center gap-1.5">
+                        <div class="w-3 h-3 rounded bg-success/30 border border-success/50"></div>
+                        <span class="text-dark-muted">Beantwortet</span>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <div class="w-3 h-3 rounded bg-white/5 border border-white/10"></div>
+                        <span class="text-dark-muted">Offen</span>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <div class="w-3 h-3 rounded bg-gold/30 border border-gold/50"></div>
+                        <span class="text-dark-muted">Markiert</span>
+                    </div>
+                </div>
+
+                <!-- Bubbles Grid -->
+                <div class="bubbles-grid">
+                    @for($i = 0; $i < 40; $i++)
+                        <button type="button"
+                                onclick="goToQuestion({{ $i }}); toggleOverview();"
+                                id="bubble-{{ $i }}"
+                                class="question-bubble {{ $i === 0 ? 'current' : '' }}">
+                            {{ $i + 1 }}
+                        </button>
+                    @endfor
+                </div>
+            </div>
         </div>
 
         <script>
