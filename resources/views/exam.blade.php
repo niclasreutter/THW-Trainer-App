@@ -19,10 +19,6 @@
             padding: 0 !important;
             margin: 0 !important;
         }
-
-        body {
-            background: var(--bg-primary) !important;
-        }
     }
 
     /* Container */
@@ -56,7 +52,9 @@
             min-height: 100dvh;
             padding-bottom: 160px;
             margin: 0;
-            background: var(--bg-primary);
+            background: #0f172a;
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
         }
     }
 
@@ -326,10 +324,10 @@
             z-index: 9999;
             padding: 0.75rem 1rem;
             padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
-            background: rgba(15, 23, 42, 0.65);
-            backdrop-filter: blur(16px) saturate(180%);
-            -webkit-backdrop-filter: blur(16px) saturate(180%);
-            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(15, 23, 42, 0.7) !important;
+            -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+            backdrop-filter: blur(20px) saturate(180%) !important;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         /* Desktop Navigation verstecken auf Mobile */
@@ -378,7 +376,7 @@
 
     @media (max-width: 640px) {
         html.light-mode .exam-card {
-            background: var(--bg-primary) !important;
+            background: #f8fafc !important;
             border: none !important;
             box-shadow: none !important;
         }
@@ -471,7 +469,9 @@
     }
 
     html.light-mode .exam-nav-fixed {
-        background: rgba(255, 255, 255, 0.7) !important;
+        background: rgba(248, 250, 252, 0.75) !important;
+        -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+        backdrop-filter: blur(20px) saturate(180%) !important;
         border-top: 1px solid rgba(0, 51, 127, 0.1) !important;
     }
 
