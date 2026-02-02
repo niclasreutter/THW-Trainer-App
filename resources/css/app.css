@@ -840,8 +840,10 @@
     /* --- Sidebar Layout --- */
 
     .sidebar-glass {
-        background: var(--bg-elevated);
-        border-right: 1px solid rgba(255, 255, 255, 0.06);
+        background: rgba(10, 10, 11, 0.5);
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
+        backdrop-filter: blur(20px) saturate(180%);
+        border-right: 1px solid rgba(255, 255, 255, 0.08);
     }
 
     .sidebar-link {
@@ -906,12 +908,12 @@
         border-bottom: 1px solid rgba(255, 255, 255, 0.06);
     }
 
-    /* Bottom Navigation (Mobile) */
+    /* Bottom Navigation (Mobile) - Glassmorphism */
     .bottom-nav-glass {
-        background: var(--bg-elevated);
-        backdrop-filter: blur(var(--glass-blur-lg));
-        -webkit-backdrop-filter: blur(var(--glass-blur-lg));
-        border-top: 1px solid rgba(255, 255, 255, 0.06);
+        background: rgba(10, 10, 11, 0.5);
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
+        backdrop-filter: blur(20px) saturate(180%);
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
     }
 
     .bottom-nav-item {
@@ -1936,7 +1938,9 @@ html.light-mode .section-link:hover {
 
 /* Sidebar in light mode */
 html.light-mode .sidebar-glass {
-    background: #ffffff !important;
+    background: rgba(243, 244, 246, 0.5) !important;
+    -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+    backdrop-filter: blur(20px) saturate(180%) !important;
     border-right: 1px solid rgba(0, 51, 127, 0.08) !important;
 }
 
@@ -1973,7 +1977,9 @@ html.light-mode .mobile-header-glass {
 
 /* Bottom nav in light mode */
 html.light-mode .bottom-nav-glass {
-    background: #ffffff !important;
+    background: rgba(243, 244, 246, 0.5) !important;
+    -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+    backdrop-filter: blur(20px) saturate(180%) !important;
     border-top: 1px solid rgba(0, 51, 127, 0.08) !important;
 }
 
