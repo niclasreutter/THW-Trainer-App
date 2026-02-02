@@ -326,11 +326,10 @@
             z-index: 9999;
             padding: 0.75rem 1rem;
             padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
-            background: rgba(15, 23, 42, 0.85);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 -4px 30px rgba(0, 0, 0, 0.3);
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(16px) saturate(180%);
+            -webkit-backdrop-filter: blur(16px) saturate(180%);
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
         }
 
         /* Desktop Navigation verstecken auf Mobile */
@@ -472,9 +471,8 @@
     }
 
     html.light-mode .exam-nav-fixed {
-        background: rgba(255, 255, 255, 0.9) !important;
+        background: rgba(255, 255, 255, 0.7) !important;
         border-top: 1px solid rgba(0, 51, 127, 0.1) !important;
-        box-shadow: 0 -4px 30px rgba(0, 51, 127, 0.1) !important;
     }
 
     html.light-mode .exam-mobile-stats {
