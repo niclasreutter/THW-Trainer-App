@@ -6,14 +6,56 @@
 <style>
     /* Exam Page - Dark Mode Glassmorphism */
 
-    /* Mobile: Footer verstecken */
+    /* Mobile: Navigation & Footer ausblenden */
     @media (max-width: 640px) {
-        footer {
+        /* Hide ALL navigation and header elements */
+        footer, nav, header {
             display: none !important;
         }
 
+        /* Hide all nav elements specifically */
+        nav {
+            display: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            height: 0 !important;
+        }
+
+        nav.bottom-nav-glass {
+            display: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            height: 0 !important;
+            position: absolute !important;
+            bottom: auto !important;
+        }
+
+        nav.lg\\:hidden {
+            display: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            height: 0 !important;
+        }
+
+        /* Hide mobile header */
+        header {
+            display: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            height: 0 !important;
+        }
+
+        /* Fix the main layout container */
+        body > div.flex-1 {
+            min-height: auto !important;
+            height: 100dvh !important;
+        }
+
         main {
-            padding-bottom: calc(80px + env(safe-area-inset-bottom, 40px)) !important;
+            padding: 0 !important;
+            padding-bottom: 0 !important;
+            height: auto !important;
+            position: static !important;
         }
     }
 
@@ -21,6 +63,15 @@
     #examContainer {
         max-width: 900px;
         margin: 0 auto;
+    }
+
+    @media (max-width: 640px) {
+        #examContainer {
+            padding: 0 !important;
+            min-height: 100dvh;
+            display: flex;
+            flex-direction: column;
+        }
     }
 
     /* Question Card */
@@ -33,10 +84,49 @@
         padding: 1.5rem;
     }
 
+    @media (max-width: 640px) {
+        .exam-card {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            border-radius: 0;
+            border: none;
+            height: auto;
+            min-height: auto;
+            padding-bottom: 140px; /* Platz für fixed buttons unten */
+        }
+    }
+
     @media (min-width: 641px) {
         .exam-card {
             padding: 2rem;
             border-radius: 8px 24px 8px 24px;
+        }
+    }
+
+    /* Mobile Header für Exam */
+    .exam-mobile-header {
+        display: none;
+    }
+
+    @media (max-width: 640px) {
+        .exam-mobile-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 1rem;
+            padding-top: calc(0.75rem + env(safe-area-inset-top, 0px));
+            background: rgba(255, 255, 255, 0.03);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            margin: -1.5rem -1.5rem 1rem -1.5rem;
+            flex-shrink: 0;
+        }
+    }
+
+    /* Desktop Header ausblenden auf Mobile */
+    @media (max-width: 640px) {
+        .exam-desktop-header {
+            display: none !important;
         }
     }
 
@@ -258,6 +348,264 @@
         padding: 0.125rem 0.375rem;
         border-radius: 4px;
     }
+
+    /* ========== FIXED NAVIGATION BUTTONS (Mobile) ========== */
+    .exam-nav-wrapper {
+        margin-top: auto;
+        flex-shrink: 0;
+        box-sizing: border-box;
+    }
+
+    @media (max-width: 640px) {
+        .exam-nav-wrapper {
+            position: fixed !important;
+            bottom: env(safe-area-inset-bottom, 0px) !important;
+            left: 0 !important;
+            right: 0 !important;
+            z-index: 9999 !important;
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 0.75rem 1rem calc(1rem + env(safe-area-inset-bottom, 0px)) 1rem !important;
+            background-color: rgba(15, 23, 42, 0.98) !important;
+            border-top: 1px solid rgba(255, 255, 255, 0.06) !important;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+    }
+
+    /* Mobile Progress Stats Bar */
+    .exam-mobile-stats {
+        display: none;
+    }
+
+    @media (max-width: 640px) {
+        .exam-mobile-stats {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            padding: 0.5rem 0;
+            margin-bottom: 0.5rem;
+            font-size: 0.75rem;
+        }
+
+        .exam-mobile-stats .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .exam-mobile-stats .stat-answered {
+            color: #4ade80;
+        }
+
+        .exam-mobile-stats .stat-open {
+            color: var(--text-secondary);
+        }
+
+        .exam-mobile-stats .stat-marked {
+            color: var(--gold);
+        }
+    }
+
+    /* ============================================
+       LIGHT MODE OVERRIDES
+       ============================================ */
+
+    /* Exam Card in Light Mode */
+    html.light-mode .exam-card {
+        background: #ffffff !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        border: 1px solid rgba(0, 51, 127, 0.12) !important;
+        box-shadow: 0 4px 20px rgba(0, 51, 127, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+    }
+
+    /* Mobile Header in Light Mode */
+    html.light-mode .exam-mobile-header {
+        background: rgba(0, 51, 127, 0.03) !important;
+        border-bottom: 1px solid rgba(0, 51, 127, 0.08) !important;
+    }
+
+    /* Timer in Light Mode */
+    html.light-mode .exam-timer {
+        background: linear-gradient(135deg, rgba(217, 119, 6, 0.12), rgba(180, 83, 9, 0.08)) !important;
+        border: 1px solid rgba(217, 119, 6, 0.25) !important;
+        color: #b45309 !important;
+    }
+
+    html.light-mode .exam-timer.warning {
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(239, 68, 68, 0.08)) !important;
+        border-color: rgba(239, 68, 68, 0.3) !important;
+        color: #dc2626 !important;
+    }
+
+    /* Answer Options in Light Mode */
+    html.light-mode .exam-answer {
+        background: #f8fafc !important;
+        border: 2px solid rgba(0, 51, 127, 0.12) !important;
+    }
+
+    html.light-mode .exam-answer:hover {
+        background: rgba(0, 51, 127, 0.06) !important;
+        border-color: rgba(0, 51, 127, 0.3) !important;
+    }
+
+    html.light-mode .exam-answer.selected {
+        background: rgba(0, 51, 127, 0.1) !important;
+        border-color: var(--thw-blue) !important;
+    }
+
+    /* Checkbox in Light Mode */
+    html.light-mode .exam-checkbox {
+        border: 2px solid rgba(0, 51, 127, 0.25) !important;
+        background: #ffffff !important;
+    }
+
+    html.light-mode .exam-checkbox:checked {
+        background: var(--thw-blue) !important;
+        border-color: var(--thw-blue) !important;
+    }
+
+    /* Question Bubbles in Light Mode */
+    html.light-mode .question-bubble {
+        background: #f1f5f9 !important;
+        border: 2px solid rgba(0, 51, 127, 0.12) !important;
+        color: #475569 !important;
+    }
+
+    html.light-mode .question-bubble:hover {
+        border-color: rgba(217, 119, 6, 0.4) !important;
+    }
+
+    html.light-mode .question-bubble.answered {
+        background: rgba(34, 197, 94, 0.15) !important;
+        border-color: rgba(34, 197, 94, 0.4) !important;
+        color: #16a34a !important;
+    }
+
+    html.light-mode .question-bubble.marked {
+        background: rgba(217, 119, 6, 0.12) !important;
+        border-color: rgba(217, 119, 6, 0.4) !important;
+        color: #b45309 !important;
+    }
+
+    html.light-mode .question-bubble.current {
+        border-color: #d97706 !important;
+        box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.2) !important;
+    }
+
+    /* Mark Button in Light Mode */
+    html.light-mode .mark-btn {
+        background: rgba(0, 51, 127, 0.04) !important;
+        border: 1px solid rgba(0, 51, 127, 0.1) !important;
+        color: #475569 !important;
+    }
+
+    html.light-mode .mark-btn:hover {
+        background: rgba(217, 119, 6, 0.08) !important;
+        border-color: rgba(217, 119, 6, 0.25) !important;
+    }
+
+    html.light-mode .mark-btn.active {
+        background: rgba(217, 119, 6, 0.15) !important;
+        border-color: #d97706 !important;
+        color: #b45309 !important;
+    }
+
+    /* Result States in Light Mode */
+    html.light-mode .result-correct {
+        background: rgba(34, 197, 94, 0.12) !important;
+        border-color: rgba(34, 197, 94, 0.4) !important;
+    }
+
+    html.light-mode .result-correct-missed {
+        background: rgba(34, 197, 94, 0.06) !important;
+        border-color: rgba(34, 197, 94, 0.25) !important;
+    }
+
+    html.light-mode .result-wrong {
+        background: rgba(239, 68, 68, 0.12) !important;
+        border-color: rgba(239, 68, 68, 0.4) !important;
+    }
+
+    html.light-mode .result-neutral {
+        background: #f1f5f9 !important;
+        border-color: rgba(0, 51, 127, 0.08) !important;
+        opacity: 0.7;
+    }
+
+    /* Progress Bar in Light Mode */
+    html.light-mode .progress-glass {
+        background: rgba(0, 51, 127, 0.08) !important;
+    }
+
+    html.light-mode .progress-fill-gold {
+        background: linear-gradient(90deg, #d97706, #b45309) !important;
+    }
+
+    /* Fixed Navigation in Light Mode */
+    html.light-mode .exam-nav-wrapper {
+        background-color: rgba(255, 255, 255, 0.98) !important;
+        border-top: 1px solid rgba(0, 51, 127, 0.1) !important;
+    }
+
+    /* Text colors in Light Mode */
+    html.light-mode .text-dark-primary {
+        color: #1e293b !important;
+    }
+
+    html.light-mode .text-dark-secondary {
+        color: #475569 !important;
+    }
+
+    html.light-mode .text-dark-muted {
+        color: #64748b !important;
+    }
+
+    html.light-mode .text-gold {
+        color: #d97706 !important;
+    }
+
+    /* Glass-subtle in Light Mode */
+    html.light-mode .glass-subtle {
+        background: #f8fafc !important;
+        border: 1px solid rgba(0, 51, 127, 0.08) !important;
+    }
+
+    /* Border colors in Light Mode */
+    html.light-mode .border-glass-subtle {
+        border-color: rgba(0, 51, 127, 0.08) !important;
+    }
+
+    /* Overview Legend in Light Mode */
+    html.light-mode #overview-container .text-dark-muted {
+        color: #64748b !important;
+    }
+
+    html.light-mode #overview-container .bg-success\/30 {
+        background: rgba(34, 197, 94, 0.15) !important;
+    }
+
+    html.light-mode #overview-container .border-success\/50 {
+        border-color: rgba(34, 197, 94, 0.35) !important;
+    }
+
+    html.light-mode #overview-container .bg-white\/5 {
+        background: #f1f5f9 !important;
+    }
+
+    html.light-mode #overview-container .border-white\/10 {
+        border-color: rgba(0, 51, 127, 0.1) !important;
+    }
+
+    html.light-mode #overview-container .bg-gold\/30 {
+        background: rgba(217, 119, 6, 0.15) !important;
+    }
+
+    html.light-mode #overview-container .border-gold\/50 {
+        border-color: rgba(217, 119, 6, 0.35) !important;
+    }
 </style>
 @endpush
 
@@ -265,8 +613,30 @@
 <div class="p-4 sm:p-6 sm:py-8" id="examContainer">
     @if(!isset($submitted))
         <div class="exam-card">
-            <!-- Header -->
-            <div class="flex items-center justify-between mb-6">
+            <!-- Mobile Header -->
+            <div class="exam-mobile-header">
+                <a href="{{ route('dashboard') }}" class="p-2 text-dark-secondary hover:text-gold transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                    </svg>
+                </a>
+
+                <div class="exam-timer" id="exam-timer-mobile">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <span id="timer-display-mobile">30:00</span>
+                </div>
+
+                <button type="button" onclick="toggleOverview()" class="p-2 text-dark-secondary hover:text-gold transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Desktop Header -->
+            <div class="exam-desktop-header flex items-center justify-between mb-6">
                 <div>
                     <h1 class="text-xl font-bold text-dark-primary">THW Prüfung</h1>
                     <p class="text-dark-muted text-sm">40 Fragen in 30 Minuten</p>
@@ -362,23 +732,47 @@
                 @endforeach
 
                 <!-- Navigation -->
-                <div class="flex items-center justify-between gap-3 pt-4 border-t border-glass-subtle">
-                    <button type="button"
-                            onclick="previousQuestion()"
-                            id="prev-btn"
-                            class="btn-ghost px-4 py-2"
-                            disabled>
-                        Zurück
-                    </button>
+                <div class="exam-nav-wrapper">
+                    <!-- Mobile Stats -->
+                    <div class="exam-mobile-stats">
+                        <div class="stat-item stat-answered">
+                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                            <span id="mobile-answered-count">0</span>
+                        </div>
+                        <div class="stat-item stat-open">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <span id="mobile-open-count">40</span>
+                        </div>
+                        <div class="stat-item stat-marked">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
+                            </svg>
+                            <span id="mobile-marked-count">0</span>
+                        </div>
+                    </div>
 
-                    <span class="text-dark-muted text-sm font-medium" id="current-question">1/40</span>
+                    <div class="flex items-center justify-between gap-3 pt-3 sm:pt-4 border-t border-glass-subtle">
+                        <button type="button"
+                                onclick="previousQuestion()"
+                                id="prev-btn"
+                                class="btn-ghost px-4 py-2"
+                                disabled>
+                            Zurück
+                        </button>
 
-                    <button type="button"
-                            onclick="nextQuestion()"
-                            id="next-btn"
-                            class="btn-secondary px-4 py-2">
-                        Weiter
-                    </button>
+                        <span class="text-dark-muted text-sm font-medium" id="current-question">1/40</span>
+
+                        <button type="button"
+                                onclick="nextQuestion()"
+                                id="next-btn"
+                                class="btn-secondary px-4 py-2">
+                            Weiter
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Question Overview Toggle -->
@@ -435,20 +829,27 @@
 
             // Timer
             const timerEl = document.getElementById('exam-timer');
+            const timerElMobile = document.getElementById('exam-timer-mobile');
             const timerDisplay = document.getElementById('timer-display');
+            const timerDisplayMobile = document.getElementById('timer-display-mobile');
 
             function updateTimer() {
                 const min = Math.floor(timeLeft / 60).toString().padStart(2, '0');
                 const sec = (timeLeft % 60).toString().padStart(2, '0');
-                timerDisplay.textContent = `${min}:${sec}`;
+                const timeString = `${min}:${sec}`;
+
+                if (timerDisplay) timerDisplay.textContent = timeString;
+                if (timerDisplayMobile) timerDisplayMobile.textContent = timeString;
 
                 // Warning at 5 minutes
                 if (timeLeft <= 300) {
-                    timerEl.classList.add('warning');
+                    if (timerEl) timerEl.classList.add('warning');
+                    if (timerElMobile) timerElMobile.classList.add('warning');
                 }
 
                 if (timeLeft <= 0) {
-                    timerDisplay.textContent = '00:00';
+                    if (timerDisplay) timerDisplay.textContent = '00:00';
+                    if (timerDisplayMobile) timerDisplayMobile.textContent = '00:00';
                     submitExam();
                 } else {
                     timeLeft--;
@@ -456,6 +857,21 @@
                 }
             }
             updateTimer();
+
+            // Mobile Stats Update
+            function updateMobileStats() {
+                const answeredCount = answers.filter(a => a).length;
+                const openCount = totalQuestions - answeredCount;
+                const markedCount = marked.filter(m => m).length;
+
+                const answeredEl = document.getElementById('mobile-answered-count');
+                const openEl = document.getElementById('mobile-open-count');
+                const markedEl = document.getElementById('mobile-marked-count');
+
+                if (answeredEl) answeredEl.textContent = answeredCount;
+                if (openEl) openEl.textContent = openCount;
+                if (markedEl) markedEl.textContent = markedCount;
+            }
 
             // Navigation
             function showQuestion(index) {
@@ -564,6 +980,9 @@
                         bubble.classList.add('answered');
                     }
                 }
+
+                // Update mobile stats
+                updateMobileStats();
             }
 
             // Progress
@@ -573,6 +992,9 @@
 
                 document.getElementById('progress-text').textContent = `${answeredCount}/40 beantwortet`;
                 document.getElementById('progress-bar').style.width = `${percent}%`;
+
+                // Update mobile stats
+                updateMobileStats();
             }
 
             // Overview toggle
@@ -655,6 +1077,7 @@
 
             // Initial state
             updateProgress();
+            updateMobileStats();
         </script>
 
     @else
