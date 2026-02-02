@@ -13,6 +13,16 @@
         footer, nav, header {
             display: none !important;
         }
+
+        /* Main Container randlos machen */
+        main {
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+
+        body {
+            background: var(--bg-primary) !important;
+        }
     }
 
     /* Container */
@@ -24,7 +34,8 @@
     @media (max-width: 640px) {
         #examContainer {
             padding: 0 !important;
-            padding-bottom: 0 !important;
+            margin: 0 !important;
+            max-width: 100% !important;
         }
     }
 
@@ -44,6 +55,8 @@
             border: none;
             min-height: 100dvh;
             padding-bottom: 160px;
+            margin: 0;
+            background: var(--bg-primary);
         }
     }
 
@@ -364,6 +377,14 @@
         box-shadow: 0 4px 20px rgba(0, 51, 127, 0.08) !important;
     }
 
+    @media (max-width: 640px) {
+        html.light-mode .exam-card {
+            background: var(--bg-primary) !important;
+            border: none !important;
+            box-shadow: none !important;
+        }
+    }
+
     html.light-mode .exam-mobile-header {
         background: rgba(0, 51, 127, 0.03) !important;
         border-bottom: 1px solid rgba(0, 51, 127, 0.08) !important;
@@ -516,7 +537,7 @@
 @endpush
 
 @section('content')
-<div class="p-4 sm:p-6 sm:py-8" id="examContainer">
+<div class="sm:p-6 sm:py-8" id="examContainer">
     @if(!isset($submitted))
         <div class="exam-card">
             <!-- Mobile Header -->
