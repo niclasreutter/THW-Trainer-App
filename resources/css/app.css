@@ -1416,6 +1416,14 @@
         .bento-1of3 {
             grid-column: span 1;
         }
+        .stats-row {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .stat-pill {
+            width: 100%;
+            justify-content: flex-start;
+        }
     }
 
     /* Section Headers */
