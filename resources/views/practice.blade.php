@@ -29,8 +29,13 @@
 <style>
     /* Practice Page - Mobile Optimiert (wie Exam) */
 
-    /* Mobile: Navigation & Footer ausblenden */
+    /* Mobile: Navigation & Footer ausblenden + Kein Overflow */
     @media (max-width: 640px) {
+        html, body {
+            height: 100dvh !important;
+            overflow: hidden !important;
+        }
+
         footer, nav, header {
             display: none !important;
         }
@@ -39,6 +44,8 @@
         main {
             padding: 0 !important;
             margin: 0 !important;
+            height: 100dvh !important;
+            overflow: hidden !important;
         }
     }
 
@@ -54,7 +61,8 @@
             margin: 0 !important;
             max-width: 100% !important;
             width: 100% !important;
-            overflow-x: hidden !important;
+            height: 100dvh !important;
+            overflow: hidden !important;
         }
     }
 
@@ -72,17 +80,14 @@
         .question-card {
             border-radius: 0;
             border: none;
-            min-height: 100dvh;
-            padding-bottom: 120px;
+            height: 100dvh;
+            padding-bottom: 100px;
             margin: 0;
             background: #0a0a0b;
             backdrop-filter: none;
             -webkit-backdrop-filter: none;
-        }
-
-        .question-card form {
-            display: flex;
-            flex-direction: column;
+            overflow-y: auto;
+            box-sizing: border-box;
         }
     }
 
