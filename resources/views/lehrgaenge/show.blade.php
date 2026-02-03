@@ -7,13 +7,26 @@
     .dashboard-container {
         max-width: 1000px;
         margin: 0 auto;
-        padding: 2rem;
+        padding: 1rem;
+    }
+
+    @media (min-width: 640px) {
+        .dashboard-container {
+            padding: 2rem;
+        }
     }
 
     .dashboard-header {
-        margin-bottom: 2rem;
-        padding-top: 1rem;
+        margin-bottom: 1.5rem;
+        padding-top: 0.5rem;
         max-width: 700px;
+    }
+
+    @media (min-width: 640px) {
+        .dashboard-header {
+            margin-bottom: 2rem;
+            padding-top: 1rem;
+        }
     }
 
     /* Stats Row */
@@ -26,8 +39,15 @@
 
     /* Hero Card */
     .hero-card {
-        padding: 2rem;
-        margin-bottom: 2rem;
+        padding: 1.25rem;
+        margin-bottom: 1.5rem;
+    }
+
+    @media (min-width: 640px) {
+        .hero-card {
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
     }
 
     .hero-header {
@@ -48,20 +68,34 @@
     .hero-stats {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
-        gap: 1rem;
-        padding-top: 1.5rem;
+        gap: 0.5rem;
+        padding-top: 1rem;
         border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    @media (min-width: 640px) {
+        .hero-stats {
+            gap: 1rem;
+            padding-top: 1.5rem;
+        }
     }
 
     .hero-stat {
         text-align: center;
-        padding: 1rem;
+        padding: 0.75rem 0.5rem;
         background: rgba(255, 255, 255, 0.02);
-        border-radius: 12px;
+        border-radius: 10px;
+    }
+
+    @media (min-width: 640px) {
+        .hero-stat {
+            padding: 1rem;
+            border-radius: 12px;
+        }
     }
 
     .hero-stat-value {
-        font-size: 1.75rem;
+        font-size: 1.25rem;
         font-weight: 800;
         background: var(--gradient-gold);
         -webkit-background-clip: text;
@@ -69,18 +103,38 @@
         background-clip: text;
     }
 
+    @media (min-width: 640px) {
+        .hero-stat-value {
+            font-size: 1.75rem;
+        }
+    }
+
     .hero-stat-label {
-        font-size: 0.75rem;
+        font-size: 0.65rem;
         color: var(--text-muted);
         text-transform: uppercase;
-        letter-spacing: 0.5px;
+        letter-spacing: 0.3px;
         margin-top: 0.25rem;
+    }
+
+    @media (min-width: 640px) {
+        .hero-stat-label {
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+        }
     }
 
     /* Progress Section */
     .progress-card {
-        padding: 1.5rem;
-        margin-bottom: 2rem;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    @media (min-width: 640px) {
+        .progress-card {
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
     }
 
     .progress-header {
@@ -91,18 +145,30 @@
     }
 
     .progress-title {
-        font-size: 1.1rem;
+        font-size: 1rem;
         font-weight: 700;
         color: var(--text-primary);
     }
 
+    @media (min-width: 640px) {
+        .progress-title {
+            font-size: 1.1rem;
+        }
+    }
+
     .progress-percentage {
-        font-size: 1.25rem;
+        font-size: 1.1rem;
         font-weight: 800;
         background: var(--gradient-gold);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
+    }
+
+    @media (min-width: 640px) {
+        .progress-percentage {
+            font-size: 1.25rem;
+        }
     }
 
     .progress-bar-wrapper {
@@ -144,31 +210,57 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 1.25rem;
-        padding-left: 0.75rem;
+        margin-bottom: 1rem;
+        padding-left: 0.5rem;
         border-left: 3px solid var(--gold-start);
     }
 
+    @media (min-width: 640px) {
+        .section-header {
+            margin-bottom: 1.25rem;
+            padding-left: 0.75rem;
+        }
+    }
+
     .section-title {
-        font-size: 1.25rem;
+        font-size: 1.1rem;
         font-weight: 700;
         color: var(--text-primary);
+    }
+
+    @media (min-width: 640px) {
+        .section-title {
+            font-size: 1.25rem;
+        }
     }
 
     /* Sections Grid */
     .sections-list {
         display: flex;
         flex-direction: column;
-        gap: 0.75rem;
-        margin-bottom: 2rem;
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    @media (min-width: 640px) {
+        .sections-list {
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+        }
     }
 
     .section-card {
-        padding: 1.25rem 1.5rem;
+        padding: 1rem;
         display: flex;
         justify-content: space-between;
         align-items: center;
         transition: all 0.3s ease;
+    }
+
+    @media (min-width: 640px) {
+        .section-card {
+            padding: 1.25rem 1.5rem;
+        }
     }
 
     .section-card:nth-child(odd) {
@@ -185,35 +277,62 @@
     }
 
     .section-name {
-        font-size: 1rem;
+        font-size: 0.9rem;
         font-weight: 600;
         color: var(--text-primary);
-        margin-bottom: 0.35rem;
+        margin-bottom: 0.25rem;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
     }
 
+    @media (min-width: 640px) {
+        .section-name {
+            font-size: 1rem;
+            margin-bottom: 0.35rem;
+        }
+    }
+
     .section-meta {
         display: flex;
-        gap: 1rem;
-        font-size: 0.8rem;
+        gap: 0.75rem;
+        font-size: 0.75rem;
         color: var(--text-muted);
+    }
+
+    @media (min-width: 640px) {
+        .section-meta {
+            gap: 1rem;
+            font-size: 0.8rem;
+        }
     }
 
     .section-progress {
         display: flex;
         align-items: center;
-        gap: 0.75rem;
+        gap: 0.5rem;
         flex-shrink: 0;
     }
 
+    @media (min-width: 640px) {
+        .section-progress {
+            gap: 0.75rem;
+        }
+    }
+
     .section-progress-bar {
-        width: 80px;
-        height: 6px;
+        width: 60px;
+        height: 5px;
         background: rgba(255, 255, 255, 0.08);
         border-radius: 3px;
         overflow: hidden;
+    }
+
+    @media (min-width: 640px) {
+        .section-progress-bar {
+            width: 80px;
+            height: 6px;
+        }
     }
 
     .section-progress-fill {
@@ -228,44 +347,79 @@
     }
 
     .section-progress-text {
-        font-size: 0.8rem;
+        font-size: 0.75rem;
         font-weight: 700;
-        min-width: 42px;
+        min-width: 36px;
         text-align: right;
         color: var(--text-secondary);
     }
 
+    @media (min-width: 640px) {
+        .section-progress-text {
+            font-size: 0.8rem;
+            min-width: 42px;
+        }
+    }
+
     /* Enroll Section */
     .enroll-card {
-        padding: 3rem 2rem;
+        padding: 2rem 1.25rem;
         text-align: center;
-        margin-bottom: 2rem;
+        margin-bottom: 1.5rem;
         border: 2px dashed rgba(255, 255, 255, 0.1);
         background: rgba(255, 255, 255, 0.01);
     }
 
+    @media (min-width: 640px) {
+        .enroll-card {
+            padding: 3rem 2rem;
+            margin-bottom: 2rem;
+        }
+    }
+
     .enroll-icon {
-        font-size: 3rem;
+        font-size: 2.5rem;
         color: var(--text-muted);
-        margin-bottom: 1rem;
+        margin-bottom: 0.75rem;
         opacity: 0.6;
     }
 
+    @media (min-width: 640px) {
+        .enroll-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+    }
+
     .enroll-title {
-        font-size: 1.5rem;
+        font-size: 1.25rem;
         font-weight: 700;
         color: var(--text-primary);
         margin-bottom: 0.5rem;
     }
 
+    @media (min-width: 640px) {
+        .enroll-title {
+            font-size: 1.5rem;
+        }
+    }
+
     .enroll-description {
-        font-size: 1rem;
+        font-size: 0.9rem;
         color: var(--text-secondary);
-        margin-bottom: 1.5rem;
+        margin-bottom: 1.25rem;
         max-width: 450px;
         margin-left: auto;
         margin-right: auto;
-        line-height: 1.6;
+        line-height: 1.5;
+    }
+
+    @media (min-width: 640px) {
+        .enroll-description {
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
     }
 
     /* Action Buttons Row */
@@ -341,32 +495,40 @@
         background: rgba(0, 51, 127, 0.02);
     }
 
-    /* Responsive */
-    @media (max-width: 768px) {
-        .dashboard-container { padding: 1rem; }
-        .hero-card { padding: 1.5rem; }
-        .hero-stats { grid-template-columns: 1fr; gap: 0.75rem; }
-        .hero-stat { padding: 0.75rem; }
-        .hero-stat-value { font-size: 1.5rem; }
+    /* Mobile Specific Overrides */
+    @media (max-width: 640px) {
+        .page-title {
+            font-size: 1.5rem;
+            line-height: 1.3;
+        }
 
-        .section-card {
+        .page-subtitle {
+            font-size: 0.85rem;
+        }
+
+        .hero-header {
             flex-direction: column;
-            align-items: flex-start;
             gap: 0.75rem;
         }
 
-        .section-progress {
-            width: 100%;
+        .stats-row {
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
         }
 
-        .section-progress-bar {
+        .stat-pill {
             flex: 1;
+            min-width: 0;
+            padding: 0.5rem 0.75rem;
         }
-    }
 
-    @media (max-width: 640px) {
-        .page-title { font-size: 1.75rem; }
-        .hero-header { flex-direction: column; }
+        .stat-pill-value {
+            font-size: 1rem;
+        }
+
+        .stat-pill-label {
+            font-size: 0.65rem;
+        }
     }
 </style>
 @endpush
