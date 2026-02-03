@@ -215,15 +215,16 @@
         border-radius: 0.8rem;
         font-size: 1rem;
         transition: all 0.3s ease;
-        background: white;
-        color: #333;
+        background: white !important;
+        color: #1f2937 !important;
         font-family: inherit;
     }
 
     .form-input:focus {
         outline: none;
         border-color: #00337F;
-        background: white;
+        background: white !important;
+        color: #1f2937 !important;
         box-shadow: 0 0 0 3px rgba(0, 51, 127, 0.1), 0 0 15px rgba(0, 51, 127, 0.2);
     }
 
@@ -232,8 +233,20 @@
     }
 
     .form-input::placeholder {
-        color: #d1d5db;
+        color: #9ca3af;
         font-weight: 400;
+    }
+
+    /* Autofill-Styling überschreiben */
+    .form-input:-webkit-autofill,
+    .form-input:-webkit-autofill:hover,
+    .form-input:-webkit-autofill:focus,
+    .form-input:-webkit-autofill:active {
+        -webkit-box-shadow: 0 0 0 1000px white inset !important;
+        -webkit-text-fill-color: #1f2937 !important;
+        box-shadow: 0 0 0 1000px white inset !important;
+        background-color: white !important;
+        color: #1f2937 !important;
     }
 
     .form-actions {

@@ -452,30 +452,50 @@
 
     .form-input {
         width: 100%;
-        padding: 0.9rem 1rem;
-        border: 2px solid #e5e7eb;
-        border-radius: 0.8rem;
+        padding: 1rem 1.2rem;
+        border: 1px solid #e5e7eb;
+        border-radius: 0.75rem;
         font-size: 1rem;
-        background: white;
-        color: #333;
-        transition: all 0.3s ease;
+        background: white !important;
+        color: #1f2937 !important;
+        transition: all 0.2s ease;
         font-family: inherit;
     }
 
     .form-input:focus {
         outline: none;
         border-color: #00337F;
-        box-shadow: 0 0 0 3px rgba(0, 51, 127, 0.1), 0 0 15px rgba(0, 51, 127, 0.2);
-        background: white;
+        box-shadow: 0 0 0 3px rgba(0, 51, 127, 0.1);
+        background: white !important;
+        color: #1f2937 !important;
     }
 
     .form-input:read-only {
-        background: #f3f4f6;
-        color: #6b7280;
+        background: #f3f4f6 !important;
+        color: #6b7280 !important;
     }
 
     .form-input::placeholder {
-        color: #999;
+        color: #9ca3af;
+    }
+
+    /* Autofill-Styling überschreiben */
+    .form-input:-webkit-autofill,
+    .form-input:-webkit-autofill:hover,
+    .form-input:-webkit-autofill:focus,
+    .form-input:-webkit-autofill:active {
+        -webkit-box-shadow: 0 0 0 1000px white inset !important;
+        -webkit-text-fill-color: #1f2937 !important;
+        box-shadow: 0 0 0 1000px white inset !important;
+        background-color: white !important;
+        color: #1f2937 !important;
+    }
+
+    .form-input:read-only:-webkit-autofill,
+    .form-input:read-only:-webkit-autofill:hover,
+    .form-input:read-only:-webkit-autofill:focus {
+        -webkit-box-shadow: 0 0 0 1000px #f3f4f6 inset !important;
+        -webkit-text-fill-color: #6b7280 !important;
     }
 
     .auth-btn {

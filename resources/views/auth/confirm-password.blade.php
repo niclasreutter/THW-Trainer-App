@@ -237,8 +237,8 @@
         border: 1px solid #e5e7eb;
         border-radius: 0.75rem;
         font-size: 1rem;
-        background: white;
-        color: #333;
+        background: white !important;
+        color: #1f2937 !important;
         transition: all 0.2s ease;
         font-family: inherit;
     }
@@ -247,11 +247,24 @@
         outline: none;
         border-color: #00337F;
         box-shadow: 0 0 0 3px rgba(0, 51, 127, 0.1);
-        background: white;
+        background: white !important;
+        color: #1f2937 !important;
     }
 
     .form-input::placeholder {
         color: #9ca3af;
+    }
+
+    /* Autofill-Styling überschreiben */
+    .form-input:-webkit-autofill,
+    .form-input:-webkit-autofill:hover,
+    .form-input:-webkit-autofill:focus,
+    .form-input:-webkit-autofill:active {
+        -webkit-box-shadow: 0 0 0 1000px white inset !important;
+        -webkit-text-fill-color: #1f2937 !important;
+        box-shadow: 0 0 0 1000px white inset !important;
+        background-color: white !important;
+        color: #1f2937 !important;
     }
 
     .auth-btn {
