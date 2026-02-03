@@ -531,8 +531,5 @@ document.addEventListener('keypress', function(e) {
     }
 });
 
-document.addEventListener('DOMContentLoaded', function() {
-    console.log(`Alle {{ $questions->count() }} Fragen geladen und inline-editierbar!`);
-});
 </script>
 @endsection
