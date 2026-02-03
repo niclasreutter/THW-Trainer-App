@@ -14,6 +14,9 @@
         $isCorrect = $answerResult['is_correct'];
         $userAnswer = collect($answerResult['user_answer']);
         $questionProgress = (object)['consecutive_correct' => $answerResult['question_progress']];
+
+        // Lösche BEIDE Sessions nach dem Auslesen (sie gehören zusammen)
+        session()->forget(['answer_result', 'gamification_result']);
     } else {
         $isCorrect = null;
         $userAnswer = null;
@@ -23,58 +26,25 @@
 
 @push('styles')
 <style>
-    /* Practice Page - Dark Mode Glassmorphism */
+    /* Practice Page - Mobile Optimiert (wie Exam) */
 
-    /* Mobile: Navigation & Footer ausblenden */
+    /* Mobile: Navigation & Footer ausblenden + Kein Overflow */
     @media (max-width: 640px) {
-        /* Hide ALL navigation and header elements */
+        html, body {
+            height: 100dvh !important;
+            overflow: hidden !important;
+        }
+
         footer, nav, header {
             display: none !important;
         }
 
-        /* Hide all nav elements specifically */
-        nav {
-            display: none !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            height: 0 !important;
-        }
-
-        nav.bottom-nav-glass {
-            display: none !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            height: 0 !important;
-            position: absolute !important;
-            bottom: auto !important;
-        }
-
-        nav.lg\\:hidden {
-            display: none !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            height: 0 !important;
-        }
-
-        /* Hide mobile header */
-        header {
-            display: none !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            height: 0 !important;
-        }
-
-        /* Fix the main layout container - removes min-h-screen constraint */
-        body > div.flex-1 {
-            min-height: auto !important;
-            height: 100dvh !important;
-        }
-
+        /* Main Container randlos machen */
         main {
             padding: 0 !important;
-            padding-bottom: 0 !important;
-            height: auto !important;
-            position: static !important;
+            margin: 0 !important;
+            height: 100dvh !important;
+            overflow: hidden !important;
         }
     }
 
@@ -87,9 +57,11 @@
     @media (max-width: 640px) {
         #practiceContainer {
             padding: 0 !important;
-            min-height: 100dvh;
-            display: flex;
-            flex-direction: column;
+            margin: 0 !important;
+            max-width: 100% !important;
+            width: 100% !important;
+            height: 100dvh !important;
+            overflow: hidden !important;
         }
     }
 
@@ -105,25 +77,16 @@
 
     @media (max-width: 640px) {
         .question-card {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
             border-radius: 0;
             border: none;
-            height: auto;
-            min-height: auto;
-            /* Platz für fixed button unten */
+            height: 100dvh;
             padding-bottom: 100px;
-        }
-
-        .question-card form {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .question-card #questionContent {
-            flex: 1;
+            margin: 0;
+            background: #0a0a0b;
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+            overflow-y: auto;
+            box-sizing: border-box;
         }
     }
 
@@ -267,41 +230,47 @@
         }
     }
 
-    /* ========== SUBMIT BUTTON WRAPPER ==========*/
+    /* ========== SUBMIT BUTTON WRAPPER (Glassmorphism wie Exam) ==========*/
 
-    /* Desktop: flex layout */
+    /* Desktop: normal layout */
     .submit-button-wrapper {
-        margin-top: auto;
-        flex-shrink: 0;
-        box-sizing: border-box;
+        margin-top: 1.5rem;
+        padding-top: 1rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
     }
 
-    /* Mobile: Fixed bottom positioning (independent of theme) */
+    /* Mobile: Fixierte Navigation unten mit Glassmorphism */
     @media (max-width: 640px) {
         .submit-button-wrapper {
             position: fixed !important;
-            bottom: env(safe-area-inset-bottom, 0px) !important;
+            bottom: 0 !important;
             left: 0 !important;
             right: 0 !important;
             z-index: 9999 !important;
             width: 100% !important;
             margin: 0 !important;
-            padding: 1rem 1.5rem calc(1.5rem + env(safe-area-inset-bottom, 0px)) 1.5rem !important;
-            margin-top: initial !important;
-            flex-shrink: initial !important;
+            padding: 1rem !important;
+            padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px)) !important;
+            /* Glassmorphism Effekt */
+            background: rgba(10, 10, 11, 0.5) !important;
+            -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+            backdrop-filter: blur(20px) saturate(180%) !important;
+            border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
         }
     }
 
-    /* Dark Mode (Default) - independent of layout */
-    .submit-button-wrapper {
-        background-color: rgba(15, 23, 42, 0.95) !important;
-        border-top: 1px solid rgba(255, 255, 255, 0.06) !important;
+    /* Light Mode */
+    html.light-mode .submit-button-wrapper {
+        border-top-color: rgba(0, 51, 127, 0.08) !important;
     }
 
-    /* Light Mode - independent of layout */
-    html.light-mode .submit-button-wrapper {
-        background-color: rgba(255, 255, 255, 0.95) !important;
-        border-top: 1px solid rgba(0, 0, 0, 0.08) !important;
+    @media (max-width: 640px) {
+        html.light-mode .submit-button-wrapper {
+            background: rgba(243, 244, 246, 0.5) !important;
+            -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+            backdrop-filter: blur(20px) saturate(180%) !important;
+            border-top: 1px solid rgba(0, 51, 127, 0.08) !important;
+        }
     }
 
     /* Shake Animation */
@@ -328,6 +297,14 @@
         -webkit-backdrop-filter: none !important;
         border: 1px solid rgba(0, 51, 127, 0.12) !important;
         box-shadow: 0 4px 20px rgba(0, 51, 127, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+    }
+
+    @media (max-width: 640px) {
+        html.light-mode .question-card {
+            background: #f8fafc !important;
+            border: none !important;
+            box-shadow: none !important;
+        }
     }
 
     /* Answer Options in Light Mode */
@@ -443,6 +420,8 @@
                         </defs>
                     </svg>
                 </div>
+
+                <div class="w-9"></div>
             </div>
 
             <!-- Desktop Header -->
@@ -515,7 +494,7 @@
                     <div class="flex items-center gap-2 mb-3 text-xs text-dark-muted">
                         <span>ID: {{ $question->id }}</span>
                         <span class="text-dark-muted/50">|</span>
-                        <span>LA {{ $question->lernabschnitt ?? '-' }}.{{ $question->nummer ?? '-' }}</span>
+                        <span>{{ $lernpool->name }}</span>
                     </div>
 
                     <!-- Question Text -->
