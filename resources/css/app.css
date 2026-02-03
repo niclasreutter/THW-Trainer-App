@@ -314,6 +314,8 @@
         flex-wrap: wrap;
         gap: 0.75rem;
         margin-bottom: 2rem;
+        max-width: 100%;
+        box-sizing: border-box;
     }
 
     /* Widget block - varied heights */
@@ -1323,6 +1325,13 @@
         padding: 2rem;
         width: 100%;
         box-sizing: border-box;
+        overflow-x: hidden;
+    }
+
+    /* Prevent overflow for all direct children */
+    .dashboard-container > * {
+        max-width: 100%;
+        box-sizing: border-box;
     }
 
     .dashboard-header {
@@ -1337,6 +1346,8 @@
         grid-template-columns: 1fr 1fr 1fr 1fr;
         gap: 1rem;
         margin-bottom: 2rem;
+        max-width: 100%;
+        box-sizing: border-box;
     }
 
     .bento-side {
