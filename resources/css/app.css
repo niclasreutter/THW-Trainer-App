@@ -1327,6 +1327,12 @@
         box-sizing: border-box;
     }
 
+    /* Prevent text overflow in dashboard */
+    .dashboard-container * {
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+
     .dashboard-header {
         margin-bottom: 2.5rem;
         padding-top: 1rem;
