@@ -5,108 +5,25 @@
 
 @push('styles')
 <style>
-    .dashboard-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 2rem;
-    }
-
-    .dashboard-header {
-        margin-bottom: 2.5rem;
-        padding-top: 1rem;
-        max-width: 600px;
-    }
-
-    /* Bento Grid Layout */
-    .bento-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr 1fr 1fr;
-        gap: 1rem;
-        margin-bottom: 2rem;
-    }
-
-    .bento-side {
-        padding: 1.25rem;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .bento-wide {
-        grid-column: span 4;
-        padding: 1.5rem;
-    }
-
-    .bento-half {
-        grid-column: span 2;
-        padding: 1.5rem;
-    }
-
-    .bento-third {
-        grid-column: span 1;
-        padding: 1.5rem;
-    }
-
-    @media (max-width: 900px) {
-        .bento-grid { grid-template-columns: 1fr 1fr; }
-        .bento-wide { grid-column: span 2; }
-        .bento-half { grid-column: span 2; }
-        .bento-third { grid-column: span 1; }
-    }
-
-    @media (max-width: 600px) {
-        .bento-grid { grid-template-columns: 1fr; }
-        .bento-wide, .bento-half, .bento-third, .bento-side { grid-column: span 1; }
-        .dashboard-container {
-            padding: 1rem;
-        }
-        .bento-side, .bento-third {
-            padding: 1rem;
-        }
-        .stats-row {
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-        .stat-pill {
-            width: 100%;
-        }
-    }
-
-    /* Section headers */
-    .section-header {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        margin-bottom: 1rem;
-        padding-left: 1rem;
-        border-left: 3px solid var(--gold-start);
-    }
-
-    .section-title {
-        font-size: 1.1rem;
-        font-weight: 700;
-        color: var(--text-primary);
-        letter-spacing: -0.02em;
-    }
-
     /* KPI Cards */
     .kpi-value {
-        font-size: 2.5rem;
+        font-size: 2.25rem;
         font-weight: 800;
         color: var(--text-primary);
         line-height: 1.1;
     }
 
     .kpi-label {
-        font-size: 0.8rem;
+        font-size: 0.75rem;
         color: var(--text-muted);
         text-transform: uppercase;
         letter-spacing: 0.5px;
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.25rem;
     }
 
     .kpi-sub {
-        font-size: 0.85rem;
-        margin-top: 0.5rem;
+        font-size: 0.8rem;
+        margin-top: 0.25rem;
     }
 
     /* Stat rows */
@@ -114,55 +31,175 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 0.75rem 0;
+        padding: 0.625rem 0;
         border-bottom: 1px solid rgba(255, 255, 255, 0.06);
     }
 
     .stat-row:last-child { border-bottom: none; }
 
     .stat-row-label {
-        font-size: 0.9rem;
+        font-size: 0.85rem;
         color: var(--text-secondary);
     }
 
     .stat-row-value {
-        font-size: 0.95rem;
+        font-size: 0.9rem;
         font-weight: 700;
         color: var(--text-primary);
+    }
+
+    /* Card header */
+    .card-header {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--text-muted);
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    /* Activity Feed */
+    .activity-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        padding: 0.75rem;
+        border-radius: 0.5rem;
+        margin-bottom: 0.5rem;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.04);
+        transition: all 0.2s;
+    }
+
+    .activity-item:hover {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: rgba(255, 255, 255, 0.08);
+    }
+
+    .activity-item.clickable {
+        cursor: pointer;
+    }
+
+    .activity-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
+        flex-shrink: 0;
+    }
+
+    .activity-icon.success { background: rgba(34, 197, 94, 0.15); color: #22c55e; }
+    .activity-icon.error { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+    .activity-icon.warning { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+    .activity-icon.info { background: rgba(59, 130, 246, 0.15); color: #3b82f6; }
+    .activity-icon.gold { background: rgba(251, 191, 36, 0.15); color: #fbbf24; }
+
+    .activity-content {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .activity-title {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0.125rem;
+    }
+
+    .activity-desc {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .activity-time {
+        font-size: 0.65rem;
+        color: var(--text-muted);
+        white-space: nowrap;
+    }
+
+    /* Quick Actions */
+    .quick-action {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.875rem 1rem;
+        border-radius: 0.75rem;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        text-decoration: none;
+        color: var(--text-primary);
+        transition: all 0.2s;
+    }
+
+    .quick-action:hover {
+        background: rgba(255, 255, 255, 0.06);
+        border-color: rgba(255, 255, 255, 0.1);
+        transform: translateX(4px);
+    }
+
+    .quick-action-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+    }
+
+    .quick-action-text {
+        flex: 1;
+    }
+
+    .quick-action-title {
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .quick-action-desc {
+        font-size: 0.7rem;
+        color: var(--text-muted);
     }
 
     /* Leaderboard */
     .leaderboard-item {
         display: flex;
         align-items: center;
-        gap: 1rem;
-        padding: 0.875rem 1rem;
-        border-radius: 0.75rem;
-        margin-bottom: 0.5rem;
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.06);
+        gap: 0.75rem;
+        padding: 0.625rem 0.75rem;
+        border-radius: 0.5rem;
+        margin-bottom: 0.375rem;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.04);
         transition: all 0.2s;
     }
 
     .leaderboard-item:hover {
-        background: rgba(255, 255, 255, 0.06);
-        transform: translateX(4px);
+        background: rgba(255, 255, 255, 0.05);
     }
 
     .leaderboard-item.top-rank {
-        background: linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, rgba(245, 158, 11, 0.05) 100%);
-        border: 1px solid rgba(251, 191, 36, 0.2);
+        background: linear-gradient(135deg, rgba(251, 191, 36, 0.08) 0%, rgba(245, 158, 11, 0.04) 100%);
+        border: 1px solid rgba(251, 191, 36, 0.15);
     }
 
     .leaderboard-rank {
-        width: 36px;
-        height: 36px;
+        width: 28px;
+        height: 28px;
         display: flex;
         align-items: center;
         justify-content: center;
-        border-radius: 0.5rem;
+        border-radius: 0.375rem;
         font-weight: 700;
-        font-size: 0.9rem;
+        font-size: 0.75rem;
     }
 
     .leaderboard-info {
@@ -173,14 +210,14 @@
     .leaderboard-name {
         font-weight: 600;
         color: var(--text-primary);
-        font-size: 0.9rem;
+        font-size: 0.8rem;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
     }
 
     .leaderboard-level {
-        font-size: 0.75rem;
+        font-size: 0.65rem;
         color: var(--text-muted);
     }
 
@@ -190,20 +227,50 @@
 
     .leaderboard-points {
         font-weight: 700;
-        font-size: 0.9rem;
+        font-size: 0.8rem;
     }
 
     .leaderboard-details {
-        font-size: 0.7rem;
+        font-size: 0.6rem;
         color: var(--text-muted);
     }
 
     /* Charts */
     .chart-container {
-        height: 240px;
+        height: 200px;
         position: relative;
     }
 
+    /* Alert badge */
+    .alert-badge {
+        position: absolute;
+        top: -4px;
+        right: -4px;
+        min-width: 18px;
+        height: 18px;
+        border-radius: 9px;
+        background: #ef4444;
+        color: white;
+        font-size: 0.65rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 4px;
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+        .dashboard-container {
+            padding: 1rem;
+        }
+        .kpi-value {
+            font-size: 1.75rem;
+        }
+        .chart-container {
+            height: 180px;
+        }
+    }
 </style>
 @endpush
 
@@ -212,17 +279,17 @@
     <!-- Header -->
     <header class="dashboard-header">
         <h1 class="page-title">Admin <span>Dashboard</span></h1>
-        <p class="page-subtitle">System-Status, Benutzer und Lernfortschritt</p>
+        <p class="page-subtitle">System-Status, Benutzer und Aktivitäten</p>
     </header>
 
-    <!-- System Status Pills -->
-    <div class="stats-row">
+    <!-- System Status + Alerts -->
+    <div class="stats-row" style="margin-bottom: 1.5rem;">
         <div class="stat-pill">
             <span class="stat-pill-icon {{ $systemStatus['database']['status'] === 'ok' ? 'text-success' : 'text-error' }}">
                 <i class="bi bi-database{{ $systemStatus['database']['status'] === 'ok' ? '-check' : '-x' }}"></i>
             </span>
             <div>
-                <div class="stat-pill-value">{{ ucfirst($systemStatus['database']['status']) }}</div>
+                <div class="stat-pill-value" style="font-size: 1rem;">{{ ucfirst($systemStatus['database']['status']) }}</div>
                 <div class="stat-pill-label">Datenbank</div>
             </div>
         </div>
@@ -232,18 +299,8 @@
                 <i class="bi bi-lightning{{ $systemStatus['cache']['status'] === 'ok' ? '-charge' : '' }}"></i>
             </span>
             <div>
-                <div class="stat-pill-value">{{ ucfirst($systemStatus['cache']['status']) }}</div>
+                <div class="stat-pill-value" style="font-size: 1rem;">{{ ucfirst($systemStatus['cache']['status']) }}</div>
                 <div class="stat-pill-label">Cache</div>
-            </div>
-        </div>
-
-        <div class="stat-pill">
-            <span class="stat-pill-icon {{ $systemStatus['storage']['status'] === 'ok' ? 'text-success' : 'text-error' }}">
-                <i class="bi bi-hdd{{ $systemStatus['storage']['status'] === 'ok' ? '' : '-fill' }}"></i>
-            </span>
-            <div>
-                <div class="stat-pill-value">{{ ucfirst($systemStatus['storage']['status']) }}</div>
-                <div class="stat-pill-label">Storage</div>
             </div>
         </div>
 
@@ -252,53 +309,185 @@
                 <i class="bi bi-person-check"></i>
             </span>
             <div>
-                <div class="stat-pill-value">{{ $systemStatus['online_users']['count'] }}</div>
+                <div class="stat-pill-value" style="font-size: 1rem;">{{ $systemStatus['online_users']['count'] }}</div>
                 <div class="stat-pill-label">Online</div>
             </div>
         </div>
+
+        @if($openIssues > 0)
+        <a href="{{ route('admin.lehrgang-issues.index') }}" class="stat-pill" style="text-decoration: none; position: relative;">
+            <span class="stat-pill-icon text-warning">
+                <i class="bi bi-exclamation-triangle"></i>
+            </span>
+            <div>
+                <div class="stat-pill-value" style="font-size: 1rem;">{{ $openIssues }}</div>
+                <div class="stat-pill-label">Offen</div>
+            </div>
+            <span class="alert-badge">!</span>
+        </a>
+        @endif
+
+        @if($unreadMessages > 0)
+        <a href="{{ route('admin.contact-messages.index') }}" class="stat-pill" style="text-decoration: none; position: relative;">
+            <span class="stat-pill-icon text-info">
+                <i class="bi bi-envelope"></i>
+            </span>
+            <div>
+                <div class="stat-pill-value" style="font-size: 1rem;">{{ $unreadMessages }}</div>
+                <div class="stat-pill-label">Ungelesen</div>
+            </div>
+            <span class="alert-badge">!</span>
+        </a>
+        @endif
     </div>
 
-    <!-- KPI Bento Grid -->
-    <div class="bento-grid">
-        <!-- Benutzer KPI -->
-        <div class="glass-gold bento-side hover-lift">
+    <!-- KPI Grid -->
+    <div class="bento-grid" style="margin-bottom: 1.5rem;">
+        <div class="glass-gold bento-third hover-lift">
             <div class="kpi-label">Gesamt Benutzer</div>
             <div class="kpi-value">{{ number_format($totalUsers) }}</div>
             <div class="kpi-sub text-success">+{{ $newUsersToday }} heute</div>
         </div>
 
-        <!-- E-Mail bestätigt -->
-        <div class="glass-tl bento-side hover-lift">
+        <div class="glass-tl bento-third hover-lift">
             <div class="kpi-label">E-Mail bestätigt</div>
             <div class="kpi-value">{{ number_format($verifiedUsers) }}</div>
-            <div class="kpi-sub text-dark-secondary">{{ $verificationRate }}% Rate</div>
+            <div class="kpi-sub text-dark-secondary">{{ $verificationRate }}%</div>
         </div>
 
-        <!-- Fragen KPI -->
-        <div class="glass-br bento-side hover-lift">
-            <div class="kpi-label">Gesamt Fragen</div>
+        <div class="glass-br bento-third hover-lift">
+            <div class="kpi-label">Fragen</div>
             <div class="kpi-value">{{ number_format($totalQuestions) }}</div>
-            <div class="kpi-sub text-dark-secondary">{{ $learningSections }} Lernabschnitte</div>
+            <div class="kpi-sub text-dark-secondary">{{ $learningSections }} Abschnitte</div>
         </div>
 
-        <!-- Beantwortete Fragen -->
-        <div class="glass-slash bento-side hover-lift">
+        <div class="glass-slash bento-third hover-lift">
             <div class="kpi-label">Beantwortet</div>
             <div class="kpi-value">{{ number_format($totalAnsweredQuestions) }}</div>
-            <div class="kpi-sub text-warning">{{ $wrongAnswerRate }}% Falsch</div>
+            <div class="kpi-sub text-success">{{ number_format($totalCorrectAnswers) }} richtig</div>
         </div>
     </div>
 
-    <!-- Detail Statistiken -->
-    <div class="section-header">
-        <h2 class="section-title">Detaillierte Statistiken</h2>
+    <!-- Main Content: Activity Feed + Quick Actions + Leaderboard -->
+    <div class="bento-grid" style="margin-bottom: 1.5rem;">
+        <!-- Activity Feed -->
+        <div class="glass bento-half">
+            <div class="card-header">
+                <i class="bi bi-activity text-gold"></i>
+                Aktivitäts-Feed (24h)
+            </div>
+            <div style="max-height: 380px; overflow-y: auto;">
+                @forelse($activityFeed as $activity)
+                    @if($activity['link'])
+                    <a href="{{ $activity['link'] }}" class="activity-item clickable" style="text-decoration: none;">
+                    @else
+                    <div class="activity-item">
+                    @endif
+                        <div class="activity-icon {{ $activity['color'] }}">
+                            <i class="bi bi-{{ $activity['icon'] }}"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-title">
+                                {{ $activity['title'] }}
+                                @if(!empty($activity['unread']))
+                                    <span class="badge-error" style="font-size: 0.55rem; padding: 0.1rem 0.3rem; margin-left: 0.25rem;">NEU</span>
+                                @endif
+                                @if(!empty($activity['open']))
+                                    <span class="badge-warning" style="font-size: 0.55rem; padding: 0.1rem 0.3rem; margin-left: 0.25rem;">OFFEN</span>
+                                @endif
+                            </div>
+                            <div class="activity-desc">{{ $activity['description'] }}</div>
+                        </div>
+                        <div class="activity-time">{{ $activity['time']->diffForHumans(null, true, true) }}</div>
+                    @if($activity['link'])
+                    </a>
+                    @else
+                    </div>
+                    @endif
+                @empty
+                    <div style="text-align: center; padding: 2rem; color: var(--text-muted);">
+                        <i class="bi bi-inbox" style="font-size: 2rem; display: block; margin-bottom: 0.5rem; opacity: 0.5;"></i>
+                        Keine Aktivitäten
+                    </div>
+                @endforelse
+            </div>
+        </div>
+
+        <!-- Quick Actions + Stats -->
+        <div class="glass-tl bento-half">
+            <div class="card-header">
+                <i class="bi bi-lightning-charge text-gold"></i>
+                Quick Actions
+            </div>
+
+            <a href="{{ route('admin.users.index') }}" class="quick-action" style="margin-bottom: 0.5rem;">
+                <div class="quick-action-icon" style="background: rgba(0, 51, 127, 0.15); color: var(--thw-blue);">
+                    <i class="bi bi-people"></i>
+                </div>
+                <div class="quick-action-text">
+                    <div class="quick-action-title">Nutzer verwalten</div>
+                    <div class="quick-action-desc">{{ number_format($totalUsers) }} Benutzer</div>
+                </div>
+                <i class="bi bi-chevron-right text-dark-muted"></i>
+            </a>
+
+            <a href="{{ route('admin.questions.index') }}" class="quick-action" style="margin-bottom: 0.5rem;">
+                <div class="quick-action-icon" style="background: rgba(251, 191, 36, 0.15); color: #fbbf24;">
+                    <i class="bi bi-question-circle"></i>
+                </div>
+                <div class="quick-action-text">
+                    <div class="quick-action-title">Fragen bearbeiten</div>
+                    <div class="quick-action-desc">{{ number_format($totalQuestions) }} Fragen</div>
+                </div>
+                <i class="bi bi-chevron-right text-dark-muted"></i>
+            </a>
+
+            <a href="{{ route('admin.lehrgaenge.index') }}" class="quick-action" style="margin-bottom: 0.5rem;">
+                <div class="quick-action-icon" style="background: rgba(139, 92, 246, 0.15); color: #8b5cf6;">
+                    <i class="bi bi-mortarboard"></i>
+                </div>
+                <div class="quick-action-text">
+                    <div class="quick-action-title">Lehrgänge</div>
+                    <div class="quick-action-desc">Verwalten & erstellen</div>
+                </div>
+                <i class="bi bi-chevron-right text-dark-muted"></i>
+            </a>
+
+            <a href="{{ route('admin.newsletter.create') }}" class="quick-action" style="margin-bottom: 0.5rem;">
+                <div class="quick-action-icon" style="background: rgba(34, 197, 94, 0.15); color: #22c55e;">
+                    <i class="bi bi-megaphone"></i>
+                </div>
+                <div class="quick-action-text">
+                    <div class="quick-action-title">Newsletter senden</div>
+                    <div class="quick-action-desc">An alle Benutzer</div>
+                </div>
+                <i class="bi bi-chevron-right text-dark-muted"></i>
+            </a>
+
+            <!-- Mini Stats -->
+            <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.06);">
+                <div class="stat-row">
+                    <span class="stat-row-label">Aktiv heute</span>
+                    <span class="stat-row-value">{{ $userActivity['today'] }}</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-row-label">Aktiv diese Woche</span>
+                    <span class="stat-row-value">{{ $userActivity['this_week'] }}</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-row-label">Erfolgsrate</span>
+                    <span class="stat-row-value text-success">{{ $totalAnsweredQuestions > 0 ? round((($totalCorrectAnswers / $totalAnsweredQuestions) * 100), 1) : 0 }}%</span>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div class="bento-grid" style="margin-bottom: 2rem;">
+    <!-- Stats Row: Details + Leaderboard -->
+    <div class="bento-grid" style="margin-bottom: 1.5rem;">
         <!-- Fragen-Statistik -->
-        <div class="glass-tl bento-third">
-            <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-                <i class="bi bi-graph-down text-gold"></i>
+        <div class="glass-br bento-third">
+            <div class="card-header">
+                <i class="bi bi-bar-chart text-gold"></i>
                 Fragen-Statistik
             </div>
             <div class="stat-row">
@@ -313,59 +502,39 @@
                 <span class="stat-row-label">Falsch</span>
                 <span class="stat-row-value text-error">{{ number_format($totalWrongAnswers) }}</span>
             </div>
-            <div style="margin-top: 1rem; padding: 0.75rem; background: rgba(255, 255, 255, 0.05); border-radius: 0.5rem; display: flex; justify-content: space-between; align-items: center;">
-                <span style="font-weight: 600; color: var(--text-primary);">Erfolgsrate</span>
-                <span class="text-gradient-gold" style="font-size: 1.25rem; font-weight: 800;">{{ $totalAnsweredQuestions > 0 ? round((($totalCorrectAnswers / $totalAnsweredQuestions) * 100), 1) : 0 }}%</span>
-            </div>
-        </div>
-
-        <!-- Benutzer-Aktivität -->
-        <div class="glass-br bento-third">
-            <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-                <i class="bi bi-graph-up text-gold"></i>
-                Benutzer-Aktivität
-            </div>
-            <div class="stat-row">
-                <span class="stat-row-label">Heute</span>
-                <span class="stat-row-value">{{ $userActivity['today'] }}</span>
-            </div>
-            <div class="stat-row">
-                <span class="stat-row-label">Diese Woche</span>
-                <span class="stat-row-value">{{ $userActivity['this_week'] }}</span>
-            </div>
-            <div class="stat-row">
-                <span class="stat-row-label">Diesen Monat</span>
-                <span class="stat-row-value">{{ $userActivity['this_month'] }}</span>
+            <div style="margin-top: 0.75rem; padding: 0.625rem; background: rgba(255, 255, 255, 0.04); border-radius: 0.5rem; display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-weight: 600; font-size: 0.8rem; color: var(--text-primary);">Fehlerrate</span>
+                <span class="text-warning" style="font-size: 1.1rem; font-weight: 800;">{{ $wrongAnswerRate }}%</span>
             </div>
         </div>
 
         <!-- Lernfortschritt -->
         <div class="glass-slash bento-third">
-            <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-                <i class="bi bi-mortarboard text-gold"></i>
+            <div class="card-header">
+                <i class="bi bi-graph-up text-gold"></i>
                 Lernfortschritt
             </div>
             <div class="stat-row">
-                <span class="stat-row-label">Gesamt Punkte</span>
-                <span class="stat-row-value text-warning">{{ number_format($learningProgress['total_points']) }}</span>
+                <span class="stat-row-label">Ø Fortschritt</span>
+                <span class="stat-row-value" style="color: var(--thw-blue);">{{ $learningProgress['average_progress'] }}%</span>
             </div>
             <div class="stat-row">
                 <span class="stat-row-label">Mit Erfolgen</span>
                 <span class="stat-row-value">{{ $learningProgress['users_with_achievements'] }}</span>
             </div>
             <div class="stat-row">
-                <span class="stat-row-label">Ø Fortschritt</span>
-                <span class="stat-row-value" style="color: var(--thw-blue);">{{ $learningProgress['average_progress'] }}%</span>
+                <span class="stat-row-label">Aktiv (Monat)</span>
+                <span class="stat-row-value">{{ $userActivity['this_month'] }}</span>
             </div>
         </div>
 
         <!-- Leaderboard -->
-        <div class="glass bento-third">
-            <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+        <div class="glass bento-half">
+            <div class="card-header">
                 <i class="bi bi-trophy text-gold"></i>
-                Leaderboard Top-10
+                Top 10 Leaderboard
             </div>
-            <div style="max-height: 280px; overflow-y: auto;">
+            <div style="max-height: 240px; overflow-y: auto;">
                 @forelse($leaderboard as $index => $user)
                     @php
                         $position = $index + 1;
@@ -373,7 +542,7 @@
                         $medalColors = [1 => '#fbbf24', 2 => '#9ca3af', 3 => '#d97706'];
                     @endphp
                     <div class="leaderboard-item {{ $isTopRank ? 'top-rank' : '' }}">
-                        <div class="leaderboard-rank" style="background: {{ $isTopRank ? 'rgba(251, 191, 36, 0.2)' : 'rgba(255, 255, 255, 0.05)' }}; color: {{ $medalColors[$position] ?? 'var(--text-muted)' }};">
+                        <div class="leaderboard-rank" style="background: {{ $isTopRank ? 'rgba(251, 191, 36, 0.15)' : 'rgba(255, 255, 255, 0.05)' }}; color: {{ $medalColors[$position] ?? 'var(--text-muted)' }};">
                             @if($position <= 3)
                                 <i class="bi bi-trophy-fill"></i>
                             @else
@@ -390,8 +559,8 @@
                         </div>
                     </div>
                 @empty
-                    <div style="text-align: center; padding: 2rem; color: var(--text-muted);">
-                        <i class="bi bi-people" style="font-size: 2rem; margin-bottom: 0.5rem; display: block;"></i>
+                    <div style="text-align: center; padding: 1.5rem; color: var(--text-muted);">
+                        <i class="bi bi-people" style="font-size: 1.5rem; display: block; margin-bottom: 0.5rem; opacity: 0.5;"></i>
                         Keine Daten
                     </div>
                 @endforelse
@@ -399,14 +568,14 @@
         </div>
     </div>
 
-    <!-- Charts -->
-    <div class="section-header">
-        <h2 class="section-title">Statistiken (letzte 30 Tage)</h2>
+    <!-- Charts Section -->
+    <div class="section-header" style="margin-bottom: 1rem;">
+        <h2 class="section-title">Statistiken (30 Tage)</h2>
     </div>
 
-    <div class="bento-grid" style="margin-bottom: 2rem;">
-        <div class="glass bento-third">
-            <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+    <div class="bento-grid">
+        <div class="glass bento-half">
+            <div class="card-header">
                 <i class="bi bi-people text-gold"></i>
                 Benutzeraktivität
             </div>
@@ -415,8 +584,8 @@
             </div>
         </div>
 
-        <div class="glass bento-third">
-            <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+        <div class="glass bento-half">
+            <div class="card-header">
                 <i class="bi bi-question-circle text-gold"></i>
                 Beantwortete Fragen
             </div>
@@ -425,17 +594,16 @@
             </div>
         </div>
 
-        <div class="glass bento-half">
-            <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+        <div class="glass bento-wide">
+            <div class="card-header">
                 <i class="bi bi-graph-up-arrow text-gold"></i>
-                User-Wachstum
+                Benutzer-Wachstum
             </div>
             <div class="chart-container">
                 <canvas id="userGrowthChart"></canvas>
             </div>
         </div>
     </div>
-
 </div>
 @endsection
 
@@ -448,9 +616,8 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
     }
 
-    // Theme-abhängige Farben
     const isLightMode = document.documentElement.classList.contains('light-mode');
-    const gridColor = isLightMode ? 'rgba(0, 0, 0, 0.08)' : 'rgba(255, 255, 255, 0.08)';
+    const gridColor = isLightMode ? 'rgba(0, 0, 0, 0.06)' : 'rgba(255, 255, 255, 0.06)';
     const textColor = isLightMode ? '#374151' : '#a1a1aa';
 
     Chart.defaults.font.family = "'Figtree', -apple-system, BlinkMacSystemFont, sans-serif";
@@ -464,7 +631,7 @@ document.addEventListener('DOMContentLoaded', function() {
             legend: {
                 display: true,
                 position: 'top',
-                labels: { usePointStyle: true, padding: 12, font: { size: 10 } }
+                labels: { usePointStyle: true, padding: 10, font: { size: 9 } }
             },
             tooltip: {
                 backgroundColor: isLightMode ? 'rgba(255, 255, 255, 0.95)' : 'rgba(0, 0, 0, 0.9)',
@@ -472,7 +639,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 bodyColor: isLightMode ? '#374151' : '#a1a1aa',
                 borderColor: isLightMode ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.1)',
                 borderWidth: 1,
-                padding: 10,
+                padding: 8,
                 cornerRadius: 6,
             }
         },
@@ -566,7 +733,7 @@ document.addEventListener('DOMContentLoaded', function() {
             labels: {!! json_encode($chartData['labels']) !!},
             datasets: [
                 {
-                    label: 'Gesamtanzahl User',
+                    label: 'Gesamtanzahl',
                     data: {!! json_encode($chartData['userCount']) !!},
                     borderColor: '#00337F',
                     backgroundColor: 'rgba(0, 51, 127, 0.1)',

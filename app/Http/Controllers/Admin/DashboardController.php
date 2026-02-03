@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Question;
 use App\Models\QuestionStatistic;
-use App\Models\ExamResult;
+use App\Models\ExamStatistic;
+use App\Models\ContactMessage;
+use App\Models\LehrgangQuestionIssue;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Cache;
@@ -46,6 +48,13 @@ class DashboardController extends Controller
         // Chart-Daten für 30 Tage
         $chartData = $this->getChartData();
 
+        // Aktivitäts-Feed
+        $activityFeed = $this->getActivityFeed();
+
+        // Quick Stats für Admin
+        $openIssues = LehrgangQuestionIssue::where('status', 'open')->count();
+        $unreadMessages = ContactMessage::where('is_read', false)->count();
+
         return view('admin.dashboard', compact(
             'systemStatus',
             'totalUsers',
@@ -61,7 +70,10 @@ class DashboardController extends Controller
             'userActivity',
             'learningProgress',
             'leaderboard',
-            'chartData'
+            'chartData',
+            'activityFeed',
+            'openIssues',
+            'unreadMessages'
         ));
     }
     
@@ -271,5 +283,112 @@ class DashboardController extends Controller
             'userCount' => $userCountData,
             'unverifiedCount' => $unverifiedCountData,
         ];
+    }
+
+    private function getActivityFeed()
+    {
+        $activities = collect();
+
+        // Neue Benutzer (letzte 24h)
+        $newUsers = User::where('created_at', '>=', now()->subDay())
+            ->orderBy('created_at', 'desc')
+            ->limit(10)
+            ->get()
+            ->map(function ($user) {
+                return [
+                    'type' => 'user_registered',
+                    'icon' => 'person-plus',
+                    'color' => 'success',
+                    'title' => 'Neuer Benutzer',
+                    'description' => $user->name . ' hat sich registriert',
+                    'time' => $user->created_at,
+                    'link' => route('admin.users.edit', $user->id),
+                ];
+            });
+        $activities = $activities->merge($newUsers);
+
+        // Bestandene Prüfungen (letzte 24h)
+        $passedExams = ExamStatistic::with('user')
+            ->where('is_passed', true)
+            ->where('created_at', '>=', now()->subDay())
+            ->orderBy('created_at', 'desc')
+            ->limit(10)
+            ->get()
+            ->map(function ($exam) {
+                $percentage = round(($exam->correct_answers / 40) * 100);
+                return [
+                    'type' => 'exam_passed',
+                    'icon' => 'award',
+                    'color' => 'gold',
+                    'title' => 'Prüfung bestanden',
+                    'description' => ($exam->user->name ?? 'Unbekannt') . ' mit ' . $percentage . '%',
+                    'time' => $exam->created_at,
+                    'link' => $exam->user ? route('admin.users.edit', $exam->user->id) : null,
+                ];
+            });
+        $activities = $activities->merge($passedExams);
+
+        // Nicht bestandene Prüfungen (letzte 24h)
+        $failedExams = ExamStatistic::with('user')
+            ->where('is_passed', false)
+            ->where('created_at', '>=', now()->subDay())
+            ->orderBy('created_at', 'desc')
+            ->limit(5)
+            ->get()
+            ->map(function ($exam) {
+                $percentage = round(($exam->correct_answers / 40) * 100);
+                return [
+                    'type' => 'exam_failed',
+                    'icon' => 'x-circle',
+                    'color' => 'error',
+                    'title' => 'Prüfung nicht bestanden',
+                    'description' => ($exam->user->name ?? 'Unbekannt') . ' mit ' . $percentage . '%',
+                    'time' => $exam->created_at,
+                    'link' => $exam->user ? route('admin.users.edit', $exam->user->id) : null,
+                ];
+            });
+        $activities = $activities->merge($failedExams);
+
+        // Neue Kontaktanfragen (letzte 48h)
+        $contactMessages = ContactMessage::where('created_at', '>=', now()->subDays(2))
+            ->orderBy('created_at', 'desc')
+            ->limit(5)
+            ->get()
+            ->map(function ($message) {
+                return [
+                    'type' => 'contact_message',
+                    'icon' => 'envelope',
+                    'color' => 'info',
+                    'title' => 'Kontaktanfrage',
+                    'description' => $message->subject ?? 'Neue Nachricht von ' . $message->name,
+                    'time' => $message->created_at,
+                    'link' => route('admin.contact-messages.show', $message->id),
+                    'unread' => !$message->is_read,
+                ];
+            });
+        $activities = $activities->merge($contactMessages);
+
+        // Neue Fehlermeldungen (letzte 48h)
+        $issues = LehrgangQuestionIssue::with('user')
+            ->where('created_at', '>=', now()->subDays(2))
+            ->orderBy('created_at', 'desc')
+            ->limit(5)
+            ->get()
+            ->map(function ($issue) {
+                return [
+                    'type' => 'issue_reported',
+                    'icon' => 'exclamation-triangle',
+                    'color' => 'warning',
+                    'title' => 'Fehlermeldung',
+                    'description' => 'Von ' . ($issue->user->name ?? 'Unbekannt'),
+                    'time' => $issue->created_at,
+                    'link' => route('admin.lehrgang-issues.show', $issue->id),
+                    'open' => $issue->status === 'open',
+                ];
+            });
+        $activities = $activities->merge($issues);
+
+        // Nach Zeit sortieren und limitieren
+        return $activities->sortByDesc('time')->take(15)->values();
     }
 }
