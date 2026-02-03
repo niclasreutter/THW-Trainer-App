@@ -1,27 +1,9 @@
-@php
-    // Debug: Prüfe was in der Session ist
-    \Log::info('📋 Gamification notification component loaded', [
-        'has_notifications' => session()->has('gamification_notifications'),
-        'notifications' => session('gamification_notifications', []),
-        'all_session_keys' => array_keys(session()->all()),
-        'session_id' => session()->getId()
-    ]);
-@endphp
-
 @if(session()->has('gamification_notifications'))
     @php
         $notifications = session('gamification_notifications', []);
         session()->forget('gamification_notifications');
-
-        \Log::info('✅ Displaying gamification notifications', [
-            'count' => count($notifications),
-            'notifications' => $notifications
-        ]);
     @endphp
 
-    <!-- Debug: Show notification count -->
-    <script>console.log('Gamification notifications found:', @json($notifications));</script>
-    
     @foreach($notifications as $notification)
         <div id="notification-{{ $loop->index }}" class="fixed top-20 right-6 z-50 transform translate-x-full transition-transform duration-500 ease-in-out">
             <div class="bg-white border-l-4 {{ $notification['type'] === 'level_up' ? 'border-yellow-400 bg-gradient-to-r from-yellow-50 to-orange-50' : 'border-purple-400 bg-gradient-to-r from-purple-50 to-pink-50' }} rounded-lg shadow-xl p-4 max-w-sm min-w-[300px]">
@@ -101,6 +83,4 @@
             }
         }
     </script>
-@else
-    <script>console.log('No gamification notifications in session');</script>
 @endif

@@ -306,7 +306,7 @@ document.querySelectorAll('.question-form').forEach(form => {
                 setTimeout(() => {
                     card.classList.remove('saved');
                 }, 1500);
-                console.log('Gespeichert: ' + data.message);
+
             } else {
                 alert('Fehler beim Speichern');
             }
