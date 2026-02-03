@@ -531,6 +531,303 @@
     html.light-mode #overview-container .border-white\/10 { border-color: rgba(0, 51, 127, 0.1) !important; }
     html.light-mode #overview-container .bg-gold\/30 { background: rgba(217, 119, 6, 0.15) !important; }
     html.light-mode #overview-container .border-gold\/50 { border-color: rgba(217, 119, 6, 0.35) !important; }
+
+    /* ==========================================
+       RESULTS PAGE - DASHBOARD LAYOUT
+       ========================================== */
+
+    /* Dashboard Container for Results */
+    .dashboard-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    @media (max-width: 600px) {
+        .dashboard-container {
+            padding: 1rem;
+        }
+    }
+
+    /* Dashboard Header */
+    .dashboard-header {
+        margin-bottom: 2rem;
+        padding-top: 1rem;
+        max-width: 600px;
+    }
+
+    .page-title {
+        font-size: 1.75rem;
+        font-weight: 800;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+        line-height: 1.2;
+    }
+
+    .page-title span {
+        background: var(--gradient-gold);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .page-subtitle {
+        font-size: 0.95rem;
+        color: var(--text-secondary);
+    }
+
+    /* Stats Row */
+    .stats-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-pill {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem 1rem;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 12px;
+    }
+
+    .stat-pill-icon {
+        font-size: 1.25rem;
+    }
+
+    .stat-pill-value {
+        font-size: 1.1rem;
+        font-weight: 800;
+        color: var(--text-primary);
+    }
+
+    .stat-pill-label {
+        font-size: 0.7rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    /* Bento Grid */
+    .bento-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .bento-main {
+        grid-column: span 2;
+        grid-row: span 2;
+        min-height: 280px;
+        padding: 2rem;
+        position: relative;
+    }
+
+    .bento-side {
+        padding: 1.25rem;
+    }
+
+    .bento-wide {
+        grid-column: span 3;
+        padding: 1.5rem;
+    }
+
+    @media (max-width: 900px) {
+        .bento-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+        .bento-main { grid-column: span 2; grid-row: span 1; min-height: auto; }
+        .bento-wide { grid-column: span 2; }
+    }
+
+    @media (max-width: 600px) {
+        .bento-grid {
+            grid-template-columns: 1fr;
+        }
+        .bento-main, .bento-wide, .bento-side {
+            grid-column: span 1;
+        }
+    }
+
+    /* Section Header */
+    .section-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        padding-left: 1rem;
+        border-left: 3px solid var(--gold-start);
+    }
+
+    .section-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        letter-spacing: -0.02em;
+    }
+
+    /* Alert Compact */
+    .alert-compact {
+        padding: 0.875rem 1rem;
+        border-radius: 0.75rem 0.75rem 0.75rem 0;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .alert-compact-icon { font-size: 1.25rem; }
+    .alert-compact-content { flex: 1; }
+    .alert-compact-title { font-size: 0.9rem; font-weight: 600; color: var(--text-primary); }
+    .alert-compact-desc { font-size: 0.8rem; color: var(--text-secondary); }
+
+    /* Progress Ring */
+    .progress-ring {
+        position: relative;
+    }
+
+    /* Glass Cards for Results */
+    .glass-green {
+        background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(34, 197, 94, 0.05));
+        border: 1px solid rgba(34, 197, 94, 0.2);
+        border-radius: 1.5rem 0.5rem 1.5rem 0.5rem;
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+    }
+
+    .glass-error {
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(239, 68, 68, 0.05));
+        border: 1px solid rgba(239, 68, 68, 0.2);
+        border-radius: 1.5rem 0.5rem 1.5rem 0.5rem;
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+    }
+
+    .glass-tl {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 1.5rem 0.5rem 0.75rem 0.75rem;
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+    }
+
+    .glass-br {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 0.5rem 0.75rem 1.5rem 0.75rem;
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+    }
+
+    .glass-slash {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 0.5rem 1.5rem 0.5rem 1.5rem;
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+    }
+
+    .glass {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+    }
+
+    /* Badge Styles */
+    .badge-success {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        background: rgba(34, 197, 94, 0.15);
+        border: 1px solid rgba(34, 197, 94, 0.3);
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #22c55e;
+    }
+
+    .badge-error {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        background: rgba(239, 68, 68, 0.15);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #ef4444;
+    }
+
+    .badge-gold {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        background: rgba(251, 191, 36, 0.15);
+        border: 1px solid rgba(251, 191, 36, 0.3);
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--gold);
+    }
+
+    /* Text Colors */
+    .text-success { color: #22c55e !important; }
+    .text-error { color: #ef4444 !important; }
+    .text-gold { color: var(--gold) !important; }
+
+    /* Backgrounds */
+    .bg-success\/20 { background: rgba(34, 197, 94, 0.2); }
+    .bg-error\/20 { background: rgba(239, 68, 68, 0.2); }
+
+    /* Border */
+    .border-l-error { border-left-color: #ef4444 !important; }
+    .border-l-success { border-left-color: #22c55e !important; }
+
+    /* Light Mode Adjustments for Results */
+    html.light-mode .dashboard-container .stat-pill {
+        background: #f8fafc !important;
+        border: 1px solid rgba(0, 51, 127, 0.08) !important;
+    }
+
+    html.light-mode .dashboard-container .glass,
+    html.light-mode .dashboard-container .glass-tl,
+    html.light-mode .dashboard-container .glass-br,
+    html.light-mode .dashboard-container .glass-slash {
+        background: #ffffff !important;
+        border: 1px solid rgba(0, 51, 127, 0.1) !important;
+    }
+
+    html.light-mode .dashboard-container .glass-green {
+        background: linear-gradient(135deg, rgba(34, 197, 94, 0.08), rgba(34, 197, 94, 0.04)) !important;
+        border: 1px solid rgba(34, 197, 94, 0.2) !important;
+    }
+
+    html.light-mode .dashboard-container .glass-error {
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.08), rgba(239, 68, 68, 0.04)) !important;
+        border: 1px solid rgba(239, 68, 68, 0.2) !important;
+    }
+
+    html.light-mode .page-title {
+        color: #1e293b !important;
+    }
+
+    html.light-mode .page-title span {
+        background: linear-gradient(90deg, #d97706, #b45309) !important;
+        -webkit-background-clip: text !important;
+        -webkit-text-fill-color: transparent !important;
+        background-clip: text !important;
+    }
+
+    html.light-mode .section-header {
+        border-left-color: #d97706 !important;
+    }
+
+    html.light-mode .alert-compact.glass-success {
+        background: rgba(34, 197, 94, 0.1) !important;
+        border: 1px solid rgba(34, 197, 94, 0.2) !important;
+    }
 </style>
 @endpush
 
@@ -996,159 +1293,261 @@
         </script>
 
     @else
-        <!-- Results View -->
-        <div class="exam-card">
-            <!-- Result Header -->
-            <div class="text-center mb-8">
-                @if(isset($gamification_result) && $gamification_result)
-                    <div class="glass-success p-4 rounded-xl mb-6 inline-block">
-                        <div class="flex items-center gap-3">
-                            <span class="text-3xl">🎉</span>
-                            <div class="text-left">
-                                <div class="text-lg font-bold text-dark-primary">
-                                    +{{ $gamification_result['points_awarded'] }} Punkte!
-                                    @if($gamification_result['level_up'])
-                                        Level UP!
-                                    @endif
-                                </div>
-                                <div class="text-sm text-dark-secondary">{{ $gamification_result['reason'] }}</div>
-                            </div>
+        <!-- Results View - Bento Grid Design -->
+        @php
+            $percent = $total > 0 ? round($correctCount / $total * 100) : 0;
+            $wrongCount = $total - $correctCount;
+            $circumference = 2 * 3.14159 * 26;
+            $resultOffset = $circumference - ($percent / 100) * $circumference;
+        @endphp
+
+        <!-- SVG Gradient Definition -->
+        <svg width="0" height="0" style="position: absolute;">
+            <defs>
+                <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" style="stop-color:#fbbf24"/>
+                    <stop offset="100%" style="stop-color:#f59e0b"/>
+                </linearGradient>
+                <linearGradient id="successGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" style="stop-color:#22c55e"/>
+                    <stop offset="100%" style="stop-color:#16a34a"/>
+                </linearGradient>
+                <linearGradient id="errorGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" style="stop-color:#ef4444"/>
+                    <stop offset="100%" style="stop-color:#dc2626"/>
+                </linearGradient>
+            </defs>
+        </svg>
+
+        <div class="dashboard-container">
+            <!-- Header -->
+            <header class="dashboard-header">
+                <h1 class="page-title">Prüfung <span>{{ $passed ? 'Bestanden' : 'Nicht bestanden' }}</span></h1>
+                <p class="page-subtitle">{{ $correctCount }} von {{ $total }} Fragen richtig beantwortet</p>
+            </header>
+
+            <!-- Gamification Alert -->
+            @if(isset($gamification_result) && $gamification_result)
+                <div class="alert-compact glass-success" style="margin-bottom: 1.5rem;">
+                    <i class="bi bi-star-fill alert-compact-icon text-gold"></i>
+                    <div class="alert-compact-content">
+                        <div class="alert-compact-title">
+                            +{{ $gamification_result['points_awarded'] }} Punkte!
+                            @if($gamification_result['level_up'])
+                                <span class="badge-gold" style="margin-left: 0.5rem;">Level UP</span>
+                            @endif
+                        </div>
+                        <div class="alert-compact-desc">{{ $gamification_result['reason'] }}</div>
+                    </div>
+                </div>
+            @endif
+
+            <!-- Stats Row -->
+            <div class="stats-row">
+                <div class="stat-pill">
+                    <span class="stat-pill-icon {{ $passed ? 'text-success' : 'text-error' }}">
+                        <i class="bi bi-{{ $passed ? 'check-circle-fill' : 'x-circle-fill' }}"></i>
+                    </span>
+                    <div>
+                        <div class="stat-pill-value">{{ $percent }}%</div>
+                        <div class="stat-pill-label">Ergebnis</div>
+                    </div>
+                </div>
+                <div class="stat-pill">
+                    <span class="stat-pill-icon text-success"><i class="bi bi-check-lg"></i></span>
+                    <div>
+                        <div class="stat-pill-value">{{ $correctCount }}</div>
+                        <div class="stat-pill-label">Richtig</div>
+                    </div>
+                </div>
+                <div class="stat-pill">
+                    <span class="stat-pill-icon text-error"><i class="bi bi-x-lg"></i></span>
+                    <div>
+                        <div class="stat-pill-value">{{ $wrongCount }}</div>
+                        <div class="stat-pill-label">Falsch</div>
+                    </div>
+                </div>
+                <div class="stat-pill">
+                    <span class="stat-pill-icon text-gold"><i class="bi bi-bullseye"></i></span>
+                    <div>
+                        <div class="stat-pill-value">80%</div>
+                        <div class="stat-pill-label">Bestehensgrenze</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bento Grid -->
+            <div class="bento-grid">
+                <!-- Main Result Card -->
+                <div class="{{ $passed ? 'glass-green' : 'glass-error' }} bento-main" style="display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
+                    <div class="progress-ring" style="width: 120px; height: 120px; margin-bottom: 1.5rem;">
+                        <svg width="120" height="120" viewBox="0 0 64 64">
+                            <circle style="fill: none; stroke: rgba(255, 255, 255, 0.1); stroke-width: 4;" cx="32" cy="32" r="26"/>
+                            <circle style="fill: none; stroke: url(#{{ $passed ? 'successGradient' : 'errorGradient' }}); stroke-width: 4; stroke-linecap: round; transform: rotate(-90deg); transform-origin: center; transition: stroke-dashoffset 1s ease-out;"
+                                    cx="32" cy="32" r="26"
+                                    stroke-dasharray="{{ $circumference }}"
+                                    stroke-dashoffset="{{ $resultOffset }}"/>
+                        </svg>
+                        <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;">
+                            <span style="font-size: 2rem; font-weight: 800;" class="{{ $passed ? 'text-success' : 'text-error' }}">{{ $percent }}%</span>
                         </div>
                     </div>
-                @endif
 
-                <div class="text-6xl mb-4">{{ $passed ? '🎉' : '😔' }}</div>
+                    <span class="{{ $passed ? 'badge-success' : 'badge-error' }}" style="font-size: 0.9rem; padding: 0.5rem 1rem; margin-bottom: 1rem;">
+                        {{ $passed ? 'Bestanden' : 'Nicht bestanden' }}
+                    </span>
 
-                <div class="inline-block px-6 py-3 rounded-xl mb-4 {{ $passed ? 'glass-success' : 'glass-error' }}">
-                    <span class="text-3xl font-bold text-dark-primary">
-                        {{ round(($correctCount/$total)*100) }}%
-                    </span>
-                    <span class="text-lg font-medium text-dark-secondary ml-2">
-                        {{ $passed ? 'Bestanden' : 'Nicht Bestanden' }}
-                    </span>
+                    <p class="text-dark-secondary" style="max-width: 280px;">
+                        @if($passed)
+                            Du hast die Prüfung erfolgreich bestanden. Weiter so!
+                        @else
+                            Du benötigst mindestens 80% (32 von 40 Fragen) um zu bestehen.
+                        @endif
+                    </p>
                 </div>
 
-                @php
-                    $percent = $total > 0 ? round($correctCount / $total * 100) : 0;
-                @endphp
-
-                <div class="max-w-md mx-auto mb-4">
-                    <div class="result-bar">
-                        <div class="result-bar-fill" style="width: {{ $percent }}%;"></div>
+                <!-- Progress Bar Card -->
+                <div class="glass-tl bento-side">
+                    <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 0.75rem;">Ergebnis-Übersicht</div>
+                    <div class="result-bar" style="margin-bottom: 0.75rem;">
+                        <div class="result-bar-fill" style="width: {{ $percent }}%; background: {{ $passed ? 'linear-gradient(90deg, #22c55e, #16a34a)' : 'linear-gradient(90deg, #ef4444, #dc2626)' }};"></div>
                         <div class="result-bar-marker"></div>
                         <div class="result-bar-label">80%</div>
                     </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 0.75rem;">
+                        <span class="text-dark-muted">0%</span>
+                        <span class="{{ $passed ? 'text-success' : 'text-error' }} font-bold">{{ $percent }}%</span>
+                        <span class="text-dark-muted">100%</span>
+                    </div>
                 </div>
 
-                <p class="text-dark-secondary">
-                    {{ $correctCount }} von {{ $total }} richtig
-                </p>
+                <!-- Action Card -->
+                <div class="glass-br bento-side" style="display: flex; flex-direction: column; justify-content: center;">
+                    @if(!$passed)
+                        <h3 style="font-size: 1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.5rem;">Fehler wiederholen</h3>
+                        <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 1rem;">
+                            {{ $wrongCount }} Fragen müssen wiederholt werden.
+                        </p>
+                        <a href="{{ route('failed.index') }}" class="btn-primary btn-sm">Jetzt üben</a>
+                    @else
+                        <h3 style="font-size: 1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.5rem;">Weiter lernen</h3>
+                        <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 1rem;">
+                            Halte dein Wissen frisch.
+                        </p>
+                        <a href="{{ route('practice.all') }}" class="btn-secondary btn-sm">Üben</a>
+                    @endif
+                </div>
+
+                <!-- Dashboard Link - Wide -->
+                <div class="glass-slash bento-wide" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+                    <div>
+                        <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.25rem;">Zurück zum Dashboard</h3>
+                        <p style="font-size: 0.85rem; color: var(--text-secondary);">Übersicht deines Lernfortschritts anzeigen</p>
+                    </div>
+                    <a href="{{ route('dashboard') }}" class="btn-secondary">Dashboard</a>
+                </div>
             </div>
 
-            <div class="flex justify-center mb-8">
-                <a href="{{ route('dashboard') }}" class="btn-secondary px-8 py-3">
-                    Zum Dashboard
-                </a>
+            <!-- Detailed Results Section -->
+            <div class="section-header" style="margin-top: 2rem;">
+                <h2 class="section-title">Detaillierte Auswertung</h2>
             </div>
 
-            <div class="border-t border-glass-subtle pt-6">
-                <h3 class="text-lg font-bold text-dark-primary mb-4">Detaillierte Auswertung</h3>
+            <div class="flex flex-col gap-4">
+                @foreach($results as $index => $result)
+                    @php
+                        $frage = $result['frage'];
+                        $userAnswer = $result['userAnswer'];
+                        $solution = $result['solution'];
+                        $isCorrect = $result['isCorrect'];
+                        $mappingArray = $result['mapping'] ?? [];
 
-                <div class="flex flex-col gap-4">
-                    @foreach($results as $index => $result)
-                        @php
-                            $frage = $result['frage'];
-                            $userAnswer = $result['userAnswer'];
-                            $solution = $result['solution'];
-                            $isCorrect = $result['isCorrect'];
-                            $mappingArray = $result['mapping'] ?? [];
+                        $answersOriginal = [
+                            ['letter' => 'A', 'text' => $frage->antwort_a],
+                            ['letter' => 'B', 'text' => $frage->antwort_b],
+                            ['letter' => 'C', 'text' => $frage->antwort_c],
+                        ];
 
-                            $answersOriginal = [
-                                ['letter' => 'A', 'text' => $frage->antwort_a],
-                                ['letter' => 'B', 'text' => $frage->antwort_b],
-                                ['letter' => 'C', 'text' => $frage->antwort_c],
-                            ];
-
-                            if ($mappingArray) {
-                                $displayAnswers = [];
-                                foreach ($mappingArray as $position => $letter) {
-                                    foreach ($answersOriginal as $ans) {
-                                        if ($ans['letter'] === $letter) {
-                                            $displayAnswers[$position] = $ans;
-                                            break;
-                                        }
+                        if ($mappingArray) {
+                            $displayAnswers = [];
+                            foreach ($mappingArray as $position => $letter) {
+                                foreach ($answersOriginal as $ans) {
+                                    if ($ans['letter'] === $letter) {
+                                        $displayAnswers[$position] = $ans;
+                                        break;
                                     }
                                 }
-                                ksort($displayAnswers);
-                            } else {
-                                $displayAnswers = $answersOriginal;
                             }
-                        @endphp
+                            ksort($displayAnswers);
+                        } else {
+                            $displayAnswers = $answersOriginal;
+                        }
+                    @endphp
 
-                        <div class="glass-subtle p-4 rounded-xl {{ $isCorrect ? 'border-l-4 border-l-success' : 'border-l-4 border-l-error' }}">
-                            <div class="flex items-start gap-3 mb-3">
-                                <span class="text-2xl">{{ $isCorrect ? '✅' : '❌' }}</span>
-                                <div class="flex-1">
-                                    <div class="flex items-center gap-2 text-xs text-dark-muted mb-1">
-                                        <span>Frage {{ $index + 1 }}</span>
-                                        <span class="opacity-50">|</span>
-                                        <span>LA {{ $frage->lernabschnitt ?? '-' }}.{{ $frage->nummer ?? '-' }}</span>
-                                    </div>
-                                    <p class="text-dark-primary text-sm font-medium">{{ $frage->frage }}</p>
+                    <div class="glass {{ $isCorrect ? '' : 'border-l-4 border-l-error' }}" style="padding: 1.25rem; border-radius: {{ $index % 2 === 0 ? '1rem 0.5rem 1rem 1rem' : '0.5rem 1rem 1rem 1rem' }};">
+                        <div class="flex items-start gap-3 mb-3">
+                            <span class="flex items-center justify-center w-8 h-8 rounded-lg {{ $isCorrect ? 'bg-success/20 text-success' : 'bg-error/20 text-error' }}" style="flex-shrink: 0;">
+                                <i class="bi bi-{{ $isCorrect ? 'check-lg' : 'x-lg' }}"></i>
+                            </span>
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 text-xs text-dark-muted mb-1">
+                                    <span>Frage {{ $index + 1 }}</span>
+                                    <span class="opacity-50">|</span>
+                                    <span>LA {{ $frage->lernabschnitt ?? '-' }}.{{ $frage->nummer ?? '-' }}</span>
                                 </div>
-                            </div>
-
-                            <div class="flex flex-col gap-2 ml-9">
-                                @foreach($displayAnswers as $answerIndex => $answer)
-                                    @php
-                                        $originalLetter = $answer['letter'];
-                                        $isUserAnswer = $userAnswer->contains($originalLetter);
-                                        $isSolution = $solution->contains($originalLetter);
-
-                                        $stateClass = '';
-                                        $icon = '';
-
-                                        if ($isSolution && $isUserAnswer) {
-                                            $stateClass = 'result-correct';
-                                            $icon = '✓';
-                                        } elseif ($isSolution && !$isUserAnswer) {
-                                            $stateClass = 'result-correct-missed';
-                                            $icon = '✓';
-                                        } elseif (!$isSolution && $isUserAnswer) {
-                                            $stateClass = 'result-wrong';
-                                            $icon = '✗';
-                                        } else {
-                                            $stateClass = 'result-neutral';
-                                        }
-                                    @endphp
-
-                                    <div class="flex items-start gap-2 p-2 rounded-lg border {{ $stateClass }}">
-                                        <span class="w-5 h-5 flex items-center justify-center text-sm flex-shrink-0">
-                                            @if($isUserAnswer) {{ $icon }} @endif
-                                        </span>
-                                        <span class="text-dark-primary text-sm flex-1">
-                                            {{ $answer['text'] }}
-                                        </span>
-                                        @if($isSolution && !$isUserAnswer)
-                                            <span class="text-xs font-medium px-2 py-0.5 rounded bg-success/20 text-success flex-shrink-0">
-                                                Richtig
-                                            </span>
-                                        @endif
-                                    </div>
-                                @endforeach
-                            </div>
-
-                            <div class="mt-3 pt-3 border-t border-glass-subtle flex items-center justify-between text-xs ml-9">
-                                <span class="{{ $isCorrect ? 'text-success' : 'text-error' }} font-medium">
-                                    {{ $isCorrect ? '✓ Richtig' : '✗ Falsch' }}
-                                </span>
-                                <span class="text-dark-muted">
-                                    Lösung: {{ $solution->join(', ') }}
-                                </span>
+                                <p class="text-dark-primary text-sm font-medium">{{ $frage->frage }}</p>
                             </div>
                         </div>
-                    @endforeach
-                </div>
+
+                        <div class="flex flex-col gap-2 ml-11">
+                            @foreach($displayAnswers as $answerIndex => $answer)
+                                @php
+                                    $originalLetter = $answer['letter'];
+                                    $isUserAnswer = $userAnswer->contains($originalLetter);
+                                    $isSolution = $solution->contains($originalLetter);
+
+                                    $stateClass = '';
+
+                                    if ($isSolution && $isUserAnswer) {
+                                        $stateClass = 'result-correct';
+                                    } elseif ($isSolution && !$isUserAnswer) {
+                                        $stateClass = 'result-correct-missed';
+                                    } elseif (!$isSolution && $isUserAnswer) {
+                                        $stateClass = 'result-wrong';
+                                    } else {
+                                        $stateClass = 'result-neutral';
+                                    }
+                                @endphp
+
+                                <div class="flex items-start gap-2 p-2 rounded-lg border {{ $stateClass }}">
+                                    <span class="w-5 h-5 flex items-center justify-center text-sm flex-shrink-0">
+                                        @if($isUserAnswer)
+                                            <i class="bi bi-{{ $isSolution ? 'check-lg text-success' : 'x-lg text-error' }}"></i>
+                                        @endif
+                                    </span>
+                                    <span class="text-dark-primary text-sm flex-1">
+                                        {{ $answer['text'] }}
+                                    </span>
+                                    @if($isSolution && !$isUserAnswer)
+                                        <span class="badge-success" style="font-size: 0.65rem; padding: 0.15rem 0.5rem;">
+                                            Richtig
+                                        </span>
+                                    @endif
+                                </div>
+                            @endforeach
+                        </div>
+
+                        <div class="mt-3 pt-3 border-t border-glass-subtle flex items-center justify-between text-xs ml-11">
+                            <span class="{{ $isCorrect ? 'text-success' : 'text-error' }} font-medium flex items-center gap-1">
+                                <i class="bi bi-{{ $isCorrect ? 'check-circle' : 'x-circle' }}"></i>
+                                {{ $isCorrect ? 'Richtig' : 'Falsch' }}
+                            </span>
+                            <span class="text-dark-muted">
+                                Lösung: {{ $solution->join(', ') }}
+                            </span>
+                        </div>
+                    </div>
+                @endforeach
             </div>
         </div>
     @endif
