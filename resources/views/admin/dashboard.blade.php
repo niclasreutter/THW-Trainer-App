@@ -5,6 +5,21 @@
 
 @push('styles')
 <style>
+    /* Fix horizontal overflow that causes layout shift */
+    html, body {
+        overflow-x: hidden !important;
+        max-width: 100vw !important;
+    }
+
+    .dashboard-container {
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+        box-sizing: border-box;
+        overflow-x: hidden;
+    }
+
     /* KPI Cards */
     .kpi-value {
         font-size: 2.25rem;
@@ -263,13 +278,39 @@
     @media (max-width: 600px) {
         .dashboard-container {
             padding: 1rem;
+            width: 100%;
+            max-width: 100%;
         }
         .kpi-value {
             font-size: 1.75rem;
         }
         .chart-container {
             height: 180px;
+            width: 100%;
         }
+        .bento-grid {
+            grid-template-columns: 1fr;
+        }
+        .bento-wide, .bento-half, .bento-third, .bento-side {
+            grid-column: span 1;
+        }
+    }
+
+    /* Ensure all elements stay within bounds */
+    .bento-grid,
+    .stats-row,
+    .glass,
+    .glass-gold,
+    .glass-tl,
+    .glass-br,
+    .glass-slash {
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    .chart-container canvas {
+        max-width: 100% !important;
+        height: auto !important;
     }
 </style>
 @endpush
