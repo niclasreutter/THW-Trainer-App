@@ -4,66 +4,82 @@
 
 @push('styles')
 <style>
-    /* ─── Container — identisch wie dashboard.blade.php ─── */
-    .dashboard-container {
+    /* ─── Container — Mobile-first, keine Überlappung mit Layout-Padding ─── */
+    .lehrgang-container {
         max-width: 1200px;
+        width: 100%;
         margin: 0 auto;
-        padding: 2rem;
+        padding: 0;
         overflow-x: hidden;
         box-sizing: border-box;
     }
 
-    .dashboard-header {
-        margin-bottom: 2.5rem;
-        padding-top: 1rem;
-        max-width: 600px;
+    .lehrgang-header {
+        margin-bottom: 1.5rem;
+        max-width: 100%;
     }
 
-    /* ─── Bento Grid — identisch wie dashboard ─── */
-    .bento-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
-        grid-template-rows: auto;
-        gap: 1rem;
-        margin-bottom: 2rem;
+    .lehrgang-header .page-title {
+        word-break: break-word;
+        overflow-wrap: break-word;
     }
 
-    .bento-main {
-        grid-column: span 2;
-        grid-row: span 2;
-        min-height: 320px;
-        padding: 2rem;
+    /* ─── Stats Row — Mobile-optimiert ─── */
+    .lehrgang-stats {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+        width: 100%;
+    }
+
+    .lehrgang-stats .stat-pill {
+        flex: 1 1 auto;
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    /* ─── Bento Grid — 3 Spalten Desktop, überschreibt globale 4-Spalten ─── */
+    .lehrgang-grid {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr 1fr !important;
+        grid-template-rows: auto !important;
+        gap: 1rem !important;
+        margin-bottom: 1.5rem;
+        width: 100%;
+    }
+
+    .lehrgang-grid .bento-main {
+        grid-column: span 2 !important;
+        grid-row: span 2 !important;
+        min-height: 280px;
+        padding: 1.5rem;
         display: flex;
         flex-direction: column;
     }
 
-    .bento-side {
+    .lehrgang-grid .bento-side {
+        grid-column: span 1 !important;
         padding: 1.25rem;
         display: flex;
         flex-direction: column;
         justify-content: center;
     }
 
-    .bento-wide {
-        grid-column: span 3;
-        padding: 1.5rem;
-    }
-
     /* ─── Section Header ─── */
-    .section-header {
+    .lehrgang-section-header {
         display: flex;
         align-items: center;
-        gap: 1rem;
-        margin-bottom: 1rem;
-        padding-left: 1rem;
+        gap: 0.75rem;
+        margin-bottom: 0.75rem;
+        padding-left: 0.75rem;
         border-left: 3px solid var(--gold-start);
     }
 
-    .section-title {
-        font-size: 1.1rem;
+    .lehrgang-section-title {
+        font-size: 1rem;
         font-weight: 700;
         color: var(--text-primary);
-        letter-spacing: -0.02em;
     }
 
     /* ─── Progress Ring ─── */
@@ -71,12 +87,12 @@
         display: flex;
         align-items: center;
         gap: 1rem;
-        margin-bottom: 1.25rem;
+        margin-bottom: 1rem;
     }
 
     .progress-ring {
-        width: 64px;
-        height: 64px;
+        width: 56px;
+        height: 56px;
         position: relative;
         flex-shrink: 0;
     }
@@ -112,7 +128,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1rem;
+        font-size: 0.9rem;
         font-weight: 800;
         color: var(--text-primary);
     }
@@ -123,7 +139,7 @@
     }
 
     .progress-label {
-        font-size: 0.8rem;
+        font-size: 0.75rem;
         color: var(--text-muted);
         text-transform: uppercase;
         letter-spacing: 0.5px;
@@ -131,7 +147,7 @@
     }
 
     .progress-value {
-        font-size: 1.1rem;
+        font-size: 1rem;
         font-weight: 700;
         color: var(--text-primary);
     }
@@ -142,29 +158,29 @@
         flex-wrap: wrap;
         align-items: center;
         gap: 0.5rem;
-        margin-bottom: 1rem;
+        margin-bottom: 0.75rem;
     }
 
     .hero-title {
-        font-size: 1.75rem;
+        font-size: 1.5rem;
         font-weight: 800;
         color: var(--text-primary);
-        margin-bottom: 0.75rem;
+        margin-bottom: 0.5rem;
         line-height: 1.2;
     }
 
     .hero-desc {
-        font-size: 0.95rem;
+        font-size: 0.9rem;
         color: var(--text-secondary);
-        line-height: 1.6;
-        margin-bottom: 1.5rem;
+        line-height: 1.5;
+        margin-bottom: 1rem;
         flex-grow: 1;
     }
 
     .hero-actions {
         display: flex;
         flex-wrap: wrap;
-        gap: 0.75rem;
+        gap: 0.5rem;
         margin-top: auto;
     }
 
@@ -174,13 +190,16 @@
         flex-direction: column;
         gap: 0.5rem;
         margin-bottom: 1.5rem;
+        width: 100%;
     }
 
     .section-item {
-        padding: 0.875rem 1rem;
+        padding: 0.75rem;
         display: flex;
         align-items: center;
-        gap: 1rem;
+        gap: 0.75rem;
+        width: 100%;
+        box-sizing: border-box;
     }
 
     .section-item-info {
@@ -190,7 +209,7 @@
     }
 
     .section-item-name {
-        font-size: 0.875rem;
+        font-size: 0.85rem;
         font-weight: 600;
         color: var(--text-primary);
         white-space: nowrap;
@@ -212,7 +231,7 @@
     }
 
     .section-item-bar {
-        width: 60px;
+        width: 50px;
         height: 4px;
         background: rgba(255, 255, 255, 0.1);
         border-radius: 2px;
@@ -228,14 +247,14 @@
         font-size: 0.7rem;
         font-weight: 700;
         color: var(--text-secondary);
-        min-width: 32px;
+        min-width: 28px;
         text-align: right;
     }
 
     /* ─── Unenroll Block ─── */
     .unenroll-block {
         text-align: center;
-        padding-top: 1.5rem;
+        padding-top: 1.25rem;
         border-top: 1px solid rgba(255, 255, 255, 0.06);
     }
 
@@ -246,29 +265,11 @@
     }
 
     /* ─── Empty State ─── */
-    .empty-state {
-        text-align: center;
-        padding: 2.5rem 1.5rem;
-    }
-
     .empty-state-icon {
-        font-size: 2.5rem;
+        font-size: 2rem;
         color: var(--text-muted);
-        margin-bottom: 1rem;
+        margin-bottom: 0.75rem;
         opacity: 0.6;
-    }
-
-    .empty-state-title {
-        font-size: 1rem;
-        font-weight: 700;
-        color: var(--text-primary);
-        margin-bottom: 0.5rem;
-    }
-
-    .empty-state-desc {
-        font-size: 0.85rem;
-        color: var(--text-secondary);
-        margin-bottom: 1.25rem;
     }
 
     /* ─── Back Link ─── */
@@ -277,65 +278,99 @@
         margin-top: 1rem;
     }
 
-    /* ─── Responsive: Tablet (900px) ─── */
-    @media (max-width: 900px) {
-        .bento-grid {
-            grid-template-columns: 1fr 1fr;
+    /* ─── Responsive: Tablet (768px) ─── */
+    @media (max-width: 768px) {
+        .lehrgang-grid {
+            grid-template-columns: 1fr 1fr !important;
         }
-        .bento-main {
-            grid-column: span 2;
-            grid-row: span 1;
+        .lehrgang-grid .bento-main {
+            grid-column: span 2 !important;
+            grid-row: span 1 !important;
             min-height: auto;
         }
-        .bento-wide {
-            grid-column: span 2;
-        }
-        .bento-side {
-            grid-column: span 1;
+        .lehrgang-grid .bento-side {
+            grid-column: span 1 !important;
         }
     }
 
-    /* ─── Responsive: Mobile (600px) ─── */
-    @media (max-width: 600px) {
-        .dashboard-container {
+    /* ─── Responsive: Mobile (480px) ─── */
+    @media (max-width: 480px) {
+        .lehrgang-header {
+            margin-bottom: 1rem;
+        }
+
+        .lehrgang-header .page-title {
+            font-size: 1.5rem;
+        }
+
+        .lehrgang-header .page-subtitle {
+            font-size: 0.9rem;
+        }
+
+        .lehrgang-stats {
+            gap: 0.375rem;
+        }
+
+        .lehrgang-stats .stat-pill {
+            padding: 0.5rem 0.75rem;
+        }
+
+        .lehrgang-stats .stat-pill-value {
+            font-size: 1rem;
+        }
+
+        .lehrgang-stats .stat-pill-label {
+            font-size: 0.6rem;
+        }
+
+        .lehrgang-grid {
+            grid-template-columns: 1fr !important;
+            gap: 0.75rem !important;
+        }
+
+        .lehrgang-grid .bento-main,
+        .lehrgang-grid .bento-side {
+            grid-column: span 1 !important;
+            grid-row: span 1 !important;
             padding: 1rem;
         }
 
-        .bento-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .bento-main,
-        .bento-wide,
-        .bento-side {
-            grid-column: span 1;
-            padding: 1.25rem;
-        }
-
-        .bento-main {
+        .lehrgang-grid .bento-main {
             min-height: auto;
         }
 
         .hero-title {
-            font-size: 1.5rem;
+            font-size: 1.25rem;
+        }
+
+        .hero-desc {
+            font-size: 0.85rem;
         }
 
         .progress-ring {
-            width: 56px;
-            height: 56px;
+            width: 48px;
+            height: 48px;
         }
 
         .progress-ring-text {
+            font-size: 0.8rem;
+        }
+
+        .progress-value {
             font-size: 0.9rem;
         }
 
         .section-item {
-            padding: 0.75rem;
-            gap: 0.75rem;
+            padding: 0.625rem;
+            gap: 0.5rem;
+        }
+
+        .section-item-name {
+            font-size: 0.8rem;
         }
 
         .section-item-bar {
-            width: 48px;
+            width: 40px;
         }
     }
 </style>
@@ -390,15 +425,15 @@
     </defs>
 </svg>
 
-<div class="dashboard-container">
+<div class="lehrgang-container">
     <!-- Header -->
-    <header class="dashboard-header">
+    <header class="lehrgang-header">
         <h1 class="page-title">{{ $lehrgang->lehrgang }}</h1>
         <p class="page-subtitle">Spezialisierter THW-Lehrgang</p>
     </header>
 
     <!-- Stats Row -->
-    <div class="stats-row">
+    <div class="lehrgang-stats">
         <div class="stat-pill">
             <span class="stat-pill-icon text-gold"><i class="bi bi-question-circle"></i></span>
             <div>
@@ -424,7 +459,7 @@
 
     @if($isEnrolled)
         <!-- Bento Grid: Enrolled -->
-        <div class="bento-grid">
+        <div class="lehrgang-grid">
             <!-- Main Hero Card -->
             <div class="glass-gold bento-main">
                 <div class="hero-badges">
@@ -491,8 +526,8 @@
         </div>
 
         <!-- Sections List -->
-        <div class="section-header">
-            <h2 class="section-title">Lernabschnitte</h2>
+        <div class="lehrgang-section-header">
+            <h2 class="lehrgang-section-title">Lernabschnitte</h2>
         </div>
 
         <div class="section-list">
@@ -535,7 +570,7 @@
 
     @else
         <!-- Bento Grid: Not Enrolled -->
-        <div class="bento-grid">
+        <div class="lehrgang-grid">
             <!-- Main Enroll Card -->
             <div class="glass-gold bento-main" style="justify-content: center; align-items: center; text-align: center;">
                 <div class="empty-state-icon">
@@ -569,8 +604,8 @@
         </div>
 
         <!-- Sections Preview -->
-        <div class="section-header">
-            <h2 class="section-title">Lernabschnitte</h2>
+        <div class="lehrgang-section-header">
+            <h2 class="lehrgang-section-title">Lernabschnitte</h2>
         </div>
 
         <div class="section-list">
