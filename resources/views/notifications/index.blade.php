@@ -3,41 +3,68 @@
 @section('title', 'Mitteilungen')
 
 @section('content')
-<div class="min-h-screen bg-gray-50 py-8">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <!-- Header -->
-        <div class="dashboard-header mb-8">
-            <h1 class="dashboard-greeting">🔔 <span>Mitteilungen</span></h1>
-            <p class="dashboard-subtitle">Deine Level-Ups, Achievements und Erfolge</p>
+<div class="dashboard-container">
+    <header class="dashboard-header">
+        <h1 class="page-title">Deine <span>Mitteilungen</span></h1>
+        <p class="page-subtitle">Level-Ups, Achievements und Erfolge</p>
+    </header>
+
+    @php
+        $unreadCount = Auth::user()->unreadNotifications()->count();
+        $readCount = $notifications->where('is_read', true)->count();
+    @endphp
+
+    <!-- Stats Row -->
+    <div class="stats-row">
+        <div class="stat-pill">
+            <span class="stat-pill-icon"><i class="bi bi-bell"></i></span>
+            <div>
+                <div class="stat-pill-value">{{ $notifications->total() }}</div>
+                <div class="stat-pill-label">Gesamt</div>
+            </div>
         </div>
 
-        <!-- Actions -->
-        <div class="bg-white rounded-lg shadow-sm p-4 mb-6">
-            <div class="flex items-center justify-between">
-                <div class="text-sm text-gray-600">
-                    <span class="font-medium text-gray-900">{{ $notifications->total() }}</span> Mitteilungen insgesamt
-                    @php
-                        $unreadCount = Auth::user()->unreadNotifications()->count();
-                    @endphp
+        <div class="stat-pill">
+            <span class="stat-pill-icon"><i class="bi bi-bell-fill"></i></span>
+            <div>
+                <div class="stat-pill-value">{{ $unreadCount }}</div>
+                <div class="stat-pill-label">Ungelesen</div>
+            </div>
+        </div>
+
+        <div class="stat-pill">
+            <span class="stat-pill-icon"><i class="bi bi-check2-all"></i></span>
+            <div>
+                <div class="stat-pill-value">{{ $readCount }}</div>
+                <div class="stat-pill-label">Gelesen</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bento-grid">
+        <!-- Actions Card -->
+        <div class="glass bento-wide p-4">
+            <div class="flex items-center justify-between flex-wrap gap-3">
+                <div class="text-sm" style="color: var(--text-secondary);">
+                    <span class="font-semibold" style="color: var(--text-primary);">{{ $notifications->total() }}</span> Mitteilungen
                     @if($unreadCount > 0)
-                        <span class="ml-2">•</span>
-                        <span class="ml-2"><span class="font-medium text-blue-600">{{ $unreadCount }}</span> ungelesen</span>
+                        <span class="mx-2" style="color: var(--text-muted);">|</span>
+                        <span class="font-semibold text-gradient-gold">{{ $unreadCount }}</span> ungelesen
                     @endif
                 </div>
-                <div class="flex gap-2">
+                <div class="flex gap-3">
                     @if($unreadCount > 0)
                         <form action="{{ route('notifications.read-all') }}" method="POST" class="inline">
                             @csrf
-                            <button type="submit" class="text-sm text-blue-600 hover:text-blue-800 font-medium">
+                            <button type="submit" class="btn-ghost btn-sm">
                                 Alle als gelesen markieren
                             </button>
                         </form>
                     @endif
-                    @if($notifications->where('is_read', true)->count() > 0)
-                        <span class="text-gray-300">|</span>
+                    @if($readCount > 0)
                         <form action="{{ route('notifications.clear-read') }}" method="POST" class="inline" onsubmit="return confirm('Möchtest du wirklich alle gelesenen Mitteilungen löschen?')">
                             @csrf
-                            <button type="submit" class="text-sm text-red-600 hover:text-red-800 font-medium">
+                            <button type="submit" class="btn-danger btn-sm">
                                 Gelesene löschen
                             </button>
                         </form>
@@ -47,71 +74,77 @@
         </div>
 
         <!-- Notifications List -->
-        <div class="space-y-4">
+        <div class="bento-wide space-y-4">
             @forelse($notifications as $notification)
-                <div class="bg-white rounded-lg shadow-sm overflow-hidden {{ $notification->is_read ? '' : 'border-l-4 border-blue-500' }}">
-                    <div class="p-6">
-                        <div class="flex items-start">
-                            <!-- Icon -->
-                            <div class="flex-shrink-0">
-                                <span class="text-4xl">{{ $notification->icon ?? '🔔' }}</span>
-                            </div>
+                <div class="{{ $notification->is_read ? 'glass' : 'glass-gold' }} p-5 transition-all duration-200 hover:scale-[1.01]">
+                    <div class="flex items-start gap-4">
+                        <!-- Icon -->
+                        <div class="flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center {{ $notification->is_read ? 'glass-subtle' : 'glass' }}" style="font-size: 1.5rem;">
+                            @if($notification->icon)
+                                {{ $notification->icon }}
+                            @else
+                                <i class="bi bi-bell" style="color: var(--gold);"></i>
+                            @endif
+                        </div>
 
-                            <!-- Content -->
-                            <div class="ml-4 flex-1">
-                                <div class="flex items-start justify-between">
-                                    <div>
-                                        <h3 class="text-lg font-semibold text-gray-900">
-                                            {{ $notification->title }}
-                                        </h3>
-                                        <p class="mt-1 text-base text-gray-700">
-                                            {{ $notification->message }}
-                                        </p>
-                                        @if($notification->data && isset($notification->data['description']))
-                                            <p class="mt-1 text-sm text-gray-600">
-                                                {{ $notification->data['description'] }}
-                                            </p>
-                                        @endif
-                                        <p class="mt-2 text-sm text-gray-500">
-                                            {{ $notification->created_at->diffForHumans() }}
-                                            @if(!$notification->is_read)
-                                                <span class="ml-2 text-blue-600 font-medium">• Neu</span>
-                                            @endif
-                                        </p>
-                                    </div>
-
-                                    <!-- Action Buttons -->
-                                    <div class="ml-4 flex-shrink-0 flex gap-2">
+                        <!-- Content -->
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-start justify-between gap-4">
+                                <div class="flex-1">
+                                    <h3 class="font-bold" style="color: var(--text-primary);">
+                                        {{ $notification->title }}
                                         @if(!$notification->is_read)
-                                            <button onclick="markAsRead({{ $notification->id }})" class="text-gray-400 hover:text-blue-600 transition-colors" title="Als gelesen markieren">
-                                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                                </svg>
-                                            </button>
+                                            <span class="inline-block w-2 h-2 rounded-full ml-2" style="background: var(--gold);"></span>
                                         @endif
-                                        <button onclick="deleteNotification({{ $notification->id }})" class="text-gray-400 hover:text-red-600 transition-colors" title="Löschen">
-                                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                            </svg>
+                                    </h3>
+                                    <p class="mt-1 text-sm" style="color: var(--text-secondary);">
+                                        {{ $notification->message }}
+                                    </p>
+                                    @if($notification->data && isset($notification->data['description']))
+                                        <p class="mt-1 text-xs" style="color: var(--text-muted);">
+                                            {{ $notification->data['description'] }}
+                                        </p>
+                                    @endif
+                                    <p class="mt-2 text-xs" style="color: var(--text-muted);">
+                                        {{ $notification->created_at->diffForHumans() }}
+                                    </p>
+                                </div>
+
+                                <!-- Action Buttons -->
+                                <div class="flex-shrink-0 flex gap-2">
+                                    @if(!$notification->is_read)
+                                        <button onclick="markAsRead({{ $notification->id }})"
+                                                class="w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-110"
+                                                style="background: var(--glass-white-5); color: var(--text-secondary);"
+                                                title="Als gelesen markieren">
+                                            <i class="bi bi-check2"></i>
                                         </button>
-                                    </div>
+                                    @endif
+                                    <button onclick="deleteNotification({{ $notification->id }})"
+                                            class="w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-110"
+                                            style="background: var(--glass-white-5); color: var(--text-secondary);"
+                                            title="Löschen">
+                                        <i class="bi bi-x-lg"></i>
+                                    </button>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             @empty
-                <div class="bg-white rounded-lg shadow-sm p-12 text-center">
-                    <span class="text-6xl">📭</span>
-                    <h3 class="mt-4 text-lg font-semibold text-gray-900">Keine Mitteilungen</h3>
-                    <p class="mt-2 text-gray-600">Du hast noch keine Mitteilungen erhalten.</p>
+                <div class="glass p-12 text-center">
+                    <div class="text-6xl mb-4" style="color: var(--text-muted);">
+                        <i class="bi bi-inbox"></i>
+                    </div>
+                    <h3 class="text-lg font-bold mb-2" style="color: var(--text-primary);">Keine Mitteilungen</h3>
+                    <p style="color: var(--text-secondary);">Du hast noch keine Mitteilungen erhalten.</p>
                 </div>
             @endforelse
         </div>
 
         <!-- Pagination -->
         @if($notifications->hasPages())
-            <div class="mt-8">
+            <div class="bento-wide">
                 {{ $notifications->links() }}
             </div>
         @endif
@@ -157,12 +190,4 @@
         .catch(error => console.error('Error:', error));
     }
 </script>
-
-<style>
-.dashboard-greeting span {
-    background: linear-gradient(90deg, #fbbf24, #f59e0b);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-</style>
 @endsection

@@ -69,6 +69,15 @@
                                 <a href="{{ route('gamification.leaderboard') }}" class="dropdown-item-glass">
                                     Leaderboard
                                 </a>
+                                @php
+                                    $navNotificationCount = Auth::user()->unreadNotifications()->count();
+                                @endphp
+                                <a href="{{ route('notifications.index') }}" class="dropdown-item-glass flex items-center justify-between">
+                                    <span>Mitteilungen</span>
+                                    @if($navNotificationCount > 0)
+                                        <span class="badge-error text-xs">{{ $navNotificationCount }}</span>
+                                    @endif
+                                </a>
                             </div>
                         </div>
 
@@ -338,6 +347,15 @@
                     </a>
                     <a href="{{ route('gamification.leaderboard') }}" class="block px-3 py-2 text-sm text-dark-secondary hover:text-gold hover:bg-glass-white-5 rounded-md transition-colors duration-200">
                         Leaderboard
+                    </a>
+                    @php
+                        $mobileGamificationNotificationCount = Auth::user()->unreadNotifications()->count();
+                    @endphp
+                    <a href="{{ route('notifications.index') }}" class="block px-3 py-2 text-sm text-dark-secondary hover:text-gold hover:bg-glass-white-5 rounded-md transition-colors duration-200 flex items-center justify-between">
+                        <span>Mitteilungen</span>
+                        @if($mobileGamificationNotificationCount > 0)
+                            <span class="badge-error text-xs">{{ $mobileGamificationNotificationCount }}</span>
+                        @endif
                     </a>
                 </div>
 
