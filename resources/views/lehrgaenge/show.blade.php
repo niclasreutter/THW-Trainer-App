@@ -2,6 +2,85 @@
 
 @section('title', $lehrgang->lehrgang)
 
+@push('styles')
+<style>
+    .show-dashboard-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .show-stats-row {
+        display: flex;
+        gap: 0.75rem;
+        margin-bottom: 2rem;
+    }
+
+    .show-stats-row .stat-pill {
+        flex: 1;
+        min-width: 0;
+        justify-content: center;
+    }
+
+    .show-hero-card {
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        position: relative;
+    }
+
+    .show-hero-card--centered {
+        padding: 2rem;
+        text-align: center;
+    }
+
+    .show-section-item {
+        padding: 0.875rem 1rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    @media (max-width: 600px) {
+        .show-dashboard-container {
+            padding: 1rem;
+        }
+
+        .show-stats-row .stat-pill {
+            padding: 0.6rem 0.75rem;
+            gap: 0.5rem;
+        }
+
+        .show-stats-row .stat-pill-icon {
+            font-size: 1rem;
+        }
+
+        .show-stats-row .stat-pill-value {
+            font-size: 1rem;
+        }
+
+        .show-stats-row .stat-pill-label {
+            font-size: 0.6rem;
+        }
+
+        .show-hero-card,
+        .show-hero-card--centered {
+            padding: 1rem;
+        }
+
+        .show-section-item {
+            padding: 0.75rem;
+            gap: 0.75rem;
+        }
+
+        .show-section-item .section-progress-bar {
+            width: 48px;
+        }
+    }
+</style>
+@endpush
+
 @section('content')
 @php
     $isEnrolled = in_array($lehrgang->id, $enrolledIds ?? []);
@@ -38,7 +117,7 @@
         ->toArray();
 @endphp
 
-<div class="dashboard-container">
+<div class="show-dashboard-container">
     <!-- Header -->
     <header class="dashboard-header">
         <h1 class="page-title">{{ $lehrgang->lehrgang }}</h1>
@@ -46,7 +125,7 @@
     </header>
 
     <!-- Stats Row -->
-    <div class="stats-row">
+    <div class="show-stats-row">
         <div class="stat-pill">
             <span class="stat-pill-icon text-gold"><i class="bi bi-question-circle"></i></span>
             <div>
@@ -72,7 +151,7 @@
 
     @if($isEnrolled)
         <!-- Enrolled: Hero Card -->
-        <div class="glass-gold" style="padding: 1.5rem; margin-bottom: 1.5rem; position: relative;">
+        <div class="glass-gold show-hero-card">
             <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
                 <span class="badge-success">Eingeschrieben</span>
                 @if($isCompleted)
@@ -131,13 +210,13 @@
                     $sectionProgress = $sectionQuestionCount > 0 ? round(($sectionSolvedCount / $sectionQuestionCount) * 100) : 0;
                     $sectionComplete = $sectionProgress == 100 && $sectionSolvedCount > 0;
                 @endphp
-                <div class="glass-subtle" style="padding: 0.875rem 1rem; display: flex; align-items: center; gap: 1rem;">
+                <div class="glass-subtle show-section-item">
                     <div style="flex: 1; min-width: 0; overflow: hidden;">
                         <div style="font-size: 0.875rem; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $sectionName }}</div>
                         <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.125rem;">{{ $sectionQuestionCount }} Fragen, {{ $sectionSolvedCount }} gelöst</div>
                     </div>
                     <div style="display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0;">
-                        <div style="width: 60px; height: 4px; background: rgba(255, 255, 255, 0.1); border-radius: 2px; overflow: hidden;">
+                        <div class="section-progress-bar" style="width: 60px; height: 4px; background: rgba(255, 255, 255, 0.1); border-radius: 2px; overflow: hidden;">
                             <div style="height: 100%; width: {{ $sectionProgress }}%; background: {{ $sectionComplete ? 'linear-gradient(90deg, #22c55e, #16a34a)' : 'var(--gradient-gold)' }}; border-radius: 2px;"></div>
                         </div>
                         <span style="font-size: 0.7rem; font-weight: 700; color: var(--text-secondary); min-width: 32px; text-align: right;">{{ $sectionProgress }}%</span>
@@ -158,7 +237,7 @@
 
     @else
         <!-- Not Enrolled: Enroll Card -->
-        <div class="glass-gold" style="padding: 2rem; margin-bottom: 1.5rem; text-align: center;">
+        <div class="glass-gold show-hero-card show-hero-card--centered">
             <div style="font-size: 2.5rem; color: var(--text-muted); opacity: 0.5; margin-bottom: 0.75rem;">
                 <i class="bi bi-mortarboard"></i>
             </div>
@@ -189,13 +268,13 @@
                     $sectionName = $lernabschnittNamen[(int)$sectionNr] ?? $lernabschnittNamen[$sectionNr] ?? "Abschnitt {$sectionNr}";
                     $sectionQuestionCount = $lehrgang->questions()->where('lernabschnitt', $sectionNr)->count();
                 @endphp
-                <div class="glass-subtle" style="padding: 0.875rem 1rem; display: flex; align-items: center; gap: 1rem;">
+                <div class="glass-subtle show-section-item">
                     <div style="flex: 1; min-width: 0; overflow: hidden;">
                         <div style="font-size: 0.875rem; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $sectionName }}</div>
                         <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.125rem;">{{ $sectionQuestionCount }} Fragen</div>
                     </div>
                     <div style="display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0;">
-                        <div style="width: 60px; height: 4px; background: rgba(255, 255, 255, 0.1); border-radius: 2px; overflow: hidden;">
+                        <div class="section-progress-bar" style="width: 60px; height: 4px; background: rgba(255, 255, 255, 0.1); border-radius: 2px; overflow: hidden;">
                             <div style="height: 100%; width: 0%; background: var(--gradient-gold); border-radius: 2px;"></div>
                         </div>
                         <span style="font-size: 0.7rem; font-weight: 700; color: var(--text-secondary); min-width: 32px; text-align: right;">0%</span>
