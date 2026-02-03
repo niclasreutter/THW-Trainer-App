@@ -6,11 +6,17 @@
 <style>
     /* ===== KOMPLETT MOBILE-FIRST - KEINE EXTERNEN ABHÄNGIGKEITEN ===== */
 
+    /* Global overflow fix für Mobile */
     .lg-page {
         width: 100%;
         max-width: 900px;
         margin: 0 auto;
         padding: 0.75rem;
+        box-sizing: border-box;
+        overflow-x: hidden;
+    }
+
+    .lg-page * {
         box-sizing: border-box;
     }
 
@@ -27,6 +33,9 @@
         color: var(--text-primary);
         margin-bottom: 0.125rem;
         line-height: 1.2;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        hyphens: auto;
     }
 
     @media (min-width: 640px) {
@@ -54,6 +63,8 @@
         border-radius: 0.75rem;
         padding: 1rem;
         margin-bottom: 1rem;
+        width: 100%;
+        overflow: hidden;
     }
 
     @media (min-width: 640px) {
@@ -85,6 +96,8 @@
         color: var(--text-secondary);
         line-height: 1.5;
         margin-bottom: 1rem;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
     }
 
     @media (min-width: 640px) {
@@ -168,6 +181,8 @@
         border-radius: 0.625rem;
         padding: 0.875rem;
         margin-bottom: 1rem;
+        width: 100%;
+        overflow: hidden;
     }
 
     @media (min-width: 640px) {
@@ -239,6 +254,7 @@
         flex-direction: column;
         gap: 0.5rem;
         margin-bottom: 1.25rem;
+        width: 100%;
     }
 
     @media (min-width: 640px) {
@@ -302,6 +318,8 @@
         flex-direction: column;
         gap: 0.375rem;
         margin-bottom: 1.25rem;
+        width: 100%;
+        overflow: hidden;
     }
 
     @media (min-width: 640px) {
@@ -320,6 +338,9 @@
         padding: 0.625rem 0.75rem;
         border-radius: 0.5rem;
         gap: 0.5rem;
+        width: 100%;
+        max-width: 100%;
+        overflow: hidden;
     }
 
     @media (min-width: 640px) {
@@ -331,6 +352,7 @@
     .lg-section-info {
         flex: 1;
         min-width: 0;
+        overflow: hidden;
     }
 
     .lg-section-name {
@@ -340,11 +362,14 @@
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        max-width: 100%;
+        display: block;
     }
 
     @media (min-width: 640px) {
         .lg-section-name {
             font-size: 0.9rem;
+            white-space: normal;
         }
     }
 
@@ -440,12 +465,19 @@
         text-align: center;
         padding-top: 1rem;
         border-top: 1px solid rgba(255, 255, 255, 0.06);
+        width: 100%;
+        overflow: hidden;
     }
 
     .lg-unenroll-hint {
         font-size: 0.7rem;
         color: var(--text-muted);
         margin-top: 0.25rem;
+    }
+
+    .lg-unenroll form {
+        display: inline-block;
+        max-width: 100%;
     }
 
     .lg-btn-danger {
@@ -457,6 +489,8 @@
         font-size: 0.8rem;
         font-weight: 600;
         cursor: pointer;
+        max-width: 100%;
+        white-space: nowrap;
     }
 
     /* Back Link */
