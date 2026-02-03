@@ -23,10 +23,16 @@
         }
     }
 
-    /* Container */
-    #examContainer {
+    /* Container - nur für aktive Prüfung begrenzt */
+    .exam-active-mode #examContainer {
         max-width: 900px;
         margin: 0 auto;
+    }
+
+    /* Results Container - volle Breite */
+    #examContainer.exam-results-mode {
+        max-width: 100%;
+        padding: 0 !important;
     }
 
     @media (max-width: 640px) {
@@ -543,11 +549,26 @@
         max-width: 1200px;
         margin: 0 auto;
         padding: 2rem;
+        width: 100%;
+        box-sizing: border-box;
     }
 
     @media (max-width: 600px) {
         .dashboard-container {
             padding: 1rem;
+        }
+    }
+
+    /* Prevent horizontal scroll on results */
+    #examContainer.exam-results-mode .dashboard-container * {
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    /* Question details - reduce margin on mobile */
+    @media (max-width: 600px) {
+        #examContainer.exam-results-mode .ml-11 {
+            margin-left: 0 !important;
         }
     }
 
@@ -584,6 +605,7 @@
         flex-wrap: wrap;
         gap: 0.75rem;
         margin-bottom: 2rem;
+        max-width: 100%;
     }
 
     .stat-pill {
@@ -619,6 +641,7 @@
         grid-template-columns: 1fr 1fr 1fr;
         gap: 1rem;
         margin-bottom: 2rem;
+        max-width: 100%;
     }
 
     .bento-main {
@@ -837,7 +860,7 @@
 @if(!isset($submitted))
 <script>document.body.classList.add('exam-active-mode');</script>
 @endif
-<div class="sm:p-6 sm:py-8" id="examContainer">
+<div class="{{ isset($submitted) ? 'exam-results-mode' : 'sm:p-6 sm:py-8' }}" id="examContainer">
     @if(!isset($submitted))
         <div class="exam-card">
             <!-- Mobile Header -->
