@@ -5,19 +5,12 @@
 
 @push('styles')
 <style>
-    /* Fix horizontal overflow that causes layout shift */
-    html, body {
-        overflow-x: hidden !important;
-        max-width: 100vw !important;
-    }
-
     .dashboard-container {
         width: 100%;
         max-width: 1200px;
         margin: 0 auto;
         padding: 2rem;
         box-sizing: border-box;
-        overflow-x: hidden;
     }
 
     /* KPI Cards */
