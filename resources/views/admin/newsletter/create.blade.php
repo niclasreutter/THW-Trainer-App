@@ -28,9 +28,9 @@
         </div>
     </div>
 
-    <div class="bento-grid" style="grid-template-columns: 1fr 1fr;">
+    <div class="bento-grid">
         <!-- Editor Seite -->
-        <div class="glass-gold hover-lift" style="padding: 1.5rem;">
+        <div class="glass-gold hover-lift bento-half" style="padding: 1.5rem;">
             <h2 style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
                 <i class="bi bi-pencil text-gold"></i>
                 Newsletter bearbeiten
@@ -168,7 +168,7 @@
         </div>
 
         <!-- Vorschau Seite -->
-        <div class="glass-tl hover-lift" style="padding: 1.5rem;">
+        <div class="glass-tl hover-lift bento-half" style="padding: 1.5rem;">
             <h2 style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
                 <i class="bi bi-eye text-gold"></i>
                 Vorschau
