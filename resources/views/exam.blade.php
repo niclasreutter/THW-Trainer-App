@@ -853,6 +853,10 @@
         background: rgba(34, 197, 94, 0.1) !important;
         border: 1px solid rgba(34, 197, 94, 0.2) !important;
     }
+
+    html.light-mode .result-bar {
+        background: rgba(0, 51, 127, 0.1) !important;
+    }
 </style>
 @endpush
 
