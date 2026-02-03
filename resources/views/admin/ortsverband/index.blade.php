@@ -29,46 +29,50 @@
 
             <div style="display: flex; flex-direction: column; gap: 1rem;">
                 @foreach($ortsverbande as $ov)
-                    <div class="glass" style="padding: 1.25rem; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem;">
-                        <div style="flex: 1;">
-                            <h3 style="margin: 0 0 0.5rem 0; font-size: 1.1rem; font-weight: 700;">{{ $ov->name }}</h3>
-                            @if($ov->description)
-                                <p style="margin: 0 0 0.75rem 0; color: var(--text-secondary); font-size: 0.9rem;">{{ $ov->description }}</p>
-                            @endif
+                    <div class="glass" style="padding: 1.25rem;">
+                        <div style="display: flex; flex-direction: column; gap: 1rem;">
+                            <!-- Header Section -->
+                            <div>
+                                <h3 style="margin: 0 0 0.5rem 0; font-size: 1.1rem; font-weight: 700;">{{ $ov->name }}</h3>
+                                @if($ov->description)
+                                    <p style="margin: 0 0 0.75rem 0; color: var(--text-secondary); font-size: 0.9rem;">{{ $ov->description }}</p>
+                                @endif
 
-                            <div style="display: flex; gap: 1.5rem; font-size: 0.9rem; color: var(--text-secondary);">
-                                <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                    <i class="bi bi-people"></i>
-                                    <strong style="color: var(--text-primary);">{{ $ov->members_count ?? $ov->members()->count() }}</strong>
-                                    Mitglied{{ ($ov->members_count ?? $ov->members()->count()) === 1 ? '' : 'er' }}
+                                <div style="display: flex; flex-wrap: wrap; gap: 1rem; font-size: 0.9rem; color: var(--text-secondary);">
+                                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                        <i class="bi bi-people"></i>
+                                        <strong style="color: var(--text-primary);">{{ $ov->members_count ?? $ov->members()->count() }}</strong>
+                                        Mitglied{{ ($ov->members_count ?? $ov->members()->count()) === 1 ? '' : 'er' }}
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                        <i class="bi bi-calendar"></i>
+                                        <strong style="color: var(--text-primary);">{{ $ov->created_at->format('d.m.Y') }}</strong>
+                                    </div>
                                 </div>
-                                <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                    <i class="bi bi-calendar"></i>
-                                    <strong style="color: var(--text-primary);">{{ $ov->created_at->format('d.m.Y') }}</strong>
-                                </div>
+
+                                @if($ov->creator)
+                                    <p style="margin: 0.5rem 0 0 0; font-size: 0.85rem; color: var(--text-muted);">
+                                        Gründer: <strong style="color: var(--text-secondary);">{{ $ov->creator->name }}</strong>
+                                    </p>
+                                @endif
                             </div>
 
-                            @if($ov->creator)
-                                <p style="margin: 0.5rem 0 0 0; font-size: 0.85rem; color: var(--text-muted);">
-                                    Gründer: <strong style="color: var(--text-secondary);">{{ $ov->creator->name }}</strong>
-                                </p>
-                            @endif
-                        </div>
-
-                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                            <form method="POST" action="{{ route('admin.ortsverband.view-as', $ov) }}" style="display: inline;">
-                                @csrf
-                                <button type="submit" class="btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
-                                    <i class="bi bi-eye"></i> Ansehen
-                                </button>
-                            </form>
-                            <form method="POST" action="{{ route('admin.ortsverband.destroy', $ov) }}" style="display: inline;" onsubmit="return confirm('Wirklich löschen?');">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn-ghost" style="padding: 0.5rem 1rem; font-size: 0.9rem; color: var(--error);">
-                                    <i class="bi bi-trash"></i> Löschen
-                                </button>
-                            </form>
+                            <!-- Action Buttons -->
+                            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                <form method="POST" action="{{ route('admin.ortsverband.view-as', $ov) }}" style="flex: 1; min-width: 120px;">
+                                    @csrf
+                                    <button type="submit" class="btn-secondary" style="width: 100%; justify-content: center;">
+                                        <i class="bi bi-eye"></i> Ansehen
+                                    </button>
+                                </form>
+                                <form method="POST" action="{{ route('admin.ortsverband.destroy', $ov) }}" style="flex: 1; min-width: 120px;" onsubmit="return confirm('Wirklich löschen?');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn-ghost" style="width: 100%; justify-content: center; color: var(--error);">
+                                        <i class="bi bi-trash"></i> Löschen
+                                    </button>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 @endforeach
