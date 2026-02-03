@@ -17,11 +17,13 @@
     .lehrgang-header {
         margin-bottom: 1.5rem;
         max-width: 100%;
+        overflow: hidden;
     }
 
     .lehrgang-header .page-title {
         word-break: break-word;
         overflow-wrap: break-word;
+        hyphens: auto;
     }
 
     /* ─── Stats Row — Mobile-optimiert ─── */
@@ -31,12 +33,15 @@
         gap: 0.5rem;
         margin-bottom: 1.5rem;
         width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
     }
 
     .lehrgang-stats .stat-pill {
-        flex: 1 1 auto;
+        flex: 1 1 calc(33.333% - 0.5rem);
         min-width: 0;
         max-width: 100%;
+        box-sizing: border-box;
     }
 
     /* ─── Bento Grid — 3 Spalten Desktop, überschreibt globale 4-Spalten ─── */
@@ -47,6 +52,8 @@
         gap: 1rem !important;
         margin-bottom: 1.5rem;
         width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
     }
 
     .lehrgang-grid .bento-main {
@@ -56,6 +63,7 @@
         padding: 1.5rem;
         display: flex;
         flex-direction: column;
+        overflow: hidden;
     }
 
     .lehrgang-grid .bento-side {
@@ -64,6 +72,7 @@
         display: flex;
         flex-direction: column;
         justify-content: center;
+        overflow: hidden;
     }
 
     /* ─── Section Header ─── */
@@ -291,6 +300,10 @@
         .lehrgang-grid .bento-side {
             grid-column: span 1 !important;
         }
+        
+        .lehrgang-stats .stat-pill {
+            flex: 1 1 calc(50% - 0.5rem);
+        }
     }
 
     /* ─── Responsive: Mobile (480px) ─── */
@@ -312,6 +325,7 @@
         }
 
         .lehrgang-stats .stat-pill {
+            flex: 1 1 100%;
             padding: 0.5rem 0.75rem;
         }
 
@@ -367,10 +381,23 @@
 
         .section-item-name {
             font-size: 0.8rem;
+            white-space: normal;
+            word-break: break-word;
         }
 
         .section-item-bar {
             width: 40px;
+        }
+        
+        .hero-actions {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .hero-actions .btn-primary,
+        .hero-actions .btn-ghost {
+            width: 100%;
+            text-align: center;
         }
     }
 </style>
