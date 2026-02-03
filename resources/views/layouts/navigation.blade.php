@@ -69,15 +69,6 @@
                                 <a href="{{ route('gamification.leaderboard') }}" class="dropdown-item-glass">
                                     Leaderboard
                                 </a>
-                                @php
-                                    $navNotificationCount = Auth::user()->unreadNotifications()->count();
-                                @endphp
-                                <a href="{{ route('notifications.index') }}" class="dropdown-item-glass flex items-center justify-between">
-                                    <span>Mitteilungen</span>
-                                    @if($navNotificationCount > 0)
-                                        <span class="badge-error text-xs">{{ $navNotificationCount }}</span>
-                                    @endif
-                                </a>
                             </div>
                         </div>
 
@@ -197,13 +188,13 @@
                         </div>
 
                         <!-- Mitteilungen Link -->
-                        <button onclick="document.getElementById('userDropdown').classList.add('hidden'); document.getElementById('notificationsDropdown').classList.remove('hidden');"
-                                class="w-full dropdown-item-glass flex items-center justify-between border-b border-glass-subtle">
+                        <a href="{{ route('notifications.index') }}"
+                           class="dropdown-item-glass flex items-center justify-between border-b border-glass-subtle">
                             <span>Mitteilungen</span>
                             @if($notificationCount > 0)
                                 <span class="badge-error text-xs">{{ $notificationCount }}</span>
                             @endif
-                        </button>
+                        </a>
 
                         <a href="{{ route('profile') }}" class="dropdown-item-glass">
                             Profil
@@ -214,52 +205,6 @@
                                 Logout
                             </button>
                         </form>
-                    </div>
-
-                    <!-- Notifications Dropdown -->
-                    <div id="notificationsDropdown" class="absolute right-0 mt-2 w-80 dropdown-glass hidden z-50">
-                        <div class="px-4 py-3 border-b border-glass-subtle">
-                            <div class="flex items-center justify-between">
-                                <h3 class="text-sm font-semibold text-dark-primary">Mitteilungen</h3>
-                                <span class="text-xs text-dark-muted">{{ $notificationCount }} neu</span>
-                            </div>
-                        </div>
-                        <div class="max-h-96 overflow-y-auto">
-                            @php
-                                $recentNotifications = Auth::user()->notifications()->limit(10)->get();
-                            @endphp
-                            @forelse($recentNotifications as $notification)
-                                <div class="block px-4 py-3 hover:bg-glass-white-5 transition-colors duration-200 border-b border-glass-subtle {{ $notification->is_read ? '' : 'bg-glass-thw-5' }}"
-                                     onclick="markNotificationAsRead({{ $notification->id }})">
-                                    <div class="flex items-start space-x-3">
-                                        <span class="text-2xl text-dark-secondary"><i class="bi bi-bell"></i></span>
-                                        <div class="flex-1">
-                                            <p class="text-sm font-medium text-dark-primary">{{ $notification->title }}</p>
-                                            <p class="text-xs text-dark-secondary mt-1">{{ $notification->message }}</p>
-                                            <p class="text-xs text-dark-muted mt-1">{{ $notification->created_at->diffForHumans() }}</p>
-                                        </div>
-                                        @if(!$notification->is_read)
-                                            <span class="w-2 h-2 bg-gold rounded-full"></span>
-                                        @endif
-                                    </div>
-                                </div>
-                            @empty
-                                <div class="px-4 py-8 text-center text-dark-muted">
-                                    <p class="text-sm">Keine Mitteilungen vorhanden</p>
-                                </div>
-                            @endforelse
-                        </div>
-                        <div class="px-4 py-2 border-t border-glass-subtle flex items-center justify-between">
-                            <button onclick="document.getElementById('notificationsDropdown').classList.add('hidden'); document.getElementById('userDropdown').classList.remove('hidden');"
-                                    class="text-xs text-gold hover:text-gold-light font-medium transition-colors">
-                                Zurück
-                            </button>
-                            @if($recentNotifications->count() > 0)
-                                <a href="{{ route('notifications.index') }}" class="text-xs text-gold hover:text-gold-light font-medium transition-colors">
-                                    Alle anzeigen
-                                </a>
-                            @endif
-                        </div>
                     </div>
                 </div>
             </div>
@@ -347,15 +292,6 @@
                     </a>
                     <a href="{{ route('gamification.leaderboard') }}" class="block px-3 py-2 text-sm text-dark-secondary hover:text-gold hover:bg-glass-white-5 rounded-md transition-colors duration-200">
                         Leaderboard
-                    </a>
-                    @php
-                        $mobileGamificationNotificationCount = Auth::user()->unreadNotifications()->count();
-                    @endphp
-                    <a href="{{ route('notifications.index') }}" class="block px-3 py-2 text-sm text-dark-secondary hover:text-gold hover:bg-glass-white-5 rounded-md transition-colors duration-200 flex items-center justify-between">
-                        <span>Mitteilungen</span>
-                        @if($mobileGamificationNotificationCount > 0)
-                            <span class="badge-error text-xs">{{ $mobileGamificationNotificationCount }}</span>
-                        @endif
                     </a>
                 </div>
 
@@ -495,7 +431,7 @@
 <script>
     // Close all dropdowns when clicking outside
     document.addEventListener('click', function(event) {
-        const dropdowns = ['adminDropdown', 'userDropdown', 'learningDropdown', 'gamificationDropdown', 'notificationsDropdown'];
+        const dropdowns = ['adminDropdown', 'userDropdown', 'learningDropdown', 'gamificationDropdown'];
 
         dropdowns.forEach(function(dropdownId) {
             const dropdown = document.getElementById(dropdownId);
@@ -507,22 +443,4 @@
             }
         });
     });
-
-    // Markiert eine Notification als gelesen
-    function markNotificationAsRead(notificationId) {
-        fetch(`/notifications/${notificationId}/read`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                location.reload();
-            }
-        })
-        .catch(error => console.error('Error:', error));
-    }
 </script>

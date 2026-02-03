@@ -284,6 +284,17 @@
                         </button>
                     </div>
 
+                    @php
+                        $sidebarNotificationCount = auth()->user()->unreadNotifications()->count();
+                    @endphp
+                    <a href="{{ route('notifications.index') }}" class="sidebar-link mt-3 {{ request()->routeIs('notifications.*') ? 'active' : '' }}">
+                        <i class="bi bi-bell"></i>
+                        Mitteilungen
+                        @if($sidebarNotificationCount > 0)
+                            <span class="badge-error text-xs ml-auto">{{ $sidebarNotificationCount }}</span>
+                        @endif
+                    </a>
+
                     <div class="flex items-center gap-2 mt-3 px-3">
                         <a href="{{ route('profile') }}" class="sidebar-link-sm flex-1">
                             <i class="bi bi-person"></i>
@@ -534,6 +545,17 @@
                         <p class="text-xs text-dark-muted">Level {{ auth()->user()->level ?? 1 }}</p>
                     </div>
                     <i class="bi bi-chevron-right text-dark-muted"></i>
+                </a>
+
+                @php
+                    $mobileSidebarNotificationCount = auth()->user()->unreadNotifications()->count();
+                @endphp
+                <a href="{{ route('notifications.index') }}" class="sidebar-link mt-3 {{ request()->routeIs('notifications.*') ? 'active' : '' }}">
+                    <i class="bi bi-bell"></i>
+                    Mitteilungen
+                    @if($mobileSidebarNotificationCount > 0)
+                        <span class="badge-error text-xs ml-auto">{{ $mobileSidebarNotificationCount }}</span>
+                    @endif
                 </a>
 
                 <form method="POST" action="{{ route('logout') }}" class="mt-3">
