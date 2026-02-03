@@ -59,13 +59,13 @@
 
                             <!-- Action Buttons -->
                             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                                <form method="POST" action="{{ route('admin.ortsverband.view-as', $ov) }}" style="flex: 1; min-width: 120px;">
+                                <form method="POST" action="{{ route('admin.ortsverband.view-as', $ov) }}" style="flex: 1 1 auto; min-width: 120px;">
                                     @csrf
                                     <button type="submit" class="btn-secondary" style="width: 100%; justify-content: center;">
                                         <i class="bi bi-eye"></i> Ansehen
                                     </button>
                                 </form>
-                                <form method="POST" action="{{ route('admin.ortsverband.destroy', $ov) }}" style="flex: 1; min-width: 120px;" onsubmit="return confirm('Wirklich löschen?');">
+                                <form method="POST" action="{{ route('admin.ortsverband.destroy', $ov) }}" style="flex: 1 1 auto; min-width: 120px;" onsubmit="return confirm('Wirklich löschen?');">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn-ghost" style="width: 100%; justify-content: center; color: var(--error);">

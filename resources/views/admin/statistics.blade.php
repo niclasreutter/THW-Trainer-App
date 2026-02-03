@@ -126,7 +126,7 @@
     </div>
 
     <!-- Zurück Button -->
-    <div style="display: flex; justify-content: center; margin-top: 2rem;">
+    <div style="text-align: center; margin-top: 2rem;">
         <a href="{{ route('admin.dashboard') }}" class="btn-secondary">
             <i class="bi bi-arrow-left"></i> Zurück zum Dashboard
         </a>
