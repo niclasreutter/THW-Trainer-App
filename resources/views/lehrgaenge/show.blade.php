@@ -8,6 +8,9 @@
         max-width: 1000px;
         margin: 0 auto;
         padding: 1rem;
+        overflow-x: hidden;
+        width: 100%;
+        box-sizing: border-box;
     }
 
     @media (min-width: 640px) {
@@ -33,14 +36,36 @@
     .stats-row {
         display: flex;
         flex-wrap: wrap;
-        gap: 0.75rem;
-        margin-bottom: 2rem;
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .stats-row .stat-pill {
+        flex: 1 1 0;
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    @media (min-width: 640px) {
+        .stats-row {
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+        }
+
+        .stats-row .stat-pill {
+            flex: 0 1 auto;
+        }
     }
 
     /* Hero Card */
     .hero-card {
-        padding: 1.25rem;
+        padding: 1rem;
         margin-bottom: 1.5rem;
+        width: 100%;
+        box-sizing: border-box;
+        overflow: hidden;
     }
 
     @media (min-width: 640px) {
@@ -68,9 +93,11 @@
     .hero-stats {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
-        gap: 0.5rem;
+        gap: 0.375rem;
         padding-top: 1rem;
         border-top: 1px solid rgba(255, 255, 255, 0.06);
+        width: 100%;
+        box-sizing: border-box;
     }
 
     @media (min-width: 640px) {
@@ -82,9 +109,11 @@
 
     .hero-stat {
         text-align: center;
-        padding: 0.75rem 0.5rem;
+        padding: 0.5rem 0.25rem;
         background: rgba(255, 255, 255, 0.02);
-        border-radius: 10px;
+        border-radius: 8px;
+        min-width: 0;
+        overflow: hidden;
     }
 
     @media (min-width: 640px) {
@@ -95,7 +124,7 @@
     }
 
     .hero-stat-value {
-        font-size: 1.25rem;
+        font-size: 1.1rem;
         font-weight: 800;
         background: var(--gradient-gold);
         -webkit-background-clip: text;
@@ -110,11 +139,14 @@
     }
 
     .hero-stat-label {
-        font-size: 0.65rem;
+        font-size: 0.55rem;
         color: var(--text-muted);
         text-transform: uppercase;
-        letter-spacing: 0.3px;
-        margin-top: 0.25rem;
+        letter-spacing: 0;
+        margin-top: 0.125rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     @media (min-width: 640px) {
@@ -512,22 +544,30 @@
         }
 
         .stats-row {
-            gap: 0.5rem;
-            margin-bottom: 1.5rem;
+            gap: 0.375rem;
+            margin-bottom: 1rem;
         }
 
         .stat-pill {
-            flex: 1;
+            flex: 1 1 0;
             min-width: 0;
-            padding: 0.5rem 0.75rem;
+            padding: 0.375rem 0.5rem;
+            overflow: hidden;
+        }
+
+        .stat-pill-icon {
+            display: none;
         }
 
         .stat-pill-value {
-            font-size: 1rem;
+            font-size: 0.9rem;
         }
 
         .stat-pill-label {
-            font-size: 0.65rem;
+            font-size: 0.55rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
     }
 </style>
