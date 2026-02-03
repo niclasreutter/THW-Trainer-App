@@ -8,14 +8,16 @@
        EXAM PAGE - MOBILE OPTIMIERT
        ========================================== */
 
-    /* Mobile: App Navigation & Footer ausblenden */
+    /* Mobile: App Navigation & Footer ausblenden - NUR während aktiver Prüfung */
     @media (max-width: 640px) {
-        footer, nav, header {
+        .exam-active-mode footer,
+        .exam-active-mode nav,
+        .exam-active-mode header {
             display: none !important;
         }
 
-        /* Main Container randlos machen */
-        main {
+        /* Main Container randlos machen - NUR während aktiver Prüfung */
+        .exam-active-mode main {
             padding: 0 !important;
             margin: 0 !important;
         }
@@ -28,7 +30,7 @@
     }
 
     @media (max-width: 640px) {
-        #examContainer {
+        .exam-active-mode #examContainer {
             padding: 0 !important;
             margin: 0 !important;
             max-width: 100% !important;
@@ -832,6 +834,9 @@
 @endpush
 
 @section('content')
+@if(!isset($submitted))
+<script>document.body.classList.add('exam-active-mode');</script>
+@endif
 <div class="sm:p-6 sm:py-8" id="examContainer">
     @if(!isset($submitted))
         <div class="exam-card">
