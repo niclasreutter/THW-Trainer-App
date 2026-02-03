@@ -58,8 +58,10 @@
         .bento-wide, .bento-half, .bento-third, .bento-side { grid-column: span 1; }
         .dashboard-container {
             padding: 1rem;
+            width: 100%;
             max-width: 100%;
-            overflow-x: hidden;
+            margin: 0;
+            box-sizing: border-box;
         }
         .bento-side, .bento-third {
             padding: 1rem;
