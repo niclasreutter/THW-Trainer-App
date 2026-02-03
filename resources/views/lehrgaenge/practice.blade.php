@@ -27,58 +27,25 @@
 
 @push('styles')
 <style>
-    /* Practice Page - Dark Mode Glassmorphism */
+    /* Practice Page - Mobile Optimiert (wie Exam) */
 
-    /* Mobile: Navigation & Footer ausblenden */
+    /* Mobile: Navigation & Footer ausblenden + Kein Overflow */
     @media (max-width: 640px) {
-        /* Hide ALL navigation and header elements */
+        html, body {
+            height: 100dvh !important;
+            overflow: hidden !important;
+        }
+
         footer, nav, header {
             display: none !important;
         }
 
-        /* Hide all nav elements specifically */
-        nav {
-            display: none !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            height: 0 !important;
-        }
-
-        nav.bottom-nav-glass {
-            display: none !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            height: 0 !important;
-            position: absolute !important;
-            bottom: auto !important;
-        }
-
-        nav.lg\\:hidden {
-            display: none !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            height: 0 !important;
-        }
-
-        /* Hide mobile header */
-        header {
-            display: none !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            height: 0 !important;
-        }
-
-        /* Fix the main layout container - removes min-h-screen constraint */
-        body > div.flex-1 {
-            min-height: auto !important;
-            height: 100dvh !important;
-        }
-
+        /* Main Container randlos machen */
         main {
             padding: 0 !important;
-            padding-bottom: 0 !important;
-            height: auto !important;
-            position: static !important;
+            margin: 0 !important;
+            height: 100dvh !important;
+            overflow: hidden !important;
         }
     }
 
@@ -91,9 +58,11 @@
     @media (max-width: 640px) {
         #practiceContainer {
             padding: 0 !important;
-            min-height: 100dvh;
-            display: flex;
-            flex-direction: column;
+            margin: 0 !important;
+            max-width: 100% !important;
+            width: 100% !important;
+            height: 100dvh !important;
+            overflow: hidden !important;
         }
     }
 
@@ -109,25 +78,16 @@
 
     @media (max-width: 640px) {
         .question-card {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
             border-radius: 0;
             border: none;
-            height: auto;
-            min-height: auto;
-            /* Platz für fixed button unten */
+            height: 100dvh;
             padding-bottom: 100px;
-        }
-
-        .question-card form {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .question-card #questionContent {
-            flex: 1;
+            margin: 0;
+            background: #0a0a0b;
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+            overflow-y: auto;
+            box-sizing: border-box;
         }
     }
 
@@ -232,25 +192,6 @@
         transform-origin: 50% 50%;
     }
 
-    /* Bookmark Button */
-    .bookmark-btn {
-        padding: 0.5rem;
-        border-radius: 10px;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        transition: all 0.2s ease;
-    }
-
-    .bookmark-btn:hover {
-        background: rgba(251, 191, 36, 0.1);
-        border-color: rgba(251, 191, 36, 0.3);
-    }
-
-    .bookmark-btn.active {
-        background: rgba(251, 191, 36, 0.2);
-        border-color: var(--gold);
-    }
-
     /* Gamification Popup */
     .result-popup {
         position: fixed;
@@ -290,41 +231,47 @@
         }
     }
 
-    /* ========== SUBMIT BUTTON WRAPPER ==========*/
+    /* ========== SUBMIT BUTTON WRAPPER (Glassmorphism wie Exam) ==========*/
 
-    /* Desktop: flex layout */
+    /* Desktop: normal layout */
     .submit-button-wrapper {
-        margin-top: auto;
-        flex-shrink: 0;
-        box-sizing: border-box;
+        margin-top: 1.5rem;
+        padding-top: 1rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
     }
 
-    /* Mobile: Fixed bottom positioning (independent of theme) */
+    /* Mobile: Fixierte Navigation unten mit Glassmorphism */
     @media (max-width: 640px) {
         .submit-button-wrapper {
             position: fixed !important;
-            bottom: env(safe-area-inset-bottom, 0px) !important;
+            bottom: 0 !important;
             left: 0 !important;
             right: 0 !important;
             z-index: 9999 !important;
             width: 100% !important;
             margin: 0 !important;
-            padding: 1rem 1.5rem calc(1.5rem + env(safe-area-inset-bottom, 0px)) 1.5rem !important;
-            margin-top: initial !important;
-            flex-shrink: initial !important;
+            padding: 1rem !important;
+            padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px)) !important;
+            /* Glassmorphism Effekt */
+            background: rgba(10, 10, 11, 0.5) !important;
+            -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+            backdrop-filter: blur(20px) saturate(180%) !important;
+            border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
         }
     }
 
-    /* Dark Mode (Default) - independent of layout */
-    .submit-button-wrapper {
-        background-color: rgba(15, 23, 42, 0.95) !important;
-        border-top: 1px solid rgba(255, 255, 255, 0.06) !important;
+    /* Light Mode */
+    html.light-mode .submit-button-wrapper {
+        border-top-color: rgba(0, 51, 127, 0.08) !important;
     }
 
-    /* Light Mode - independent of layout */
-    html.light-mode .submit-button-wrapper {
-        background-color: rgba(255, 255, 255, 0.95) !important;
-        border-top: 1px solid rgba(0, 0, 0, 0.08) !important;
+    @media (max-width: 640px) {
+        html.light-mode .submit-button-wrapper {
+            background: rgba(243, 244, 246, 0.5) !important;
+            -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+            backdrop-filter: blur(20px) saturate(180%) !important;
+            border-top: 1px solid rgba(0, 51, 127, 0.08) !important;
+        }
     }
 
     /* Mode Badge */
@@ -365,6 +312,14 @@
         -webkit-backdrop-filter: none !important;
         border: 1px solid rgba(0, 51, 127, 0.12) !important;
         box-shadow: 0 4px 20px rgba(0, 51, 127, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+    }
+
+    @media (max-width: 640px) {
+        html.light-mode .question-card {
+            background: #f8fafc !important;
+            border: none !important;
+            box-shadow: none !important;
+        }
     }
 
     /* Answer Options in Light Mode */
@@ -416,22 +371,6 @@
         opacity: 0.7;
     }
 
-    /* Bookmark Button in Light Mode */
-    html.light-mode .bookmark-btn {
-        background: rgba(0, 51, 127, 0.04) !important;
-        border: 1px solid rgba(0, 51, 127, 0.1) !important;
-    }
-
-    html.light-mode .bookmark-btn:hover {
-        background: rgba(217, 119, 6, 0.08) !important;
-        border-color: rgba(217, 119, 6, 0.25) !important;
-    }
-
-    html.light-mode .bookmark-btn.active {
-        background: rgba(217, 119, 6, 0.15) !important;
-        border-color: #d97706 !important;
-    }
-
     /* Mobile Header in Light Mode */
     html.light-mode .mobile-header {
         background: rgba(0, 51, 127, 0.03) !important;
@@ -470,20 +409,6 @@
     html.light-mode .text-gold {
         color: #d97706 !important;
     }
-
-    /* Bookmark Icon in Light Mode */
-    html.light-mode .bookmark-btn svg path {
-        stroke: rgba(0, 51, 127, 0.5) !important;
-    }
-
-    html.light-mode .bookmark-btn:hover svg path {
-        stroke: #d97706 !important;
-    }
-
-    html.light-mode .bookmark-btn.active svg path {
-        stroke: #d97706 !important;
-        fill: #d97706 !important;
-    }
 </style>
 @endpush
 
@@ -493,7 +418,7 @@
         <div class="question-card">
             <!-- Mobile Header -->
             <div class="mobile-header sm:hidden">
-                <a href="{{ route('lehrgaenge.index') }}" class="p-2 text-dark-secondary hover:text-gold transition-colors">
+                <a href="{{ route('lehrgaenge.show', $question->lehrgang_slug) }}" class="p-2 text-dark-secondary hover:text-gold transition-colors">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                     </svg>
@@ -518,54 +443,20 @@
                     </svg>
                 </div>
 
-                @php
-                    $user = Auth::user();
-                    $bookmarked = is_array($user->bookmarked_questions ?? null)
-                        ? $user->bookmarked_questions
-                        : json_decode($user->bookmarked_questions ?? '[]', true);
-                    $isBookmarked = in_array($question->id, $bookmarked);
-                @endphp
-
-                <button type="button" class="bookmark-btn {{ $isBookmarked ? 'active' : '' }}" id="bookmarkBtnMobile"
-                        data-bookmarked="{{ $isBookmarked ? 'true' : 'false' }}"
-                        onclick="toggleBookmark({{ $question->id }}, {{ $isBookmarked ? 'true' : 'false' }})">
-                    <svg class="w-5 h-5" viewBox="0 0 20 20" id="bookmarkIconMobile">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M5 5a2 2 0 012-2h6a2 2 0 012 2v10l-5-3-5 3V5z"
-                              style="stroke: {{ $isBookmarked ? '#fbbf24' : 'rgba(255,255,255,0.4)' }}; fill: {{ $isBookmarked ? '#fbbf24' : 'none' }};"></path>
-                    </svg>
-                </button>
+                <div class="w-9"></div>
             </div>
 
             <!-- Desktop Header -->
             <div class="hidden sm:flex items-start justify-between mb-6">
                 <div class="flex-1">
                     <!-- Mode Badge -->
-                    @if(isset($mode))
+                    @if(isset($currentSectionNr) && $currentSectionNr)
                         <div class="mode-badge mb-3">
-                            @switch($mode)
-                                @case('unsolved')
-                                    Ungelöste Fragen
-                                    @break
-                                @case('failed')
-                                    Fehlerwiederholung
-                                    @break
-                                @case('section')
-                                    Lernabschnitt {{ session('practice_parameter') }}
-                                    @break
-                                @case('search')
-                                    Suche: "{{ session('practice_parameter') }}"
-                                    @break
-                                @case('bookmarked')
-                                    Gespeicherte Fragen
-                                    @break
-                                @default
-                                    Alle Fragen
-                            @endswitch
+                            Lernabschnitt {{ $currentSectionNr }}
                         </div>
                     @endif
 
-                    <h1 class="text-xl font-bold text-dark-primary mb-2">Theorie üben</h1>
+                    <h1 class="text-xl font-bold text-dark-primary mb-2">{{ $question->lehrgang }}</h1>
 
                     <!-- Progress Info -->
                     <div class="flex items-center gap-4">
@@ -581,28 +472,6 @@
                         <span class="text-dark-muted text-xs">{{ $progressPercent ?? 0 }}%</span>
                     </div>
                 </div>
-
-                <!-- Bookmark Button Desktop -->
-                @php
-                    $user = Auth::user();
-                    $bookmarked = is_array($user->bookmarked_questions ?? null)
-                        ? $user->bookmarked_questions
-                        : json_decode($user->bookmarked_questions ?? '[]', true);
-                    $isBookmarked = in_array($question->id, $bookmarked);
-                @endphp
-
-                <button type="button"
-                        class="bookmark-btn {{ $isBookmarked ? 'active' : '' }}"
-                        title="{{ $isBookmarked ? 'Aus Lesezeichen entfernen' : 'Zu Lesezeichen hinzufügen' }}"
-                        id="bookmarkBtn"
-                        data-bookmarked="{{ $isBookmarked ? 'true' : 'false' }}"
-                        onclick="toggleBookmark({{ $question->id }}, {{ $isBookmarked ? 'true' : 'false' }})">
-                    <svg class="w-6 h-6" viewBox="0 0 20 20" id="bookmarkIcon">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M5 5a2 2 0 012-2h6a2 2 0 012 2v10l-5-3-5 3V5z"
-                              style="stroke: {{ $isBookmarked ? '#fbbf24' : 'rgba(255,255,255,0.4)' }}; fill: {{ $isBookmarked ? '#fbbf24' : 'none' }};"></path>
-                    </svg>
-                </button>
             </div>
 
             <form method="POST" action="{{ route('lehrgaenge.submit', $question->lehrgang_slug) }}" id="practiceForm">
@@ -914,66 +783,6 @@
                     }, 100);
                 }
             });
-
-            // Bookmark functionality
-            function toggleBookmark(questionId, currentlyBookmarked) {
-                const btnMobile = document.getElementById('bookmarkBtnMobile');
-                const btnDesktop = document.getElementById('bookmarkBtn');
-                const btn = window.innerWidth <= 640 ? btnMobile : btnDesktop;
-
-                if (!btn) return;
-
-                const formData = new FormData();
-                formData.append('question_id', questionId);
-                formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
-
-                // Show loading
-                btn.style.opacity = '0.5';
-                btn.disabled = true;
-
-                fetch('{{ route("bookmarks.toggle") }}', {
-                    method: 'POST',
-                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        const targetColor = data.is_bookmarked ? '#fbbf24' : 'rgba(255,255,255,0.4)';
-                        const targetFill = data.is_bookmarked ? '#fbbf24' : 'none';
-
-                        // Update both buttons
-                        [btnMobile, btnDesktop].forEach(button => {
-                            if (!button) return;
-
-                            button.setAttribute('data-bookmarked', data.is_bookmarked ? 'true' : 'false');
-                            button.setAttribute('onclick', `toggleBookmark(${questionId}, ${data.is_bookmarked})`);
-
-                            if (data.is_bookmarked) {
-                                button.classList.add('active');
-                            } else {
-                                button.classList.remove('active');
-                            }
-
-                            const icon = button.querySelector('svg');
-                            if (icon) {
-                                const path = icon.querySelector('path');
-                                if (path) {
-                                    path.style.stroke = targetColor;
-                                    path.style.fill = targetFill;
-                                }
-                            }
-                        });
-                    }
-                })
-                .catch(error => {
-                    console.error('Bookmark error:', error);
-                })
-                .finally(() => {
-                    btn.style.opacity = '1';
-                    btn.disabled = false;
-                });
-            }
         </script>
     @else
         <!-- No more questions -->
@@ -984,7 +793,7 @@
 
             <div class="flex flex-col sm:flex-row gap-3 justify-center">
                 <a href="{{ route('lehrgaenge.index') }}" class="btn-primary">
-                    Zurück zum Übungsmenü
+                    Zurück zur Übersicht
                 </a>
                 <a href="{{ route('dashboard') }}" class="btn-secondary">
                     Dashboard
