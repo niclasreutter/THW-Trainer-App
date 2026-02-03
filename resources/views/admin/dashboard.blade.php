@@ -56,7 +56,23 @@
     @media (max-width: 600px) {
         .bento-grid { grid-template-columns: 1fr; }
         .bento-wide, .bento-half, .bento-third, .bento-side { grid-column: span 1; }
-        .dashboard-container { padding: 1rem; }
+        .dashboard-container {
+            padding: 1rem;
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+        .bento-side, .bento-third {
+            padding: 1rem;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+        .stats-row {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .stat-pill {
+            width: 100%;
+        }
     }
 
     /* Section headers */
