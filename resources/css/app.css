@@ -1325,13 +1325,6 @@
         padding: 2rem;
         width: 100%;
         box-sizing: border-box;
-        overflow-x: hidden;
-    }
-
-    /* Prevent overflow for all direct children */
-    .dashboard-container > * {
-        max-width: 100%;
-        box-sizing: border-box;
     }
 
     .dashboard-header {
@@ -1428,6 +1421,13 @@
         .bento-1of3 {
             grid-column: span 1;
         }
+    }
+
+    /* Lehrgang Grid - responsive card layout */
+    .lehrgang-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr));
+        gap: 1.5rem;
     }
 
     /* Section Headers */

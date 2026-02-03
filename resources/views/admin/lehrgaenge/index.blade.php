@@ -95,7 +95,7 @@
         </div>
 
         @if($lehrgaenge->count() > 0)
-            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
+            <div class="lehrgang-grid">
                 @foreach($lehrgaenge as $lehrgang)
                     <div class="glass" style="padding: 1.5rem; display: flex; flex-direction: column;">
                         <h3 style="margin: 0 0 0.75rem 0; font-size: 1.1rem; font-weight: 700;">{{ $lehrgang->lehrgang }}</h3>
