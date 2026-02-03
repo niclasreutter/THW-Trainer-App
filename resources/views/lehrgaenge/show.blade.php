@@ -4,11 +4,13 @@
 
 @push('styles')
 <style>
-    /* Container — identisch wie dashboard.blade.php */
+    /* ─── Container — identisch wie dashboard.blade.php ─── */
     .dashboard-container {
         max-width: 1200px;
         margin: 0 auto;
         padding: 2rem;
+        overflow-x: hidden;
+        box-sizing: border-box;
     }
 
     .dashboard-header {
@@ -17,7 +19,37 @@
         max-width: 600px;
     }
 
-    /* Section-Header — identisch wie dashboard */
+    /* ─── Bento Grid — identisch wie dashboard ─── */
+    .bento-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        grid-template-rows: auto;
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .bento-main {
+        grid-column: span 2;
+        grid-row: span 2;
+        min-height: 320px;
+        padding: 2rem;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .bento-side {
+        padding: 1.25rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .bento-wide {
+        grid-column: span 3;
+        padding: 1.5rem;
+    }
+
+    /* ─── Section Header ─── */
     .section-header {
         display: flex;
         align-items: center;
@@ -34,90 +66,130 @@
         letter-spacing: -0.02em;
     }
 
-    /* Hero-Card (eingeschrieben) */
-    .lehrgang-hero {
-        padding: 1.5rem;
-        margin-bottom: 1.5rem;
+    /* ─── Progress Ring ─── */
+    .progress-indicator {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.25rem;
     }
 
-    .lehrgang-hero-badges {
+    .progress-ring {
+        width: 64px;
+        height: 64px;
+        position: relative;
+        flex-shrink: 0;
+    }
+
+    .progress-ring-bg {
+        fill: none;
+        stroke: rgba(255, 255, 255, 0.1);
+        stroke-width: 6;
+    }
+
+    .progress-ring-fill {
+        fill: none;
+        stroke: url(#goldGradient);
+        stroke-width: 6;
+        stroke-linecap: round;
+        transform: rotate(-90deg);
+        transform-origin: center;
+        transition: stroke-dashoffset 1s ease-out;
+    }
+
+    .progress-ring-fill-success {
+        fill: none;
+        stroke: #22c55e;
+        stroke-width: 6;
+        stroke-linecap: round;
+        transform: rotate(-90deg);
+        transform-origin: center;
+    }
+
+    .progress-ring-text {
+        position: absolute;
+        inset: 0;
         display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        font-weight: 800;
+        color: var(--text-primary);
+    }
+
+    .progress-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .progress-label {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.25rem;
+    }
+
+    .progress-value {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--text-primary);
+    }
+
+    /* ─── Hero Content ─── */
+    .hero-badges {
+        display: flex;
+        flex-wrap: wrap;
         align-items: center;
         gap: 0.5rem;
         margin-bottom: 1rem;
     }
 
-    .lehrgang-hero-desc {
-        font-size: 0.9rem;
+    .hero-title {
+        font-size: 1.75rem;
+        font-weight: 800;
+        color: var(--text-primary);
+        margin-bottom: 0.75rem;
+        line-height: 1.2;
+    }
+
+    .hero-desc {
+        font-size: 0.95rem;
         color: var(--text-secondary);
         line-height: 1.6;
-        margin-bottom: 1.25rem;
+        margin-bottom: 1.5rem;
+        flex-grow: 1;
     }
 
-    /* Fortschritt-Block */
-    .lehrgang-progress-block {
-        margin-bottom: 1.25rem;
-    }
-
-    .lehrgang-progress-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 0.5rem;
-    }
-
-    .lehrgang-progress-label {
-        font-size: 0.875rem;
-        font-weight: 600;
-        color: var(--text-primary);
-    }
-
-    .lehrgang-progress-percent {
-        font-weight: 800;
-    }
-
-    .lehrgang-progress-sub {
-        display: flex;
-        justify-content: space-between;
-        margin-top: 0.375rem;
-        font-size: 0.75rem;
-        color: var(--text-muted);
-    }
-
-    .lehrgang-progress-sub-done {
-        color: var(--success);
-        font-weight: 600;
-    }
-
-    /* Aktions-Buttons */
-    .lehrgang-actions {
+    .hero-actions {
         display: flex;
         flex-wrap: wrap;
         gap: 0.75rem;
+        margin-top: auto;
     }
 
-    /* Abschnitte-Liste */
-    .lehrgang-sections {
+    /* ─── Section Items ─── */
+    .section-list {
         display: flex;
         flex-direction: column;
         gap: 0.5rem;
         margin-bottom: 1.5rem;
     }
 
-    .lehrgang-section-item {
+    .section-item {
         padding: 0.875rem 1rem;
         display: flex;
         align-items: center;
         gap: 1rem;
     }
 
-    .lehrgang-section-info {
+    .section-item-info {
         flex: 1;
         min-width: 0;
         overflow: hidden;
     }
 
-    .lehrgang-section-name {
+    .section-item-name {
         font-size: 0.875rem;
         font-weight: 600;
         color: var(--text-primary);
@@ -126,20 +198,20 @@
         text-overflow: ellipsis;
     }
 
-    .lehrgang-section-meta {
+    .section-item-meta {
         font-size: 0.7rem;
         color: var(--text-muted);
         margin-top: 0.125rem;
     }
 
-    .lehrgang-section-progress {
+    .section-item-progress {
         display: flex;
         align-items: center;
         gap: 0.5rem;
         flex-shrink: 0;
     }
 
-    .lehrgang-section-bar {
+    .section-item-bar {
         width: 60px;
         height: 4px;
         background: rgba(255, 255, 255, 0.1);
@@ -147,12 +219,12 @@
         overflow: hidden;
     }
 
-    .lehrgang-section-bar-fill {
+    .section-item-bar-fill {
         height: 100%;
         border-radius: 2px;
     }
 
-    .lehrgang-section-percent {
+    .section-item-percent {
         font-size: 0.7rem;
         font-weight: 700;
         color: var(--text-secondary);
@@ -160,72 +232,109 @@
         text-align: right;
     }
 
-    /* Austritt-Bereich */
-    .lehrgang-unenroll {
+    /* ─── Unenroll Block ─── */
+    .unenroll-block {
         text-align: center;
         padding-top: 1.5rem;
         border-top: 1px solid rgba(255, 255, 255, 0.06);
     }
 
-    .lehrgang-unenroll-hint {
+    .unenroll-hint {
         font-size: 0.7rem;
         color: var(--text-muted);
         margin-top: 0.375rem;
     }
 
-    /* Einschreibungs-Card (nicht eingeschrieben) */
-    .lehrgang-enroll {
-        padding: 2rem;
+    /* ─── Empty State ─── */
+    .empty-state {
         text-align: center;
-        margin-bottom: 1.5rem;
+        padding: 2.5rem 1.5rem;
     }
 
-    .lehrgang-enroll-icon {
+    .empty-state-icon {
         font-size: 2.5rem;
         color: var(--text-muted);
-        opacity: 0.5;
-        margin-bottom: 0.75rem;
+        margin-bottom: 1rem;
+        opacity: 0.6;
     }
 
-    .lehrgang-enroll-title {
-        font-size: 1.25rem;
+    .empty-state-title {
+        font-size: 1rem;
         font-weight: 700;
         color: var(--text-primary);
         margin-bottom: 0.5rem;
     }
 
-    .lehrgang-enroll-desc {
-        font-size: 0.9rem;
+    .empty-state-desc {
+        font-size: 0.85rem;
         color: var(--text-secondary);
         margin-bottom: 1.25rem;
-        line-height: 1.5;
     }
 
-    /* Zurück-Button */
-    .lehrgang-back {
+    /* ─── Back Link ─── */
+    .back-link {
         text-align: center;
+        margin-top: 1rem;
     }
 
-    /* ─── Mobile (600px) — identisch wie dashboard ─── */
+    /* ─── Responsive: Tablet (900px) ─── */
+    @media (max-width: 900px) {
+        .bento-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+        .bento-main {
+            grid-column: span 2;
+            grid-row: span 1;
+            min-height: auto;
+        }
+        .bento-wide {
+            grid-column: span 2;
+        }
+        .bento-side {
+            grid-column: span 1;
+        }
+    }
+
+    /* ─── Responsive: Mobile (600px) ─── */
     @media (max-width: 600px) {
         .dashboard-container {
             padding: 1rem;
         }
 
-        .lehrgang-hero {
-            padding: 1rem;
+        .bento-grid {
+            grid-template-columns: 1fr;
         }
 
-        .lehrgang-enroll {
+        .bento-main,
+        .bento-wide,
+        .bento-side {
+            grid-column: span 1;
             padding: 1.25rem;
         }
 
-        .lehrgang-section-item {
+        .bento-main {
+            min-height: auto;
+        }
+
+        .hero-title {
+            font-size: 1.5rem;
+        }
+
+        .progress-ring {
+            width: 56px;
+            height: 56px;
+        }
+
+        .progress-ring-text {
+            font-size: 0.9rem;
+        }
+
+        .section-item {
             padding: 0.75rem;
             gap: 0.75rem;
         }
 
-        .lehrgang-section-bar {
+        .section-item-bar {
             width: 48px;
         }
     }
@@ -266,16 +375,29 @@
     $lernabschnittNamen = \App\Models\LehrgangLernabschnitt::where('lehrgang_id', $lehrgang->id)
         ->pluck('lernabschnitt', 'lernabschnitt_nr')
         ->toArray();
+
+    $circumference = 2 * 3.14159 * 26;
+    $progressOffset = $circumference - ($progressPercent / 100) * $circumference;
 @endphp
 
+<!-- SVG Gradient Definition -->
+<svg width="0" height="0" style="position: absolute;">
+    <defs>
+        <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" style="stop-color:#fbbf24"/>
+            <stop offset="100%" style="stop-color:#f59e0b"/>
+        </linearGradient>
+    </defs>
+</svg>
+
 <div class="dashboard-container">
-    <!-- Header — gleich wie dashboard -->
+    <!-- Header -->
     <header class="dashboard-header">
         <h1 class="page-title">{{ $lehrgang->lehrgang }}</h1>
         <p class="page-subtitle">Spezialisierter THW-Lehrgang</p>
     </header>
 
-    <!-- Stats — gleiche .stats-row wie dashboard, flex-wrap: wrap aus global CSS -->
+    <!-- Stats Row -->
     <div class="stats-row">
         <div class="stat-pill">
             <span class="stat-pill-icon text-gold"><i class="bi bi-question-circle"></i></span>
@@ -301,53 +423,79 @@
     </div>
 
     @if($isEnrolled)
-        <!-- Hero-Card: Eingeschrieben -->
-        <div class="glass-gold lehrgang-hero">
-            <div class="lehrgang-hero-badges">
-                <span class="badge-success">Eingeschrieben</span>
-                @if($isCompleted)
-                    <span class="badge-gold">Abgeschlossen</span>
-                @endif
-            </div>
-
-            @if($lehrgang->beschreibung)
-                <p class="lehrgang-hero-desc">{{ $lehrgang->beschreibung }}</p>
-            @endif
-
-            <!-- Fortschritt -->
-            <div class="lehrgang-progress-block">
-                <div class="lehrgang-progress-header">
-                    <span class="lehrgang-progress-label">Dein Fortschritt</span>
-                    <span class="text-gradient-gold lehrgang-progress-percent">{{ $progressPercent }}%</span>
-                </div>
-                <div class="progress-glass">
-                    <div class="{{ $isCompleted ? 'progress-fill-success' : 'progress-fill-gold' }}" style="width: {{ $progressPercent }}%"></div>
-                </div>
-                <div class="lehrgang-progress-sub">
-                    <span>{{ $solvedCount }}/{{ $totalCount }} Fragen bearbeitet</span>
+        <!-- Bento Grid: Enrolled -->
+        <div class="bento-grid">
+            <!-- Main Hero Card -->
+            <div class="glass-gold bento-main">
+                <div class="hero-badges">
+                    <span class="badge-success">Eingeschrieben</span>
                     @if($isCompleted)
-                        <span class="lehrgang-progress-sub-done">Fertig</span>
+                        <span class="badge-gold">Abgeschlossen</span>
                     @endif
                 </div>
+
+                <h2 class="hero-title">Dein<br>Lernfortschritt</h2>
+
+                @if($lehrgang->beschreibung)
+                    <p class="hero-desc">{{ $lehrgang->beschreibung }}</p>
+                @else
+                    <p class="hero-desc">Lerne alle {{ $questionCount }} Fragen dieses Lehrgangs. Jede Frage muss 2x richtig beantwortet werden.</p>
+                @endif
+
+                <div class="progress-indicator">
+                    <div class="progress-ring">
+                        <svg width="64" height="64" viewBox="0 0 64 64">
+                            <circle class="progress-ring-bg" cx="32" cy="32" r="26"/>
+                            <circle class="{{ $isCompleted ? 'progress-ring-fill-success' : 'progress-ring-fill' }}" cx="32" cy="32" r="26"
+                                    stroke-dasharray="{{ $circumference }}"
+                                    stroke-dashoffset="{{ $progressOffset }}"/>
+                        </svg>
+                        <div class="progress-ring-text">{{ $progressPercent }}%</div>
+                    </div>
+                    <div class="progress-info">
+                        <div class="progress-label">Gemeistert</div>
+                        <div class="progress-value">{{ $solvedCount }} von {{ $totalCount }}</div>
+                    </div>
+                </div>
+
+                <div class="hero-actions">
+                    @if($isCompleted)
+                        <span class="btn-ghost btn-sm" style="background: rgba(34, 197, 94, 0.15); color: #22c55e; border-color: rgba(34, 197, 94, 0.25);">Lehrgang abgeschlossen</span>
+                    @else
+                        <a href="{{ route('lehrgaenge.practice', $lehrgang->slug) }}" class="btn-primary">Jetzt lernen</a>
+                    @endif
+                    <a href="{{ route('lehrgaenge.index') }}" class="btn-ghost btn-sm">Alle Lehrgänge</a>
+                </div>
             </div>
 
-            <!-- Aktionen -->
-            <div class="lehrgang-actions">
-                @if($isCompleted)
-                    <span class="btn-ghost btn-sm" style="background: rgba(34, 197, 94, 0.15); color: #22c55e; border-color: rgba(34, 197, 94, 0.25);">Lehrgang abgeschlossen</span>
-                @else
-                    <a href="{{ route('lehrgaenge.practice', $lehrgang->slug) }}" class="btn-primary">Jetzt lernen</a>
-                @endif
-                <a href="{{ route('lehrgaenge.index') }}" class="btn-ghost btn-sm">Alle Lehrgänge</a>
+            <!-- Side: Quick Stats -->
+            <div class="glass-tl bento-side">
+                <div style="margin-bottom: 0.75rem;">
+                    @if($isCompleted)
+                        <span class="badge-success">Fertig</span>
+                    @else
+                        <span class="badge-thw">Aktiv</span>
+                    @endif
+                </div>
+                <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.5rem;">Status</h3>
+                <p style="font-size: 0.8rem; color: var(--text-secondary);">
+                    {{ $solvedCount }}/{{ $totalCount }} Fragen gelöst
+                </p>
+            </div>
+
+            <!-- Side: Section Overview -->
+            <div class="glass-br bento-side">
+                <div style="font-size: 2rem; font-weight: 800;" class="text-gradient-gold">{{ $sectionCount }}</div>
+                <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted);">Lernabschnitte</div>
             </div>
         </div>
 
-        <!-- Abschnitte -->
+        <!-- Sections List -->
         <div class="section-header">
             <h2 class="section-title">Lernabschnitte</h2>
         </div>
 
-        <div class="lehrgang-sections">
+        <div class="section-list">
             @foreach($sections as $section)
                 @php
                     $sectionNr = $section->lernabschnitt_nr ?? $section->lernabschnitt ?? null;
@@ -360,80 +508,95 @@
                     $sectionProgress = $sectionQuestionCount > 0 ? round(($sectionSolvedCount / $sectionQuestionCount) * 100) : 0;
                     $sectionComplete = $sectionProgress == 100 && $sectionSolvedCount > 0;
                 @endphp
-                <div class="glass-subtle lehrgang-section-item">
-                    <div class="lehrgang-section-info">
-                        <div class="lehrgang-section-name">{{ $sectionName }}</div>
-                        <div class="lehrgang-section-meta">{{ $sectionQuestionCount }} Fragen, {{ $sectionSolvedCount }} gelöst</div>
+                <div class="glass-subtle section-item">
+                    <div class="section-item-info">
+                        <div class="section-item-name">{{ $sectionName }}</div>
+                        <div class="section-item-meta">{{ $sectionQuestionCount }} Fragen, {{ $sectionSolvedCount }} gelöst</div>
                     </div>
-                    <div class="lehrgang-section-progress">
-                        <div class="lehrgang-section-bar">
-                            <div class="lehrgang-section-bar-fill" style="width: {{ $sectionProgress }}%; background: {{ $sectionComplete ? 'linear-gradient(90deg, #22c55e, #16a34a)' : 'var(--gradient-gold)' }};"></div>
+                    <div class="section-item-progress">
+                        <div class="section-item-bar">
+                            <div class="section-item-bar-fill" style="width: {{ $sectionProgress }}%; background: {{ $sectionComplete ? 'linear-gradient(90deg, #22c55e, #16a34a)' : 'var(--gradient-gold)' }};"></div>
                         </div>
-                        <span class="lehrgang-section-percent">{{ $sectionProgress }}%</span>
+                        <span class="section-item-percent">{{ $sectionProgress }}%</span>
                     </div>
                 </div>
             @endforeach
         </div>
 
-        <!-- Austritt -->
-        <div class="lehrgang-unenroll">
+        <!-- Unenroll -->
+        <div class="unenroll-block">
             <form action="{{ route('lehrgaenge.unenroll', $lehrgang->slug) }}" method="POST"
                   onsubmit="return confirm('Lehrgang verlassen? Dein Fortschritt bleibt gespeichert.');">
                 @csrf
                 <button type="submit" class="btn-ghost btn-sm" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.25);">Lehrgang verlassen</button>
             </form>
-            <p class="lehrgang-unenroll-hint">Fortschritt bleibt erhalten</p>
+            <p class="unenroll-hint">Fortschritt bleibt erhalten</p>
         </div>
 
     @else
-        <!-- Card: Einschreiben -->
-        <div class="glass-gold lehrgang-enroll">
-            <div class="lehrgang-enroll-icon">
-                <i class="bi bi-mortarboard"></i>
+        <!-- Bento Grid: Not Enrolled -->
+        <div class="bento-grid">
+            <!-- Main Enroll Card -->
+            <div class="glass-gold bento-main" style="justify-content: center; align-items: center; text-align: center;">
+                <div class="empty-state-icon">
+                    <i class="bi bi-mortarboard"></i>
+                </div>
+                <h2 class="hero-title" style="text-align: center;">Bereit loszulegen?</h2>
+                <p class="hero-desc" style="text-align: center; max-width: 400px;">
+                    @if($lehrgang->beschreibung)
+                        {{ $lehrgang->beschreibung }}
+                    @else
+                        Schreibe dich ein und erhalte Zugang zu allen {{ $questionCount }} Fragen.
+                    @endif
+                </p>
+                <form action="{{ route('lehrgaenge.enroll', $lehrgang->slug) }}" method="POST">
+                    @csrf
+                    <button type="submit" class="btn-primary">Jetzt beitreten</button>
+                </form>
             </div>
-            <h2 class="lehrgang-enroll-title">Bereit loszulegen?</h2>
-            <p class="lehrgang-enroll-desc">
-                @if($lehrgang->beschreibung)
-                    {{ $lehrgang->beschreibung }}
-                @else
-                    Schreibe dich ein und erhalte Zugang zu allen {{ $questionCount }} Fragen.
-                @endif
-            </p>
-            <form action="{{ route('lehrgaenge.enroll', $lehrgang->slug) }}" method="POST">
-                @csrf
-                <button type="submit" class="btn-primary">Jetzt beitreten</button>
-            </form>
+
+            <!-- Side: Questions -->
+            <div class="glass-tl bento-side">
+                <div style="font-size: 2rem; font-weight: 800;" class="text-gradient-gold">{{ $questionCount }}</div>
+                <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted);">Fragen</div>
+            </div>
+
+            <!-- Side: Sections -->
+            <div class="glass-br bento-side">
+                <div style="font-size: 2rem; font-weight: 800;" class="text-gradient-gold">{{ $sectionCount }}</div>
+                <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted);">Abschnitte</div>
+            </div>
         </div>
 
-        <!-- Abschnitte (Vorschau) -->
+        <!-- Sections Preview -->
         <div class="section-header">
             <h2 class="section-title">Lernabschnitte</h2>
         </div>
 
-        <div class="lehrgang-sections">
+        <div class="section-list">
             @foreach($sections as $section)
                 @php
                     $sectionNr = $section->lernabschnitt_nr ?? $section->lernabschnitt ?? null;
                     $sectionName = $lernabschnittNamen[(int)$sectionNr] ?? $lernabschnittNamen[$sectionNr] ?? "Abschnitt {$sectionNr}";
                     $sectionQuestionCount = $lehrgang->questions()->where('lernabschnitt', $sectionNr)->count();
                 @endphp
-                <div class="glass-subtle lehrgang-section-item">
-                    <div class="lehrgang-section-info">
-                        <div class="lehrgang-section-name">{{ $sectionName }}</div>
-                        <div class="lehrgang-section-meta">{{ $sectionQuestionCount }} Fragen</div>
+                <div class="glass-subtle section-item">
+                    <div class="section-item-info">
+                        <div class="section-item-name">{{ $sectionName }}</div>
+                        <div class="section-item-meta">{{ $sectionQuestionCount }} Fragen</div>
                     </div>
-                    <div class="lehrgang-section-progress">
-                        <div class="lehrgang-section-bar">
-                            <div class="lehrgang-section-bar-fill" style="width: 0%; background: var(--gradient-gold);"></div>
+                    <div class="section-item-progress">
+                        <div class="section-item-bar">
+                            <div class="section-item-bar-fill" style="width: 0%; background: var(--gradient-gold);"></div>
                         </div>
-                        <span class="lehrgang-section-percent">0%</span>
+                        <span class="section-item-percent">0%</span>
                     </div>
                 </div>
             @endforeach
         </div>
 
-        <!-- Zurück -->
-        <div class="lehrgang-back">
+        <!-- Back Link -->
+        <div class="back-link">
             <a href="{{ route('lehrgaenge.index') }}" class="btn-ghost btn-sm">Zurück zur Übersicht</a>
         </div>
     @endif
