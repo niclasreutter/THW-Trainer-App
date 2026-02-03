@@ -4,394 +4,365 @@
 
 @push('styles')
 <style>
-    /* ===== Mobile-First Layout ===== */
-    .lehrgang-container {
+    /* ===== KOMPLETT MOBILE-FIRST - KEINE EXTERNEN ABHÄNGIGKEITEN ===== */
+
+    .lg-page {
+        width: 100%;
         max-width: 900px;
         margin: 0 auto;
-        padding: 1rem;
+        padding: 0.75rem;
+        box-sizing: border-box;
     }
 
     @media (min-width: 640px) {
-        .lehrgang-container {
+        .lg-page {
             padding: 2rem;
         }
     }
 
-    /* ===== Header ===== */
-    .lehrgang-header {
-        margin-bottom: 1.25rem;
-    }
-
-    @media (min-width: 640px) {
-        .lehrgang-header {
-            margin-bottom: 2rem;
-        }
-    }
-
-    .lehrgang-title {
-        font-size: 1.5rem;
+    /* Header */
+    .lg-title {
+        font-size: 1.375rem;
         font-weight: 800;
-        margin-bottom: 0.25rem;
+        color: var(--text-primary);
+        margin-bottom: 0.125rem;
+        line-height: 1.2;
     }
 
     @media (min-width: 640px) {
-        .lehrgang-title {
+        .lg-title {
             font-size: 2rem;
         }
     }
 
-    .lehrgang-subtitle {
-        font-size: 0.875rem;
+    .lg-subtitle {
+        font-size: 0.8rem;
         color: var(--text-secondary);
-    }
-
-    /* ===== Stats Row - Desktop only ===== */
-    .stats-row-desktop {
-        display: none;
-    }
-
-    @media (min-width: 640px) {
-        .stats-row-desktop {
-            display: flex;
-            gap: 0.75rem;
-            margin-bottom: 1.5rem;
-        }
-    }
-
-    /* ===== Hero Card ===== */
-    .hero-card {
-        padding: 1.25rem;
-        margin-bottom: 1.25rem;
-        border-radius: 1rem;
-    }
-
-    @media (min-width: 640px) {
-        .hero-card {
-            padding: 2rem;
-            margin-bottom: 1.5rem;
-            border-radius: 1.5rem 0.5rem 1.5rem 0.5rem;
-        }
-    }
-
-    .hero-badge {
         margin-bottom: 1rem;
     }
 
-    .hero-description {
-        font-size: 0.9rem;
-        color: var(--text-secondary);
-        line-height: 1.6;
-        margin-bottom: 1.25rem;
-    }
-
     @media (min-width: 640px) {
-        .hero-description {
-            font-size: 1rem;
-            line-height: 1.7;
+        .lg-subtitle {
+            margin-bottom: 1.5rem;
         }
     }
 
-    /* ===== Hero Stats - Responsive Grid ===== */
-    .hero-stats {
+    /* Hero Box */
+    .lg-hero {
+        background: rgba(251, 191, 36, 0.08);
+        border: 1px solid rgba(251, 191, 36, 0.2);
+        border-radius: 0.75rem;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    @media (min-width: 640px) {
+        .lg-hero {
+            padding: 1.5rem;
+            border-radius: 1.25rem 0.5rem 1.25rem 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+    }
+
+    .lg-hero-badge {
+        margin-bottom: 0.75rem;
+    }
+
+    .lg-badge-enrolled {
+        display: inline-block;
+        background: rgba(34, 197, 94, 0.15);
+        color: #22c55e;
+        font-size: 0.7rem;
+        font-weight: 600;
+        padding: 0.25rem 0.625rem;
+        border-radius: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+
+    .lg-hero-desc {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        line-height: 1.5;
+        margin-bottom: 1rem;
+    }
+
+    @media (min-width: 640px) {
+        .lg-hero-desc {
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+    }
+
+    /* Stats im Hero - Mobile: Vertikal, Desktop: Grid */
+    .lg-stats {
         display: flex;
         flex-direction: column;
-        gap: 0.5rem;
-        padding-top: 1rem;
-        border-top: 1px solid rgba(255, 255, 255, 0.06);
+        gap: 0.375rem;
+        padding-top: 0.75rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
     }
 
     @media (min-width: 640px) {
-        .hero-stats {
+        .lg-stats {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 1rem;
-            padding-top: 1.5rem;
+            gap: 0.75rem;
+            padding-top: 1rem;
         }
     }
 
-    .hero-stat {
+    .lg-stat {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 0.75rem 1rem;
-        background: rgba(255, 255, 255, 0.03);
-        border-radius: 0.75rem;
+        background: rgba(255, 255, 255, 0.04);
+        padding: 0.5rem 0.75rem;
+        border-radius: 0.5rem;
     }
 
     @media (min-width: 640px) {
-        .hero-stat {
+        .lg-stat {
             flex-direction: column;
             text-align: center;
-            padding: 1rem;
-            border-radius: 12px;
+            padding: 0.875rem;
+            border-radius: 0.625rem;
         }
     }
 
-    .hero-stat-label {
-        font-size: 0.75rem;
+    .lg-stat-label {
+        font-size: 0.65rem;
         color: var(--text-muted);
         text-transform: uppercase;
-        letter-spacing: 0.5px;
+        letter-spacing: 0.3px;
     }
 
     @media (min-width: 640px) {
-        .hero-stat-label {
+        .lg-stat-label {
+            font-size: 0.7rem;
             order: 2;
-            margin-top: 0.25rem;
+            margin-top: 0.125rem;
         }
     }
 
-    .hero-stat-value {
-        font-size: 1.25rem;
+    .lg-stat-val {
+        font-size: 1.125rem;
         font-weight: 800;
-        background: var(--gradient-gold);
+        background: linear-gradient(90deg, #fbbf24, #f59e0b);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
     }
 
     @media (min-width: 640px) {
-        .hero-stat-value {
-            font-size: 1.75rem;
+        .lg-stat-val {
+            font-size: 1.5rem;
             order: 1;
         }
     }
 
-    /* ===== Progress Card ===== */
-    .progress-card {
-        padding: 1rem;
-        margin-bottom: 1.25rem;
-        border-radius: 0.75rem;
+    /* Progress Box */
+    .lg-progress-box {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 0.625rem;
+        padding: 0.875rem;
+        margin-bottom: 1rem;
     }
 
     @media (min-width: 640px) {
-        .progress-card {
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
+        .lg-progress-box {
+            padding: 1.25rem;
+            margin-bottom: 1.25rem;
         }
     }
 
-    .progress-header {
+    .lg-progress-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 0.75rem;
+        margin-bottom: 0.5rem;
     }
 
-    .progress-title {
-        font-size: 0.95rem;
+    .lg-progress-title {
+        font-size: 0.875rem;
         font-weight: 700;
         color: var(--text-primary);
     }
 
-    @media (min-width: 640px) {
-        .progress-title {
-            font-size: 1.1rem;
-        }
-    }
-
-    .progress-percentage {
-        font-size: 1rem;
+    .lg-progress-pct {
+        font-size: 0.95rem;
         font-weight: 800;
-        background: var(--gradient-gold);
+        background: linear-gradient(90deg, #fbbf24, #f59e0b);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
     }
 
-    @media (min-width: 640px) {
-        .progress-percentage {
-            font-size: 1.25rem;
-        }
-    }
-
-    .progress-bar {
+    .lg-progress-bar {
         width: 100%;
-        height: 8px;
+        height: 6px;
         background: rgba(255, 255, 255, 0.08);
-        border-radius: 4px;
+        border-radius: 3px;
         overflow: hidden;
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.375rem;
     }
 
-    @media (min-width: 640px) {
-        .progress-bar {
-            height: 10px;
-            border-radius: 5px;
-        }
-    }
-
-    .progress-bar-fill {
+    .lg-progress-fill {
         height: 100%;
-        background: var(--gradient-gold);
-        border-radius: inherit;
-        transition: width 0.5s ease-out;
+        background: linear-gradient(90deg, #fbbf24, #f59e0b);
+        border-radius: 3px;
+        transition: width 0.4s ease;
     }
 
-    .progress-bar-fill.complete {
+    .lg-progress-fill.done {
         background: linear-gradient(90deg, #22c55e, #16a34a);
     }
 
-    .progress-info {
-        font-size: 0.8rem;
-        color: var(--text-secondary);
+    .lg-progress-info {
         display: flex;
         justify-content: space-between;
         flex-wrap: wrap;
-        gap: 0.5rem;
+        gap: 0.25rem;
+        font-size: 0.75rem;
+        color: var(--text-secondary);
     }
 
-    .progress-complete {
+    .lg-progress-done {
         color: #22c55e;
         font-weight: 600;
     }
 
-    /* ===== Action Buttons ===== */
-    .action-buttons {
-        display: flex;
-        flex-direction: column;
-        gap: 0.625rem;
-        margin-bottom: 1.5rem;
-    }
-
-    @media (min-width: 640px) {
-        .action-buttons {
-            flex-direction: row;
-            gap: 0.75rem;
-            margin-bottom: 2rem;
-        }
-
-        .action-buttons > * {
-            flex: 1;
-        }
-    }
-
-    .action-btn {
-        display: block;
-        text-align: center;
-        padding: 0.875rem 1rem;
-        border-radius: 0.625rem;
-        font-weight: 600;
-        font-size: 0.9rem;
-        transition: all 0.2s ease;
-    }
-
-    @media (min-width: 640px) {
-        .action-btn {
-            padding: 1rem;
-        }
-    }
-
-    /* ===== Section Header ===== */
-    .section-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 0.75rem;
-        padding-left: 0.625rem;
-        border-left: 3px solid var(--gold-start);
-    }
-
-    @media (min-width: 640px) {
-        .section-header {
-            margin-bottom: 1rem;
-            padding-left: 0.75rem;
-        }
-    }
-
-    .section-header-title {
-        font-size: 1rem;
-        font-weight: 700;
-        color: var(--text-primary);
-    }
-
-    @media (min-width: 640px) {
-        .section-header-title {
-            font-size: 1.15rem;
-        }
-    }
-
-    /* ===== Sections List ===== */
-    .sections-list {
+    /* Buttons */
+    .lg-buttons {
         display: flex;
         flex-direction: column;
         gap: 0.5rem;
-        margin-bottom: 1.5rem;
+        margin-bottom: 1.25rem;
     }
 
     @media (min-width: 640px) {
-        .sections-list {
-            gap: 0.625rem;
-            margin-bottom: 2rem;
+        .lg-buttons {
+            flex-direction: row;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
         }
     }
 
-    .section-item {
+    .lg-btn {
+        display: block;
+        width: 100%;
+        text-align: center;
+        padding: 0.75rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        font-size: 0.875rem;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        box-sizing: border-box;
+    }
+
+    .lg-btn-primary {
+        background: linear-gradient(90deg, #fbbf24, #f59e0b);
+        color: #0a0a0b;
+    }
+
+    .lg-btn-ghost {
+        background: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        color: var(--text-primary);
+    }
+
+    .lg-btn-done {
+        background: rgba(34, 197, 94, 0.12);
+        border: 1px solid rgba(34, 197, 94, 0.25);
+        color: #22c55e;
+    }
+
+    /* Section Header */
+    .lg-section-title {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 0.625rem;
+        padding-left: 0.5rem;
+        border-left: 3px solid #fbbf24;
+    }
+
+    @media (min-width: 640px) {
+        .lg-section-title {
+            font-size: 1.1rem;
+            margin-bottom: 0.875rem;
+        }
+    }
+
+    /* Section Items */
+    .lg-sections {
+        display: flex;
+        flex-direction: column;
+        gap: 0.375rem;
+        margin-bottom: 1.25rem;
+    }
+
+    @media (min-width: 640px) {
+        .lg-sections {
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+    }
+
+    .lg-section-item {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 0.875rem 1rem;
-        border-radius: 0.75rem;
-        transition: all 0.2s ease;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        padding: 0.625rem 0.75rem;
+        border-radius: 0.5rem;
+        gap: 0.5rem;
     }
 
     @media (min-width: 640px) {
-        .section-item {
-            padding: 1rem 1.25rem;
+        .lg-section-item {
+            padding: 0.875rem 1rem;
         }
     }
 
-    .section-item:nth-child(odd) {
-        border-radius: 0.875rem 0.375rem 0.875rem 0.375rem;
-    }
-
-    .section-item:nth-child(even) {
-        border-radius: 0.375rem 0.875rem 0.375rem 0.875rem;
-    }
-
-    .section-item-info {
+    .lg-section-info {
         flex: 1;
         min-width: 0;
-        margin-right: 0.75rem;
     }
 
-    .section-item-name {
-        font-size: 0.875rem;
+    .lg-section-name {
+        font-size: 0.8rem;
         font-weight: 600;
         color: var(--text-primary);
-        margin-bottom: 0.125rem;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
     }
 
     @media (min-width: 640px) {
-        .section-item-name {
-            font-size: 0.95rem;
-            margin-bottom: 0.25rem;
+        .lg-section-name {
+            font-size: 0.9rem;
         }
     }
 
-    .section-item-meta {
-        font-size: 0.7rem;
+    .lg-section-meta {
+        font-size: 0.65rem;
         color: var(--text-muted);
+        margin-top: 0.125rem;
     }
 
-    @media (min-width: 640px) {
-        .section-item-meta {
-            font-size: 0.75rem;
-        }
-    }
-
-    .section-item-progress {
+    .lg-section-right {
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 0.375rem;
         flex-shrink: 0;
     }
 
-    .section-progress-bar {
-        width: 50px;
+    .lg-section-bar {
+        width: 40px;
         height: 4px;
         background: rgba(255, 255, 255, 0.08);
         border-radius: 2px;
@@ -399,153 +370,150 @@
     }
 
     @media (min-width: 640px) {
-        .section-progress-bar {
-            width: 70px;
-            height: 5px;
+        .lg-section-bar {
+            width: 60px;
         }
     }
 
-    .section-progress-fill {
+    .lg-section-bar-fill {
         height: 100%;
-        background: var(--gradient-gold);
-        border-radius: inherit;
+        background: linear-gradient(90deg, #fbbf24, #f59e0b);
+        border-radius: 2px;
     }
 
-    .section-progress-fill.complete {
+    .lg-section-bar-fill.done {
         background: linear-gradient(90deg, #22c55e, #16a34a);
     }
 
-    .section-progress-text {
-        font-size: 0.7rem;
+    .lg-section-pct {
+        font-size: 0.65rem;
         font-weight: 700;
-        min-width: 32px;
-        text-align: right;
         color: var(--text-secondary);
+        min-width: 28px;
+        text-align: right;
     }
 
-    @media (min-width: 640px) {
-        .section-progress-text {
-            font-size: 0.8rem;
-            min-width: 38px;
-        }
-    }
-
-    /* ===== Enroll Card ===== */
-    .enroll-card {
-        padding: 1.5rem 1.25rem;
+    /* Enroll Box */
+    .lg-enroll {
         text-align: center;
-        margin-bottom: 1.5rem;
+        padding: 1.25rem 1rem;
         border: 2px dashed rgba(255, 255, 255, 0.1);
-        background: rgba(255, 255, 255, 0.01);
-        border-radius: 1rem;
+        border-radius: 0.75rem;
+        margin-bottom: 1.25rem;
     }
 
     @media (min-width: 640px) {
-        .enroll-card {
-            padding: 2.5rem 2rem;
-            margin-bottom: 2rem;
+        .lg-enroll {
+            padding: 2rem 1.5rem;
         }
     }
 
-    .enroll-icon {
-        font-size: 2.25rem;
+    .lg-enroll-icon {
+        font-size: 2rem;
         color: var(--text-muted);
-        margin-bottom: 0.625rem;
-        opacity: 0.6;
+        opacity: 0.5;
+        margin-bottom: 0.5rem;
     }
 
-    @media (min-width: 640px) {
-        .enroll-icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-        }
-    }
-
-    .enroll-title {
-        font-size: 1.125rem;
+    .lg-enroll-title {
+        font-size: 1rem;
         font-weight: 700;
         color: var(--text-primary);
-        margin-bottom: 0.375rem;
+        margin-bottom: 0.25rem;
     }
 
     @media (min-width: 640px) {
-        .enroll-title {
-            font-size: 1.5rem;
-            margin-bottom: 0.5rem;
+        .lg-enroll-title {
+            font-size: 1.25rem;
         }
     }
 
-    .enroll-description {
-        font-size: 0.85rem;
+    .lg-enroll-desc {
+        font-size: 0.8rem;
         color: var(--text-secondary);
-        margin-bottom: 1.25rem;
-        line-height: 1.5;
+        margin-bottom: 1rem;
+        line-height: 1.4;
     }
 
-    @media (min-width: 640px) {
-        .enroll-description {
-            font-size: 1rem;
-            margin-bottom: 1.5rem;
-            max-width: 450px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-    }
-
-    /* ===== Unenroll Section ===== */
-    .unenroll-section {
+    /* Unenroll */
+    .lg-unenroll {
         text-align: center;
-        padding-top: 1.25rem;
+        padding-top: 1rem;
         border-top: 1px solid rgba(255, 255, 255, 0.06);
     }
 
-    .unenroll-hint {
-        font-size: 0.75rem;
+    .lg-unenroll-hint {
+        font-size: 0.7rem;
         color: var(--text-muted);
-        margin-top: 0.375rem;
+        margin-top: 0.25rem;
+    }
+
+    .lg-btn-danger {
+        background: rgba(239, 68, 68, 0.12);
+        border: 1px solid rgba(239, 68, 68, 0.25);
+        color: #ef4444;
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    /* Back Link */
+    .lg-back {
+        text-align: center;
+        margin-top: 1rem;
     }
 
     /* ===== Light Mode ===== */
-    html.light-mode .hero-stats {
+    html.light-mode .lg-hero {
+        background: rgba(217, 119, 6, 0.08);
+        border-color: rgba(217, 119, 6, 0.2);
+    }
+
+    html.light-mode .lg-stats {
         border-top-color: rgba(0, 51, 127, 0.08);
     }
 
-    html.light-mode .hero-stat {
-        background: rgba(0, 51, 127, 0.03);
+    html.light-mode .lg-stat {
+        background: rgba(0, 51, 127, 0.04);
     }
 
-    html.light-mode .hero-stat-value {
+    html.light-mode .lg-stat-val,
+    html.light-mode .lg-progress-pct {
         background: linear-gradient(90deg, #d97706, #b45309);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
     }
 
-    html.light-mode .progress-bar,
-    html.light-mode .section-progress-bar {
+    html.light-mode .lg-progress-box,
+    html.light-mode .lg-section-item {
+        background: rgba(0, 51, 127, 0.03);
+        border-color: rgba(0, 51, 127, 0.08);
+    }
+
+    html.light-mode .lg-progress-bar,
+    html.light-mode .lg-section-bar {
         background: rgba(0, 51, 127, 0.08);
     }
 
-    html.light-mode .progress-percentage {
-        background: linear-gradient(90deg, #d97706, #b45309);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-    }
-
-    html.light-mode .unenroll-section {
-        border-top-color: rgba(0, 51, 127, 0.08);
-    }
-
-    html.light-mode .enroll-card {
+    html.light-mode .lg-btn-ghost {
         border-color: rgba(0, 51, 127, 0.15);
-        background: rgba(0, 51, 127, 0.02);
+    }
+
+    html.light-mode .lg-enroll {
+        border-color: rgba(0, 51, 127, 0.15);
+    }
+
+    html.light-mode .lg-unenroll {
+        border-top-color: rgba(0, 51, 127, 0.08);
     }
 </style>
 @endpush
 
 @section('content')
-<div class="lehrgang-container">
+<div class="lg-page">
     @php
         $isEnrolled = in_array($lehrgang->id, $enrolledIds ?? []);
         $solvedCount = 0;
@@ -579,104 +547,67 @@
     @endphp
 
     <!-- Header -->
-    <header class="lehrgang-header">
-        <h1 class="lehrgang-title"><span>{{ $lehrgang->lehrgang }}</span></h1>
-        <p class="lehrgang-subtitle">Spezialisierter THW-Lehrgang</p>
-    </header>
+    <h1 class="lg-title">{{ $lehrgang->lehrgang }}</h1>
+    <p class="lg-subtitle">Spezialisierter THW-Lehrgang</p>
 
-    <!-- Stats Row - Desktop Only -->
-    <div class="stats-row-desktop">
-        <div class="stat-pill">
-            <span class="stat-pill-icon"><i class="bi bi-question-circle"></i></span>
-            <div>
-                <div class="stat-pill-value">{{ $questionCount }}</div>
-                <div class="stat-pill-label">Fragen</div>
-            </div>
-        </div>
-        <div class="stat-pill">
-            <span class="stat-pill-icon"><i class="bi bi-layers"></i></span>
-            <div>
-                <div class="stat-pill-value">{{ $sectionCount }}</div>
-                <div class="stat-pill-label">Abschnitte</div>
-            </div>
-        </div>
+    <!-- Hero -->
+    <div class="lg-hero">
         @if($isEnrolled)
-            <div class="stat-pill">
-                <span class="stat-pill-icon text-success"><i class="bi bi-check-circle"></i></span>
-                <div>
-                    <div class="stat-pill-value">{{ $progressPercent }}%</div>
-                    <div class="stat-pill-label">Fortschritt</div>
-                </div>
-            </div>
-        @endif
-    </div>
-
-    <!-- Hero Card -->
-    <div class="glass-gold hero-card">
-        @if($isEnrolled)
-            <div class="hero-badge">
-                <span class="badge-success">Eingeschrieben</span>
+            <div class="lg-hero-badge">
+                <span class="lg-badge-enrolled">Eingeschrieben</span>
             </div>
         @endif
 
         @if($lehrgang->beschreibung)
-            <p class="hero-description">{{ $lehrgang->beschreibung }}</p>
+            <p class="lg-hero-desc">{{ $lehrgang->beschreibung }}</p>
         @endif
 
-        <div class="hero-stats">
-            <div class="hero-stat">
-                <span class="hero-stat-label">Fragen</span>
-                <span class="hero-stat-value">{{ $questionCount }}</span>
+        <div class="lg-stats">
+            <div class="lg-stat">
+                <span class="lg-stat-label">Fragen</span>
+                <span class="lg-stat-val">{{ $questionCount }}</span>
             </div>
-            <div class="hero-stat">
-                <span class="hero-stat-label">Abschnitte</span>
-                <span class="hero-stat-value">{{ $sectionCount }}</span>
+            <div class="lg-stat">
+                <span class="lg-stat-label">Abschnitte</span>
+                <span class="lg-stat-val">{{ $sectionCount }}</span>
             </div>
-            <div class="hero-stat">
-                <span class="hero-stat-label">Fortschritt</span>
-                <span class="hero-stat-value">{{ $isEnrolled ? $progressPercent : 0 }}%</span>
+            <div class="lg-stat">
+                <span class="lg-stat-label">Fortschritt</span>
+                <span class="lg-stat-val">{{ $isEnrolled ? $progressPercent : 0 }}%</span>
             </div>
         </div>
     </div>
 
     @if($isEnrolled)
-        <!-- Progress Card -->
-        <div class="glass-tl progress-card">
-            <div class="progress-header">
-                <h2 class="progress-title">Dein Fortschritt</h2>
-                <span class="progress-percentage">{{ $progressPercent }}%</span>
+        <!-- Progress -->
+        <div class="lg-progress-box">
+            <div class="lg-progress-header">
+                <span class="lg-progress-title">Dein Fortschritt</span>
+                <span class="lg-progress-pct">{{ $progressPercent }}%</span>
             </div>
-            <div class="progress-bar">
-                <div class="progress-bar-fill {{ $isCompleted ? 'complete' : '' }}" style="width: {{ $progressPercent }}%"></div>
+            <div class="lg-progress-bar">
+                <div class="lg-progress-fill {{ $isCompleted ? 'done' : '' }}" style="width: {{ $progressPercent }}%"></div>
             </div>
-            <div class="progress-info">
-                <span>{{ $solvedCount }}/{{ $totalCount }} Fragen beantwortet</span>
+            <div class="lg-progress-info">
+                <span>{{ $solvedCount }}/{{ $totalCount }} Fragen</span>
                 @if($isCompleted)
-                    <span class="progress-complete"><i class="bi bi-check-circle-fill"></i> Abgeschlossen</span>
+                    <span class="lg-progress-done">Abgeschlossen</span>
                 @endif
             </div>
         </div>
 
-        <!-- Action Buttons -->
-        <div class="action-buttons">
+        <!-- Buttons -->
+        <div class="lg-buttons">
             @if($isCompleted)
-                <span class="action-btn btn-ghost" style="background: rgba(34, 197, 94, 0.15); color: #22c55e; border-color: rgba(34, 197, 94, 0.25);">
-                    Lehrgang abgeschlossen
-                </span>
+                <span class="lg-btn lg-btn-done">Lehrgang abgeschlossen</span>
             @else
-                <a href="{{ route('lehrgaenge.practice', $lehrgang->slug) }}" class="action-btn btn-primary">
-                    Jetzt weiterlernen
-                </a>
+                <a href="{{ route('lehrgaenge.practice', $lehrgang->slug) }}" class="lg-btn lg-btn-primary">Jetzt lernen</a>
             @endif
-            <a href="{{ route('lehrgaenge.index') }}" class="action-btn btn-ghost">
-                Alle Lehrgänge
-            </a>
+            <a href="{{ route('lehrgaenge.index') }}" class="lg-btn lg-btn-ghost">Alle Lehrgänge</a>
         </div>
 
         <!-- Sections -->
-        <div class="section-header">
-            <h2 class="section-header-title">Lernabschnitte</h2>
-        </div>
+        <h2 class="lg-section-title">Lernabschnitte</h2>
 
         @php
             $lernabschnittNamen = \App\Models\LehrgangLernabschnitt::where('lehrgang_id', $lehrgang->id)
@@ -684,11 +615,11 @@
                 ->toArray();
         @endphp
 
-        <div class="sections-list">
+        <div class="lg-sections">
             @foreach($sections as $section)
                 @php
                     $sectionNr = $section->lernabschnitt_nr ?? $section->lernabschnitt ?? null;
-                    $sectionName = $lernabschnittNamen[(int)$sectionNr] ?? $lernabschnittNamen[$sectionNr] ?? "Lernabschnitt {$sectionNr}";
+                    $sectionName = $lernabschnittNamen[(int)$sectionNr] ?? $lernabschnittNamen[$sectionNr] ?? "Abschnitt {$sectionNr}";
                     $sectionQuestionCount = $lehrgang->questions()->where('lernabschnitt', $sectionNr)->count();
                     $sectionSolvedCount = \App\Models\UserLehrgangProgress::where('user_id', auth()->id())
                         ->whereHas('lehrgangQuestion', fn($q) => $q->where('lehrgang_id', $lehrgang->id)->where('lernabschnitt', $sectionNr))
@@ -697,49 +628,45 @@
                     $sectionProgress = $sectionQuestionCount > 0 ? round(($sectionSolvedCount / $sectionQuestionCount) * 100) : 0;
                     $sectionComplete = $sectionProgress == 100 && $sectionSolvedCount > 0;
                 @endphp
-                <div class="glass section-item">
-                    <div class="section-item-info">
-                        <h3 class="section-item-name">{{ $sectionName }}</h3>
-                        <div class="section-item-meta">{{ $sectionQuestionCount }} Fragen, {{ $sectionSolvedCount }} gelöst</div>
+                <div class="lg-section-item">
+                    <div class="lg-section-info">
+                        <div class="lg-section-name">{{ $sectionName }}</div>
+                        <div class="lg-section-meta">{{ $sectionQuestionCount }} Fragen, {{ $sectionSolvedCount }} gelöst</div>
                     </div>
-                    <div class="section-item-progress">
-                        <div class="section-progress-bar">
-                            <div class="section-progress-fill {{ $sectionComplete ? 'complete' : '' }}" style="width: {{ $sectionProgress }}%"></div>
+                    <div class="lg-section-right">
+                        <div class="lg-section-bar">
+                            <div class="lg-section-bar-fill {{ $sectionComplete ? 'done' : '' }}" style="width: {{ $sectionProgress }}%"></div>
                         </div>
-                        <span class="section-progress-text">{{ $sectionProgress }}%</span>
+                        <span class="lg-section-pct">{{ $sectionProgress }}%</span>
                     </div>
                 </div>
             @endforeach
         </div>
 
-        <!-- Unenroll Section -->
-        <div class="unenroll-section">
-            <form action="{{ route('lehrgaenge.unenroll', $lehrgang->slug) }}" method="POST" style="display: inline-block;"
-                  onsubmit="return confirm('Möchtest du diesen Lehrgang wirklich verlassen? Dein Fortschritt bleibt gespeichert.');">
+        <!-- Unenroll -->
+        <div class="lg-unenroll">
+            <form action="{{ route('lehrgaenge.unenroll', $lehrgang->slug) }}" method="POST" style="display: inline;"
+                  onsubmit="return confirm('Lehrgang verlassen? Dein Fortschritt bleibt gespeichert.');">
                 @csrf
-                <button type="submit" class="btn-danger">Lehrgang verlassen</button>
+                <button type="submit" class="lg-btn-danger">Lehrgang verlassen</button>
             </form>
-            <p class="unenroll-hint">Dein Fortschritt bleibt erhalten</p>
+            <p class="lg-unenroll-hint">Fortschritt bleibt erhalten</p>
         </div>
 
     @else
-        <!-- Enroll Card -->
-        <div class="glass-slash enroll-card">
-            <div class="enroll-icon"><i class="bi bi-mortarboard"></i></div>
-            <h2 class="enroll-title">Bereit für diesen Lehrgang?</h2>
-            <p class="enroll-description">
-                Schreibe dich jetzt ein und beginne mit dem Lernen. Du wirst Zugang zu allen {{ $questionCount }} Fragen erhalten.
-            </p>
-            <form action="{{ route('lehrgaenge.enroll', $lehrgang->slug) }}" method="POST" style="display: inline-block;">
+        <!-- Enroll -->
+        <div class="lg-enroll">
+            <div class="lg-enroll-icon"><i class="bi bi-mortarboard"></i></div>
+            <h2 class="lg-enroll-title">Bereit loszulegen?</h2>
+            <p class="lg-enroll-desc">Schreibe dich ein und erhalte Zugang zu allen {{ $questionCount }} Fragen.</p>
+            <form action="{{ route('lehrgaenge.enroll', $lehrgang->slug) }}" method="POST" style="display: inline;">
                 @csrf
-                <button type="submit" class="btn-primary" style="padding: 0.875rem 2rem;">Jetzt beitreten</button>
+                <button type="submit" class="lg-btn lg-btn-primary" style="display: inline-block; width: auto; padding: 0.75rem 1.5rem;">Jetzt beitreten</button>
             </form>
         </div>
 
         <!-- Preview Sections -->
-        <div class="section-header">
-            <h2 class="section-header-title">Lernabschnitte (Vorschau)</h2>
-        </div>
+        <h2 class="lg-section-title">Lernabschnitte</h2>
 
         @php
             $lernabschnittNamen = \App\Models\LehrgangLernabschnitt::where('lehrgang_id', $lehrgang->id)
@@ -747,33 +674,31 @@
                 ->toArray();
         @endphp
 
-        <div class="sections-list">
+        <div class="lg-sections">
             @foreach($sections as $section)
                 @php
                     $sectionNr = $section->lernabschnitt_nr ?? $section->lernabschnitt ?? null;
-                    $sectionName = $lernabschnittNamen[(int)$sectionNr] ?? $lernabschnittNamen[$sectionNr] ?? "Lernabschnitt {$sectionNr}";
+                    $sectionName = $lernabschnittNamen[(int)$sectionNr] ?? $lernabschnittNamen[$sectionNr] ?? "Abschnitt {$sectionNr}";
                     $sectionQuestionCount = $lehrgang->questions()->where('lernabschnitt', $sectionNr)->count();
                 @endphp
-                <div class="glass section-item">
-                    <div class="section-item-info">
-                        <h3 class="section-item-name">{{ $sectionName }}</h3>
-                        <div class="section-item-meta">{{ $sectionQuestionCount }} Fragen</div>
+                <div class="lg-section-item">
+                    <div class="lg-section-info">
+                        <div class="lg-section-name">{{ $sectionName }}</div>
+                        <div class="lg-section-meta">{{ $sectionQuestionCount }} Fragen</div>
                     </div>
-                    <div class="section-item-progress">
-                        <div class="section-progress-bar">
-                            <div class="section-progress-fill" style="width: 0%"></div>
+                    <div class="lg-section-right">
+                        <div class="lg-section-bar">
+                            <div class="lg-section-bar-fill" style="width: 0%"></div>
                         </div>
-                        <span class="section-progress-text">0%</span>
+                        <span class="lg-section-pct">0%</span>
                     </div>
                 </div>
             @endforeach
         </div>
 
-        <!-- Back Link -->
-        <div style="text-align: center; margin-top: 1.5rem;">
-            <a href="{{ route('lehrgaenge.index') }}" class="btn-ghost">
-                Zurück zur Übersicht
-            </a>
+        <!-- Back -->
+        <div class="lg-back">
+            <a href="{{ route('lehrgaenge.index') }}" class="lg-btn lg-btn-ghost" style="display: inline-block; width: auto; padding: 0.625rem 1.25rem;">Zurück</a>
         </div>
     @endif
 </div>
