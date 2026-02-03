@@ -1430,6 +1430,13 @@
         gap: 1.5rem;
     }
 
+    /* Filter Grid - responsive form layout */
+    .filter-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr));
+        gap: 1rem;
+    }
+
     /* Section Headers */
     .section-header {
         display: flex;

@@ -79,7 +79,7 @@
 
     <div class="glass hover-lift" style="padding: 1.5rem; margin-bottom: 2rem;">
         <h3 style="font-size: 1rem; font-weight: 700; margin: 0 0 1rem 0;">Filter & Suche</h3>
-        <form id="filterForm" method="GET" action="{{ route('admin.contact-messages.index') }}" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
+        <form id="filterForm" method="GET" action="{{ route('admin.contact-messages.index') }}" class="filter-grid" style="margin-bottom: 1rem;">
             <div>
                 <label style="font-weight: 600; margin-bottom: 0.5rem; font-size: 0.875rem; display: block;">Suche</label>
                 <input type="text" name="search" value="{{ request('search') }}"
