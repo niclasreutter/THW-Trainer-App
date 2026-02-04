@@ -40,7 +40,7 @@
             <span x-show="loading">Lädt in 3 Sekunden...</span>
         </button>
 
-        <a href="{{ route('landing.home') }}" class="btn-secondary">
+        <a href="{{ url('/') }}" class="btn-secondary">
             Zur Startseite
         </a>
     </div>

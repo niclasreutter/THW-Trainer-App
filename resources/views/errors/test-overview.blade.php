@@ -74,7 +74,7 @@
 
             <!-- Back to Home -->
             <div class="mt-12 text-center">
-                <a href="{{ route('landing.home') }}" 
+                <a href="{{ url('/') }}"
                    class="inline-block bg-blue-900 hover:bg-blue-800 text-yellow-400 font-semibold py-3 px-8 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg">
                     ← Zurück zur Startseite
                 </a>

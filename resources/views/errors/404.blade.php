@@ -23,7 +23,7 @@
 
     <!-- Action Buttons -->
     <div class="flex flex-col gap-3 mt-6">
-        <a href="{{ route('landing.home') }}" class="btn-primary">
+        <a href="{{ url('/') }}" class="btn-primary">
             Zur Startseite
         </a>
 
