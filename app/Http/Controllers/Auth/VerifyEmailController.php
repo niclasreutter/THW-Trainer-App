@@ -11,6 +11,7 @@ class VerifyEmailController extends Controller
 {
     /**
      * Überprüft den eingegebenen Zahlencode und bestätigt die E-Mail.
+     * Nach 3 Fehlversuchen wird der Code ungültig gemacht.
      */
     public function store(Request $request): RedirectResponse
     {
@@ -25,12 +26,27 @@ class VerifyEmailController extends Controller
         ]);
 
         if ($user->verification_code === null || $user->verification_code_expires_at->isPast()) {
+            $request->session()->forget('verification_attempts');
             return back()->withErrors(['code' => 'Der Code ist abgelaufen. Bitte fordere einen neuen Code an.']);
         }
 
         if (!hash_equals($user->verification_code, $request->code)) {
-            return back()->withErrors(['code' => 'Der Code ist ungültig. Bitte überprüfe die Eingabe.']);
+            $attempts = $request->session()->get('verification_attempts', 0) + 1;
+            $request->session()->put('verification_attempts', $attempts);
+
+            if ($attempts >= 3) {
+                $user->verification_code = null;
+                $user->verification_code_expires_at = null;
+                $user->save();
+                $request->session()->forget('verification_attempts');
+                return back()->withErrors(['code' => 'Zu viele Fehlversuche. Bitte fordere einen neuen Code an.']);
+            }
+
+            $remaining = 3 - $attempts;
+            return back()->withErrors(['code' => "Der Code ist ungültig. Es bleiben {$remaining} Versuche."]);
         }
+
+        $request->session()->forget('verification_attempts');
 
         $user->verification_code = null;
         $user->verification_code_expires_at = null;
