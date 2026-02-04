@@ -40,7 +40,7 @@
             Zur Registrierung
         </a>
 
-        <a href="{{ route('landing.home') }}" class="btn-ghost">
+        <a href="{{ url('/') }}" class="btn-ghost">
             Zur Startseite
         </a>
     </div>
