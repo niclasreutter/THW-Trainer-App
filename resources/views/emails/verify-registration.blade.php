@@ -25,22 +25,19 @@
             </p>
             
             <p style="margin:0 0 24px 0;font-size:16px;line-height:1.6;color:#1a202c;">
-                Um dein Konto zu aktivieren und alle Funktionen nutzen zu können, bestätige bitte deine E-Mail-Adresse mit einem Klick auf den Button:
+                Um dein Konto zu aktivieren, gib den folgenden Code auf der Bestätigungsseite ein:
             </p>
-            
-            <!-- Call-to-Action Button -->
+
+            <!-- Verifikationscode -->
             <div style="text-align:center;margin:32px 0;">
-                <a href="{{ $verificationUrl }}" style="background:#FFD700;color:#003399;padding:14px 40px;border-radius:8px;text-decoration:none;font-weight:600;font-size:16px;display:inline-block;">
-                    E-Mail-Adresse bestätigen
-                </a>
+                <div style="background:#f0f4ff;border:2px solid #00337F;border-radius:12px;padding:24px 32px;display:inline-block;">
+                    <p style="margin:0 0 4px 0;font-size:13px;color:#666;text-transform:uppercase;letter-spacing:2px;">Dein Bestätigungscode</p>
+                    <p style="margin:0;font-size:42px;font-weight:800;color:#00337F;letter-spacing:8px;font-variant-numeric:tabular-nums;">{{ $verificationCode }}</p>
+                </div>
             </div>
-            
-            <!-- Alternativ-Link -->
-            <p style="margin:24px 0 0 0;font-size:14px;line-height:1.6;color:#666;text-align:center;">
-                Falls der Button nicht funktioniert, kopiere diesen Link in deinen Browser:
-            </p>
-            <p style="margin:8px 0 24px 0;font-size:13px;line-height:1.4;color:#0066cc;word-break:break-all;text-align:center;">
-                {{ $verificationUrl }}
+
+            <p style="margin:0 0 8px 0;font-size:14px;color:#666;text-align:center;">
+                Dieser Code ist <strong>15 Minuten</strong> gültig.
             </p>
             
             <!-- Vorteile -->

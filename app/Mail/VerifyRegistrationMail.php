@@ -10,17 +10,17 @@ class VerifyRegistrationMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $verificationUrl;
+    public $verificationCode;
 
-    public function __construct($verificationUrl)
+    public function __construct($verificationCode)
     {
-        $this->verificationUrl = $verificationUrl;
+        $this->verificationCode = $verificationCode;
     }
 
     public function build()
     {
         return $this->subject('Bestätige deine Registrierung')
             ->view('emails.verify-registration')
-            ->with(['verificationUrl' => $this->verificationUrl]);
+            ->with(['verificationCode' => $this->verificationCode]);
     }
 }

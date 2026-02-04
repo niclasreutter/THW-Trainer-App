@@ -539,21 +539,51 @@
         </div>
     </div>
 
-    <!-- Right Panel: Email Verification -->
+    <!-- Right Panel: Code-Eingabe -->
     <div class="auth-right">
         <div class="auth-form-container">
-            <h2>✨ E-Mail Bestätigung</h2>
-            <p>Vielen Dank für deine Registrierung! Bitte bestätige deine E-Mail-Adresse, indem du auf den Link in der E-Mail klickst.</p>
+            <h2>E-Mail Bestätigung</h2>
+            <p>Wir haben einen 6-stelligen Code an <strong>{{ auth()->user()->email }}</strong> gesendet. Gib den Code hier ein:</p>
 
-            @if (session('status') == 'verification-link-sent')
+            @if (session('status') == 'verification-code-sent')
                 <div class="success-box">
-                    <p>Ein neuer Bestätigungslink wurde an deine E-Mail-Adresse gesendet.</p>
+                    <p>Ein neuer Code wurde an deine E-Mail-Adresse gesendet.</p>
                 </div>
             @endif
 
+            @if ($errors->has('code'))
+                <div class="error-box">
+                    <ul>
+                        @foreach ($errors->get('code') as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
+            <form method="POST" action="{{ route('verification.verify') }}">
+                @csrf
+                <div class="form-group">
+                    <label for="code">Bestätigungscode</label>
+                    <input
+                        type="text"
+                        id="code"
+                        name="code"
+                        class="form-input"
+                        inputmode="numeric"
+                        autocomplete="one-time-code"
+                        maxlength="6"
+                        placeholder="123456"
+                        autofocus
+                        style="text-align:center;font-size:1.8rem;font-weight:700;letter-spacing:0.4rem;font-variant-numeric:tabular-nums;"
+                    >
+                </div>
+                <button type="submit" class="auth-btn">Code bestätigen</button>
+            </form>
+
             <form method="POST" action="{{ route('verification.send') }}">
                 @csrf
-                <button type="submit" class="auth-btn">Bestätigungsmail erneut senden</button>
+                <button type="submit" class="auth-secondary-btn">Neuen Code senden</button>
             </form>
 
             <form method="POST" action="{{ route('logout') }}">
