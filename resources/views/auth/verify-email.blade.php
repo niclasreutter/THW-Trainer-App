@@ -220,7 +220,7 @@
         margin-bottom: 0.5rem;
     }
 
-    .form-input {
+    .auth-container .form-input {
         width: 100%;
         padding: 1rem 1.2rem;
         border: 1px solid #e5e7eb;
@@ -232,14 +232,15 @@
         font-family: inherit;
     }
 
-    .form-input:focus {
+    .auth-container .form-input:focus {
         outline: none;
         border-color: #00337F;
         box-shadow: 0 0 0 3px rgba(0, 51, 127, 0.1);
         background: white;
+        color: #333;
     }
 
-    .form-input::placeholder {
+    .auth-container .form-input::placeholder {
         color: #9ca3af;
     }
 
