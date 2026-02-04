@@ -25,18 +25,22 @@
     <div class="alert-glass warning mb-6" style="text-align: left;">
         <i class="bi bi-lightbulb" style="color: var(--warning);"></i>
         <p style="color: var(--text-secondary); font-size: 0.875rem; margin: 0;">
-            <strong>Tipp:</strong> Lade die Seite neu, um fortzufahren.
-            Deine Daten wurden nicht verloren.
+            <strong>Tipp:</strong> Überprüfe, ob Cookies im Browser erlaubt sind,
+            und versuche es erneut. Deine Daten wurden nicht verloren.
         </p>
     </div>
 
     <!-- Action Buttons -->
     <div class="flex flex-col gap-3">
-        <button onclick="window.location.reload()" class="btn-primary">
-            Seite neu laden
-        </button>
+        <a href="{{ route('login') }}" class="btn-primary">
+            Zum Anmelden
+        </a>
 
-        <a href="{{ route('landing.home') }}" class="btn-secondary">
+        <a href="{{ route('register') }}" class="btn-secondary">
+            Zur Registrierung
+        </a>
+
+        <a href="{{ route('landing.home') }}" class="btn-ghost">
             Zur Startseite
         </a>
     </div>
