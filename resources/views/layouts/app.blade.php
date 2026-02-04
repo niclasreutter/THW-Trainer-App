@@ -189,17 +189,15 @@
                     @php
                         $userOV = auth()->user()->ortsverbände->first();
                     @endphp
-                    @if($userOV)
                     <div class="pt-4 mt-4 border-t border-glass-subtle">
                         <p class="px-3 mb-3 text-xs font-semibold text-dark-muted uppercase tracking-wider">Ortsverband</p>
 
                         <a href="{{ route('ortsverband.index') }}"
                            class="sidebar-link {{ request()->routeIs('ortsverband.*') ? 'active' : '' }}">
                             <i class="bi bi-people"></i>
-                            {{ $userOV->name }}
+                            {{ $userOV ? $userOV->name : 'Ortsverband' }}
                         </a>
                     </div>
-                    @endif
 
                     @if(auth()->user()->useroll === 'admin')
                     <div class="pt-4 mt-4 border-t border-glass-subtle">
@@ -446,15 +444,10 @@
                     Achievements
                 </a>
 
-                @php
-                    $userOV = auth()->user()->ortsverbände->first();
-                @endphp
-                @if($userOV)
                 <a href="{{ route('ortsverband.index') }}" class="sidebar-link {{ request()->routeIs('ortsverband.*') ? 'active' : '' }}">
                     <i class="bi bi-people"></i>
                     Ortsverband
                 </a>
-                @endif
 
                 @if(auth()->user()->useroll === 'admin')
                 <div class="pt-4 mt-4 border-t border-glass-subtle">
