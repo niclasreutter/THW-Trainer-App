@@ -3,7 +3,6 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Support\Facades\URL;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -63,6 +62,7 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return [
             'email_verified_at' => 'datetime',
+            'verification_code_expires_at' => 'datetime',
             'password' => 'hashed',
             'deletion_warning_sent_at' => 'datetime',
             'email_consent_at' => 'datetime',
@@ -136,25 +136,35 @@ class User extends Authenticatable implements MustVerifyEmail
     }
     
     /**
-     * Override the default email verification notification.
+     * Generiert einen 6-stelligen Zahlencode und speichert ihn (15 min Gültigkeit).
+     */
+    public function generateVerificationCode(): string
+    {
+        $code = (string) random_int(100000, 999999);
+
+        $this->verification_code = $code;
+        $this->verification_code_expires_at = now()->addMinutes(15);
+        $this->save();
+
+        return $code;
+    }
+
+    /**
+     * Sendet die Verifikations-E-Mail mit einem Zahlencode.
      */
     public function sendEmailVerificationNotification()
     {
-        $verificationUrl = URL::temporarySignedRoute(
-            'verification.verify',
-            now()->addMinutes(5), // 5 Minuten Gültigkeit für E-Mail-Änderungen
-            ['id' => $this->getKey(), 'hash' => sha1($this->getEmailForVerification())]
-        );
-        
+        $code = $this->generateVerificationCode();
+
         try {
             \Log::info('Attempting to send verification email', [
                 'user_id' => $this->id,
                 'email' => $this->email,
                 'name' => $this->name
             ]);
-            
-            \Mail::to($this->email)->send(new \App\Mail\VerifyRegistrationMail($verificationUrl));
-            
+
+            \Mail::to($this->email)->send(new \App\Mail\VerifyRegistrationMail($code));
+
             \Log::info('Verification email sent successfully', [
                 'user_id' => $this->id,
                 'email' => $this->email
