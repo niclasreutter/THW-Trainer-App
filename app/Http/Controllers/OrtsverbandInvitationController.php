@@ -202,25 +202,40 @@ class OrtsverbandInvitationController extends Controller
         $logoWidth = imagesx($logo);
         $logoHeight = imagesy($logo);
 
-        // Logo-Größe (20% des QR-Codes)
-        $logoTargetWidth = $qrWidth * 0.20;
-        $logoTargetHeight = $logoHeight * ($logoTargetWidth / $logoWidth);
-
-        // Position (zentriert)
-        $logoX = ($qrWidth - $logoTargetWidth) / 2;
-        $logoY = ($qrHeight - $logoTargetHeight) / 2;
-
-        // Weißer Hintergrund für Logo (Aussparung)
-        $white = imagecolorallocate($qrImage, 255, 255, 255);
+        // Quadratische Aussparung (20% des QR-Codes)
+        $cutoutSize = $qrWidth * 0.20;
         $padding = 15;
+
+        // Position der quadratischen Aussparung (zentriert)
+        $cutoutX = ($qrWidth - $cutoutSize) / 2;
+        $cutoutY = ($qrHeight - $cutoutSize) / 2;
+
+        // Weißer Hintergrund für Logo (quadratische Aussparung)
+        $white = imagecolorallocate($qrImage, 255, 255, 255);
         imagefilledrectangle(
             $qrImage,
-            $logoX - $padding,
-            $logoY - $padding,
-            $logoX + $logoTargetWidth + $padding,
-            $logoY + $logoTargetHeight + $padding,
+            $cutoutX - $padding,
+            $cutoutY - $padding,
+            $cutoutX + $cutoutSize + $padding,
+            $cutoutY + $cutoutSize + $padding,
             $white
         );
+
+        // Logo proportional in die quadratische Fläche einpassen
+        $logoRatio = $logoWidth / $logoHeight;
+        if ($logoRatio > 1) {
+            // Logo ist breiter als hoch
+            $logoTargetWidth = $cutoutSize;
+            $logoTargetHeight = $cutoutSize / $logoRatio;
+        } else {
+            // Logo ist höher als breit
+            $logoTargetHeight = $cutoutSize;
+            $logoTargetWidth = $cutoutSize * $logoRatio;
+        }
+
+        // Logo zentriert in der quadratischen Aussparung platzieren
+        $logoX = $cutoutX + ($cutoutSize - $logoTargetWidth) / 2;
+        $logoY = $cutoutY + ($cutoutSize - $logoTargetHeight) / 2;
 
         // Logo einfügen
         imagecopyresampled(
