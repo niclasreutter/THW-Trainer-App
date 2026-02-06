@@ -49,3 +49,4 @@ Schedule::command('system:maintenance')
     ->weeklyOn(0, '03:00')
     ->timezone('Europe/Berlin')
     ->description('Führt System-Wartung und Speicher-Optimierung durch');
+
