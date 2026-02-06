@@ -2540,3 +2540,141 @@ html.light-mode ::-webkit-scrollbar-thumb:hover {
 .bg-thw-blue {
     background-color: #00337F;
 }
+
+/* ============================================
+   SKELETON LOADING STATES
+   ============================================ */
+
+@keyframes skeletonPulse {
+    0% { opacity: 0.06; }
+    50% { opacity: 0.12; }
+    100% { opacity: 0.06; }
+}
+
+.skeleton {
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 0.5rem;
+    animation: skeletonPulse 1.5s ease-in-out infinite;
+    position: relative;
+    overflow: hidden;
+}
+
+.skeleton::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.04) 50%,
+        transparent 100%
+    );
+    animation: skeletonShimmer 2s ease-in-out infinite;
+}
+
+@keyframes skeletonShimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.skeleton-text { height: 1rem; width: 80%; margin-bottom: 0.5rem; }
+.skeleton-text-sm { height: 0.75rem; width: 60%; margin-bottom: 0.4rem; }
+.skeleton-text-lg { height: 1.5rem; width: 50%; margin-bottom: 0.75rem; }
+.skeleton-circle { border-radius: 50%; }
+.skeleton-card { min-height: 120px; border-radius: 1rem; }
+.skeleton-pill { height: 40px; border-radius: 0.75rem; width: 120px; }
+.skeleton-progress { height: 6px; border-radius: 3px; width: 100%; }
+
+html.light-mode .skeleton {
+    background: rgba(0, 51, 127, 0.06);
+}
+
+html.light-mode .skeleton::after {
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(0, 51, 127, 0.04) 50%,
+        transparent 100%
+    );
+}
+
+/* ============================================
+   MILESTONE CELEBRATION ANIMATIONS
+   ============================================ */
+
+/* Level-Up Fullscreen Overlay */
+.milestone-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(12px);
+    animation: milestoneOverlayIn 0.3s ease-out;
+}
+
+@keyframes milestoneOverlayIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.milestone-content {
+    text-align: center;
+    animation: milestoneBounceIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes milestoneBounceIn {
+    0% { opacity: 0; transform: scale(0.3); }
+    50% { transform: scale(1.05); }
+    70% { transform: scale(0.95); }
+    100% { opacity: 1; transform: scale(1); }
+}
+
+.milestone-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    display: block;
+}
+
+.milestone-title {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.milestone-subtitle {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+}
+
+.milestone-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 2rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+/* Gold glow effect for milestones */
+.milestone-glow {
+    box-shadow:
+        0 0 30px rgba(251, 191, 36, 0.3),
+        0 0 60px rgba(251, 191, 36, 0.15),
+        0 0 90px rgba(251, 191, 36, 0.05);
+}
+
+/* Streak milestone pulse */
+@keyframes streakPulse {
+    0%, 100% { box-shadow: 0 0 20px rgba(251, 191, 36, 0.2); }
+    50% { box-shadow: 0 0 40px rgba(251, 191, 36, 0.4), 0 0 60px rgba(251, 191, 36, 0.2); }
+}
+
+.milestone-streak-glow {
+    animation: streakPulse 2s ease-in-out infinite;
+}

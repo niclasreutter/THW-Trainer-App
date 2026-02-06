@@ -423,6 +423,41 @@
             </div>
         </div>
 
+        <!-- Spaced Repetition -->
+        @php
+            $srService = new \App\Services\SpacedRepetitionService();
+            $srStats = $srService->getStats(auth()->id());
+        @endphp
+        <div class="glass bento-wide" style="border-left: 3px solid #a855f7;">
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <div style="width: 48px; height: 48px; border-radius: 0.75rem; background: rgba(168, 85, 247, 0.15); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <i class="bi bi-arrow-repeat" style="font-size: 1.25rem; color: #a855f7;"></i>
+                    </div>
+                    <div>
+                        <h3 style="font-size: 1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.25rem;">Spaced Repetition</h3>
+                        <p style="font-size: 0.8rem; color: var(--text-secondary);">
+                            @if($srStats['due_now'] > 0)
+                                <strong style="color: #a855f7;">{{ $srStats['due_now'] }} Fragen</strong> bereit zur Wiederholung
+                            @else
+                                Keine Wiederholungen fällig.
+                                @if($srStats['due_tomorrow'] > 0)
+                                    <span style="color: var(--text-muted);">{{ $srStats['due_tomorrow'] }} morgen fällig.</span>
+                                @endif
+                            @endif
+                        </p>
+                    </div>
+                </div>
+                @if($srStats['due_now'] > 0)
+                    <a href="{{ route('practice.spaced-repetition') }}" class="btn-primary btn-sm" style="background: linear-gradient(135deg, #a855f7, #7c3aed);">
+                        Jetzt wiederholen
+                    </a>
+                @else
+                    <span class="btn-ghost btn-sm" style="opacity: 0.5; pointer-events: none;">Keine fällig</span>
+                @endif
+            </div>
+        </div>
+
         <!-- Detaillierte Stats -->
         <div class="glass-slash bento-wide">
             <div class="detailed-stats-grid">

@@ -153,6 +153,13 @@ class GamificationService
                 'message' => "Du hast Level {$user->level} erreicht!",
                 'level' => $user->level
             ];
+
+            // Milestone Celebration für Level-Up
+            session(['milestone_celebration' => [
+                'type' => 'level_up',
+                'level' => $user->level,
+            ]]);
+            session()->save();
         }
 
         // Store notifications in session (für sofortige Anzeige)
@@ -362,6 +369,16 @@ class GamificationService
             if ($user->streak_days >= $days) {
                 $this->unlockAchievement($user, $achievement);
             }
+        }
+
+        // Milestone Celebrations für Streak-Meilensteine
+        $milestoneStreaks = [7, 30, 100];
+        if (in_array($user->streak_days, $milestoneStreaks)) {
+            session(['milestone_celebration' => [
+                'type' => 'streak',
+                'days' => $user->streak_days,
+            ]]);
+            session()->save();
         }
     }
 
