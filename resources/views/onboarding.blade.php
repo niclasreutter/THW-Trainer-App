@@ -192,7 +192,7 @@
                 </div>
                 <div>
                     <div class="onboarding-feature-title">{{ $totalQuestions }} Theoriefragen</div>
-                    <div class="onboarding-feature-desc">Alle offiziellen Fragen der THW-Grundausbildung. Eine Frage gilt als gemeistert, wenn du sie 2x in Folge richtig beantwortest.</div>
+                    <div class="onboarding-feature-desc">Alle offiziellen Fragen der THW-Grundausbildung, aufgeteilt in 10 Lernabschnitte.</div>
                 </div>
             </div>
 
