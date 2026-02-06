@@ -55,13 +55,12 @@ class SpacedRepetitionService
     /**
      * Fällige Wiederholungen für einen User
      */
-    public function getDueQuestions(int $userId, int $limit = 50): array
+    public function getDueQuestions(int $userId): array
     {
         return UserQuestionProgress::where('user_id', $userId)
             ->whereNotNull('next_review_at')
             ->where('next_review_at', '<=', Carbon::now())
             ->orderBy('next_review_at', 'asc')
-            ->limit($limit)
             ->pluck('question_id')
             ->toArray();
     }
