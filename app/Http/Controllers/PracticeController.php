@@ -7,6 +7,7 @@ use App\Models\Question;
 use App\Models\QuestionStatistic;
 use App\Models\UserQuestionProgress;
 use App\Services\GamificationService;
+use App\Services\SpacedRepetitionService;
 
 class PracticeController extends Controller
 {
@@ -132,6 +133,24 @@ class PracticeController extends Controller
     }
 
     /**
+     * Spaced Repetition Modus - Fällige Wiederholungen
+     */
+    public function spacedRepetition()
+    {
+        session()->forget(['practice_mode', 'practice_parameter', 'practice_ids', 'practice_skipped']);
+
+        $user = Auth::user();
+        $srService = new SpacedRepetitionService();
+        $dueIds = $srService->getDueQuestions($user->id);
+
+        if (empty($dueIds)) {
+            return redirect()->route('practice.menu')->with('success', 'Keine Wiederholungen fällig! Komm später wieder.');
+        }
+
+        return $this->practiceMode('spaced_repetition', null, $dueIds);
+    }
+
+    /**
      * Fragen suchen
      */
     public function search(Request $request)
@@ -148,7 +167,7 @@ class PracticeController extends Controller
     /**
      * Zentrale Methode für verschiedene Practice-Modi
      */
-    private function practiceMode($mode, $parameter = null)
+    private function practiceMode($mode, $parameter = null, $preloadedIds = null)
     {
         $user = Auth::user();
         $solved = $this->ensureArray($user->solved_questions);
@@ -269,6 +288,11 @@ class PracticeController extends Controller
                 $idsToShow = $searchIds;
                 break;
                 
+            case 'spaced_repetition':
+                // Fällige Wiederholungen (vorgeladen)
+                $idsToShow = $preloadedIds ?? [];
+                break;
+
             case 'bookmarked':
                 // Gespeicherte Fragen (bereits in richtiger Reihenfolge)
                 $idsToShow = $user->bookmarked_questions ?? [];
@@ -337,13 +361,20 @@ class PracticeController extends Controller
         $progressPercent = $maxProgressPoints > 0 ? round(($totalProgressPoints / $maxProgressPoints) * 100) : 0;
         
         // Session für aktuellen Modus speichern
+        $totalInMode = count($idsToShow);
         session([
             'practice_mode' => $mode,
             'practice_parameter' => $parameter,
-            'practice_ids' => $idsToShow
+            'practice_ids' => $idsToShow,
+            'practice_total_in_mode' => $totalInMode,
         ]);
-        
-        return view('practice', compact('question', 'progress', 'total', 'mode', 'progressPercent'));
+
+        $currentInMode = 1;
+
+        // Schwierigkeitsindikator für aktuelle Frage
+        $difficultyInfo = $this->getQuestionDifficulty($question->id);
+
+        return view('practice', compact('question', 'progress', 'total', 'mode', 'progressPercent', 'totalInMode', 'currentInMode', 'difficultyInfo'));
     }
 
     public function show(Request $request)
@@ -421,9 +452,37 @@ class PracticeController extends Controller
             return redirect()->route('practice.menu');
         }
         
-        return view('practice', compact('question', 'progress', 'total', 'mode', 'progressPercent'));
+        $totalInMode = session('practice_total_in_mode', count($practiceIds));
+        $answered = $totalInMode - count(array_diff($practiceIds, $skipped));
+        $currentInMode = max(1, $answered + 1);
+
+        $difficultyInfo = $this->getQuestionDifficulty($question->id);
+
+        return view('practice', compact('question', 'progress', 'total', 'mode', 'progressPercent', 'totalInMode', 'currentInMode', 'difficultyInfo'));
     }
 
+    /**
+     * Schwierigkeitsindikator basierend auf Fehlerquote aller Nutzer
+     */
+    private function getQuestionDifficulty(int $questionId): array
+    {
+        $total = \App\Models\QuestionStatistic::where('question_id', $questionId)->count();
+
+        if ($total < 5) {
+            return ['level' => 'unknown', 'label' => 'Neu', 'color' => 'text-dark-muted', 'percent' => null];
+        }
+
+        $correct = \App\Models\QuestionStatistic::where('question_id', $questionId)->where('is_correct', true)->count();
+        $errorRate = $total > 0 ? (($total - $correct) / $total) * 100 : 0;
+
+        if ($errorRate >= 60) {
+            return ['level' => 'hard', 'label' => 'Schwer', 'color' => 'text-error', 'percent' => round($errorRate)];
+        } elseif ($errorRate >= 30) {
+            return ['level' => 'medium', 'label' => 'Mittel', 'color' => 'text-warning', 'percent' => round($errorRate)];
+        } else {
+            return ['level' => 'easy', 'label' => 'Leicht', 'color' => 'text-success', 'percent' => round($errorRate)];
+        }
+    }
 
     public function submit(Request $request)
     {
@@ -456,6 +515,10 @@ class PracticeController extends Controller
         // NEU: Fortschritt in user_question_progress tracken
         $progress = UserQuestionProgress::getOrCreate($user->id, $question->id);
         $progress->updateProgress($isCorrect);
+
+        // Spaced Repetition: Nächste Wiederholung berechnen
+        $srService = new SpacedRepetitionService();
+        $srService->processAnswer($progress, $isCorrect);
         
         $solved = $this->ensureArray($user->solved_questions);
         $skipped = session('practice_skipped', []);

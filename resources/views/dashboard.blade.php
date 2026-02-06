@@ -514,6 +514,17 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') dismi
     </div>
     @endif
 
+    @if(isset($spacedRepetitionDue) && $spacedRepetitionDue > 0)
+    <div class="alert-compact glass" style="border-left: 3px solid #a855f7;">
+        <i class="bi bi-arrow-repeat alert-compact-icon" style="color: #a855f7;"></i>
+        <div class="alert-compact-content">
+            <div class="alert-compact-title">{{ $spacedRepetitionDue }} Wiederholung{{ $spacedRepetitionDue == 1 ? '' : 'en' }} fällig</div>
+            <div class="alert-compact-desc">Spaced Repetition: Wiederhole Fragen für langfristiges Behalten</div>
+        </div>
+        <a href="{{ route('practice.spaced-repetition') }}" class="btn-primary btn-sm" style="background: linear-gradient(135deg, #a855f7, #7c3aed);">Wiederholen</a>
+    </div>
+    @endif
+
     <!-- Stats as horizontal pills -->
     <div class="stats-row">
         <div class="stat-pill">
@@ -628,7 +639,10 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') dismi
         <!-- Recent Exams (if any) -->
         @if(!empty($recentExams) && $recentExams->count() > 0)
         <div class="glass-slash bento-2of3">
-            <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 0.75rem;">Letzte Prüfungen</div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                <span style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted);">Letzte Prüfungen</span>
+                <a href="{{ route('exam.history') }}" style="font-size: 0.75rem; color: var(--gold-start); text-decoration: none; font-weight: 600;">Alle anzeigen</a>
+            </div>
             @foreach($recentExams->take(3) as $exam)
                 @php $percentage = round(($exam->correct_answers / 40) * 100); @endphp
                 <div class="exam-inline">

@@ -37,25 +37,39 @@ Disallow: /
 
 Route::get('/dashboard', function () {
     $user = auth()->user()->fresh(); // Fresh reload from database
-    
+
+    // Onboarding-Redirect für neue Nutzer
+    if (!$user->onboarding_completed) {
+        return redirect()->route('onboarding');
+    }
+
     // Cache total questions count für 1 Stunde
     $totalQuestions = cache()->remember('total_questions_count', 3600, function() {
         return \App\Models\Question::count();
     });
-    
+
     // Hole die letzten 5 Prüfungsergebnisse
     $recentExams = \App\Models\ExamStatistic::where('user_id', $user->id)
         ->orderBy('created_at', 'desc')
         ->take(5)
         ->get();
-    
-    return view('dashboard', compact('user', 'recentExams', 'totalQuestions'));
+
+    // Spaced Repetition fällige Fragen
+    $srService = new \App\Services\SpacedRepetitionService();
+    $spacedRepetitionDue = $srService->getDueCount($user->id);
+
+    return view('dashboard', compact('user', 'recentExams', 'totalQuestions', 'spacedRepetitionDue'));
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::post('/dashboard/dismiss-email-consent-banner', function () {
     session(['email_consent_banner_dismissed' => true]);
     return response()->json(['success' => true]);
 })->middleware('auth')->name('dashboard.dismiss-email-consent-banner');
+
+// Onboarding Routes
+Route::get('/onboarding', [\App\Http\Controllers\OnboardingController::class, 'index'])->middleware(['auth', 'verified'])->name('onboarding');
+Route::post('/onboarding/complete', [\App\Http\Controllers\OnboardingController::class, 'complete'])->middleware(['auth', 'verified'])->name('onboarding.complete');
+Route::post('/onboarding/skip', [\App\Http\Controllers\OnboardingController::class, 'skip'])->middleware(['auth', 'verified'])->name('onboarding.skip');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', function() {
@@ -87,7 +101,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/practice/unsolved', [\App\Http\Controllers\PracticeController::class, 'unsolved'])->name('practice.unsolved');
     Route::get('/practice/section/{section}', [\App\Http\Controllers\PracticeController::class, 'section'])->name('practice.section');
     Route::get('/practice/search', [\App\Http\Controllers\PracticeController::class, 'search'])->name('practice.search');
-    
+    Route::get('/practice/spaced-repetition', [\App\Http\Controllers\PracticeController::class, 'spacedRepetition'])->name('practice.spaced-repetition');
+
     // Bookmark Routes
     Route::get('/bookmarks', [\App\Http\Controllers\BookmarkController::class, 'index'])->name('bookmarks.index');
     Route::post('/bookmarks/toggle', [\App\Http\Controllers\BookmarkController::class, 'toggle'])->name('bookmarks.toggle');
@@ -124,6 +139,8 @@ Route::middleware('auth')->group(function () {
     
     Route::get('/exam', [\App\Http\Controllers\ExamController::class, 'start'])->name('exam.index');
     Route::post('/exam/submit', [\App\Http\Controllers\ExamController::class, 'submit'])->name('exam.submit');
+    Route::get('/exam-history', [\App\Http\Controllers\ExamController::class, 'history'])->name('exam.history');
+    Route::get('/exam-history/{id}', [\App\Http\Controllers\ExamController::class, 'historyDetail'])->name('exam.history.detail');
     
     // Ortsverband Routes
     Route::prefix('ortsverband')->name('ortsverband.')->group(function () {

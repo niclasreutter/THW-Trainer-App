@@ -14,10 +14,15 @@ class UserQuestionProgress extends Model
         'question_id',
         'consecutive_correct',
         'last_answered_at',
+        'next_review_at',
+        'review_interval',
+        'easiness_factor',
+        'repetition_count',
     ];
 
     protected $casts = [
         'last_answered_at' => 'datetime',
+        'next_review_at' => 'datetime',
     ];
 
     /**

@@ -157,9 +157,15 @@
                     </a>
 
                     <a href="{{ route('exam.index') }}"
-                       class="sidebar-link {{ request()->routeIs('exam.*') ? 'active' : '' }}">
+                       class="sidebar-link {{ request()->routeIs('exam.index') ? 'active' : '' }}">
                         <i class="bi bi-clipboard-check"></i>
                         Prüfung
+                    </a>
+
+                    <a href="{{ route('exam.history') }}"
+                       class="sidebar-link {{ request()->routeIs('exam.history*') ? 'active' : '' }}">
+                        <i class="bi bi-bar-chart-line"></i>
+                        Prüfungshistorie
                     </a>
 
                     <a href="{{ route('lehrgaenge.index') }}"
@@ -567,6 +573,9 @@
 
         <!-- Achievement Popup -->
         @include('components.achievement-popup')
+
+        <!-- Milestone Celebrations -->
+        @include('components.milestone-celebration')
 
         <!-- Cookie Banner -->
         @include('components.cookie-banner')

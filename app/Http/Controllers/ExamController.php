@@ -200,7 +200,15 @@ class ExamController extends Controller
         
         if ($passed && !$examProcessed) {
             $user->exam_passed_count = ($user->exam_passed_count ?? 0) + 1;
-            
+
+            // Milestone: Erste bestandene Prüfung
+            if ($user->exam_passed_count === 1) {
+                session(['milestone_celebration' => [
+                    'type' => 'first_exam_passed',
+                ]]);
+                session()->save();
+            }
+
             // Nur bei 100% korrekten Antworten alle Fehler löschen
             if ($correctCount == $total) {
                 $user->exam_failed_questions = [];
@@ -314,6 +322,73 @@ class ExamController extends Controller
             return redirect()->route('exam.repeat', ['nr' => $nr]);
         }
         return view('exam_repeat', ['frage' => $frage, 'current' => $nr, 'total' => count($failed), 'isCorrect' => false, 'userAnswer' => $userAnswer]);
+    }
+
+    /**
+     * Prüfungshistorie anzeigen
+     */
+    public function history()
+    {
+        $user = Auth::user();
+
+        $exams = ExamStatistic::where('user_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // Durchschnitt aller Nutzer berechnen
+        $globalAvg = ExamStatistic::selectRaw('AVG(correct_answers) as avg_correct')->value('avg_correct') ?? 0;
+        $globalAvgPercent = round(($globalAvg / 40) * 100);
+
+        // Trend: letzte 10 Prüfungen
+        $trend = ExamStatistic::where('user_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->take(10)
+            ->get()
+            ->reverse()
+            ->values();
+
+        // Analyse pro Lernabschnitt (basierend auf letzter Prüfung)
+        $sectionAnalysis = [];
+        $latestExam = $exams->first();
+        if ($latestExam) {
+            for ($section = 1; $section <= 10; $section++) {
+                $sectionQuestionIds = Question::where('lernabschnitt', $section)->pluck('id')->toArray();
+                $totalInSection = QuestionStatistic::where('user_id', $user->id)
+                    ->whereIn('question_id', $sectionQuestionIds)
+                    ->count();
+                $correctInSection = QuestionStatistic::where('user_id', $user->id)
+                    ->whereIn('question_id', $sectionQuestionIds)
+                    ->where('is_correct', true)
+                    ->count();
+
+                $sectionAnalysis[$section] = [
+                    'total' => $totalInSection,
+                    'correct' => $correctInSection,
+                    'percent' => $totalInSection > 0 ? round(($correctInSection / $totalInSection) * 100) : 0,
+                ];
+            }
+        }
+
+        // Schwächste Abschnitte identifizieren
+        $weakSections = collect($sectionAnalysis)
+            ->filter(fn($s) => $s['total'] >= 3)
+            ->sortBy('percent')
+            ->take(3)
+            ->keys()
+            ->toArray();
+
+        return view('exam-history', compact('exams', 'globalAvgPercent', 'trend', 'sectionAnalysis', 'weakSections'));
+    }
+
+    /**
+     * Detail-Ansicht einer Prüfung
+     */
+    public function historyDetail(int $id)
+    {
+        $user = Auth::user();
+        $exam = ExamStatistic::where('user_id', $user->id)->findOrFail($id);
+
+        return view('exam-history-detail', compact('exam'));
     }
 
     /**

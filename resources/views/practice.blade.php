@@ -307,6 +307,91 @@
         font-weight: 500;
     }
 
+    /* Mode Progress Bar (Frage X von Y) */
+    .mode-progress-bar {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.5rem 0;
+        margin-bottom: 0.5rem;
+    }
+
+    .mode-progress-track {
+        flex: 1;
+        height: 3px;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 2px;
+        overflow: hidden;
+    }
+
+    .mode-progress-fill {
+        height: 100%;
+        background: var(--gradient-gold);
+        border-radius: 2px;
+        transition: width 0.5s ease-out;
+    }
+
+    .mode-progress-label {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    html.light-mode .mode-progress-track {
+        background: rgba(0, 51, 127, 0.08);
+    }
+
+    /* Difficulty Badge */
+    .difficulty-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.2rem 0.6rem;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+
+    .difficulty-easy {
+        background: rgba(34, 197, 94, 0.12);
+        color: #22c55e;
+        border: 1px solid rgba(34, 197, 94, 0.2);
+    }
+
+    .difficulty-medium {
+        background: rgba(251, 191, 36, 0.12);
+        color: #fbbf24;
+        border: 1px solid rgba(251, 191, 36, 0.2);
+    }
+
+    .difficulty-hard {
+        background: rgba(239, 68, 68, 0.12);
+        color: #ef4444;
+        border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    .difficulty-unknown {
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--text-muted);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    html.light-mode .difficulty-easy {
+        background: rgba(34, 197, 94, 0.1);
+        color: #16a34a;
+    }
+
+    html.light-mode .difficulty-medium {
+        background: rgba(217, 119, 6, 0.1);
+        color: #b45309;
+    }
+
+    html.light-mode .difficulty-hard {
+        background: rgba(239, 68, 68, 0.1);
+        color: #dc2626;
+    }
+
     /* Shake Animation */
     @keyframes shake {
         0%, 100% { transform: translateX(0); }
@@ -474,7 +559,11 @@
                 </a>
 
                 <div class="flex items-center gap-3">
-                    <span class="text-dark-muted text-xs">{{ $progress }}/{{ $total }}</span>
+                    @if(isset($totalInMode) && $totalInMode > 0)
+                        <span class="text-dark-muted text-xs">{{ $currentInMode ?? 1 }}/{{ $totalInMode }}</span>
+                    @else
+                        <span class="text-dark-muted text-xs">{{ $progress }}/{{ $total }}</span>
+                    @endif
 
                     <!-- Mini Progress Ring -->
                     <svg class="w-8 h-8" viewBox="0 0 36 36">
@@ -514,34 +603,59 @@
             <!-- Desktop Header -->
             <div class="hidden sm:flex items-start justify-between mb-6">
                 <div class="flex-1">
-                    <!-- Mode Badge -->
-                    @if(isset($mode))
-                        <div class="mode-badge mb-3">
-                            @switch($mode)
-                                @case('unsolved')
-                                    Ungelöste Fragen
-                                    @break
-                                @case('failed')
-                                    Fehlerwiederholung
-                                    @break
-                                @case('section')
-                                    Lernabschnitt {{ session('practice_parameter') }}
-                                    @break
-                                @case('search')
-                                    Suche: "{{ session('practice_parameter') }}"
-                                    @break
-                                @case('bookmarked')
-                                    Gespeicherte Fragen
-                                    @break
-                                @default
-                                    Alle Fragen
-                            @endswitch
+                    <!-- Mode Badge Row -->
+                    <div class="flex items-center gap-2 mb-3 flex-wrap">
+                        @if(isset($mode))
+                            <div class="mode-badge">
+                                @switch($mode)
+                                    @case('unsolved')
+                                        Ungelöste Fragen
+                                        @break
+                                    @case('failed')
+                                        Fehlerwiederholung
+                                        @break
+                                    @case('section')
+                                        Lernabschnitt {{ session('practice_parameter') }}
+                                        @break
+                                    @case('search')
+                                        Suche: "{{ session('practice_parameter') }}"
+                                        @break
+                                    @case('bookmarked')
+                                        Gespeicherte Fragen
+                                        @break
+                                    @case('spaced_repetition')
+                                        Wiederholung
+                                        @break
+                                    @default
+                                        Alle Fragen
+                                @endswitch
+                            </div>
+                        @endif
+
+                        @if(isset($difficultyInfo))
+                            <span class="difficulty-badge difficulty-{{ $difficultyInfo['level'] }}">
+                                <i class="bi bi-{{ $difficultyInfo['level'] === 'hard' ? 'exclamation-triangle' : ($difficultyInfo['level'] === 'medium' ? 'dash-circle' : ($difficultyInfo['level'] === 'easy' ? 'check-circle' : 'question-circle')) }}"></i>
+                                {{ $difficultyInfo['label'] }}
+                                @if($difficultyInfo['percent'] !== null)
+                                    ({{ $difficultyInfo['percent'] }}% Fehlerquote)
+                                @endif
+                            </span>
+                        @endif
+                    </div>
+
+                    <!-- Mode Progress (Frage X von Y) -->
+                    @if(isset($totalInMode) && $totalInMode > 0)
+                        <div class="mode-progress-bar">
+                            <span class="mode-progress-label">Frage {{ $currentInMode ?? 1 }} von {{ $totalInMode }}</span>
+                            <div class="mode-progress-track">
+                                <div class="mode-progress-fill" style="width: {{ (($currentInMode ?? 1) / $totalInMode) * 100 }}%;"></div>
+                            </div>
                         </div>
                     @endif
 
                     <h1 class="text-xl font-bold text-dark-primary mb-2">Theorie üben</h1>
 
-                    <!-- Progress Info -->
+                    <!-- Overall Progress Info -->
                     <div class="flex items-center gap-4">
                         <div class="text-dark-secondary text-sm">
                             <span class="text-gold font-semibold">{{ $progress }}</span>

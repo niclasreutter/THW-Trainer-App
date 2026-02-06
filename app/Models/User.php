@@ -28,6 +28,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'leaderboard_consent',
         'leaderboard_consent_at',
         'leaderboard_banner_dismissed',
+        'onboarding_completed',
     ];
 
     /**
