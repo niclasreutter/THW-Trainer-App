@@ -183,7 +183,7 @@
             <h1 class="onboarding-title">Willkommen, {{ $user->name }}!</h1>
             <p class="onboarding-desc">
                 Hier lernst du die Theorie der THW-Grundausbildung.
-                {{ $totalQuestions }} Fragen warten auf dich &ndash; jede muss 2x richtig beantwortet werden, um als gemeistert zu gelten.
+                {{ $totalQuestions }} Fragen warten auf dich &ndash; aufgeteilt in 10 Lernabschnitte.
             </p>
 
             <div class="onboarding-feature">
@@ -192,7 +192,7 @@
                 </div>
                 <div>
                     <div class="onboarding-feature-title">{{ $totalQuestions }} Theoriefragen</div>
-                    <div class="onboarding-feature-desc">Alle offiziellen Fragen der THW-Grundausbildung, aufgeteilt in 10 Lernabschnitte</div>
+                    <div class="onboarding-feature-desc">Alle offiziellen Fragen der THW-Grundausbildung. Eine Frage gilt als gemeistert, wenn du sie 2x in Folge richtig beantwortest.</div>
                 </div>
             </div>
 
@@ -202,7 +202,17 @@
                 </div>
                 <div>
                     <div class="onboarding-feature-title">Prüfungssimulation</div>
-                    <div class="onboarding-feature-desc">40 Fragen in 30 Minuten &ndash; genau wie die echte Prüfung. Bestehe 5x um bereit zu sein.</div>
+                    <div class="onboarding-feature-desc">40 Fragen in 30 Minuten &ndash; genau wie die echte Prüfung.</div>
+                </div>
+            </div>
+
+            <div class="onboarding-feature">
+                <div class="onboarding-feature-icon" style="background: rgba(139, 92, 246, 0.15); color: #a855f7;">
+                    <i class="bi bi-people"></i>
+                </div>
+                <div>
+                    <div class="onboarding-feature-title">Ortsverbände &amp; Lehrgänge</div>
+                    <div class="onboarding-feature-desc">Tritt deinem Ortsverband bei, nimm an Lehrgängen teil und bearbeite gemeinsame Lernpools mit deinen Kameraden.</div>
                 </div>
             </div>
 
@@ -228,7 +238,7 @@
                 </div>
                 <div>
                     <div class="onboarding-feature-title">Richtig beantwortet?</div>
-                    <div class="onboarding-feature-desc">Der Abstand bis zur nächsten Wiederholung wird größer: 1 Tag, 3 Tage, 7 Tage, ...</div>
+                    <div class="onboarding-feature-desc">Der Abstand bis zur nächsten Wiederholung wird größer: 1 Tag, 3 Tage, 8 Tage, ...</div>
                 </div>
             </div>
 
