@@ -48,7 +48,7 @@ class SpacedRepetitionService
         $progress->easiness_factor = round($ef, 1);
         $progress->review_interval = $interval;
         $progress->repetition_count = $repetition;
-        $progress->next_review_at = Carbon::now()->addDays($interval);
+        $progress->next_review_at = Carbon::today()->addDays($interval);
         $progress->save();
     }
 
@@ -91,6 +91,9 @@ class SpacedRepetitionService
     public function getStats(int $userId): array
     {
         $now = Carbon::now();
+        $tomorrow = Carbon::tomorrow();
+        $dayAfterTomorrow = Carbon::today()->addDays(2);
+        $endOfWeek = Carbon::today()->addWeek();
 
         $dueNow = UserQuestionProgress::where('user_id', $userId)
             ->whereNotNull('next_review_at')
@@ -99,14 +102,14 @@ class SpacedRepetitionService
 
         $dueTomorrow = UserQuestionProgress::where('user_id', $userId)
             ->whereNotNull('next_review_at')
-            ->where('next_review_at', '>', $now)
-            ->where('next_review_at', '<=', $now->copy()->addDay())
+            ->where('next_review_at', '>=', $tomorrow)
+            ->where('next_review_at', '<', $dayAfterTomorrow)
             ->count();
 
         $dueThisWeek = UserQuestionProgress::where('user_id', $userId)
             ->whereNotNull('next_review_at')
             ->where('next_review_at', '>', $now)
-            ->where('next_review_at', '<=', $now->copy()->addWeek())
+            ->where('next_review_at', '<=', $endOfWeek)
             ->count();
 
         $totalInSystem = UserQuestionProgress::where('user_id', $userId)
