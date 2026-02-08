@@ -40,6 +40,57 @@
         </div>
     @endif
 
+    <!-- Spaced Repetition Verwaltung (eigene Form, außerhalb der Haupt-Form) -->
+    @if(isset($srStats) && $srStats['total_in_system'] > 0)
+        @php
+            $futureCount = $srStats['total_in_system'] - $srStats['due_now'];
+        @endphp
+
+        <div class="section-header" style="margin-bottom: 1.5rem; padding-left: 1rem; border-left: 3px solid var(--gold-start);">
+            <h2 class="section-title">Spaced Repetition</h2>
+        </div>
+
+        <div class="glass" style="margin-bottom: 2rem; padding: 1.5rem;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+                <div style="text-align: center; padding: 1rem; background: rgba(255, 255, 255, 0.03); border-radius: 0.75rem;">
+                    <div style="font-size: 1.75rem; font-weight: 800; color: var(--gold);">{{ $srStats['due_now'] }}</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted);">Heute fällig</div>
+                </div>
+                <div style="text-align: center; padding: 1rem; background: rgba(255, 255, 255, 0.03); border-radius: 0.75rem;">
+                    <div style="font-size: 1.75rem; font-weight: 800; color: var(--text-secondary);">{{ $srStats['due_tomorrow'] }}</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted);">Morgen fällig</div>
+                </div>
+                <div style="text-align: center; padding: 1rem; background: rgba(255, 255, 255, 0.03); border-radius: 0.75rem;">
+                    <div style="font-size: 1.75rem; font-weight: 800; color: var(--text-secondary);">{{ $srStats['due_this_week'] }}</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted);">Diese Woche</div>
+                </div>
+                <div style="text-align: center; padding: 1rem; background: rgba(255, 255, 255, 0.03); border-radius: 0.75rem;">
+                    <div style="font-size: 1.75rem; font-weight: 800; color: var(--text-muted);">{{ $srStats['total_in_system'] }}</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted);">Gesamt im System</div>
+                </div>
+            </div>
+
+            @if($futureCount > 0)
+                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.06);">
+                    <div>
+                        <div style="font-weight: 600; color: var(--text-primary);">{{ $futureCount }} zukünftige Wiederholungen vorziehen</div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted);">Setzt alle geplanten SR-Fragen auf heute</div>
+                    </div>
+                    <form method="POST" action="{{ route('admin.users.progress.sr-pull-forward', $user->id) }}">
+                        @csrf
+                        <button type="submit" class="btn-primary btn-sm" onclick="return confirm('{{ $futureCount }} Fragen auf heute vorziehen?')">
+                            Alle auf heute setzen
+                        </button>
+                    </form>
+                </div>
+            @else
+                <div style="padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.06); color: var(--text-muted); font-size: 0.875rem;">
+                    Alle SR-Fragen sind bereits heute fällig oder es gibt keine zukünftigen Wiederholungen.
+                </div>
+            @endif
+        </div>
+    @endif
+
     <form method="POST" action="{{ route('admin.users.progress.update', $user->id) }}">
         @csrf
         @method('PUT')
@@ -176,57 +227,6 @@
                 </div>
             </div>
         </div>
-
-        <!-- Spaced Repetition Verwaltung -->
-        @if(isset($srStats) && $srStats['total_in_system'] > 0)
-            <div class="section-header" style="margin-bottom: 1.5rem; padding-left: 1rem; border-left: 3px solid var(--gold-start);">
-                <h2 class="section-title">Spaced Repetition</h2>
-            </div>
-
-            <div class="glass" style="margin-bottom: 2rem; padding: 1.5rem;">
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
-                    <div style="text-align: center; padding: 1rem; background: rgba(255, 255, 255, 0.03); border-radius: 0.75rem;">
-                        <div style="font-size: 1.75rem; font-weight: 800; color: var(--gold);">{{ $srStats['due_now'] }}</div>
-                        <div style="font-size: 0.75rem; color: var(--text-muted);">Heute fällig</div>
-                    </div>
-                    <div style="text-align: center; padding: 1rem; background: rgba(255, 255, 255, 0.03); border-radius: 0.75rem;">
-                        <div style="font-size: 1.75rem; font-weight: 800; color: var(--text-secondary);">{{ $srStats['due_tomorrow'] }}</div>
-                        <div style="font-size: 0.75rem; color: var(--text-muted);">Morgen fällig</div>
-                    </div>
-                    <div style="text-align: center; padding: 1rem; background: rgba(255, 255, 255, 0.03); border-radius: 0.75rem;">
-                        <div style="font-size: 1.75rem; font-weight: 800; color: var(--text-secondary);">{{ $srStats['due_this_week'] }}</div>
-                        <div style="font-size: 0.75rem; color: var(--text-muted);">Diese Woche</div>
-                    </div>
-                    <div style="text-align: center; padding: 1rem; background: rgba(255, 255, 255, 0.03); border-radius: 0.75rem;">
-                        <div style="font-size: 1.75rem; font-weight: 800; color: var(--text-muted);">{{ $srStats['total_in_system'] }}</div>
-                        <div style="font-size: 0.75rem; color: var(--text-muted);">Gesamt im System</div>
-                    </div>
-                </div>
-
-                @php
-                    $futureCount = $srStats['total_in_system'] - $srStats['due_now'];
-                @endphp
-
-                @if($futureCount > 0)
-                    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.06);">
-                        <div>
-                            <div style="font-weight: 600; color: var(--text-primary);">{{ $futureCount }} zukünftige Wiederholungen vorziehen</div>
-                            <div style="font-size: 0.8rem; color: var(--text-muted);">Setzt alle geplanten SR-Fragen auf heute</div>
-                        </div>
-                    </div>
-                    <form method="POST" action="{{ route('admin.users.progress.sr-pull-forward', $user->id) }}" style="margin-top: 1rem;">
-                        @csrf
-                        <button type="submit" class="btn-primary btn-sm" onclick="return confirm('{{ $futureCount }} Fragen auf heute vorziehen?')">
-                            Alle auf heute setzen
-                        </button>
-                    </form>
-                @else
-                    <div style="padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.06); color: var(--text-muted); font-size: 0.875rem;">
-                        Alle SR-Fragen sind bereits heute fällig oder es gibt keine zukünftigen Wiederholungen.
-                    </div>
-                @endif
-            </div>
-        @endif
 
         <!-- Info-Box: Neue 2x-richtig Logik -->
         <div class="glass-accent" style="padding: 1.5rem; margin-bottom: 2rem;">
