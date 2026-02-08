@@ -81,7 +81,7 @@
             border-radius: 0;
             border: none;
             height: 100dvh;
-            padding-bottom: 100px;
+            padding-bottom: 140px;
             margin: 0;
             background: #0a0a0b;
             backdrop-filter: none;
@@ -800,6 +800,9 @@
                             Nächste Frage
                         </a>
                     @endif
+                    <a href="{{ route('practice.summary') }}" class="btn-ghost w-full py-2 text-sm text-center block mt-2">
+                        Lernen beenden
+                    </a>
                 </div>
             </form>
         </div>
