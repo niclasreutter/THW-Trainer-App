@@ -99,7 +99,7 @@ class Ortsverband extends Model
         return $this->members->map(function($member) use ($totalQuestions) {
             // Theorie-Fortschritt
             $solvedQuestions = \App\Models\UserQuestionProgress::where('user_id', $member->id)
-                              ->where('consecutive_correct', '>=', 2)
+                              ->where('consecutive_correct', '>=', \App\Models\UserQuestionProgress::MASTERY_THRESHOLD)
                               ->count();
             
             // Prüfungs-Streak

@@ -8,6 +8,7 @@ use App\Models\LehrgangLernabschnitt;
 use App\Models\UserLehrgangProgress;
 use App\Models\LehrgangQuestionStatistic;
 use App\Models\LehrgangQuestionIssue;
+use App\Models\UserQuestionProgress;
 use App\Services\GamificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -113,11 +114,12 @@ class LehrgangController extends Controller
                     ->get();
                 
                 // Berechne Fortschrittsbalken-Logik: Berücksichtigt auch 1x richtige Antworten
+                $threshold = UserQuestionProgress::MASTERY_THRESHOLD;
                 $totalProgressPoints = 0;
                 foreach ($progressData as $prog) {
-                    $totalProgressPoints += min($prog->consecutive_correct, 2);
+                    $totalProgressPoints += min($prog->consecutive_correct, $threshold);
                 }
-                $maxProgressPoints = count($sectionIds) * 2;
+                $maxProgressPoints = count($sectionIds) * $threshold;
                 $progressPercent = $maxProgressPoints > 0 ? round(($totalProgressPoints / $maxProgressPoints) * 100) : 0;
                 
                 // Zähle gelöste Fragen in diesem Abschnitt
@@ -264,17 +266,18 @@ class LehrgangController extends Controller
         $totalCount = LehrgangQuestion::where('lehrgang_id', $lehrgang->id)->count();
         
         // Neue Fortschrittsbalken-Logik: Berücksichtigt auch 1x richtige Antworten
+        $threshold = UserQuestionProgress::MASTERY_THRESHOLD;
         $progressData = UserLehrgangProgress::where('user_id', $user->id)
             ->whereHas('lehrgangQuestion', fn($q) => $q->where('lehrgang_id', $lehrgang->id))
             ->get();
-        
+
         $totalProgressPoints = 0;
         foreach ($progressData as $prog) {
-            $totalProgressPoints += min($prog->consecutive_correct, 2);
+            $totalProgressPoints += min($prog->consecutive_correct, $threshold);
         }
-        $maxProgressPoints = $totalCount * 2;
+        $maxProgressPoints = $totalCount * $threshold;
         $progressPercent = $maxProgressPoints > 0 ? round(($totalProgressPoints / $maxProgressPoints) * 100) : 0;
-        
+
         // Hole den Lernabschnittsnamen
         $lernabschnittName = LehrgangLernabschnitt::where('lehrgang_id', $lehrgang->id)
             ->where(function($q) use ($question) {
@@ -393,13 +396,14 @@ class LehrgangController extends Controller
             ->whereHas('lehrgangQuestion', fn($q) => $q->where('lehrgang_id', $lehrgang->id)->where('lernabschnitt', $sectionNr))
             ->get();
         
+        $threshold = UserQuestionProgress::MASTERY_THRESHOLD;
         $totalProgressPoints = 0;
         foreach ($progressData as $prog) {
-            $totalProgressPoints += min($prog->consecutive_correct, 2);
+            $totalProgressPoints += min($prog->consecutive_correct, $threshold);
         }
-        $maxProgressPoints = $totalCount * 2;
+        $maxProgressPoints = $totalCount * $threshold;
         $progressPercent = $maxProgressPoints > 0 ? round(($totalProgressPoints / $maxProgressPoints) * 100) : 0;
-        
+
         // Hole den Lernabschnitt Namen
         $sectionNr = (int)$sectionNr; // Stelle sicher, dass es eine Integer ist
         $lernabschnitt = LehrgangLernabschnitt::where('lehrgang_id', $lehrgang->id)
@@ -489,7 +493,7 @@ class LehrgangController extends Controller
         if ($isCorrect) {
             $progress->consecutive_correct++;
             
-            if ($progress->consecutive_correct == 2) {
+            if ($progress->consecutive_correct == UserQuestionProgress::MASTERY_THRESHOLD) {
                 $progress->solved = true;
                 
                 // Update Enrollment-Punkte

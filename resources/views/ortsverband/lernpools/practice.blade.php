@@ -622,8 +622,10 @@
                 }
             }
 
-            $showMastered = isset($questionProgress) && $questionProgress->consecutive_correct == 2;
-            $showOneMore = isset($questionProgress) && $questionProgress->consecutive_correct == 1;
+            $masteryThreshold = \App\Models\UserQuestionProgress::MASTERY_THRESHOLD;
+            $showMastered = isset($questionProgress) && $questionProgress->consecutive_correct >= $masteryThreshold;
+            $remaining = isset($questionProgress) ? $masteryThreshold - $questionProgress->consecutive_correct : $masteryThreshold;
+            $showAlmostMastered = isset($questionProgress) && $questionProgress->consecutive_correct > 0 && $questionProgress->consecutive_correct < $masteryThreshold;
         @endphp
 
         @if(isset($isCorrect) && $isCorrect)
@@ -654,9 +656,9 @@
                         <div class="mt-3 p-3 rounded-lg bg-white/10 border border-white/20 text-center">
                             <div class="font-bold text-dark-primary">Gemeistert!</div>
                         </div>
-                    @elseif($showOneMore)
+                    @elseif($showAlmostMastered)
                         <div class="mt-3 p-3 rounded-lg bg-white/10 border border-white/20 text-center">
-                            <div class="font-medium text-dark-primary">Noch 1x richtig für gemeistert!</div>
+                            <div class="font-medium text-dark-primary">Noch {{ $remaining }}x richtig für gemeistert!</div>
                         </div>
                     @endif
                 </div>

@@ -7,6 +7,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class UserQuestionProgress extends Model
 {
+    /**
+     * Anzahl aufeinanderfolgender richtiger Antworten für "Gemeistert"
+     * Bei Spaced Repetition bedeutet 3: Tag 0, Tag 1, Tag 4 (~5 Tage)
+     */
+    public const MASTERY_THRESHOLD = 3;
+
     protected $table = 'user_question_progress';
 
     protected $fillable = [
@@ -42,11 +48,11 @@ class UserQuestionProgress extends Model
     }
 
     /**
-     * Prüft ob die Frage gemeistert ist (2x richtig)
+     * Prüft ob die Frage gemeistert ist
      */
     public function isMastered(): bool
     {
-        return $this->consecutive_correct >= 2;
+        return $this->consecutive_correct >= self::MASTERY_THRESHOLD;
     }
 
     /**
@@ -88,7 +94,7 @@ class UserQuestionProgress extends Model
     public static function getUnmasteredQuestions(int $userId)
     {
         return self::where('user_id', $userId)
-            ->where('consecutive_correct', '<', 2)
+            ->where('consecutive_correct', '<', self::MASTERY_THRESHOLD)
             ->pluck('question_id')
             ->toArray();
     }
@@ -99,7 +105,7 @@ class UserQuestionProgress extends Model
     public static function getMasteredQuestions(int $userId)
     {
         return self::where('user_id', $userId)
-            ->where('consecutive_correct', '>=', 2)
+            ->where('consecutive_correct', '>=', self::MASTERY_THRESHOLD)
             ->pluck('question_id')
             ->toArray();
     }
@@ -110,7 +116,7 @@ class UserQuestionProgress extends Model
     public static function countMastered(int $userId): int
     {
         return self::where('user_id', $userId)
-            ->where('consecutive_correct', '>=', 2)
+            ->where('consecutive_correct', '>=', self::MASTERY_THRESHOLD)
             ->count();
     }
 }

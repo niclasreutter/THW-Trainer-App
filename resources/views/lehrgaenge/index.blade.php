@@ -273,9 +273,9 @@
 
                         $totalProgressPoints = 0;
                         foreach ($progressData as $prog) {
-                            $totalProgressPoints += min($prog->consecutive_correct, 2);
+                            $totalProgressPoints += min($prog->consecutive_correct, \App\Models\UserQuestionProgress::MASTERY_THRESHOLD);
                         }
-                        $maxProgressPoints = $totalCount * 2;
+                        $maxProgressPoints = $totalCount * \App\Models\UserQuestionProgress::MASTERY_THRESHOLD;
                         $progressPercent = $maxProgressPoints > 0 ? round(($totalProgressPoints / $maxProgressPoints) * 100) : 0;
                         $isCompleted = $progressPercent == 100 && $solvedCount > 0;
                     }
