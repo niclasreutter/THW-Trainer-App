@@ -207,7 +207,7 @@
             </div>
 
             <div class="onboarding-feature">
-                <div class="onboarding-feature-icon" style="background: rgba(139, 92, 246, 0.15); color: #a855f7;">
+                <div class="onboarding-feature-icon" style="background: rgba(0, 51, 127, 0.15); color: var(--thw-blue-light);">
                     <i class="bi bi-people"></i>
                 </div>
                 <div>
@@ -223,8 +223,8 @@
 
         <!-- Step 2: Spaced Repetition -->
         <div class="step-content" :class="{ 'active': step === 2 }">
-            <div class="onboarding-icon" style="background: rgba(139, 92, 246, 0.15);">
-                <i class="bi bi-arrow-repeat" style="color: #a855f7;"></i>
+            <div class="onboarding-icon" style="background: rgba(0, 51, 127, 0.15);">
+                <i class="bi bi-arrow-repeat" style="color: var(--thw-blue-light);"></i>
             </div>
             <h1 class="onboarding-title">Intelligentes Wiederholen</h1>
             <p class="onboarding-desc">
