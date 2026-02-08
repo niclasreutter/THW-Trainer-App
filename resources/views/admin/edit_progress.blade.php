@@ -40,6 +40,11 @@
         </div>
     @endif
 
+    <!-- Versteckte Form für SR-Vorziehen (außerhalb der Haupt-Form) -->
+    <form id="sr-pull-forward-form" method="POST" action="{{ route('admin.users.progress.sr-pull-forward', $user->id) }}" style="display: none;">
+        @csrf
+    </form>
+
     <form method="POST" action="{{ route('admin.users.progress.update', $user->id) }}">
         @csrf
         @method('PUT')
@@ -214,12 +219,9 @@
                             <div style="font-size: 0.8rem; color: var(--text-muted);">Setzt alle geplanten SR-Fragen auf heute</div>
                         </div>
                     </div>
-                    <form method="POST" action="{{ route('admin.users.progress.sr-pull-forward', $user->id) }}" style="margin-top: 1rem;">
-                        @csrf
-                        <button type="submit" class="btn-primary btn-sm" onclick="return confirm('{{ $futureCount }} Fragen auf heute vorziehen?')">
-                            Alle auf heute setzen
-                        </button>
-                    </form>
+                    <button type="button" class="btn-primary btn-sm" style="margin-top: 1rem;" onclick="if(confirm('{{ $futureCount }} Fragen auf heute vorziehen?')) document.getElementById('sr-pull-forward-form').submit()">
+                        Alle auf heute setzen
+                    </button>
                 @else
                     <div style="padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.06); color: var(--text-muted); font-size: 0.875rem;">
                         Alle SR-Fragen sind bereits heute fällig oder es gibt keine zukünftigen Wiederholungen.
