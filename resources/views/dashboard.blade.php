@@ -526,6 +526,21 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') dismi
     </div>
     @endif
 
+    @php
+        $streakAtRisk = ($user->streak_days ?? 0) > 0
+            && (!$user->last_activity_date || \Carbon\Carbon::parse($user->last_activity_date)->lt(\Carbon\Carbon::today()));
+    @endphp
+    @if($streakAtRisk)
+    <div class="alert-compact glass-warning" style="animation: pulse-subtle 3s ease-in-out infinite;">
+        <i class="bi bi-fire alert-compact-icon" style="color: #f59e0b;"></i>
+        <div class="alert-compact-content">
+            <div class="alert-compact-title">Dein {{ $user->streak_days }}-Tage-Streak läuft ab</div>
+            <div class="alert-compact-desc">Beantworte heute noch eine Frage, um deinen Streak zu halten</div>
+        </div>
+        <a href="{{ route('practice.all') }}" class="btn-primary btn-sm">Jetzt lernen</a>
+    </div>
+    @endif
+
     <!-- Stats as horizontal pills -->
     <div class="stats-row">
         <div class="stat-pill">

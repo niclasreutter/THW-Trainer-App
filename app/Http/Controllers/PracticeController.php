@@ -371,6 +371,17 @@ class PracticeController extends Controller
             'practice_total_in_mode' => $totalInMode,
         ]);
 
+        // Session-Statistiken initialisieren
+        session([
+            'practice_session_stats' => [
+                'correct' => 0,
+                'incorrect' => 0,
+                'points' => 0,
+                'mastered' => 0,
+                'started_at' => now()->timestamp,
+            ],
+        ]);
+
         $currentInMode = 1;
 
         // Schwierigkeitsindikator für aktuelle Frage
@@ -411,18 +422,16 @@ class PracticeController extends Controller
                 session(['practice_skipped' => array_unique($skipped)]);
                 
                 if (empty($idsToShow)) {
-                    session()->forget(['practice_mode', 'practice_parameter', 'practice_ids', 'practice_skipped']);
-                    return redirect()->route('practice.menu')->with('success', 'Alle Fragen in diesem Modus bearbeitet! 🎉');
+                    return redirect()->route('practice.summary');
                 }
-                
+
                 $questionId = reset($idsToShow);
             } else {
                 // Normale Anzeige: entferne nur bereits verarbeitete Fragen
                 $idsToShow = array_diff($idsToShow, $skipped);
-                
+
                 if (empty($idsToShow)) {
-                    session()->forget(['practice_mode', 'practice_parameter', 'practice_ids', 'practice_skipped']);
-                    return redirect()->route('practice.menu')->with('success', 'Alle Fragen in diesem Modus bearbeitet! 🎉');
+                    return redirect()->route('practice.summary');
                 }
                 
                 $questionId = reset($idsToShow);
@@ -595,6 +604,23 @@ class PracticeController extends Controller
             session(['gamification_result' => $gamificationResult]);
         }
 
+        // Session-Statistiken aktualisieren
+        $sessionStats = session('practice_session_stats', [
+            'correct' => 0, 'incorrect' => 0, 'points' => 0, 'mastered' => 0, 'started_at' => now()->timestamp,
+        ]);
+        if ($isCorrect) {
+            $sessionStats['correct']++;
+        } else {
+            $sessionStats['incorrect']++;
+        }
+        if ($gamificationResult && isset($gamificationResult['points_awarded'])) {
+            $sessionStats['points'] += $gamificationResult['points_awarded'];
+        }
+        if ($progress->isMastered() && !in_array($question->id, $solved)) {
+            $sessionStats['mastered']++;
+        }
+        session(['practice_session_stats' => $sessionStats]);
+
         // WICHTIG: Immer answer_result in Session speichern für Feedback-Anzeige
         session([
             'answer_result' => [
@@ -618,6 +644,42 @@ class PracticeController extends Controller
         // WICHTIG: Immer redirect machen (Post/Redirect/Get Pattern)
         // um zu verhindern, dass bei F5 die Frage doppelt gezählt wird
         return redirect()->route('practice.index');
+    }
+
+    /**
+     * Session-Zusammenfassung anzeigen
+     */
+    public function summary()
+    {
+        $stats = session('practice_session_stats');
+        $mode = session('practice_mode', 'all');
+        $parameter = session('practice_parameter');
+
+        // Fallback falls keine Stats vorhanden
+        if (!$stats) {
+            return redirect()->route('practice.menu');
+        }
+
+        $totalAnswered = $stats['correct'] + $stats['incorrect'];
+        $accuracy = $totalAnswered > 0 ? round(($stats['correct'] / $totalAnswered) * 100) : 0;
+        $duration = now()->timestamp - ($stats['started_at'] ?? now()->timestamp);
+        $durationMinutes = max(1, round($duration / 60));
+
+        $modeName = match ($mode) {
+            'all' => 'Alle Fragen',
+            'unsolved' => 'Ungelöste Fragen',
+            'failed' => 'Falsche Prüfungsfragen',
+            'section' => 'Lernabschnitt ' . $parameter,
+            'search' => 'Suche: ' . $parameter,
+            'spaced_repetition' => 'Spaced Repetition',
+            'bookmarked' => 'Lesezeichen',
+            default => 'Übung',
+        };
+
+        // Session aufräumen
+        session()->forget(['practice_mode', 'practice_parameter', 'practice_ids', 'practice_skipped', 'practice_total_in_mode', 'practice_session_stats']);
+
+        return view('practice-summary', compact('stats', 'totalAnswered', 'accuracy', 'durationMinutes', 'modeName'));
     }
 
     /**

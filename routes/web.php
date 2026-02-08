@@ -130,6 +130,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/lehrgaenge/{slug}/unenroll', [\App\Http\Controllers\LehrgangController::class, 'unenroll'])->name('lehrgaenge.unenroll');
     Route::post('/lehrgaenge/question/{questionId}/report-issue', [\App\Http\Controllers\LehrgangController::class, 'reportIssue'])->name('lehrgaenge.report-issue');
     
+    // Practice Session Summary
+    Route::get('/practice/summary', [\App\Http\Controllers\PracticeController::class, 'summary'])->name('practice.summary');
+
     // Alte Practice Routen (jetzt als Fortsetzung der Session)
     Route::get('/practice', [\App\Http\Controllers\PracticeController::class, 'show'])->name('practice.index');
     Route::post('/practice', [\App\Http\Controllers\PracticeController::class, 'submit'])->name('practice.submit');
