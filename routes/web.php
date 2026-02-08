@@ -215,7 +215,8 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix
     Route::delete('users/{id}', [\App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('users.destroy');
     Route::get('users/{id}/progress', [\App\Http\Controllers\Admin\UserController::class, 'editProgress'])->name('users.progress.edit');
     Route::put('users/{id}/progress', [\App\Http\Controllers\Admin\UserController::class, 'updateProgress'])->name('users.progress.update');
-    
+    Route::post('users/{id}/progress/sr-pull-forward', [\App\Http\Controllers\Admin\UserController::class, 'pullForwardSpacedRepetition'])->name('users.progress.sr-pull-forward');
+
     // Newsletter Routes
     Route::get('newsletter/create', [\App\Http\Controllers\NewsletterController::class, 'create'])->name('newsletter.create');
     Route::post('newsletter/test', [\App\Http\Controllers\NewsletterController::class, 'sendTest'])->name('newsletter.test');
