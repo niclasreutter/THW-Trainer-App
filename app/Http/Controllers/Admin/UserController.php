@@ -2,6 +2,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\User;
+use App\Models\UserQuestionProgress;
+use App\Services\SpacedRepetitionService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
@@ -56,8 +59,12 @@ class UserController extends Controller
         }
         
         $lehrgangData = collect($lehrgangData);
-        
-        return view('admin.edit_progress', compact('user', 'questions', 'solved', 'failed', 'lehrgangData'));
+
+        // Spaced Repetition Statistiken
+        $srService = new SpacedRepetitionService();
+        $srStats = $srService->getStats($user->id);
+
+        return view('admin.edit_progress', compact('user', 'questions', 'solved', 'failed', 'lehrgangData', 'srStats'));
     }
 
     public function updateProgress(Request $request, $id)
@@ -143,6 +150,20 @@ class UserController extends Controller
         
         return redirect()->route('admin.users.index')->with('success', 'Fortschritt aktualisiert (Grundausbildung + Lehrgänge)');
     }
+    public function pullForwardSpacedRepetition($id)
+    {
+        $this->abortIfNotAdmin();
+        $user = User::findOrFail($id);
+
+        $updated = UserQuestionProgress::where('user_id', $user->id)
+            ->whereNotNull('next_review_at')
+            ->where('next_review_at', '>', Carbon::today())
+            ->update(['next_review_at' => Carbon::today()]);
+
+        return redirect()->route('admin.users.progress.edit', $user->id)
+            ->with('success', $updated . ' Spaced-Repetition-Fragen auf heute vorgezogen');
+    }
+
     private function abortIfNotAdmin()
     {
         if (!auth()->check() || auth()->user()->useroll !== 'admin') {
