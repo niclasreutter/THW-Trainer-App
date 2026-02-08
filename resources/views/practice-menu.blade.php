@@ -441,11 +441,17 @@
                                 <strong style="color: #a855f7;">{{ $srStats['due_now'] }} Fragen</strong> bereit zur Wiederholung
                             @else
                                 Keine Wiederholungen fällig.
-                                @if($srStats['due_tomorrow'] > 0)
-                                    <span style="color: var(--text-muted);">{{ $srStats['due_tomorrow'] }} morgen fällig.</span>
-                                @endif
                             @endif
                         </p>
+                        @if($srStats['due_now'] == 0 && count($srStats['upcoming_schedule']) > 0)
+                            <div style="margin-top: 0.5rem; display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                                @foreach($srStats['upcoming_schedule'] as $entry)
+                                    <span style="font-size: 0.7rem; padding: 0.2rem 0.6rem; border-radius: 999px; background: rgba(168, 85, 247, 0.1); border: 1px solid rgba(168, 85, 247, 0.2); color: #c084fc;">
+                                        {{ $entry['label'] }}: {{ $entry['count'] }} {{ $entry['count'] === 1 ? 'Frage' : 'Fragen' }}
+                                    </span>
+                                @endforeach
+                            </div>
+                        @endif
                     </div>
                 </div>
                 @if($srStats['due_now'] > 0)
