@@ -428,28 +428,34 @@
             $srService = new \App\Services\SpacedRepetitionService();
             $srStats = $srService->getStats(auth()->id());
         @endphp
-        <div class="glass bento-wide" style="border-left: 3px solid #a855f7;">
+        <div class="glass bento-wide" style="border-left: 3px solid var(--thw-blue-light);">
             <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
                 <div style="display: flex; align-items: center; gap: 1rem;">
-                    <div style="width: 48px; height: 48px; border-radius: 0.75rem; background: rgba(168, 85, 247, 0.15); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                        <i class="bi bi-arrow-repeat" style="font-size: 1.25rem; color: #a855f7;"></i>
+                    <div style="width: 48px; height: 48px; border-radius: 0.75rem; background: rgba(0, 51, 127, 0.15); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <i class="bi bi-arrow-repeat" style="font-size: 1.25rem; color: var(--thw-blue-light);"></i>
                     </div>
                     <div>
                         <h3 style="font-size: 1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.25rem;">Spaced Repetition</h3>
                         <p style="font-size: 0.8rem; color: var(--text-secondary);">
                             @if($srStats['due_now'] > 0)
-                                <strong style="color: #a855f7;">{{ $srStats['due_now'] }} Fragen</strong> bereit zur Wiederholung
+                                <strong style="color: var(--thw-blue-light);">{{ $srStats['due_now'] }} Fragen</strong> bereit zur Wiederholung
                             @else
                                 Keine Wiederholungen fällig.
-                                @if($srStats['due_tomorrow'] > 0)
-                                    <span style="color: var(--text-muted);">{{ $srStats['due_tomorrow'] }} morgen fällig.</span>
-                                @endif
                             @endif
                         </p>
+                        @if($srStats['due_now'] == 0 && count($srStats['upcoming_schedule']) > 0)
+                            <div style="margin-top: 0.5rem; display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                                @foreach($srStats['upcoming_schedule'] as $entry)
+                                    <span style="font-size: 0.7rem; padding: 0.2rem 0.6rem; border-radius: 999px; background: rgba(0, 51, 127, 0.1); border: 1px solid rgba(0, 77, 179, 0.25); color: var(--thw-blue-light);">
+                                        {{ $entry['label'] }}: {{ $entry['count'] }} {{ $entry['count'] === 1 ? 'Frage' : 'Fragen' }}
+                                    </span>
+                                @endforeach
+                            </div>
+                        @endif
                     </div>
                 </div>
                 @if($srStats['due_now'] > 0)
-                    <a href="{{ route('practice.spaced-repetition') }}" class="btn-primary btn-sm" style="background: linear-gradient(135deg, #a855f7, #7c3aed);">
+                    <a href="{{ route('practice.spaced-repetition') }}" class="btn-secondary btn-sm">
                         Jetzt wiederholen
                     </a>
                 @else

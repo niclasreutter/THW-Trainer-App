@@ -121,6 +121,38 @@ class SpacedRepetitionService
             'due_tomorrow' => $dueTomorrow,
             'due_this_week' => $dueThisWeek,
             'total_in_system' => $totalInSystem,
+            'upcoming_schedule' => $this->getUpcomingSchedule($userId),
         ];
+    }
+
+    /**
+     * Kommende Wiederholungen gruppiert nach Tag (nächste 7 Tage)
+     */
+    public function getUpcomingSchedule(int $userId, int $days = 7): array
+    {
+        $today = Carbon::today();
+
+        $upcoming = UserQuestionProgress::where('user_id', $userId)
+            ->whereNotNull('next_review_at')
+            ->where('next_review_at', '>', $today)
+            ->where('next_review_at', '<=', $today->copy()->addDays($days))
+            ->selectRaw('DATE(next_review_at) as due_date, COUNT(*) as count')
+            ->groupBy('due_date')
+            ->orderBy('due_date')
+            ->get();
+
+        $schedule = [];
+        foreach ($upcoming as $row) {
+            $dueDate = Carbon::parse($row->due_date);
+            $diffDays = $today->diffInDays($dueDate);
+            $schedule[] = [
+                'date' => $row->due_date,
+                'days_from_now' => $diffDays,
+                'count' => $row->count,
+                'label' => $diffDays === 1 ? 'Morgen' : "In {$diffDays} Tagen",
+            ];
+        }
+
+        return $schedule;
     }
 }

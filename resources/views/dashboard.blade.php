@@ -515,13 +515,13 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') dismi
     @endif
 
     @if(isset($spacedRepetitionDue) && $spacedRepetitionDue > 0)
-    <div class="alert-compact glass" style="border-left: 3px solid #a855f7;">
-        <i class="bi bi-arrow-repeat alert-compact-icon" style="color: #a855f7;"></i>
+    <div class="alert-compact glass" style="border-left: 3px solid var(--thw-blue-light);">
+        <i class="bi bi-arrow-repeat alert-compact-icon" style="color: var(--thw-blue-light);"></i>
         <div class="alert-compact-content">
             <div class="alert-compact-title">{{ $spacedRepetitionDue }} Wiederholung{{ $spacedRepetitionDue == 1 ? '' : 'en' }} fällig</div>
             <div class="alert-compact-desc">Spaced Repetition: Wiederhole Fragen für langfristiges Behalten</div>
         </div>
-        <a href="{{ route('practice.spaced-repetition') }}" class="btn-primary btn-sm" style="background: linear-gradient(135deg, #a855f7, #7c3aed);">Wiederholen</a>
+        <a href="{{ route('practice.spaced-repetition') }}" class="btn-secondary btn-sm">Wiederholen</a>
     </div>
     @endif
 
