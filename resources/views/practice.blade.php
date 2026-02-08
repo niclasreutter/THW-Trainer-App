@@ -307,39 +307,12 @@
         font-weight: 500;
     }
 
-    /* Mode Progress Bar (Frage X von Y) */
-    .mode-progress-bar {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        padding: 0.5rem 0;
-        margin-bottom: 0.5rem;
-    }
-
-    .mode-progress-track {
-        flex: 1;
-        height: 3px;
-        background: rgba(255, 255, 255, 0.08);
-        border-radius: 2px;
-        overflow: hidden;
-    }
-
-    .mode-progress-fill {
-        height: 100%;
-        background: var(--gradient-gold);
-        border-radius: 2px;
-        transition: width 0.5s ease-out;
-    }
-
+    /* Mode Progress Label (Frage X von Y) */
     .mode-progress-label {
         font-size: 0.75rem;
         color: var(--text-muted);
         font-weight: 600;
         white-space: nowrap;
-    }
-
-    html.light-mode .mode-progress-track {
-        background: rgba(0, 51, 127, 0.08);
     }
 
     /* Difficulty Badge */
@@ -643,14 +616,8 @@
                         @endif
                     </div>
 
-                    <!-- Mode Progress (Frage X von Y) -->
                     @if(isset($totalInMode) && $totalInMode > 0)
-                        <div class="mode-progress-bar">
-                            <span class="mode-progress-label">Frage {{ $currentInMode ?? 1 }} von {{ $totalInMode }}</span>
-                            <div class="mode-progress-track">
-                                <div class="mode-progress-fill" style="width: {{ (($currentInMode ?? 1) / $totalInMode) * 100 }}%;"></div>
-                            </div>
-                        </div>
+                        <span class="mode-progress-label">Frage {{ $currentInMode ?? 1 }} von {{ $totalInMode }}</span>
                     @endif
 
                     <h1 class="text-xl font-bold text-dark-primary mb-2">Theorie üben</h1>
