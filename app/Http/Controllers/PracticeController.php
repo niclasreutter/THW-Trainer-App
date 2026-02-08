@@ -65,12 +65,13 @@ class PracticeController extends Controller
         $unsolvedCount = $totalQuestions - $solvedCount;
 
         // Neue Fortschrittsbalken-Logik: Berücksichtigt auch 1x richtige Antworten
+        $threshold = UserQuestionProgress::MASTERY_THRESHOLD;
         $progressData = UserQuestionProgress::where('user_id', $user->id)->get();
         $totalProgressPoints = 0;
         foreach ($progressData as $prog) {
-            $totalProgressPoints += min($prog->consecutive_correct, 2);
+            $totalProgressPoints += min($prog->consecutive_correct, $threshold);
         }
-        $maxProgressPoints = $totalQuestions * 2;
+        $maxProgressPoints = $totalQuestions * $threshold;
         $progressPercentage = $maxProgressPoints > 0 ? round(($totalProgressPoints / $maxProgressPoints) * 100) : 0;
 
         $sectionNames = self::SECTION_NAMES;
@@ -181,7 +182,7 @@ class PracticeController extends Controller
             case 'all':
                 // Intelligente Priorisierung für Practice All:
                 // 1. Falsch beantwortete Fragen aus Exams (höchste Priorität)
-                // 2. Nicht-gemeisterte Fragen (consecutive_correct < 2)
+                // 2. Nicht-gemeisterte Fragen
                 // 3. Wenn alle gemeistert: alle Fragen in zufälliger Reihenfolge
 
                 $idsToShow = [];
@@ -191,8 +192,8 @@ class PracticeController extends Controller
                 shuffle($failedIds);
                 $idsToShow = array_merge($idsToShow, $failedIds);
 
-                // 2. Nicht-gemeisterte Fragen hinzufügen (consecutive_correct < 2)
-                // Das beinhaltet: Fragen mit 0 oder 1x richtig (müssen noch gemeistert werden)
+                // 2. Nicht-gemeisterte Fragen hinzufügen
+                // Das beinhaltet: Fragen die noch nicht oft genug richtig beantwortet wurden
                 $unmasteredIds = UserQuestionProgress::getUnmasteredQuestions($user->id);
 
                 // Hole auch Fragen die noch nie beantwortet wurden
@@ -352,14 +353,15 @@ class PracticeController extends Controller
         $progress = $solvedCount;
         
         // Neue Fortschrittsbalken-Logik: Berücksichtigt auch 1x richtige Antworten
+        $threshold = UserQuestionProgress::MASTERY_THRESHOLD;
         $progressData = UserQuestionProgress::where('user_id', $user->id)->get();
         $totalProgressPoints = 0;
         foreach ($progressData as $prog) {
-            $totalProgressPoints += min($prog->consecutive_correct, 2);
+            $totalProgressPoints += min($prog->consecutive_correct, $threshold);
         }
-        $maxProgressPoints = $totalQuestions * 2;
+        $maxProgressPoints = $totalQuestions * $threshold;
         $progressPercent = $maxProgressPoints > 0 ? round(($totalProgressPoints / $maxProgressPoints) * 100) : 0;
-        
+
         // Session für aktuellen Modus speichern
         $totalInMode = count($idsToShow);
         session([
@@ -439,14 +441,15 @@ class PracticeController extends Controller
             $progress = count($solved);
             
             // Neue Fortschrittsbalken-Logik: Berücksichtigt auch 1x richtige Antworten
+            $threshold = UserQuestionProgress::MASTERY_THRESHOLD;
             $progressData = UserQuestionProgress::where('user_id', $user->id)->get();
             $totalProgressPoints = 0;
             foreach ($progressData as $prog) {
-                $totalProgressPoints += min($prog->consecutive_correct, 2);
+                $totalProgressPoints += min($prog->consecutive_correct, $threshold);
             }
-            $maxProgressPoints = $total * 2;
+            $maxProgressPoints = $total * $threshold;
             $progressPercent = $maxProgressPoints > 0 ? round(($totalProgressPoints / $maxProgressPoints) * 100) : 0;
-            
+
         } else {
             // Legacy mode - redirect to menu
             return redirect()->route('practice.menu');

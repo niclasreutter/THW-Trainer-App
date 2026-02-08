@@ -128,12 +128,13 @@
 
         <!-- Statistiken Dashboard -->
         @php
+            $threshold = \App\Models\UserQuestionProgress::MASTERY_THRESHOLD;
             $progressData = \App\Models\UserQuestionProgress::where('user_id', $user->id)->get();
             $totalProgressPoints = 0;
             foreach ($progressData as $prog) {
-                $totalProgressPoints += min($prog->consecutive_correct, 2);
+                $totalProgressPoints += min($prog->consecutive_correct, $threshold);
             }
-            $maxProgressPoints = $questions->count() * 2;
+            $maxProgressPoints = $questions->count() * $threshold;
             $trueProgressPercent = $maxProgressPoints > 0 ? round(($totalProgressPoints / $maxProgressPoints) * 100) : 0;
         @endphp
 

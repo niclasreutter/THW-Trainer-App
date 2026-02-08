@@ -234,11 +234,21 @@
 
             <div class="onboarding-feature">
                 <div class="onboarding-feature-icon" style="background: rgba(34, 197, 94, 0.15); color: var(--success);">
-                    <i class="bi bi-check-circle"></i>
+                    <i class="bi bi-trophy"></i>
                 </div>
                 <div>
-                    <div class="onboarding-feature-title">Richtig beantwortet?</div>
-                    <div class="onboarding-feature-desc">Der Abstand bis zur nächsten Wiederholung wird größer: 1 Tag, 3 Tage, 8 Tage, ...</div>
+                    <div class="onboarding-feature-title">3x richtig = Gemeistert</div>
+                    <div class="onboarding-feature-desc">Eine Frage gilt erst als gemeistert, wenn du sie 3x in Folge richtig beantwortest &ndash; über mehrere Tage verteilt.</div>
+                </div>
+            </div>
+
+            <div class="onboarding-feature">
+                <div class="onboarding-feature-icon" style="background: rgba(0, 51, 127, 0.15); color: var(--thw-blue-light);">
+                    <i class="bi bi-calendar-range"></i>
+                </div>
+                <div>
+                    <div class="onboarding-feature-title">Wachsende Abstände</div>
+                    <div class="onboarding-feature-desc">Bei jeder richtigen Antwort wird der Abstand größer: 1 Tag, 3 Tage, 8 Tage, 20 Tage, ... bis zu 90 Tage.</div>
                 </div>
             </div>
 
@@ -248,17 +258,7 @@
                 </div>
                 <div>
                     <div class="onboarding-feature-title">Falsch beantwortet?</div>
-                    <div class="onboarding-feature-desc">Die Frage kommt morgen wieder dran &ndash; so bleiben schwierige Themen präsent.</div>
-                </div>
-            </div>
-
-            <div class="onboarding-feature">
-                <div class="onboarding-feature-icon" style="background: rgba(251, 191, 36, 0.15); color: var(--gold-start);">
-                    <i class="bi bi-graph-up-arrow"></i>
-                </div>
-                <div>
-                    <div class="onboarding-feature-title">Gamification</div>
-                    <div class="onboarding-feature-desc">Sammle Punkte, steige Level auf und tritt gegen andere auf dem Leaderboard an.</div>
+                    <div class="onboarding-feature-desc">Der Fortschritt wird zurückgesetzt und die Frage kommt morgen wieder dran.</div>
                 </div>
             </div>
 

@@ -13,30 +13,27 @@ class ProgressHelper
      * 
      * @param User $user
      * @return array [
-     *   'mastered' => int,           // Anzahl gemeisterter Fragen (2x richtig)
+     *   'mastered' => int,           // Anzahl gemeisterter Fragen
      *   'total' => int,              // Gesamtanzahl Fragen
      *   'remaining' => int,          // Verbleibende Fragen
-     *   'progress_percentage' => int // Fortschritt in % (inkl. 1x richtige)
+     *   'progress_percentage' => int // Fortschritt in %
      * ]
      */
     public static function calculateProgress(User $user): array
     {
         $totalQuestions = Question::count();
-        $masteredQuestions = count($user->solved_questions ?? []); // 2x richtig
+        $masteredQuestions = count($user->solved_questions ?? []);
         $remainingQuestions = max(0, $totalQuestions - $masteredQuestions);
-        
-        // Fortschrittsbalken berücksichtigt auch 1x richtige Antworten
-        // Hole alle Fortschritte des Users
+
+        $threshold = UserQuestionProgress::MASTERY_THRESHOLD;
         $progressData = UserQuestionProgress::where('user_id', $user->id)->get();
-        
+
         $totalProgress = 0;
         foreach ($progressData as $progress) {
-            // Jede Frage kann max. 2 Punkte haben (2x richtig)
-            $totalProgress += min($progress->consecutive_correct, 2);
+            $totalProgress += min($progress->consecutive_correct, $threshold);
         }
-        
-        // Max mögliche Punkte: Alle Fragen × 2
-        $maxProgress = $totalQuestions * 2;
+
+        $maxProgress = $totalQuestions * $threshold;
         
         // Berechne Prozentsatz
         $progressPercentage = $maxProgress > 0 
@@ -70,16 +67,17 @@ class ProgressHelper
         $remainingQuestions = max(0, $totalQuestions - $masteredQuestions);
         
         // Hole Fortschritte für diesen Lernabschnitt
+        $threshold = UserQuestionProgress::MASTERY_THRESHOLD;
         $progressData = UserQuestionProgress::where('user_id', $user->id)
             ->whereIn('question_id', $sectionQuestions)
             ->get();
-        
+
         $totalProgress = 0;
         foreach ($progressData as $progress) {
-            $totalProgress += min($progress->consecutive_correct, 2);
+            $totalProgress += min($progress->consecutive_correct, $threshold);
         }
-        
-        $maxProgress = $totalQuestions * 2;
+
+        $maxProgress = $totalQuestions * $threshold;
         $progressPercentage = $maxProgress > 0 
             ? round(($totalProgress / $maxProgress) * 100) 
             : 0;

@@ -407,12 +407,13 @@
     }
 
     try {
+        $threshold = \App\Models\UserQuestionProgress::MASTERY_THRESHOLD;
         $progressData = \App\Models\UserQuestionProgress::where('user_id', $user->id)->get();
         $totalProgressPoints = 0;
         if ($progressData && $progressData->count() > 0) {
-            foreach ($progressData as $prog) { $totalProgressPoints += min($prog->consecutive_correct ?? 0, 2); }
+            foreach ($progressData as $prog) { $totalProgressPoints += min($prog->consecutive_correct ?? 0, $threshold); }
         }
-        $maxProgressPoints = $total * 2;
+        $maxProgressPoints = $total * $threshold;
         $progressPercent = $maxProgressPoints > 0 ? round(($totalProgressPoints / $maxProgressPoints) * 100) : 0;
     } catch (\Exception $e) { $progressPercent = 0; $totalProgressPoints = 0; }
 
@@ -723,8 +724,8 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') dismi
                 $totalCount = \App\Models\LehrgangQuestion::where('lehrgang_id', $lehrgang->id)->count();
                 $progressData = \App\Models\UserLehrgangProgress::where('user_id', Auth::id())->whereHas('lehrgangQuestion', fn($q) => $q->where('lehrgang_id', $lehrgang->id))->get();
                 $totalProgressPoints = 0;
-                foreach ($progressData as $prog) { $totalProgressPoints += min($prog->consecutive_correct, 2); }
-                $maxProgressPoints = $totalCount * 2;
+                foreach ($progressData as $prog) { $totalProgressPoints += min($prog->consecutive_correct, \App\Models\UserQuestionProgress::MASTERY_THRESHOLD); }
+                $maxProgressPoints = $totalCount * \App\Models\UserQuestionProgress::MASTERY_THRESHOLD;
                 $lehrgangProgressPercent = $maxProgressPoints > 0 ? round(($totalProgressPoints / $maxProgressPoints) * 100) : 0;
                 $isCompleted = $lehrgangProgressPercent == 100 && $solvedCount > 0;
             @endphp

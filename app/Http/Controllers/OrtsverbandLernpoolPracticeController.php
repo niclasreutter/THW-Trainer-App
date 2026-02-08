@@ -61,15 +61,16 @@ class OrtsverbandLernpoolPracticeController extends Controller
             ->get()
             ->keyBy('question_id');
 
-        // Berechne Gesamt-Fortschritt (wie in practice.blade.php)
+        // Berechne Gesamt-Fortschritt
+        $threshold = \App\Models\UserQuestionProgress::MASTERY_THRESHOLD;
         $totalProgressPoints = 0;
         foreach ($userProgress as $prog) {
-            $totalProgressPoints += min($prog->consecutive_correct ?? 0, 2);
+            $totalProgressPoints += min($prog->consecutive_correct ?? 0, $threshold);
         }
-        $maxProgressPoints = $allQuestions->count() * 2;
+        $maxProgressPoints = $allQuestions->count() * $threshold;
         $progressPercent = $maxProgressPoints > 0 ? round(($totalProgressPoints / $maxProgressPoints) * 100) : 0;
 
-        // Zähle gemeisterte Fragen (2x richtig)
+        // Zähle gemeisterte Fragen
         $solvedCount = $userProgress->where('solved', true)->count();
         $totalCount = $allQuestions->count();
 
@@ -237,8 +238,8 @@ class OrtsverbandLernpoolPracticeController extends Controller
             $progress->correct_attempts++;
             $progress->consecutive_correct++;
             
-            // Gemeistert wenn 2x hintereinander richtig
-            if ($progress->consecutive_correct >= 2) {
+            // Gemeistert wenn Threshold erreicht
+            if ($progress->consecutive_correct >= \App\Models\UserQuestionProgress::MASTERY_THRESHOLD) {
                 $progress->solved = true;
             }
         } else {
@@ -252,8 +253,8 @@ class OrtsverbandLernpoolPracticeController extends Controller
         $pointsAwarded = $gamificationResult['points'] ?? 10;
         $reason = $gamificationResult['reason'] ?? 'Frage beantwortet';
         
-        // Zusatzbonus bei Meisterung (2x hintereinander richtig)
-        if ($isCorrect && $progress->solved && $progress->consecutive_correct == 2) {
+        // Zusatzbonus bei Meisterung
+        if ($isCorrect && $progress->solved && $progress->consecutive_correct == \App\Models\UserQuestionProgress::MASTERY_THRESHOLD) {
             $pointsAwarded += 15;
             $reason = 'Frage gemeistert!';
         }

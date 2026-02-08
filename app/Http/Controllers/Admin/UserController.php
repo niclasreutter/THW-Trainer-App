@@ -33,15 +33,16 @@ class UserController extends Controller
                 ->keyBy('lehrgang_question_id');
             
             // Berechne Gesamt-Fortschritt
+            $threshold = \App\Models\UserQuestionProgress::MASTERY_THRESHOLD;
             $totalProgressPoints = 0;
             $solvedCount = 0;
             foreach ($progressData as $prog) {
-                $totalProgressPoints += min($prog->consecutive_correct, 2);
+                $totalProgressPoints += min($prog->consecutive_correct, $threshold);
                 if ($prog->solved) {
                     $solvedCount++;
                 }
             }
-            $maxProgressPoints = $allQuestions->count() * 2;
+            $maxProgressPoints = $allQuestions->count() * $threshold;
             $totalPercent = $maxProgressPoints > 0 ? round(($totalProgressPoints / $maxProgressPoints) * 100) : 0;
             
             $lehrgangData[$lehrgang->id] = [
@@ -77,7 +78,6 @@ class UserController extends Controller
         $user->save();
         
         // Synchronisiere mit user_question_progress (Grundausbildung)
-        // Für alle als "gelöst" markierten Fragen: setze consecutive_correct = 2
         foreach ($solved as $questionId) {
             \App\Models\UserQuestionProgress::updateOrCreate(
                 [
@@ -85,7 +85,7 @@ class UserController extends Controller
                     'question_id' => $questionId,
                 ],
                 [
-                    'consecutive_correct' => 2, // Als gemeistert markieren
+                    'consecutive_correct' => \App\Models\UserQuestionProgress::MASTERY_THRESHOLD,
                     'last_answered_at' => now(),
                 ]
             );
@@ -118,7 +118,7 @@ class UserController extends Controller
                         'lehrgang_question_id' => $questionId,
                     ],
                     [
-                        'consecutive_correct' => 2, // Als gemeistert markieren
+                        'consecutive_correct' => \App\Models\UserQuestionProgress::MASTERY_THRESHOLD,
                         'solved' => true,
                         'last_answered_at' => now(),
                     ]

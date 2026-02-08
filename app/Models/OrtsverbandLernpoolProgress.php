@@ -46,8 +46,8 @@ class OrtsverbandLernpoolProgress extends Model
             $this->increment('correct_attempts');
             $this->increment('consecutive_correct');
             
-            // Frage ist gemeistert nach 2x richtig
-            if ($this->consecutive_correct >= 2) {
+            // Frage ist gemeistert nach Threshold
+            if ($this->consecutive_correct >= UserQuestionProgress::MASTERY_THRESHOLD) {
                 $this->update(['solved' => true]);
             }
         } else {

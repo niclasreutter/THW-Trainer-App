@@ -16,7 +16,7 @@ class SpacedRepetitionService
      */
     public function calculateNextReview(UserQuestionProgress $progress, bool $isCorrect): void
     {
-        $quality = $isCorrect ? ($progress->consecutive_correct >= 2 ? 5 : 4) : 1;
+        $quality = $isCorrect ? ($progress->isMastered() ? 5 : 4) : 1;
 
         $ef = $progress->easiness_factor ?? 2.5;
         $interval = $progress->review_interval ?? 0;
