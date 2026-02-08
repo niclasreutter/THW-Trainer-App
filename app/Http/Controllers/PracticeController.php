@@ -583,20 +583,14 @@ class PracticeController extends Controller
             $gamificationService = new GamificationService();
             $gamificationResult = $gamificationService->awardQuestionPoints($user, $isCorrect, $question->id);
 
-            // Bei nicht-gemeisterter Antwort: Frage nicht aus der Session entfernen, sondern weiter hinten einreihen
+            // Frage aus der aktuellen Session entfernen - Spaced Repetition plant die Wiederholung
+            // WICHTIG: Frage NICHT ans Ende re-queuen, da sonst dieselbe Frage mehrfach in einer
+            // Session beantwortet wird und der SM-2 Algorithmus falsche Intervalle berechnet
             $practiceIds = session('practice_ids', []);
             if (!empty($practiceIds)) {
-                // Entferne aktuelle Frage und füge sie am Ende wieder hinzu
-                $currentIndex = array_search($question->id, $practiceIds);
-                if ($currentIndex !== false) {
-                    unset($practiceIds[$currentIndex]);
-                    $practiceIds[] = $question->id; // Am Ende hinzufügen
-                    session(['practice_ids' => array_values($practiceIds)]);
-                }
+                $practiceIds = array_diff($practiceIds, [$question->id]);
+                session(['practice_ids' => array_values($practiceIds)]);
             }
-
-            // NICHT zu skipped hinzufügen! Die Frage bleibt in practice_ids und kommt später wieder
-            // Sie wird nur durch answer_result temporär "pausiert" für diese Anzeige
         }
         
         // Immer Gamification Result in Session speichern
