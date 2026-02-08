@@ -181,33 +181,37 @@ class PracticeController extends Controller
         switch ($mode) {
             case 'all':
                 // Intelligente Priorisierung für Practice All:
-                // 1. Falsch beantwortete Fragen aus Exams (höchste Priorität)
-                // 2. Nicht-gemeisterte Fragen
-                // 3. Wenn alle gemeistert: alle Fragen in zufälliger Reihenfolge
+                // 1. Spaced Repetition Fragen (fällige Wiederholungen, höchste Priorität)
+                // 2. Falsch beantwortete + ungelöste Fragen
+                // 3. Restliche Fragen in zufälliger Reihenfolge
 
                 $idsToShow = [];
+                $alreadyQueued = [];
 
-                // 1. Falsch beantwortete Fragen aus Prüfungen zuerst (zufällig gemischt)
+                // 1. Spaced Repetition: Fällige Wiederholungen zuerst
+                $srService = new SpacedRepetitionService();
+                $srDueIds = $srService->getDueQuestions($user->id);
+                shuffle($srDueIds);
+                $idsToShow = array_merge($idsToShow, $srDueIds);
+                $alreadyQueued = array_merge($alreadyQueued, $srDueIds);
+
+                // 2. Falsch beantwortete Fragen aus Prüfungen
                 $failedIds = array_values($failed);
+                $failedIds = array_diff($failedIds, $alreadyQueued);
                 shuffle($failedIds);
                 $idsToShow = array_merge($idsToShow, $failedIds);
+                $alreadyQueued = array_merge($alreadyQueued, $failedIds);
 
-                // 2. Nicht-gemeisterte Fragen hinzufügen
-                // Das beinhaltet: Fragen die noch nicht oft genug richtig beantwortet wurden
+                // 3. Nicht-gemeisterte + nie beantwortete Fragen (ungelöst)
                 $unmasteredIds = UserQuestionProgress::getUnmasteredQuestions($user->id);
-
-                // Hole auch Fragen die noch nie beantwortet wurden
                 $allQuestionIds = Question::pluck('id')->toArray();
                 $answeredQuestionIds = UserQuestionProgress::where('user_id', $user->id)
                     ->pluck('question_id')
                     ->toArray();
                 $neverAnsweredIds = array_diff($allQuestionIds, $answeredQuestionIds);
 
-                // Kombiniere unmastered + never answered
                 $toLearnIds = array_unique(array_merge($unmasteredIds, $neverAnsweredIds));
-
-                // Entferne bereits in failed list enthaltene Fragen
-                $toLearnIds = array_diff($toLearnIds, $failedIds);
+                $toLearnIds = array_diff($toLearnIds, $alreadyQueued);
 
                 // Nach Lernabschnitten sortiert, innerhalb zufällig
                 $sortedToLearnIds = [];
@@ -220,23 +224,24 @@ class PracticeController extends Controller
                     $sortedToLearnIds = array_merge($sortedToLearnIds, $sectionIds);
                 }
                 $idsToShow = array_merge($idsToShow, $sortedToLearnIds);
+                $alreadyQueued = array_merge($alreadyQueued, $sortedToLearnIds);
 
-                // 3. Wenn keine zu lernenden Fragen vorhanden: alle Fragen zufällig
-                if (empty($idsToShow)) {
-                    $allIds = Question::pluck('id')->toArray();
-                    shuffle($allIds);
-                    $idsToShow = $allIds;
-                }
+                // 4. Restliche Fragen zufällig (bereits gemeisterte, keine SR fällig)
+                $remainingIds = array_diff($allQuestionIds, $alreadyQueued);
+                $remainingIds = array_values($remainingIds);
+                shuffle($remainingIds);
+                $idsToShow = array_merge($idsToShow, $remainingIds);
 
                 // Debug-Ausgabe
                 \Log::info('Practice Mode All Debug', [
                     'user_id' => $user->id,
+                    'sr_due_count' => count($srDueIds),
                     'failed_count' => count($failedIds),
                     'unmastered_count' => count($unmasteredIds),
                     'never_answered_count' => count($neverAnsweredIds),
                     'total_to_learn' => count($toLearnIds),
+                    'remaining_random' => count($remainingIds),
                     'total_ids_to_show' => count($idsToShow),
-                    'showing_all_random' => empty($failedIds) && empty($toLearnIds)
                 ]);
                 break;
                 
