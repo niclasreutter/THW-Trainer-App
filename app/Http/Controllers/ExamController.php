@@ -21,8 +21,15 @@ class ExamController extends Controller
         // Prüfe ob noch Fehler zu wiederholen sind
         $failedQuestions = $this->ensureArray($user->exam_failed_questions);
         if (!empty($failedQuestions) && count($failedQuestions) > 0) {
-            // Weiterleitung zum Dashboard mit Fehlermeldung
             return redirect()->route('dashboard')->with('error', 'Du musst zuerst deine falschen Antworten wiederholen, bevor du eine neue Prüfung starten kannst.');
+        }
+
+        // Prüfe ob alle Fragen gemeistert sind
+        $totalQuestions = Question::count();
+        $masteredCount = UserQuestionProgress::countMastered($user->id);
+        if ($masteredCount < $totalQuestions) {
+            $remaining = $totalQuestions - $masteredCount;
+            return redirect()->route('dashboard')->with('error', "Du musst zuerst alle Fragen meistern, bevor du eine Prüfung starten kannst. Noch {$remaining} Fragen offen.");
         }
         
         // Strategie: Pro Lernabschnitt (1-10) mindestens 1 Frage

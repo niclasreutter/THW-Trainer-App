@@ -42,6 +42,9 @@
                                     $failedArr = is_array(Auth::user()->exam_failed_questions ?? null)
                                         ? Auth::user()->exam_failed_questions
                                         : (is_string(Auth::user()->exam_failed_questions) ? json_decode(Auth::user()->exam_failed_questions, true) ?? [] : []);
+                                    $navTotalQuestions = \App\Models\Question::count();
+                                    $navMasteredCount = \App\Models\UserQuestionProgress::countMastered(Auth::id());
+                                    $navExamLocked = $navMasteredCount < $navTotalQuestions || (!empty($failedArr) && count($failedArr) > 0);
                                 @endphp
                                 @if($failedArr && count($failedArr) > 0)
                                     <a href="{{ route('failed.index') }}" class="dropdown-item-glass flex items-center justify-between">
@@ -49,9 +52,16 @@
                                         <span class="badge-error text-xs">{{ count($failedArr) }}</span>
                                     </a>
                                 @endif
-                                <a href="{{ route('exam.index') }}" class="dropdown-item-glass">
-                                    Prüfung
-                                </a>
+                                @if($navExamLocked)
+                                    <span class="dropdown-item-glass opacity-50 cursor-not-allowed flex items-center justify-between">
+                                        <span>Prüfung</span>
+                                        <i class="bi bi-lock-fill text-xs"></i>
+                                    </span>
+                                @else
+                                    <a href="{{ route('exam.index') }}" class="dropdown-item-glass">
+                                        Prüfung
+                                    </a>
+                                @endif
                             </div>
                         </div>
 
@@ -267,19 +277,29 @@
                         Gespeicherte Fragen
                     </a>
                     @php
-                        $failedArr = is_array(Auth::user()->exam_failed_questions ?? null)
+                        $failedArrMobile = is_array(Auth::user()->exam_failed_questions ?? null)
                             ? Auth::user()->exam_failed_questions
                             : (is_string(Auth::user()->exam_failed_questions) ? json_decode(Auth::user()->exam_failed_questions, true) ?? [] : []);
+                        $navTotalMobile = \App\Models\Question::count();
+                        $navMasteredMobile = \App\Models\UserQuestionProgress::countMastered(Auth::id());
+                        $navExamLockedMobile = $navMasteredMobile < $navTotalMobile || (!empty($failedArrMobile) && count($failedArrMobile) > 0);
                     @endphp
-                    @if($failedArr && count($failedArr) > 0)
+                    @if($failedArrMobile && count($failedArrMobile) > 0)
                         <a href="{{ route('failed.index') }}" class="block px-3 py-2 text-sm text-dark-secondary hover:text-gold hover:bg-glass-white-5 rounded-md transition-colors duration-200 flex items-center justify-between">
                             <span>Fehler wiederholen</span>
-                            <span class="badge-error text-xs">{{ count($failedArr) }}</span>
+                            <span class="badge-error text-xs">{{ count($failedArrMobile) }}</span>
                         </a>
                     @endif
-                    <a href="{{ route('exam.index') }}" class="block px-3 py-2 text-sm text-dark-secondary hover:text-gold hover:bg-glass-white-5 rounded-md transition-colors duration-200">
-                        Prüfung
-                    </a>
+                    @if($navExamLockedMobile)
+                        <span class="block px-3 py-2 text-sm text-dark-muted rounded-md opacity-50 cursor-not-allowed flex items-center justify-between">
+                            <span>Prüfung</span>
+                            <i class="bi bi-lock-fill text-xs"></i>
+                        </span>
+                    @else
+                        <a href="{{ route('exam.index') }}" class="block px-3 py-2 text-sm text-dark-secondary hover:text-gold hover:bg-glass-white-5 rounded-md transition-colors duration-200">
+                            Prüfung
+                        </a>
+                    @endif
                 </div>
 
                 <!-- Gamification Section -->
