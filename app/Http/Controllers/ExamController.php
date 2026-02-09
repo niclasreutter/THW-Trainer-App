@@ -184,6 +184,7 @@ class ExamController extends Controller
                 'question_id' => $result['frage']->id,
                 'user_id' => $user->id,
                 'is_correct' => $result['isCorrect'],
+                'source' => 'exam',
             ]);
             
             // NEU: Auch Fortschritt in user_question_progress tracken
@@ -354,7 +355,7 @@ class ExamController extends Controller
             ->reverse()
             ->values();
 
-        // Analyse pro Lernabschnitt (basierend auf letzter Prüfung)
+        // Analyse pro Lernabschnitt (nur Prüfungsdaten)
         $sectionAnalysis = [];
         $latestExam = $exams->first();
         if ($latestExam) {
@@ -362,9 +363,11 @@ class ExamController extends Controller
                 $sectionQuestionIds = Question::where('lernabschnitt', $section)->pluck('id')->toArray();
                 $totalInSection = QuestionStatistic::where('user_id', $user->id)
                     ->whereIn('question_id', $sectionQuestionIds)
+                    ->where('source', 'exam')
                     ->count();
                 $correctInSection = QuestionStatistic::where('user_id', $user->id)
                     ->whereIn('question_id', $sectionQuestionIds)
+                    ->where('source', 'exam')
                     ->where('is_correct', true)
                     ->count();
 
