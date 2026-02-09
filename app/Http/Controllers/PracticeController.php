@@ -392,7 +392,12 @@ class PracticeController extends Controller
         // Schwierigkeitsindikator für aktuelle Frage
         $difficultyInfo = $this->getQuestionDifficulty($question->id);
 
-        return view('practice', compact('question', 'progress', 'total', 'mode', 'progressPercent', 'totalInMode', 'currentInMode', 'difficultyInfo'));
+        // Spaced Repetition: Prüfe ob diese Frage fällig ist
+        $srService = new SpacedRepetitionService();
+        $srDueIds = $srService->getDueQuestions($user->id);
+        $isSpacedRepetition = in_array($question->id, $srDueIds);
+
+        return view('practice', compact('question', 'progress', 'total', 'mode', 'progressPercent', 'totalInMode', 'currentInMode', 'difficultyInfo', 'isSpacedRepetition'));
     }
 
     public function show(Request $request)
@@ -475,7 +480,12 @@ class PracticeController extends Controller
 
         $difficultyInfo = $this->getQuestionDifficulty($question->id);
 
-        return view('practice', compact('question', 'progress', 'total', 'mode', 'progressPercent', 'totalInMode', 'currentInMode', 'difficultyInfo'));
+        // Spaced Repetition: Prüfe ob diese Frage fällig ist
+        $srService = new SpacedRepetitionService();
+        $srDueIds = $srService->getDueQuestions($user->id);
+        $isSpacedRepetition = in_array($question->id, $srDueIds);
+
+        return view('practice', compact('question', 'progress', 'total', 'mode', 'progressPercent', 'totalInMode', 'currentInMode', 'difficultyInfo', 'isSpacedRepetition'));
     }
 
     /**

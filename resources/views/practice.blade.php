@@ -350,6 +350,12 @@
         border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
+    .difficulty-sr {
+        background: rgba(139, 92, 246, 0.12);
+        color: #a78bfa;
+        border: 1px solid rgba(139, 92, 246, 0.2);
+    }
+
     html.light-mode .difficulty-easy {
         background: rgba(34, 197, 94, 0.1);
         color: #16a34a;
@@ -363,6 +369,11 @@
     html.light-mode .difficulty-hard {
         background: rgba(239, 68, 68, 0.1);
         color: #dc2626;
+    }
+
+    html.light-mode .difficulty-sr {
+        background: rgba(139, 92, 246, 0.1);
+        color: #7c3aed;
     }
 
     /* Shake Animation */
@@ -531,19 +542,37 @@
                     </svg>
                 </a>
 
-                <div class="flex items-center gap-3">
-                    @if(isset($totalInMode) && $totalInMode > 0)
-                        <span class="text-dark-muted text-xs">{{ $currentInMode ?? 1 }}/{{ $totalInMode }}</span>
-                    @else
-                        <span class="text-dark-muted text-xs">{{ $progress }}/{{ $total }}</span>
+                <!-- Mobile: Difficulty + SR Badge -->
+                <div class="flex items-center gap-1.5">
+                    @if(isset($isSpacedRepetition) && $isSpacedRepetition)
+                        <span class="difficulty-badge difficulty-sr">
+                            <i class="bi bi-arrow-repeat"></i>
+                            SR
+                        </span>
                     @endif
 
-                    <!-- Mini Progress Ring -->
+                    @if(isset($difficultyInfo) && $difficultyInfo['level'] !== 'unknown')
+                        <span class="difficulty-badge difficulty-{{ $difficultyInfo['level'] }}">
+                            {{ $difficultyInfo['label'] }}
+                        </span>
+                    @endif
+                </div>
+
+                <div class="flex items-center gap-3">
+                    @php
+                        // Mobile: Session-Fortschritt anzeigen (Frage X von Y)
+                        $mobileCurrentPos = $currentInMode ?? 1;
+                        $mobileTotalPos = (isset($totalInMode) && $totalInMode > 0) ? $totalInMode : $total;
+                        $mobileRingPercent = $mobileTotalPos > 0 ? (($mobileCurrentPos - 1) / $mobileTotalPos) * 100 : 0;
+                    @endphp
+                    <span class="text-dark-muted text-xs font-semibold">{{ $mobileCurrentPos }}/{{ $mobileTotalPos }}</span>
+
+                    <!-- Mini Progress Ring (Session-Fortschritt) -->
                     <svg class="w-8 h-8" viewBox="0 0 36 36">
                         <circle cx="18" cy="18" r="14" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="3"/>
                         <circle cx="18" cy="18" r="14" fill="none" stroke="url(#goldGradientMini)" stroke-width="3"
                                 stroke-dasharray="{{ 87.96 }}"
-                                stroke-dashoffset="{{ 87.96 - (87.96 * ($progressPercent ?? 0) / 100) }}"
+                                stroke-dashoffset="{{ 87.96 - (87.96 * $mobileRingPercent / 100) }}"
                                 class="progress-ring-circle"/>
                         <defs>
                             <linearGradient id="goldGradientMini" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -605,9 +634,16 @@
                             </div>
                         @endif
 
-                        @if(isset($difficultyInfo))
+                        @if(isset($isSpacedRepetition) && $isSpacedRepetition)
+                            <span class="difficulty-badge difficulty-sr">
+                                <i class="bi bi-arrow-repeat"></i>
+                                Wiederholung
+                            </span>
+                        @endif
+
+                        @if(isset($difficultyInfo) && $difficultyInfo['level'] !== 'unknown')
                             <span class="difficulty-badge difficulty-{{ $difficultyInfo['level'] }}">
-                                <i class="bi bi-{{ $difficultyInfo['level'] === 'hard' ? 'exclamation-triangle' : ($difficultyInfo['level'] === 'medium' ? 'dash-circle' : ($difficultyInfo['level'] === 'easy' ? 'check-circle' : 'question-circle')) }}"></i>
+                                <i class="bi bi-{{ $difficultyInfo['level'] === 'hard' ? 'exclamation-triangle' : ($difficultyInfo['level'] === 'medium' ? 'dash-circle' : 'check-circle') }}"></i>
                                 {{ $difficultyInfo['label'] }}
                                 @if($difficultyInfo['percent'] !== null)
                                     ({{ $difficultyInfo['percent'] }}% Fehlerquote)
