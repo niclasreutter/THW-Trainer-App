@@ -351,9 +351,9 @@
     }
 
     .difficulty-sr {
-        background: rgba(139, 92, 246, 0.12);
-        color: #a78bfa;
-        border: 1px solid rgba(139, 92, 246, 0.2);
+        background: rgba(0, 51, 127, 0.15);
+        color: #4d94ff;
+        border: 1px solid rgba(0, 77, 179, 0.3);
     }
 
     html.light-mode .difficulty-easy {
@@ -372,8 +372,8 @@
     }
 
     html.light-mode .difficulty-sr {
-        background: rgba(139, 92, 246, 0.1);
-        color: #7c3aed;
+        background: rgba(0, 51, 127, 0.1);
+        color: var(--thw-blue);
     }
 
     /* Shake Animation */
@@ -547,7 +547,6 @@
                     @if(isset($isSpacedRepetition) && $isSpacedRepetition)
                         <span class="difficulty-badge difficulty-sr">
                             <i class="bi bi-arrow-repeat"></i>
-                            SR
                         </span>
                     @endif
 
@@ -559,20 +558,14 @@
                 </div>
 
                 <div class="flex items-center gap-3">
-                    @php
-                        // Mobile: Session-Fortschritt anzeigen (Frage X von Y)
-                        $mobileCurrentPos = $currentInMode ?? 1;
-                        $mobileTotalPos = (isset($totalInMode) && $totalInMode > 0) ? $totalInMode : $total;
-                        $mobileRingPercent = $mobileTotalPos > 0 ? (($mobileCurrentPos - 1) / $mobileTotalPos) * 100 : 0;
-                    @endphp
-                    <span class="text-dark-muted text-xs font-semibold">{{ $mobileCurrentPos }}/{{ $mobileTotalPos }}</span>
+                    <span class="text-dark-muted text-xs font-semibold">{{ $progress }}/{{ $total }}</span>
 
-                    <!-- Mini Progress Ring (Session-Fortschritt) -->
+                    <!-- Mini Progress Ring (Gesamt-Fortschritt) -->
                     <svg class="w-8 h-8" viewBox="0 0 36 36">
                         <circle cx="18" cy="18" r="14" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="3"/>
                         <circle cx="18" cy="18" r="14" fill="none" stroke="url(#goldGradientMini)" stroke-width="3"
                                 stroke-dasharray="{{ 87.96 }}"
-                                stroke-dashoffset="{{ 87.96 - (87.96 * $mobileRingPercent / 100) }}"
+                                stroke-dashoffset="{{ 87.96 - (87.96 * ($progressPercent ?? 0) / 100) }}"
                                 class="progress-ring-circle"/>
                         <defs>
                             <linearGradient id="goldGradientMini" x1="0%" y1="0%" x2="100%" y2="0%">
