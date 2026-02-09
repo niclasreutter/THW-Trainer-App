@@ -360,7 +360,7 @@
         <!-- Lernabschnitt-Analyse -->
         @if(!empty($sectionAnalysis))
         <div class="section-header">
-            <h2 class="section-title">Stärken & Schwächen pro Abschnitt</h2>
+            <h2 class="section-title">Stärken & Schwächen pro Abschnitt (Prüfungen)</h2>
         </div>
 
         <div class="section-grid" style="margin-bottom: 2rem;">

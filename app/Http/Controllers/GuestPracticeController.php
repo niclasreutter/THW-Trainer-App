@@ -161,6 +161,7 @@ class GuestPracticeController extends Controller
         QuestionStatistic::create([
             'question_id' => $question->id,
             'is_correct' => $isCorrect,
+            'source' => 'practice',
         ]);
 
         $skipped = session('guest_practice_skipped', []);

@@ -10,6 +10,7 @@ class QuestionStatistic extends Model
         'question_id',
         'user_id',
         'is_correct',
+        'source',
     ];
 
     protected $casts = [

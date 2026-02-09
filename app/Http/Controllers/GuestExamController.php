@@ -74,6 +74,7 @@ class GuestExamController extends Controller
             QuestionStatistic::create([
                 'question_id' => $frage->id,
                 'is_correct' => $isCorrect,
+                'source' => 'exam',
             ]);
         }
         
