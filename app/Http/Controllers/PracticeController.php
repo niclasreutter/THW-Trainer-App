@@ -586,13 +586,7 @@ class PracticeController extends Controller
         } else {
             // Frage noch nicht gemeistert (0 oder 1x richtig)
             // KEINE Änderung an exam_failed_questions - das ist nur für Prüfungen!
-
-            // Entferne Frage aus solved_questions falls dort (für Konsistenz)
-            if (in_array($question->id, $solved)) {
-                $solved = array_diff($solved, [$question->id]);
-                $user->solved_questions = array_values($solved);
-                $user->save();
-            }
+            // solved_questions NICHT entfernen - einmal gelöst bleibt gelöst
 
             // Gamification: Auch beim ersten richtigen Beantworten Punkte vergeben
             $gamificationService = new GamificationService();
