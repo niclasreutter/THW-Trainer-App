@@ -537,6 +537,7 @@ class PracticeController extends Controller
             'question_id' => $question->id,
             'user_id' => $user->id,
             'is_correct' => $isCorrect,
+            'source' => 'practice',
         ]);
         
         // NEU: Fortschritt in user_question_progress tracken
