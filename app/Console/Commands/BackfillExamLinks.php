@@ -26,7 +26,8 @@ class BackfillExamLinks extends Command
 
         $totalLinked = 0;
         $totalExams = 0;
-        $skipped = 0;
+        $skippedTooFew = 0;
+        $skippedSpread = 0;
 
         foreach ($users as $userId) {
             // Prüfungen von NEUESTER zu ÄLTESTER verarbeiten
@@ -49,7 +50,8 @@ class BackfillExamLinks extends Command
                     ->get(['id', 'created_at']);
 
                 if ($candidates->count() < 30) {
-                    $skipped++;
+                    $skippedTooFew++;
+                    $this->line("  Übersprungen: Prüfung #{$exam->id} ({$exam->created_at}) - nur {$candidates->count()} Records gefunden (User {$userId})");
                     continue;
                 }
 
@@ -59,7 +61,9 @@ class BackfillExamLinks extends Command
 
                 // Nur zuordnen wenn die Records innerhalb von 5 Minuten liegen
                 if ($timeSpread > 300) {
-                    $skipped++;
+                    $skippedSpread++;
+                    $spreadMinutes = round($timeSpread / 60, 1);
+                    $this->line("  Übersprungen: Prüfung #{$exam->id} ({$exam->created_at}) - Zeitspanne {$spreadMinutes} Min (User {$userId})");
                     continue;
                 }
 
@@ -75,7 +79,14 @@ class BackfillExamLinks extends Command
             }
         }
 
+        $skipped = $skippedTooFew + $skippedSpread;
         $this->info("Fertig: {$totalLinked} question_statistics zu {$totalExams} Prüfungen verknüpft ({$skipped} übersprungen).");
+        if ($skippedTooFew > 0) {
+            $this->warn("  {$skippedTooFew}x zu wenige Records (<30 question_statistics vor Prüfung)");
+        }
+        if ($skippedSpread > 0) {
+            $this->warn("  {$skippedSpread}x Zeitspanne zu gross (>5 Min zwischen Records)");
+        }
 
         return self::SUCCESS;
     }
