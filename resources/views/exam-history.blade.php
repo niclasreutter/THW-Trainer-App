@@ -361,11 +361,6 @@
         @if(!empty($sectionAnalysis))
         <div class="section-header">
             <h2 class="section-title">Stärken & Schwächen pro Abschnitt ({{ $linkedExamCount ?? 0 }} von {{ $exams->count() }} Prüfungen)</h2>
-            @if(($linkedExamCount ?? 0) < $exams->count())
-                <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">
-                    Fehlende Daten? Führe <code>php artisan app:backfill-exam-links</code> aus.
-                </p>
-            @endif
         </div>
 
         <div class="section-grid" style="margin-bottom: 2rem;">
