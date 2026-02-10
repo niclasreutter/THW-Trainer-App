@@ -11,6 +11,7 @@ class QuestionStatistic extends Model
         'user_id',
         'is_correct',
         'source',
+        'exam_statistic_id',
     ];
 
     protected $casts = [
@@ -31,6 +32,14 @@ class QuestionStatistic extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Eine Statistik gehört zu einer Prüfung (optional)
+     */
+    public function examStatistic(): BelongsTo
+    {
+        return $this->belongsTo(ExamStatistic::class);
     }
 }
 
