@@ -22,21 +22,28 @@ return new class extends Migration
         $updatedCount = 0;
 
         foreach ($users as $user) {
-            $solved = json_decode($user->solved_questions, true) ?? [];
+            $raw = $user->solved_questions;
 
-            if (empty($solved)) {
+            // Doppelt-encodiertes JSON behandeln (z.B. "\"[1,2,3]\"")
+            $solved = json_decode($raw, true);
+            if (is_string($solved)) {
+                $solved = json_decode($solved, true);
+            }
+
+            if (!is_array($solved) || empty($solved)) {
                 continue;
             }
 
-            // Setze consecutive_correct auf MASTERY_THRESHOLD (3) für gelöste Fragen,
-            // die noch unter dem Threshold liegen
-            $affected = DB::table('user_question_progress')
-                ->where('user_id', $user->id)
-                ->whereIn('question_id', $solved)
-                ->where('consecutive_correct', '<', 3)
-                ->update(['consecutive_correct' => 3]);
+            // In Chunks aufteilen um SQLite-Limit für Parameter zu respektieren
+            foreach (array_chunk($solved, 500) as $chunk) {
+                $affected = DB::table('user_question_progress')
+                    ->where('user_id', $user->id)
+                    ->whereIn('question_id', $chunk)
+                    ->where('consecutive_correct', '<', 3)
+                    ->update(['consecutive_correct' => 3]);
 
-            $updatedCount += $affected;
+                $updatedCount += $affected;
+            }
         }
 
         if ($updatedCount > 0) {
