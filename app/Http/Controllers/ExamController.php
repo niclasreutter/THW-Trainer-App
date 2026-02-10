@@ -7,7 +7,6 @@ use App\Models\Question;
 use App\Models\QuestionStatistic;
 use App\Models\UserQuestionProgress;
 use App\Models\ExamStatistic;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Session;
 use App\Services\GamificationService;
 
@@ -359,24 +358,19 @@ class ExamController extends Controller
         // Analyse pro Lernabschnitt (nur Prüfungsdaten)
         $sectionAnalysis = [];
         $latestExam = $exams->first();
-        $hasSourceColumn = Schema::hasColumn('question_statistics', 'source');
         if ($latestExam) {
             for ($section = 1; $section <= 10; $section++) {
                 $sectionQuestionIds = Question::where('lernabschnitt', $section)->pluck('id')->toArray();
-                $totalQuery = QuestionStatistic::where('user_id', $user->id)
-                    ->whereIn('question_id', $sectionQuestionIds);
-                if ($hasSourceColumn) {
-                    $totalQuery->where('source', 'exam');
-                }
-                $totalInSection = $totalQuery->count();
-
-                $correctQuery = QuestionStatistic::where('user_id', $user->id)
+                $totalInSection = QuestionStatistic::where('user_id', $user->id)
                     ->whereIn('question_id', $sectionQuestionIds)
-                    ->where('is_correct', true);
-                if ($hasSourceColumn) {
-                    $correctQuery->where('source', 'exam');
-                }
-                $correctInSection = $correctQuery->count();
+                    ->where('source', 'exam')
+                    ->count();
+
+                $correctInSection = QuestionStatistic::where('user_id', $user->id)
+                    ->whereIn('question_id', $sectionQuestionIds)
+                    ->where('is_correct', true)
+                    ->where('source', 'exam')
+                    ->count();
 
                 $sectionAnalysis[$section] = [
                     'total' => $totalInSection,
