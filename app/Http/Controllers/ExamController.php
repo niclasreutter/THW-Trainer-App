@@ -358,6 +358,10 @@ class ExamController extends Controller
 
         // Analyse pro Lernabschnitt (nur Prüfungsdaten)
         $sectionAnalysis = [];
+        $linkedExamCount = QuestionStatistic::where('user_id', $user->id)
+            ->whereNotNull('exam_statistic_id')
+            ->distinct('exam_statistic_id')
+            ->count('exam_statistic_id');
         $latestExam = $exams->first();
         if ($latestExam) {
             for ($section = 1; $section <= 10; $section++) {
@@ -389,7 +393,7 @@ class ExamController extends Controller
             ->keys()
             ->toArray();
 
-        return view('exam-history', compact('exams', 'globalAvgPercent', 'trend', 'sectionAnalysis', 'weakSections'));
+        return view('exam-history', compact('exams', 'globalAvgPercent', 'trend', 'sectionAnalysis', 'weakSections', 'linkedExamCount'));
     }
 
     /**
