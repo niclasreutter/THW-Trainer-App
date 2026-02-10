@@ -212,6 +212,10 @@ class PracticeController extends Controller
 
                 $toLearnIds = array_unique(array_merge($unmasteredIds, $neverAnsweredIds));
                 $toLearnIds = array_diff($toLearnIds, $alreadyQueued);
+                // Bereits gelöste Fragen gehören NICHT in den Lern-Pool
+                // (solved_questions kann Fragen enthalten deren consecutive_correct < MASTERY_THRESHOLD ist,
+                // z.B. durch Datenmigration - diese sollen trotzdem nicht als "zu lernen" gelten)
+                $toLearnIds = array_diff($toLearnIds, $solved);
 
                 // Nach Lernabschnitten sortiert, innerhalb zufällig
                 $sortedToLearnIds = [];
