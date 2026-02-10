@@ -21,4 +21,9 @@ class ExamStatistic extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function questionStatistics()
+    {
+        return $this->hasMany(QuestionStatistic::class);
+    }
 }

@@ -177,29 +177,30 @@ class ExamController extends Controller
         $total = count($fragen);
         $passed = $total > 0 && $correctCount / $total >= 0.8;
         $user = Auth::user();
-        
-        // Fragenstatistiken erfassen (mit User ID)
+
+        // Prüfungsstatistik zuerst erfassen (für Verknüpfung)
+        $examStatistic = ExamStatistic::create([
+            'user_id' => $user->id,
+            'is_passed' => $passed,
+            'correct_answers' => $correctCount,
+        ]);
+
+        // Fragenstatistiken erfassen (mit User ID und Prüfungs-Verknüpfung)
         foreach ($results as $result) {
             QuestionStatistic::create([
                 'question_id' => $result['frage']->id,
                 'user_id' => $user->id,
                 'is_correct' => $result['isCorrect'],
                 'source' => 'exam',
+                'exam_statistic_id' => $examStatistic->id,
             ]);
-            
+
             // NEU: Auch Fortschritt in user_question_progress tracken
             // Hinweis: In Prüfungen wird NICHT automatisch zu solved_questions hinzugefügt
             // User müssen Fragen im Practice-Modus 2x richtig beantworten
             $progress = UserQuestionProgress::getOrCreate($user->id, $result['frage']->id);
             $progress->updateProgress($result['isCorrect']);
         }
-        
-        // Prüfungsstatistik erfassen
-        ExamStatistic::create([
-            'user_id' => $user->id,
-            'is_passed' => $passed,
-            'correct_answers' => $correctCount,
-        ]);
         
         $gamificationResult = null;
         
@@ -363,13 +364,13 @@ class ExamController extends Controller
                 $sectionQuestionIds = Question::where('lernabschnitt', $section)->pluck('id')->toArray();
                 $totalInSection = QuestionStatistic::where('user_id', $user->id)
                     ->whereIn('question_id', $sectionQuestionIds)
-                    ->where('source', 'exam')
+                    ->whereNotNull('exam_statistic_id')
                     ->count();
 
                 $correctInSection = QuestionStatistic::where('user_id', $user->id)
                     ->whereIn('question_id', $sectionQuestionIds)
                     ->where('is_correct', true)
-                    ->where('source', 'exam')
+                    ->whereNotNull('exam_statistic_id')
                     ->count();
 
                 $sectionAnalysis[$section] = [
