@@ -34,8 +34,6 @@ class PracticeController extends Controller
     public function menu()
     {
         $user = Auth::user();
-        // Defensive Programmierung für Legacy-Daten
-        $solved = $this->ensureArray($user->solved_questions);
         $failed = $this->ensureArray($user->exam_failed_questions);
 
         // ⚡ PERFORMANCE-OPTIMIERUNG: Eine Query statt 20+
@@ -44,27 +42,9 @@ class PracticeController extends Controller
             ->get()
             ->groupBy('lernabschnitt');
 
-        // Statistiken für jeden Lernabschnitt berechnen (ohne weitere Queries)
-        $sectionStats = [];
-        for ($i = 1; $i <= 10; $i++) {
-            $sectionQuestions = $questionsBySection->get($i, collect());
-            $sectionQuestionIds = $sectionQuestions->pluck('id')->toArray();
-            $totalQuestions = count($sectionQuestionIds);
-            $solvedInSection = count(array_intersect($solved, $sectionQuestionIds));
-
-            $sectionStats[$i] = [
-                'total' => $totalQuestions,
-                'solved' => $solvedInSection
-            ];
-        }
-
-        // Allgemeine Statistiken (aus bereits geladenen Daten)
         $totalQuestions = $questionsBySection->flatten()->count();
-        $solvedCount = count($solved);
-        $failedCount = count($failed);
-        $unsolvedCount = $totalQuestions - $solvedCount;
 
-        // Neue Fortschrittsbalken-Logik: Berücksichtigt auch 1x richtige Antworten
+        // Fortschritt basierend auf tatsächlichem Mastery-Status (consecutive_correct)
         $threshold = UserQuestionProgress::MASTERY_THRESHOLD;
         $progressData = UserQuestionProgress::where('user_id', $user->id)->get();
         $totalProgressPoints = 0;
@@ -73,6 +53,26 @@ class PracticeController extends Controller
         }
         $maxProgressPoints = $totalQuestions * $threshold;
         $progressPercentage = $maxProgressPoints > 0 ? round(($totalProgressPoints / $maxProgressPoints) * 100) : 0;
+
+        // Gemeisterte Fragen basierend auf consecutive_correct >= MASTERY_THRESHOLD
+        $masteredQuestionIds = $progressData->filter(fn($p) => $p->isMastered())->pluck('question_id')->toArray();
+        $solvedCount = count($masteredQuestionIds);
+        $failedCount = count($failed);
+        $unsolvedCount = $totalQuestions - $solvedCount;
+
+        // Statistiken für jeden Lernabschnitt berechnen
+        $sectionStats = [];
+        for ($i = 1; $i <= 10; $i++) {
+            $sectionQuestions = $questionsBySection->get($i, collect());
+            $sectionQuestionIds = $sectionQuestions->pluck('id')->toArray();
+            $totalInSection = count($sectionQuestionIds);
+            $solvedInSection = count(array_intersect($masteredQuestionIds, $sectionQuestionIds));
+
+            $sectionStats[$i] = [
+                'total' => $totalInSection,
+                'solved' => $solvedInSection
+            ];
+        }
 
         $sectionNames = self::SECTION_NAMES;
         return view('practice-menu', compact('sectionStats', 'totalQuestions', 'solvedCount', 'failedCount', 'unsolvedCount', 'sectionNames', 'progressPercentage'));
@@ -212,10 +212,9 @@ class PracticeController extends Controller
 
                 $toLearnIds = array_unique(array_merge($unmasteredIds, $neverAnsweredIds));
                 $toLearnIds = array_diff($toLearnIds, $alreadyQueued);
-                // Bereits gelöste Fragen gehören NICHT in den Lern-Pool
-                // (solved_questions kann Fragen enthalten deren consecutive_correct < MASTERY_THRESHOLD ist,
-                // z.B. durch Datenmigration - diese sollen trotzdem nicht als "zu lernen" gelten)
-                $toLearnIds = array_diff($toLearnIds, $solved);
+                // Nur tatsächlich gemeisterte Fragen (consecutive_correct >= MASTERY_THRESHOLD) ausschließen
+                $currentlyMasteredIds = UserQuestionProgress::getMasteredQuestions($user->id);
+                $toLearnIds = array_diff($toLearnIds, $currentlyMasteredIds);
 
                 // Nach Lernabschnitten sortiert, innerhalb zufällig
                 $sortedToLearnIds = [];
@@ -250,8 +249,9 @@ class PracticeController extends Controller
                 break;
                 
             case 'unsolved':
-                // Nur ungelöste Fragen zufällig sortieren
-                $unsolvedIds = Question::whereNotIn('id', $solved)->pluck('id')->toArray();
+                // Nur ungelöste Fragen (nicht gemeistert) zufällig sortieren
+                $masteredIds = UserQuestionProgress::getMasteredQuestions($user->id);
+                $unsolvedIds = Question::whereNotIn('id', $masteredIds)->pluck('id')->toArray();
                 
                 // Zufällige Sortierung der ungelösten Fragen
                 shuffle($unsolvedIds);
@@ -355,11 +355,9 @@ class PracticeController extends Controller
             'total_ids' => count($idsToShow)
         ]);
         
-        // Fortschritt sollte immer die tatsächlich gelösten Fragen vs Gesamtfragen zeigen
         $totalQuestions = Question::count();
-        $solvedCount = count($solved);
         $total = $totalQuestions;
-        $progress = $solvedCount;
+        $progress = UserQuestionProgress::countMastered($user->id);
         
         // Neue Fortschrittsbalken-Logik: Berücksichtigt auch 1x richtige Antworten
         $threshold = UserQuestionProgress::MASTERY_THRESHOLD;
@@ -459,9 +457,8 @@ class PracticeController extends Controller
                 return redirect()->route('practice.menu')->with('error', 'Die angeforderte Frage konnte nicht gefunden werden.');
             }
             
-            // Fortschritt sollte immer die tatsächlich gelösten Fragen vs Gesamtfragen zeigen
             $total = Question::count();
-            $progress = count($solved);
+            $progress = UserQuestionProgress::countMastered($user->id);
             
             // Neue Fortschrittsbalken-Logik: Berücksichtigt auch 1x richtige Antworten
             $threshold = UserQuestionProgress::MASTERY_THRESHOLD;
@@ -589,9 +586,16 @@ class PracticeController extends Controller
                 session(['practice_ids' => array_values($practiceIds)]);
             }
         } else {
-            // Frage noch nicht gemeistert (0 oder 1x richtig)
+            // Frage noch nicht gemeistert
             // KEINE Änderung an exam_failed_questions - das ist nur für Prüfungen!
-            // solved_questions NICHT entfernen - einmal gelöst bleibt gelöst
+
+            // Wenn die Frage vorher als gelöst markiert war, aber nicht mehr gemeistert ist,
+            // muss sie aus solved_questions entfernt werden (z.B. bei falscher SR-Wiederholung)
+            if (in_array($question->id, $solved)) {
+                $solved = array_diff($solved, [$question->id]);
+                $user->solved_questions = array_values($solved);
+                $user->save();
+            }
 
             // Gamification: Auch beim ersten richtigen Beantworten Punkte vergeben
             $gamificationService = new GamificationService();
