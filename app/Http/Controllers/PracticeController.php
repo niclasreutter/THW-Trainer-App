@@ -60,6 +60,16 @@ class PracticeController extends Controller
         $failedCount = count($failed);
         $unsolvedCount = $totalQuestions - $solvedCount;
 
+        // Sync: solved_questions mit tatsächlichem Mastery-Status abgleichen
+        $currentSolved = $this->ensureArray($user->solved_questions);
+        sort($currentSolved);
+        $sortedMastered = $masteredQuestionIds;
+        sort($sortedMastered);
+        if ($currentSolved !== $sortedMastered) {
+            $user->solved_questions = array_values($masteredQuestionIds);
+            $user->save();
+        }
+
         // Statistiken für jeden Lernabschnitt berechnen
         $sectionStats = [];
         for ($i = 1; $i <= 10; $i++) {
