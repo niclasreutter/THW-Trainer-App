@@ -392,11 +392,6 @@
     $total = $totalQuestions ?? \App\Models\Question::count();
     if (empty($total)) { $total = \App\Models\Question::count(); }
 
-    $progressArr = is_array($user->solved_questions ?? null)
-        ? $user->solved_questions
-        : (is_string($user->solved_questions) ? json_decode($user->solved_questions, true) ?? [] : []);
-    $progress = count($progressArr);
-
     $allExams = \App\Models\ExamStatistic::where('user_id', $user->id)
         ->orderBy('created_at', 'desc')
         ->get();
@@ -415,7 +410,10 @@
         }
         $maxProgressPoints = $total * $threshold;
         $progressPercent = $maxProgressPoints > 0 ? round(($totalProgressPoints / $maxProgressPoints) * 100) : 0;
-    } catch (\Exception $e) { $progressPercent = 0; $totalProgressPoints = 0; }
+    } catch (\Exception $e) { $progressPercent = 0; $totalProgressPoints = 0; $progressData = collect(); }
+
+    // Gemeisterte Fragen basierend auf tatsächlichem Mastery-Status
+    $progress = \App\Models\UserQuestionProgress::countMastered($user->id);
 
     $enrolledLehrgaenge = Auth::user()->enrolledLehrgaenge()->get();
 
