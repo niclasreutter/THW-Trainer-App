@@ -555,6 +555,14 @@ class PracticeController extends Controller
         $progress = UserQuestionProgress::getOrCreate($user->id, $question->id);
         $progress->updateProgress($isCorrect);
 
+        // Prüfungs-fehlgeschlagene Fragen: 1x richtig reicht für Mastery
+        // (Diese Fragen waren vorher bereits gemeistert, der User hat sie nur in der Prüfung falsch)
+        $failed = $this->ensureArray($user->exam_failed_questions);
+        if ($isCorrect && in_array($question->id, $failed)) {
+            $progress->consecutive_correct = UserQuestionProgress::MASTERY_THRESHOLD;
+            $progress->save();
+        }
+
         // Spaced Repetition: Nächste Wiederholung berechnen
         $srService = new SpacedRepetitionService();
         $srService->processAnswer($progress, $isCorrect);
@@ -564,7 +572,7 @@ class PracticeController extends Controller
         
         $gamificationResult = null;
         
-        // Nur wenn Frage gemeistert (2x richtig in Folge)
+        // Nur wenn Frage gemeistert (3x richtig in Folge, bzw. 1x bei Prüfungs-Fehlern)
         if ($progress->isMastered()) {
             // Zu solved_questions hinzufügen (falls noch nicht drin)
             if (!in_array($question->id, $solved)) {
