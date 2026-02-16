@@ -232,7 +232,7 @@
                             <div style="font-weight: 600; font-size: 0.8rem; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                                 {{ $member['user']->name }}
                             </div>
-                            <div style="font-size: 0.7rem; color: var(--text-muted);">{{ $member['theory_progress_percent'] }}%</div>
+                            <div style="font-size: 0.7rem; color: var(--text-muted);">{{ number_format($member['points']) }} Punkte</div>
                         </div>
                     </div>
                     @endforeach
