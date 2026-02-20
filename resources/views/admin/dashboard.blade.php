@@ -525,16 +525,17 @@
                 Fragen-Statistik
             </div>
             <div class="stat-row">
-                <span class="stat-row-label">Gesamt beantwortet</span>
-                <span class="stat-row-value">{{ number_format($totalAnsweredQuestions) }}</span>
-            </div>
-            <div class="stat-row">
                 <span class="stat-row-label">Richtig</span>
                 <span class="stat-row-value text-success">{{ number_format($totalCorrectAnswers) }}</span>
             </div>
             <div class="stat-row">
                 <span class="stat-row-label">Falsch</span>
                 <span class="stat-row-value text-error">{{ number_format($totalWrongAnswers) }}</span>
+            </div>
+            <hr style="border: none; border-top: 1px solid rgba(255, 255, 255, 0.08); margin: 0.5rem 0;">
+            <div class="stat-row">
+                <span class="stat-row-label">Gesamt beantwortet</span>
+                <span class="stat-row-value">{{ number_format($totalAnsweredQuestions) }}</span>
             </div>
             <div style="margin-top: 0.75rem; padding: 0.625rem; background: rgba(255, 255, 255, 0.04); border-radius: 0.5rem; display: flex; justify-content: space-between; align-items: center;">
                 <span style="font-weight: 600; font-size: 0.8rem; color: var(--text-primary);">Fehlerrate</span>
