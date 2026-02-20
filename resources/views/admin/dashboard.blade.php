@@ -525,17 +525,16 @@
                 Fragen-Statistik
             </div>
             <div class="stat-row">
+                <span class="stat-row-label">Gesamt beantwortet</span>
+                <span class="stat-row-value">{{ number_format($totalAnsweredQuestions) }}</span>
+            </div>
+            <div class="stat-row">
                 <span class="stat-row-label">Richtig</span>
                 <span class="stat-row-value text-success">{{ number_format($totalCorrectAnswers) }}</span>
             </div>
             <div class="stat-row">
                 <span class="stat-row-label">Falsch</span>
                 <span class="stat-row-value text-error">{{ number_format($totalWrongAnswers) }}</span>
-            </div>
-            <hr style="border: none; border-top: 1px solid rgba(255, 255, 255, 0.08); margin: 0.5rem 0;">
-            <div class="stat-row">
-                <span class="stat-row-label">Gesamt beantwortet</span>
-                <span class="stat-row-value">{{ number_format($totalAnsweredQuestions) }}</span>
             </div>
             <div style="margin-top: 0.75rem; padding: 0.625rem; background: rgba(255, 255, 255, 0.04); border-radius: 0.5rem; display: flex; justify-content: space-between; align-items: center;">
                 <span style="font-weight: 600; font-size: 0.8rem; color: var(--text-primary);">Fehlerrate</span>
@@ -717,6 +716,21 @@ document.addEventListener('DOMContentLoaded', function() {
         options: commonOptions
     });
 
+    // Lineare Regression für Trendlinie
+    function linearRegression(data) {
+        const n = data.length;
+        let sumX = 0, sumY = 0, sumXY = 0, sumXX = 0;
+        for (let i = 0; i < n; i++) {
+            sumX += i; sumY += data[i];
+            sumXY += i * data[i]; sumXX += i * i;
+        }
+        const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
+        const intercept = (sumY - slope * sumX) / n;
+        return data.map((_, i) => Math.max(0, Math.round(intercept + slope * i)));
+    }
+
+    const questionsTotal = {!! json_encode($chartData['questionsTotal']) !!};
+
     // Chart 2: Beantwortete Fragen
     new Chart(document.getElementById('questionsChart'), {
         type: 'line',
@@ -725,7 +739,7 @@ document.addEventListener('DOMContentLoaded', function() {
             datasets: [
                 {
                     label: 'Gesamt',
-                    data: {!! json_encode($chartData['questionsTotal']) !!},
+                    data: questionsTotal,
                     borderColor: '#6b7280',
                     backgroundColor: 'rgba(107, 114, 128, 0.1)',
                     borderWidth: 2,
@@ -755,6 +769,17 @@ document.addEventListener('DOMContentLoaded', function() {
                     tension: 0.4,
                     pointRadius: 1,
                     pointHoverRadius: 4
+                },
+                {
+                    label: 'Trend (Gesamt)',
+                    data: linearRegression(questionsTotal),
+                    borderColor: '#fbbf24',
+                    borderWidth: 2,
+                    borderDash: [6, 4],
+                    fill: false,
+                    tension: 0,
+                    pointRadius: 0,
+                    pointHoverRadius: 0
                 }
             ]
         },
