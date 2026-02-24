@@ -34,14 +34,13 @@ class ProfileController extends Controller
         
         // Validierung mit unique Check für Name (außer der aktuelle User)
         $request->validate([
-            'name' => ['required', 'string', 'max:255', 'unique:users,name,' . $user->id],
+            'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255'],
             'email_consent' => ['boolean'],
             'leaderboard_consent' => ['boolean'],
             'exam_date' => ['nullable', 'date', 'after_or_equal:today'],
         ], [
             'name.required' => 'Bitte gib einen Namen ein.',
-            'name.unique' => 'Dieser Name wird bereits verwendet. Bitte wähle einen anderen.',
             'name.max' => 'Der Name darf maximal 255 Zeichen lang sein.',
             'email.required' => 'Bitte gib eine E-Mail-Adresse ein.',
             'email.email' => 'Bitte gib eine gültige E-Mail-Adresse ein.',
