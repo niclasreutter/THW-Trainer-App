@@ -91,6 +91,27 @@
         </div>
     @endif
 
+    <!-- Fortschritt zurücksetzen -->
+    <div class="glass-error" style="padding: 1.5rem; margin-bottom: 2rem; border: 1px solid rgba(239, 68, 68, 0.25);">
+        <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 200px;">
+                <h3 style="font-size: 1rem; font-weight: 700; color: var(--error); margin-bottom: 0.5rem;">Fortschritt vollständig zurücksetzen</h3>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0;">
+                    Setzt <strong>alle</strong> Daten dieses Nutzers auf null zurück:
+                    Grundausbildung, Spaced Repetition, Lehrgänge und Prüfungsstatistiken.
+                    Diese Aktion kann nicht rückgängig gemacht werden.
+                </p>
+            </div>
+            <form method="POST" action="{{ route('admin.users.progress.reset', $user->id) }}"
+                  onsubmit="return confirmReset('{{ $user->name }}')">
+                @csrf
+                <button type="submit" class="btn-danger">
+                    Fortschritt zurücksetzen
+                </button>
+            </form>
+        </div>
+    </div>
+
     <form method="POST" action="{{ route('admin.users.progress.update', $user->id) }}">
         @csrf
         @method('PUT')
@@ -467,6 +488,13 @@
                 document.body.removeChild(feedback);
             }, 300);
         }, 2000);
+    }
+
+    function confirmReset(userName) {
+        if (!confirm('Fortschritt von "' + userName + '" wirklich komplett zurücksetzen?\n\nDies löscht:\n– Grundausbildung-Fortschritt\n– Spaced Repetition\n– Lehrgang-Fortschritt\n– Alle Prüfungsstatistiken\n\nDiese Aktion kann NICHT rückgängig gemacht werden!')) {
+            return false;
+        }
+        return confirm('Letzte Sicherheitsabfrage: Wirklich ALLES für "' + userName + '" auf null setzen?');
     }
 
     // Event listener for checkbox changes

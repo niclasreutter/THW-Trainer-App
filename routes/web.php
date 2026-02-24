@@ -216,6 +216,7 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix
     Route::get('users/{id}/progress', [\App\Http\Controllers\Admin\UserController::class, 'editProgress'])->name('users.progress.edit');
     Route::put('users/{id}/progress', [\App\Http\Controllers\Admin\UserController::class, 'updateProgress'])->name('users.progress.update');
     Route::post('users/{id}/progress/sr-pull-forward', [\App\Http\Controllers\Admin\UserController::class, 'pullForwardSpacedRepetition'])->name('users.progress.sr-pull-forward');
+    Route::post('users/{id}/progress/reset', [\App\Http\Controllers\Admin\UserController::class, 'resetProgress'])->name('users.progress.reset');
 
     // Newsletter Routes
     Route::get('newsletter/create', [\App\Http\Controllers\NewsletterController::class, 'create'])->name('newsletter.create');

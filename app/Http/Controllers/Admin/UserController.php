@@ -164,6 +164,35 @@ class UserController extends Controller
             ->with('success', $updated . ' Spaced-Repetition-Fragen auf heute vorgezogen');
     }
 
+    public function resetProgress($id)
+    {
+        $this->abortIfNotAdmin();
+        $user = User::findOrFail($id);
+
+        // Grundausbildung & Spaced Repetition
+        UserQuestionProgress::where('user_id', $user->id)->delete();
+
+        // Lehrgang-Fortschritt
+        \App\Models\UserLehrgangProgress::where('user_id', $user->id)->delete();
+
+        // Prüfungsstatistiken inkl. zugehöriger Fragenstatistiken
+        $examIds = \App\Models\ExamStatistic::where('user_id', $user->id)->pluck('id');
+        if ($examIds->isNotEmpty()) {
+            \App\Models\QuestionStatistic::whereIn('exam_statistic_id', $examIds)->delete();
+        }
+        \App\Models\QuestionStatistic::where('user_id', $user->id)->delete();
+        \App\Models\ExamStatistic::where('user_id', $user->id)->delete();
+
+        // User-Felder zurücksetzen
+        $user->solved_questions = [];
+        $user->exam_failed_questions = [];
+        $user->exam_passed_count = 0;
+        $user->save();
+
+        return redirect()->route('admin.users.progress.edit', $user->id)
+            ->with('success', 'Fortschritt von ' . $user->name . ' wurde vollständig zurückgesetzt.');
+    }
+
     private function abortIfNotAdmin()
     {
         if (!auth()->check() || auth()->user()->useroll !== 'admin') {
