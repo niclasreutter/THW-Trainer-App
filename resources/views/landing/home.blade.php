@@ -70,42 +70,36 @@
     <section class="py-10 lg:py-14 bg-white border-b border-slate-100" aria-labelledby="stats-heading">
         <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
             <h2 id="stats-heading" class="sr-only">Plattform-Statistiken</h2>
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-6 lg:gap-10"
-                 x-data="{ shown: false }"
-                 x-intersect.once="shown = true">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-6 lg:gap-10">
 
                 {{-- Registrierte Nutzer --}}
                 <div class="text-center">
-                    <div class="text-3xl lg:text-4xl font-extrabold text-thw-blue mb-1"
-                         x-text="shown ? '{{ number_format($stats['users'], 0, ',', '.') }}+' : '0'">
-                        0
+                    <div class="text-3xl lg:text-4xl font-extrabold text-thw-blue mb-1">
+                        {{ number_format($stats['users'], 0, ',', '.') }}+
                     </div>
                     <div class="text-sm lg:text-base text-slate-500 font-medium">Registrierte Nutzer</div>
                 </div>
 
                 {{-- Beantwortete Fragen --}}
                 <div class="text-center">
-                    <div class="text-3xl lg:text-4xl font-extrabold text-thw-blue mb-1"
-                         x-text="shown ? '{{ number_format($stats['questions_answered'], 0, ',', '.') }}+' : '0'">
-                        0
+                    <div class="text-3xl lg:text-4xl font-extrabold text-thw-blue mb-1">
+                        {{ number_format($stats['questions_answered'], 0, ',', '.') }}+
                     </div>
                     <div class="text-sm lg:text-base text-slate-500 font-medium">Fragen beantwortet</div>
                 </div>
 
                 {{-- Bestandene Prüfungen --}}
                 <div class="text-center">
-                    <div class="text-3xl lg:text-4xl font-extrabold text-thw-blue mb-1"
-                         x-text="shown ? '{{ number_format($stats['exams_passed'], 0, ',', '.') }}+' : '0'">
-                        0
+                    <div class="text-3xl lg:text-4xl font-extrabold text-thw-blue mb-1">
+                        {{ number_format($stats['exams_passed'], 0, ',', '.') }}+
                     </div>
                     <div class="text-sm lg:text-base text-slate-500 font-medium">Prüfungen bestanden</div>
                 </div>
 
                 {{-- Bestehensquote --}}
                 <div class="text-center">
-                    <div class="text-3xl lg:text-4xl font-extrabold text-thw-blue mb-1"
-                         x-text="shown ? '{{ $stats['pass_rate'] }}%' : '0%'">
-                        0%
+                    <div class="text-3xl lg:text-4xl font-extrabold text-thw-blue mb-1">
+                        {{ $stats['pass_rate'] }}%
                     </div>
                     <div class="text-sm lg:text-base text-slate-500 font-medium">Bestehensquote</div>
                 </div>
