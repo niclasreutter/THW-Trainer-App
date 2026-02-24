@@ -28,12 +28,14 @@ class LandingController extends Controller
             $passedExams = ExamStatistic::where('is_passed', true)->count();
             $users = User::count();
 
+            $questionsAnswered = QuestionStatistic::count()
+                + LehrgangQuestionStatistic::count()
+                + OrtsverbandLernpoolQuestionStatistic::count();
+
             $stats = [
-                'users' => $users,
-                'questions_answered' => QuestionStatistic::count()
-                    + LehrgangQuestionStatistic::count()
-                    + OrtsverbandLernpoolQuestionStatistic::count(),
-                'exams_passed' => $passedExams,
+                'users' => (int) floor($users / 50) * 50,
+                'questions_answered' => (int) floor($questionsAnswered / 1000) * 1000,
+                'exams_passed' => (int) floor($passedExams / 10) * 10,
                 'pass_rate' => $totalExams > 0
                     ? round(($passedExams / $totalExams) * 100)
                     : 0,
