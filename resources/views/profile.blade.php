@@ -145,6 +145,36 @@
                     </label>
                 </div>
 
+                <!-- Prüfungsdatum (privat, nur für den eigenen User) -->
+                <div class="consent-card glass-subtle">
+                    <div class="consent-content" style="width: 100%;">
+                        <span class="consent-title">Prüfungsdatum (optional)</span>
+                        <span class="consent-desc" style="margin-bottom: 0.75rem; display: block;">
+                            Setze dein Prüfungsdatum für eine personalisierte Lernempfehlung auf dem Dashboard.
+                        </span>
+                        <div style="display: flex; gap: 0.75rem; align-items: center;">
+                            <input type="date"
+                                   name="exam_date"
+                                   id="exam_date"
+                                   value="{{ old('exam_date', $user->exam_date?->format('Y-m-d')) }}"
+                                   min="{{ date('Y-m-d', strtotime('+1 day')) }}"
+                                   class="input-glass"
+                                   style="flex: 1;">
+                            @if($user->exam_date)
+                            <button type="button"
+                                    onclick="document.getElementById('exam_date').value = ''"
+                                    class="btn-ghost btn-sm"
+                                    style="flex-shrink: 0;">
+                                Zurücksetzen
+                            </button>
+                            @endif
+                        </div>
+                        @error('exam_date')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+
                 <button type="submit" class="btn-primary" style="width: 100%;">Profil speichern</button>
             </form>
         </div>

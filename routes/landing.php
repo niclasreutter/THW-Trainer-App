@@ -11,17 +11,11 @@
 |
 */
 
+use App\Http\Controllers\LandingController;
 use Illuminate\Support\Facades\Route;
 
-// Startseite
-// In Development: Prüfe Auth-Status für Redirect zum Dashboard
-// In Production: Landing-Page immer anzeigen (App ist auf Subdomain)
-Route::get('/', function () {
-    if (config('domains.development') && auth()->check()) {
-        return redirect()->route('dashboard');
-    }
-    return view('landing.home');
-})->name('landing.home');
+// Startseite mit Social Proof Statistiken
+Route::get('/', [LandingController::class, 'home'])->name('landing.home');
 
 // Rechtliche Seiten
 Route::get('/impressum', function () {

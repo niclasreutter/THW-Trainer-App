@@ -630,6 +630,39 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') dismi
             @endif
         </div>
 
+        <!-- Side: Prüfungs-Countdown (nur wenn Datum gesetzt und in der Zukunft) -->
+        @php
+            $daysLeft = ($user->exam_date && $user->exam_date->isFuture())
+                ? (int) now()->startOfDay()->diffInDays($user->exam_date, false)
+                : null;
+            $unmasteredCount = $total - $progress;
+            $dailyTarget = ($daysLeft && $daysLeft > 0 && $unmasteredCount > 0)
+                ? max(1, (int) ceil($unmasteredCount / $daysLeft))
+                : null;
+        @endphp
+        @if($daysLeft !== null && $daysLeft > 0)
+        <div class="glass-blue bento-side" style="text-align: center;">
+            <div style="margin-bottom: 0.5rem;">
+                <div class="text-gradient-gold" style="font-size: 2rem; font-weight: 800; line-height: 1.1;">{{ $daysLeft }}</div>
+                <div style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 0.25rem;">
+                    Tag{{ $daysLeft != 1 ? 'e' : '' }} bis zur Prüfung
+                </div>
+            </div>
+            @if($dailyTarget && $unmasteredCount > 0)
+            <div style="padding-top: 0.5rem; border-top: 1px solid rgba(255,255,255,0.08);">
+                <div style="font-size: 1.1rem; font-weight: 700; color: {{ $dailyTarget <= 10 ? '#22c55e' : ($dailyTarget <= 25 ? '#f59e0b' : '#ef4444') }};">
+                    {{ $dailyTarget }} Fragen/Tag
+                </div>
+                <div style="font-size: 0.7rem; color: var(--text-muted);">empfohlen</div>
+            </div>
+            @elseif($unmasteredCount <= 0)
+            <div style="padding-top: 0.5rem; border-top: 1px solid rgba(255,255,255,0.08);">
+                <div style="font-size: 0.85rem; font-weight: 600; color: #22c55e;">Alle Fragen gemeistert!</div>
+            </div>
+            @endif
+        </div>
+        @endif
+
         <!-- Side: Quick Stats -->
         <div class="glass-br bento-side">
             <div class="progress-indicator" style="margin-bottom: 0;">
