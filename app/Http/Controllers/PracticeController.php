@@ -226,6 +226,16 @@ class PracticeController extends Controller
                 $currentlyMasteredIds = UserQuestionProgress::getMasteredQuestions($user->id);
                 $toLearnIds = array_diff($toLearnIds, $currentlyMasteredIds);
 
+                // Fragen ausschließen, die SR bereits für die Zukunft geplant hat.
+                // Wenn next_review_at > now() ist die Frage bereits beantwortet worden und
+                // wird vom SR-Algorithmus erst später wieder eingeblendet – nicht heute nochmal zeigen.
+                $futureSrIds = UserQuestionProgress::where('user_id', $user->id)
+                    ->whereNotNull('next_review_at')
+                    ->where('next_review_at', '>', now())
+                    ->pluck('question_id')
+                    ->toArray();
+                $toLearnIds = array_diff($toLearnIds, $futureSrIds);
+
                 // Nach Lernabschnitten sortiert, innerhalb zufällig
                 $sortedToLearnIds = [];
                 for ($section = 1; $section <= 10; $section++) {
@@ -241,9 +251,11 @@ class PracticeController extends Controller
 
                 // 4. Restliche Fragen zufällig (bereits gemeisterte, keine SR fällig)
                 $remainingIds = array_diff($allQuestionIds, $alreadyQueued);
+                $remainingIds = array_diff($remainingIds, $futureSrIds);
                 $remainingIds = array_values($remainingIds);
                 shuffle($remainingIds);
                 $idsToShow = array_merge($idsToShow, $remainingIds);
+                $idsToShow = array_values(array_unique($idsToShow));
 
                 // Debug-Ausgabe
                 \Log::info('Practice Mode All Debug', [
@@ -252,6 +264,7 @@ class PracticeController extends Controller
                     'failed_count' => count($failedIds),
                     'unmastered_count' => count($unmasteredIds),
                     'never_answered_count' => count($neverAnsweredIds),
+                    'future_sr_excluded' => count($futureSrIds),
                     'total_to_learn' => count($toLearnIds),
                     'remaining_random' => count($remainingIds),
                     'total_ids_to_show' => count($idsToShow),
