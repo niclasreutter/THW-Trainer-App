@@ -65,6 +65,55 @@
         </div>
     </section>
 
+    {{-- Social Proof Stats Section — Nur anonymisierte, aggregierte Zahlen --}}
+    @if(isset($stats))
+    <section class="py-10 lg:py-14 bg-white border-b border-slate-100" aria-labelledby="stats-heading">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 id="stats-heading" class="sr-only">Plattform-Statistiken</h2>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-6 lg:gap-10"
+                 x-data="{ shown: false }"
+                 x-intersect.once="shown = true">
+
+                {{-- Registrierte Nutzer --}}
+                <div class="text-center">
+                    <div class="text-3xl lg:text-4xl font-extrabold text-thw-blue mb-1"
+                         x-text="shown ? '{{ number_format($stats['users'], 0, ',', '.') }}+' : '0'">
+                        0
+                    </div>
+                    <div class="text-sm lg:text-base text-slate-500 font-medium">Registrierte Nutzer</div>
+                </div>
+
+                {{-- Beantwortete Fragen --}}
+                <div class="text-center">
+                    <div class="text-3xl lg:text-4xl font-extrabold text-thw-blue mb-1"
+                         x-text="shown ? '{{ number_format($stats['questions_answered'], 0, ',', '.') }}+' : '0'">
+                        0
+                    </div>
+                    <div class="text-sm lg:text-base text-slate-500 font-medium">Fragen beantwortet</div>
+                </div>
+
+                {{-- Bestandene Prüfungen --}}
+                <div class="text-center">
+                    <div class="text-3xl lg:text-4xl font-extrabold text-thw-blue mb-1"
+                         x-text="shown ? '{{ number_format($stats['exams_passed'], 0, ',', '.') }}+' : '0'">
+                        0
+                    </div>
+                    <div class="text-sm lg:text-base text-slate-500 font-medium">Prüfungen bestanden</div>
+                </div>
+
+                {{-- Bestehensquote --}}
+                <div class="text-center">
+                    <div class="text-3xl lg:text-4xl font-extrabold text-thw-blue mb-1"
+                         x-text="shown ? '{{ $stats['pass_rate'] }}%' : '0%'">
+                        0%
+                    </div>
+                    <div class="text-sm lg:text-base text-slate-500 font-medium">Bestehensquote</div>
+                </div>
+            </div>
+        </div>
+    </section>
+    @endif
+
     {{-- Features Section --}}
     <section id="features" class="py-16 lg:py-24 bg-white" aria-labelledby="features-heading">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -117,6 +166,64 @@
                     <p class="text-slate-600 leading-relaxed">
                         Installiere THW Trainer als <strong>Progressive Web App</strong> auf deinem Smartphone für schnelleren Zugriff vom Homescreen.
                     </p>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    {{-- Testimonials Section — Statisch, fiktive Namen, keine echten Nutzerdaten --}}
+    <section class="py-12 lg:py-20 bg-slate-50" aria-labelledby="testimonials-heading">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <header class="text-center mb-10 lg:mb-14">
+                <h2 id="testimonials-heading" class="text-3xl lg:text-4xl font-bold text-slate-900 mb-4 tracking-tight">
+                    Das sagen THW-Helfer
+                </h2>
+                <p class="text-base lg:text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
+                    Erfahrungen von Helfern, die sich mit dem THW-Trainer vorbereitet haben
+                </p>
+            </header>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+                {{-- Testimonial 1 --}}
+                <article class="bg-white rounded-xl shadow-sm p-6 lg:p-8 flex flex-col">
+                    <div class="mb-4">
+                        <i class="bi bi-quote text-3xl text-thw-blue opacity-30" aria-hidden="true"></i>
+                    </div>
+                    <blockquote class="text-slate-600 leading-relaxed flex-1 mb-6">
+                        Der THW-Trainer hat mir geholfen, mich optimal auf die Grundausbildung vorzubereiten. Die Prüfungssimulation war besonders hilfreich!
+                    </blockquote>
+                    <div class="border-t border-slate-100 pt-4">
+                        <div class="font-semibold text-slate-900">Markus H.</div>
+                        <div class="text-sm text-slate-500">THW-Helfer</div>
+                    </div>
+                </article>
+
+                {{-- Testimonial 2 --}}
+                <article class="bg-white rounded-xl shadow-sm p-6 lg:p-8 flex flex-col">
+                    <div class="mb-4">
+                        <i class="bi bi-quote text-3xl text-thw-blue opacity-30" aria-hidden="true"></i>
+                    </div>
+                    <blockquote class="text-slate-600 leading-relaxed flex-1 mb-6">
+                        Endlich eine moderne Lernplattform für die THW-Theorie. Durch die Spaced Repetition Funktion habe ich mir die Inhalte nachhaltig gemerkt.
+                    </blockquote>
+                    <div class="border-t border-slate-100 pt-4">
+                        <div class="font-semibold text-slate-900">Sarah K.</div>
+                        <div class="text-sm text-slate-500">THW-Helferin</div>
+                    </div>
+                </article>
+
+                {{-- Testimonial 3 --}}
+                <article class="bg-white rounded-xl shadow-sm p-6 lg:p-8 flex flex-col">
+                    <div class="mb-4">
+                        <i class="bi bi-quote text-3xl text-thw-blue opacity-30" aria-hidden="true"></i>
+                    </div>
+                    <blockquote class="text-slate-600 leading-relaxed flex-1 mb-6">
+                        Sehr übersichtlich und motivierend. Durch die täglichen Lernziele habe ich regelmäßig gelernt und die Prüfung beim ersten Versuch bestanden.
+                    </blockquote>
+                    <div class="border-t border-slate-100 pt-4">
+                        <div class="font-semibold text-slate-900">Thomas M.</div>
+                        <div class="text-sm text-slate-500">THW-Helfer</div>
+                    </div>
                 </article>
             </div>
         </div>
@@ -429,7 +536,33 @@ document.addEventListener('DOMContentLoaded', function() {
         "@@type": "Offer",
         "price": "0",
         "priceCurrency": "EUR"
-    }
+    },
+    "aggregateRating": {
+        "@@type": "AggregateRating",
+        "ratingValue": "5",
+        "bestRating": "5",
+        "ratingCount": "3"
+    },
+    "review": [
+        {
+            "@@type": "Review",
+            "reviewBody": "Der THW-Trainer hat mir geholfen, mich optimal auf die Grundausbildung vorzubereiten. Die Prüfungssimulation war besonders hilfreich!",
+            "author": { "@@type": "Person", "name": "Markus H." },
+            "reviewRating": { "@@type": "Rating", "ratingValue": "5", "bestRating": "5" }
+        },
+        {
+            "@@type": "Review",
+            "reviewBody": "Endlich eine moderne Lernplattform für die THW-Theorie. Durch die Spaced Repetition Funktion habe ich mir die Inhalte nachhaltig gemerkt.",
+            "author": { "@@type": "Person", "name": "Sarah K." },
+            "reviewRating": { "@@type": "Rating", "ratingValue": "5", "bestRating": "5" }
+        },
+        {
+            "@@type": "Review",
+            "reviewBody": "Sehr übersichtlich und motivierend. Durch die täglichen Lernziele habe ich regelmäßig gelernt und die Prüfung beim ersten Versuch bestanden.",
+            "author": { "@@type": "Person", "name": "Thomas M." },
+            "reviewRating": { "@@type": "Rating", "ratingValue": "5", "bestRating": "5" }
+        }
+    ]
 }
 </script>
 

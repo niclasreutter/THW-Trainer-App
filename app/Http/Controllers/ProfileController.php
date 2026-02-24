@@ -38,6 +38,7 @@ class ProfileController extends Controller
             'email' => ['required', 'string', 'email', 'max:255'],
             'email_consent' => ['boolean'],
             'leaderboard_consent' => ['boolean'],
+            'exam_date' => ['nullable', 'date', 'after_or_equal:today'],
         ], [
             'name.required' => 'Bitte gib einen Namen ein.',
             'name.unique' => 'Dieser Name wird bereits verwendet. Bitte wähle einen anderen.',
@@ -69,7 +70,10 @@ class ProfileController extends Controller
         $leaderboardConsent = $request->has('leaderboard_consent');
         $user->leaderboard_consent = $leaderboardConsent;
         $user->leaderboard_consent_at = $leaderboardConsent ? now() : null;
-        
+
+        // Prüfungsdatum verarbeiten (privat, nur für den eigenen User sichtbar)
+        $user->exam_date = $request->input('exam_date') ?: null;
+
         // Prüfe ob E-Mail geändert wurde
         if ($originalEmail !== $newEmail) {
             \Log::info('Email change detected');

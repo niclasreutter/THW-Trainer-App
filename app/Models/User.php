@@ -29,6 +29,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'leaderboard_consent_at',
         'leaderboard_banner_dismissed',
         'onboarding_completed',
+        'exam_date',
     ];
 
     /**
@@ -73,6 +74,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'exam_failed_questions' => 'array',
             'bookmarked_questions' => 'array',
             'achievements' => 'array',
+            'exam_date' => 'date',
         ];
     }
     
