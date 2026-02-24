@@ -630,15 +630,49 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') dismi
             @endif
         </div>
 
-        <!-- Side: Prüfungs-Countdown (nur wenn Datum gesetzt und in der Zukunft) -->
+        <!-- Side: Prüfungs-Countdown (immer anzeigen) -->
         @php
             $daysLeft = ($user->exam_date && $user->exam_date->isFuture())
                 ? (int) now()->startOfDay()->diffInDays($user->exam_date, false)
                 : null;
             $unmasteredCount = $total - $progress;
-            $dailyTarget = ($daysLeft && $daysLeft > 0 && $unmasteredCount > 0)
-                ? max(1, (int) ceil($unmasteredCount / $daysLeft))
-                : null;
+
+            // Realistischer Tages-Zielwert mit SR + Fehlerquote + Prüfungspuffer
+            if ($daysLeft && $daysLeft > 0 && $unmasteredCount > 0) {
+                // Letzte 7 Tage für Prüfungssimulationen reservieren
+                $examBuffer = min(7, max(0, $daysLeft - 1));
+                $effectiveDays = max(1, $daysLeft - $examBuffer);
+
+                // Fehlerquote aus tatsächlichen Antworten ermitteln
+                $statCount = \App\Models\QuestionStatistic::where('user_id', $user->id)->count();
+                $statCorrect = \App\Models\QuestionStatistic::where('user_id', $user->id)->where('is_correct', true)->count();
+                // Default 65% Trefferquote wenn noch keine/wenige Daten vorhanden
+                $accuracy = ($statCount >= 20) ? ($statCorrect / $statCount) : 0.65;
+                // Fehlerquote als Multiplikator: bei 65% Trefferquote ≈ 1.54x mehr Interaktionen nötig
+                $errorFactor = 1 / max(0.4, $accuracy);
+
+                // Verbleibende Interaktionen pro bereits angefangener Frage berechnen
+                $remainingInteractions = 0;
+                $seenQuestionIds = $progressData->pluck('question_id');
+                foreach ($progressData as $prog) {
+                    if ($prog->consecutive_correct < $threshold) {
+                        $remaining = $threshold - $prog->consecutive_correct;
+                        $remainingInteractions += $remaining * $errorFactor;
+                    }
+                }
+                // Noch nie gesehene Fragen: volle 3 richtige Antworten nötig
+                $unseenCount = $total - $seenQuestionIds->count();
+                $remainingInteractions += $unseenCount * $threshold * $errorFactor;
+
+                $dailyTarget = max(1, (int) ceil($remainingInteractions / $effectiveDays));
+            } else {
+                $dailyTarget = null;
+            }
+
+            // Heute bereits beantwortete Fragen
+            $todayAnswered = \App\Models\QuestionStatistic::where('user_id', $user->id)
+                ->whereDate('created_at', today())
+                ->count();
         @endphp
         @if($daysLeft !== null && $daysLeft > 0)
         <div class="glass-blue bento-side" style="text-align: center;">
@@ -650,10 +684,22 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') dismi
             </div>
             @if($dailyTarget && $unmasteredCount > 0)
             <div style="padding-top: 0.5rem; border-top: 1px solid rgba(255,255,255,0.08);">
-                <div style="font-size: 1.1rem; font-weight: 700; color: {{ $dailyTarget <= 10 ? '#22c55e' : ($dailyTarget <= 25 ? '#f59e0b' : '#ef4444') }};">
+                @php
+                    $todayPct = min(100, $dailyTarget > 0 ? round(($todayAnswered / $dailyTarget) * 100) : 0);
+                    $todayDone = $todayAnswered >= $dailyTarget;
+                @endphp
+                <div style="font-size: 1.1rem; font-weight: 700; color: {{ $todayDone ? '#22c55e' : ($dailyTarget <= 15 ? '#22c55e' : ($dailyTarget <= 30 ? '#f59e0b' : '#ef4444')) }};">
                     {{ $dailyTarget }} Fragen/Tag
                 </div>
-                <div style="font-size: 0.7rem; color: var(--text-muted);">empfohlen</div>
+                <div style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 0.4rem;">inkl. Wiederholungen</div>
+                {{-- Heute-Fortschritt --}}
+                <div style="background: rgba(255,255,255,0.07); border-radius: 4px; height: 4px; overflow: hidden; margin-bottom: 0.3rem;">
+                    <div style="height: 100%; width: {{ $todayPct }}%; background: {{ $todayDone ? '#22c55e' : 'var(--gold-start)' }}; border-radius: 4px; transition: width 0.4s ease;"></div>
+                </div>
+                <div style="font-size: 0.68rem; color: {{ $todayDone ? '#22c55e' : 'var(--text-muted)' }}; font-weight: {{ $todayDone ? '600' : '400' }};">
+                    {{ $todayAnswered }}/{{ $dailyTarget }} heute
+                    @if($todayDone) &check; geschafft! @endif
+                </div>
             </div>
             @elseif($unmasteredCount <= 0)
             <div style="padding-top: 0.5rem; border-top: 1px solid rgba(255,255,255,0.08);">
