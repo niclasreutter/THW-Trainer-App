@@ -183,10 +183,23 @@ class UserController extends Controller
         \App\Models\QuestionStatistic::where('user_id', $user->id)->delete();
         \App\Models\ExamStatistic::where('user_id', $user->id)->delete();
 
+        // Gamification-Notifications löschen
+        \App\Models\Notification::where('user_id', $user->id)->delete();
+
         // User-Felder zurücksetzen
-        $user->solved_questions = [];
-        $user->exam_failed_questions = [];
-        $user->exam_passed_count = 0;
+        $user->solved_questions       = [];
+        $user->exam_failed_questions  = [];
+        $user->exam_passed_count      = 0;
+        // Gamification
+        $user->points                 = 0;
+        $user->weekly_points          = 0;
+        $user->weekly_reset_at        = null;
+        $user->level                  = 1;
+        $user->streak_days            = 0;
+        $user->last_activity_date     = null;
+        $user->achievements           = [];
+        $user->daily_questions_solved = 0;
+        $user->daily_questions_date   = null;
         $user->save();
 
         return redirect()->route('admin.users.progress.edit', $user->id)
