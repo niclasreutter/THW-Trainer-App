@@ -225,9 +225,7 @@ class UserController extends Controller
             ->toArray();
         
         $users = User::all()->map(function ($user) use ($activeSessions) {
-            // Prüfe ob User in aktiven Sessions ist oder vor weniger als 30 Minuten aktiv war
-            $user->is_online = in_array($user->id, $activeSessions) || 
-                               $user->updated_at->diffInMinutes(now()) < 30;
+            $user->is_online = in_array($user->id, $activeSessions);
             return $user;
         });
         
