@@ -661,6 +661,20 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') dismi
             </div>
             @endif
         </div>
+        @else
+        {{-- No exam date set (or date is in the past): show CTA card --}}
+        <a href="{{ route('profile') }}#exam_date" class="glass-blue bento-side" style="text-align: center; text-decoration: none; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 0.5rem; cursor: pointer;">
+            <div>
+                <i class="bi bi-calendar-event" style="font-size: 1.5rem; color: var(--gold-start);"></i>
+            </div>
+            <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-primary); line-height: 1.3;">Prüfungsdatum setzen</div>
+            <div style="font-size: 0.7rem; color: var(--text-muted); line-height: 1.4;">
+                Trage dein Datum ein und erhalte eine personalisierte Lernempfehlung.
+            </div>
+            <div style="margin-top: 0.25rem; font-size: 0.7rem; font-weight: 600; color: var(--gold-start); text-transform: uppercase; letter-spacing: 0.5px;">
+                Jetzt eintragen
+            </div>
+        </a>
         @endif
 
         <!-- Side: Quick Stats -->
