@@ -668,6 +668,11 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') dismi
             } else {
                 $dailyTarget = null;
             }
+
+            // Heute bereits beantwortete Fragen
+            $todayAnswered = \App\Models\QuestionStatistic::where('user_id', $user->id)
+                ->whereDate('created_at', today())
+                ->count();
         @endphp
         @if($daysLeft !== null && $daysLeft > 0)
         <div class="glass-blue bento-side" style="text-align: center;">
@@ -679,10 +684,22 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') dismi
             </div>
             @if($dailyTarget && $unmasteredCount > 0)
             <div style="padding-top: 0.5rem; border-top: 1px solid rgba(255,255,255,0.08);">
-                <div style="font-size: 1.1rem; font-weight: 700; color: {{ $dailyTarget <= 15 ? '#22c55e' : ($dailyTarget <= 30 ? '#f59e0b' : '#ef4444') }};">
+                @php
+                    $todayPct = min(100, $dailyTarget > 0 ? round(($todayAnswered / $dailyTarget) * 100) : 0);
+                    $todayDone = $todayAnswered >= $dailyTarget;
+                @endphp
+                <div style="font-size: 1.1rem; font-weight: 700; color: {{ $todayDone ? '#22c55e' : ($dailyTarget <= 15 ? '#22c55e' : ($dailyTarget <= 30 ? '#f59e0b' : '#ef4444')) }};">
                     {{ $dailyTarget }} Fragen/Tag
                 </div>
-                <div style="font-size: 0.7rem; color: var(--text-muted);">inkl. Wiederholungen</div>
+                <div style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 0.4rem;">inkl. Wiederholungen</div>
+                {{-- Heute-Fortschritt --}}
+                <div style="background: rgba(255,255,255,0.07); border-radius: 4px; height: 4px; overflow: hidden; margin-bottom: 0.3rem;">
+                    <div style="height: 100%; width: {{ $todayPct }}%; background: {{ $todayDone ? '#22c55e' : 'var(--gold-start)' }}; border-radius: 4px; transition: width 0.4s ease;"></div>
+                </div>
+                <div style="font-size: 0.68rem; color: {{ $todayDone ? '#22c55e' : 'var(--text-muted)' }}; font-weight: {{ $todayDone ? '600' : '400' }};">
+                    {{ $todayAnswered }}/{{ $dailyTarget }} heute
+                    @if($todayDone) &check; geschafft! @endif
+                </div>
             </div>
             @elseif($unmasteredCount <= 0)
             <div style="padding-top: 0.5rem; border-top: 1px solid rgba(255,255,255,0.08);">
