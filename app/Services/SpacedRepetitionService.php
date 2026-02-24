@@ -9,16 +9,45 @@ use Carbon\Carbon;
 class SpacedRepetitionService
 {
     /**
-     * SM-2 Algorithmus: Berechnet das nächste Wiederholungsdatum
+     * Globale Schwierigkeit einer Frage anhand der Fehlerquote aller Nutzer.
+     * Gleiche Logik wie PracticeController::getQuestionDifficulty().
+     */
+    private function getGlobalDifficulty(int $questionId): string
+    {
+        $total = \App\Models\QuestionStatistic::where('question_id', $questionId)->count();
+
+        if ($total < 5) {
+            return 'unknown';
+        }
+
+        $correct = \App\Models\QuestionStatistic::where('question_id', $questionId)
+            ->where('is_correct', true)->count();
+        $errorRate = (($total - $correct) / $total) * 100;
+
+        if ($errorRate >= 60) return 'hard';
+        if ($errorRate >= 30) return 'medium';
+        return 'easy';
+    }
+
+    /**
+     * SM-2 Algorithmus: Berechnet das nächste Wiederholungsdatum.
      *
-     * quality: 0-5 (0=komplett falsch, 5=perfekt)
-     * Für unsere Zwecke: falsch=1, richtig=4, gemeistert=5
+     * Richtig: 1 Tag → 3 Tage → exponentiell → 3x = gemeistert (next_review_at = null)
+     * Falsch:  Intervall +1 Tag pro Fehler, Cap je nach globaler Schwierigkeit:
+     *          hard=7 Tage, medium=10 Tage, easy/unknown=14 Tage
      */
     public function calculateNextReview(UserQuestionProgress $progress, bool $isCorrect): void
     {
         $quality = $isCorrect ? ($progress->isMastered() ? 5 : 4) : 1;
+        $difficulty = $this->getGlobalDifficulty($progress->question_id);
 
-        $ef = $progress->easiness_factor ?? 2.5;
+        // EF: initial je nach globaler Schwierigkeit setzen
+        $ef = $progress->easiness_factor ?? match($difficulty) {
+            'hard'   => 2.0,
+            'medium' => 2.3,
+            'easy'   => 2.8,
+            default  => 2.5,
+        };
         $interval = $progress->review_interval ?? 0;
         $repetition = $progress->repetition_count ?? 0;
 
@@ -33,9 +62,14 @@ class SpacedRepetitionService
             }
             $repetition++;
         } else {
-            // Falsch beantwortet - zurücksetzen
+            // Falsch beantwortet: Intervall graduell erhöhen, Cap je nach Schwierigkeit
+            $maxWrongInterval = match($difficulty) {
+                'hard'   => 7,
+                'medium' => 10,
+                default  => 14,
+            };
             $repetition = 0;
-            $interval = 1; // Morgen wieder
+            $interval = min(max(1, $interval + 1), $maxWrongInterval);
         }
 
         // EF aktualisieren (SM-2 Formel)
@@ -48,7 +82,14 @@ class SpacedRepetitionService
         $progress->easiness_factor = round($ef, 1);
         $progress->review_interval = $interval;
         $progress->repetition_count = $repetition;
-        $progress->next_review_at = Carbon::today()->addDays($interval);
+
+        // Gemeisterte Fragen aus SR entfernen – keine weiteren E-Mails
+        if ($progress->isMastered()) {
+            $progress->next_review_at = null;
+        } else {
+            $progress->next_review_at = Carbon::today()->addDays($interval);
+        }
+
         $progress->save();
     }
 
