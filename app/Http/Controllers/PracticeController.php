@@ -566,6 +566,7 @@ class PracticeController extends Controller
         
         // NEU: Fortschritt in user_question_progress tracken
         $progress = UserQuestionProgress::getOrCreate($user->id, $question->id);
+        $wasPreviouslyMastered = $progress->isMastered();
         $progress->updateProgress($isCorrect);
 
         // Prüfungs-fehlgeschlagene Fragen: 1x richtig reicht für Mastery
@@ -574,6 +575,14 @@ class PracticeController extends Controller
         if ($isCorrect && in_array($question->id, $failed)) {
             $progress->consecutive_correct = UserQuestionProgress::MASTERY_THRESHOLD;
             $progress->save();
+        }
+
+        // Bereits gemeisterte Fragen bei falscher Antwort wie Prüfungs-Fehler behandeln:
+        // 1x richtig reicht um wieder als gemeistert zu gelten (auch am gleichen Tag möglich)
+        if (!$isCorrect && $wasPreviouslyMastered && !in_array($question->id, $failed)) {
+            $failed[] = $question->id;
+            $user->exam_failed_questions = array_values(array_unique($failed));
+            $user->save();
         }
 
         // Spaced Repetition: Nächste Wiederholung berechnen
