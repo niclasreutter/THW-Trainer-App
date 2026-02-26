@@ -12,7 +12,6 @@ class GamificationService
     const POINTS_PER_EXAM_PASS = 100;
     const STREAK_BONUS_MULTIPLIER = 2;
     const DAILY_BONUS = 50;
-    const DAILY_GOAL_BONUS = 25;
     const MAX_STREAK_FREEZES_PER_WEEK = 2;
 
     // Level-System (Punkte benötigt für nächstes Level)
@@ -247,13 +246,11 @@ class GamificationService
         if (!$isCorrect) {
             // Bei falscher Antwort: Nur Aktivität aktualisieren, keine Punkte
             $this->updateUserActivity($user);
-            $this->updateDailyGoalProgress($user);
             return null;
         }
 
         $this->updateStreak($user);
         $this->updateDailyQuestions($user);
-        $this->updateDailyGoalProgress($user);
 
         $basePoints = self::POINTS_PER_QUESTION;
 
@@ -684,71 +681,6 @@ class GamificationService
             'used' => $used,
             'remaining' => max(0, $available - $used),
             'recent_log' => array_values($recentLog),
-        ];
-    }
-
-    /**
-     * Aktualisiert den Lernplan-Fortschritt (Tagesziel).
-     */
-    public function updateDailyGoalProgress(User $user): ?array
-    {
-        if (!$user->daily_goal) {
-            return null;
-        }
-
-        $today = Carbon::today();
-
-        if (!$user->daily_goal_date || Carbon::parse($user->daily_goal_date)->lt($today)) {
-            $user->daily_goal_progress = 1;
-            $user->daily_goal_date = $today;
-        } else {
-            $user->daily_goal_progress += 1;
-        }
-
-        $result = null;
-
-        // Tagesziel gerade erreicht
-        if ($user->daily_goal_progress == $user->daily_goal) {
-            $user->goals_completed_count = ($user->goals_completed_count ?? 0) + 1;
-
-            $this->awardPoints($user, self::DAILY_GOAL_BONUS, 'Tagesziel erreicht');
-
-            $this->createNotification($user, [
-                'type' => 'daily_goal',
-                'title' => 'Tagesziel erreicht!',
-                'message' => "Du hast dein Tagesziel von {$user->daily_goal} Fragen erreicht.",
-                'icon' => 'bi-check-circle-fill',
-            ]);
-
-            $result = [
-                'goal_reached' => true,
-                'goal' => $user->daily_goal,
-                'bonus_points' => self::DAILY_GOAL_BONUS,
-            ];
-        }
-
-        $user->save();
-        return $result;
-    }
-
-    /**
-     * Gibt den Lernplan-Status des Users zurück.
-     */
-    public function getDailyGoalStatus(User $user): array
-    {
-        $today = Carbon::today();
-        $progress = 0;
-
-        if ($user->daily_goal_date && Carbon::parse($user->daily_goal_date)->eq($today)) {
-            $progress = $user->daily_goal_progress ?? 0;
-        }
-
-        return [
-            'daily_goal' => $user->daily_goal,
-            'progress' => $progress,
-            'completed' => $user->daily_goal ? $progress >= $user->daily_goal : false,
-            'weekly_goal_days' => $user->weekly_goal_days,
-            'goals_completed_count' => $user->goals_completed_count ?? 0,
         ];
     }
 
