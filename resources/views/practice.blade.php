@@ -842,14 +842,14 @@
 
             if ($showGamification) {
                 $celebrations = [
-                    ['emoji' => '🥳', 'text' => 'Grandios!'],
-                    ['emoji' => '🎉', 'text' => 'Fantastisch!'],
-                    ['emoji' => '⭐', 'text' => 'Super!'],
-                    ['emoji' => '💪', 'text' => 'Stark!'],
-                    ['emoji' => '🔥', 'text' => 'Mega!'],
-                    ['emoji' => '✨', 'text' => 'Klasse!'],
-                    ['emoji' => '🎯', 'text' => 'Volltreffer!'],
-                    ['emoji' => '🚀', 'text' => 'Genial!'],
+                    ['icon' => 'bi-star-fill', 'text' => 'Grandios!'],
+                    ['icon' => 'bi-check-circle-fill', 'text' => 'Fantastisch!'],
+                    ['icon' => 'bi-star', 'text' => 'Super!'],
+                    ['icon' => 'bi-lightning-fill', 'text' => 'Stark!'],
+                    ['icon' => 'bi-fire', 'text' => 'Mega!'],
+                    ['icon' => 'bi-stars', 'text' => 'Klasse!'],
+                    ['icon' => 'bi-bullseye', 'text' => 'Volltreffer!'],
+                    ['icon' => 'bi-rocket-takeoff', 'text' => 'Genial!'],
                 ];
 
                 $celebrationIndex = $question->id % count($celebrations);
@@ -880,7 +880,7 @@
                 <div class="glass-success p-5">
                     @if($showGamification)
                         <div class="flex items-center gap-3 mb-3">
-                            <span class="text-4xl">{{ $celebration['emoji'] }}</span>
+                            <span class="text-4xl" style="color: var(--gold-start);"><i class="bi {{ $celebration['icon'] }}"></i></span>
                             <div>
                                 <div class="text-xl font-bold text-dark-primary">{{ $celebration['text'] }}</div>
                                 <div class="text-lg text-gold font-semibold">+{{ $pointsAwarded }} Punkte</div>
@@ -889,7 +889,7 @@
                         <div class="text-sm text-dark-secondary text-center">{{ $reasonText }}</div>
                     @else
                         <div class="flex items-center gap-3 mb-3">
-                            <span class="text-4xl">🎉</span>
+                            <span class="text-4xl" style="color: #22c55e;"><i class="bi bi-check-circle-fill"></i></span>
                             <div>
                                 <div class="text-xl font-bold text-dark-primary">Richtig!</div>
                                 @if($gamificationResult && isset($gamificationResult['points_awarded']))
@@ -1058,7 +1058,7 @@
     @else
         <!-- No more questions -->
         <div class="glass p-8 text-center">
-            <div class="text-4xl mb-4">🎉</div>
+            <div class="text-4xl mb-4" style="color: #22c55e;"><i class="bi bi-check-circle-fill"></i></div>
             <h2 class="text-xl font-bold text-dark-primary mb-2">Geschafft!</h2>
             <p class="text-dark-secondary mb-6">Du hast alle Fragen in diesem Modus bearbeitet!</p>
 

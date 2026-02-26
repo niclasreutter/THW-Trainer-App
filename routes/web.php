@@ -12,6 +12,7 @@
 */
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\LernplanController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 
@@ -58,7 +59,33 @@ Route::get('/dashboard', function () {
     $srService = new \App\Services\SpacedRepetitionService();
     $spacedRepetitionDue = $srService->getDueCount($user->id);
 
-    return view('dashboard', compact('user', 'recentExams', 'totalQuestions', 'spacedRepetitionDue'));
+    // Wöchentliche Aktivität (letzte 7 Tage)
+    $weeklyActivity = \DB::table('question_statistics')
+        ->where('user_id', $user->id)
+        ->where('created_at', '>=', now()->subDays(7))
+        ->selectRaw('DATE(created_at) as date, COUNT(*) as count, SUM(is_correct) as correct')
+        ->groupBy('date')
+        ->orderBy('date')
+        ->get();
+
+    // Stärken/Schwächen pro Lernabschnitt
+    $sectionStats = \DB::table('question_statistics')
+        ->join('questions', 'question_statistics.question_id', '=', 'questions.id')
+        ->where('question_statistics.user_id', $user->id)
+        ->selectRaw('questions.lernabschnitt, COUNT(*) as total, SUM(question_statistics.is_correct) as correct')
+        ->groupBy('questions.lernabschnitt')
+        ->orderBy('questions.lernabschnitt')
+        ->get();
+
+    // Lernplan & Streak Freeze Status
+    $gamificationService = new \App\Services\GamificationService();
+    $dailyGoalStatus = $gamificationService->getDailyGoalStatus($user);
+    $streakFreezeStatus = $gamificationService->getStreakFreezeStatus($user);
+
+    return view('dashboard', compact(
+        'user', 'recentExams', 'totalQuestions', 'spacedRepetitionDue',
+        'weeklyActivity', 'sectionStats', 'dailyGoalStatus', 'streakFreezeStatus'
+    ));
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::post('/dashboard/dismiss-email-consent-banner', function () {
@@ -70,6 +97,10 @@ Route::post('/dashboard/dismiss-email-consent-banner', function () {
 Route::get('/onboarding', [\App\Http\Controllers\OnboardingController::class, 'index'])->middleware(['auth', 'verified'])->name('onboarding');
 Route::post('/onboarding/complete', [\App\Http\Controllers\OnboardingController::class, 'complete'])->middleware(['auth', 'verified'])->name('onboarding.complete');
 Route::post('/onboarding/skip', [\App\Http\Controllers\OnboardingController::class, 'skip'])->middleware(['auth', 'verified'])->name('onboarding.skip');
+
+Route::middleware('auth')->group(function () {
+    Route::patch('/lernplan', [LernplanController::class, 'update'])->name('lernplan.update');
+});
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', function() {

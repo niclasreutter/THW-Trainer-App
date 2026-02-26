@@ -268,6 +268,107 @@
             </div>
         </div>
 
+        <!-- Lernplan -->
+        <div class="glass bento-lernplan" id="lernplan" x-data="{
+            dailyGoal: {{ $user->daily_goal ?? 'null' }},
+            weeklyGoalDays: {{ $user->weekly_goal_days ?? 'null' }},
+            saving: false,
+            saved: false,
+            saveLernplan() {
+                this.saving = true;
+                this.saved = false;
+                fetch('{{ route('lernplan.update') }}', {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').getAttribute('content'),
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        daily_goal: this.dailyGoal || null,
+                        weekly_goal_days: this.weeklyGoalDays || null
+                    })
+                })
+                .then(r => r.json())
+                .then(() => { this.saving = false; this.saved = true; setTimeout(() => this.saved = false, 3000); })
+                .catch(() => { this.saving = false; });
+            }
+        }">
+            <div class="section-header" style="margin-bottom: 1rem; padding-left: 0.75rem;">
+                <h2 class="section-title" style="font-size: 1rem;">Lernplan</h2>
+            </div>
+
+            <div class="form-group">
+                <label class="label-glass">Tagesziel (Fragen pro Tag)</label>
+                <select x-model="dailyGoal" class="input-glass" style="width: 100%;">
+                    <option :selected="!dailyGoal" value="">Kein Tagesziel</option>
+                    <option value="5">5 Fragen</option>
+                    <option value="10">10 Fragen</option>
+                    <option value="15">15 Fragen</option>
+                    <option value="20">20 Fragen</option>
+                    <option value="30">30 Fragen</option>
+                    <option value="50">50 Fragen</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="label-glass">Wochenziel (Tage pro Woche)</label>
+                <select x-model="weeklyGoalDays" class="input-glass" style="width: 100%;">
+                    <option :selected="!weeklyGoalDays" value="">Kein Wochenziel</option>
+                    <option value="3">3 Tage</option>
+                    <option value="4">4 Tage</option>
+                    <option value="5">5 Tage</option>
+                    <option value="6">6 Tage</option>
+                    <option value="7">Jeden Tag</option>
+                </select>
+            </div>
+
+            <button @click="saveLernplan()" class="btn-primary btn-sm" style="width: 100%;" :disabled="saving">
+                <span x-show="!saving && !saved">Speichern</span>
+                <span x-show="saving" x-cloak>Speichere...</span>
+                <span x-show="saved" x-cloak style="color: #22c55e;">Gespeichert</span>
+            </button>
+        </div>
+
+        <!-- Streak Freeze -->
+        <div class="glass bento-streak-freeze">
+            <div class="section-header" style="margin-bottom: 1rem; padding-left: 0.75rem;">
+                <h2 class="section-title" style="font-size: 1rem;">Streak Freeze</h2>
+            </div>
+
+            @php
+                $gamificationService = new \App\Services\GamificationService();
+                $freezeStatus = $gamificationService->getStreakFreezeStatus($user);
+            @endphp
+
+            <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 1rem; line-height: 1.5;">
+                Streak Freezes schützen deinen Streak automatisch, wenn du einen Tag verpasst. Pro Woche stehen dir {{ $freezeStatus['available'] }} Freezes zur Verfügung.
+            </p>
+
+            <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+                @for($i = 0; $i < $freezeStatus['available']; $i++)
+                    <div style="flex: 1; text-align: center; padding: 0.75rem; border-radius: 0.5rem; {{ $i < $freezeStatus['remaining'] ? 'background: rgba(147, 197, 253, 0.15); border: 1px solid rgba(147, 197, 253, 0.3);' : 'background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08);' }}">
+                        <i class="bi bi-snow" style="font-size: 1.25rem; color: {{ $i < $freezeStatus['remaining'] ? '#93c5fd' : 'var(--text-muted)' }};"></i>
+                        <div style="font-size: 0.65rem; color: {{ $i < $freezeStatus['remaining'] ? '#93c5fd' : 'var(--text-muted)' }}; margin-top: 0.25rem; font-weight: 600;">
+                            {{ $i < $freezeStatus['remaining'] ? 'Verfügbar' : 'Verbraucht' }}
+                        </div>
+                    </div>
+                @endfor
+            </div>
+
+            @if(count($freezeStatus['recent_log']) > 0)
+                <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 0.5rem;">Zuletzt verwendet</div>
+                @foreach(array_slice(array_reverse($freezeStatus['recent_log']), 0, 3) as $entry)
+                    <div style="font-size: 0.75rem; color: var(--text-secondary); padding: 0.3rem 0; display: flex; align-items: center; gap: 0.4rem;">
+                        <i class="bi bi-snow" style="color: #93c5fd; font-size: 0.7rem;"></i>
+                        {{ \Carbon\Carbon::parse($entry['date'])->format('d.m.Y') }}
+                    </div>
+                @endforeach
+            @else
+                <div style="font-size: 0.8rem; color: var(--text-muted); text-align: center;">Noch keine Freezes verwendet</div>
+            @endif
+        </div>
+
         <!-- Danger Zone -->
         <div class="glass-error bento-danger">
             <div class="section-header" style="margin-bottom: 1rem; padding-left: 0.75rem;">
@@ -337,6 +438,14 @@
     }
 
     .bento-account-info {
+        padding: 1.25rem;
+    }
+
+    .bento-lernplan {
+        padding: 1.25rem;
+    }
+
+    .bento-streak-freeze {
         padding: 1.25rem;
     }
 

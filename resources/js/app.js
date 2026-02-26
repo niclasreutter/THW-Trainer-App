@@ -111,4 +111,55 @@ window.animateCounter = function(element, from, to, duration = 800) {
     requestAnimationFrame(update);
 };
 
+// Button Ripple Effect
+document.addEventListener('click', function(e) {
+    const btn = e.target.closest('.btn-primary, .btn-secondary');
+    if (!btn || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const rect = btn.getBoundingClientRect();
+    const ripple = document.createElement('span');
+    ripple.className = 'ripple-effect';
+
+    const size = Math.max(rect.width, rect.height);
+    ripple.style.width = ripple.style.height = size + 'px';
+    ripple.style.left = (e.clientX - rect.left - size / 2) + 'px';
+    ripple.style.top = (e.clientY - rect.top - size / 2) + 'px';
+
+    btn.appendChild(ripple);
+    ripple.addEventListener('animationend', () => ripple.remove());
+});
+
+// Scroll-based Fade-in (Intersection Observer)
+if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const fadeObserver = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                fadeObserver.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.1 });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.fade-in-on-scroll').forEach(function(el) {
+            fadeObserver.observe(el);
+        });
+    });
+}
+
+// Stats row scroll indicator
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.stats-row').forEach(function(row) {
+        function checkScroll() {
+            if (row.scrollWidth > row.clientWidth + 8) {
+                row.classList.add('has-scroll');
+            } else {
+                row.classList.remove('has-scroll');
+            }
+        }
+        checkScroll();
+        window.addEventListener('resize', checkScroll);
+    });
+});
+
 Alpine.start();

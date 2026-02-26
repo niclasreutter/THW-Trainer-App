@@ -10,9 +10,11 @@
                 <div class="flex items-start">
                     <div class="flex-shrink-0">
                         @if($notification['type'] === 'level_up')
-                            <div class="text-3xl animate-bounce">🎉</div>
+                            <div class="text-3xl animate-bounce" style="color: #f59e0b;"><i class="bi bi-arrow-up-circle-fill"></i></div>
+                        @elseif(isset($notification['icon']) && str_starts_with($notification['icon'], 'bi-'))
+                            <div class="text-3xl animate-pulse" style="color: #a855f7;"><i class="bi {{ $notification['icon'] }}"></i></div>
                         @else
-                            <div class="text-3xl animate-pulse">{{ $notification['icon'] ?? '🏆' }}</div>
+                            <div class="text-3xl animate-pulse" style="color: #a855f7;"><i class="bi bi-trophy-fill"></i></div>
                         @endif
                     </div>
                     <div class="ml-3 flex-1">
