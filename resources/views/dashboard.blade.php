@@ -23,7 +23,7 @@
         display: grid;
         grid-template-columns: 1fr 1fr 1fr;
         grid-template-rows: auto;
-        gap: 1rem;
+        gap: 1.25rem;
         margin-bottom: 2rem;
     }
 
@@ -163,7 +163,8 @@
         display: flex;
         align-items: center;
         gap: 1rem;
-        margin-bottom: 1rem;
+        margin-top: 3rem;
+        margin-bottom: 1.25rem;
         padding-left: 1rem;
         border-left: 3px solid var(--gold-start);
     }
@@ -688,7 +689,7 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') dismi
     @endif
 
     <!-- Stats as horizontal pills -->
-    <div class="stats-row">
+    <div class="stats-row" style="margin-bottom: 2.5rem;">
         <div class="stat-pill">
             <span class="stat-pill-icon text-warning"><i class="bi bi-fire"></i></span>
             <div>
@@ -876,301 +877,365 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') dismi
         </a>
         @endif
 
-        <!-- Side: Quick Stats -->
-        <div class="glass-br bento-side">
-            <div class="progress-indicator" style="margin-bottom: 0;">
-                <div class="progress-ring" style="width: 56px; height: 56px;">
-                    <svg width="56" height="56" viewBox="0 0 64 64">
-                        <circle class="progress-ring-bg" cx="32" cy="32" r="26"/>
-                        <circle class="progress-ring-fill" cx="32" cy="32" r="26"
-                                stroke-dasharray="{{ $circumference }}"
-                                stroke-dashoffset="{{ $examOffset }}"
-                                style="stroke: url(#goldGradient)"/>
-                    </svg>
-                    <div class="progress-ring-text" style="font-size: 0.85rem;">{{ min(100, $exams * 20) }}%</div>
-                </div>
-                <div class="progress-info">
-                    <div class="progress-label">Prüfungsstreak</div>
-                    <div class="progress-value">{{ $exams }} Prüfungen</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Recent Exams (if any) -->
+        <!-- Combined: Exam Overview (Streak + Recent Exams + Average) -->
         @if(!empty($recentExams) && $recentExams->count() > 0)
-        <div class="glass-slash bento-2of3">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-                <span style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted);">Letzte Prüfungen</span>
+        <div class="glass-slash bento-wide">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <span style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted);">Prüfungen</span>
                 <a href="{{ route('exam.history') }}" style="font-size: 0.75rem; color: var(--gold-start); text-decoration: none; font-weight: 600;">Alle anzeigen</a>
             </div>
-            @foreach($recentExams->take(3) as $exam)
-                @php $percentage = round(($exam->correct_answers / 40) * 100); @endphp
-                <div class="exam-inline">
-                    <span class="exam-inline-icon {{ $exam->is_passed ? 'text-success' : 'text-error' }}">
-                        <i class="bi bi-{{ $exam->is_passed ? 'check-circle-fill' : 'x-circle-fill' }}"></i>
-                    </span>
-                    <span class="exam-inline-percent {{ $exam->is_passed ? 'text-success' : 'text-error' }}">{{ $percentage }}%</span>
-                    <span class="exam-inline-date">{{ $exam->created_at->format('d.m.') }}</span>
-                    <span class="exam-inline-badge {{ $exam->is_passed ? 'badge-success' : 'badge-error' }}">
-                        {{ $exam->is_passed ? 'Bestanden' : 'Nicht best.' }}
-                    </span>
+            <div style="display: flex; gap: 2rem; align-items: flex-start; flex-wrap: wrap;">
+                {{-- Prüfungsstreak --}}
+                <div style="display: flex; align-items: center; gap: 0.75rem; min-width: 160px;">
+                    <div class="progress-ring" style="width: 56px; height: 56px; flex-shrink: 0;">
+                        <svg width="56" height="56" viewBox="0 0 64 64">
+                            <circle class="progress-ring-bg" cx="32" cy="32" r="26"/>
+                            <circle class="progress-ring-fill" cx="32" cy="32" r="26"
+                                    stroke-dasharray="{{ $circumference }}"
+                                    stroke-dashoffset="{{ $examOffset }}"
+                                    style="stroke: url(#goldGradient)"/>
+                        </svg>
+                        <div class="progress-ring-text" style="font-size: 0.85rem;">{{ min(100, $exams * 20) }}%</div>
+                    </div>
+                    <div>
+                        <div class="progress-label">Streak</div>
+                        <div class="progress-value">{{ $exams }}/5</div>
+                    </div>
                 </div>
-            @endforeach
-        </div>
 
-        <!-- Exam Summary -->
-        <div class="glass-organic bento-1of3" style="display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
-            @php
-                $avgPercent = $recentExams->avg(fn($e) => round(($e->correct_answers / 40) * 100));
-            @endphp
-            <div style="font-size: 2rem; font-weight: 800;" class="text-gradient-gold">{{ round($avgPercent) }}%</div>
-            <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted);">Durchschnitt</div>
-        </div>
-        @endif
-
-        <!-- Ortsverband Card (for Ausbilder) -->
-        @php
-            $userOV = auth()->user()->ortsverbände->first();
-            $isAusbilder = false;
-            $ovStats = null;
-
-            if ($userOV) {
-                $memberPivot = $userOV->members()->where('user_id', auth()->id())->first();
-                $isAusbilder = $memberPivot && $memberPivot->pivot->role === 'ausbildungsbeauftragter';
-
-                if ($isAusbilder) {
-                    $regularMembers = $userOV->members()->wherePivot('role', 'member')->get();
-                    $memberCount = $regularMembers->count();
-                    $memberProgress = $userOV->getMemberProgress()->filter(fn($m) => $m['role'] === 'member');
-                    $avgProgress = $memberProgress->avg('theory_progress_percent') ?? 0;
-                    $ovStats = ['members' => $memberCount, 'avg_progress' => round($avgProgress)];
-                }
-            }
-        @endphp
-
-        @if($isAusbilder && $userOV)
-        <div class="glass-thw bento-wide" style="display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;">
-            <div>
-                <span class="badge-thw" style="margin-bottom: 0.5rem; display: inline-block;">Ausbilder</span>
-                <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-primary);">{{ $userOV->name }}</h3>
-            </div>
-            <div style="display: flex; gap: 2rem; flex: 1; justify-content: center;">
-                <div style="text-align: center;">
-                    <div style="font-size: 1.5rem; font-weight: 800;" class="text-gradient-gold">{{ $ovStats['members'] }}</div>
-                    <div style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase;">Mitglieder</div>
-                </div>
-                <div style="text-align: center;">
-                    <div style="font-size: 1.5rem; font-weight: 800; color: {{ $ovStats['avg_progress'] >= 50 ? '#22c55e' : '#f59e0b' }};">{{ $ovStats['avg_progress'] }}%</div>
-                    <div style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase;">Ø Fortschritt</div>
-                </div>
-            </div>
-            <a href="{{ route('ortsverband.index') }}" class="btn-secondary btn-sm">Verwalten</a>
-        </div>
-        @endif
-    </div>
-
-    <!-- Statistiken Section -->
-    <div class="section-header">
-        <h2 class="section-title">Statistiken</h2>
-    </div>
-
-    <div class="bento-grid">
-        <!-- Weekly Activity Chart -->
-        <div class="glass bento-wide">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-                <span style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted);">Wochenaktivität</span>
-                @if(isset($weeklyActivity) && $weeklyActivity->sum('count') > 0)
-                    <span style="font-size: 0.75rem; font-weight: 700; color: var(--gold-start);">{{ $weeklyActivity->sum('count') }} Fragen</span>
-                @endif
-            </div>
-            <div class="activity-chart">
-                @php
-                    $maxCount = isset($weeklyActivity) ? max($weeklyActivity->max('count'), 1) : 1;
-                    $days = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
-                    $startOfWeek = \Carbon\Carbon::now()->startOfWeek(\Carbon\Carbon::MONDAY);
-                @endphp
-                @for($i = 0; $i < 7; $i++)
-                    @php
-                        $dayDate = $startOfWeek->copy()->addDays($i);
-                        $dateStr = $dayDate->toDateString();
-                        $dayData = isset($weeklyActivity) ? $weeklyActivity->firstWhere('date', $dateStr) : null;
-                        $count = $dayData ? $dayData->count : 0;
-                        $correct = $dayData ? $dayData->correct : 0;
-                        $barHeight = $count > 0 ? max(8, ($count / $maxCount) * 100) : 0;
-                        $isToday = $dayDate->isToday();
-                    @endphp
-                    <div class="activity-bar-wrapper">
-                        <div class="activity-bar-container">
-                            @if($count > 0)
-                                <div class="activity-bar {{ $isToday ? 'today' : '' }}" style="height: {{ $barHeight }}%;" title="{{ $count }} Fragen, {{ $correct }} richtig">
-                                    <span class="activity-bar-count">{{ $count }}</span>
-                                </div>
-                            @else
-                                <div class="activity-bar empty"></div>
-                            @endif
+                {{-- Letzte Prüfungen --}}
+                <div style="flex: 1; min-width: 200px;">
+                    @foreach($recentExams->take(3) as $exam)
+                        @php $percentage = round(($exam->correct_answers / 40) * 100); @endphp
+                        <div class="exam-inline">
+                            <span class="exam-inline-icon {{ $exam->is_passed ? 'text-success' : 'text-error' }}">
+                                <i class="bi bi-{{ $exam->is_passed ? 'check-circle-fill' : 'x-circle-fill' }}"></i>
+                            </span>
+                            <span class="exam-inline-percent {{ $exam->is_passed ? 'text-success' : 'text-error' }}">{{ $percentage }}%</span>
+                            <span class="exam-inline-date">{{ $exam->created_at->format('d.m.') }}</span>
+                            <span class="exam-inline-badge {{ $exam->is_passed ? 'badge-success' : 'badge-error' }}">
+                                {{ $exam->is_passed ? 'Bestanden' : 'Nicht best.' }}
+                            </span>
                         </div>
-                        <span class="activity-bar-day {{ $isToday ? 'today' : '' }}">{{ $days[$i] }}</span>
-                    </div>
-                @endfor
-            </div>
-        </div>
-
-        <!-- Section Heatmap -->
-        <div class="glass-br bento-2of3">
-            <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 0.75rem;">Stärken & Schwächen</div>
-            <div class="heatmap-grid">
-                @for($s = 1; $s <= 10; $s++)
-                    @php
-                        $sData = isset($sectionStats) ? $sectionStats->firstWhere('lernabschnitt', $s) : null;
-                        $sTotal = $sData ? $sData->total : 0;
-                        $sCorrect = $sData ? $sData->correct : 0;
-                        $sPct = $sTotal > 0 ? round(($sCorrect / $sTotal) * 100) : -1;
-                        $sClass = $sPct < 0 ? 'none' : ($sPct >= 75 ? 'strong' : ($sPct >= 50 ? 'medium' : 'weak'));
-                    @endphp
-                    <a href="{{ route('practice.section', $s) }}" class="heatmap-cell {{ $sClass }}" title="Abschnitt {{ $s }}: {{ $sPct >= 0 ? $sPct.'% richtig ('.$sTotal.' Fragen)' : 'Noch nicht geübt' }}" style="text-decoration: none;">
-                        <span class="heatmap-cell-number">{{ $s }}</span>
-                        @if($sPct >= 0)
-                            <span class="heatmap-cell-pct">{{ $sPct }}%</span>
-                        @endif
-                    </a>
-                @endfor
-            </div>
-            <div class="heatmap-legend">
-                <div class="heatmap-legend-item"><span class="heatmap-legend-dot" style="background: rgba(239, 68, 68, 0.5);"></span>< 50%</div>
-                <div class="heatmap-legend-item"><span class="heatmap-legend-dot" style="background: rgba(245, 158, 11, 0.5);"></span>50-75%</div>
-                <div class="heatmap-legend-item"><span class="heatmap-legend-dot" style="background: rgba(34, 197, 94, 0.5);"></span>> 75%</div>
-            </div>
-        </div>
-
-        <!-- Trend Widget -->
-        <div class="glass-organic bento-1of3" style="display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
-            @php
-                $thisWeekTotal = isset($weeklyActivity) ? $weeklyActivity->sum('count') : 0;
-                $thisWeekCorrect = isset($weeklyActivity) ? $weeklyActivity->sum('correct') : 0;
-                $thisWeekRate = $thisWeekTotal > 0 ? round(($thisWeekCorrect / $thisWeekTotal) * 100) : 0;
-
-                $lastWeekData = \DB::table('question_statistics')
-                    ->where('user_id', $user->id)
-                    ->where('created_at', '>=', now()->subDays(14))
-                    ->where('created_at', '<', now()->subDays(7))
-                    ->selectRaw('COUNT(*) as total, SUM(is_correct) as correct')
-                    ->first();
-                $lastWeekTotal = $lastWeekData ? $lastWeekData->total : 0;
-                $lastWeekRate = $lastWeekTotal > 0 ? round(($lastWeekData->correct / $lastWeekTotal) * 100) : 0;
-
-                $rateDiff = $thisWeekRate - $lastWeekRate;
-                $countDiff = $thisWeekTotal - $lastWeekTotal;
-            @endphp
-            <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 0.75rem;">Trend</div>
-            @if($thisWeekTotal > 0)
-                <div style="margin-bottom: 0.5rem;">
-                    <span style="font-size: 1.5rem; font-weight: 800; color: {{ $thisWeekRate >= 70 ? '#22c55e' : ($thisWeekRate >= 50 ? '#f59e0b' : '#ef4444') }};">{{ $thisWeekRate }}%</span>
+                    @endforeach
                 </div>
-                <div style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Trefferquote</div>
-                @if($lastWeekTotal > 0)
-                    <div style="font-size: 0.7rem; color: {{ $rateDiff >= 0 ? '#22c55e' : '#ef4444' }}; font-weight: 600;">
-                        <i class="bi bi-{{ $rateDiff >= 0 ? 'arrow-up' : 'arrow-down' }}"></i>
-                        {{ abs($rateDiff) }}% vs. Vorwoche
+
+                {{-- Durchschnitt --}}
+                @php
+                    $avgPercent = $recentExams->avg(fn($e) => round(($e->correct_answers / 40) * 100));
+                @endphp
+                <div style="text-align: center; min-width: 80px;">
+                    <div style="font-size: 1.75rem; font-weight: 800;" class="text-gradient-gold">{{ round($avgPercent) }}%</div>
+                    <div style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted);">Schnitt</div>
+                </div>
+            </div>
+        </div>
+        @else
+        {{-- Kein Prüfungs-Ergebnis: Kompakte Streak-Anzeige --}}
+        <div class="glass-br bento-wide" style="display: flex; align-items: center; gap: 1rem;">
+            <div class="progress-ring" style="width: 48px; height: 48px; flex-shrink: 0;">
+                <svg width="48" height="48" viewBox="0 0 64 64">
+                    <circle class="progress-ring-bg" cx="32" cy="32" r="26"/>
+                    <circle class="progress-ring-fill" cx="32" cy="32" r="26"
+                            stroke-dasharray="{{ $circumference }}"
+                            stroke-dashoffset="{{ $examOffset }}"
+                            style="stroke: url(#goldGradient)"/>
+                </svg>
+                <div class="progress-ring-text" style="font-size: 0.75rem;">{{ min(100, $exams * 20) }}%</div>
+            </div>
+            <div>
+                <div class="progress-label">Prüfungsstreak</div>
+                <div class="progress-value">{{ $exams }}/5 bestanden</div>
+            </div>
+        </div>
+        @endif
+
+    </div>
+
+    <!-- Ortsverband Card (for Ausbilder) - separate section -->
+    @php
+        $userOV = auth()->user()->ortsverbände->first();
+        $isAusbilder = false;
+        $ovStats = null;
+
+        if ($userOV) {
+            $memberPivot = $userOV->members()->where('user_id', auth()->id())->first();
+            $isAusbilder = $memberPivot && $memberPivot->pivot->role === 'ausbildungsbeauftragter';
+
+            if ($isAusbilder) {
+                $regularMembers = $userOV->members()->wherePivot('role', 'member')->get();
+                $memberCount = $regularMembers->count();
+                $memberProgress = $userOV->getMemberProgress()->filter(fn($m) => $m['role'] === 'member');
+                $avgProgress = $memberProgress->avg('theory_progress_percent') ?? 0;
+                $ovStats = ['members' => $memberCount, 'avg_progress' => round($avgProgress)];
+            }
+        }
+    @endphp
+
+    @if($isAusbilder && $userOV)
+    <div class="glass-thw" style="display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; padding: 1.25rem; border-radius: 1rem; margin-bottom: 2rem;">
+        <div>
+            <span class="badge-thw" style="margin-bottom: 0.5rem; display: inline-block;">Ausbilder</span>
+            <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-primary);">{{ $userOV->name }}</h3>
+        </div>
+        <div style="display: flex; gap: 2rem; flex: 1; justify-content: center;">
+            <div style="text-align: center;">
+                <div style="font-size: 1.5rem; font-weight: 800;" class="text-gradient-gold">{{ $ovStats['members'] }}</div>
+                <div style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase;">Mitglieder</div>
+            </div>
+            <div style="text-align: center;">
+                <div style="font-size: 1.5rem; font-weight: 800; color: {{ $ovStats['avg_progress'] >= 50 ? '#22c55e' : '#f59e0b' }};">{{ $ovStats['avg_progress'] }}%</div>
+                <div style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase;">Ø Fortschritt</div>
+            </div>
+        </div>
+        <a href="{{ route('ortsverband.index') }}" class="btn-secondary btn-sm">Verwalten</a>
+    </div>
+    @endif
+
+    <!-- Statistiken Section (collapsible) -->
+    @php
+        $thisWeekTotal = isset($weeklyActivity) ? $weeklyActivity->sum('count') : 0;
+        $thisWeekCorrect = isset($weeklyActivity) ? $weeklyActivity->sum('correct') : 0;
+        $thisWeekRate = $thisWeekTotal > 0 ? round(($thisWeekCorrect / $thisWeekTotal) * 100) : 0;
+
+        $lastWeekData = \DB::table('question_statistics')
+            ->where('user_id', $user->id)
+            ->where('created_at', '>=', now()->subDays(14))
+            ->where('created_at', '<', now()->subDays(7))
+            ->selectRaw('COUNT(*) as total, SUM(is_correct) as correct')
+            ->first();
+        $lastWeekTotal = $lastWeekData ? $lastWeekData->total : 0;
+        $lastWeekRate = $lastWeekTotal > 0 ? round(($lastWeekData->correct / $lastWeekTotal) * 100) : 0;
+
+        $rateDiff = $thisWeekRate - $lastWeekRate;
+    @endphp
+
+    <div x-data="{ open: false }">
+        <div class="section-header" style="cursor: pointer;" @click="open = !open">
+            <h2 class="section-title">Statistiken</h2>
+            <span style="margin-left: auto; font-size: 0.8rem; font-weight: 600; color: var(--gold-start); transition: all 0.2s;" x-text="open ? 'Einklappen' : 'Details anzeigen'"></span>
+        </div>
+
+        <!-- Compact summary (always visible) -->
+        <div class="stats-row" style="margin-bottom: 1rem;">
+            <div class="stat-pill">
+                <span class="stat-pill-icon" style="color: {{ $thisWeekRate >= 70 ? '#22c55e' : ($thisWeekRate >= 50 ? '#f59e0b' : '#ef4444') }};"><i class="bi bi-bullseye"></i></span>
+                <div>
+                    <div class="stat-pill-value" style="font-size: 1.1rem;">{{ $thisWeekRate }}%</div>
+                    <div class="stat-pill-label">Trefferquote</div>
+                </div>
+            </div>
+            <div class="stat-pill">
+                <span class="stat-pill-icon text-gold"><i class="bi bi-activity"></i></span>
+                <div>
+                    <div class="stat-pill-value" style="font-size: 1.1rem;">{{ $thisWeekTotal }}</div>
+                    <div class="stat-pill-label">Diese Woche</div>
+                </div>
+            </div>
+            @if($lastWeekTotal > 0)
+            <div class="stat-pill">
+                <span class="stat-pill-icon" style="color: {{ $rateDiff >= 0 ? '#22c55e' : '#ef4444' }};"><i class="bi bi-{{ $rateDiff >= 0 ? 'arrow-up-right' : 'arrow-down-right' }}"></i></span>
+                <div>
+                    <div class="stat-pill-value" style="font-size: 1.1rem;">{{ $rateDiff >= 0 ? '+' : '' }}{{ $rateDiff }}%</div>
+                    <div class="stat-pill-label">vs. Vorwoche</div>
+                </div>
+            </div>
+            @endif
+        </div>
+
+        <!-- Full statistics (collapsible) -->
+        <div x-show="open" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform -translate-y-2" x-transition:enter-end="opacity-100 transform translate-y-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
+            <div class="bento-grid">
+                <!-- Weekly Activity Chart -->
+                <div class="glass bento-wide">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                        <span style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted);">Wochenaktivität</span>
+                        @if($thisWeekTotal > 0)
+                            <span style="font-size: 0.75rem; font-weight: 700; color: var(--gold-start);">{{ $thisWeekTotal }} Fragen</span>
+                        @endif
                     </div>
-                @endif
+                    <div class="activity-chart">
+                        @php
+                            $maxCount = isset($weeklyActivity) ? max($weeklyActivity->max('count'), 1) : 1;
+                            $days = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
+                            $startOfWeek = \Carbon\Carbon::now()->startOfWeek(\Carbon\Carbon::MONDAY);
+                        @endphp
+                        @for($i = 0; $i < 7; $i++)
+                            @php
+                                $dayDate = $startOfWeek->copy()->addDays($i);
+                                $dateStr = $dayDate->toDateString();
+                                $dayData = isset($weeklyActivity) ? $weeklyActivity->firstWhere('date', $dateStr) : null;
+                                $count = $dayData ? $dayData->count : 0;
+                                $correct = $dayData ? $dayData->correct : 0;
+                                $barHeight = $count > 0 ? max(8, ($count / $maxCount) * 100) : 0;
+                                $isToday = $dayDate->isToday();
+                            @endphp
+                            <div class="activity-bar-wrapper">
+                                <div class="activity-bar-container">
+                                    @if($count > 0)
+                                        <div class="activity-bar {{ $isToday ? 'today' : '' }}" style="height: {{ $barHeight }}%;" title="{{ $count }} Fragen, {{ $correct }} richtig">
+                                            <span class="activity-bar-count">{{ $count }}</span>
+                                        </div>
+                                    @else
+                                        <div class="activity-bar empty"></div>
+                                    @endif
+                                </div>
+                                <span class="activity-bar-day {{ $isToday ? 'today' : '' }}">{{ $days[$i] }}</span>
+                            </div>
+                        @endfor
+                    </div>
+                </div>
+
+                <!-- Section Heatmap -->
+                <div class="glass-br bento-2of3">
+                    <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 0.75rem;">Stärken & Schwächen</div>
+                    <div class="heatmap-grid">
+                        @for($s = 1; $s <= 10; $s++)
+                            @php
+                                $sData = isset($sectionStats) ? $sectionStats->firstWhere('lernabschnitt', $s) : null;
+                                $sTotal = $sData ? $sData->total : 0;
+                                $sCorrect = $sData ? $sData->correct : 0;
+                                $sPct = $sTotal > 0 ? round(($sCorrect / $sTotal) * 100) : -1;
+                                $sClass = $sPct < 0 ? 'none' : ($sPct >= 75 ? 'strong' : ($sPct >= 50 ? 'medium' : 'weak'));
+                            @endphp
+                            <a href="{{ route('practice.section', $s) }}" class="heatmap-cell {{ $sClass }}" title="Abschnitt {{ $s }}: {{ $sPct >= 0 ? $sPct.'% richtig ('.$sTotal.' Fragen)' : 'Noch nicht geübt' }}" style="text-decoration: none;">
+                                <span class="heatmap-cell-number">{{ $s }}</span>
+                                @if($sPct >= 0)
+                                    <span class="heatmap-cell-pct">{{ $sPct }}%</span>
+                                @endif
+                            </a>
+                        @endfor
+                    </div>
+                    <div class="heatmap-legend">
+                        <div class="heatmap-legend-item"><span class="heatmap-legend-dot" style="background: rgba(239, 68, 68, 0.5);"></span>< 50%</div>
+                        <div class="heatmap-legend-item"><span class="heatmap-legend-dot" style="background: rgba(245, 158, 11, 0.5);"></span>50-75%</div>
+                        <div class="heatmap-legend-item"><span class="heatmap-legend-dot" style="background: rgba(34, 197, 94, 0.5);"></span>> 75%</div>
+                    </div>
+                </div>
+
+                <!-- Trend Widget -->
+                <div class="glass-organic bento-1of3" style="display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
+                    <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 0.75rem;">Trend</div>
+                    @if($thisWeekTotal > 0)
+                        <div style="margin-bottom: 0.5rem;">
+                            <span style="font-size: 1.5rem; font-weight: 800; color: {{ $thisWeekRate >= 70 ? '#22c55e' : ($thisWeekRate >= 50 ? '#f59e0b' : '#ef4444') }};">{{ $thisWeekRate }}%</span>
+                        </div>
+                        <div style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Trefferquote</div>
+                        @if($lastWeekTotal > 0)
+                            <div style="font-size: 0.7rem; color: {{ $rateDiff >= 0 ? '#22c55e' : '#ef4444' }}; font-weight: 600;">
+                                <i class="bi bi-{{ $rateDiff >= 0 ? 'arrow-up' : 'arrow-down' }}"></i>
+                                {{ abs($rateDiff) }}% vs. Vorwoche
+                            </div>
+                        @endif
+                    @else
+                        <div style="font-size: 0.8rem; color: var(--text-muted);">Noch keine Aktivität</div>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lehrgänge & Lernpools Section (collapsible) -->
+    @php
+        $enrolledLernpools = auth()->user()->enrolledLernpools()->where('is_active', true)->get();
+        $totalCourseCount = $enrolledLehrgaenge->count() + $enrolledLernpools->count();
+    @endphp
+
+    <div x-data="{ open: false }">
+        <div class="section-header" style="cursor: pointer;" @click="open = !open">
+            <h2 class="section-title">Lehrgänge & Lernpools</h2>
+            @if($totalCourseCount > 0)
+                <span class="badge-glass" style="font-size: 0.7rem; padding: 0.2rem 0.6rem;">{{ $totalCourseCount }} eingeschrieben</span>
+            @endif
+            <span style="margin-left: auto; font-size: 0.8rem; font-weight: 600; color: var(--gold-start); transition: all 0.2s;" x-text="open ? 'Einklappen' : 'Anzeigen'"></span>
+        </div>
+
+        <div x-show="open" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform -translate-y-2" x-transition:enter-end="opacity-100 transform translate-y-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
+
+            @if($enrolledLehrgaenge->isNotEmpty() || $enrolledLernpools->isNotEmpty())
+            <div class="lehrgang-grid">
+                {{-- Lehrgänge --}}
+                @foreach($enrolledLehrgaenge->take(4) as $lehrgang)
+                    @php
+                        $solvedCount = \App\Models\UserLehrgangProgress::where('user_id', Auth::id())->whereHas('lehrgangQuestion', fn($q) => $q->where('lehrgang_id', $lehrgang->id))->where('solved', true)->count();
+                        $totalCount = \App\Models\LehrgangQuestion::where('lehrgang_id', $lehrgang->id)->count();
+                        $progressData = \App\Models\UserLehrgangProgress::where('user_id', Auth::id())->whereHas('lehrgangQuestion', fn($q) => $q->where('lehrgang_id', $lehrgang->id))->get();
+                        $totalProgressPoints = 0;
+                        foreach ($progressData as $prog) { $totalProgressPoints += min($prog->consecutive_correct, \App\Models\UserQuestionProgress::MASTERY_THRESHOLD); }
+                        $maxProgressPoints = $totalCount * \App\Models\UserQuestionProgress::MASTERY_THRESHOLD;
+                        $lehrgangProgressPercent = $maxProgressPoints > 0 ? round(($totalProgressPoints / $maxProgressPoints) * 100) : 0;
+                        $isCompleted = $lehrgangProgressPercent == 100 && $solvedCount > 0;
+                    @endphp
+                    <div class="glass lehrgang-card hover-lift fade-in-on-scroll">
+                        <h4 class="lehrgang-title">{{ $lehrgang->lehrgang }}</h4>
+                        <p class="lehrgang-desc">{{ $lehrgang->beschreibung }}</p>
+                        <div class="lehrgang-progress">
+                            <div class="lehrgang-progress-bar">
+                                <div class="lehrgang-progress-fill {{ $isCompleted ? 'complete' : '' }}" style="width: {{ $lehrgangProgressPercent }}%"></div>
+                            </div>
+                            <span class="lehrgang-percent">{{ $lehrgangProgressPercent }}%</span>
+                        </div>
+                        @if($isCompleted)
+                            <span class="btn-ghost btn-sm" style="background: rgba(34, 197, 94, 0.15); color: #22c55e; border-color: rgba(34, 197, 94, 0.25);">Fertig</span>
+                        @else
+                            <a href="{{ route('lehrgaenge.practice', $lehrgang->slug) }}" class="btn-primary btn-sm">Weiter</a>
+                        @endif
+                    </div>
+                @endforeach
+
+                {{-- Lernpools --}}
+                @foreach($enrolledLernpools->take(3) as $lernpool)
+                    @php
+                        $solvedCount = auth()->user()->lernpoolProgress()
+                            ->whereHas('question', fn($q) => $q->where('lernpool_id', $lernpool->id))
+                            ->where('solved', true)
+                            ->count();
+                        $totalCount = $lernpool->getQuestionCount();
+                        $lernpoolProgress = $totalCount > 0 ? round(($solvedCount / $totalCount) * 100) : 0;
+                        $isCompleted = $lernpoolProgress == 100 && $solvedCount > 0;
+                    @endphp
+                    <div class="glass lehrgang-card hover-lift fade-in-on-scroll">
+                        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+                            <h4 class="lehrgang-title" style="margin-bottom: 0;">{{ $lernpool->name }}</h4>
+                            <span class="badge-thw" style="font-size: 0.6rem; padding: 0.1rem 0.4rem;">Lernpool</span>
+                        </div>
+                        @if($lernpool->tags && count($lernpool->tags) > 0)
+                        <div style="display: flex; gap: 0.25rem; flex-wrap: wrap; margin-bottom: 0.5rem;">
+                            @foreach(array_slice($lernpool->tags, 0, 2) as $tag)
+                                <span class="badge-thw" style="font-size: 0.65rem; padding: 0.15rem 0.5rem;">{{ $tag }}</span>
+                            @endforeach
+                        </div>
+                        @endif
+                        <p class="lehrgang-desc">{{ $lernpool->description }}</p>
+                        <div class="lehrgang-progress">
+                            <div class="lehrgang-progress-bar">
+                                <div class="lehrgang-progress-fill {{ $isCompleted ? 'complete' : '' }}" style="width: {{ $lernpoolProgress }}%"></div>
+                            </div>
+                            <span class="lehrgang-percent">{{ $lernpoolProgress }}%</span>
+                        </div>
+                        @if($isCompleted)
+                            <span class="btn-ghost btn-sm" style="background: rgba(34, 197, 94, 0.15); color: #22c55e; border-color: rgba(34, 197, 94, 0.25);">Gemeistert</span>
+                        @else
+                            <a href="{{ route('ortsverband.lernpools.practice', [$lernpool->ortsverband_id, $lernpool->id]) }}" class="btn-primary btn-sm">Weiter</a>
+                        @endif
+                    </div>
+                @endforeach
+            </div>
+
+            <div style="display: flex; gap: 0.75rem; margin-top: 0.75rem;">
+                <a href="{{ route('lehrgaenge.index') }}" class="btn-ghost btn-sm">Alle Lehrgänge</a>
+                <a href="{{ route('ortsverband.index') }}" class="btn-ghost btn-sm">Alle Lernpools</a>
+            </div>
             @else
-                <div style="font-size: 0.8rem; color: var(--text-muted);">Noch keine Aktivität</div>
+            <div class="glass-slash empty-state">
+                <div class="empty-state-icon"><i class="bi bi-mortarboard"></i></div>
+                <h3 class="empty-state-title">Keine Kurse</h3>
+                <p class="empty-state-desc">Spezialisiere dich auf bestimmte THW-Themen</p>
+                <a href="{{ route('lehrgaenge.index') }}" class="btn-primary btn-sm">Entdecken</a>
+            </div>
             @endif
         </div>
     </div>
-
-    <!-- Lehrgänge Section -->
-    <div class="section-header">
-        <h2 class="section-title">Deine Lehrgänge</h2>
-        <a href="{{ route('lehrgaenge.index') }}" class="section-link">Alle anzeigen</a>
-    </div>
-
-    @if($enrolledLehrgaenge->isNotEmpty())
-    <div class="lehrgang-grid">
-        @foreach($enrolledLehrgaenge->take(4) as $lehrgang)
-            @php
-                $solvedCount = \App\Models\UserLehrgangProgress::where('user_id', Auth::id())->whereHas('lehrgangQuestion', fn($q) => $q->where('lehrgang_id', $lehrgang->id))->where('solved', true)->count();
-                $totalCount = \App\Models\LehrgangQuestion::where('lehrgang_id', $lehrgang->id)->count();
-                $progressData = \App\Models\UserLehrgangProgress::where('user_id', Auth::id())->whereHas('lehrgangQuestion', fn($q) => $q->where('lehrgang_id', $lehrgang->id))->get();
-                $totalProgressPoints = 0;
-                foreach ($progressData as $prog) { $totalProgressPoints += min($prog->consecutive_correct, \App\Models\UserQuestionProgress::MASTERY_THRESHOLD); }
-                $maxProgressPoints = $totalCount * \App\Models\UserQuestionProgress::MASTERY_THRESHOLD;
-                $lehrgangProgressPercent = $maxProgressPoints > 0 ? round(($totalProgressPoints / $maxProgressPoints) * 100) : 0;
-                $isCompleted = $lehrgangProgressPercent == 100 && $solvedCount > 0;
-            @endphp
-            <div class="glass lehrgang-card hover-lift fade-in-on-scroll">
-                <h4 class="lehrgang-title">{{ $lehrgang->lehrgang }}</h4>
-                <p class="lehrgang-desc">{{ $lehrgang->beschreibung }}</p>
-                <div class="lehrgang-progress">
-                    <div class="lehrgang-progress-bar">
-                        <div class="lehrgang-progress-fill {{ $isCompleted ? 'complete' : '' }}" style="width: {{ $lehrgangProgressPercent }}%"></div>
-                    </div>
-                    <span class="lehrgang-percent">{{ $lehrgangProgressPercent }}%</span>
-                </div>
-                @if($isCompleted)
-                    <span class="btn-ghost btn-sm" style="background: rgba(34, 197, 94, 0.15); color: #22c55e; border-color: rgba(34, 197, 94, 0.25);">Fertig</span>
-                @else
-                    <a href="{{ route('lehrgaenge.practice', $lehrgang->slug) }}" class="btn-primary btn-sm">Weiter</a>
-                @endif
-            </div>
-        @endforeach
-    </div>
-    @else
-    <div class="glass-slash empty-state">
-        <div class="empty-state-icon"><i class="bi bi-mortarboard"></i></div>
-        <h3 class="empty-state-title">Keine Lehrgänge</h3>
-        <p class="empty-state-desc">Spezialisiere dich auf bestimmte THW-Themen</p>
-        <a href="{{ route('lehrgaenge.index') }}" class="btn-primary btn-sm">Entdecken</a>
-    </div>
-    @endif
-
-    <!-- Lernpools Section -->
-    @php
-        $enrolledLernpools = auth()->user()->enrolledLernpools()->where('is_active', true)->get();
-    @endphp
-
-    @if($enrolledLernpools->isNotEmpty())
-    <div class="section-header" style="margin-top: 1.5rem;">
-        <h2 class="section-title">Deine Lernpools</h2>
-        <a href="{{ route('ortsverband.index') }}" class="section-link">Alle anzeigen</a>
-    </div>
-
-    <div class="lehrgang-grid">
-        @foreach($enrolledLernpools->take(3) as $lernpool)
-            @php
-                $solvedCount = auth()->user()->lernpoolProgress()
-                    ->whereHas('question', fn($q) => $q->where('lernpool_id', $lernpool->id))
-                    ->where('solved', true)
-                    ->count();
-                $totalCount = $lernpool->getQuestionCount();
-                $lernpoolProgress = $totalCount > 0 ? round(($solvedCount / $totalCount) * 100) : 0;
-                $isCompleted = $lernpoolProgress == 100 && $solvedCount > 0;
-            @endphp
-            <div class="glass lehrgang-card hover-lift fade-in-on-scroll">
-                <h4 class="lehrgang-title">{{ $lernpool->name }}</h4>
-                @if($lernpool->tags && count($lernpool->tags) > 0)
-                <div style="display: flex; gap: 0.25rem; flex-wrap: wrap; margin-bottom: 0.5rem;">
-                    @foreach(array_slice($lernpool->tags, 0, 2) as $tag)
-                        <span class="badge-thw" style="font-size: 0.65rem; padding: 0.15rem 0.5rem;">{{ $tag }}</span>
-                    @endforeach
-                </div>
-                @endif
-                <p class="lehrgang-desc">{{ $lernpool->description }}</p>
-                <div class="lehrgang-progress">
-                    <div class="lehrgang-progress-bar">
-                        <div class="lehrgang-progress-fill {{ $isCompleted ? 'complete' : '' }}" style="width: {{ $lernpoolProgress }}%"></div>
-                    </div>
-                    <span class="lehrgang-percent">{{ $lernpoolProgress }}%</span>
-                </div>
-                @if($isCompleted)
-                    <span class="btn-ghost btn-sm" style="background: rgba(34, 197, 94, 0.15); color: #22c55e; border-color: rgba(34, 197, 94, 0.25);">Gemeistert</span>
-                @else
-                    <a href="{{ route('ortsverband.lernpools.practice', [$lernpool->ortsverband_id, $lernpool->id]) }}" class="btn-primary btn-sm">Weiter</a>
-                @endif
-            </div>
-        @endforeach
-    </div>
-    @endif
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.0/dist/confetti.browser.min.js"></script>
