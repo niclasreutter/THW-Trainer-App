@@ -2,7 +2,7 @@
 <div id="achievementPopup" class="fixed top-4 right-4 z-50 hidden transform translate-x-full transition-transform duration-500 ease-in-out">
     <div class="bg-gradient-to-r from-yellow-400 to-orange-500 text-white rounded-lg shadow-lg p-4 max-w-sm">
         <div class="flex items-center">
-            <div class="text-3xl mr-3" id="achievementIcon">🏆</div>
+            <div class="text-3xl mr-3" id="achievementIcon"><i class="bi bi-trophy-fill"></i></div>
             <div>
                 <div class="font-bold text-sm">Neues Achievement!</div>
                 <div class="text-xs" id="achievementTitle">Achievement Title</div>
@@ -22,7 +22,11 @@ function showAchievementPopup(icon, title) {
     const iconEl = document.getElementById('achievementIcon');
     const titleEl = document.getElementById('achievementTitle');
 
-    iconEl.textContent = icon;
+    if (icon && icon.startsWith('bi-')) {
+        iconEl.innerHTML = '<i class="bi ' + icon + '"></i>';
+    } else {
+        iconEl.textContent = icon;
+    }
     titleEl.textContent = title;
 
     // Zeige den Popup
@@ -59,5 +63,5 @@ function hideAchievementPopup() {
 }
 
 // Beispiel für automatisches Anzeigen (kann in anderen Views verwendet werden)
-// showAchievementPopup('🎯', '🌟 Erste Schritte - Erste Frage beantwortet');
+// showAchievementPopup('bi-bullseye', 'Erste Schritte - Erste Frage beantwortet');
 </script>

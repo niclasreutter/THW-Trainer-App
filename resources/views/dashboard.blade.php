@@ -365,10 +365,10 @@
 
     .leaderboard-modal-close {
         position: absolute;
-        top: 1rem;
-        right: 1rem;
-        width: 32px;
-        height: 32px;
+        top: 0.75rem;
+        right: 0.75rem;
+        width: 44px;
+        height: 44px;
         border-radius: 0.5rem;
         background: rgba(255, 255, 255, 0.2);
         border: none;
@@ -376,6 +376,9 @@
         font-size: 1.25rem;
         cursor: pointer;
         transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .leaderboard-modal-close:hover { background: rgba(255, 255, 255, 0.3); }
@@ -383,6 +386,228 @@
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+
+    /* Daily Goal Widget */
+    .daily-goal-ring {
+        width: 80px;
+        height: 80px;
+        position: relative;
+        margin: 0 auto 0.75rem;
+    }
+
+    .daily-goal-ring-bg {
+        fill: none;
+        stroke: rgba(255, 255, 255, 0.08);
+        stroke-width: 7;
+    }
+
+    .daily-goal-ring-fill {
+        fill: none;
+        stroke-width: 7;
+        stroke-linecap: round;
+        transform: rotate(-90deg);
+        transform-origin: center;
+        transition: stroke-dashoffset 1s ease-out, stroke 0.3s;
+    }
+
+    .daily-goal-ring-text {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .daily-goal-ring-value {
+        font-size: 1.1rem;
+        font-weight: 800;
+        color: var(--text-primary);
+        line-height: 1;
+    }
+
+    .daily-goal-ring-label {
+        font-size: 0.55rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    /* Weekly Activity Chart */
+    .activity-chart {
+        display: flex;
+        align-items: flex-end;
+        gap: 0.5rem;
+        height: 120px;
+        padding: 0 0.5rem;
+    }
+
+    .activity-bar-wrapper {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.4rem;
+        height: 100%;
+    }
+
+    .activity-bar-container {
+        flex: 1;
+        width: 100%;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+    }
+
+    .activity-bar {
+        width: 100%;
+        max-width: 32px;
+        min-height: 4px;
+        border-radius: 4px 4px 2px 2px;
+        background: linear-gradient(to top, var(--gold-start), var(--gold-end));
+        transition: height 0.6s ease-out;
+        position: relative;
+    }
+
+    .activity-bar.today {
+        box-shadow: 0 0 12px rgba(251, 191, 36, 0.4);
+    }
+
+    .activity-bar.empty {
+        background: rgba(255, 255, 255, 0.06);
+        min-height: 4px;
+    }
+
+    .activity-bar-count {
+        font-size: 0.6rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        position: absolute;
+        top: -16px;
+        left: 50%;
+        transform: translateX(-50%);
+        white-space: nowrap;
+    }
+
+    .activity-bar-day {
+        font-size: 0.65rem;
+        color: var(--text-muted);
+        font-weight: 600;
+    }
+
+    .activity-bar-day.today {
+        color: var(--gold-start);
+        font-weight: 700;
+    }
+
+    /* Section Heatmap */
+    .heatmap-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 0.5rem;
+    }
+
+    .heatmap-cell {
+        aspect-ratio: 1;
+        border-radius: 0.5rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.2s, box-shadow 0.2s;
+        cursor: default;
+        position: relative;
+    }
+
+    .heatmap-cell:hover {
+        transform: scale(1.08);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .heatmap-cell-number {
+        font-size: 0.7rem;
+        font-weight: 800;
+        color: white;
+        line-height: 1;
+    }
+
+    .heatmap-cell-pct {
+        font-size: 0.55rem;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.8);
+    }
+
+    .heatmap-cell.strong { background: rgba(34, 197, 94, 0.4); border: 1px solid rgba(34, 197, 94, 0.3); }
+    .heatmap-cell.medium { background: rgba(245, 158, 11, 0.35); border: 1px solid rgba(245, 158, 11, 0.3); }
+    .heatmap-cell.weak { background: rgba(239, 68, 68, 0.3); border: 1px solid rgba(239, 68, 68, 0.3); }
+    .heatmap-cell.none { background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.06); }
+
+    .heatmap-cell.weak .heatmap-cell-number { color: #fca5a5; }
+    .heatmap-cell.none .heatmap-cell-number { color: var(--text-muted); }
+
+    .heatmap-legend {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 0.75rem;
+    }
+
+    .heatmap-legend-item {
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+        font-size: 0.6rem;
+        color: var(--text-muted);
+    }
+
+    .heatmap-legend-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 2px;
+    }
+
+    /* Streak freeze indicator */
+    .streak-freeze-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.2rem;
+        font-size: 0.6rem;
+        color: #93c5fd;
+        font-weight: 600;
+    }
+
+    /* Weekly calendar dots */
+    .week-dots {
+        display: flex;
+        gap: 0.35rem;
+        justify-content: center;
+        margin-top: 0.5rem;
+    }
+
+    .week-dot {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.5rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .week-dot.active {
+        background: rgba(251, 191, 36, 0.25);
+        border-color: rgba(251, 191, 36, 0.4);
+        color: var(--gold-start);
+    }
+
+    .week-dot.today {
+        border-color: var(--gold-start);
+        box-shadow: 0 0 6px rgba(251, 191, 36, 0.3);
+    }
 </style>
 @endpush
 
@@ -545,7 +770,12 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') dismi
             <span class="stat-pill-icon text-warning"><i class="bi bi-fire"></i></span>
             <div>
                 <div class="stat-pill-value">{{ $user->streak_days ?? 0 }}</div>
-                <div class="stat-pill-label">Streak</div>
+                <div class="stat-pill-label">
+                    Streak
+                    @if(isset($streakFreezeStatus) && $streakFreezeStatus['remaining'] > 0)
+                        <span class="streak-freeze-badge" title="{{ $streakFreezeStatus['remaining'] }} Freeze(s) verfügbar"><i class="bi bi-snow"></i>{{ $streakFreezeStatus['remaining'] }}</span>
+                    @endif
+                </div>
             </div>
         </div>
         <div class="stat-pill">
@@ -816,6 +1046,174 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') dismi
         @endif
     </div>
 
+    <!-- Statistiken Section -->
+    <div class="section-header">
+        <h2 class="section-title">Statistiken</h2>
+    </div>
+
+    <div class="bento-grid">
+        <!-- Daily Goal Widget -->
+        <div class="glass-tl bento-1of3" style="text-align: center;">
+            @if(isset($dailyGoalStatus) && $dailyGoalStatus['daily_goal'])
+                @php
+                    $goalCirc = 2 * 3.14159 * 34;
+                    $goalPct = min(100, ($dailyGoalStatus['progress'] / $dailyGoalStatus['daily_goal']) * 100);
+                    $goalOffset = $goalCirc - ($goalPct / 100) * $goalCirc;
+                    $goalColor = $dailyGoalStatus['completed'] ? '#22c55e' : 'url(#goldGradient)';
+                @endphp
+                <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 0.5rem;">Tagesziel</div>
+                <div class="daily-goal-ring">
+                    <svg width="80" height="80" viewBox="0 0 80 80">
+                        <circle class="daily-goal-ring-bg" cx="40" cy="40" r="34"/>
+                        <circle class="daily-goal-ring-fill" cx="40" cy="40" r="34"
+                                stroke-dasharray="{{ $goalCirc }}"
+                                stroke-dashoffset="{{ $goalOffset }}"
+                                stroke="{{ $goalColor }}"/>
+                    </svg>
+                    <div class="daily-goal-ring-text">
+                        <span class="daily-goal-ring-value">{{ $dailyGoalStatus['progress'] }}/{{ $dailyGoalStatus['daily_goal'] }}</span>
+                        <span class="daily-goal-ring-label">Fragen</span>
+                    </div>
+                </div>
+                @if($dailyGoalStatus['completed'])
+                    <div style="font-size: 0.8rem; font-weight: 600; color: #22c55e;">Geschafft!</div>
+                @endif
+                @if($dailyGoalStatus['weekly_goal_days'])
+                    @php
+                        $startOfWeek = \Carbon\Carbon::now()->startOfWeek(\Carbon\Carbon::MONDAY);
+                        $dayNames = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
+                        $activeDays = [];
+                        if(isset($weeklyActivity)) {
+                            foreach($weeklyActivity as $day) {
+                                $activeDays[] = $day->date;
+                            }
+                        }
+                    @endphp
+                    <div class="week-dots">
+                        @for($d = 0; $d < 7; $d++)
+                            @php
+                                $dayDate = $startOfWeek->copy()->addDays($d);
+                                $isActive = in_array($dayDate->toDateString(), $activeDays);
+                                $isToday = $dayDate->isToday();
+                            @endphp
+                            <div class="week-dot {{ $isActive ? 'active' : '' }} {{ $isToday ? 'today' : '' }}">{{ $dayNames[$d] }}</div>
+                        @endfor
+                    </div>
+                @endif
+            @else
+                <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 0.75rem;">Tagesziel</div>
+                <div style="margin-bottom: 0.75rem;">
+                    <i class="bi bi-bullseye" style="font-size: 2rem; color: var(--text-muted); opacity: 0.4;"></i>
+                </div>
+                <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.75rem;">Setze dir ein Tagesziel</div>
+                <a href="{{ route('profile') }}#lernplan" class="btn-ghost btn-sm">Einrichten</a>
+            @endif
+        </div>
+
+        <!-- Weekly Activity Chart -->
+        <div class="glass bento-2of3">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                <span style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted);">Wochenaktivität</span>
+                @if(isset($weeklyActivity) && $weeklyActivity->sum('count') > 0)
+                    <span style="font-size: 0.75rem; font-weight: 700; color: var(--gold-start);">{{ $weeklyActivity->sum('count') }} Fragen</span>
+                @endif
+            </div>
+            <div class="activity-chart">
+                @php
+                    $maxCount = isset($weeklyActivity) ? max($weeklyActivity->max('count'), 1) : 1;
+                    $days = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
+                    $startOfWeek = \Carbon\Carbon::now()->startOfWeek(\Carbon\Carbon::MONDAY);
+                @endphp
+                @for($i = 0; $i < 7; $i++)
+                    @php
+                        $dayDate = $startOfWeek->copy()->addDays($i);
+                        $dateStr = $dayDate->toDateString();
+                        $dayData = isset($weeklyActivity) ? $weeklyActivity->firstWhere('date', $dateStr) : null;
+                        $count = $dayData ? $dayData->count : 0;
+                        $correct = $dayData ? $dayData->correct : 0;
+                        $barHeight = $count > 0 ? max(8, ($count / $maxCount) * 100) : 0;
+                        $isToday = $dayDate->isToday();
+                    @endphp
+                    <div class="activity-bar-wrapper">
+                        <div class="activity-bar-container">
+                            @if($count > 0)
+                                <div class="activity-bar {{ $isToday ? 'today' : '' }}" style="height: {{ $barHeight }}%;" title="{{ $count }} Fragen, {{ $correct }} richtig">
+                                    <span class="activity-bar-count">{{ $count }}</span>
+                                </div>
+                            @else
+                                <div class="activity-bar empty"></div>
+                            @endif
+                        </div>
+                        <span class="activity-bar-day {{ $isToday ? 'today' : '' }}">{{ $days[$i] }}</span>
+                    </div>
+                @endfor
+            </div>
+        </div>
+
+        <!-- Section Heatmap -->
+        <div class="glass-br bento-2of3">
+            <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 0.75rem;">Stärken & Schwächen</div>
+            <div class="heatmap-grid">
+                @for($s = 1; $s <= 10; $s++)
+                    @php
+                        $sData = isset($sectionStats) ? $sectionStats->firstWhere('lernabschnitt', $s) : null;
+                        $sTotal = $sData ? $sData->total : 0;
+                        $sCorrect = $sData ? $sData->correct : 0;
+                        $sPct = $sTotal > 0 ? round(($sCorrect / $sTotal) * 100) : -1;
+                        $sClass = $sPct < 0 ? 'none' : ($sPct >= 75 ? 'strong' : ($sPct >= 50 ? 'medium' : 'weak'));
+                    @endphp
+                    <a href="{{ route('practice.section', $s) }}" class="heatmap-cell {{ $sClass }}" title="Abschnitt {{ $s }}: {{ $sPct >= 0 ? $sPct.'% richtig ('.$sTotal.' Fragen)' : 'Noch nicht geübt' }}" style="text-decoration: none;">
+                        <span class="heatmap-cell-number">{{ $s }}</span>
+                        @if($sPct >= 0)
+                            <span class="heatmap-cell-pct">{{ $sPct }}%</span>
+                        @endif
+                    </a>
+                @endfor
+            </div>
+            <div class="heatmap-legend">
+                <div class="heatmap-legend-item"><span class="heatmap-legend-dot" style="background: rgba(239, 68, 68, 0.5);"></span>< 50%</div>
+                <div class="heatmap-legend-item"><span class="heatmap-legend-dot" style="background: rgba(245, 158, 11, 0.5);"></span>50-75%</div>
+                <div class="heatmap-legend-item"><span class="heatmap-legend-dot" style="background: rgba(34, 197, 94, 0.5);"></span>> 75%</div>
+            </div>
+        </div>
+
+        <!-- Trend Widget -->
+        <div class="glass-organic bento-1of3" style="display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
+            @php
+                $thisWeekTotal = isset($weeklyActivity) ? $weeklyActivity->sum('count') : 0;
+                $thisWeekCorrect = isset($weeklyActivity) ? $weeklyActivity->sum('correct') : 0;
+                $thisWeekRate = $thisWeekTotal > 0 ? round(($thisWeekCorrect / $thisWeekTotal) * 100) : 0;
+
+                $lastWeekData = \DB::table('question_statistics')
+                    ->where('user_id', $user->id)
+                    ->where('created_at', '>=', now()->subDays(14))
+                    ->where('created_at', '<', now()->subDays(7))
+                    ->selectRaw('COUNT(*) as total, SUM(is_correct) as correct')
+                    ->first();
+                $lastWeekTotal = $lastWeekData ? $lastWeekData->total : 0;
+                $lastWeekRate = $lastWeekTotal > 0 ? round(($lastWeekData->correct / $lastWeekTotal) * 100) : 0;
+
+                $rateDiff = $thisWeekRate - $lastWeekRate;
+                $countDiff = $thisWeekTotal - $lastWeekTotal;
+            @endphp
+            <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 0.75rem;">Trend</div>
+            @if($thisWeekTotal > 0)
+                <div style="margin-bottom: 0.5rem;">
+                    <span style="font-size: 1.5rem; font-weight: 800; color: {{ $thisWeekRate >= 70 ? '#22c55e' : ($thisWeekRate >= 50 ? '#f59e0b' : '#ef4444') }};">{{ $thisWeekRate }}%</span>
+                </div>
+                <div style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Trefferquote</div>
+                @if($lastWeekTotal > 0)
+                    <div style="font-size: 0.7rem; color: {{ $rateDiff >= 0 ? '#22c55e' : '#ef4444' }}; font-weight: 600;">
+                        <i class="bi bi-{{ $rateDiff >= 0 ? 'arrow-up' : 'arrow-down' }}"></i>
+                        {{ abs($rateDiff) }}% vs. Vorwoche
+                    </div>
+                @endif
+            @else
+                <div style="font-size: 0.8rem; color: var(--text-muted);">Noch keine Aktivität</div>
+            @endif
+        </div>
+    </div>
+
     <!-- Lehrgänge Section -->
     <div class="section-header">
         <h2 class="section-title">Deine Lehrgänge</h2>
@@ -835,7 +1233,7 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') dismi
                 $lehrgangProgressPercent = $maxProgressPoints > 0 ? round(($totalProgressPoints / $maxProgressPoints) * 100) : 0;
                 $isCompleted = $lehrgangProgressPercent == 100 && $solvedCount > 0;
             @endphp
-            <div class="glass lehrgang-card hover-lift">
+            <div class="glass lehrgang-card hover-lift fade-in-on-scroll">
                 <h4 class="lehrgang-title">{{ $lehrgang->lehrgang }}</h4>
                 <p class="lehrgang-desc">{{ $lehrgang->beschreibung }}</p>
                 <div class="lehrgang-progress">
@@ -883,7 +1281,7 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') dismi
                 $lernpoolProgress = $totalCount > 0 ? round(($solvedCount / $totalCount) * 100) : 0;
                 $isCompleted = $lernpoolProgress == 100 && $solvedCount > 0;
             @endphp
-            <div class="glass lehrgang-card hover-lift">
+            <div class="glass lehrgang-card hover-lift fade-in-on-scroll">
                 <h4 class="lehrgang-title">{{ $lernpool->name }}</h4>
                 @if($lernpool->tags && count($lernpool->tags) > 0)
                 <div style="display: flex; gap: 0.25rem; flex-wrap: wrap; margin-bottom: 0.5rem;">

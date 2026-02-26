@@ -80,10 +80,12 @@
                     <div class="flex items-start gap-4">
                         <!-- Icon -->
                         <div class="flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center {{ $notification->is_read ? 'glass-subtle' : 'glass' }}" style="font-size: 1.5rem;">
-                            @if($notification->icon)
+                            @if($notification->icon && str_starts_with($notification->icon, 'bi-'))
+                                <i class="bi {{ $notification->icon }}" style="color: var(--gold-start);"></i>
+                            @elseif($notification->icon)
                                 {{ $notification->icon }}
                             @else
-                                <i class="bi bi-bell" style="color: var(--gold);"></i>
+                                <i class="bi bi-bell" style="color: var(--gold-start);"></i>
                             @endif
                         </div>
 
@@ -114,14 +116,14 @@
                                 <div class="flex-shrink-0 flex gap-2">
                                     @if(!$notification->is_read)
                                         <button onclick="markAsRead({{ $notification->id }})"
-                                                class="w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-110"
+                                                class="w-11 h-11 rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-110"
                                                 style="background: var(--glass-white-5); color: var(--text-secondary);"
                                                 title="Als gelesen markieren">
                                             <i class="bi bi-check2"></i>
                                         </button>
                                     @endif
                                     <button onclick="deleteNotification({{ $notification->id }})"
-                                            class="w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-110"
+                                            class="w-11 h-11 rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-110"
                                             style="background: var(--glass-white-5); color: var(--text-secondary);"
                                             title="Löschen">
                                         <i class="bi bi-x-lg"></i>

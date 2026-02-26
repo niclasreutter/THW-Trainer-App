@@ -19,7 +19,7 @@
     <!-- Stats Row -->
     <div class="stats-row">
         <div class="stat-pill">
-            <span class="stat-pill-icon">⭐</span>
+            <span class="stat-pill-icon text-gold"><i class="bi bi-star-fill"></i></span>
             <div>
                 <div class="stat-pill-value">{{ $user->level }}</div>
                 <div class="stat-pill-label">Level</div>
@@ -27,7 +27,7 @@
         </div>
 
         <div class="stat-pill">
-            <span class="stat-pill-icon">💎</span>
+            <span class="stat-pill-icon" style="color: #a78bfa;"><i class="bi bi-gem"></i></span>
             <div>
                 <div class="stat-pill-value">{{ number_format($user->points) }}</div>
                 <div class="stat-pill-label">Punkte</div>
@@ -35,7 +35,7 @@
         </div>
 
         <div class="stat-pill">
-            <span class="stat-pill-icon">🔥</span>
+            <span class="stat-pill-icon text-warning"><i class="bi bi-fire"></i></span>
             <div>
                 <div class="stat-pill-value">{{ $user->streak_days }}</div>
                 <div class="stat-pill-label">Tage Streak</div>
@@ -43,7 +43,7 @@
         </div>
 
         <div class="stat-pill">
-            <span class="stat-pill-icon">🏆</span>
+            <span class="stat-pill-icon" style="color: #f59e0b;"><i class="bi bi-trophy-fill"></i></span>
             <div>
                 <div class="stat-pill-value">{{ collect($achievements)->where('unlocked', true)->count() }}/{{ count($achievements) }}</div>
                 <div class="stat-pill-label">Achievements</div>
@@ -56,7 +56,7 @@
         <div class="glass-gold bento-half p-6">
             <h3 class="text-lg font-bold mb-4" style="color: var(--text-primary);">Level-Fortschritt</h3>
             <div class="flex items-center gap-4 mb-4">
-                <div class="text-5xl">⭐</div>
+                <div class="text-5xl" style="color: var(--gold-start);"><i class="bi bi-star-fill"></i></div>
                 <div class="flex-1">
                     <div class="text-3xl font-extrabold text-gradient-gold">Level {{ $user->level }}</div>
                     <div class="text-sm" style="color: var(--text-secondary);">
@@ -82,9 +82,9 @@
             <div class="flex items-center gap-4 mb-4">
                 <div class="text-5xl">
                     @if(($user->daily_questions_solved ?? 0) >= 20)
-                        ✅
+                        <i class="bi bi-check-circle-fill" style="color: #22c55e;"></i>
                     @else
-                        ⚡
+                        <i class="bi bi-lightning-fill" style="color: var(--gold-start);"></i>
                     @endif
                 </div>
                 <div class="flex-1">
@@ -118,8 +118,12 @@
                 @foreach($achievements as $achievement)
                     <div class="{{ $achievement['unlocked'] ? 'glass-success' : 'glass-subtle' }} p-4 transition-all duration-200 {{ $achievement['unlocked'] ? 'hover:scale-[1.02]' : 'opacity-70' }}">
                         <div class="flex items-start gap-3">
-                            <div class="text-3xl {{ !$achievement['unlocked'] ? 'grayscale opacity-50' : '' }}">
-                                {{ $achievement['icon'] }}
+                            <div class="text-3xl {{ !$achievement['unlocked'] ? 'opacity-30' : '' }}" style="color: {{ $achievement['unlocked'] ? 'var(--gold-start)' : 'var(--text-muted)' }};">
+                                @if(str_starts_with($achievement['icon'], 'bi-'))
+                                    <i class="bi {{ $achievement['icon'] }}"></i>
+                                @else
+                                    {{ $achievement['icon'] }}
+                                @endif
                             </div>
                             <div class="flex-1 min-w-0">
                                 <div class="flex items-center gap-2 mb-1">
@@ -127,9 +131,9 @@
                                         {{ $achievement['title'] }}
                                     </h4>
                                     @if($achievement['unlocked'])
-                                        <span class="text-green-500 flex-shrink-0">✓</span>
+                                        <i class="bi bi-check-circle-fill flex-shrink-0" style="color: #22c55e;"></i>
                                     @else
-                                        <span class="flex-shrink-0" style="color: var(--text-muted);">🔒</span>
+                                        <i class="bi bi-lock-fill flex-shrink-0" style="color: var(--text-muted);"></i>
                                     @endif
                                 </div>
                                 <p class="text-xs" style="color: {{ $achievement['unlocked'] ? 'var(--success)' : 'var(--text-muted)' }};">

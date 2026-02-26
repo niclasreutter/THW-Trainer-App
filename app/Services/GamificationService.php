@@ -12,6 +12,8 @@ class GamificationService
     const POINTS_PER_EXAM_PASS = 100;
     const STREAK_BONUS_MULTIPLIER = 2;
     const DAILY_BONUS = 50;
+    const DAILY_GOAL_BONUS = 25;
+    const MAX_STREAK_FREEZES_PER_WEEK = 2;
 
     // Level-System (Punkte benötigt für nächstes Level)
     const LEVEL_THRESHOLDS = [
@@ -40,79 +42,79 @@ class GamificationService
     // Achievements
     const ACHIEVEMENTS = [
         'first_question' => [
-            'title' => '🌟 Erste Schritte',
+            'title' => 'Erste Schritte',
             'description' => 'Erste Frage beantwortet',
-            'icon' => '🎯'
+            'icon' => 'bi-star-fill'
         ],
         'streak_3' => [
-            'title' => '🔥 Feuer entfacht',
+            'title' => 'Feuer entfacht',
             'description' => '3 Tage in Folge gelernt',
-            'icon' => '🔥'
+            'icon' => 'bi-fire'
         ],
         'streak_7' => [
-            'title' => '🚀 Durchstarter',
+            'title' => 'Durchstarter',
             'description' => '7 Tage in Folge gelernt',
-            'icon' => '🚀'
+            'icon' => 'bi-rocket-takeoff'
         ],
         'streak_30' => [
-            'title' => '👑 Lernkönig',
+            'title' => 'Lernkoenig',
             'description' => '30 Tage in Folge gelernt',
-            'icon' => '👑'
+            'icon' => 'bi-crown-fill'
         ],
         'questions_50' => [
-            'title' => '📚 Wissensdurst',
+            'title' => 'Wissensdurst',
             'description' => '50 Fragen beantwortet',
-            'icon' => '📚'
+            'icon' => 'bi-book-fill'
         ],
         'questions_100' => [
-            'title' => '🧠 Denker',
+            'title' => 'Denker',
             'description' => '100 Fragen beantwortet',
-            'icon' => '🧠'
+            'icon' => 'bi-lightbulb-fill'
         ],
         'questions_500' => [
-            'title' => '🎓 Experte',
+            'title' => 'Experte',
             'description' => '500 Fragen beantwortet',
-            'icon' => '🎓'
+            'icon' => 'bi-mortarboard-fill'
         ],
         'exam_first' => [
-            'title' => '🏆 Erste Prüfung',
+            'title' => 'Erste Pruefung',
             'description' => 'Erste Prüfung bestanden',
-            'icon' => '🏆'
+            'icon' => 'bi-trophy-fill'
         ],
         'exam_perfect' => [
-            'title' => '💎 Perfektionist',
+            'title' => 'Perfektionist',
             'description' => 'Prüfung mit 100% bestanden',
-            'icon' => '💎'
+            'icon' => 'bi-gem'
         ],
         'speed_demon' => [
-            'title' => '⚡ Blitzschnell',
+            'title' => 'Blitzschnell',
             'description' => '20 Fragen an einem Tag',
-            'icon' => '⚡'
+            'icon' => 'bi-lightning-fill'
         ],
         'section_master' => [
-            'title' => '🎯 Abschnittsmeister',
+            'title' => 'Abschnittsmeister',
             'description' => 'Alle Fragen eines Abschnitts gelöst',
-            'icon' => '🎯'
+            'icon' => 'bi-bullseye'
         ],
         'level_5' => [
-            'title' => '⭐ Aufsteiger',
+            'title' => 'Aufsteiger',
             'description' => 'Level 5 erreicht',
-            'icon' => '⭐'
+            'icon' => 'bi-star'
         ],
         'level_10' => [
-            'title' => '🌟 Meister',
+            'title' => 'Meister',
             'description' => 'Level 10 erreicht',
-            'icon' => '🌟'
+            'icon' => 'bi-star-fill'
         ],
         'level_15' => [
-            'title' => '💫 Experte',
+            'title' => 'Experte',
             'description' => 'Level 15 erreicht',
-            'icon' => '💫'
+            'icon' => 'bi-stars'
         ],
         'level_20' => [
-            'title' => '🏅 Legende',
+            'title' => 'Legende',
             'description' => 'Level 20 erreicht',
-            'icon' => '🏅'
+            'icon' => 'bi-award-fill'
         ]
     ];
 
@@ -138,9 +140,9 @@ class GamificationService
             // Erstelle persistente Notification in DB
             $notification = $this->createNotification($user, [
                 'type' => 'level_up',
-                'title' => '🎉 Level Up!',
+                'title' => 'Level Up!',
                 'message' => "Du hast Level {$user->level} erreicht!",
-                'icon' => '🎉',
+                'icon' => 'bi-arrow-up-circle-fill',
                 'data' => [
                     'level' => $user->level,
                     'old_level' => $oldLevel,
@@ -149,7 +151,7 @@ class GamificationService
 
             $notifications[] = [
                 'type' => 'level_up',
-                'title' => '🎉 Level Up!',
+                'title' => 'Level Up!',
                 'message' => "Du hast Level {$user->level} erreicht!",
                 'level' => $user->level
             ];
@@ -170,7 +172,7 @@ class GamificationService
             session()->save(); // Force save
 
             // Debug-Logging
-            \Log::info('🎉 Gamification notifications stored in session', [
+            \Log::info('Gamification notifications stored in session', [
                 'user_id' => $user->id,
                 'notifications_count' => count($allNotifications),
                 'notifications' => $allNotifications,
@@ -192,11 +194,36 @@ class GamificationService
         $today = Carbon::today();
         $lastActivity = $user->last_activity_date ? Carbon::parse($user->last_activity_date) : null;
 
-        if (!$lastActivity || $lastActivity->diffInDays($today) > 1) {
-            // Streak unterbrochen oder erste Aktivität
-            $user->streak_days = 0; // Erste Aktivität = 0 Tage Streak
+        // Wöchentlichen Freeze-Reset prüfen
+        $this->resetWeeklyFreezesIfNeeded($user);
+
+        if (!$lastActivity) {
+            // Erste Aktivität
+            $user->streak_days = 0;
+        } elseif ($lastActivity->diffInDays($today) > 1) {
+            // Tage verpasst - versuche Streak Freeze
+            $missedDays = $lastActivity->diffInDays($today) - 1;
+            $frozenDays = 0;
+
+            for ($i = 0; $i < $missedDays; $i++) {
+                $missedDate = $lastActivity->copy()->addDays($i + 1);
+                if ($this->useStreakFreeze($user, $missedDate)) {
+                    $frozenDays++;
+                } else {
+                    break;
+                }
+            }
+
+            if ($frozenDays >= $missedDays) {
+                // Alle verpassten Tage durch Freezes gedeckt
+                $user->streak_days += 1;
+                $this->checkStreakAchievements($user);
+            } else {
+                // Streak unterbrochen
+                $user->streak_days = 0;
+            }
         } elseif ($lastActivity->diffInDays($today) == 1) {
-            // Streak fortgesetzt
+            // Streak fortgesetzt (normaler Folgetag)
             $user->streak_days += 1;
             $this->checkStreakAchievements($user);
         }
@@ -220,18 +247,20 @@ class GamificationService
         if (!$isCorrect) {
             // Bei falscher Antwort: Nur Aktivität aktualisieren, keine Punkte
             $this->updateUserActivity($user);
+            $this->updateDailyGoalProgress($user);
             return null;
         }
 
         $this->updateStreak($user);
         $this->updateDailyQuestions($user);
+        $this->updateDailyGoalProgress($user);
 
         $basePoints = self::POINTS_PER_QUESTION;
-        
+
         // Prüfe ob es eine Top-Wrong-Frage ist (doppelte Punkte)
         $topWrongBonus = 0;
         $reason = 'Frage beantwortet';
-        
+
         if ($questionId) {
             $topWrongQuestions = \Cache::get('top_wrong_questions', []);
             if (in_array($questionId, $topWrongQuestions)) {
@@ -239,12 +268,12 @@ class GamificationService
                 $reason = 'Häufig falsche Frage gelöst';
             }
         }
-        
+
         $streakBonus = $user->streak_days >= 3 ? $basePoints * (self::STREAK_BONUS_MULTIPLIER - 1) : 0;
         $totalPoints = $basePoints + $topWrongBonus + $streakBonus;
 
         $result = $this->awardPoints($user, $totalPoints, $reason);
-        
+
         $this->checkQuestionAchievements($user);
         $this->checkDailyAchievements($user);
         $this->checkSectionAchievements($user);
@@ -458,7 +487,7 @@ class GamificationService
                 // Erstelle persistente Notification in DB
                 $this->createNotification($user, [
                     'type' => 'achievement',
-                    'title' => '🏆 Neues Achievement!',
+                    'title' => 'Neues Achievement!',
                     'message' => $achievement['title'],
                     'icon' => $achievement['icon'],
                     'data' => [
@@ -470,7 +499,7 @@ class GamificationService
                 // Auch in Session für sofortige Anzeige
                 $notification = [
                     'type' => 'achievement',
-                    'title' => '🏆 Neues Achievement!',
+                    'title' => 'Neues Achievement!',
                     'message' => $achievement['title'],
                     'description' => $achievement['description'],
                     'icon' => $achievement['icon']
@@ -482,7 +511,7 @@ class GamificationService
                 session()->save(); // Force save
 
                 // Debug-Logging
-                \Log::info('🏆 Achievement notification stored in session', [
+                \Log::info('Achievement notification stored in session', [
                     'user_id' => $user->id,
                     'achievement_key' => $achievementKey,
                     'notification' => $notification,
@@ -589,6 +618,137 @@ class GamificationService
             'start' => $startOfWeek,
             'end' => $endOfWeek,
             'formatted' => $startOfWeek->format('d.m.Y') . ' - ' . $endOfWeek->format('d.m.Y')
+        ];
+    }
+
+    /**
+     * Versucht einen Streak Freeze für einen verpassten Tag zu verwenden.
+     */
+    private function useStreakFreeze(User $user, Carbon $missedDate): bool
+    {
+        $available = $user->streak_freezes_available ?? self::MAX_STREAK_FREEZES_PER_WEEK;
+        $used = $user->streak_freezes_used ?? 0;
+
+        if ($used >= $available) {
+            return false;
+        }
+
+        $user->streak_freezes_used = $used + 1;
+
+        $log = $this->ensureArray($user->streak_freeze_log);
+        $log[] = [
+            'date' => $missedDate->toDateString(),
+            'used_at' => Carbon::now()->toDateTimeString(),
+        ];
+        $user->streak_freeze_log = $log;
+
+        \Log::info('Streak Freeze verwendet', [
+            'user_id' => $user->id,
+            'missed_date' => $missedDate->toDateString(),
+            'freezes_used' => $user->streak_freezes_used,
+        ]);
+
+        return true;
+    }
+
+    /**
+     * Setzt wöchentliche Streak Freezes zurück (Montag).
+     */
+    private function resetWeeklyFreezesIfNeeded(User $user)
+    {
+        $startOfWeek = Carbon::now()->startOfWeek(Carbon::MONDAY);
+
+        if (!$user->streak_freeze_reset_at || Carbon::parse($user->streak_freeze_reset_at)->lt($startOfWeek)) {
+            $user->streak_freezes_used = 0;
+            $user->streak_freeze_reset_at = $startOfWeek;
+        }
+    }
+
+    /**
+     * Gibt Streak-Freeze-Status des Users zurück.
+     */
+    public function getStreakFreezeStatus(User $user): array
+    {
+        $this->resetWeeklyFreezesIfNeeded($user);
+
+        $available = $user->streak_freezes_available ?? self::MAX_STREAK_FREEZES_PER_WEEK;
+        $used = $user->streak_freezes_used ?? 0;
+        $log = $this->ensureArray($user->streak_freeze_log);
+
+        // Nur die letzten 4 Wochen im Log
+        $fourWeeksAgo = Carbon::now()->subWeeks(4)->toDateString();
+        $recentLog = array_filter($log, fn($entry) => ($entry['date'] ?? '') >= $fourWeeksAgo);
+
+        return [
+            'available' => $available,
+            'used' => $used,
+            'remaining' => max(0, $available - $used),
+            'recent_log' => array_values($recentLog),
+        ];
+    }
+
+    /**
+     * Aktualisiert den Lernplan-Fortschritt (Tagesziel).
+     */
+    public function updateDailyGoalProgress(User $user): ?array
+    {
+        if (!$user->daily_goal) {
+            return null;
+        }
+
+        $today = Carbon::today();
+
+        if (!$user->daily_goal_date || Carbon::parse($user->daily_goal_date)->lt($today)) {
+            $user->daily_goal_progress = 1;
+            $user->daily_goal_date = $today;
+        } else {
+            $user->daily_goal_progress += 1;
+        }
+
+        $result = null;
+
+        // Tagesziel gerade erreicht
+        if ($user->daily_goal_progress == $user->daily_goal) {
+            $user->goals_completed_count = ($user->goals_completed_count ?? 0) + 1;
+
+            $this->awardPoints($user, self::DAILY_GOAL_BONUS, 'Tagesziel erreicht');
+
+            $this->createNotification($user, [
+                'type' => 'daily_goal',
+                'title' => 'Tagesziel erreicht!',
+                'message' => "Du hast dein Tagesziel von {$user->daily_goal} Fragen erreicht.",
+                'icon' => 'bi-check-circle-fill',
+            ]);
+
+            $result = [
+                'goal_reached' => true,
+                'goal' => $user->daily_goal,
+                'bonus_points' => self::DAILY_GOAL_BONUS,
+            ];
+        }
+
+        $user->save();
+        return $result;
+    }
+
+    /**
+     * Gibt den Lernplan-Status des Users zurück.
+     */
+    public function getDailyGoalStatus(User $user): array
+    {
+        $today = Carbon::today();
+        $progress = 0;
+
+        if ($user->daily_goal_date && Carbon::parse($user->daily_goal_date)->eq($today)) {
+            $progress = $user->daily_goal_progress ?? 0;
+        }
+
+        return [
+            'daily_goal' => $user->daily_goal,
+            'progress' => $progress,
+            'completed' => $user->daily_goal ? $progress >= $user->daily_goal : false,
+            'weekly_goal_days' => $user->weekly_goal_days,
+            'goals_completed_count' => $user->goals_completed_count ?? 0,
         ];
     }
 
