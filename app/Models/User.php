@@ -30,8 +30,6 @@ class User extends Authenticatable implements MustVerifyEmail
         'leaderboard_banner_dismissed',
         'onboarding_completed',
         'exam_date',
-        'daily_goal',
-        'weekly_goal_days',
     ];
 
     /**
@@ -79,7 +77,6 @@ class User extends Authenticatable implements MustVerifyEmail
             'exam_date' => 'date',
             'streak_freeze_log' => 'array',
             'streak_freeze_reset_at' => 'date',
-            'daily_goal_date' => 'date',
         ];
     }
     

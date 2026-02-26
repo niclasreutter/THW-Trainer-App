@@ -12,7 +12,6 @@
 */
 
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\LernplanController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 
@@ -77,14 +76,13 @@ Route::get('/dashboard', function () {
         ->orderBy('questions.lernabschnitt')
         ->get();
 
-    // Lernplan & Streak Freeze Status
+    // Streak Freeze Status
     $gamificationService = new \App\Services\GamificationService();
-    $dailyGoalStatus = $gamificationService->getDailyGoalStatus($user);
     $streakFreezeStatus = $gamificationService->getStreakFreezeStatus($user);
 
     return view('dashboard', compact(
         'user', 'recentExams', 'totalQuestions', 'spacedRepetitionDue',
-        'weeklyActivity', 'sectionStats', 'dailyGoalStatus', 'streakFreezeStatus'
+        'weeklyActivity', 'sectionStats', 'streakFreezeStatus'
     ));
 })->middleware(['auth', 'verified'])->name('dashboard');
 
@@ -97,10 +95,6 @@ Route::post('/dashboard/dismiss-email-consent-banner', function () {
 Route::get('/onboarding', [\App\Http\Controllers\OnboardingController::class, 'index'])->middleware(['auth', 'verified'])->name('onboarding');
 Route::post('/onboarding/complete', [\App\Http\Controllers\OnboardingController::class, 'complete'])->middleware(['auth', 'verified'])->name('onboarding.complete');
 Route::post('/onboarding/skip', [\App\Http\Controllers\OnboardingController::class, 'skip'])->middleware(['auth', 'verified'])->name('onboarding.skip');
-
-Route::middleware('auth')->group(function () {
-    Route::patch('/lernplan', [LernplanController::class, 'update'])->name('lernplan.update');
-});
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', function() {

@@ -268,67 +268,6 @@
             </div>
         </div>
 
-        <!-- Lernplan -->
-        <div class="glass bento-lernplan" id="lernplan" x-data="{
-            dailyGoal: {{ $user->daily_goal ?? 'null' }},
-            weeklyGoalDays: {{ $user->weekly_goal_days ?? 'null' }},
-            saving: false,
-            saved: false,
-            saveLernplan() {
-                this.saving = true;
-                this.saved = false;
-                fetch('{{ route('lernplan.update') }}', {
-                    method: 'PATCH',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').getAttribute('content'),
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        daily_goal: this.dailyGoal || null,
-                        weekly_goal_days: this.weeklyGoalDays || null
-                    })
-                })
-                .then(r => r.json())
-                .then(() => { this.saving = false; this.saved = true; setTimeout(() => this.saved = false, 3000); })
-                .catch(() => { this.saving = false; });
-            }
-        }">
-            <div class="section-header" style="margin-bottom: 1rem; padding-left: 0.75rem;">
-                <h2 class="section-title" style="font-size: 1rem;">Lernplan</h2>
-            </div>
-
-            <div class="form-group">
-                <label class="label-glass">Tagesziel (Fragen pro Tag)</label>
-                <select x-model="dailyGoal" class="input-glass" style="width: 100%;">
-                    <option :selected="!dailyGoal" value="">Kein Tagesziel</option>
-                    <option value="5">5 Fragen</option>
-                    <option value="10">10 Fragen</option>
-                    <option value="15">15 Fragen</option>
-                    <option value="20">20 Fragen</option>
-                    <option value="30">30 Fragen</option>
-                    <option value="50">50 Fragen</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label class="label-glass">Wochenziel (Tage pro Woche)</label>
-                <select x-model="weeklyGoalDays" class="input-glass" style="width: 100%;">
-                    <option :selected="!weeklyGoalDays" value="">Kein Wochenziel</option>
-                    <option value="3">3 Tage</option>
-                    <option value="4">4 Tage</option>
-                    <option value="5">5 Tage</option>
-                    <option value="6">6 Tage</option>
-                    <option value="7">Jeden Tag</option>
-                </select>
-            </div>
-
-            <button @click="saveLernplan()" class="btn-primary btn-sm" style="width: 100%;" :disabled="saving">
-                <span x-show="!saving && !saved">Speichern</span>
-                <span x-show="saving" x-cloak>Speichere...</span>
-                <span x-show="saved" x-cloak style="color: #22c55e;">Gespeichert</span>
-            </button>
-        </div>
 
         <!-- Streak Freeze -->
         <div class="glass bento-streak-freeze">
@@ -438,10 +377,6 @@
     }
 
     .bento-account-info {
-        padding: 1.25rem;
-    }
-
-    .bento-lernplan {
         padding: 1.25rem;
     }
 

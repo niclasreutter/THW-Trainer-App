@@ -387,52 +387,6 @@
     @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
 
-    /* Daily Goal Widget */
-    .daily-goal-ring {
-        width: 80px;
-        height: 80px;
-        position: relative;
-        margin: 0 auto 0.75rem;
-    }
-
-    .daily-goal-ring-bg {
-        fill: none;
-        stroke: rgba(255, 255, 255, 0.08);
-        stroke-width: 7;
-    }
-
-    .daily-goal-ring-fill {
-        fill: none;
-        stroke-width: 7;
-        stroke-linecap: round;
-        transform: rotate(-90deg);
-        transform-origin: center;
-        transition: stroke-dashoffset 1s ease-out, stroke 0.3s;
-    }
-
-    .daily-goal-ring-text {
-        position: absolute;
-        inset: 0;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .daily-goal-ring-value {
-        font-size: 1.1rem;
-        font-weight: 800;
-        color: var(--text-primary);
-        line-height: 1;
-    }
-
-    .daily-goal-ring-label {
-        font-size: 0.55rem;
-        color: var(--text-muted);
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
     /* Weekly Activity Chart */
     .activity-chart {
         display: flex;
@@ -577,37 +531,6 @@
     }
 
     /* Weekly calendar dots */
-    .week-dots {
-        display: flex;
-        gap: 0.35rem;
-        justify-content: center;
-        margin-top: 0.5rem;
-    }
-
-    .week-dot {
-        width: 20px;
-        height: 20px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.5rem;
-        font-weight: 700;
-        color: var(--text-muted);
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-    }
-
-    .week-dot.active {
-        background: rgba(251, 191, 36, 0.25);
-        border-color: rgba(251, 191, 36, 0.4);
-        color: var(--gold-start);
-    }
-
-    .week-dot.today {
-        border-color: var(--gold-start);
-        box-shadow: 0 0 6px rgba(251, 191, 36, 0.3);
-    }
 </style>
 @endpush
 
@@ -1052,66 +975,8 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') dismi
     </div>
 
     <div class="bento-grid">
-        <!-- Daily Goal Widget -->
-        <div class="glass-tl bento-1of3" style="text-align: center;">
-            @if(isset($dailyGoalStatus) && $dailyGoalStatus['daily_goal'])
-                @php
-                    $goalCirc = 2 * 3.14159 * 34;
-                    $goalPct = min(100, ($dailyGoalStatus['progress'] / $dailyGoalStatus['daily_goal']) * 100);
-                    $goalOffset = $goalCirc - ($goalPct / 100) * $goalCirc;
-                    $goalColor = $dailyGoalStatus['completed'] ? '#22c55e' : 'url(#goldGradient)';
-                @endphp
-                <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 0.5rem;">Tagesziel</div>
-                <div class="daily-goal-ring">
-                    <svg width="80" height="80" viewBox="0 0 80 80">
-                        <circle class="daily-goal-ring-bg" cx="40" cy="40" r="34"/>
-                        <circle class="daily-goal-ring-fill" cx="40" cy="40" r="34"
-                                stroke-dasharray="{{ $goalCirc }}"
-                                stroke-dashoffset="{{ $goalOffset }}"
-                                stroke="{{ $goalColor }}"/>
-                    </svg>
-                    <div class="daily-goal-ring-text">
-                        <span class="daily-goal-ring-value">{{ $dailyGoalStatus['progress'] }}/{{ $dailyGoalStatus['daily_goal'] }}</span>
-                        <span class="daily-goal-ring-label">Fragen</span>
-                    </div>
-                </div>
-                @if($dailyGoalStatus['completed'])
-                    <div style="font-size: 0.8rem; font-weight: 600; color: #22c55e;">Geschafft!</div>
-                @endif
-                @if($dailyGoalStatus['weekly_goal_days'])
-                    @php
-                        $startOfWeek = \Carbon\Carbon::now()->startOfWeek(\Carbon\Carbon::MONDAY);
-                        $dayNames = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
-                        $activeDays = [];
-                        if(isset($weeklyActivity)) {
-                            foreach($weeklyActivity as $day) {
-                                $activeDays[] = $day->date;
-                            }
-                        }
-                    @endphp
-                    <div class="week-dots">
-                        @for($d = 0; $d < 7; $d++)
-                            @php
-                                $dayDate = $startOfWeek->copy()->addDays($d);
-                                $isActive = in_array($dayDate->toDateString(), $activeDays);
-                                $isToday = $dayDate->isToday();
-                            @endphp
-                            <div class="week-dot {{ $isActive ? 'active' : '' }} {{ $isToday ? 'today' : '' }}">{{ $dayNames[$d] }}</div>
-                        @endfor
-                    </div>
-                @endif
-            @else
-                <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 0.75rem;">Tagesziel</div>
-                <div style="margin-bottom: 0.75rem;">
-                    <i class="bi bi-bullseye" style="font-size: 2rem; color: var(--text-muted); opacity: 0.4;"></i>
-                </div>
-                <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.75rem;">Setze dir ein Tagesziel</div>
-                <a href="{{ route('profile') }}#lernplan" class="btn-ghost btn-sm">Einrichten</a>
-            @endif
-        </div>
-
         <!-- Weekly Activity Chart -->
-        <div class="glass bento-2of3">
+        <div class="glass bento-wide">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
                 <span style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted);">Wochenaktivität</span>
                 @if(isset($weeklyActivity) && $weeklyActivity->sum('count') > 0)
