@@ -532,6 +532,48 @@
     }
 
     /* Weekly calendar dots */
+
+    /* Light mode overrides for statistics elements */
+    html.light-mode .activity-bar.empty {
+        background: rgba(0, 51, 127, 0.08);
+        border: 1px solid rgba(0, 51, 127, 0.12);
+    }
+
+    html.light-mode .heatmap-cell.none {
+        background: rgba(0, 51, 127, 0.06);
+        border: 1px solid rgba(0, 51, 127, 0.14);
+    }
+
+    html.light-mode .heatmap-cell.strong {
+        background: rgba(34, 197, 94, 0.2);
+        border: 1px solid rgba(34, 197, 94, 0.4);
+    }
+
+    html.light-mode .heatmap-cell.medium {
+        background: rgba(245, 158, 11, 0.2);
+        border: 1px solid rgba(245, 158, 11, 0.4);
+    }
+
+    html.light-mode .heatmap-cell.weak {
+        background: rgba(239, 68, 68, 0.15);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    html.light-mode .heatmap-cell-number {
+        color: #1e293b;
+    }
+
+    html.light-mode .heatmap-cell-pct {
+        color: rgba(30, 41, 59, 0.65);
+    }
+
+    html.light-mode .heatmap-cell.weak .heatmap-cell-number {
+        color: #dc2626;
+    }
+
+    html.light-mode .heatmap-cell.none .heatmap-cell-number {
+        color: var(--text-muted);
+    }
 </style>
 @endpush
 
