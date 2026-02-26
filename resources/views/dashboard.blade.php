@@ -929,24 +929,50 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') dismi
                     <div style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted);">Schnitt</div>
                 </div>
             </div>
+            {{-- Button-Zeile --}}
+            <div style="display: flex; align-items: center; gap: 0.75rem; margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid rgba(255,255,255,0.06);">
+                <div style="flex: 1;"></div>
+                @if($canStartExam)
+                    <a href="{{ route('exam.index') }}" class="btn-secondary btn-sm">Zur Prüfung</a>
+                @elseif($hasFailedQuestions)
+                    <span style="font-size: 0.75rem; color: var(--text-muted);">Noch nicht bereit</span>
+                    <a href="{{ route('failed.index') }}" class="btn-ghost btn-sm">Fehler wiederholen</a>
+                @else
+                    <span style="font-size: 0.75rem; color: var(--text-muted);">Noch nicht bereit</span>
+                    <span class="btn-ghost btn-sm" style="opacity: 0.5;">Erst Theorie</span>
+                @endif
+            </div>
         </div>
         @else
-        {{-- Kein Prüfungs-Ergebnis: Kompakte Streak-Anzeige --}}
-        <div class="glass-br bento-wide" style="display: flex; align-items: center; gap: 1rem;">
-            <div class="progress-ring" style="width: 48px; height: 48px; flex-shrink: 0;">
-                <svg width="48" height="48" viewBox="0 0 64 64">
-                    <circle class="progress-ring-bg" cx="32" cy="32" r="26"/>
-                    <circle class="progress-ring-fill" cx="32" cy="32" r="26"
-                            stroke-dasharray="{{ $circumference }}"
-                            stroke-dashoffset="{{ $examOffset }}"
-                            style="stroke: url(#goldGradient)"/>
-                </svg>
-                <div class="progress-ring-text" style="font-size: 0.75rem;">{{ min(100, $exams * 20) }}%</div>
+        {{-- Kein Prüfungs-Ergebnis: Streak + Status + Button --}}
+        <div class="glass-br bento-wide" style="display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <div class="progress-ring" style="width: 48px; height: 48px; flex-shrink: 0;">
+                    <svg width="48" height="48" viewBox="0 0 64 64">
+                        <circle class="progress-ring-bg" cx="32" cy="32" r="26"/>
+                        <circle class="progress-ring-fill" cx="32" cy="32" r="26"
+                                stroke-dasharray="{{ $circumference }}"
+                                stroke-dashoffset="{{ $examOffset }}"
+                                style="stroke: url(#goldGradient)"/>
+                    </svg>
+                    <div class="progress-ring-text" style="font-size: 0.75rem;">{{ min(100, $exams * 20) }}%</div>
+                </div>
+                <div>
+                    <div class="progress-label">Prüfungsstreak</div>
+                    <div class="progress-value">{{ $exams }}/5 bestanden</div>
+                </div>
             </div>
-            <div>
-                <div class="progress-label">Prüfungsstreak</div>
-                <div class="progress-value">{{ $exams }}/5 bestanden</div>
-            </div>
+            <div style="flex: 1;"></div>
+            @if($canStartExam)
+                <span class="badge-thw" style="font-size: 0.7rem;">Bereit</span>
+                <a href="{{ route('exam.index') }}" class="btn-secondary btn-sm">Zur Prüfung</a>
+            @elseif($hasFailedQuestions)
+                <span class="badge-glass" style="font-size: 0.7rem;">Erst Fehler lösen</span>
+                <a href="{{ route('failed.index') }}" class="btn-ghost btn-sm">Fehler wiederholen</a>
+            @else
+                <span class="badge-glass" style="font-size: 0.7rem;">Noch nicht bereit</span>
+                <span class="btn-ghost btn-sm" style="opacity: 0.5;">Erst Theorie abschließen</span>
+            @endif
         </div>
         @endif
 
