@@ -60,7 +60,7 @@
     .tour-overlay {
         position: fixed;
         inset: 0;
-        background: rgba(0, 0, 0, 0.7);
+        background: transparent;
         z-index: 10000;
         pointer-events: auto;
     }
@@ -69,7 +69,10 @@
         position: fixed;
         z-index: 10002;
         border-radius: 12px;
-        box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.6), 0 0 30px 6px rgba(251, 191, 36, 0.2);
+        box-shadow:
+            0 0 0 3px rgba(251, 191, 36, 0.6),
+            0 0 30px 6px rgba(251, 191, 36, 0.2),
+            0 0 0 9999px rgba(0, 0, 0, 0.7);
         transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         pointer-events: none;
     }
@@ -185,12 +188,11 @@
     }
 
     /* Light mode */
-    html.light-mode .tour-overlay {
-        background: rgba(0, 0, 0, 0.5);
-    }
-
     html.light-mode .tour-spotlight {
-        box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.5), 0 0 25px 5px rgba(251, 191, 36, 0.15);
+        box-shadow:
+            0 0 0 3px rgba(251, 191, 36, 0.5),
+            0 0 25px 5px rgba(251, 191, 36, 0.15),
+            0 0 0 9999px rgba(0, 0, 0, 0.5);
     }
 
     html.light-mode .tour-tooltip {
@@ -289,9 +291,6 @@ function onboardingTour() {
             const step = this.steps[this.currentStep];
             if (!step) return;
 
-            // Reset previous highlighted element
-            this.clearHighlight();
-
             const el = document.querySelector(step.target);
             if (!el) {
                 // Element not found, try next step
@@ -301,9 +300,6 @@ function onboardingTour() {
                 }
                 return;
             }
-
-            // Elevate element and all ancestors above overlay
-            this.elevateElement(el);
 
             // Scroll element into view
             el.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -361,27 +357,7 @@ function onboardingTour() {
             this.completeTour();
         },
 
-        elevateElement(el) {
-            // Walk up the DOM tree and elevate all ancestors to break out of stacking contexts
-            let node = el;
-            while (node && node !== document.body) {
-                node.style.position = node.style.position || 'relative';
-                node.style.zIndex = '10001';
-                node.dataset.tourActive = 'true';
-                node = node.parentElement;
-            }
-        },
-
-        clearHighlight() {
-            document.querySelectorAll('[data-tour-active="true"]').forEach(el => {
-                el.style.position = '';
-                el.style.zIndex = '';
-                delete el.dataset.tourActive;
-            });
-        },
-
         completeTour() {
-            this.clearHighlight();
             this.showTour = false;
             // Unlock page scroll
             document.body.style.overflow = '';
