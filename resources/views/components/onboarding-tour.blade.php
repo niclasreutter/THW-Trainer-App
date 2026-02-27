@@ -68,7 +68,8 @@
         position: fixed;
         z-index: 10001;
         border-radius: 12px;
-        box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.7);
+        box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.75), 0 0 30px 4px rgba(251, 191, 36, 0.25);
+        background: rgba(255, 255, 255, 0.08);
         transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         pointer-events: none;
     }
@@ -188,7 +189,8 @@
     }
 
     html.light-mode .tour-spotlight {
-        box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
+        box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5), 0 0 30px 4px rgba(251, 191, 36, 0.2);
+        background: rgba(255, 255, 255, 0.15);
     }
 
     html.light-mode .tour-tooltip {
@@ -240,30 +242,35 @@ function onboardingTour() {
         ],
 
         init() {
-            // Wait for leaderboard modal to be dismissed before starting tour
-            const waitForModals = () => {
-                const leaderboardModal = document.getElementById('leaderboard-modal');
-                if (leaderboardModal) {
-                    // Modal still visible — observe its removal
-                    const observer = new MutationObserver(() => {
-                        if (!document.getElementById('leaderboard-modal')) {
-                            observer.disconnect();
-                            setTimeout(() => this.startTour(), 500);
-                        }
-                    });
-                    observer.observe(document.body, { childList: true, subtree: true });
-                } else {
-                    // No modal — start immediately
-                    this.startTour();
-                }
-            };
-
-            this.$nextTick(() => setTimeout(waitForModals, 300));
+            this.$nextTick(() => setTimeout(() => this.waitForBlockers(), 300));
 
             // Reposition on resize
             window.addEventListener('resize', () => {
                 if (this.showTour) this.positionTooltip();
             });
+        },
+
+        waitForBlockers() {
+            const hasBlocker = () => {
+                // Cookie banner visible?
+                const cookie = document.getElementById('cookie-banner');
+                if (cookie && cookie.style.display !== 'none' && getComputedStyle(cookie).display !== 'none') return true;
+                // Leaderboard modal visible?
+                if (document.getElementById('leaderboard-modal')) return true;
+                return false;
+            };
+
+            if (hasBlocker()) {
+                const observer = new MutationObserver(() => {
+                    if (!hasBlocker()) {
+                        observer.disconnect();
+                        setTimeout(() => this.startTour(), 600);
+                    }
+                });
+                observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['style'] });
+            } else {
+                this.startTour();
+            }
         },
 
         startTour() {
@@ -275,6 +282,9 @@ function onboardingTour() {
             const step = this.steps[this.currentStep];
             if (!step) return;
 
+            // Reset previous highlighted element
+            this.clearHighlight();
+
             const el = document.querySelector(step.target);
             if (!el) {
                 // Element not found, try next step
@@ -284,6 +294,11 @@ function onboardingTour() {
                 }
                 return;
             }
+
+            // Elevate element above overlay
+            el.style.position = 'relative';
+            el.style.zIndex = '10001';
+            el.dataset.tourActive = 'true';
 
             // Scroll element into view
             el.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -341,7 +356,16 @@ function onboardingTour() {
             this.completeTour();
         },
 
+        clearHighlight() {
+            document.querySelectorAll('[data-tour-active="true"]').forEach(el => {
+                el.style.position = '';
+                el.style.zIndex = '';
+                delete el.dataset.tourActive;
+            });
+        },
+
         completeTour() {
+            this.clearHighlight();
             this.showTour = false;
 
             // Persist to database
