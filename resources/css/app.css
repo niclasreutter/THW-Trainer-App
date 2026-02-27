@@ -2121,15 +2121,17 @@ html.light-mode .sidebar-link-sm:hover {
 
 /* Mobile header in light mode */
 html.light-mode .mobile-header-glass {
-    background: #ffffff !important;
-    border-bottom: 1px solid rgba(0, 51, 127, 0.08) !important;
+    background: rgba(255, 255, 255, 0.75) !important;
+    -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+    backdrop-filter: blur(20px) saturate(180%) !important;
+    border-bottom: 1px solid rgba(0, 51, 127, 0.10) !important;
 }
 
 /* Bottom nav in light mode */
 html.light-mode .bottom-nav-glass {
-    background: #ffffff !important;
-    -webkit-backdrop-filter: none !important;
-    backdrop-filter: none !important;
+    background: rgba(255, 255, 255, 0.75) !important;
+    -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+    backdrop-filter: blur(20px) saturate(180%) !important;
     border-top: 1px solid rgba(0, 51, 127, 0.10) !important;
 }
 
