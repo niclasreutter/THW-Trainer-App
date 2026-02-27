@@ -137,7 +137,7 @@
                 </div>
 
                 <!-- Navigation -->
-                <nav class="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
+                <nav class="flex-1 px-4 py-6 space-y-1 overflow-y-auto" data-tour-step="sidebar">
                     <a href="{{ route('dashboard') }}"
                        class="sidebar-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
                         <i class="bi bi-house-door"></i>
@@ -334,7 +334,7 @@
                                 <i class="bi bi-sun-fill icon-sun"></i>
                             </button>
                             @auth
-                            <button @click="sidebarOpen = true" class="p-2 text-dark-muted hover:text-dark-primary">
+                            <button @click="sidebarOpen = true" class="p-2 text-dark-muted hover:text-dark-primary" data-tour-step="mobile-menu">
                                 <i class="bi bi-list text-xl"></i>
                             </button>
                             @else
@@ -369,7 +369,7 @@
 
                 <!-- Bottom Navigation (Mobile) -->
                 @auth
-                <nav class="lg:hidden fixed bottom-0 inset-x-0 bottom-nav-glass pb-safe z-40">
+                <nav class="lg:hidden fixed bottom-0 inset-x-0 bottom-nav-glass pb-safe z-40" data-tour-step="bottom-nav">
                     <div class="flex items-center justify-around py-2">
                         <a href="{{ route('dashboard') }}" class="bottom-nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
                             <i class="bi bi-house-door{{ request()->routeIs('dashboard') ? '-fill' : '' }}"></i>
