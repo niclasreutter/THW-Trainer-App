@@ -86,20 +86,129 @@
         display: flex;
         align-items: flex-start;
         gap: 1rem;
-        padding: 1rem;
-        border-radius: 0.75rem;
-        background: rgba(255, 255, 255, 0.06);
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        padding: 1rem 1.25rem;
+        border-radius: 1rem;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.10);
+        backdrop-filter: blur(20px) saturate(1.8);
+        -webkit-backdrop-filter: blur(20px) saturate(1.8);
+        box-shadow:
+            0 8px 32px rgba(0, 0, 0, 0.3),
+            0 2px 8px rgba(0, 0, 0, 0.15),
+            inset 0 1px 0 rgba(255, 255, 255, 0.15),
+            inset 0 -1px 0 rgba(0, 0, 0, 0.08);
         margin-bottom: 0.75rem;
-        transition: background 0.2s ease, border-color 0.2s ease;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
     }
 
-    .onboarding-feature:hover {
-        background: rgba(255, 255, 255, 0.09);
-        border-color: rgba(255, 255, 255, 0.18);
+    .onboarding-feature::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+        pointer-events: none;
+    }
+
+    .onboarding-feature::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0%, transparent 60%);
+        pointer-events: none;
+        border-radius: inherit;
+    }
+
+    /* Gold-Variante */
+    .onboarding-feature.feature-gold {
+        border-color: rgba(251, 191, 36, 0.2);
+        box-shadow:
+            0 8px 32px rgba(251, 191, 36, 0.1),
+            0 2px 8px rgba(0, 0, 0, 0.2),
+            inset 0 1px 0 rgba(251, 191, 36, 0.2);
+    }
+    .onboarding-feature.feature-gold:hover {
+        background: rgba(251, 191, 36, 0.08);
+        border-color: rgba(251, 191, 36, 0.3);
+        box-shadow:
+            0 12px 40px rgba(251, 191, 36, 0.15),
+            0 4px 12px rgba(0, 0, 0, 0.2),
+            inset 0 1px 0 rgba(251, 191, 36, 0.25);
+        transform: translateY(-1px);
+    }
+
+    /* Blau-Variante */
+    .onboarding-feature.feature-blue {
+        border-color: rgba(59, 130, 246, 0.2);
+        box-shadow:
+            0 8px 32px rgba(59, 130, 246, 0.1),
+            0 2px 8px rgba(0, 0, 0, 0.2),
+            inset 0 1px 0 rgba(59, 130, 246, 0.2);
+    }
+    .onboarding-feature.feature-blue:hover {
+        background: rgba(59, 130, 246, 0.08);
+        border-color: rgba(59, 130, 246, 0.3);
+        box-shadow:
+            0 12px 40px rgba(59, 130, 246, 0.15),
+            0 4px 12px rgba(0, 0, 0, 0.2),
+            inset 0 1px 0 rgba(59, 130, 246, 0.25);
+        transform: translateY(-1px);
+    }
+
+    /* THW-Blau-Variante */
+    .onboarding-feature.feature-thw {
+        border-color: rgba(0, 100, 220, 0.25);
+        box-shadow:
+            0 8px 32px rgba(0, 51, 127, 0.12),
+            0 2px 8px rgba(0, 0, 0, 0.2),
+            inset 0 1px 0 rgba(0, 120, 255, 0.2);
+    }
+    .onboarding-feature.feature-thw:hover {
+        background: rgba(0, 51, 127, 0.1);
+        border-color: rgba(0, 100, 220, 0.35);
+        box-shadow:
+            0 12px 40px rgba(0, 51, 127, 0.18),
+            0 4px 12px rgba(0, 0, 0, 0.2),
+            inset 0 1px 0 rgba(0, 120, 255, 0.25);
+        transform: translateY(-1px);
+    }
+
+    /* Grün/Erfolg-Variante */
+    .onboarding-feature.feature-success {
+        border-color: rgba(34, 197, 94, 0.2);
+        box-shadow:
+            0 8px 32px rgba(34, 197, 94, 0.1),
+            0 2px 8px rgba(0, 0, 0, 0.2),
+            inset 0 1px 0 rgba(34, 197, 94, 0.2);
+    }
+    .onboarding-feature.feature-success:hover {
+        background: rgba(34, 197, 94, 0.08);
+        border-color: rgba(34, 197, 94, 0.3);
+        box-shadow:
+            0 12px 40px rgba(34, 197, 94, 0.15),
+            0 4px 12px rgba(0, 0, 0, 0.2),
+            inset 0 1px 0 rgba(34, 197, 94, 0.25);
+        transform: translateY(-1px);
+    }
+
+    /* Rot/Fehler-Variante */
+    .onboarding-feature.feature-error {
+        border-color: rgba(239, 68, 68, 0.2);
+        box-shadow:
+            0 8px 32px rgba(239, 68, 68, 0.1),
+            0 2px 8px rgba(0, 0, 0, 0.2),
+            inset 0 1px 0 rgba(239, 68, 68, 0.2);
+    }
+    .onboarding-feature.feature-error:hover {
+        background: rgba(239, 68, 68, 0.08);
+        border-color: rgba(239, 68, 68, 0.3);
+        box-shadow:
+            0 12px 40px rgba(239, 68, 68, 0.15),
+            0 4px 12px rgba(0, 0, 0, 0.2),
+            inset 0 1px 0 rgba(239, 68, 68, 0.25);
+        transform: translateY(-1px);
     }
 
     .onboarding-feature-icon {
@@ -195,7 +304,7 @@
                 {{ $totalQuestions }} Fragen warten auf dich &ndash; aufgeteilt in 10 Lernabschnitte.
             </p>
 
-            <div class="onboarding-feature">
+            <div class="onboarding-feature feature-gold">
                 <div class="onboarding-feature-icon" style="background: rgba(251, 191, 36, 0.15); color: var(--gold-start);">
                     <i class="bi bi-book"></i>
                 </div>
@@ -205,7 +314,7 @@
                 </div>
             </div>
 
-            <div class="onboarding-feature">
+            <div class="onboarding-feature feature-blue">
                 <div class="onboarding-feature-icon" style="background: rgba(59, 130, 246, 0.15); color: var(--info);">
                     <i class="bi bi-clipboard-check"></i>
                 </div>
@@ -215,7 +324,7 @@
                 </div>
             </div>
 
-            <div class="onboarding-feature">
+            <div class="onboarding-feature feature-thw">
                 <div class="onboarding-feature-icon" style="background: rgba(0, 51, 127, 0.15); color: var(--thw-blue-light);">
                     <i class="bi bi-people"></i>
                 </div>
@@ -241,7 +350,7 @@
                 So lernst du effizienter &ndash; wissenschaftlich bewährt als "Spaced Repetition".
             </p>
 
-            <div class="onboarding-feature">
+            <div class="onboarding-feature feature-success">
                 <div class="onboarding-feature-icon" style="background: rgba(34, 197, 94, 0.15); color: var(--success);">
                     <i class="bi bi-trophy"></i>
                 </div>
@@ -251,7 +360,7 @@
                 </div>
             </div>
 
-            <div class="onboarding-feature">
+            <div class="onboarding-feature feature-thw">
                 <div class="onboarding-feature-icon" style="background: rgba(0, 51, 127, 0.15); color: var(--thw-blue-light);">
                     <i class="bi bi-calendar-range"></i>
                 </div>
@@ -261,7 +370,7 @@
                 </div>
             </div>
 
-            <div class="onboarding-feature">
+            <div class="onboarding-feature feature-error">
                 <div class="onboarding-feature-icon" style="background: rgba(239, 68, 68, 0.15); color: var(--error);">
                     <i class="bi bi-x-circle"></i>
                 </div>
@@ -292,7 +401,7 @@
                 <span style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Fragen warten auf dich</span>
             </div>
 
-            <div class="onboarding-feature">
+            <div class="onboarding-feature feature-gold">
                 <div class="onboarding-feature-icon" style="background: rgba(251, 191, 36, 0.15); color: var(--gold-start);">
                     <i class="bi bi-lightbulb"></i>
                 </div>
