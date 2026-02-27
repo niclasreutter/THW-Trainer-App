@@ -871,7 +871,7 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') dismi
                 ->count();
         @endphp
         @if($daysLeft !== null && $daysLeft > 0)
-        <div class="glass-blue bento-side" style="text-align: center;">
+        <div class="glass-blue bento-side" data-tour-step="countdown" style="text-align: center;">
             <div style="margin-bottom: 0.5rem;">
                 <div class="text-gradient-gold" style="font-size: 2rem; font-weight: 800; line-height: 1.1;">{{ $daysLeft }}</div>
                 <div style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 0.25rem;">
@@ -905,7 +905,7 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') dismi
         </div>
         @else
         {{-- No exam date set (or date is in the past): show CTA card --}}
-        <a href="{{ route('profile') }}#exam_date" class="glass-blue bento-side" style="text-align: center; text-decoration: none; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 0.5rem; cursor: pointer;">
+        <a href="{{ route('profile') }}#exam_date" class="glass-blue bento-side" data-tour-step="countdown" style="text-align: center; text-decoration: none; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 0.5rem; cursor: pointer;">
             <div>
                 <i class="bi bi-calendar-event" style="font-size: 1.5rem; color: var(--gold-start);"></i>
             </div>

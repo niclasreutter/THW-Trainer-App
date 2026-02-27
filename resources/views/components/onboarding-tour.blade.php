@@ -39,8 +39,8 @@
 
         {{-- Content --}}
         <div class="tour-content">
-            <h3 class="tour-title" x-text="steps[currentStep]?.title"></h3>
-            <p class="tour-desc" x-text="steps[currentStep]?.description"></p>
+            <h3 class="tour-title" x-text="getStepTitle(steps[currentStep])"></h3>
+            <p class="tour-desc" x-text="getStepDescription(steps[currentStep])"></p>
         </div>
 
         {{-- Actions --}}
@@ -242,9 +242,22 @@ function onboardingTour() {
                 description: 'Sobald alle Fragen gemeistert sind, kannst du die Prüfung simulieren. 5 bestandene Prüfungen in Folge zeigen, dass du bereit bist!'
             },
             {
+                target: '[data-tour-step="countdown"]',
+                title: 'Prüfungs-Countdown',
+                description: 'Hast du ein Prüfungsdatum hinterlegt, siehst du hier die verbleibenden Tage und ein tägliches Fragenziel. So weißt du immer, ob du im Zeitplan liegst.'
+            },
+            {
                 target: '[data-tour-step="stats"]',
                 title: 'Dein Fortschritt',
                 description: 'Hier findest du Statistiken, Trefferquoten und deine Wochenaktivität. So behältst du immer den Überblick über deinen Lernstand.'
+            },
+            {
+                target: '[data-tour-step="sidebar"]',
+                mobileTarget: '[data-tour-step="bottom-nav"]',
+                title: 'Navigation',
+                description: 'Über die Seitenleiste erreichst du alle Bereiche: Theorie, Prüfung, Lehrgänge, Rangliste, Achievements und deinen Ortsverband.',
+                mobileTitle: 'Navigation',
+                mobileDescription: 'Über die untere Leiste wechselst du schnell zwischen Home, Lernen, Prüfung und Profil. Weitere Seiten wie Lehrgänge, Rangliste oder Ortsverband findest du im Menü oben rechts.'
             }
         ],
 
@@ -287,11 +300,30 @@ function onboardingTour() {
             this.$nextTick(() => this.positionTooltip());
         },
 
+        isMobile() {
+            return window.innerWidth < 1024;
+        },
+
+        getStepTarget(step) {
+            if (this.isMobile() && step.mobileTarget) {
+                return document.querySelector(step.mobileTarget) || document.querySelector(step.target);
+            }
+            return document.querySelector(step.target);
+        },
+
+        getStepTitle(step) {
+            return (this.isMobile() && step.mobileTitle) ? step.mobileTitle : step.title;
+        },
+
+        getStepDescription(step) {
+            return (this.isMobile() && step.mobileDescription) ? step.mobileDescription : step.description;
+        },
+
         positionTooltip() {
             const step = this.steps[this.currentStep];
             if (!step) return;
 
-            const el = document.querySelector(step.target);
+            const el = this.getStepTarget(step);
             if (!el) {
                 // Element not found, try next step
                 if (this.currentStep < this.steps.length - 1) {
