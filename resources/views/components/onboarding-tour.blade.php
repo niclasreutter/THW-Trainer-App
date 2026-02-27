@@ -5,7 +5,7 @@
 --}}
 @if(auth()->check() && !auth()->user()->onboarding_tour_completed)
 <div x-data="onboardingTour()" x-show="showTour" x-cloak
-     style="position: fixed; inset: 0; z-index: 10000;"
+     style="position: fixed; inset: 0; z-index: 10003; pointer-events: none;"
      @keydown.escape.window="skipTour()">
 
     {{-- Overlay --}}
@@ -62,6 +62,7 @@
         inset: 0;
         background: rgba(0, 0, 0, 0.7);
         z-index: 10000;
+        pointer-events: auto;
     }
 
     .tour-spotlight {
@@ -76,9 +77,10 @@
 
     .tour-tooltip {
         position: fixed;
-        z-index: 10002;
+        z-index: 10003;
         max-width: 360px;
         width: calc(100vw - 2rem);
+        pointer-events: auto;
         padding: 1.5rem;
         border-radius: 1rem 0.5rem 1rem 1rem;
         transition: top 0.4s cubic-bezier(0.4, 0, 0.2, 1), left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
