@@ -280,6 +280,8 @@ function onboardingTour() {
 
         startTour() {
             this.showTour = true;
+            // Lock page scroll
+            document.body.style.overflow = 'hidden';
             this.$nextTick(() => this.positionTooltip());
         },
 
@@ -300,10 +302,8 @@ function onboardingTour() {
                 return;
             }
 
-            // Elevate element above overlay
-            el.style.position = 'relative';
-            el.style.zIndex = '10001';
-            el.dataset.tourActive = 'true';
+            // Elevate element and all ancestors above overlay
+            this.elevateElement(el);
 
             // Scroll element into view
             el.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -361,6 +361,17 @@ function onboardingTour() {
             this.completeTour();
         },
 
+        elevateElement(el) {
+            // Walk up the DOM tree and elevate all ancestors to break out of stacking contexts
+            let node = el;
+            while (node && node !== document.body) {
+                node.style.position = node.style.position || 'relative';
+                node.style.zIndex = '10001';
+                node.dataset.tourActive = 'true';
+                node = node.parentElement;
+            }
+        },
+
         clearHighlight() {
             document.querySelectorAll('[data-tour-active="true"]').forEach(el => {
                 el.style.position = '';
@@ -372,6 +383,8 @@ function onboardingTour() {
         completeTour() {
             this.clearHighlight();
             this.showTour = false;
+            // Unlock page scroll
+            document.body.style.overflow = '';
 
             // Persist to database
             fetch('{{ route("onboarding.tour.complete") }}', {
