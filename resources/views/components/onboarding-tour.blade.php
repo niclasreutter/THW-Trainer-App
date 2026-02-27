@@ -73,8 +73,27 @@
             0 0 0 3px rgba(251, 191, 36, 0.6),
             0 0 30px 6px rgba(251, 191, 36, 0.2),
             0 0 0 9999px rgba(0, 0, 0, 0.7);
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: top 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                    left 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                    width 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                    height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         pointer-events: none;
+        animation: spotlight-pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes spotlight-pulse {
+        0%, 100% {
+            box-shadow:
+                0 0 0 3px rgba(251, 191, 36, 0.6),
+                0 0 30px 6px rgba(251, 191, 36, 0.2),
+                0 0 0 9999px rgba(0, 0, 0, 0.7);
+        }
+        50% {
+            box-shadow:
+                0 0 0 5px rgba(251, 191, 36, 0.8),
+                0 0 40px 10px rgba(251, 191, 36, 0.35),
+                0 0 0 9999px rgba(0, 0, 0, 0.7);
+        }
     }
 
     .tour-tooltip {
@@ -193,6 +212,22 @@
             0 0 0 3px rgba(251, 191, 36, 0.5),
             0 0 25px 5px rgba(251, 191, 36, 0.15),
             0 0 0 9999px rgba(0, 0, 0, 0.5);
+        animation: spotlight-pulse-light 2s ease-in-out infinite;
+    }
+
+    @keyframes spotlight-pulse-light {
+        0%, 100% {
+            box-shadow:
+                0 0 0 3px rgba(251, 191, 36, 0.5),
+                0 0 25px 5px rgba(251, 191, 36, 0.15),
+                0 0 0 9999px rgba(0, 0, 0, 0.5);
+        }
+        50% {
+            box-shadow:
+                0 0 0 5px rgba(251, 191, 36, 0.7),
+                0 0 35px 8px rgba(251, 191, 36, 0.3),
+                0 0 0 9999px rgba(0, 0, 0, 0.5);
+        }
     }
 
     html.light-mode .tour-tooltip {
