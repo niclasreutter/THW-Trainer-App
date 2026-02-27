@@ -3,6 +3,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\RateLimiter;
 use App\Models\Question;
 use App\Models\QuestionStatistic;
 use App\Models\UserQuestionProgress;
@@ -537,14 +538,34 @@ class PracticeController extends Controller
 
     public function submit(Request $request)
     {
-        $question = Question::findOrFail($request->question_id);
+        // 🔒 SECURITY: Validate and rate-limit input
+        $key = 'practice-submit:' . Auth::id();
+        if (RateLimiter::tooManyAttempts($key, 60)) {
+            return redirect()->route('practice.index')
+                ->with('error', 'Zu viele Anfragen. Bitte warte kurz.');
+        }
+        RateLimiter::hit($key, 60);
+
+        $validated = $request->validate([
+            'question_id'    => 'required|integer|exists:questions,id',
+            'answer'         => 'nullable|array|max:4',
+            'answer.*'       => 'string|in:0,1,2,3',
+            'answer_mapping' => 'required|string|max:500',
+        ]);
+
+        $question = Question::findOrFail($validated['question_id']);
         
         // Hole das Mapping aus dem Hidden Field
-        $mappingJson = $request->input('answer_mapping');
+        $mappingJson = $validated['answer_mapping'];
         $mapping = json_decode($mappingJson, true);
+
+        if ($mapping === null || !is_array($mapping)) {
+            return redirect()->route('practice.index')
+                ->with('error', 'Ungültige Antwort. Bitte versuche es erneut.');
+        }
         
         // User-Antworten (Positionen 0, 1, 2)
-        $userAnswerPositions = $request->answer ?? [];
+        $userAnswerPositions = $validated['answer'] ?? [];
         
         // Mappe Positionen zurück auf Original-Buchstaben
         $userAnswer = collect($userAnswerPositions)->map(function($position) use ($mapping) {

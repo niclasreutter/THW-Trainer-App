@@ -513,7 +513,7 @@
                 $sectionName = $sectionNames[$section] ?? "Abschnitt $section";
             @endphp
 
-            <a href="{{ route('practice.section', $section) }}" class="glass section-link hover-lift">
+            <a href="{{ route('practice.section', $section) }}" class="glass section-link hover-lift fade-in-on-scroll">
                 <div class="section-number">{{ $section }}</div>
                 <div class="section-info">
                     <div class="section-name">{{ $sectionName }}</div>

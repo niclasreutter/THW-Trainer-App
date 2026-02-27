@@ -40,6 +40,7 @@ return Application::configure(basePath: dirname(__DIR__))
         },
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->append(\App\Http\Middleware\SecurityHeadersMiddleware::class);
         $middleware->alias([
             'ortsverband.ausbildungsbeauftragter' => \App\Http\Middleware\OrtsverbandAusbildungsbeauftragterMiddleware::class,
         ]);

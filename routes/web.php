@@ -35,61 +35,11 @@ Disallow: /
         ->header('Content-Type', 'text/plain');
 });
 
-Route::get('/dashboard', function () {
-    $user = auth()->user()->fresh(); // Fresh reload from database
+Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])
+    ->middleware(['auth', 'verified'])->name('dashboard');
 
-    // Onboarding-Redirect für neue Nutzer
-    if (!$user->onboarding_completed) {
-        return redirect()->route('onboarding');
-    }
-
-    // Cache total questions count für 1 Stunde
-    $totalQuestions = cache()->remember('total_questions_count', 3600, function() {
-        return \App\Models\Question::count();
-    });
-
-    // Hole die letzten 5 Prüfungsergebnisse
-    $recentExams = \App\Models\ExamStatistic::where('user_id', $user->id)
-        ->orderBy('created_at', 'desc')
-        ->take(5)
-        ->get();
-
-    // Spaced Repetition fällige Fragen
-    $srService = new \App\Services\SpacedRepetitionService();
-    $spacedRepetitionDue = $srService->getDueCount($user->id);
-
-    // Wöchentliche Aktivität (letzte 7 Tage)
-    $weeklyActivity = \DB::table('question_statistics')
-        ->where('user_id', $user->id)
-        ->where('created_at', '>=', now()->subDays(7))
-        ->selectRaw('DATE(created_at) as date, COUNT(*) as count, SUM(is_correct) as correct')
-        ->groupBy('date')
-        ->orderBy('date')
-        ->get();
-
-    // Stärken/Schwächen pro Lernabschnitt
-    $sectionStats = \DB::table('question_statistics')
-        ->join('questions', 'question_statistics.question_id', '=', 'questions.id')
-        ->where('question_statistics.user_id', $user->id)
-        ->selectRaw('questions.lernabschnitt, COUNT(*) as total, SUM(question_statistics.is_correct) as correct')
-        ->groupBy('questions.lernabschnitt')
-        ->orderBy('questions.lernabschnitt')
-        ->get();
-
-    // Streak Freeze Status
-    $gamificationService = new \App\Services\GamificationService();
-    $streakFreezeStatus = $gamificationService->getStreakFreezeStatus($user);
-
-    return view('dashboard', compact(
-        'user', 'recentExams', 'totalQuestions', 'spacedRepetitionDue',
-        'weeklyActivity', 'sectionStats', 'streakFreezeStatus'
-    ));
-})->middleware(['auth', 'verified'])->name('dashboard');
-
-Route::post('/dashboard/dismiss-email-consent-banner', function () {
-    session(['email_consent_banner_dismissed' => true]);
-    return response()->json(['success' => true]);
-})->middleware('auth')->name('dashboard.dismiss-email-consent-banner');
+Route::post('/dashboard/dismiss-email-consent-banner', [\App\Http\Controllers\DashboardController::class, 'dismissEmailConsentBanner'])
+    ->middleware('auth')->name('dashboard.dismiss-email-consent-banner');
 
 // Onboarding Routes
 Route::get('/onboarding', [\App\Http\Controllers\OnboardingController::class, 'index'])->middleware(['auth', 'verified'])->name('onboarding');

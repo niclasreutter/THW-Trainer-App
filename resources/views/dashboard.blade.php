@@ -921,7 +921,7 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') dismi
 
         <!-- Combined: Exam Overview (Streak + Recent Exams + Average) -->
         @if(!empty($recentExams) && $recentExams->count() > 0)
-        <div class="glass-slash bento-wide">
+        <div class="glass-slash bento-wide fade-in-on-scroll">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                 <span style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted);">Prüfungen</span>
                 <a href="{{ route('exam.history') }}" style="font-size: 0.75rem; color: var(--gold-start); text-decoration: none; font-weight: 600;">Alle anzeigen</a>
@@ -987,7 +987,7 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') dismi
         </div>
         @else
         {{-- Kein Prüfungs-Ergebnis: Streak + Status + Button --}}
-        <div class="glass-br bento-wide" style="display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;">
+        <div class="glass-br bento-wide fade-in-on-scroll" style="display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;">
             <div style="display: flex; align-items: center; gap: 0.75rem;">
                 <div class="progress-ring" style="width: 48px; height: 48px; flex-shrink: 0;">
                     <svg width="48" height="48" viewBox="0 0 64 64">
