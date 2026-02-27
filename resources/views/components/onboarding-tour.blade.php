@@ -22,7 +22,7 @@
     </div>
 
     {{-- Tooltip --}}
-    <div class="tour-tooltip glass"
+    <div class="tour-tooltip"
          x-show="showTour"
          x-transition:enter="transition ease-out duration-300"
          x-transition:enter-start="opacity-0 translate-y-2"
@@ -105,7 +105,38 @@
         padding: 1.5rem;
         border-radius: 1rem 0.5rem 1rem 1rem;
         transition: top 0.4s cubic-bezier(0.4, 0, 0.2, 1), left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4), 0 0 40px rgba(251, 191, 36, 0.1);
+
+        /* Glassmorphism - explizit, unabhängig vom global .glass */
+        background: rgba(12, 12, 22, 0.72);
+        backdrop-filter: blur(28px) saturate(1.8);
+        -webkit-backdrop-filter: blur(28px) saturate(1.8);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        box-shadow:
+            0 20px 60px rgba(0, 0, 0, 0.55),
+            0 0 40px rgba(251, 191, 36, 0.12),
+            inset 0 1px 0 rgba(255, 255, 255, 0.14),
+            inset 0 -1px 0 rgba(0, 0, 0, 0.25);
+        overflow: hidden;
+    }
+
+    /* Gold-Lichtkante oben */
+    .tour-tooltip::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(251, 191, 36, 0.55), transparent);
+        pointer-events: none;
+    }
+
+    /* Diagonaler Schimmer */
+    .tour-tooltip::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0%, transparent 55%);
+        pointer-events: none;
+        border-radius: inherit;
     }
 
     .tour-progress {
@@ -231,7 +262,45 @@
     }
 
     html.light-mode .tour-tooltip {
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2), 0 0 40px rgba(251, 191, 36, 0.05);
+        background: rgba(255, 255, 255, 0.65);
+        backdrop-filter: blur(28px) saturate(1.8);
+        -webkit-backdrop-filter: blur(28px) saturate(1.8);
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        box-shadow:
+            0 20px 60px rgba(0, 0, 0, 0.18),
+            0 0 40px rgba(251, 191, 36, 0.06),
+            inset 0 1px 0 rgba(255, 255, 255, 0.9),
+            inset 0 -1px 0 rgba(0, 0, 0, 0.04);
+    }
+
+    html.light-mode .tour-tooltip::before {
+        background: linear-gradient(90deg, transparent, rgba(251, 191, 36, 0.4), transparent);
+    }
+
+    html.light-mode .tour-title {
+        color: #111;
+    }
+
+    html.light-mode .tour-desc {
+        color: rgba(0, 0, 0, 0.65);
+    }
+
+    html.light-mode .tour-skip {
+        color: rgba(0, 0, 0, 0.4);
+    }
+
+    html.light-mode .tour-skip:hover {
+        color: rgba(0, 0, 0, 0.65);
+    }
+
+    html.light-mode .tour-btn-back {
+        background: rgba(0, 0, 0, 0.06);
+        border-color: rgba(0, 0, 0, 0.12);
+        color: #111;
+    }
+
+    html.light-mode .tour-btn-back:hover {
+        background: rgba(0, 0, 0, 0.1);
     }
 
     @media (max-width: 600px) {
