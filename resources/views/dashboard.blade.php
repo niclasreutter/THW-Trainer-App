@@ -871,35 +871,32 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') dismi
                 ->count();
         @endphp
         @if($daysLeft !== null && $daysLeft > 0)
-        <div class="glass-blue bento-side" data-tour-step="countdown" style="text-align: center;">
+        <div class="glass-blue bento-side countdown-card" data-tour-step="countdown">
             <div style="margin-bottom: 0.5rem;">
                 <div class="text-gradient-gold" style="font-size: 2rem; font-weight: 800; line-height: 1.1;">{{ $daysLeft }}</div>
-                <div style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 0.25rem;">
-                    Tag{{ $daysLeft != 1 ? 'e' : '' }} bis zur Prüfung
-                </div>
+                <div class="countdown-label">Tag{{ $daysLeft != 1 ? 'e' : '' }} bis zur Prüfung</div>
             </div>
             @if($dailyTarget && $unmasteredCount > 0)
-            <div style="padding-top: 0.5rem; border-top: 1px solid rgba(255,255,255,0.08);">
-                @php
-                    $todayPct = min(100, $dailyTarget > 0 ? round(($todayAnswered / $dailyTarget) * 100) : 0);
-                    $todayDone = $todayAnswered >= $dailyTarget;
-                @endphp
-                <div style="font-size: 1.1rem; font-weight: 700; color: {{ $todayDone ? '#22c55e' : ($dailyTarget <= 15 ? '#22c55e' : ($dailyTarget <= 30 ? '#f59e0b' : '#ef4444')) }};">
-                    {{ $dailyTarget }} Fragen/Tag
-                </div>
-                <div style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 0.4rem;">inkl. Wiederholungen</div>
+            @php
+                $todayPct = min(100, $dailyTarget > 0 ? round(($todayAnswered / $dailyTarget) * 100) : 0);
+                $todayDone = $todayAnswered >= $dailyTarget;
+                $targetClass = $todayDone ? 'is-done' : ($dailyTarget <= 15 ? 'is-easy' : ($dailyTarget <= 30 ? 'is-medium' : 'is-hard'));
+            @endphp
+            <div class="countdown-divider">
+                <div class="countdown-target {{ $targetClass }}">{{ $dailyTarget }} Fragen/Tag</div>
+                <div class="countdown-sub">inkl. Wiederholungen</div>
                 {{-- Heute-Fortschritt --}}
-                <div style="background: rgba(255,255,255,0.07); border-radius: 4px; height: 4px; overflow: hidden; margin-bottom: 0.3rem;">
+                <div class="countdown-bar-bg">
                     <div style="height: 100%; width: {{ $todayPct }}%; background: {{ $todayDone ? '#22c55e' : 'var(--gold-start)' }}; border-radius: 4px; transition: width 0.4s ease;"></div>
                 </div>
-                <div style="font-size: 0.68rem; color: {{ $todayDone ? '#22c55e' : 'var(--text-muted)' }}; font-weight: {{ $todayDone ? '600' : '400' }};">
+                <div class="countdown-today {{ $todayDone ? 'is-done' : '' }}">
                     {{ $todayAnswered }}/{{ $dailyTarget }} heute
                     @if($todayDone) &check; geschafft! @endif
                 </div>
             </div>
             @elseif($unmasteredCount <= 0)
-            <div style="padding-top: 0.5rem; border-top: 1px solid rgba(255,255,255,0.08);">
-                <div style="font-size: 0.85rem; font-weight: 600; color: #22c55e;">Alle Fragen gemeistert!</div>
+            <div class="countdown-divider">
+                <div class="countdown-success">Alle Fragen gemeistert!</div>
             </div>
             @endif
         </div>
