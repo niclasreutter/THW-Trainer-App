@@ -88,9 +88,18 @@
         gap: 1rem;
         padding: 1rem;
         border-radius: 0.75rem;
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.06);
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.08);
         margin-bottom: 0.75rem;
+        transition: background 0.2s ease, border-color 0.2s ease;
+    }
+
+    .onboarding-feature:hover {
+        background: rgba(255, 255, 255, 0.09);
+        border-color: rgba(255, 255, 255, 0.18);
     }
 
     .onboarding-feature-icon {
