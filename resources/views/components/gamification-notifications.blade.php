@@ -6,11 +6,11 @@
 
     @foreach($notifications as $notification)
         <div id="notification-{{ $loop->index }}" class="fixed top-20 right-6 z-50 transform translate-x-full transition-transform duration-500 ease-in-out">
-            <div class="bg-white border-l-4 {{ $notification['type'] === 'level_up' ? 'border-yellow-400 bg-gradient-to-r from-yellow-50 to-orange-50' : 'border-purple-400 bg-gradient-to-r from-purple-50 to-pink-50' }} rounded-lg shadow-xl p-4 max-w-sm min-w-[300px]">
+            <div class="{{ $notification['type'] === 'level_up' ? 'glass-gold' : 'glass-purple' }} p-4 max-w-sm min-w-[300px]" style="border-radius: 1rem;">
                 <div class="flex items-start">
                     <div class="flex-shrink-0">
                         @if($notification['type'] === 'level_up')
-                            <div class="text-3xl animate-bounce" style="color: #f59e0b;"><i class="bi bi-arrow-up-circle-fill"></i></div>
+                            <div class="text-3xl animate-bounce" style="color: var(--gold-start);"><i class="bi bi-arrow-up-circle-fill"></i></div>
                         @elseif(isset($notification['icon']) && str_starts_with($notification['icon'], 'bi-'))
                             <div class="text-3xl animate-pulse" style="color: #a855f7;"><i class="bi {{ $notification['icon'] }}"></i></div>
                         @else
@@ -18,20 +18,20 @@
                         @endif
                     </div>
                     <div class="ml-3 flex-1">
-                        <h3 class="text-lg font-bold {{ $notification['type'] === 'level_up' ? 'text-yellow-800' : 'text-purple-800' }}">
+                        <h3 class="text-lg font-bold text-dark-primary">
                             {{ $notification['title'] }}
                         </h3>
-                        <p class="mt-1 text-base font-medium text-gray-800">
+                        <p class="mt-1 text-base font-medium text-dark-primary">
                             {{ $notification['message'] }}
                         </p>
                         @if(isset($notification['description']))
-                            <p class="mt-1 text-sm text-gray-600">
+                            <p class="mt-1 text-sm text-dark-secondary">
                                 {{ $notification['description'] }}
                             </p>
                         @endif
                     </div>
                     <div class="ml-4 flex-shrink-0">
-                        <button onclick="hideNotification({{ $loop->index }})" class="text-gray-400 hover:text-gray-600 transition-colors">
+                        <button onclick="hideNotification({{ $loop->index }})" class="text-dark-secondary hover:text-dark-primary transition-colors">
                             <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                 <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
                             </svg>
