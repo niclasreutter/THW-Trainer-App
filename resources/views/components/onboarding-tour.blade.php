@@ -107,7 +107,7 @@
         transition: top 0.4s cubic-bezier(0.4, 0, 0.2, 1), left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 
         /* Glassmorphism - explizit, unabhängig vom global .glass */
-        background: rgba(12, 12, 22, 0.72);
+        background: rgba(12, 12, 22, 0.38);
         backdrop-filter: blur(28px) saturate(1.8);
         -webkit-backdrop-filter: blur(28px) saturate(1.8);
         border: 1px solid rgba(255, 255, 255, 0.12);
@@ -262,7 +262,7 @@
     }
 
     html.light-mode .tour-tooltip {
-        background: rgba(255, 255, 255, 0.65);
+        background: rgba(255, 255, 255, 0.38);
         backdrop-filter: blur(28px) saturate(1.8);
         -webkit-backdrop-filter: blur(28px) saturate(1.8);
         border: 1px solid rgba(0, 0, 0, 0.08);

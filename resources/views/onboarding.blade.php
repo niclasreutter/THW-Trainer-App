@@ -88,7 +88,7 @@
         gap: 1rem;
         padding: 1rem 1.25rem;
         border-radius: 1rem;
-        background: rgba(255, 255, 255, 0.05);
+        background: rgba(255, 255, 255, 0.03);
         border: 1px solid rgba(255, 255, 255, 0.10);
         backdrop-filter: blur(20px) saturate(1.8);
         -webkit-backdrop-filter: blur(20px) saturate(1.8);
