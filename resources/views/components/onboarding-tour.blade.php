@@ -15,7 +15,7 @@
          x-transition:enter-end="opacity-100">
     </div>
 
-    {{-- Spotlight cutout --}}
+    {{-- Spotlight glow ring around highlighted element --}}
     <div class="tour-spotlight"
          x-show="spotlightStyle.width"
          :style="`top:${spotlightStyle.top}px; left:${spotlightStyle.left}px; width:${spotlightStyle.width}px; height:${spotlightStyle.height}px;`">
@@ -67,10 +67,9 @@
 
     .tour-spotlight {
         position: fixed;
-        z-index: 10001;
+        z-index: 10002;
         border-radius: 12px;
-        box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.75), 0 0 30px 4px rgba(251, 191, 36, 0.25);
-        background: rgba(255, 255, 255, 0.08);
+        box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.6), 0 0 30px 6px rgba(251, 191, 36, 0.2);
         transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         pointer-events: none;
     }
@@ -191,8 +190,7 @@
     }
 
     html.light-mode .tour-spotlight {
-        box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5), 0 0 30px 4px rgba(251, 191, 36, 0.2);
-        background: rgba(255, 255, 255, 0.15);
+        box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.5), 0 0 25px 5px rgba(251, 191, 36, 0.15);
     }
 
     html.light-mode .tour-tooltip {
@@ -219,7 +217,12 @@ function onboardingTour() {
             {
                 target: '[data-tour-step="practice"]',
                 title: 'Theorie lernen',
-                description: 'Hier startest du mit dem Lernen der THW-Grundausbildung. Jede Frage muss 2x richtig beantwortet werden, bevor sie als gemeistert gilt.'
+                description: 'Hier startest du mit dem Lernen der THW-Grundausbildung. Jede Frage muss 3x richtig beantwortet werden, bevor sie als gemeistert gilt.'
+            },
+            {
+                target: '[data-tour-step="practice"]',
+                title: 'Spaced Repetition',
+                description: 'Unser System wiederholt schwierige Fragen in wachsenden Abständen (1, 3, 8, 20 Tage...). So verankerst du Wissen langfristig im Gedächtnis – wissenschaftlich bewährt!'
             },
             {
                 target: '[data-tour-step="streak"]',
