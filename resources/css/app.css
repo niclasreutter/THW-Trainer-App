@@ -1685,7 +1685,7 @@ html.light-mode body {
     background-color: #f3f4f6 !important;
 }
 
-/* All Glass card variants in light mode - Glassmorphism beibehalten */
+/* All Glass card variants in light mode - vollständig weiß, kein grauer Bleed-through */
 html.light-mode .glass,
 html.light-mode .glass-subtle,
 html.light-mode .glass-asymmetric,
@@ -1693,64 +1693,64 @@ html.light-mode .glass-organic,
 html.light-mode .stat-pill,
 html.light-mode .stat-card-glass,
 html.light-mode .lehrgang-card {
-    background: rgba(255, 255, 255, 0.90) !important;
-    backdrop-filter: blur(16px) saturate(1.4) !important;
-    -webkit-backdrop-filter: blur(16px) saturate(1.4) !important;
-    border: 1px solid rgba(255, 255, 255, 0.80) !important;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06), 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+    background: #ffffff !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: 1px solid rgba(0, 51, 127, 0.10) !important;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06), 0 1px 4px rgba(0, 0, 0, 0.04) !important;
 }
 
 html.light-mode .glass-tl {
-    background: rgba(255, 255, 255, 0.90) !important;
-    backdrop-filter: blur(16px) saturate(1.4) !important;
-    -webkit-backdrop-filter: blur(16px) saturate(1.4) !important;
-    border: 1px solid rgba(255, 255, 255, 0.80) !important;
+    background: #ffffff !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: 1px solid rgba(0, 51, 127, 0.10) !important;
     border-top: 2px solid rgba(217, 119, 6, 0.35) !important;
     border-left: 2px solid rgba(217, 119, 6, 0.35) !important;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06), 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06), 0 1px 4px rgba(0, 0, 0, 0.04) !important;
 }
 
 html.light-mode .glass-br {
-    background: rgba(255, 255, 255, 0.90) !important;
-    backdrop-filter: blur(16px) saturate(1.4) !important;
-    -webkit-backdrop-filter: blur(16px) saturate(1.4) !important;
-    border: 1px solid rgba(255, 255, 255, 0.80) !important;
+    background: #ffffff !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: 1px solid rgba(0, 51, 127, 0.10) !important;
     border-bottom: 2px solid rgba(0, 51, 127, 0.30) !important;
     border-right: 2px solid rgba(0, 51, 127, 0.30) !important;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06), 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06), 0 1px 4px rgba(0, 0, 0, 0.04) !important;
 }
 
 html.light-mode .glass-slash {
-    background: rgba(255, 255, 255, 0.90) !important;
-    backdrop-filter: blur(16px) saturate(1.4) !important;
-    -webkit-backdrop-filter: blur(16px) saturate(1.4) !important;
-    border: 1px solid rgba(255, 255, 255, 0.80) !important;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06), 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+    background: #ffffff !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: 1px solid rgba(0, 51, 127, 0.10) !important;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06), 0 1px 4px rgba(0, 0, 0, 0.04) !important;
 }
 
 html.light-mode .glass-featured {
-    background: rgba(255, 255, 255, 0.92) !important;
-    backdrop-filter: blur(20px) saturate(1.5) !important;
-    -webkit-backdrop-filter: blur(20px) saturate(1.5) !important;
-    border: 1px solid rgba(255, 255, 255, 0.85) !important;
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08), 0 0 30px rgba(217, 119, 6, 0.06) !important;
+    background: #ffffff !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: 1px solid rgba(0, 51, 127, 0.10) !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08), 0 0 20px rgba(217, 119, 6, 0.06) !important;
 }
 
 html.light-mode .glass-accent {
-    background: rgba(255, 255, 255, 0.90) !important;
-    backdrop-filter: blur(20px) saturate(1.4) !important;
-    -webkit-backdrop-filter: blur(20px) saturate(1.4) !important;
+    background: #ffffff !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
     border: 1px solid rgba(217, 119, 6, 0.20) !important;
     border-left: 3px solid var(--gold-start) !important;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06), 0 0 20px rgba(217, 119, 6, 0.08) !important;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06), 0 0 12px rgba(217, 119, 6, 0.06) !important;
 }
 
 html.light-mode .glass-thw {
-    background: rgba(255, 255, 255, 0.90) !important;
-    backdrop-filter: blur(16px) saturate(1.4) !important;
-    -webkit-backdrop-filter: blur(16px) saturate(1.4) !important;
+    background: #ffffff !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
     border: 1px solid rgba(0, 51, 127, 0.18) !important;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06), 0 0 15px rgba(0, 51, 127, 0.06) !important;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06), 0 0 8px rgba(0, 51, 127, 0.04) !important;
 }
 
 html.light-mode .glass-success {
@@ -1786,11 +1786,11 @@ html.light-mode .glass-blue,
 html.light-mode .glass-purple,
 html.light-mode .glass-cyan,
 html.light-mode .glass-green {
-    background: rgba(255, 255, 255, 0.90) !important;
-    backdrop-filter: blur(16px) saturate(1.4) !important;
-    -webkit-backdrop-filter: blur(16px) saturate(1.4) !important;
-    border: 1px solid rgba(255, 255, 255, 0.80) !important;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06), 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+    background: #ffffff !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: 1px solid rgba(0, 51, 127, 0.10) !important;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06), 0 1px 4px rgba(0, 0, 0, 0.04) !important;
 }
 
 /* Lensflare im Light Mode ausblenden */
@@ -2017,10 +2017,10 @@ html.light-mode .section-link:hover {
 
 /* Sidebar in light mode */
 html.light-mode .sidebar-glass {
-    background: rgba(243, 244, 246, 0.5) !important;
-    -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
-    backdrop-filter: blur(20px) saturate(180%) !important;
-    border-right: 1px solid rgba(0, 51, 127, 0.08) !important;
+    background: #ffffff !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    border-right: 1px solid rgba(0, 51, 127, 0.10) !important;
 }
 
 html.light-mode .sidebar-link {
@@ -2056,10 +2056,10 @@ html.light-mode .mobile-header-glass {
 
 /* Bottom nav in light mode */
 html.light-mode .bottom-nav-glass {
-    background: rgba(243, 244, 246, 0.5) !important;
-    -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
-    backdrop-filter: blur(20px) saturate(180%) !important;
-    border-top: 1px solid rgba(0, 51, 127, 0.08) !important;
+    background: #ffffff !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    border-top: 1px solid rgba(0, 51, 127, 0.10) !important;
 }
 
 html.light-mode .bottom-nav-item {
