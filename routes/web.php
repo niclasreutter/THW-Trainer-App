@@ -38,9 +38,10 @@ Disallow: /
 Route::get('/dashboard', function () {
     $user = auth()->user()->fresh(); // Fresh reload from database
 
-    // Onboarding-Redirect für neue Nutzer
+    // Alte Onboarding-Seite überspringen, neue Tour läuft direkt im Dashboard
     if (!$user->onboarding_completed) {
-        return redirect()->route('onboarding');
+        $user->onboarding_completed = true;
+        $user->save();
     }
 
     // Cache total questions count für 1 Stunde
@@ -91,10 +92,11 @@ Route::post('/dashboard/dismiss-email-consent-banner', function () {
     return response()->json(['success' => true]);
 })->middleware('auth')->name('dashboard.dismiss-email-consent-banner');
 
-// Onboarding Routes
-Route::get('/onboarding', [\App\Http\Controllers\OnboardingController::class, 'index'])->middleware(['auth', 'verified'])->name('onboarding');
-Route::post('/onboarding/complete', [\App\Http\Controllers\OnboardingController::class, 'complete'])->middleware(['auth', 'verified'])->name('onboarding.complete');
-Route::post('/onboarding/skip', [\App\Http\Controllers\OnboardingController::class, 'skip'])->middleware(['auth', 'verified'])->name('onboarding.skip');
+// Onboarding Routes (Legacy-Redirects + Tour-Endpoint)
+Route::get('/onboarding', function () { return redirect()->route('dashboard'); })->middleware(['auth', 'verified'])->name('onboarding');
+Route::post('/onboarding/complete', function () { return redirect()->route('dashboard'); })->middleware(['auth', 'verified'])->name('onboarding.complete');
+Route::post('/onboarding/skip', function () { return redirect()->route('dashboard'); })->middleware(['auth', 'verified'])->name('onboarding.skip');
+Route::post('/onboarding/tour-complete', [\App\Http\Controllers\OnboardingController::class, 'tourComplete'])->middleware(['auth', 'verified'])->name('onboarding.tour.complete');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', function() {

@@ -40,4 +40,13 @@ class OnboardingController extends Controller
 
         return redirect()->route('dashboard');
     }
+
+    public function tourComplete(Request $request)
+    {
+        $user = Auth::user();
+        $user->onboarding_tour_completed = true;
+        $user->save();
+
+        return response()->json(['success' => true]);
+    }
 }

@@ -732,7 +732,7 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') dismi
 
     <!-- Stats as horizontal pills -->
     <div class="stats-row" style="margin-bottom: 2.5rem;">
-        <div class="stat-pill">
+        <div class="stat-pill" data-tour-step="streak">
             <span class="stat-pill-icon text-warning"><i class="bi bi-fire"></i></span>
             <div>
                 <div class="stat-pill-value">{{ $user->streak_days ?? 0 }}</div>
@@ -758,7 +758,7 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') dismi
                 <div class="stat-pill-label">Heute</div>
             </div>
         </div>
-        <div class="stat-pill">
+        <div class="stat-pill" data-tour-step="achievements">
             <span class="stat-pill-icon" style="color: #a855f7;"><i class="bi bi-trophy"></i></span>
             <div>
                 <div class="stat-pill-value">{{ $unlockedCount }}/{{ $totalAchievements }}</div>
@@ -770,7 +770,7 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') dismi
     <!-- Bento Grid Layout -->
     <div class="bento-grid">
         <!-- Main: Theory Learning (spans 2 cols, 2 rows) -->
-        <a href="{{ route('practice.menu') }}" class="glass-gold bento-main hover-lift" style="text-decoration: none; position: relative;">
+        <a href="{{ route('practice.menu') }}" class="glass-gold bento-main hover-lift" data-tour-step="practice" style="text-decoration: none; position: relative;">
             @if($progressPercent == 100)
                 <div class="floating-badge">Abgeschlossen</div>
             @endif
@@ -803,7 +803,7 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') dismi
         </a>
 
         <!-- Side: Exam Status -->
-        <div class="glass-tl bento-side">
+        <div class="glass-tl bento-side" data-tour-step="exam">
             <div style="margin-bottom: 0.75rem;">
                 @if($exams >= 5)
                     <span class="badge-success">Bereit</span>
@@ -1078,7 +1078,7 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') dismi
         $rateDiff = $thisWeekRate - $lastWeekRate;
     @endphp
 
-    <div x-data="{ open: false }">
+    <div x-data="{ open: false }" data-tour-step="stats">
         <div class="section-header" style="cursor: pointer;" @click="open = !open">
             <h2 class="section-title">Statistiken</h2>
             <span style="margin-left: auto; font-size: 0.8rem; font-weight: 600; color: var(--gold-start); transition: all 0.2s;" x-text="open ? 'Einklappen' : 'Details anzeigen'"></span>
@@ -1305,6 +1305,8 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') dismi
         </div>
     </div>
 </div>
+
+<x-onboarding-tour />
 
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.0/dist/confetti.browser.min.js"></script>
 <script>
