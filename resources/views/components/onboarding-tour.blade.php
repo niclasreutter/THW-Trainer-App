@@ -224,7 +224,7 @@ function onboardingTour() {
             {
                 target: '[data-tour-step="practice"]',
                 title: 'Spaced Repetition',
-                description: 'Unser System wiederholt schwierige Fragen in wachsenden Abständen (1, 3, 8, 20 Tage...). So verankerst du Wissen langfristig im Gedächtnis – wissenschaftlich bewährt!'
+                description: 'Richtig beantwortete Fragen werden in wachsenden Abständen wiederholt. Die Intervalle passen sich automatisch an die Schwierigkeit an – schwere Fragen kommen häufiger dran. Nach 3x richtig ist eine Frage gemeistert.'
             },
             {
                 target: '[data-tour-step="streak"]',
