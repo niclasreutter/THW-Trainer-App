@@ -1754,7 +1754,7 @@ html.light-mode .glass-thw {
 }
 
 html.light-mode .glass-success {
-    background: rgba(255, 255, 255, 0.50) !important;
+    background: rgba(34, 197, 94, 0.10) !important;
     backdrop-filter: blur(16px) saturate(1.6) !important;
     -webkit-backdrop-filter: blur(16px) saturate(1.6) !important;
     border: 1px solid rgba(34, 197, 94, 0.35) !important;
@@ -1763,7 +1763,7 @@ html.light-mode .glass-success {
 }
 
 html.light-mode .glass-error {
-    background: rgba(255, 255, 255, 0.50) !important;
+    background: rgba(239, 68, 68, 0.10) !important;
     backdrop-filter: blur(16px) saturate(1.6) !important;
     -webkit-backdrop-filter: blur(16px) saturate(1.6) !important;
     border: 1px solid rgba(239, 68, 68, 0.35) !important;
@@ -1772,7 +1772,7 @@ html.light-mode .glass-error {
 }
 
 html.light-mode .glass-warning {
-    background: rgba(255, 255, 255, 0.50) !important;
+    background: rgba(245, 158, 11, 0.10) !important;
     backdrop-filter: blur(16px) saturate(1.6) !important;
     -webkit-backdrop-filter: blur(16px) saturate(1.6) !important;
     border: 1px solid rgba(245, 158, 11, 0.35) !important;
