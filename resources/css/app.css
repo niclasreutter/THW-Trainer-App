@@ -1388,6 +1388,68 @@
         padding: 1.5rem;
     }
 
+    /* === Countdown Card Komponente === */
+    .countdown-card {
+        text-align: center;
+        align-items: center;
+    }
+
+    .countdown-label {
+        font-size: 0.7rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-top: 0.25rem;
+    }
+
+    .countdown-divider {
+        width: 100%;
+        padding-top: 0.5rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        text-align: center;
+    }
+
+    .countdown-target {
+        font-size: 1.1rem;
+        font-weight: 700;
+    }
+
+    .countdown-target.is-done,
+    .countdown-target.is-easy { color: #22c55e; }
+    .countdown-target.is-medium { color: #f59e0b; }
+    .countdown-target.is-hard  { color: #ef4444; }
+
+    .countdown-sub {
+        font-size: 0.7rem;
+        color: var(--text-muted);
+        margin-bottom: 0.4rem;
+    }
+
+    .countdown-bar-bg {
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 4px;
+        height: 4px;
+        overflow: hidden;
+        margin-bottom: 0.3rem;
+    }
+
+    .countdown-today {
+        font-size: 0.68rem;
+        color: var(--text-muted);
+        font-weight: 400;
+    }
+
+    .countdown-today.is-done {
+        color: #22c55e;
+        font-weight: 600;
+    }
+
+    .countdown-success {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #22c55e;
+    }
+
     /* Responsive Bento Grid */
     @media (max-width: 900px) {
         .bento-grid {
@@ -1800,6 +1862,15 @@ html.light-mode .glass-purple::before,
 html.light-mode .glass-cyan::before,
 html.light-mode .glass-green::before {
     opacity: 0 !important;
+}
+
+/* Countdown Card - Light Mode */
+html.light-mode .countdown-divider {
+    border-top-color: rgba(0, 51, 127, 0.12) !important;
+}
+
+html.light-mode .countdown-bar-bg {
+    background: rgba(0, 51, 127, 0.08) !important;
 }
 
 /* Gold gradient text - darker for light mode readability */
