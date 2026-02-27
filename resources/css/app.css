@@ -1793,13 +1793,13 @@ html.light-mode .glass-green {
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06), 0 2px 8px rgba(0, 0, 0, 0.04) !important;
 }
 
-/* Lensflare im Light Mode abgeschwächt */
+/* Lensflare im Light Mode ausblenden */
 html.light-mode .glass-gold::before,
 html.light-mode .glass-blue::before,
 html.light-mode .glass-purple::before,
 html.light-mode .glass-cyan::before,
 html.light-mode .glass-green::before {
-    opacity: 0.5 !important;
+    opacity: 0 !important;
 }
 
 /* Gold gradient text - darker for light mode readability */
