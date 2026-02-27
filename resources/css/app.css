@@ -71,6 +71,8 @@
     --gold: #d97706;
     --gold-dark: #b45309;
     --gold-light: #f59e0b;
+    --gold-start: #d97706;
+    --gold-end: #b45309;
 
     --glass-bg: rgba(255, 255, 255, 0.9);
     --glass-border: rgba(0, 51, 127, 0.18);
@@ -1725,27 +1727,30 @@ html.light-mode .glass-thw {
 }
 
 html.light-mode .glass-success {
-    background: rgba(255, 255, 255, 0.70) !important;
-    backdrop-filter: blur(12px) saturate(1.4) !important;
-    -webkit-backdrop-filter: blur(12px) saturate(1.4) !important;
-    border: 1px solid rgba(34, 197, 94, 0.30) !important;
-    box-shadow: 0 4px 16px rgba(34, 197, 94, 0.12), 0 1px 3px rgba(0, 0, 0, 0.06) !important;
+    background: rgba(255, 255, 255, 0.85) !important;
+    backdrop-filter: blur(16px) saturate(1.6) !important;
+    -webkit-backdrop-filter: blur(16px) saturate(1.6) !important;
+    border: 1px solid rgba(34, 197, 94, 0.35) !important;
+    border-left: 3px solid rgba(34, 197, 94, 0.7) !important;
+    box-shadow: 0 8px 32px rgba(34, 197, 94, 0.15), 0 2px 8px rgba(0, 0, 0, 0.08) !important;
 }
 
 html.light-mode .glass-error {
-    background: rgba(255, 255, 255, 0.70) !important;
-    backdrop-filter: blur(12px) saturate(1.4) !important;
-    -webkit-backdrop-filter: blur(12px) saturate(1.4) !important;
-    border: 1px solid rgba(239, 68, 68, 0.30) !important;
-    box-shadow: 0 4px 16px rgba(239, 68, 68, 0.12), 0 1px 3px rgba(0, 0, 0, 0.06) !important;
+    background: rgba(255, 255, 255, 0.85) !important;
+    backdrop-filter: blur(16px) saturate(1.6) !important;
+    -webkit-backdrop-filter: blur(16px) saturate(1.6) !important;
+    border: 1px solid rgba(239, 68, 68, 0.35) !important;
+    border-left: 3px solid rgba(239, 68, 68, 0.7) !important;
+    box-shadow: 0 8px 32px rgba(239, 68, 68, 0.15), 0 2px 8px rgba(0, 0, 0, 0.08) !important;
 }
 
 html.light-mode .glass-warning {
-    background: rgba(255, 255, 255, 0.70) !important;
-    backdrop-filter: blur(12px) saturate(1.4) !important;
-    -webkit-backdrop-filter: blur(12px) saturate(1.4) !important;
-    border: 1px solid rgba(245, 158, 11, 0.30) !important;
-    box-shadow: 0 4px 16px rgba(245, 158, 11, 0.12), 0 1px 3px rgba(0, 0, 0, 0.06) !important;
+    background: rgba(255, 255, 255, 0.85) !important;
+    backdrop-filter: blur(16px) saturate(1.6) !important;
+    -webkit-backdrop-filter: blur(16px) saturate(1.6) !important;
+    border: 1px solid rgba(245, 158, 11, 0.35) !important;
+    border-left: 3px solid rgba(245, 158, 11, 0.7) !important;
+    box-shadow: 0 8px 32px rgba(245, 158, 11, 0.15), 0 2px 8px rgba(0, 0, 0, 0.08) !important;
 }
 
 /* Lensflare Cards in Light Mode - weißer Hintergrund, normale border-radius */
