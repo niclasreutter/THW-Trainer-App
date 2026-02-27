@@ -206,7 +206,7 @@
 <script>
 function onboardingTour() {
     return {
-        showTour: true,
+        showTour: false,
         currentStep: 0,
         spotlightStyle: { top: 0, left: 0, width: 0, height: 0 },
         tooltipPosition: { top: 0, left: 0 },
@@ -240,14 +240,35 @@ function onboardingTour() {
         ],
 
         init() {
-            this.$nextTick(() => {
-                setTimeout(() => this.positionTooltip(), 300);
-            });
+            // Wait for leaderboard modal to be dismissed before starting tour
+            const waitForModals = () => {
+                const leaderboardModal = document.getElementById('leaderboard-modal');
+                if (leaderboardModal) {
+                    // Modal still visible — observe its removal
+                    const observer = new MutationObserver(() => {
+                        if (!document.getElementById('leaderboard-modal')) {
+                            observer.disconnect();
+                            setTimeout(() => this.startTour(), 500);
+                        }
+                    });
+                    observer.observe(document.body, { childList: true, subtree: true });
+                } else {
+                    // No modal — start immediately
+                    this.startTour();
+                }
+            };
+
+            this.$nextTick(() => setTimeout(waitForModals, 300));
 
             // Reposition on resize
             window.addEventListener('resize', () => {
                 if (this.showTour) this.positionTooltip();
             });
+        },
+
+        startTour() {
+            this.showTour = true;
+            this.$nextTick(() => this.positionTooltip());
         },
 
         positionTooltip() {
