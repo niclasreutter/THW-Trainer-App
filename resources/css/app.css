@@ -916,7 +916,7 @@
     /* Bottom Navigation (Mobile) - Floating Pill */
     .bottom-nav-pill {
         position: fixed;
-        bottom: 0.375rem;
+        bottom: 0;
         left: 1rem;
         right: 1rem;
     }
@@ -2860,10 +2860,6 @@ html.light-mode .skeleton::after {
 
 /* Safe area insets for notch devices */
 @supports (padding: env(safe-area-inset-bottom)) {
-    .bottom-nav-pill {
-        bottom: env(safe-area-inset-bottom);
-    }
-
     .sidebar {
         padding-top: env(safe-area-inset-top);
     }
