@@ -913,12 +913,21 @@
         border-bottom: 1px solid rgba(255, 255, 255, 0.06);
     }
 
-    /* Bottom Navigation (Mobile) - Glassmorphism */
+    /* Bottom Navigation (Mobile) - Floating Pill */
+    .bottom-nav-pill {
+        position: fixed;
+        bottom: 1rem;
+        left: 1rem;
+        right: 1rem;
+    }
+
     .bottom-nav-glass {
-        background: rgba(10, 10, 11, 0.5);
-        -webkit-backdrop-filter: blur(20px) saturate(180%);
-        backdrop-filter: blur(20px) saturate(180%);
-        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(15, 15, 20, 0.88);
+        -webkit-backdrop-filter: blur(24px) saturate(180%);
+        backdrop-filter: blur(24px) saturate(180%);
+        border: 1px solid rgba(255, 255, 255, 0.10);
+        border-radius: 9999px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.50), 0 2px 8px rgba(0, 0, 0, 0.30);
     }
 
     .bottom-nav-item {
@@ -2129,10 +2138,11 @@ html.light-mode .mobile-header-glass {
 
 /* Bottom nav in light mode */
 html.light-mode .bottom-nav-glass {
-    background: rgba(255, 255, 255, 0.75) !important;
-    -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
-    backdrop-filter: blur(20px) saturate(180%) !important;
-    border-top: 1px solid rgba(0, 51, 127, 0.10) !important;
+    background: rgba(255, 255, 255, 0.88) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+    backdrop-filter: blur(24px) saturate(180%) !important;
+    border: 1px solid rgba(0, 51, 127, 0.12) !important;
+    box-shadow: 0 8px 32px rgba(0, 51, 127, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08) !important;
 }
 
 html.light-mode .bottom-nav-item {
@@ -2850,8 +2860,8 @@ html.light-mode .skeleton::after {
 
 /* Safe area insets for notch devices */
 @supports (padding: env(safe-area-inset-bottom)) {
-    .bottom-nav {
-        padding-bottom: calc(0.5rem + env(safe-area-inset-bottom));
+    .bottom-nav-pill {
+        bottom: calc(1rem + env(safe-area-inset-bottom));
     }
 
     .sidebar {

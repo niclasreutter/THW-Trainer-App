@@ -369,7 +369,7 @@
 
                 <!-- Bottom Navigation (Mobile) -->
                 @auth
-                <nav class="lg:hidden fixed bottom-0 inset-x-0 bottom-nav-glass pb-safe z-40" data-tour-step="bottom-nav">
+                <nav class="lg:hidden bottom-nav-glass bottom-nav-pill z-40" data-tour-step="bottom-nav">
                     <div class="flex items-center justify-around py-2">
                         <a href="{{ route('dashboard') }}" class="bottom-nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
                             <i class="bi bi-house-door{{ request()->routeIs('dashboard') ? '-fill' : '' }}"></i>
