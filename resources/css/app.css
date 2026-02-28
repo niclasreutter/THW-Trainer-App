@@ -917,8 +917,8 @@
     .bottom-nav-pill {
         position: fixed;
         bottom: 0.75rem;
-        left: 1rem;
-        right: 1rem;
+        left: 0.75rem;
+        right: 0.75rem;
     }
 
     .bottom-nav-glass {
