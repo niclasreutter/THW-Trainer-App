@@ -916,7 +916,7 @@
     /* Bottom Navigation (Mobile) - Floating Pill */
     .bottom-nav-pill {
         position: fixed;
-        bottom: 0;
+        bottom: 0.5rem;
         left: 1rem;
         right: 1rem;
     }
