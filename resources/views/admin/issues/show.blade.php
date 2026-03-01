@@ -68,6 +68,22 @@
     .status-rejected { background: rgba(255, 255, 255, 0.1); color: var(--text-secondary); }
     .source-badge-lehrgang { background: rgba(59, 130, 246, 0.15); color: #3b82f6; }
     .source-badge-question { background: rgba(168, 85, 247, 0.15); color: #a855f7; }
+
+    .issue-detail-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 1.5rem;
+    }
+    @media (max-width: 768px) {
+        .issue-detail-grid {
+            grid-template-columns: 1fr;
+        }
+        .issue-meta-row {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 0.25rem !important;
+        }
+    }
 </style>
 @endpush
 
@@ -149,22 +165,22 @@
         </div>
     @endif
 
-    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;">
+    <div class="issue-detail-grid">
         <div class="glass hover-lift" style="padding: 1.5rem;">
             <h3 style="font-size: 1.1rem; font-weight: 700; margin: 0 0 1.5rem 0;">Meldungsdetails</h3>
 
             <div style="display: grid; gap: 1rem; margin-bottom: 1.5rem;">
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; background: rgba(255, 255, 255, 0.03); border-radius: 0.5rem;">
+                <div class="issue-meta-row" style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; background: rgba(255, 255, 255, 0.03); border-radius: 0.5rem;">
                     <span style="color: var(--text-secondary); font-weight: 600;">Gesamtmeldungen:</span>
                     <span style="background: rgba(59, 130, 246, 0.2); color: #3b82f6; padding: 0.35rem 0.75rem; border-radius: 9999px; font-weight: 700;">{{ $issue->report_count }}x</span>
                 </div>
 
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; background: rgba(255, 255, 255, 0.03); border-radius: 0.5rem;">
+                <div class="issue-meta-row" style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; background: rgba(255, 255, 255, 0.03); border-radius: 0.5rem;">
                     <span style="color: var(--text-secondary); font-weight: 600;">Zuletzt gemeldet von:</span>
                     <span style="color: var(--text-primary); font-weight: 500;">{{ $issue->reportedByUser?->name ?? 'Anonym' }}</span>
                 </div>
 
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; background: rgba(255, 255, 255, 0.03); border-radius: 0.5rem;">
+                <div class="issue-meta-row" style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; background: rgba(255, 255, 255, 0.03); border-radius: 0.5rem;">
                     <span style="color: var(--text-secondary); font-weight: 600;">Zuletzt aktualisiert:</span>
                     <span style="color: var(--text-primary); font-weight: 500;">{{ $issue->updated_at ? $issue->updated_at->format('d.m.Y H:i') : '-' }}</span>
                 </div>
