@@ -716,11 +716,12 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') dismi
     @endif
 
     @php
-        $streakAtRisk = ($user->streak_days ?? 0) > 0
-            && (!$user->last_activity_date || \Carbon\Carbon::parse($user->last_activity_date)->lt(\Carbon\Carbon::today()));
         $streakMinQuestions = \App\Services\GamificationService::STREAK_MIN_QUESTIONS;
         $todayQuestions = $user->daily_questions_solved ?? 0;
         $questionsRemaining = max(0, $streakMinQuestions - $todayQuestions);
+        $streakAtRisk = ($user->streak_days ?? 0) > 0
+            && $questionsRemaining > 0
+            && (!$user->last_activity_date || \Carbon\Carbon::parse($user->last_activity_date)->lt(\Carbon\Carbon::today()));
     @endphp
     @if($streakAtRisk)
     <div x-data="{
@@ -755,7 +756,7 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') dismi
         <div class="alert-compact-content">
             <div class="alert-compact-title" x-show="!frozen">Dein {{ $user->streak_days }}-Tage-Streak läuft ab</div>
             <div class="alert-compact-title" x-show="frozen">Streak gesichert</div>
-            <div class="alert-compact-desc" x-show="!frozen">Noch {{ $questionsRemaining }} von {{ $streakMinQuestions }} Fragen oder 1 Prüfung nötig ({{ $todayQuestions }}/{{ $streakMinQuestions }} beantwortet)</div>
+            <div class="alert-compact-desc" x-show="!frozen">Noch {{ $questionsRemaining }} von {{ $streakMinQuestions }} Fragen nötig ({{ $todayQuestions }}/{{ $streakMinQuestions }} beantwortet)</div>
             <div class="alert-compact-desc" x-show="frozen">Ein Streak Freeze schützt deinen Streak für heute.</div>
             <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; margin-top: 0.6rem;" x-show="!frozen">
                 @if(isset($streakFreezeStatus) && $streakFreezeStatus['remaining'] > 0)
