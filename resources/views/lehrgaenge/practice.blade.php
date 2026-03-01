@@ -409,6 +409,137 @@
     html.light-mode .text-gold {
         color: #d97706 !important;
     }
+
+    /* Report Modal */
+    .report-modal-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 99999;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .report-modal-backdrop {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+    }
+
+    .report-modal-content {
+        position: relative;
+        width: calc(100% - 2rem);
+        max-width: 400px;
+        margin: 0 auto;
+        padding: 1.25rem;
+        animation: reportModalIn 0.2s ease-out;
+    }
+
+    @keyframes reportModalIn {
+        from { opacity: 0; transform: scale(0.95) translateY(8px); }
+        to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .report-modal-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+    }
+
+    .report-modal-header h3 {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: var(--text-primary, #f1f5f9);
+        margin: 0;
+    }
+
+    .report-modal-close {
+        background: none;
+        border: none;
+        color: rgba(255, 255, 255, 0.35);
+        cursor: pointer;
+        font-size: 1rem;
+        line-height: 1;
+        padding: 0.25rem;
+        transition: color 0.2s;
+    }
+
+    .report-modal-close:hover {
+        color: rgba(255, 255, 255, 0.6);
+    }
+
+    .report-modal-meta {
+        font-size: 0.75rem;
+        color: rgba(255, 255, 255, 0.4);
+        margin: 0 0 0.75rem;
+    }
+
+    .report-modal-textarea {
+        width: 100%;
+        box-sizing: border-box;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        color: #f1f5f9;
+        padding: 0.625rem;
+        font-size: 0.8rem;
+        resize: none;
+        outline: none;
+        font-family: inherit;
+        transition: border-color 0.2s;
+    }
+
+    .report-modal-textarea:focus {
+        border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    .report-modal-actions {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 0.75rem;
+        justify-content: flex-end;
+    }
+
+    .report-modal-feedback {
+        display: none;
+        margin-top: 0.5rem;
+        text-align: center;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    /* Light mode overrides */
+    html.light-mode .report-modal-backdrop {
+        background: rgba(0, 0, 0, 0.3);
+    }
+
+    html.light-mode .report-modal-header h3 {
+        color: #1e293b;
+    }
+
+    html.light-mode .report-modal-close {
+        color: rgba(0, 0, 0, 0.3);
+    }
+
+    html.light-mode .report-modal-close:hover {
+        color: rgba(0, 0, 0, 0.6);
+    }
+
+    html.light-mode .report-modal-meta {
+        color: rgba(0, 0, 0, 0.45);
+    }
+
+    html.light-mode .report-modal-textarea {
+        background: rgba(0, 0, 0, 0.03);
+        border-color: rgba(0, 0, 0, 0.12);
+        color: #1e293b;
+    }
+
+    html.light-mode .report-modal-textarea:focus {
+        border-color: rgba(0, 0, 0, 0.25);
+    }
 </style>
 @endpush
 
@@ -623,9 +754,11 @@
                         </a>
                         @endif
                     @endif
-                    <button type="button" onclick="openReportModal()" class="btn-ghost w-full py-2 text-sm text-center block mt-2">
-                        Fehler melden
-                    </button>
+                    <div class="mt-2 text-right">
+                        <button type="button" onclick="openReportModal()" style="background:none; border:none; color:rgba(255,255,255,0.3); font-size:0.75rem; cursor:pointer; padding:0.25rem 0; transition:color 0.2s;" onmouseover="this.style.color='rgba(255,255,255,0.6)'" onmouseout="this.style.color='rgba(255,255,255,0.3)'">
+                            Fehler melden
+                        </button>
+                    </div>
                 </div>
             </form>
         </div>
@@ -790,22 +923,22 @@
             });
         </script>
         <!-- Report Issue Modal -->
-        <div id="reportModal" style="display:none; position:fixed; inset:0; z-index:99999; align-items:flex-end; justify-content:center;" onclick="if(event.target===this)closeReportModal()">
-            <div style="background:rgba(0,0,0,0.6); position:absolute; inset:0; backdrop-filter:blur(4px);"></div>
-            <div style="position:relative; width:100%; max-width:560px; margin:0 auto; background:rgba(15,15,20,0.97); border:1px solid rgba(255,255,255,0.1); border-radius:20px 20px 0 0; padding:1.5rem; padding-bottom:calc(1.5rem + env(safe-area-inset-bottom,0px));">
-                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem;">
-                    <h3 style="font-size:1rem; font-weight:700; color:var(--text-primary,#f1f5f9); margin:0;">Fehler melden</h3>
-                    <button type="button" onclick="closeReportModal()" style="background:none; border:none; color:rgba(255,255,255,0.4); cursor:pointer; font-size:1.25rem; line-height:1; padding:0.25rem;">&#x2715;</button>
+        <div id="reportModal" class="report-modal-overlay" onclick="if(event.target===this)closeReportModal()">
+            <div class="report-modal-backdrop"></div>
+            <div class="report-modal-content glass">
+                <div class="report-modal-header">
+                    <h3>Fehler melden</h3>
+                    <button type="button" onclick="closeReportModal()" class="report-modal-close">&#x2715;</button>
                 </div>
-                <p style="font-size:0.8125rem; color:rgba(255,255,255,0.5); margin:0 0 1rem;">Frage ID: {{ $question->id }} &nbsp;|&nbsp; LA {{ $question->lernabschnitt ?? '-' }}.{{ $question->nummer ?? '-' }}</p>
+                <p class="report-modal-meta">Frage {{ $question->lernabschnitt ?? '-' }}.{{ $question->nummer ?? '-' }}</p>
                 <textarea id="reportMessage" rows="3" maxlength="500"
-                    placeholder="Optionale Beschreibung des Fehlers (max. 500 Zeichen)"
-                    style="width:100%; box-sizing:border-box; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:10px; color:#f1f5f9; padding:0.75rem; font-size:0.875rem; resize:none; outline:none;"></textarea>
-                <div style="display:flex; gap:0.75rem; margin-top:0.875rem;">
-                    <button type="button" onclick="closeReportModal()" class="btn-ghost" style="flex:1; padding:0.75rem;">Abbrechen</button>
-                    <button type="button" onclick="submitReport()" id="reportSubmitBtn" class="btn-danger" style="flex:1; padding:0.75rem;">Melden</button>
+                    class="report-modal-textarea"
+                    placeholder="Optionale Beschreibung des Fehlers (max. 500 Zeichen)"></textarea>
+                <div class="report-modal-actions">
+                    <button type="button" onclick="closeReportModal()" class="btn-ghost btn-sm">Abbrechen</button>
+                    <button type="button" onclick="submitReport()" id="reportSubmitBtn" class="btn-secondary btn-sm">Melden</button>
                 </div>
-                <p id="reportFeedback" style="display:none; margin-top:0.75rem; text-align:center; font-size:0.875rem; font-weight:600;"></p>
+                <p id="reportFeedback" class="report-modal-feedback"></p>
             </div>
         </div>
 
