@@ -30,7 +30,7 @@
                     Streak-Alarm!
                 </p>
                 <p style="margin:8px 0 0 0;font-size:15px;color:#92400e;">
-                    Du hast heute die Mindestaktivität (10 Fragen oder 1 Prüfung) noch nicht erreicht und dein <strong>{{ $streakDays }}-Tage Streak</strong> ist in Gefahr!
+                    Du hast heute die Mindestaktivität (20 Fragen oder 1 Prüfung) noch nicht erreicht und dein <strong>{{ $streakDays }}-Tage Streak</strong> ist in Gefahr!
                 </p>
             </div>
 
@@ -65,7 +65,7 @@
             @endif
 
             <p style="margin:20px 0;font-size:16px;color:#1a202c;line-height:1.6;">
-                Beantworte heute mindestens 10 Fragen oder absolviere eine Prüfung, um deinen Streak zu retten und weiter auf dein nächstes Achievement hinzuarbeiten.
+                Beantworte heute mindestens 20 Fragen oder absolviere eine Prüfung, um deinen Streak zu retten und weiter auf dein nächstes Achievement hinzuarbeiten.
             </p>
 
             <!-- Call-to-Action Button -->
@@ -76,7 +76,7 @@
             </div>
 
             <p style="margin:20px 0;font-size:16px;color:#1a202c;line-height:1.6;text-align:center;">
-                Du schaffst das! 10 Fragen dauern nur wenige Minuten und dein Streak bleibt erhalten.
+                Du schaffst das! 20 Fragen dauern nur wenige Minuten und dein Streak bleibt erhalten.
             </p>
 
             <!-- Footer -->
