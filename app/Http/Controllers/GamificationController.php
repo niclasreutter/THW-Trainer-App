@@ -5,12 +5,21 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Services\GamificationService;
+use Illuminate\Http\JsonResponse;
 
 class GamificationController extends Controller
 {
     public function achievements()
     {
         return view('gamification.achievements');
+    }
+
+    public function useStreakFreeze(Request $request): JsonResponse
+    {
+        $user = Auth::user();
+        $result = (new GamificationService())->applyManualFreeze($user);
+
+        return response()->json($result, $result['success'] ? 200 : 422);
     }
 
     public function leaderboard(Request $request)
