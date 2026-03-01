@@ -5,14 +5,16 @@
  * WICHTIG: Dieses Script sollte täglich um 00:01 Uhr ausgeführt werden (nach Mitternacht)
  *
  * LOGIK:
- * - Prüft ob User GESTERN gelernt haben
+ * - Prüft ob User GESTERN die Mindestaktivität erreicht haben
+ * - Mindestaktivität: 5 Fragen beantwortet ODER 1 Prüfung absolviert
  * - Wenn NEIN (last_activity_date < gestern), wird Streak zurückgesetzt
- * - Verwendet last_activity_date (konsistent mit GamificationService)
+ * - last_activity_date wird nur gesetzt wenn Mindestaktivität erreicht (GamificationService)
  *
  * BEISPIEL:
  * Heute ist Mittwoch 00:01 Uhr
- * - User A lernte Dienstag → Streak bleibt ✓
- * - User B lernte Montag → Streak wird zurückgesetzt (1 Tag Pause)
+ * - User A hat Dienstag 5+ Fragen beantwortet → Streak bleibt ✓
+ * - User B hat Dienstag nur 2 Fragen beantwortet → Streak wird zurückgesetzt
+ * - User C hat Dienstag eine Prüfung absolviert → Streak bleibt ✓
  */
 
 // Finde Laravel-Root (Script liegt im Root)
