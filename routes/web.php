@@ -169,6 +169,7 @@ Route::middleware('auth')->group(function () {
     
     Route::get('/exam', [\App\Http\Controllers\ExamController::class, 'start'])->name('exam.index');
     Route::post('/exam/submit', [\App\Http\Controllers\ExamController::class, 'submit'])->name('exam.submit');
+    Route::get('/exam/result/{id}', [\App\Http\Controllers\ExamController::class, 'showResult'])->name('exam.result');
     Route::get('/exam-history', [\App\Http\Controllers\ExamController::class, 'history'])->name('exam.history');
     Route::get('/exam-history/{id}', [\App\Http\Controllers\ExamController::class, 'historyDetail'])->name('exam.history.detail');
     

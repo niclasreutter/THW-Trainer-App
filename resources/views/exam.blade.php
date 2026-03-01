@@ -869,7 +869,7 @@
         <div class="exam-card">
             <!-- Mobile Header -->
             <div class="exam-mobile-header">
-                <a href="{{ route('dashboard') }}" class="p-2 -ml-2 text-dark-secondary hover:text-gold transition-colors">
+                <a href="#" onclick="handleExamExit(event)" class="p-2 -ml-2 text-dark-secondary hover:text-gold transition-colors">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                     </svg>
@@ -913,6 +913,7 @@
             <!-- Question Form -->
             <form id="exam-form" method="POST" action="{{ route('exam.submit') }}">
                 @csrf
+                <input type="hidden" name="exam_token" value="{{ $examToken }}">
 
                 @foreach($fragen as $index => $frage)
                     <input type="hidden" name="fragen_ids[]" value="{{ $frage->id }}">
@@ -924,12 +925,26 @@
                             ['letter' => 'C', 'text' => $frage->antwort_c],
                         ];
 
-                        $answers = $answersOriginal;
-                        shuffle($answers);
-
-                        $mappingArray = [];
-                        foreach ($answers as $ansIndex => $answer) {
-                            $mappingArray[$ansIndex] = $answer['letter'];
+                        // Mapping vom Server verwenden (stabil bei Reload)
+                        $mappingArray = $answerMappings[$index] ?? null;
+                        if ($mappingArray) {
+                            $answers = [];
+                            foreach ($mappingArray as $pos => $letter) {
+                                foreach ($answersOriginal as $ans) {
+                                    if ($ans['letter'] === $letter) {
+                                        $answers[$pos] = $ans;
+                                        break;
+                                    }
+                                }
+                            }
+                            ksort($answers);
+                        } else {
+                            $answers = $answersOriginal;
+                            shuffle($answers);
+                            $mappingArray = [];
+                            foreach ($answers as $ansIndex => $answer) {
+                                $mappingArray[$ansIndex] = $answer['letter'];
+                            }
                         }
 
                         $mappingJson = json_encode($mappingArray);
@@ -1094,7 +1109,39 @@
             const totalQuestions = {{ count($fragen) }};
             let answers = new Array(totalQuestions).fill(false);
             let marked = new Array(totalQuestions).fill(false);
-            let timeLeft = 30 * 60;
+            let timeLeft = {{ $timeLeft ?? 30 * 60 }};
+            let examSubmitting = false;
+
+            // Navigation Protection: Back-Button abfangen
+            history.pushState(null, '', window.location.href);
+            window.addEventListener('popstate', function(e) {
+                history.pushState(null, '', window.location.href);
+                handleExamExit(e);
+            });
+
+            // Reload-Warnung
+            window.addEventListener('beforeunload', function(e) {
+                if (!examSubmitting) {
+                    e.preventDefault();
+                    e.returnValue = '';
+                }
+            });
+
+            // Prüfung abbrechen: Bestätigung + automatisches Abgeben
+            function handleExamExit(e) {
+                if (e) e.preventDefault();
+                if (examSubmitting) return;
+                if (confirm('Prüfung abbrechen? Alle bisherigen Antworten werden ausgewertet.')) {
+                    submitExam();
+                }
+            }
+
+            // Prüfung abgeben
+            function submitExam() {
+                if (examSubmitting) return;
+                examSubmitting = true;
+                document.getElementById('exam-form').submit();
+            }
 
             // Timer
             const timerEl = document.getElementById('exam-timer');
@@ -1316,7 +1363,7 @@
             }
 
             function confirmSubmit() {
-                document.getElementById('exam-form').submit();
+                submitExam();
             }
 
             // Initial
