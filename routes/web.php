@@ -97,6 +97,7 @@ Route::get('/onboarding', function () { return redirect()->route('dashboard'); }
 Route::post('/onboarding/complete', function () { return redirect()->route('dashboard'); })->middleware(['auth', 'verified'])->name('onboarding.complete');
 Route::post('/onboarding/skip', function () { return redirect()->route('dashboard'); })->middleware(['auth', 'verified'])->name('onboarding.skip');
 Route::post('/onboarding/tour-complete', [\App\Http\Controllers\OnboardingController::class, 'tourComplete'])->middleware(['auth', 'verified'])->name('onboarding.tour.complete');
+Route::post('/streak/freeze', [\App\Http\Controllers\GamificationController::class, 'useStreakFreeze'])->middleware(['auth', 'verified'])->name('streak.freeze');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', function() {

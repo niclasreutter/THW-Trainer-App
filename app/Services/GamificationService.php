@@ -685,6 +685,60 @@ class GamificationService
     }
 
     /**
+     * Setzt manuell einen Streak Freeze für heute ein (Dashboard-Aktion).
+     */
+    public function applyManualFreeze(User $user): array
+    {
+        $today = Carbon::today();
+
+        if (($user->streak_days ?? 0) === 0) {
+            return ['success' => false, 'message' => 'Kein aktiver Streak vorhanden.'];
+        }
+
+        $lastActivity = $user->last_activity_date ? Carbon::parse($user->last_activity_date) : null;
+        if ($lastActivity && $lastActivity->isSameDay($today)) {
+            return ['success' => false, 'message' => 'Du hast heute bereits gelernt – der Streak ist sicher.'];
+        }
+
+        $this->resetWeeklyFreezesIfNeeded($user);
+
+        $available = $user->streak_freezes_available ?? self::MAX_STREAK_FREEZES_PER_WEEK;
+        $used = $user->streak_freezes_used ?? 0;
+
+        if ($used >= $available) {
+            return ['success' => false, 'message' => 'Keine Streak Freezes mehr verfügbar diese Woche.'];
+        }
+
+        $log = $this->ensureArray($user->streak_freeze_log);
+        $alreadyFrozenToday = array_filter($log, fn($entry) => ($entry['date'] ?? '') === $today->toDateString());
+        if (!empty($alreadyFrozenToday)) {
+            return ['success' => false, 'message' => 'Heute wurde bereits ein Freeze eingesetzt.'];
+        }
+
+        $user->streak_freezes_used = $used + 1;
+        $log[] = [
+            'date'    => $today->toDateString(),
+            'used_at' => Carbon::now()->toDateTimeString(),
+            'manual'  => true,
+        ];
+        $user->streak_freeze_log  = $log;
+        $user->last_activity_date = $today;
+        $user->save();
+
+        \Log::info('Manueller Streak Freeze eingesetzt', [
+            'user_id'           => $user->id,
+            'date'              => $today->toDateString(),
+            'freezes_remaining' => max(0, $available - $user->streak_freezes_used),
+        ]);
+
+        return [
+            'success'   => true,
+            'message'   => 'Streak Freeze eingesetzt! Dein Streak ist heute geschützt.',
+            'remaining' => max(0, $available - $user->streak_freezes_used),
+        ];
+    }
+
+    /**
      * Stellt sicher, dass ein Wert ein Array ist (für Legacy-Kompatibilität)
      */
     private function ensureArray($value)

@@ -720,13 +720,51 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') dismi
             && (!$user->last_activity_date || \Carbon\Carbon::parse($user->last_activity_date)->lt(\Carbon\Carbon::today()));
     @endphp
     @if($streakAtRisk)
-    <div class="alert-compact glass-warning" style="animation: pulse-subtle 3s ease-in-out infinite;">
-        <i class="bi bi-fire alert-compact-icon" style="color: #f59e0b;"></i>
+    <div x-data="{
+            frozen: false,
+            loading: false,
+            async applyFreeze() {
+                this.loading = true;
+                try {
+                    const res = await fetch('{{ route('streak.freeze') }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content,
+                            'Accept': 'application/json'
+                        },
+                        cache: 'no-store'
+                    });
+                    const data = await res.json();
+                    if (data.success) this.frozen = true;
+                } finally {
+                    this.loading = false;
+                }
+            }
+        }"
+         class="alert-compact"
+         :class="frozen ? 'glass-success' : 'glass-warning'"
+         :style="frozen ? '' : 'animation: pulse-subtle 3s ease-in-out infinite;'"
+         data-tour-step="streak-freeze">
+        <i class="bi alert-compact-icon"
+           :class="frozen ? 'bi-shield-check' : 'bi-fire'"
+           :style="frozen ? 'color: #10b981;' : 'color: #f59e0b;'"></i>
         <div class="alert-compact-content">
-            <div class="alert-compact-title">Dein {{ $user->streak_days }}-Tage-Streak läuft ab</div>
-            <div class="alert-compact-desc">Beantworte heute noch eine Frage, um deinen Streak zu halten</div>
+            <div class="alert-compact-title" x-show="!frozen">Dein {{ $user->streak_days }}-Tage-Streak läuft ab</div>
+            <div class="alert-compact-title" x-show="frozen">Streak gesichert</div>
+            <div class="alert-compact-desc" x-show="!frozen">Beantworte heute noch eine Frage, um deinen Streak zu halten</div>
+            <div class="alert-compact-desc" x-show="frozen">Ein Streak Freeze schützt deinen Streak für heute.</div>
         </div>
-        <a href="{{ route('practice.all') }}" class="btn-primary btn-sm">Jetzt lernen</a>
+        <div style="display: flex; gap: 0.5rem; align-items: center;" x-show="!frozen">
+            @if(isset($streakFreezeStatus) && $streakFreezeStatus['remaining'] > 0)
+            <button class="btn-secondary btn-sm"
+                    @click="applyFreeze()"
+                    :disabled="loading"
+                    x-text="loading ? 'Wird eingesetzt...' : 'Freeze einsetzen ({{ $streakFreezeStatus['remaining'] }})'">
+            </button>
+            @endif
+            <a href="{{ route('practice.all') }}" class="btn-primary btn-sm">Jetzt lernen</a>
+        </div>
     </div>
     @endif
 

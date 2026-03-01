@@ -333,7 +333,7 @@ function onboardingTour() {
             {
                 target: '[data-tour-step="streak"]',
                 title: 'Streak & Tägliches Lernen',
-                description: 'Dein Streak zählt, wie viele Tage in Folge du gelernt hast. Halte ihn aufrecht, um Bonuspunkte zu sammeln! Bei Vergessen schützt dich ein Streak Freeze.'
+                description: 'Dein Streak zählt, wie viele Tage in Folge du gelernt hast. Wenn du mal einen Tag nicht schaffst, erscheint oben ein Hinweis – dort kannst du mit einem Klick einen Streak Freeze einsetzen und deinen Streak retten, ohne lernen zu müssen.'
             },
             {
                 target: '[data-tour-step="achievements"]',
