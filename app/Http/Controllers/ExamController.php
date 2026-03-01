@@ -276,6 +276,10 @@ class ExamController extends Controller
         } else {
             $user->exam_passed_count = 0;
             $user->exam_failed_questions = $failed;
+
+            // Auch bei nicht-bestandener Prüfung zählt die Prüfung für den Streak
+            $gamificationService = new GamificationService();
+            $gamificationService->recordExamActivity($user);
         }
         $user->save();
 

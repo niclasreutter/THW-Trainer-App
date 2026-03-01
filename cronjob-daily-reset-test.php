@@ -5,14 +5,17 @@
  * WICHTIG: Dieses Script sollte täglich um 00:01 Uhr ausgeführt werden (nach Mitternacht)
  *
  * LOGIK:
- * - Prüft ob User GESTERN gelernt haben
+ * - Prüft ob User GESTERN die Mindestaktivität erreicht haben
+ * - Mindestaktivität: 10 Fragen beantwortet ODER 1 Prüfung absolviert
  * - Wenn NEIN (last_activity_date < gestern), wird Streak zurückgesetzt
- * - Verwendet last_activity_date (konsistent mit GamificationService)
+ * - last_activity_date wird nur gesetzt wenn Mindestaktivität erreicht (GamificationService)
  *
  * BEISPIEL:
  * Heute ist Mittwoch 00:01 Uhr
- * - User A lernte Dienstag → Streak bleibt ✓
- * - User B lernte Montag → Streak wird zurückgesetzt (1 Tag Pause)
+ * - User A hat Dienstag 10+ Fragen beantwortet → Streak bleibt ✓
+ * - User B hat Dienstag nur 7 Fragen beantwortet → Streak wird zurückgesetzt (falls kein Freeze)
+ * - User C hat Dienstag eine Prüfung absolviert → Streak bleibt ✓
+ * - User D hat nicht gelernt, hat aber Freeze verfügbar → Freeze wird automatisch eingesetzt ✓
  */
 
 // Finde Laravel-Root (Script liegt im Root)
@@ -58,8 +61,10 @@ try {
     $today = \Carbon\Carbon::today();
     $yesterday = \Carbon\Carbon::yesterday();
     $streakResetsCount = 0;
+    $streakFreezeCount = 0;
     $dailyQuestionsResetsCount = 0;
     $errors = 0;
+    $gamificationService = new \App\Services\GamificationService();
 
     echo "[" . date('Y-m-d H:i:s') . "] Heute: {$today->format('Y-m-d')}\n";
     echo "[" . date('Y-m-d H:i:s') . "] Gestern: {$yesterday->format('Y-m-d')}\n";
@@ -73,7 +78,9 @@ try {
         $lastActivityStr = $lastActivity ? $lastActivity->format('Y-m-d') : 'NIE';
         $dailyQuestionsDate = $debugUser->daily_questions_date ? \Carbon\Carbon::parse($debugUser->daily_questions_date)->format('Y-m-d') : 'NIE';
 
-        $willResetStreak = ($debugUser->streak_days > 0 && (!$lastActivity || $lastActivity->lt($yesterday))) ? 'JA' : 'NEIN';
+        $streakAtRisk = ($debugUser->streak_days > 0 && (!$lastActivity || $lastActivity->lt($yesterday)));
+        $freezeAvailable = $streakAtRisk ? $gamificationService->getStreakFreezeStatus($debugUser)['remaining'] : 0;
+        $willResetStreak = $streakAtRisk ? ($freezeAvailable > 0 ? 'FREEZE' : 'JA') : 'NEIN';
         $willResetDaily = ($debugUser->daily_questions_date && \Carbon\Carbon::parse($debugUser->daily_questions_date)->lt($today)) ? 'JA' : 'NEIN';
 
         echo "[" . date('Y-m-d H:i:s') . "] DEBUG: {$debugUser->name}\n";
@@ -106,17 +113,43 @@ try {
                 echo "  → Letzte Aktivität: {$lastActivityStr}\n";
             }
 
-            // 2. RESET STREAK (nur für User die gestern NICHT aktiv waren)
+            // 2. STREAK: Prüfe ob Mindestaktivität gestern NICHT erreicht wurde
             if ($user->streak_days > 0) {
                 if (!$lastActivity || $lastActivity->lt($yesterday)) {
-                    $oldStreak = $user->streak_days;
-                    $user->streak_days = 0;
-                    $changed = true;
-                    $streakResetsCount++;
+                    // Prüfe ob Streak Freeze verfügbar ist
+                    $freezeStatus = $gamificationService->getStreakFreezeStatus($user);
 
-                    echo "[" . date('Y-m-d H:i:s') . "] Streak zurückgesetzt: {$user->name} ({$user->email})\n";
-                    echo "  → Streak: {$oldStreak} → 0 Tage\n";
-                    echo "  → Letzte Aktivität: {$lastActivityStr}\n";
+                    if ($freezeStatus['remaining'] > 0) {
+                        // Auto-Freeze: Streak wird geschützt
+                        $freezeResult = $gamificationService->applyManualFreeze($user);
+
+                        if ($freezeResult['success']) {
+                            $streakFreezeCount++;
+                            $changed = false; // applyManualFreeze speichert bereits
+                            echo "[" . date('Y-m-d H:i:s') . "] Streak Freeze auto-eingesetzt: {$user->name} ({$user->email})\n";
+                            echo "  → Streak: {$user->streak_days} Tage (geschützt)\n";
+                            echo "  → Verbleibende Freezes: {$freezeResult['remaining']}\n";
+                        } else {
+                            // Freeze fehlgeschlagen - Streak resetten
+                            $oldStreak = $user->streak_days;
+                            $user->streak_days = 0;
+                            $changed = true;
+                            $streakResetsCount++;
+                            echo "[" . date('Y-m-d H:i:s') . "] Streak zurückgesetzt (Freeze fehlgeschlagen): {$user->name} ({$user->email})\n";
+                            echo "  → Streak: {$oldStreak} → 0 Tage\n";
+                            echo "  → Grund: {$freezeResult['message']}\n";
+                        }
+                    } else {
+                        // Kein Freeze verfügbar - Streak resetten
+                        $oldStreak = $user->streak_days;
+                        $user->streak_days = 0;
+                        $changed = true;
+                        $streakResetsCount++;
+
+                        echo "[" . date('Y-m-d H:i:s') . "] Streak zurückgesetzt: {$user->name} ({$user->email})\n";
+                        echo "  → Streak: {$oldStreak} → 0 Tage\n";
+                        echo "  → Letzte Aktivität: {$lastActivityStr}\n";
+                    }
                 }
             }
 
@@ -135,6 +168,7 @@ try {
     echo "[" . date('Y-m-d H:i:s') . "] Tägliche Reset-Prüfung abgeschlossen!\n";
     echo "[" . date('Y-m-d H:i:s') . "] Daily Questions zurückgesetzt: {$dailyQuestionsResetsCount}\n";
     echo "[" . date('Y-m-d H:i:s') . "] Streaks zurückgesetzt: {$streakResetsCount}\n";
+    echo "[" . date('Y-m-d H:i:s') . "] Streak Freezes auto-eingesetzt: {$streakFreezeCount}\n";
     echo "[" . date('Y-m-d H:i:s') . "] Fehler: {$errors}\n";
     echo str_repeat("=", 80) . "\n";
 

@@ -13,6 +13,7 @@ class GamificationService
     const STREAK_BONUS_MULTIPLIER = 2;
     const DAILY_BONUS = 50;
     const MAX_STREAK_FREEZES_PER_WEEK = 2;
+    const STREAK_MIN_QUESTIONS = 10;
 
     // Level-System (Punkte benötigt für nächstes Level)
     const LEVEL_THRESHOLDS = [
@@ -188,12 +189,25 @@ class GamificationService
         ];
     }
 
-    public function updateStreak(User $user)
+    public function updateStreak(User $user, bool $examCompleted = false)
     {
         $today = Carbon::today();
         $lastActivity = $user->last_activity_date ? Carbon::parse($user->last_activity_date) : null;
 
-        // Wöchentlichen Freeze-Reset prüfen
+        // Wenn heute schon als qualifiziert markiert, nichts ändern
+        if ($lastActivity && $lastActivity->isSameDay($today)) {
+            return;
+        }
+
+        // Mindestaktivität prüfen: X Fragen beantwortet ODER 1 Prüfung absolviert
+        $meetsMinimum = $examCompleted
+            || ($user->daily_questions_solved >= self::STREAK_MIN_QUESTIONS);
+
+        if (!$meetsMinimum) {
+            return;
+        }
+
+        // Mindestaktivität erreicht - Streak verarbeiten
         $this->resetWeeklyFreezesIfNeeded($user);
 
         if (!$lastActivity) {
@@ -226,7 +240,6 @@ class GamificationService
             $user->streak_days += 1;
             $this->checkStreakAchievements($user);
         }
-        // Wenn heute schon aktiv war, nichts ändern
 
         $user->last_activity_date = $today;
         $user->save();
@@ -237,8 +250,8 @@ class GamificationService
      */
     public function updateUserActivity(User $user)
     {
-        $this->updateStreak($user);
         $this->updateDailyQuestions($user);
+        $this->updateStreak($user);
     }
 
     public function awardQuestionPoints(User $user, bool $isCorrect = true, int $questionId = null)
@@ -249,8 +262,8 @@ class GamificationService
             return null;
         }
 
-        $this->updateStreak($user);
         $this->updateDailyQuestions($user);
+        $this->updateStreak($user);
 
         $basePoints = self::POINTS_PER_QUESTION;
 
@@ -280,8 +293,8 @@ class GamificationService
 
     public function awardExamPoints(User $user, int $correctAnswers, int $totalQuestions)
     {
-        $this->updateStreak($user);
-        
+        $this->updateStreak($user, examCompleted: true);
+
         $percentage = ($correctAnswers / $totalQuestions) * 100;
         $passed = $percentage >= 80;
 
@@ -298,6 +311,14 @@ class GamificationService
         }
 
         return null;
+    }
+
+    /**
+     * Aktualisiert den Streak nach einer abgeschlossenen Prüfung (bestanden oder nicht).
+     */
+    public function recordExamActivity(User $user)
+    {
+        $this->updateStreak($user, examCompleted: true);
     }
 
     private function updateDailyQuestions(User $user)
