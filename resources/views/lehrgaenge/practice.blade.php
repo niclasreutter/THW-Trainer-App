@@ -410,6 +410,41 @@
         color: #d97706 !important;
     }
 
+    /* Report Alarm Button */
+    .report-alarm-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        border-radius: 0.5rem;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(255, 255, 255, 0.05);
+        color: rgba(255, 255, 255, 0.35);
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        flex-shrink: 0;
+    }
+
+    .report-alarm-btn:hover {
+        background: rgba(239, 68, 68, 0.15);
+        border-color: rgba(239, 68, 68, 0.3);
+        color: #ef4444;
+    }
+
+    html.light-mode .report-alarm-btn {
+        border-color: rgba(0, 0, 0, 0.1);
+        background: rgba(0, 0, 0, 0.03);
+        color: rgba(0, 0, 0, 0.3);
+    }
+
+    html.light-mode .report-alarm-btn:hover {
+        background: rgba(239, 68, 68, 0.1);
+        border-color: rgba(239, 68, 68, 0.3);
+        color: #dc2626;
+    }
+
     /* Report Modal */
     .report-modal-overlay {
         display: none;
@@ -654,10 +689,15 @@
                 <!-- Question Content -->
                 <div id="questionContent">
                     <!-- Question Meta -->
-                    <div class="flex items-center gap-2 mb-3 text-xs text-dark-muted">
-                        <span>ID: {{ $question->id }}</span>
-                        <span class="text-dark-muted/50">|</span>
-                        <span>LA {{ $question->lernabschnitt ?? '-' }}.{{ $question->nummer ?? '-' }}</span>
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center gap-2 text-xs text-dark-muted">
+                            <span>ID: {{ $question->id }}</span>
+                            <span class="text-dark-muted/50">|</span>
+                            <span>LA {{ $question->lernabschnitt ?? '-' }}.{{ $question->nummer ?? '-' }}</span>
+                        </div>
+                        <button type="button" onclick="openReportModal()" class="report-alarm-btn" title="Fehler melden">
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                        </button>
                     </div>
 
                     <!-- Question Text -->
@@ -754,11 +794,6 @@
                         </a>
                         @endif
                     @endif
-                    <div class="mt-2 text-right">
-                        <button type="button" onclick="openReportModal()" style="background:none; border:none; color:rgba(255,255,255,0.3); font-size:0.75rem; cursor:pointer; padding:0.25rem 0; transition:color 0.2s;" onmouseover="this.style.color='rgba(255,255,255,0.6)'" onmouseout="this.style.color='rgba(255,255,255,0.3)'">
-                            Fehler melden
-                        </button>
-                    </div>
                 </div>
             </form>
         </div>
