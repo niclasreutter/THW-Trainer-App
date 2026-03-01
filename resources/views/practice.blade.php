@@ -527,6 +527,151 @@
         stroke: #d97706 !important;
         fill: #d97706 !important;
     }
+
+    /* Report Alarm Button */
+    .report-alarm-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        border-radius: 0.5rem;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(255, 255, 255, 0.05);
+        color: rgba(255, 255, 255, 0.35);
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        flex-shrink: 0;
+    }
+
+    .report-alarm-btn:hover {
+        background: rgba(239, 68, 68, 0.15);
+        border-color: rgba(239, 68, 68, 0.3);
+        color: #ef4444;
+    }
+
+    html.light-mode .report-alarm-btn {
+        border-color: rgba(0, 0, 0, 0.1);
+        background: rgba(0, 0, 0, 0.03);
+        color: rgba(0, 0, 0, 0.3);
+    }
+
+    html.light-mode .report-alarm-btn:hover {
+        background: rgba(239, 68, 68, 0.1);
+        border-color: rgba(239, 68, 68, 0.3);
+        color: #dc2626;
+    }
+
+    /* Report Modal */
+    .report-modal-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 99999;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .report-modal-backdrop {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+    }
+
+    .report-modal-content {
+        position: relative;
+        z-index: 1;
+        width: 90%;
+        max-width: 420px;
+        padding: 1.5rem;
+        animation: modalSlideIn 0.2s ease;
+    }
+
+    @keyframes modalSlideIn {
+        from { transform: translateY(10px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+
+    .report-modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .report-modal-header h3 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--dark-primary);
+    }
+
+    .report-modal-close {
+        background: none;
+        border: none;
+        color: var(--dark-muted);
+        font-size: 1.2rem;
+        cursor: pointer;
+        padding: 0.25rem;
+        line-height: 1;
+        transition: color 0.2s;
+    }
+
+    .report-modal-close:hover {
+        color: var(--dark-primary);
+    }
+
+    .report-modal-meta {
+        font-size: 0.8rem;
+        color: var(--dark-muted);
+        margin-bottom: 0.75rem;
+    }
+
+    .report-modal-textarea {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 0.5rem;
+        padding: 0.75rem;
+        color: var(--dark-primary);
+        font-size: 0.875rem;
+        resize: vertical;
+        margin-bottom: 1rem;
+        transition: border-color 0.2s;
+    }
+
+    .report-modal-textarea:focus {
+        outline: none;
+        border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    .report-modal-textarea::placeholder {
+        color: var(--dark-muted);
+    }
+
+    .report-modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.5rem;
+    }
+
+    .report-modal-feedback {
+        margin-top: 0.75rem;
+        font-size: 0.8rem;
+        text-align: center;
+        display: none;
+    }
+
+    html.light-mode .report-modal-textarea {
+        background: rgba(0, 0, 0, 0.03);
+        border-color: rgba(0, 0, 0, 0.12);
+        color: #1e293b;
+    }
+
+    html.light-mode .report-modal-textarea:focus {
+        border-color: rgba(0, 0, 0, 0.25);
+    }
 </style>
 @endpush
 
@@ -735,10 +880,15 @@
                 <!-- Question Content -->
                 <div id="questionContent">
                     <!-- Question Meta -->
-                    <div class="flex items-center gap-2 mb-3 text-xs text-dark-muted">
-                        <span>ID: {{ $question->id }}</span>
-                        <span class="text-dark-muted/50">|</span>
-                        <span>LA {{ $question->lernabschnitt ?? '-' }}.{{ $question->nummer ?? '-' }}</span>
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center gap-2 text-xs text-dark-muted">
+                            <span>ID: {{ $question->id }}</span>
+                            <span class="text-dark-muted/50">|</span>
+                            <span>LA {{ $question->lernabschnitt ?? '-' }}.{{ $question->nummer ?? '-' }}</span>
+                        </div>
+                        <button type="button" onclick="openReportModal()" class="report-alarm-btn" title="Fehler melden">
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                        </button>
                     </div>
 
                     <!-- Question Text -->
@@ -834,6 +984,26 @@
                     </a>
                 </div>
             </form>
+        </div>
+
+        <!-- Report Modal -->
+        <div id="reportModal" class="report-modal-overlay" onclick="if(event.target===this)closeReportModal()">
+            <div class="report-modal-backdrop"></div>
+            <div class="report-modal-content glass">
+                <div class="report-modal-header">
+                    <h3>Fehler melden</h3>
+                    <button type="button" onclick="closeReportModal()" class="report-modal-close">&#x2715;</button>
+                </div>
+                <p class="report-modal-meta">Frage {{ $question->lernabschnitt ?? '-' }}.{{ $question->nummer ?? '-' }}</p>
+                <textarea id="reportMessage" rows="3" maxlength="500"
+                    class="report-modal-textarea"
+                    placeholder="Optionale Beschreibung des Fehlers (max. 500 Zeichen)"></textarea>
+                <div class="report-modal-actions">
+                    <button type="button" onclick="closeReportModal()" class="btn-ghost btn-sm">Abbrechen</button>
+                    <button type="button" onclick="submitReport()" id="reportSubmitBtn" class="btn-secondary btn-sm">Melden</button>
+                </div>
+                <p id="reportFeedback" class="report-modal-feedback"></p>
+            </div>
         </div>
 
         <!-- Gamification Popup -->
@@ -994,6 +1164,56 @@
                     }, 100);
                 }
             });
+
+            // Report Modal Functions
+            function openReportModal() {
+                const modal = document.getElementById('reportModal');
+                modal.style.display = 'flex';
+                document.getElementById('reportMessage').value = '';
+                document.getElementById('reportFeedback').style.display = 'none';
+                document.getElementById('reportSubmitBtn').disabled = false;
+            }
+
+            function closeReportModal() {
+                document.getElementById('reportModal').style.display = 'none';
+            }
+
+            function submitReport() {
+                const btn = document.getElementById('reportSubmitBtn');
+                const feedback = document.getElementById('reportFeedback');
+                const message = document.getElementById('reportMessage').value.trim();
+
+                btn.disabled = true;
+
+                fetch('{{ route('practice.report-issue', $question->id) }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    },
+                    body: JSON.stringify({ message: message || null }),
+                })
+                .then(r => r.json())
+                .then(data => {
+                    feedback.style.display = 'block';
+                    if (data.success) {
+                        feedback.style.color = '#22c55e';
+                        feedback.textContent = data.message;
+                        setTimeout(closeReportModal, 1500);
+                    } else {
+                        feedback.style.color = '#ef4444';
+                        feedback.textContent = data.error ?? 'Fehler beim Senden.';
+                        btn.disabled = false;
+                    }
+                })
+                .catch(() => {
+                    feedback.style.display = 'block';
+                    feedback.style.color = '#ef4444';
+                    feedback.textContent = 'Verbindungsfehler. Bitte erneut versuchen.';
+                    btn.disabled = false;
+                });
+            }
 
             // Bookmark functionality
             function toggleBookmark(questionId, currentlyBookmarked) {

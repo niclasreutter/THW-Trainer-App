@@ -157,7 +157,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/lehrgaenge/{slug}/submit', [\App\Http\Controllers\LehrgangController::class, 'submitAnswer'])->name('lehrgaenge.submit');
     Route::post('/lehrgaenge/{slug}/unenroll', [\App\Http\Controllers\LehrgangController::class, 'unenroll'])->name('lehrgaenge.unenroll');
     Route::post('/lehrgaenge/question/{questionId}/report-issue', [\App\Http\Controllers\LehrgangController::class, 'reportIssue'])->name('lehrgaenge.report-issue');
-    
+    Route::post('/practice/question/{questionId}/report-issue', [\App\Http\Controllers\PracticeController::class, 'reportIssue'])->name('practice.report-issue');
+
     // Practice Session Summary
     Route::get('/practice/summary', [\App\Http\Controllers\PracticeController::class, 'summary'])->name('practice.summary');
 
