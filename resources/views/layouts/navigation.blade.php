@@ -113,11 +113,12 @@
                                     <a href="{{ route('admin.newsletter.create') }}" class="dropdown-item-glass">
                                         Newsletter
                                     </a>
-                                    <a href="{{ route('admin.lehrgang-issues.index') }}" class="dropdown-item-glass flex items-center justify-between">
+                                    <a href="{{ route('admin.issues.index') }}" class="dropdown-item-glass flex items-center justify-between">
                                         <span>Fehlermeldungen</span>
                                         @php
                                             $openIssuesCount = cache()->remember('admin_open_issues_count', 300, function() {
-                                                return \App\Models\LehrgangQuestionIssue::where('status', 'open')->count();
+                                                return \App\Models\LehrgangQuestionIssue::where('status', 'open')->count()
+                                                     + \App\Models\QuestionIssue::where('status', 'open')->count();
                                             });
                                         @endphp
                                         @if($openIssuesCount > 0)

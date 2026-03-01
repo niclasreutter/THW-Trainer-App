@@ -349,7 +349,7 @@
         </div>
 
         @if($openIssues > 0)
-        <a href="{{ route('admin.lehrgang-issues.index') }}" class="stat-pill" style="text-decoration: none; position: relative;">
+        <a href="{{ route('admin.issues.index') }}" class="stat-pill" style="text-decoration: none; position: relative;">
             <span class="stat-pill-icon text-warning">
                 <i class="bi bi-exclamation-triangle"></i>
             </span>
