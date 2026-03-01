@@ -13,7 +13,7 @@ class GamificationService
     const STREAK_BONUS_MULTIPLIER = 2;
     const DAILY_BONUS = 50;
     const MAX_STREAK_FREEZES_PER_WEEK = 2;
-    const STREAK_MIN_QUESTIONS = 5;
+    const STREAK_MIN_QUESTIONS = 10;
 
     // Level-System (Punkte benötigt für nächstes Level)
     const LEVEL_THRESHOLDS = [

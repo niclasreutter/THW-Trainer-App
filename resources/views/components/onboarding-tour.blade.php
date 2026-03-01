@@ -333,7 +333,7 @@ function onboardingTour() {
             {
                 target: '[data-tour-step="streak"]',
                 title: 'Streak & Tägliches Lernen',
-                description: 'Dein Streak zählt, wie viele Tage in Folge du aktiv gelernt hast. Damit ein Tag zählt, musst du mindestens 5 Fragen beantworten oder eine Prüfung absolvieren. Falls du mal einen Tag nicht schaffst, kannst du einen Streak Freeze einsetzen.'
+                description: 'Dein Streak zählt, wie viele Tage in Folge du aktiv gelernt hast. Damit ein Tag zählt, musst du mindestens 10 Fragen beantworten oder eine Prüfung absolvieren. Falls du mal einen Tag nicht schaffst, kannst du einen Streak Freeze einsetzen.'
             },
             {
                 target: '[data-tour-step="achievements"]',

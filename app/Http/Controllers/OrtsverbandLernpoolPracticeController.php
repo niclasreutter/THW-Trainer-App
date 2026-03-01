@@ -259,7 +259,7 @@ class OrtsverbandLernpoolPracticeController extends Controller
             $reason = 'Frage gemeistert!';
         }
         
-        // Streak wird bereits über awardQuestionPoints() aktualisiert (Min. 5 Fragen/Tag oder 1 Prüfung)
+        // Streak wird bereits über awardQuestionPoints() aktualisiert (Min. 10 Fragen/Tag oder 1 Prüfung)
 
         // Session-Daten für Anzeige (wie in PracticeController)
         session()->flash('answer_result', [
