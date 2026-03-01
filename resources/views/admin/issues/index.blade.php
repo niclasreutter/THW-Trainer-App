@@ -182,7 +182,7 @@
 
         {{-- Mobile: Cards --}}
         @foreach($issues as $issue)
-            <a href="{{ route('admin.issues.show', ['issue' => $issue->id, 'type' => $issue->type]) }}" class="issue-card-mobile glass hover-lift" style="display: none; padding: 1rem 1.25rem; text-decoration: none; color: inherit;">
+            <a href="{{ route('admin.issues.show', ['issue' => $issue->id, 'type' => $issue->type]) }}" class="issue-card-mobile glass hover-lift" style="padding: 1rem 1.25rem; text-decoration: none; color: inherit;">
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 0.75rem; margin-bottom: 0.75rem;">
                     <div style="font-weight: 600; color: var(--text-primary); font-size: 0.9rem; flex: 1; line-height: 1.4;">
                         {{ Str::limit($issue->question_text, 60) }}
