@@ -239,13 +239,14 @@
                             Ortsverbände
                         </a>
 
-                        <a href="{{ route('admin.lehrgang-issues.index') }}"
-                           class="sidebar-link {{ request()->routeIs('admin.lehrgang-issues.*') ? 'active' : '' }}">
+                        <a href="{{ route('admin.issues.index') }}"
+                           class="sidebar-link {{ request()->routeIs('admin.issues.*') ? 'active' : '' }}">
                             <i class="bi bi-exclamation-triangle"></i>
                             Fehlermeldungen
                             @php
                                 $openIssuesCount = cache()->remember('admin_open_issues_count', 300, function() {
-                                    return \App\Models\LehrgangQuestionIssue::where('status', 'open')->count();
+                                    return \App\Models\LehrgangQuestionIssue::where('status', 'open')->count()
+                                         + \App\Models\QuestionIssue::where('status', 'open')->count();
                                 });
                             @endphp
                             @if($openIssuesCount > 0)
@@ -484,12 +485,13 @@
                         Ortsverbände
                     </a>
 
-                    <a href="{{ route('admin.lehrgang-issues.index') }}" class="sidebar-link {{ request()->routeIs('admin.lehrgang-issues.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.issues.index') }}" class="sidebar-link {{ request()->routeIs('admin.issues.*') ? 'active' : '' }}">
                         <i class="bi bi-exclamation-triangle"></i>
                         Fehlermeldungen
                         @php
                             $mobileOpenIssuesCount = cache()->remember('admin_open_issues_count', 300, function() {
-                                return \App\Models\LehrgangQuestionIssue::where('status', 'open')->count();
+                                return \App\Models\LehrgangQuestionIssue::where('status', 'open')->count()
+                                     + \App\Models\QuestionIssue::where('status', 'open')->count();
                             });
                         @endphp
                         @if($mobileOpenIssuesCount > 0)

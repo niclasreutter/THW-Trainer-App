@@ -9,6 +9,7 @@ use App\Models\QuestionStatistic;
 use App\Models\ExamStatistic;
 use App\Models\ContactMessage;
 use App\Models\LehrgangQuestionIssue;
+use App\Models\QuestionIssue;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Cache;
@@ -52,7 +53,8 @@ class DashboardController extends Controller
         $activityFeed = $this->getActivityFeed();
 
         // Quick Stats für Admin
-        $openIssues = LehrgangQuestionIssue::where('status', 'open')->count();
+        $openIssues = LehrgangQuestionIssue::where('status', 'open')->count()
+                    + QuestionIssue::where('status', 'open')->count();
         $unreadMessages = ContactMessage::where('is_read', false)->count();
 
         return view('admin.dashboard', compact(
@@ -368,8 +370,8 @@ class DashboardController extends Controller
             });
         $activities = $activities->merge($contactMessages);
 
-        // Neue Fehlermeldungen (letzte 48h)
-        $issues = LehrgangQuestionIssue::with('user')
+        // Neue Fehlermeldungen (letzte 48h) - Lehrgänge
+        $lehrgangIssues = LehrgangQuestionIssue::with('reportedByUser')
             ->where('created_at', '>=', now()->subDays(2))
             ->orderBy('created_at', 'desc')
             ->limit(5)
@@ -379,14 +381,34 @@ class DashboardController extends Controller
                     'type' => 'issue_reported',
                     'icon' => 'exclamation-triangle',
                     'color' => 'warning',
-                    'title' => 'Fehlermeldung',
-                    'description' => 'Von ' . ($issue->user->name ?? 'Unbekannt'),
+                    'title' => 'Fehlermeldung (Lehrgang)',
+                    'description' => 'Von ' . ($issue->reportedByUser->name ?? 'Unbekannt'),
                     'time' => $issue->created_at,
-                    'link' => route('admin.lehrgang-issues.show', $issue->id),
+                    'link' => route('admin.issues.show', ['issue' => $issue->id, 'type' => 'lehrgang']),
                     'open' => $issue->status === 'open',
                 ];
             });
-        $activities = $activities->merge($issues);
+        $activities = $activities->merge($lehrgangIssues);
+
+        // Neue Fehlermeldungen (letzte 48h) - Grundausbildung
+        $questionIssues = QuestionIssue::with('reportedByUser')
+            ->where('created_at', '>=', now()->subDays(2))
+            ->orderBy('created_at', 'desc')
+            ->limit(5)
+            ->get()
+            ->map(function ($issue) {
+                return [
+                    'type' => 'issue_reported',
+                    'icon' => 'exclamation-triangle',
+                    'color' => 'warning',
+                    'title' => 'Fehlermeldung (Grundausbildung)',
+                    'description' => 'Von ' . ($issue->reportedByUser->name ?? 'Unbekannt'),
+                    'time' => $issue->created_at,
+                    'link' => route('admin.issues.show', ['issue' => $issue->id, 'type' => 'question']),
+                    'open' => $issue->status === 'open',
+                ];
+            });
+        $activities = $activities->merge($questionIssues);
 
         // Nach Zeit sortieren und limitieren
         return $activities->sortByDesc('time')->take(15)->values();
