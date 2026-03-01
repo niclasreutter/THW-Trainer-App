@@ -24,14 +24,23 @@
                 Hallo <strong>{{ $user->name }}</strong>,
             </p>
 
-            <!-- Warnung -->
+            @php
+                $solved = $user->daily_questions_solved ?? 0;
+                $remaining = max(0, 20 - $solved);
+            @endphp
+
+            <!-- Fortschritt heute -->
             <div style="background:#fef3c7;border:2px solid #f59e0b;border-radius:8px;padding:18px;margin:18px 0;">
                 <p style="margin:0;font-size:16px;font-weight:600;color:#92400e;">
                     Streak-Alarm!
                 </p>
                 <p style="margin:8px 0 0 0;font-size:15px;color:#92400e;">
-                    Du hast heute die Mindestaktivität (10 Fragen oder 1 Prüfung) noch nicht erreicht und dein <strong>{{ $streakDays }}-Tage Streak</strong> ist in Gefahr!
+                    Du hast heute <strong>{{ $solved }}/20 Fragen</strong> beantwortet – noch <strong>{{ $remaining }} Frage{{ $remaining == 1 ? '' : 'n' }}</strong> bis dein <strong>{{ $streakDays }}-Tage Streak</strong> gesichert ist!
                 </p>
+                <!-- Fortschrittsbalken -->
+                <div style="background:#fde68a;border-radius:4px;height:8px;margin-top:12px;overflow:hidden;">
+                    <div style="background:#f59e0b;height:8px;width:{{ min(100, ($solved / 20) * 100) }}%;border-radius:4px;"></div>
+                </div>
             </div>
 
             <!-- Motivation -->
@@ -65,7 +74,11 @@
             @endif
 
             <p style="margin:20px 0;font-size:16px;color:#1a202c;line-height:1.6;">
-                Beantworte heute mindestens 10 Fragen oder absolviere eine Prüfung, um deinen Streak zu retten und weiter auf dein nächstes Achievement hinzuarbeiten.
+                @if($remaining > 0)
+                    Beantworte heute noch <strong>{{ $remaining }} Frage{{ $remaining == 1 ? '' : 'n' }}</strong> oder absolviere eine Prüfung, um deinen Streak zu retten.
+                @else
+                    Du hast heute schon 20 Fragen beantwortet – dein Streak ist gesichert!
+                @endif
             </p>
 
             <!-- Call-to-Action Button -->
@@ -76,7 +89,7 @@
             </div>
 
             <p style="margin:20px 0;font-size:16px;color:#1a202c;line-height:1.6;text-align:center;">
-                Du schaffst das! 10 Fragen dauern nur wenige Minuten und dein Streak bleibt erhalten.
+                Du schaffst das! {{ $remaining }} Frage{{ $remaining == 1 ? '' : 'n' }} dauern nur wenige Minuten und dein Streak bleibt erhalten.
             </p>
 
             <!-- Footer -->
