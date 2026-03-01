@@ -623,6 +623,9 @@
                         </a>
                         @endif
                     @endif
+                    <button type="button" onclick="openReportModal()" class="btn-ghost w-full py-2 text-sm text-center block mt-2">
+                        Fehler melden
+                    </button>
                 </div>
             </form>
         </div>
@@ -786,6 +789,77 @@
                 }
             });
         </script>
+        <!-- Report Issue Modal -->
+        <div id="reportModal" style="display:none; position:fixed; inset:0; z-index:99999; align-items:flex-end; justify-content:center;" onclick="if(event.target===this)closeReportModal()">
+            <div style="background:rgba(0,0,0,0.6); position:absolute; inset:0; backdrop-filter:blur(4px);"></div>
+            <div style="position:relative; width:100%; max-width:560px; margin:0 auto; background:rgba(15,15,20,0.97); border:1px solid rgba(255,255,255,0.1); border-radius:20px 20px 0 0; padding:1.5rem; padding-bottom:calc(1.5rem + env(safe-area-inset-bottom,0px));">
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem;">
+                    <h3 style="font-size:1rem; font-weight:700; color:var(--text-primary,#f1f5f9); margin:0;">Fehler melden</h3>
+                    <button type="button" onclick="closeReportModal()" style="background:none; border:none; color:rgba(255,255,255,0.4); cursor:pointer; font-size:1.25rem; line-height:1; padding:0.25rem;">&#x2715;</button>
+                </div>
+                <p style="font-size:0.8125rem; color:rgba(255,255,255,0.5); margin:0 0 1rem;">Frage ID: {{ $question->id }} &nbsp;|&nbsp; LA {{ $question->lernabschnitt ?? '-' }}.{{ $question->nummer ?? '-' }}</p>
+                <textarea id="reportMessage" rows="3" maxlength="500"
+                    placeholder="Optionale Beschreibung des Fehlers (max. 500 Zeichen)"
+                    style="width:100%; box-sizing:border-box; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:10px; color:#f1f5f9; padding:0.75rem; font-size:0.875rem; resize:none; outline:none;"></textarea>
+                <div style="display:flex; gap:0.75rem; margin-top:0.875rem;">
+                    <button type="button" onclick="closeReportModal()" class="btn-ghost" style="flex:1; padding:0.75rem;">Abbrechen</button>
+                    <button type="button" onclick="submitReport()" id="reportSubmitBtn" class="btn-danger" style="flex:1; padding:0.75rem;">Melden</button>
+                </div>
+                <p id="reportFeedback" style="display:none; margin-top:0.75rem; text-align:center; font-size:0.875rem; font-weight:600;"></p>
+            </div>
+        </div>
+
+        <script>
+            function openReportModal() {
+                const modal = document.getElementById('reportModal');
+                modal.style.display = 'flex';
+                document.getElementById('reportMessage').value = '';
+                document.getElementById('reportFeedback').style.display = 'none';
+                document.getElementById('reportSubmitBtn').disabled = false;
+            }
+
+            function closeReportModal() {
+                document.getElementById('reportModal').style.display = 'none';
+            }
+
+            function submitReport() {
+                const btn = document.getElementById('reportSubmitBtn');
+                const feedback = document.getElementById('reportFeedback');
+                const message = document.getElementById('reportMessage').value.trim();
+
+                btn.disabled = true;
+
+                fetch('{{ route('lehrgaenge.report-issue', $question->id) }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    },
+                    body: JSON.stringify({ message: message || null }),
+                })
+                .then(r => r.json())
+                .then(data => {
+                    feedback.style.display = 'block';
+                    if (data.success) {
+                        feedback.style.color = '#22c55e';
+                        feedback.textContent = data.message;
+                        setTimeout(closeReportModal, 1500);
+                    } else {
+                        feedback.style.color = '#ef4444';
+                        feedback.textContent = data.error ?? 'Fehler beim Senden.';
+                        btn.disabled = false;
+                    }
+                })
+                .catch(() => {
+                    feedback.style.display = 'block';
+                    feedback.style.color = '#ef4444';
+                    feedback.textContent = 'Verbindungsfehler. Bitte erneut versuchen.';
+                    btn.disabled = false;
+                });
+            }
+        </script>
+
     @else
         <!-- No more questions -->
         <div class="glass p-8 text-center">
