@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Question;
+use App\Models\QuestionIssue;
+use App\Models\QuestionIssueReport;
 use App\Models\QuestionStatistic;
 use App\Models\UserQuestionProgress;
 use App\Services\GamificationService;
@@ -742,12 +744,76 @@ class PracticeController extends Controller
         if (is_array($value)) {
             return $value;
         }
-        
+
         if (is_string($value)) {
             $decoded = json_decode($value, true);
             return is_array($decoded) ? $decoded : [];
         }
-        
+
         return [];
+    }
+
+    /**
+     * Melde einen Fehler in einer Frage
+     */
+    public function reportIssue(Request $request, $questionId)
+    {
+        if (!$request->expectsJson()) {
+            return response()->json(['error' => 'JSON Request erforderlich'], 400);
+        }
+
+        $user = auth()->user();
+
+        if (!$user) {
+            return response()->json(['error' => 'Du musst angemeldet sein'], 401);
+        }
+
+        $message = $request->input('message');
+
+        if ($message && strlen($message) > 500) {
+            return response()->json(['error' => 'Nachricht zu lang (max 500 Zeichen)'], 422);
+        }
+
+        try {
+            $question = Question::findOrFail($questionId);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json(['error' => 'Frage nicht gefunden'], 404);
+        }
+
+        $issue = QuestionIssue::where('question_id', $question->id)->first();
+
+        if ($issue) {
+            $issue->report_count++;
+            $issue->latest_message = $message ?? null;
+            $issue->reported_by_user_id = $user->id;
+
+            if ($issue->status !== 'open') {
+                $issue->status = 'open';
+            }
+
+            $issue->save();
+            $isNew = false;
+        } else {
+            $issue = QuestionIssue::create([
+                'question_id' => $question->id,
+                'report_count' => 1,
+                'latest_message' => $message ?? null,
+                'reported_by_user_id' => $user->id,
+                'status' => 'open',
+            ]);
+            $isNew = true;
+        }
+
+        QuestionIssueReport::create([
+            'question_issue_id' => $issue->id,
+            'user_id' => $user->id,
+            'message' => $message ?? null,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => $isNew ? 'Fehler gemeldet!' : 'Fehler aktualisiert!',
+            'report_count' => $issue->report_count,
+        ]);
     }
 }
