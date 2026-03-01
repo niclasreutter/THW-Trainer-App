@@ -3,6 +3,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use App\Models\Question;
 use App\Models\QuestionStatistic;
 use App\Models\UserQuestionProgress;
@@ -14,10 +15,36 @@ class ExamController extends Controller
 {
     public function start()
     {
-        // Lösche die Session für verarbeitete Prüfungen
         $user = Auth::user();
+
+        // Aktive Prüfung in Session? → Fortsetzen statt neu starten
+        if (session()->has('exam_active')) {
+            $examData = session('exam_active');
+            $elapsed = time() - $examData['start_time'];
+            $timeLeft = max(0, 30 * 60 - $elapsed);
+
+            if ($timeLeft <= 0) {
+                session()->forget('exam_active');
+                return redirect()->route('dashboard')
+                    ->with('error', 'Die Prüfungszeit ist abgelaufen. Bitte starte eine neue Prüfung.');
+            }
+
+            $questionIds = $examData['question_ids'];
+            $fragen = Question::whereIn('id', $questionIds)->get()
+                ->sortBy(fn($q) => array_search($q->id, $questionIds))
+                ->values();
+
+            return view('exam', [
+                'fragen' => $fragen,
+                'timeLeft' => $timeLeft,
+                'examToken' => $examData['token'],
+                'answerMappings' => $examData['answer_mappings'],
+            ]);
+        }
+
+        // Lösche die Session für verarbeitete Prüfungen
         session()->forget('exam_processed_' . $user->id);
-        
+
         // Prüfe ob noch Fehler zu wiederholen sind
         $failedQuestions = $this->ensureArray($user->exam_failed_questions);
         if (!empty($failedQuestions) && count($failedQuestions) > 0) {
@@ -31,93 +58,125 @@ class ExamController extends Controller
             $remaining = $totalQuestions - $masteredCount;
             return redirect()->route('dashboard')->with('error', "Du musst zuerst alle Fragen meistern, bevor du eine Prüfung starten kannst. Noch {$remaining} Fragen offen.");
         }
-        
+
         // Strategie: Pro Lernabschnitt (1-10) mindestens 1 Frage
         $selectedIds = [];
-        
+
         // Versuche Fragen zu vermeiden, die in den letzten 3 Prüfungen verwendet wurden
         $recentQuestions = session('recent_exam_questions', []);
-        
+
         // 1. Wähle mindestens 1 Frage pro Lernabschnitt (1-10)
         for ($lernabschnitt = 1; $lernabschnitt <= 10; $lernabschnitt++) {
-            // Hole alle Fragen dieses Lernabschnitts
             $sectionQuestions = Question::where('lernabschnitt', $lernabschnitt)
                 ->pluck('id')
                 ->toArray();
-            
+
             if (empty($sectionQuestions)) {
-                continue; // Falls kein Lernabschnitt existiert, überspringen
+                continue;
             }
-            
-            // Bevorzuge Fragen, die nicht kürzlich verwendet wurden
+
             $availableSectionQuestions = array_diff($sectionQuestions, $recentQuestions);
-            
-            // Falls keine verfügbar, nimm alle aus diesem Abschnitt
+
             if (empty($availableSectionQuestions)) {
                 $availableSectionQuestions = $sectionQuestions;
             }
-            
-            // Wähle zufällig 1 Frage aus diesem Lernabschnitt
+
             $randomKey = array_rand($availableSectionQuestions);
             $selectedIds[] = $availableSectionQuestions[$randomKey];
         }
-        
+
         // 2. Fülle die restlichen Plätze auf 40 Fragen mit zufälligen Fragen auf
         $remainingCount = 40 - count($selectedIds);
-        
+
         if ($remainingCount > 0) {
-            // Hole alle verfügbaren Fragen, die noch nicht ausgewählt wurden
             $allQuestionIds = Question::pluck('id')->toArray();
             $availableIds = array_diff($allQuestionIds, $selectedIds);
-            
-            // Bevorzuge Fragen, die nicht kürzlich verwendet wurden
             $preferredIds = array_diff($availableIds, $recentQuestions);
-            
-            // Falls nicht genug bevorzugte Fragen, nimm alle verfügbaren
+
             if (count($preferredIds) < $remainingCount) {
                 $preferredIds = $availableIds;
             }
-            
-            // Wähle zufällig die restlichen Fragen
+
             if (count($preferredIds) >= $remainingCount) {
                 $additionalIds = array_rand(array_flip($preferredIds), $remainingCount);
-                
-                // Stelle sicher, dass es ein Array ist
+
                 if (!is_array($additionalIds)) {
                     $additionalIds = [$additionalIds];
                 }
-                
+
                 $selectedIds = array_merge($selectedIds, $additionalIds);
             } else {
-                // Falls nicht genug Fragen vorhanden, nimm alle verfügbaren
                 $selectedIds = array_merge($selectedIds, $preferredIds);
             }
         }
-        
+
         // Speichere diese Fragen als "kürzlich verwendet"
         $newRecentQuestions = array_merge($recentQuestions, $selectedIds);
-        // Behalte nur die letzten 120 Fragen (3 Prüfungen à 40 Fragen)
         if (count($newRecentQuestions) > 120) {
             $newRecentQuestions = array_slice($newRecentQuestions, -120);
         }
         session(['recent_exam_questions' => $newRecentQuestions]);
-        
+
         // Hole die Fragen und mische sie zufällig
         $fragen = Question::whereIn('id', $selectedIds)->get()->shuffle();
-        
-        return view('exam', ['fragen' => $fragen]);
+
+        // Antwort-Mappings serverseitig generieren (stabil bei Reload)
+        $answerMappings = [];
+        foreach ($fragen as $index => $frage) {
+            $letters = ['A', 'B', 'C'];
+            shuffle($letters);
+            $mapping = [];
+            foreach ($letters as $pos => $letter) {
+                $mapping[$pos] = $letter;
+            }
+            $answerMappings[$index] = $mapping;
+        }
+
+        // Session-Token und Prüfungsdaten speichern
+        $token = Str::uuid()->toString();
+        session(['exam_active' => [
+            'question_ids' => $fragen->pluck('id')->toArray(),
+            'token' => $token,
+            'start_time' => time(),
+            'answer_mappings' => $answerMappings,
+        ]]);
+
+        return view('exam', [
+            'fragen' => $fragen,
+            'timeLeft' => 30 * 60,
+            'examToken' => $token,
+            'answerMappings' => $answerMappings,
+        ]);
     }
 
     // Wertet die abgegebene Prüfung aus und zeigt das Ergebnis
     public function submit(Request $request)
     {
-        // 🔒 SECURITY: Validate input before processing
+        // Aktive Prüfung in Session prüfen (verhindert Doppel-Submit)
+        $examData = session('exam_active');
+        if (!$examData) {
+            $lastResultId = session('exam_last_result_id');
+            if ($lastResultId) {
+                return redirect()->route('exam.result', $lastResultId);
+            }
+            return redirect()->route('exam.index');
+        }
+
+        // Token validieren
+        if ($request->input('exam_token') !== $examData['token']) {
+            return redirect()->route('exam.index');
+        }
+
+        // Session sofort löschen (verhindert Doppel-Submit bei Race Condition)
+        session()->forget('exam_active');
+
+        // Validation
         $validated = $request->validate([
             'fragen_ids' => 'required|array|size:40',
             'fragen_ids.*' => 'required|integer|exists:questions,id',
             'answer' => 'nullable|array',
             'answer.*' => 'nullable|array',
-            'answer.*.*' => 'string|in:0,1,2', // Now positions instead of letters
+            'answer.*.*' => 'string|in:0,1,2',
             'answer_mappings' => 'nullable|array',
             'answer_mappings.*' => 'nullable|string',
         ]);
@@ -131,9 +190,8 @@ class ExamController extends Controller
             })
             ->values();
 
-        // Verify we got exactly 40 questions
         if ($fragen->count() !== 40) {
-            return redirect()->route('exam.start')
+            return redirect()->route('exam.index')
                 ->with('error', 'Ungültige Prüfung. Bitte starte eine neue Prüfung.');
         }
 
@@ -143,20 +201,17 @@ class ExamController extends Controller
         $correctCount = 0;
         $failed = [];
         foreach ($fragen as $nr => $frage) {
-            // Get mapping for this question
             $mappingJson = $answerMappings[$nr] ?? null;
             $mapping = $mappingJson ? json_decode($mappingJson, true) : null;
 
             $solution = collect(explode(',', $frage->loesung))->map(fn($s) => trim($s));
 
-            // Map positions back to letters if mapping exists
             if ($mapping) {
                 $userAnswerPositions = $userAnswers[$nr] ?? [];
                 $userAnswer = collect($userAnswerPositions)->map(function($position) use ($mapping) {
                     return $mapping[$position] ?? null;
                 })->filter()->sort()->values();
             } else {
-                // Fallback without mapping (legacy support)
                 $userAnswer = collect($userAnswers[$nr] ?? [])->sort()->values();
             }
 
@@ -166,7 +221,7 @@ class ExamController extends Controller
                 'userAnswer' => $userAnswer,
                 'solution' => $solution,
                 'isCorrect' => $isCorrect,
-                'mapping' => $mapping // Store mapping for display
+                'mapping' => $mapping
             ];
             if ($isCorrect) {
                 $correctCount++;
@@ -178,14 +233,12 @@ class ExamController extends Controller
         $passed = $total > 0 && $correctCount / $total >= 0.8;
         $user = Auth::user();
 
-        // Prüfungsstatistik zuerst erfassen (für Verknüpfung)
         $examStatistic = ExamStatistic::create([
             'user_id' => $user->id,
             'is_passed' => $passed,
             'correct_answers' => $correctCount,
         ]);
 
-        // Fragenstatistiken erfassen (mit User ID und Prüfungs-Verknüpfung)
         foreach ($results as $result) {
             QuestionStatistic::create([
                 'question_id' => $result['frage']->id,
@@ -195,22 +248,15 @@ class ExamController extends Controller
                 'exam_statistic_id' => $examStatistic->id,
             ]);
 
-            // NEU: Auch Fortschritt in user_question_progress tracken
-            // Hinweis: In Prüfungen wird NICHT automatisch zu solved_questions hinzugefügt
-            // User müssen Fragen im Practice-Modus 2x richtig beantworten
             $progress = UserQuestionProgress::getOrCreate($user->id, $result['frage']->id);
             $progress->updateProgress($result['isCorrect']);
         }
-        
+
         $gamificationResult = null;
-        
-        // Prüfe ob diese Prüfung bereits verarbeitet wurde
-        $examProcessed = session('exam_processed_' . $user->id, false);
-        
-        if ($passed && !$examProcessed) {
+
+        if ($passed) {
             $user->exam_passed_count = ($user->exam_passed_count ?? 0) + 1;
 
-            // Milestone: Erste bestandene Prüfung
             if ($user->exam_passed_count === 1) {
                 session(['milestone_celebration' => [
                     'type' => 'first_exam_passed',
@@ -218,35 +264,87 @@ class ExamController extends Controller
                 session()->save();
             }
 
-            // Nur bei 100% korrekten Antworten alle Fehler löschen
             if ($correctCount == $total) {
                 $user->exam_failed_questions = [];
             } else {
-                // Bei bestandener Prüfung mit Fehlern: Fehler hinzufügen
                 $existingFailed = $this->ensureArray($user->exam_failed_questions);
                 $user->exam_failed_questions = array_unique(array_merge($existingFailed, $failed));
             }
-            
-            // Gamification: Punkte für bestandene Prüfung
+
             $gamificationService = new GamificationService();
             $gamificationResult = $gamificationService->awardExamPoints($user, $correctCount, $total);
-            
-            // Markiere diese Prüfung als verarbeitet
-            session(['exam_processed_' . $user->id => true]);
-        } elseif (!$passed) {
+        } else {
             $user->exam_passed_count = 0;
             $user->exam_failed_questions = $failed;
         }
         $user->save();
-        
+
+        // Ergebnis in Session speichern für Detail-Anzeige nach Redirect
+        session(['exam_last_result_id' => $examStatistic->id]);
+        session(['exam_last_results' => [
+            'results' => $results,
+            'correctCount' => $correctCount,
+            'total' => $total,
+            'passed' => $passed,
+            'gamification_result' => $gamificationResult,
+        ]]);
+
+        // POST/Redirect/GET: Redirect verhindert Doppel-Submit bei Reload
+        return redirect()->route('exam.result', $examStatistic->id);
+    }
+
+    /**
+     * Ergebnis-Seite anzeigen (GET - sicher bei Reload)
+     */
+    public function showResult(int $id)
+    {
+        $user = Auth::user();
+        $examStatistic = ExamStatistic::where('user_id', $user->id)->findOrFail($id);
+
+        // Vollständige Ergebnis-Daten aus Session (direkt nach Submit)
+        $sessionResults = session('exam_last_results');
+        if ($sessionResults && session('exam_last_result_id') == $id) {
+            session()->forget(['exam_last_results', 'exam_last_result_id']);
+
+            return view('exam', [
+                'fragen' => collect(array_map(fn($r) => $r['frage'], $sessionResults['results'])),
+                'results' => $sessionResults['results'],
+                'submitted' => true,
+                'correctCount' => $sessionResults['correctCount'],
+                'total' => $sessionResults['total'],
+                'passed' => $sessionResults['passed'],
+                'gamification_result' => $sessionResults['gamification_result'],
+            ]);
+        }
+
+        // Rekonstruktion aus Datenbank (bei Reload)
+        $questionStats = QuestionStatistic::where('exam_statistic_id', $examStatistic->id)
+            ->with('question')
+            ->get();
+
+        $results = [];
+        $fragen = collect();
+        foreach ($questionStats as $index => $qs) {
+            $frage = $qs->question;
+            $fragen->push($frage);
+            $solution = collect(explode(',', $frage->loesung))->map(fn($s) => trim($s));
+            $results[$index] = [
+                'frage' => $frage,
+                'userAnswer' => $qs->is_correct ? $solution : collect(),
+                'solution' => $solution,
+                'isCorrect' => $qs->is_correct,
+                'mapping' => null,
+            ];
+        }
+
         return view('exam', [
             'fragen' => $fragen,
             'results' => $results,
             'submitted' => true,
-            'correctCount' => $correctCount,
-            'total' => $total,
-            'passed' => $passed,
-            'gamification_result' => $gamificationResult
+            'correctCount' => $examStatistic->correct_answers,
+            'total' => $questionStats->count(),
+            'passed' => $examStatistic->is_passed,
+            'gamification_result' => null,
         ]);
     }
 
