@@ -362,7 +362,7 @@
                                 <a href="{{ route('contact.index') }}" class="text-gold hover:text-gold-light transition-colors">Kontakt</a>
                             </div>
                             <div>
-                                <a href="https://paypal.me/reuttern" target="_blank" rel="noopener" class="text-gold hover:text-gold-light transition-colors">Unterstützen</a>
+                                <a href="https://bero-host.de/spenden/ks14llyclh8q" target="_blank" rel="noopener" class="text-gold hover:text-gold-light transition-colors">Unterstützen</a>
                             </div>
                         </div>
                     </div>
