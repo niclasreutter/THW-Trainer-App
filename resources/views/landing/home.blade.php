@@ -93,7 +93,7 @@
          STATS STRIP — Overlapping Hero/Content
          ============================================ --}}
     @if(isset($stats))
-    <section class="px-4 sm:px-6 lg:px-8" aria-labelledby="stats-heading">
+    <section class="px-4 sm:px-6 lg:px-8 bg-white" aria-labelledby="stats-heading">
         <h2 id="stats-heading" class="sr-only">Plattform-Statistiken</h2>
         <div class="landing-stats-strip landing-fade-in">
             <div class="landing-stat-item">
@@ -597,8 +597,12 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function animateCounter(el) {
-    const target = parseInt(el.dataset.count, 10);
-    if (isNaN(target)) return;
+    const raw = el.dataset.count;
+    const target = parseInt(raw, 10);
+    const originalText = el.textContent;
+
+    // Keep server-rendered text if target is invalid or zero
+    if (!raw || isNaN(target) || target <= 0) return;
 
     const duration = 1500;
     const start = performance.now();
