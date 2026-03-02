@@ -2754,7 +2754,7 @@ html.light-mode ::-webkit-scrollbar-thumb:hover {
     font-weight: 700;
 }
 
-/* Hero decorative shape */
+/* Hero decorative chart */
 .landing-hero-visual {
     display: flex;
     align-items: center;
@@ -2762,63 +2762,76 @@ html.light-mode ::-webkit-scrollbar-thumb:hover {
     position: relative;
 }
 
-.landing-hero-shape {
-    width: 340px;
-    height: 340px;
-    border-radius: 2.5rem 1rem 3rem 1.5rem;
-    background: linear-gradient(135deg, rgba(251, 191, 36, 0.12), rgba(0, 77, 179, 0.2));
-    border: 1px solid rgba(255, 255, 255, 0.1);
+.landing-hero-chart {
+    width: 380px;
     position: relative;
-    backdrop-filter: blur(4px);
-}
-
-.landing-hero-shape::before {
-    content: '';
-    position: absolute;
-    top: -30px;
-    right: -30px;
-    width: 140px;
-    height: 140px;
-    border-radius: 1.75rem 0.5rem;
-    background: linear-gradient(135deg, rgba(251, 191, 36, 0.2), transparent);
-    border: 1px solid rgba(251, 191, 36, 0.15);
-}
-
-.landing-hero-shape::after {
-    content: '';
-    position: absolute;
-    bottom: -20px;
-    left: -25px;
-    width: 100px;
-    height: 100px;
-    border-radius: 0.5rem 1.5rem;
-    background: linear-gradient(135deg, rgba(0, 51, 127, 0.3), transparent);
+    padding: 1.5rem 1.25rem 0.75rem;
+    border-radius: 1.5rem;
+    background: rgba(255, 255, 255, 0.04);
     border: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(8px);
 }
 
-.landing-hero-shape-inner {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    text-align: center;
-    color: white;
-}
-
-.landing-hero-shape-inner .shape-number {
-    font-size: 3.5rem;
-    font-weight: 800;
-    background: linear-gradient(135deg, #fbbf24, #f59e0b);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    line-height: 1;
-}
-
-.landing-hero-shape-inner .shape-label {
+.landing-hero-chart-label {
     font-size: 0.95rem;
-    color: rgba(255, 255, 255, 0.7);
-    margin-top: 0.5rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 0.1rem;
+}
+
+.landing-hero-chart-sublabel {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.4);
+    margin-bottom: 1rem;
+    font-weight: 500;
+}
+
+.landing-hero-chart-svg {
+    width: 100%;
+    height: 180px;
+    display: block;
+    overflow: visible;
+}
+
+/* Chart line draw animation */
+.chart-line {
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+    animation: chartDraw 1.8s ease-out 0.3s forwards;
+}
+
+.chart-area {
+    opacity: 0;
+    animation: chartFadeIn 1s ease-out 1.2s forwards;
+}
+
+.chart-dot {
+    opacity: 0;
+    animation: chartDotPop 0.3s ease-out forwards;
+}
+
+@keyframes chartDraw {
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+@keyframes chartFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes chartDotPop {
+    from { opacity: 0; r: 0; }
+    to { opacity: 0.9; r: 3; }
+}
+
+.landing-hero-chart-axis {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.4rem 0.25rem 0;
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.3);
     font-weight: 500;
 }
 
