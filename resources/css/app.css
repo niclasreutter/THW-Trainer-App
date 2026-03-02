@@ -2669,6 +2669,659 @@ html.light-mode ::-webkit-scrollbar-thumb:hover {
     color: rgba(255, 255, 255, 0.7);
 }
 
+/* === Landing Page Redesign 2026 === */
+
+/* Hero - Immersive with grid overlay and diagonal clip */
+.landing-hero {
+    background: linear-gradient(165deg, #001a4d 0%, #00337F 40%, #004199 100%);
+    min-height: 85vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5rem 1.5rem 7rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.landing-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+}
+
+.landing-hero::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 80px;
+    background: #ffffff;
+    clip-path: polygon(0 60%, 100% 0, 100% 100%, 0 100%);
+}
+
+.landing-hero-content {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+}
+
+.landing-hero-split {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 4rem;
+    align-items: center;
+}
+
+.landing-hero-text {
+    text-align: left;
+}
+
+.landing-hero-tagline {
+    display: inline-block;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #fbbf24;
+    margin-bottom: 1.25rem;
+    opacity: 0.9;
+}
+
+.landing-hero-gradient-text {
+    display: inline;
+    background: linear-gradient(90deg, #fbbf24, #f59e0b);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.landing-hero-social-proof {
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.6);
+    margin-top: 2rem;
+}
+
+.landing-hero-social-proof strong {
+    color: #fbbf24;
+    font-weight: 700;
+}
+
+/* Hero decorative shape */
+.landing-hero-visual {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.landing-hero-shape {
+    width: 340px;
+    height: 340px;
+    border-radius: 2.5rem 1rem 3rem 1.5rem;
+    background: linear-gradient(135deg, rgba(251, 191, 36, 0.12), rgba(0, 77, 179, 0.2));
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+    backdrop-filter: blur(4px);
+}
+
+.landing-hero-shape::before {
+    content: '';
+    position: absolute;
+    top: -30px;
+    right: -30px;
+    width: 140px;
+    height: 140px;
+    border-radius: 1.75rem 0.5rem;
+    background: linear-gradient(135deg, rgba(251, 191, 36, 0.2), transparent);
+    border: 1px solid rgba(251, 191, 36, 0.15);
+}
+
+.landing-hero-shape::after {
+    content: '';
+    position: absolute;
+    bottom: -20px;
+    left: -25px;
+    width: 100px;
+    height: 100px;
+    border-radius: 0.5rem 1.5rem;
+    background: linear-gradient(135deg, rgba(0, 51, 127, 0.3), transparent);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.landing-hero-shape-inner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: white;
+}
+
+.landing-hero-shape-inner .shape-number {
+    font-size: 3.5rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+}
+
+.landing-hero-shape-inner .shape-label {
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.7);
+    margin-top: 0.5rem;
+    font-weight: 500;
+}
+
+/* Stats Strip - overlapping hero/content boundary */
+.landing-stats-strip {
+    max-width: 1000px;
+    margin: -3.5rem auto 0;
+    background: #ffffff;
+    border-radius: 1.25rem;
+    box-shadow: 0 8px 40px rgba(0, 51, 127, 0.1), 0 2px 8px rgba(0, 0, 0, 0.04);
+    padding: 2rem 2.5rem;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    position: relative;
+    z-index: 10;
+}
+
+.landing-stat-item {
+    text-align: center;
+    position: relative;
+}
+
+.landing-stat-item:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    right: -0.75rem;
+    top: 15%;
+    height: 70%;
+    width: 2px;
+    background: linear-gradient(to bottom, transparent, #fbbf24, transparent);
+    opacity: 0.5;
+}
+
+.landing-stat-value {
+    font-size: 2.25rem;
+    font-weight: 800;
+    color: #00337F;
+    line-height: 1.2;
+}
+
+.landing-stat-label {
+    font-size: 0.85rem;
+    color: #64748b;
+    font-weight: 500;
+    margin-top: 0.25rem;
+}
+
+/* Bento Feature Grid (3-column landing) */
+.landing-bento {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.landing-bento-card {
+    background: #ffffff;
+    border: 1px solid rgba(0, 51, 127, 0.07);
+    box-shadow: 0 4px 20px rgba(0, 51, 127, 0.05);
+    transition: all 0.3s ease;
+    padding: 2rem;
+}
+
+.landing-bento-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(0, 51, 127, 0.1);
+}
+
+.landing-bento-main {
+    grid-column: span 2;
+    grid-row: span 2;
+    border-radius: 2rem 0.75rem 0.75rem 0.75rem;
+    border-left: 3px solid #fbbf24;
+    padding: 2.5rem;
+}
+
+.landing-bento-side {
+    border-radius: 0.75rem 0.75rem 2rem 0.75rem;
+}
+
+.landing-bento-wide {
+    grid-column: span 3;
+    border-radius: 0.5rem 2rem 0.5rem 2rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+.landing-bento-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #00337F;
+    margin-bottom: 0.75rem;
+}
+
+.landing-bento-main .landing-bento-title {
+    font-size: 1.5rem;
+}
+
+.landing-bento-text {
+    font-size: 0.95rem;
+    color: #475569;
+    line-height: 1.7;
+}
+
+.landing-bento-main .landing-bento-text {
+    font-size: 1.05rem;
+}
+
+.landing-bento-tag {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #f59e0b;
+    margin-bottom: 0.75rem;
+}
+
+/* Steps Section - "So funktioniert's" */
+.landing-steps {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+    position: relative;
+}
+
+.landing-steps::before {
+    content: '';
+    position: absolute;
+    top: 1.75rem;
+    left: 17%;
+    right: 17%;
+    height: 2px;
+    background: linear-gradient(90deg, #fbbf24, #00337F, #fbbf24);
+    z-index: 0;
+    opacity: 0.4;
+}
+
+.landing-step {
+    text-align: center;
+    position: relative;
+    z-index: 1;
+}
+
+.landing-step-number {
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 50%;
+    background: #ffffff;
+    border: 3px solid #00337F;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #00337F;
+    margin-bottom: 1.25rem;
+    box-shadow: 0 4px 12px rgba(0, 51, 127, 0.1);
+}
+
+.landing-step:first-child .landing-step-number {
+    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+    border-color: #fbbf24;
+    color: #1e3a8a;
+    box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
+}
+
+.landing-step-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 0.5rem;
+}
+
+.landing-step-desc {
+    font-size: 0.9rem;
+    color: #64748b;
+    line-height: 1.6;
+    max-width: 240px;
+    margin: 0 auto;
+}
+
+/* Testimonials - Asymmetric Layout */
+.landing-testimonials-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    grid-template-rows: auto auto;
+    gap: 1.25rem;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.landing-testimonial-featured {
+    grid-row: span 2;
+}
+
+.landing-testimonial-card {
+    background: #ffffff;
+    border-radius: 1rem;
+    padding: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 51, 127, 0.06);
+    border: 1px solid rgba(0, 51, 127, 0.06);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.landing-testimonial-featured .landing-testimonial-card {
+    border-left: 3px solid #fbbf24;
+    border-radius: 2rem 1rem 1rem 0.75rem;
+    justify-content: center;
+}
+
+.landing-quote-mark {
+    font-size: 2.5rem;
+    line-height: 1;
+    color: #00337F;
+    opacity: 0.2;
+    font-family: Georgia, serif;
+    margin-bottom: 0.75rem;
+}
+
+.landing-quote-text {
+    font-size: 1rem;
+    color: #475569;
+    line-height: 1.7;
+    flex: 1;
+    margin-bottom: 1.25rem;
+}
+
+.landing-testimonial-featured .landing-quote-text {
+    font-size: 1.1rem;
+}
+
+.landing-quote-author {
+    border-top: 1px solid rgba(0, 51, 127, 0.08);
+    padding-top: 1rem;
+}
+
+.landing-quote-name {
+    font-weight: 700;
+    color: #1e293b;
+    font-size: 0.95rem;
+}
+
+.landing-quote-role {
+    font-size: 0.8rem;
+    color: #64748b;
+    margin-top: 0.125rem;
+}
+
+/* CTA Section - with diagonal top */
+.landing-cta {
+    background: linear-gradient(165deg, #00337F, #001a4d);
+    position: relative;
+    padding: 5rem 1.5rem;
+}
+
+.landing-cta::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: #f8fafc;
+    clip-path: polygon(0 0, 100% 0, 100% 40%, 0 100%);
+}
+
+/* FAQ - Updated with smooth transitions */
+.landing-faq-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, padding 0.3s ease;
+    padding: 0 1.5rem;
+}
+
+.landing-faq-content.open {
+    max-height: 300px;
+    padding: 0 1.5rem 1.25rem;
+}
+
+.landing-faq-chevron {
+    width: 1.25rem;
+    height: 1.25rem;
+    flex-shrink: 0;
+    transition: transform 0.3s ease;
+    color: #00337F;
+}
+
+.landing-faq-chevron.open {
+    transform: rotate(180deg);
+}
+
+/* About Section Card */
+.landing-about-card {
+    background: #ffffff;
+    border-radius: 0.75rem 2rem 0.75rem 2rem;
+    border: 1px solid rgba(0, 51, 127, 0.08);
+    box-shadow: 0 4px 24px rgba(0, 51, 127, 0.06);
+    padding: 3rem;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.landing-about-image {
+    border-radius: 1.5rem;
+    box-shadow: 0 8px 30px rgba(0, 51, 127, 0.15);
+    border: 3px solid rgba(251, 191, 36, 0.2);
+}
+
+.landing-about-name-accent {
+    display: block;
+    width: 3rem;
+    height: 3px;
+    background: linear-gradient(90deg, #fbbf24, #f59e0b);
+    margin-top: 0.5rem;
+    border-radius: 2px;
+}
+
+/* Section Header - Consistent Pattern */
+.landing-section-header {
+    margin-bottom: 3rem;
+}
+
+.landing-section-header h2 {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #1e293b;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.02em;
+}
+
+.landing-section-header p {
+    font-size: 1.1rem;
+    color: #64748b;
+    max-width: 600px;
+    line-height: 1.6;
+}
+
+.landing-section-header.center {
+    text-align: center;
+}
+
+.landing-section-header.center p {
+    margin: 0 auto;
+}
+
+/* Scroll animation helper */
+.landing-fade-in {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.landing-fade-in.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* === Landing Redesign Responsive === */
+
+@media (max-width: 1024px) {
+    .landing-hero {
+        min-height: auto;
+        padding: 4rem 1.5rem 6rem;
+    }
+
+    .landing-hero-split {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        text-align: center;
+    }
+
+    .landing-hero-text {
+        text-align: center;
+    }
+
+    .landing-hero-visual {
+        display: none;
+    }
+
+    .landing-bento {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .landing-bento-main {
+        grid-column: span 2;
+        grid-row: span 1;
+    }
+
+    .landing-bento-wide {
+        grid-column: span 2;
+    }
+}
+
+@media (max-width: 768px) {
+    .landing-hero {
+        padding: 3rem 1rem 5rem;
+    }
+
+    .landing-hero::after {
+        height: 50px;
+    }
+
+    .landing-stats-strip {
+        grid-template-columns: repeat(2, 1fr);
+        margin-top: -2rem;
+        padding: 1.5rem;
+        gap: 1rem;
+        border-radius: 1rem;
+    }
+
+    .landing-stat-item:nth-child(2)::after {
+        display: none;
+    }
+
+    .landing-stat-value {
+        font-size: 1.75rem;
+    }
+
+    .landing-bento {
+        grid-template-columns: 1fr;
+    }
+
+    .landing-bento-main,
+    .landing-bento-wide {
+        grid-column: span 1;
+        grid-row: span 1;
+    }
+
+    .landing-bento-wide {
+        grid-template-columns: 1fr;
+    }
+
+    .landing-bento-card {
+        padding: 1.5rem;
+    }
+
+    .landing-steps {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    .landing-steps::before {
+        display: none;
+    }
+
+    .landing-testimonials-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .landing-testimonial-featured {
+        grid-row: span 1;
+    }
+
+    .landing-cta::before {
+        height: 40px;
+    }
+
+    .landing-about-card {
+        padding: 2rem 1.5rem;
+    }
+
+    .landing-section-header h2 {
+        font-size: 1.75rem;
+    }
+
+    .landing-section-header p {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .landing-stats-strip {
+        margin-top: -1.5rem;
+        padding: 1.25rem;
+        gap: 0.75rem;
+    }
+
+    .landing-stat-item::after {
+        display: none !important;
+    }
+
+    .landing-stat-value {
+        font-size: 1.5rem;
+    }
+
+    .landing-stat-label {
+        font-size: 0.75rem;
+    }
+
+    .landing-about-card {
+        padding: 1.5rem 1.25rem;
+        border-radius: 1rem;
+    }
+}
+
 /* === THW Blue Color Utility === */
 .text-thw-blue {
     color: #00337F;
