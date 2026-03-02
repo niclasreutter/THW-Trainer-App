@@ -178,19 +178,19 @@
         <h2 id="stats-heading" class="sr-only">Plattform-Statistiken</h2>
         <div class="landing-stats-strip landing-fade-in">
             <div class="landing-stat-item">
-                <div class="landing-stat-value">{{ number_format($stats['users'] ?? 0, 0, ',', '.') }}+</div>
+                <div class="landing-stat-value" data-count="{{ (int) ($stats['users'] ?? 0) }}" data-suffix="+">0+</div>
                 <div class="landing-stat-label">Registrierte Nutzer</div>
             </div>
             <div class="landing-stat-item">
-                <div class="landing-stat-value">{{ number_format($stats['questions_answered'] ?? 0, 0, ',', '.') }}+</div>
+                <div class="landing-stat-value" data-count="{{ (int) ($stats['questions_answered'] ?? 0) }}" data-suffix="+">0+</div>
                 <div class="landing-stat-label">Fragen beantwortet</div>
             </div>
             <div class="landing-stat-item">
-                <div class="landing-stat-value">{{ number_format($stats['exams_passed'] ?? 0, 0, ',', '.') }}+</div>
+                <div class="landing-stat-value" data-count="{{ (int) ($stats['exams_passed'] ?? 0) }}" data-suffix="+">0+</div>
                 <div class="landing-stat-label">Prüfungen bestanden</div>
             </div>
             <div class="landing-stat-item">
-                <div class="landing-stat-value">{{ $stats['pass_rate'] ?? 0 }}%</div>
+                <div class="landing-stat-value" data-count="{{ (int) ($stats['pass_rate'] ?? 0) }}" data-suffix="%">0%</div>
                 <div class="landing-stat-label">Bestehensquote</div>
             </div>
         </div>
@@ -661,8 +661,46 @@ document.addEventListener('DOMContentLoaded', function() {
         fadeEls.forEach(function(el) { el.classList.add('visible'); });
     }
 
-    // Stats are rendered server-side — no JS animation needed
+    // Counter animation for stats strip
+    var statEls = document.querySelectorAll('.landing-stat-value[data-count]');
+    if (statEls.length && 'IntersectionObserver' in window) {
+        var countObserver = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+                if (entry.isIntersecting) {
+                    animateStatCounter(entry.target);
+                    countObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.5 });
+        statEls.forEach(function(el) { countObserver.observe(el); });
+    }
 });
+
+function animateStatCounter(el) {
+    var target = parseInt(el.getAttribute('data-count'), 10);
+    var suffix = el.getAttribute('data-suffix') || '';
+    if (isNaN(target) || target <= 0) {
+        el.textContent = '0' + suffix;
+        return;
+    }
+    var duration = 2000;
+    var start = performance.now();
+
+    function tick(now) {
+        var elapsed = now - start;
+        var progress = Math.min(elapsed / duration, 1);
+        // Ease out cubic
+        var eased = 1 - Math.pow(1 - progress, 3);
+        var current = Math.floor(eased * target);
+        el.textContent = current.toLocaleString('de-DE') + suffix;
+        if (progress < 1) {
+            requestAnimationFrame(tick);
+        } else {
+            el.textContent = target.toLocaleString('de-DE') + suffix;
+        }
+    }
+    requestAnimationFrame(tick);
+}
 </script>
 
 {{-- Schema.org Structured Data --}}
