@@ -26,218 +26,266 @@
         </div>
     @endif
 
-    {{-- Hero Section --}}
+    {{-- ============================================
+         HERO SECTION
+         ============================================ --}}
     <section class="landing-hero" aria-label="Hauptbereich">
         <div class="landing-hero-content">
-            <div class="text-center px-4 max-w-4xl mx-auto">
-                {{-- Haupttitel --}}
-                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 tracking-tight text-white">
-                    <span class="landing-hero-gradient-text">THW Theorie lernen</span>
-                    <br class="hidden sm:block">
-                    <span class="text-2xl sm:text-3xl lg:text-4xl font-light text-blue-100 mt-2 block">Kostenlose Prüfungsvorbereitung 2026</span>
-                </h1>
+            <div class="landing-hero-split">
+                {{-- Text Side --}}
+                <div class="landing-hero-text">
+                    <span class="landing-hero-tagline">Grundausbildung Theorie 2026</span>
 
-                {{-- Untertitel --}}
-                <p class="text-lg sm:text-xl lg:text-2xl text-blue-100 mb-8 max-w-3xl mx-auto font-light leading-relaxed">
-                    Dein digitaler Begleiter für die THW Grundausbildung - Jetzt kostenlos starten!
-                </p>
+                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold mb-6 tracking-tight text-white leading-tight">
+                        <span class="landing-hero-gradient-text">THW Theorie</span>
+                        <br>
+                        <span class="text-white">kostenlos lernen</span>
+                    </h1>
 
-                {{-- CTA Buttons --}}
-                <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                    @php
-                        $appUrl = config('domains.development')
-                            ? route('dashboard')
-                            : 'https://' . config('domains.app');
-                    @endphp
-                    <a href="{{ $appUrl }}"
-                       class="landing-hero-btn-primary"
-                       aria-label="Jetzt zur THW-Theorie App">
-                        Jetzt Kostenlos Lernen
-                    </a>
+                    <p class="text-lg lg:text-xl text-blue-100 mb-8 max-w-xl leading-relaxed font-light" style="opacity: 0.85;">
+                        Alle offiziellen Prüfungsfragen. Spaced Repetition. Ortsverband-Lernpools. Kostenlos und werbefrei.
+                    </p>
 
-                    <a href="{{ route('landing.guest.practice.menu') }}"
-                       class="landing-hero-btn-secondary"
-                       aria-label="Anonym ohne Registrierung üben">
-                        Anonym ohne Login üben
-                    </a>
+                    {{-- CTA Buttons --}}
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        @php
+                            $appUrl = config('domains.development')
+                                ? route('dashboard')
+                                : 'https://' . config('domains.app');
+                        @endphp
+                        <a href="{{ $appUrl }}"
+                           class="landing-hero-btn-primary"
+                           aria-label="Jetzt zur THW-Theorie App">
+                            Jetzt Kostenlos Lernen
+                        </a>
+
+                        <a href="{{ route('landing.guest.practice.menu') }}"
+                           class="landing-hero-btn-secondary"
+                           aria-label="Anonym ohne Registrierung üben">
+                            Anonym ohne Login üben
+                        </a>
+                    </div>
+
+                    {{-- Micro Social Proof --}}
+                    @if(isset($stats))
+                    <p class="landing-hero-social-proof">
+                        <strong>{{ number_format($stats['users'], 0, ',', '.') }}+</strong> Helfer lernen bereits mit dem THW-Trainer
+                    </p>
+                    @endif
+                </div>
+
+                {{-- Decorative Visual --}}
+                <div class="landing-hero-visual" aria-hidden="true">
+                    <div class="landing-hero-shape">
+                        @if(isset($stats))
+                        <div class="landing-hero-shape-inner">
+                            <div class="shape-number">{{ $stats['pass_rate'] }}%</div>
+                            <div class="shape-label">Bestehensquote</div>
+                        </div>
+                        @endif
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 
-    {{-- Social Proof Stats Section — Nur anonymisierte, aggregierte Zahlen --}}
+    {{-- ============================================
+         STATS STRIP — Overlapping Hero/Content
+         ============================================ --}}
     @if(isset($stats))
-    <section class="py-10 lg:py-14 bg-white border-b border-slate-100" aria-labelledby="stats-heading">
-        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 id="stats-heading" class="sr-only">Plattform-Statistiken</h2>
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-6 lg:gap-10">
-
-                {{-- Registrierte Nutzer --}}
-                <div class="text-center">
-                    <div class="text-3xl lg:text-4xl font-extrabold text-thw-blue mb-1">
-                        {{ number_format($stats['users'], 0, ',', '.') }}+
-                    </div>
-                    <div class="text-sm lg:text-base text-slate-500 font-medium">Registrierte Nutzer</div>
-                </div>
-
-                {{-- Beantwortete Fragen --}}
-                <div class="text-center">
-                    <div class="text-3xl lg:text-4xl font-extrabold text-thw-blue mb-1">
-                        {{ number_format($stats['questions_answered'], 0, ',', '.') }}+
-                    </div>
-                    <div class="text-sm lg:text-base text-slate-500 font-medium">Fragen beantwortet</div>
-                </div>
-
-                {{-- Bestandene Prüfungen --}}
-                <div class="text-center">
-                    <div class="text-3xl lg:text-4xl font-extrabold text-thw-blue mb-1">
-                        {{ number_format($stats['exams_passed'], 0, ',', '.') }}+
-                    </div>
-                    <div class="text-sm lg:text-base text-slate-500 font-medium">Prüfungen bestanden</div>
-                </div>
-
-                {{-- Bestehensquote --}}
-                <div class="text-center">
-                    <div class="text-3xl lg:text-4xl font-extrabold text-thw-blue mb-1">
-                        {{ $stats['pass_rate'] }}%
-                    </div>
-                    <div class="text-sm lg:text-base text-slate-500 font-medium">Bestehensquote</div>
-                </div>
+    <section class="px-4 sm:px-6 lg:px-8" aria-labelledby="stats-heading">
+        <h2 id="stats-heading" class="sr-only">Plattform-Statistiken</h2>
+        <div class="landing-stats-strip landing-fade-in">
+            <div class="landing-stat-item">
+                <div class="landing-stat-value" data-count="{{ $stats['users'] }}">{{ number_format($stats['users'], 0, ',', '.') }}+</div>
+                <div class="landing-stat-label">Registrierte Nutzer</div>
+            </div>
+            <div class="landing-stat-item">
+                <div class="landing-stat-value" data-count="{{ $stats['questions_answered'] }}">{{ number_format($stats['questions_answered'], 0, ',', '.') }}+</div>
+                <div class="landing-stat-label">Fragen beantwortet</div>
+            </div>
+            <div class="landing-stat-item">
+                <div class="landing-stat-value" data-count="{{ $stats['exams_passed'] }}">{{ number_format($stats['exams_passed'], 0, ',', '.') }}+</div>
+                <div class="landing-stat-label">Prüfungen bestanden</div>
+            </div>
+            <div class="landing-stat-item">
+                <div class="landing-stat-value">{{ $stats['pass_rate'] }}%</div>
+                <div class="landing-stat-label">Bestehensquote</div>
             </div>
         </div>
     </section>
     @endif
 
-    {{-- Features Section --}}
+    {{-- ============================================
+         FEATURES SECTION — Bento Grid
+         ============================================ --}}
     <section id="features" class="py-16 lg:py-24 bg-white" aria-labelledby="features-heading">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            {{-- Header --}}
-            <header class="text-center mb-12 lg:mb-16">
-                <h2 id="features-heading" class="text-3xl lg:text-4xl font-bold text-slate-900 mb-4 lg:mb-6 tracking-tight">
-                    Was bietet der THW-Trainer?
-                </h2>
-                <p class="text-base lg:text-xl text-slate-600 max-w-4xl mx-auto leading-relaxed font-light">
-                    Alles für deine Grundausbildung Theorie-Prüfung im THW
-                </p>
+            <header class="landing-section-header center">
+                <h2 id="features-heading">Was bietet der THW-Trainer?</h2>
+                <p>Alles was du für deine Grundausbildung und darüber hinaus brauchst</p>
             </header>
 
-            {{-- Features Grid --}}
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
-                {{-- Feature 1: Alle Theoriefragen --}}
-                <article class="landing-feature-card">
-                    <div aria-hidden="true" class="landing-feature-icon"><i class="bi bi-book"></i></div>
-                    <h3 class="text-xl font-semibold text-thw-blue mb-3">Alle Theoriefragen</h3>
-                    <p class="text-slate-600 leading-relaxed">
-                        Umfassende Sammlung aller <strong>THW-Theoriefragen</strong> zum Üben und Lernen.
-                        Von Grundlagen bis zu spezialisierten Bereichen.
+            <div class="landing-bento">
+                {{-- Hauptfeature: Alle Theoriefragen (2x2) --}}
+                <article class="landing-bento-card landing-bento-main landing-fade-in">
+                    <span class="landing-bento-tag">Hauptfeature</span>
+                    <h3 class="landing-bento-title">Alle Theoriefragen</h3>
+                    <p class="landing-bento-text">
+                        Umfassende Sammlung aller aktuellen THW-Theoriefragen zum Üben und Lernen.
+                        Von den Grundlagen der Grundausbildung bis zu spezialisierten Bereichen.
+                        Alle Fragen werden regelmäßig aktualisiert und spiegeln den aktuellen Stand
+                        der THW-Ausbildung wider.
                     </p>
                 </article>
 
-                {{-- Feature 2: Prüfungssimulation --}}
-                <article class="landing-feature-card">
-                    <div aria-hidden="true" class="landing-feature-icon"><i class="bi bi-mortarboard"></i></div>
-                    <h3 class="text-xl font-semibold text-thw-blue mb-3">Prüfungssimulation</h3>
-                    <p class="text-slate-600 leading-relaxed">
-                        Realistische <strong>Prüfungssimulation</strong> verfügbar, sobald alle Fragen bearbeitet wurden.
-                        Teste dich unter echten Bedingungen.
+                {{-- Prüfungssimulation --}}
+                <article class="landing-bento-card landing-bento-side landing-fade-in">
+                    <h3 class="landing-bento-title">Prüfungssimulation</h3>
+                    <p class="landing-bento-text">
+                        Realistische Prüfungssimulation unter echten Bedingungen.
+                        Teste dein Wissen bevor es ernst wird.
                     </p>
                 </article>
 
-                {{-- Feature 3: Lernfortschritt --}}
-                <article class="landing-feature-card">
-                    <div aria-hidden="true" class="landing-feature-icon"><i class="bi bi-bar-chart"></i></div>
-                    <h3 class="text-xl font-semibold text-thw-blue mb-3">Lernfortschritt tracken</h3>
-                    <p class="text-slate-600 leading-relaxed">
-                        Dein Fortschritt wird gespeichert und im persönlichen Dashboard angezeigt.
-                        Verfolge deine Erfolge und Schwächen.
+                {{-- Spaced Repetition --}}
+                <article class="landing-bento-card landing-bento-side landing-fade-in" style="border-radius: 0.75rem 2rem 0.75rem 0.75rem;">
+                    <h3 class="landing-bento-title">Spaced Repetition</h3>
+                    <p class="landing-bento-text">
+                        Intelligentes Wiederholungssystem priorisiert deine Schwachstellen
+                        und sorgt für nachhaltiges Lernen.
                     </p>
                 </article>
 
-                {{-- Feature 4: PWA --}}
-                <article class="landing-feature-card">
-                    <div aria-hidden="true" class="landing-feature-icon"><i class="bi bi-phone"></i></div>
-                    <h3 class="text-xl font-semibold text-thw-blue mb-3">Als App installierbar</h3>
-                    <p class="text-slate-600 leading-relaxed">
-                        Installiere THW Trainer als <strong>Progressive Web App</strong> auf deinem Smartphone für schnelleren Zugriff vom Homescreen.
-                    </p>
+                {{-- Breite Karte: Lehrgänge + Lernpools --}}
+                <article class="landing-bento-card landing-bento-wide landing-fade-in">
+                    <div>
+                        <h3 class="landing-bento-title">Lehrgänge</h3>
+                        <p class="landing-bento-text">
+                            Nicht nur Grundausbildung: Bereite dich auf verschiedene THW-Lehrgänge vor
+                            mit spezifischen Fragenkatalogen.
+                        </p>
+                    </div>
+                    <div>
+                        <h3 class="landing-bento-title">Ortsverband-Lernpools</h3>
+                        <p class="landing-bento-text">
+                            Dein Ortsverband kann eigene Lernpools erstellen.
+                            Lerne gemeinsam mit deinen Kameraden und teile den Fortschritt.
+                        </p>
+                    </div>
                 </article>
             </div>
         </div>
     </section>
 
-    {{-- Testimonials Section — Statisch, fiktive Namen, keine echten Nutzerdaten --}}
-    <section class="py-12 lg:py-20 bg-slate-50" aria-labelledby="testimonials-heading">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <header class="text-center mb-10 lg:mb-14">
-                <h2 id="testimonials-heading" class="text-3xl lg:text-4xl font-bold text-slate-900 mb-4 tracking-tight">
-                    Das sagen THW-Helfer
-                </h2>
-                <p class="text-base lg:text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
-                    Erfahrungen von Helfern, die sich mit dem THW-Trainer vorbereitet haben
-                </p>
+    {{-- ============================================
+         SO FUNKTIONIERT'S — 3 Steps
+         ============================================ --}}
+    <section class="py-16 lg:py-20 bg-slate-50" aria-labelledby="steps-heading">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <header class="landing-section-header center">
+                <h2 id="steps-heading">So funktioniert's</h2>
+                <p>In drei Schritten zur bestandenen Prüfung</p>
             </header>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
-                {{-- Testimonial 1 --}}
-                <article class="bg-white rounded-xl shadow-sm p-6 lg:p-8 flex flex-col">
-                    <div class="mb-4">
-                        <i class="bi bi-quote text-3xl text-thw-blue opacity-30" aria-hidden="true"></i>
-                    </div>
-                    <blockquote class="text-slate-600 leading-relaxed flex-1 mb-6">
-                        Der THW-Trainer hat mir geholfen, mich optimal auf die Grundausbildung vorzubereiten. Die Prüfungssimulation war besonders hilfreich!
-                    </blockquote>
-                    <div class="border-t border-slate-100 pt-4">
-                        <div class="font-semibold text-slate-900">Markus H.</div>
-                        <div class="text-sm text-slate-500">THW-Helfer</div>
-                    </div>
-                </article>
+            <div class="landing-steps landing-fade-in">
+                <div class="landing-step">
+                    <div class="landing-step-number">1</div>
+                    <h3 class="landing-step-title">Registrieren</h3>
+                    <p class="landing-step-desc">
+                        Kostenlos anmelden oder anonym starten. Kein Abo, keine versteckten Kosten.
+                    </p>
+                </div>
+                <div class="landing-step">
+                    <div class="landing-step-number">2</div>
+                    <h3 class="landing-step-title">Lernen</h3>
+                    <p class="landing-step-desc">
+                        Fragen beantworten, Fortschritt verfolgen und mit Spaced Repetition nachhaltig lernen.
+                    </p>
+                </div>
+                <div class="landing-step">
+                    <div class="landing-step-number">3</div>
+                    <h3 class="landing-step-title">Prüfung bestehen</h3>
+                    <p class="landing-step-desc">
+                        Mit der Prüfungssimulation testen und dann die echte Prüfung souverän meistern.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {{-- ============================================
+         TESTIMONIALS — Asymmetric Layout
+         ============================================ --}}
+    <section class="py-16 lg:py-20 bg-white" aria-labelledby="testimonials-heading">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <header class="landing-section-header center">
+                <h2 id="testimonials-heading">Das sagen THW-Helfer</h2>
+                <p>Erfahrungen von Helfern, die sich mit dem THW-Trainer vorbereitet haben</p>
+            </header>
+
+            <div class="landing-testimonials-grid landing-fade-in">
+                {{-- Featured Testimonial (spans 2 rows) --}}
+                <div class="landing-testimonial-featured">
+                    <article class="landing-testimonial-card">
+                        <div class="landing-quote-mark" aria-hidden="true">"</div>
+                        <blockquote class="landing-quote-text">
+                            Der THW-Trainer hat mir geholfen, mich optimal auf die Grundausbildung vorzubereiten.
+                            Die Prüfungssimulation war besonders hilfreich! Ich konnte genau sehen, wo ich noch
+                            Schwächen hatte und gezielt daran arbeiten.
+                        </blockquote>
+                        <div class="landing-quote-author">
+                            <div class="landing-quote-name">Markus H.</div>
+                            <div class="landing-quote-role">THW-Helfer</div>
+                        </div>
+                    </article>
+                </div>
 
                 {{-- Testimonial 2 --}}
-                <article class="bg-white rounded-xl shadow-sm p-6 lg:p-8 flex flex-col">
-                    <div class="mb-4">
-                        <i class="bi bi-quote text-3xl text-thw-blue opacity-30" aria-hidden="true"></i>
-                    </div>
-                    <blockquote class="text-slate-600 leading-relaxed flex-1 mb-6">
+                <article class="landing-testimonial-card">
+                    <div class="landing-quote-mark" aria-hidden="true">"</div>
+                    <blockquote class="landing-quote-text">
                         Endlich eine moderne Lernplattform für die THW-Theorie. Durch die Spaced Repetition Funktion habe ich mir die Inhalte nachhaltig gemerkt.
                     </blockquote>
-                    <div class="border-t border-slate-100 pt-4">
-                        <div class="font-semibold text-slate-900">Sarah K.</div>
-                        <div class="text-sm text-slate-500">THW-Helferin</div>
+                    <div class="landing-quote-author">
+                        <div class="landing-quote-name">Sarah K.</div>
+                        <div class="landing-quote-role">THW-Helferin</div>
                     </div>
                 </article>
 
                 {{-- Testimonial 3 --}}
-                <article class="bg-white rounded-xl shadow-sm p-6 lg:p-8 flex flex-col">
-                    <div class="mb-4">
-                        <i class="bi bi-quote text-3xl text-thw-blue opacity-30" aria-hidden="true"></i>
-                    </div>
-                    <blockquote class="text-slate-600 leading-relaxed flex-1 mb-6">
+                <article class="landing-testimonial-card">
+                    <div class="landing-quote-mark" aria-hidden="true">"</div>
+                    <blockquote class="landing-quote-text">
                         Sehr übersichtlich und motivierend. Durch die täglichen Lernziele habe ich regelmäßig gelernt und die Prüfung beim ersten Versuch bestanden.
                     </blockquote>
-                    <div class="border-t border-slate-100 pt-4">
-                        <div class="font-semibold text-slate-900">Thomas M.</div>
-                        <div class="text-sm text-slate-500">THW-Helfer</div>
+                    <div class="landing-quote-author">
+                        <div class="landing-quote-name">Thomas M.</div>
+                        <div class="landing-quote-role">THW-Helfer</div>
                     </div>
                 </article>
             </div>
         </div>
     </section>
 
-    {{-- CTA Section --}}
-    <section class="py-12 lg:py-16 bg-thw-blue" aria-labelledby="cta-heading">
-        <div class="max-w-6xl mx-auto text-center px-4 sm:px-6 lg:px-8">
-            <h2 id="cta-heading" class="text-2xl lg:text-4xl font-bold text-white mb-4 lg:mb-5 tracking-tight">
+    {{-- ============================================
+         CTA SECTION
+         ============================================ --}}
+    <section class="landing-cta" aria-labelledby="cta-heading">
+        <div class="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8 pt-8">
+            <h2 id="cta-heading" class="text-2xl lg:text-4xl font-bold text-white mb-4 tracking-tight">
                 Bereit zum Lernen?
             </h2>
-            <p class="text-base lg:text-lg text-white mb-4 lg:mb-6 max-w-4xl mx-auto leading-relaxed font-light">
-                Starte jetzt mit dem THW-Trainer und bereite dich optimal auf deine <strong class="font-semibold">Grundausbildung Theorie-Prüfung im THW</strong> vor.
+            <p class="text-base lg:text-lg text-blue-100 mb-4 max-w-3xl mx-auto leading-relaxed font-light">
+                Starte jetzt mit dem THW-Trainer und bereite dich optimal auf deine
+                <strong class="font-semibold text-white">Grundausbildung Theorie-Prüfung im THW</strong> vor.
             </p>
-            <p class="text-sm lg:text-base text-white max-w-4xl mx-auto leading-relaxed font-light mb-8">
-                Registriere dich kostenlos und beginne sofort mit dem Lernen, egal ob Handy, Laptop oder Tablet!<br>
-                <strong class="font-semibold">Ein Account, ein Lernstand!</strong>
+            <p class="text-sm lg:text-base text-blue-200 max-w-3xl mx-auto leading-relaxed font-light mb-8" style="opacity: 0.8;">
+                Registriere dich kostenlos und beginne sofort mit dem Lernen, egal ob Handy, Laptop oder Tablet.
+                Ein Account, ein Lernstand!
             </p>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mx-auto">
+            <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
                 @php
                     $registerUrl = config('domains.development')
                         ? route('register')
@@ -247,13 +295,13 @@
                         : 'https://' . config('domains.app') . '/login';
                 @endphp
                 <a href="{{ $registerUrl }}"
-                   class="inline-block bg-yellow-400 text-blue-900 px-8 py-4 rounded-xl font-bold hover:bg-yellow-300 hover:scale-105 transition-all duration-300 text-center shadow-lg"
+                   class="inline-block bg-gradient-to-r from-yellow-400 to-amber-500 text-blue-900 px-8 py-4 rounded-xl font-bold hover:scale-105 transition-all duration-300 shadow-lg shadow-yellow-500/30 text-center"
                    aria-label="Jetzt kostenlos registrieren">
                     Jetzt kostenlos anmelden
                 </a>
 
                 <a href="{{ $loginUrl }}"
-                   class="inline-block bg-white text-blue-900 px-8 py-4 rounded-xl font-bold border-2 border-white hover:bg-gray-100 hover:scale-105 transition-all duration-300 text-center shadow-lg"
+                   class="inline-block bg-white/10 text-white px-8 py-4 rounded-xl font-bold border-2 border-white/30 hover:bg-white/20 hover:border-white/50 transition-all duration-300 text-center backdrop-blur-sm"
                    aria-label="Zum Login">
                     Login
                 </a>
@@ -261,26 +309,26 @@
         </div>
     </section>
 
-    {{-- FAQ Section --}}
-    <section id="faq" class="py-12 lg:py-20 bg-slate-50" aria-labelledby="faq-heading">
-        <div class="max-w-2xl lg:max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            <header class="text-center mb-8 lg:mb-12">
-                <h2 id="faq-heading" class="text-3xl lg:text-4xl font-bold text-slate-900 mb-4 tracking-tight">
-                    Häufig gestellte Fragen
-                </h2>
-                <p class="text-base lg:text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed">
-                    Alles über <strong>THW Grundausbildung</strong> und den THW-Trainer
-                </p>
+    {{-- ============================================
+         FAQ SECTION
+         ============================================ --}}
+    <section id="faq" class="py-16 lg:py-20 bg-slate-50" aria-labelledby="faq-heading">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+            <header class="landing-section-header center">
+                <h2 id="faq-heading">Häufig gestellte Fragen</h2>
+                <p>Alles über THW Grundausbildung und den THW-Trainer</p>
             </header>
 
-            <div class="space-y-4" itemscope itemtype="https://schema.org/FAQPage">
-                {{-- FAQ Item 1 --}}
+            <div class="space-y-3" itemscope itemtype="https://schema.org/FAQPage">
+                {{-- FAQ 1 --}}
                 <article class="landing-faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
                     <button class="landing-faq-toggle" onclick="toggleFAQ('faq1')" aria-expanded="false" aria-controls="faq1">
                         <span class="text-base lg:text-lg font-semibold text-slate-900 pr-4 text-left" itemprop="name">Was ist die THW Grundausbildung?</span>
-                        <span class="landing-faq-icon" aria-hidden="true">+</span>
+                        <svg class="landing-faq-chevron" id="chevron-faq1" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+                        </svg>
                     </button>
-                    <div id="faq1" class="landing-faq-content hidden" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                    <div id="faq1" class="landing-faq-content" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
                         <p class="text-slate-600 leading-relaxed text-sm lg:text-base" itemprop="text">
                             Die <strong>THW Grundausbildung</strong> ist die erste Ausbildungsstufe im <strong>Technischen Hilfswerk</strong>.
                             Sie vermittelt die grundlegenden Kenntnisse und Fähigkeiten für alle THW-Helfer.
@@ -290,13 +338,15 @@
                     </div>
                 </article>
 
-                {{-- FAQ Item 2 --}}
+                {{-- FAQ 2 --}}
                 <article class="landing-faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
                     <button class="landing-faq-toggle" onclick="toggleFAQ('faq2')" aria-expanded="false" aria-controls="faq2">
                         <span class="text-base lg:text-lg font-semibold text-slate-900 pr-4 text-left" itemprop="name">Wie bereite ich mich auf die THW Grundausbildung Theorie vor?</span>
-                        <span class="landing-faq-icon" aria-hidden="true">+</span>
+                        <svg class="landing-faq-chevron" id="chevron-faq2" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+                        </svg>
                     </button>
-                    <div id="faq2" class="landing-faq-content hidden" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                    <div id="faq2" class="landing-faq-content" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
                         <p class="text-slate-600 leading-relaxed text-sm lg:text-base" itemprop="text">
                             Der <strong>THW-Trainer</strong> bietet dir alle aktuellen <strong>THW-Theoriefragen</strong> zur optimalen Vorbereitung.
                             Übe systematisch alle Themenbereiche, nutze die <strong>Prüfungssimulation</strong> und verfolge deinen Lernfortschritt.
@@ -305,13 +355,15 @@
                     </div>
                 </article>
 
-                {{-- FAQ Item 3 --}}
+                {{-- FAQ 3 --}}
                 <article class="landing-faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
                     <button class="landing-faq-toggle" onclick="toggleFAQ('faq3')" aria-expanded="false" aria-controls="faq3">
                         <span class="text-base lg:text-lg font-semibold text-slate-900 pr-4 text-left" itemprop="name">Ist der THW-Trainer kostenlos?</span>
-                        <span class="landing-faq-icon" aria-hidden="true">+</span>
+                        <svg class="landing-faq-chevron" id="chevron-faq3" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+                        </svg>
                     </button>
-                    <div id="faq3" class="landing-faq-content hidden" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                    <div id="faq3" class="landing-faq-content" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
                         <p class="text-slate-600 leading-relaxed text-sm lg:text-base" itemprop="text">
                             Ja, der <strong>THW-Trainer ist komplett kostenlos</strong>! Du kannst sofort mit dem Lernen beginnen,
                             ohne jegliche Kosten. Auch eine Anmeldung ist nicht zwingend erforderlich -
@@ -320,13 +372,15 @@
                     </div>
                 </article>
 
-                {{-- FAQ Item 4 --}}
+                {{-- FAQ 4 --}}
                 <article class="landing-faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
                     <button class="landing-faq-toggle" onclick="toggleFAQ('faq4')" aria-expanded="false" aria-controls="faq4">
                         <span class="text-base lg:text-lg font-semibold text-slate-900 pr-4 text-left" itemprop="name">Wie viele Fragen gibt es im THW-Trainer?</span>
-                        <span class="landing-faq-icon" aria-hidden="true">+</span>
+                        <svg class="landing-faq-chevron" id="chevron-faq4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+                        </svg>
                     </button>
-                    <div id="faq4" class="landing-faq-content hidden" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                    <div id="faq4" class="landing-faq-content" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
                         <p class="text-slate-600 leading-relaxed text-sm lg:text-base" itemprop="text">
                             Der THW-Trainer enthält <strong>alle aktuellen THW-Theoriefragen</strong> aus allen relevanten Bereichen
                             der Grundausbildung. Die Fragen werden regelmäßig aktualisiert und spiegeln den
@@ -335,13 +389,15 @@
                     </div>
                 </article>
 
-                {{-- FAQ Item 5 --}}
+                {{-- FAQ 5 --}}
                 <article class="landing-faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
                     <button class="landing-faq-toggle" onclick="toggleFAQ('faq5')" aria-expanded="false" aria-controls="faq5">
                         <span class="text-base lg:text-lg font-semibold text-slate-900 pr-4 text-left" itemprop="name">Welche Themen werden in der THW Grundausbildung abgefragt?</span>
-                        <span class="landing-faq-icon" aria-hidden="true">+</span>
+                        <svg class="landing-faq-chevron" id="chevron-faq5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+                        </svg>
                     </button>
-                    <div id="faq5" class="landing-faq-content hidden" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                    <div id="faq5" class="landing-faq-content" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
                         <p class="text-slate-600 leading-relaxed text-sm lg:text-base" itemprop="text">
                             Die <strong>THW Grundausbildung</strong> umfasst Themen wie: <strong>Rechtsgrundlagen</strong>, Organisation des THW,
                             Einsatzgrundlagen, Gefahren der Einsatzstelle, Technische Hilfe, Einsatzablauf,
@@ -350,28 +406,32 @@
                     </div>
                 </article>
 
-                {{-- FAQ Item 6 --}}
+                {{-- FAQ 6 --}}
                 <article class="landing-faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
                     <button class="landing-faq-toggle" onclick="toggleFAQ('faq6')" aria-expanded="false" aria-controls="faq6">
                         <span class="text-base lg:text-lg font-semibold text-slate-900 pr-4 text-left" itemprop="name">Funktioniert der THW-Trainer auf dem Handy?</span>
-                        <span class="landing-faq-icon" aria-hidden="true">+</span>
+                        <svg class="landing-faq-chevron" id="chevron-faq6" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+                        </svg>
                     </button>
-                    <div id="faq6" class="landing-faq-content hidden" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                    <div id="faq6" class="landing-faq-content" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
                         <p class="text-slate-600 leading-relaxed text-sm lg:text-base" itemprop="text">
                             Ja, der THW-Trainer ist <strong>vollständig responsive</strong> und funktioniert optimal auf Smartphones,
-                            Tablets und Desktop-Computern. Du kannst überall und jederzeit lernen -
-                            egal ob zu Hause, unterwegs oder in der Pause.
+                            Tablets und Desktop-Computern. Du kannst die App als <strong>Progressive Web App</strong> auf deinem
+                            Homescreen installieren für schnelleren Zugriff.
                         </p>
                     </div>
                 </article>
 
-                {{-- FAQ Item 7 --}}
+                {{-- FAQ 7 --}}
                 <article class="landing-faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
                     <button class="landing-faq-toggle" onclick="toggleFAQ('faq7')" aria-expanded="false" aria-controls="faq7">
                         <span class="text-base lg:text-lg font-semibold text-slate-900 pr-4 text-left" itemprop="name">Wie schwer ist die THW Grundausbildung Theorie-Prüfung?</span>
-                        <span class="landing-faq-icon" aria-hidden="true">+</span>
+                        <svg class="landing-faq-chevron" id="chevron-faq7" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+                        </svg>
                     </button>
-                    <div id="faq7" class="landing-faq-content hidden" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                    <div id="faq7" class="landing-faq-content" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
                         <p class="text-slate-600 leading-relaxed text-sm lg:text-base" itemprop="text">
                             Mit der richtigen Vorbereitung ist die <strong>THW Grundausbildung Theorie-Prüfung</strong> gut zu schaffen.
                             Der THW-Trainer hilft dir dabei, alle wichtigen Themen zu verstehen und zu üben.
@@ -380,13 +440,15 @@
                     </div>
                 </article>
 
-                {{-- FAQ Item 8 --}}
+                {{-- FAQ 8 --}}
                 <article class="landing-faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
                     <button class="landing-faq-toggle" onclick="toggleFAQ('faq8')" aria-expanded="false" aria-controls="faq8">
                         <span class="text-base lg:text-lg font-semibold text-slate-900 pr-4 text-left" itemprop="name">Ist der THW-Trainer offiziell vom THW?</span>
-                        <span class="landing-faq-icon" aria-hidden="true">+</span>
+                        <svg class="landing-faq-chevron" id="chevron-faq8" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+                        </svg>
                     </button>
-                    <div id="faq8" class="landing-faq-content hidden" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                    <div id="faq8" class="landing-faq-content" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
                         <p class="text-slate-600 leading-relaxed text-sm lg:text-base" itemprop="text">
                             Der THW-Trainer ist eine <strong>private Initiative</strong> eines aktiven THW-Mitglieds und nicht offiziell
                             vom THW herausgegeben. Die Fragen basieren jedoch auf den offiziellen Ausbildungsunterlagen
@@ -398,56 +460,62 @@
         </div>
     </section>
 
-    {{-- Der Kopf Dahinter Section --}}
-    <section class="py-12 lg:py-20 bg-white" aria-labelledby="about-heading">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-col lg:flex-row gap-8 lg:gap-16 items-center">
-                {{-- Bild Container --}}
-                <div class="flex-shrink-0 flex justify-center lg:justify-start">
-                    <picture>
-                        <source srcset="{{ asset('niclas_compressed.webp') }}" type="image/webp">
-                        <img src="{{ asset('niclas_compressed.png') }}"
-                             alt="Niclas Reutter - Entwickler und aktives THW-Mitglied, Entwickler des THW-Trainers"
-                             class="rounded-2xl shadow-xl"
-                             style="max-height: 300px; max-width: 250px;"
-                             loading="lazy"
-                             width="250"
-                             height="300">
-                    </picture>
-                </div>
-
-                {{-- Text Container --}}
-                <div class="flex-1 space-y-6" itemscope itemtype="https://schema.org/Person">
-                    <h2 id="about-heading" class="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 tracking-tight">
-                        Der Kopf Dahinter
-                    </h2>
-                    <div class="space-y-4 text-base lg:text-lg text-slate-600 leading-relaxed">
-                        <p>
-                            Hallo! Ich bin <span itemprop="name">Niclas</span>, der <span itemprop="jobTitle">Entwickler</span> hinter dem <strong>THW-Trainer</strong>. Als aktives <strong>THW-Mitglied</strong>
-                            kenne ich die Herausforderungen bei der Vorbereitung auf die Theoriefragen nur zu gut.
-                        </p>
-                        <p>
-                            Mit dieser App möchte ich dir eine moderne, intuitive und effektive Möglichkeit bieten,
-                            dich optimal auf deine <strong>THW-Prüfung</strong> vorzubereiten. Alle Fragen sind sorgfältig ausgewählt
-                            und spiegeln den aktuellen Stand der <strong>THW-Ausbildung</strong> wider.
-                        </p>
-                        <p class="font-semibold">
-                            Viel Erfolg bei deiner Prüfung!
-                        </p>
-                        <p>
-                            Diese Webseite stelle ich <strong>kostenlos zur Verfügung</strong> und finanziere alle Kosten für Webseite, Domain und Server selbst.
-                            Unterstütze mich mit einem Kaffee!
-                        </p>
+    {{-- ============================================
+         DER KOPF DAHINTER
+         ============================================ --}}
+    <section class="py-16 lg:py-20 bg-white" aria-labelledby="about-heading">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="landing-about-card landing-fade-in">
+                <div class="flex flex-col lg:flex-row gap-8 lg:gap-12 items-center">
+                    {{-- Bild --}}
+                    <div class="flex-shrink-0 flex justify-center lg:justify-start">
+                        <picture>
+                            <source srcset="{{ asset('niclas_compressed.webp') }}" type="image/webp">
+                            <img src="{{ asset('niclas_compressed.png') }}"
+                                 alt="Niclas Reutter - Entwickler und aktives THW-Mitglied, Entwickler des THW-Trainers"
+                                 class="landing-about-image"
+                                 style="max-height: 300px; max-width: 250px;"
+                                 loading="lazy"
+                                 width="250"
+                                 height="300">
+                        </picture>
                     </div>
-                    <div class="pt-2">
-                        <a href="https://bero-host.de/spenden/ks14llyclh8q"
-                           target="_blank"
-                           rel="noopener noreferrer"
-                           class="inline-flex items-center px-8 py-4 bg-thw-blue text-white font-bold rounded-xl hover:bg-blue-800 hover:scale-105 transition-all duration-300 shadow-lg"
-                           aria-label="Unterstütze den Entwickler mit einer Kaffee-Spende">
-                            <i class="bi bi-cup-hot mr-2 text-xl" aria-hidden="true"></i>
-                            Unterstütze mich
-                        </a>
+
+                    {{-- Text --}}
+                    <div class="flex-1 space-y-5" itemscope itemtype="https://schema.org/Person">
+                        <div>
+                            <h2 id="about-heading" class="text-3xl sm:text-4xl font-bold text-slate-900 tracking-tight">
+                                Der Kopf Dahinter
+                            </h2>
+                            <div class="landing-about-name-accent"></div>
+                        </div>
+                        <div class="space-y-4 text-base lg:text-lg text-slate-600 leading-relaxed">
+                            <p>
+                                Hallo! Ich bin <span itemprop="name">Niclas</span>, der <span itemprop="jobTitle">Entwickler</span> hinter dem <strong>THW-Trainer</strong>. Als aktives <strong>THW-Mitglied</strong>
+                                kenne ich die Herausforderungen bei der Vorbereitung auf die Theoriefragen nur zu gut.
+                            </p>
+                            <p>
+                                Mit dieser App möchte ich dir eine moderne, intuitive und effektive Möglichkeit bieten,
+                                dich optimal auf deine <strong>THW-Prüfung</strong> vorzubereiten. Alle Fragen sind sorgfältig ausgewählt
+                                und spiegeln den aktuellen Stand der <strong>THW-Ausbildung</strong> wider.
+                            </p>
+                            <p class="font-semibold">
+                                Viel Erfolg bei deiner Prüfung!
+                            </p>
+                            <p>
+                                Diese Webseite stelle ich <strong>kostenlos zur Verfügung</strong> und finanziere alle Kosten für Webseite, Domain und Server selbst.
+                                Unterstütze mich mit einem Kaffee!
+                            </p>
+                        </div>
+                        <div class="pt-2">
+                            <a href="https://bero-host.de/spenden/ks14llyclh8q"
+                               target="_blank"
+                               rel="noopener noreferrer"
+                               class="inline-flex items-center px-8 py-4 bg-gradient-to-r from-blue-800 to-blue-900 text-white font-bold rounded-xl hover:scale-105 transition-all duration-300 shadow-lg"
+                               aria-label="Unterstütze den Entwickler mit einer Kaffee-Spende">
+                                Unterstütze mich mit einem Kaffee
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -461,26 +529,31 @@
 function toggleFAQ(faqId) {
     const content = document.getElementById(faqId);
     const button = content?.previousElementSibling;
-    const icon = button?.querySelector('.landing-faq-icon');
+    const chevron = document.getElementById('chevron-' + faqId);
 
-    if (!content || !button || !icon) return;
+    if (!content || !button) return;
 
-    const isHidden = content.classList.contains('hidden');
+    const isOpen = content.classList.contains('open');
 
-    if (isHidden) {
-        content.classList.remove('hidden');
+    // Close all other FAQs
+    document.querySelectorAll('.landing-faq-content.open').forEach(el => {
+        el.classList.remove('open');
+        const btn = el.previousElementSibling;
+        if (btn) btn.setAttribute('aria-expanded', 'false');
+        const chev = document.getElementById('chevron-' + el.id);
+        if (chev) chev.classList.remove('open');
+    });
+
+    if (!isOpen) {
+        content.classList.add('open');
         button.setAttribute('aria-expanded', 'true');
-        icon.textContent = '−';
-    } else {
-        content.classList.add('hidden');
-        button.setAttribute('aria-expanded', 'false');
-        icon.textContent = '+';
+        if (chevron) chevron.classList.add('open');
     }
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    const faqButtons = document.querySelectorAll('.landing-faq-toggle');
-    faqButtons.forEach(button => {
+    // Keyboard accessibility for FAQ
+    document.querySelectorAll('.landing-faq-toggle').forEach(button => {
         button.addEventListener('keydown', function(e) {
             if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
@@ -488,7 +561,65 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+
+    // Scroll fade-in animation
+    const fadeEls = document.querySelectorAll('.landing-fade-in');
+    if (fadeEls.length && 'IntersectionObserver' in window) {
+        const observer = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+
+        fadeEls.forEach(function(el) { observer.observe(el); });
+    } else {
+        // Fallback: show everything
+        fadeEls.forEach(function(el) { el.classList.add('visible'); });
+    }
+
+    // Counter animation for stats
+    const statValues = document.querySelectorAll('.landing-stat-value[data-count]');
+    if (statValues.length && 'IntersectionObserver' in window) {
+        const countObserver = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+                if (entry.isIntersecting) {
+                    animateCounter(entry.target);
+                    countObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.5 });
+
+        statValues.forEach(function(el) { countObserver.observe(el); });
+    }
 });
+
+function animateCounter(el) {
+    const target = parseInt(el.dataset.count, 10);
+    if (isNaN(target)) return;
+
+    const duration = 1500;
+    const start = performance.now();
+
+    function update(now) {
+        const elapsed = now - start;
+        const progress = Math.min(elapsed / duration, 1);
+        // Ease out cubic
+        const eased = 1 - Math.pow(1 - progress, 3);
+        const current = Math.floor(eased * target);
+        el.textContent = current.toLocaleString('de-DE') + '+';
+
+        if (progress < 1) {
+            requestAnimationFrame(update);
+        } else {
+            el.textContent = target.toLocaleString('de-DE') + '+';
+        }
+    }
+
+    requestAnimationFrame(update);
+}
 </script>
 
 {{-- Schema.org Structured Data --}}
