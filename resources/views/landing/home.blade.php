@@ -269,22 +269,27 @@
                 <p>In drei Schritten zur bestandenen Prüfung</p>
             </header>
 
-            <div class="landing-steps landing-fade-in">
-                <div class="landing-step">
-                    <div class="landing-step-number">1</div>
+            <div class="landing-steps" id="stepsSection">
+                {{-- Animated progress line --}}
+                <div class="landing-steps-track">
+                    <div class="landing-steps-progress" id="stepsProgress"></div>
+                </div>
+
+                <div class="landing-step" data-step="1">
+                    <div class="landing-step-number active">1</div>
                     <h3 class="landing-step-title">Registrieren</h3>
                     <p class="landing-step-desc">
                         Kostenlos anmelden oder anonym starten. Kein Abo, keine versteckten Kosten.
                     </p>
                 </div>
-                <div class="landing-step">
+                <div class="landing-step" data-step="2">
                     <div class="landing-step-number">2</div>
                     <h3 class="landing-step-title">Lernen</h3>
                     <p class="landing-step-desc">
                         Fragen beantworten, Fortschritt verfolgen und mit Spaced Repetition nachhaltig lernen.
                     </p>
                 </div>
-                <div class="landing-step">
+                <div class="landing-step" data-step="3">
                     <div class="landing-step-number">3</div>
                     <h3 class="landing-step-title">Prüfung bestehen</h3>
                     <p class="landing-step-desc">
@@ -659,6 +664,47 @@ document.addEventListener('DOMContentLoaded', function() {
     } else {
         // Fallback: show everything
         fadeEls.forEach(function(el) { el.classList.add('visible'); });
+    }
+
+    // Steps progress animation on scroll
+    var stepsSection = document.getElementById('stepsSection');
+    var stepsProgress = document.getElementById('stepsProgress');
+    if (stepsSection && stepsProgress) {
+        var steps = stepsSection.querySelectorAll('.landing-step');
+        var stepsAnimated = false;
+
+        var stepsObserver = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+                if (entry.isIntersecting && !stepsAnimated) {
+                    stepsAnimated = true;
+                    animateSteps();
+                }
+            });
+        }, { threshold: 0.3 });
+        stepsObserver.observe(stepsSection);
+
+        function animateSteps() {
+            // Step 1 is already active
+            // Animate progress line to 50% then light up step 2
+            setTimeout(function() {
+                stepsProgress.style.width = '50%';
+            }, 200);
+
+            setTimeout(function() {
+                steps[1].querySelector('.landing-step-number').classList.add('active');
+                steps[1].classList.add('step-visible');
+            }, 900);
+
+            // Animate to 100% then light up step 3
+            setTimeout(function() {
+                stepsProgress.style.width = '100%';
+            }, 1100);
+
+            setTimeout(function() {
+                steps[2].querySelector('.landing-step-number').classList.add('active');
+                steps[2].classList.add('step-visible');
+            }, 1800);
+        }
     }
 
     // Counter animation for stats strip

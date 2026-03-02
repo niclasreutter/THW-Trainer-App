@@ -2990,16 +2990,27 @@ html.light-mode ::-webkit-scrollbar-thumb:hover {
     position: relative;
 }
 
-.landing-steps::before {
-    content: '';
+/* Static track (gray background line) */
+.landing-steps-track {
     position: absolute;
     top: 1.75rem;
     left: 17%;
     right: 17%;
-    height: 2px;
-    background: linear-gradient(90deg, #fbbf24, #00337F, #fbbf24);
+    height: 3px;
+    background: rgba(0, 51, 127, 0.1);
     z-index: 0;
-    opacity: 0.4;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+/* Animated progress fill */
+.landing-steps-progress {
+    width: 0;
+    height: 100%;
+    background: linear-gradient(90deg, #fbbf24, #f59e0b, #00337F);
+    border-radius: 2px;
+    transition: width 0.8s cubic-bezier(0.25, 0.1, 0.25, 1);
+    box-shadow: 0 0 12px rgba(251, 191, 36, 0.5);
 }
 
 .landing-step {
@@ -3013,22 +3024,38 @@ html.light-mode ::-webkit-scrollbar-thumb:hover {
     height: 3.5rem;
     border-radius: 50%;
     background: #ffffff;
-    border: 3px solid #00337F;
+    border: 3px solid rgba(0, 51, 127, 0.2);
     display: inline-flex;
     align-items: center;
     justify-content: center;
     font-size: 1.25rem;
     font-weight: 800;
-    color: #00337F;
+    color: rgba(0, 51, 127, 0.3);
     margin-bottom: 1.25rem;
-    box-shadow: 0 4px 12px rgba(0, 51, 127, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 51, 127, 0.05);
+    transition: all 0.6s cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 
-.landing-step:first-child .landing-step-number {
+/* Active state for step numbers */
+.landing-step-number.active {
+    border-color: #00337F;
+    color: #00337F;
+    box-shadow: 0 4px 16px rgba(0, 51, 127, 0.2);
+    transform: scale(1.05);
+}
+
+.landing-step:first-child .landing-step-number.active {
     background: linear-gradient(135deg, #fbbf24, #f59e0b);
     border-color: #fbbf24;
     color: #1e3a8a;
-    box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
+    box-shadow: 0 4px 20px rgba(251, 191, 36, 0.4);
+}
+
+.landing-step:last-child .landing-step-number.active {
+    background: linear-gradient(135deg, #00337F, #004199);
+    border-color: #00337F;
+    color: #ffffff;
+    box-shadow: 0 4px 20px rgba(0, 51, 127, 0.4);
 }
 
 .landing-step-title {
@@ -3308,7 +3335,7 @@ html.light-mode ::-webkit-scrollbar-thumb:hover {
         gap: 2rem;
     }
 
-    .landing-steps::before {
+    .landing-steps-track {
         display: none;
     }
 
