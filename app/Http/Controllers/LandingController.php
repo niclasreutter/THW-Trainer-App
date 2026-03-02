@@ -21,13 +21,11 @@ class LandingController extends Controller
             return redirect()->route('dashboard');
         }
 
-        $stats = cache()->get('landing_stats');
+        // Alten Cache löschen (Migration zu neuem Key)
+        cache()->forget('landing_stats');
 
-        // Validate cached structure has all required keys with int values
-        $requiredKeys = ['users', 'questions_answered', 'exams_passed', 'pass_rate'];
-        $validCache = is_array($stats) && !array_diff($requiredKeys, array_keys($stats));
-
-        if (! $validCache || ($stats['users'] ?? 0) === 0) {
+        // Kurzer Cache (5 Min) mit frischen DB-Daten — gleicher Ansatz wie StatisticsController
+        $stats = cache()->remember('landing_stats_v2', 300, function () {
             $totalExams = ExamStatistic::count();
             $passedExams = ExamStatistic::where('is_passed', true)->count();
             $users = User::count();
@@ -36,29 +34,15 @@ class LandingController extends Controller
                 + LehrgangQuestionStatistic::count()
                 + OrtsverbandLernpoolQuestionStatistic::count();
 
-            // Show real count when rounding would yield 0
-            $stats = [
-                'users' => (int) max($users, floor($users / 50) * 50),
-                'questions_answered' => (int) max($questionsAnswered, floor($questionsAnswered / 1000) * 1000),
-                'exams_passed' => (int) max($passedExams, floor($passedExams / 10) * 10),
+            return [
+                'users' => (int) $users,
+                'questions_answered' => (int) $questionsAnswered,
+                'exams_passed' => (int) $passedExams,
                 'pass_rate' => $totalExams > 0
                     ? (int) round(($passedExams / $totalExams) * 100)
                     : 0,
             ];
-
-            // Nur cachen wenn echte Daten vorhanden
-            if ($users > 0) {
-                cache()->put('landing_stats', $stats, 3600);
-            }
-        }
-
-        // Ensure all values are valid integers
-        $stats = [
-            'users' => (int) ($stats['users'] ?? 0),
-            'questions_answered' => (int) ($stats['questions_answered'] ?? 0),
-            'exams_passed' => (int) ($stats['exams_passed'] ?? 0),
-            'pass_rate' => (int) ($stats['pass_rate'] ?? 0),
-        ];
+        });
 
         return view('landing.home', compact('stats'));
     }

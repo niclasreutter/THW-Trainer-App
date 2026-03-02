@@ -97,15 +97,15 @@
         <h2 id="stats-heading" class="sr-only">Plattform-Statistiken</h2>
         <div class="landing-stats-strip landing-fade-in">
             <div class="landing-stat-item">
-                <div class="landing-stat-value" @if(($stats['users'] ?? 0) > 0) data-count="{{ (int) $stats['users'] }}" @endif>{{ number_format($stats['users'] ?? 0, 0, ',', '.') }}+</div>
+                <div class="landing-stat-value">{{ number_format($stats['users'] ?? 0, 0, ',', '.') }}+</div>
                 <div class="landing-stat-label">Registrierte Nutzer</div>
             </div>
             <div class="landing-stat-item">
-                <div class="landing-stat-value" @if(($stats['questions_answered'] ?? 0) > 0) data-count="{{ (int) $stats['questions_answered'] }}" @endif>{{ number_format($stats['questions_answered'] ?? 0, 0, ',', '.') }}+</div>
+                <div class="landing-stat-value">{{ number_format($stats['questions_answered'] ?? 0, 0, ',', '.') }}+</div>
                 <div class="landing-stat-label">Fragen beantwortet</div>
             </div>
             <div class="landing-stat-item">
-                <div class="landing-stat-value" @if(($stats['exams_passed'] ?? 0) > 0) data-count="{{ (int) $stats['exams_passed'] }}" @endif>{{ number_format($stats['exams_passed'] ?? 0, 0, ',', '.') }}+</div>
+                <div class="landing-stat-value">{{ number_format($stats['exams_passed'] ?? 0, 0, ',', '.') }}+</div>
                 <div class="landing-stat-label">Prüfungen bestanden</div>
             </div>
             <div class="landing-stat-item">
@@ -580,64 +580,8 @@ document.addEventListener('DOMContentLoaded', function() {
         fadeEls.forEach(function(el) { el.classList.add('visible'); });
     }
 
-    // Counter animation for stats
-    const statValues = document.querySelectorAll('.landing-stat-value[data-count]');
-    if (statValues.length && 'IntersectionObserver' in window) {
-        const countObserver = new IntersectionObserver(function(entries) {
-            entries.forEach(function(entry) {
-                if (entry.isIntersecting) {
-                    animateCounter(entry.target);
-                    countObserver.unobserve(entry.target);
-                }
-            });
-        }, { threshold: 0.5 });
-
-        statValues.forEach(function(el) { countObserver.observe(el); });
-    }
+    // Stats are rendered server-side — no JS animation needed
 });
-
-function animateCounter(el) {
-    try {
-        var raw = el.getAttribute('data-count');
-        if (!raw || raw.trim() === '') return;
-
-        var target = Number(raw);
-        if (!Number.isFinite(target) || target <= 0) return;
-
-        target = Math.floor(target);
-        var originalText = el.textContent;
-        var duration = 1500;
-        var start = performance.now();
-
-        function update(now) {
-            try {
-                var elapsed = now - start;
-                var progress = Math.min(elapsed / duration, 1);
-                var eased = 1 - Math.pow(1 - progress, 3);
-                var current = Math.floor(eased * target);
-
-                if (isNaN(current)) {
-                    el.textContent = originalText;
-                    return;
-                }
-
-                el.textContent = current.toLocaleString('de-DE') + '+';
-
-                if (progress < 1) {
-                    requestAnimationFrame(update);
-                } else {
-                    el.textContent = target.toLocaleString('de-DE') + '+';
-                }
-            } catch(e) {
-                el.textContent = originalText;
-            }
-        }
-
-        requestAnimationFrame(update);
-    } catch(e) {
-        // Keep server-rendered text on any error
-    }
-}
 </script>
 
 {{-- Schema.org Structured Data --}}
