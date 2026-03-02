@@ -440,11 +440,11 @@
                         </p>
                     </div>
                     <div class="pt-2">
-                        <a href="https://paypal.me/reuttern"
+                        <a href="https://bero-host.de/spenden/ks14llyclh8q"
                            target="_blank"
                            rel="noopener noreferrer"
                            class="inline-flex items-center px-8 py-4 bg-thw-blue text-white font-bold rounded-xl hover:bg-blue-800 hover:scale-105 transition-all duration-300 shadow-lg"
-                           aria-label="Unterstütze den Entwickler mit einer Kaffee-Spende via PayPal">
+                           aria-label="Unterstütze den Entwickler mit einer Kaffee-Spende">
                             <i class="bi bi-cup-hot mr-2 text-xl" aria-hidden="true"></i>
                             Unterstütze mich
                         </a>

@@ -36,7 +36,7 @@
             <p class="text-blue-100 text-sm mb-3">
                 THW-Trainer ist kostenlos. Unterstütze die Entwicklung mit einem Kaffee!
             </p>
-            <a href="https://paypal.me/reuttern" target="_blank" rel="noopener noreferrer" class="landing-footer-support-btn">
+            <a href="https://bero-host.de/spenden/ks14llyclh8q" target="_blank" rel="noopener noreferrer" class="landing-footer-support-btn">
                 <i class="bi bi-cup-hot mr-2"></i>
                 Kaffee spendieren
             </a>
