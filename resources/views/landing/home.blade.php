@@ -4,7 +4,7 @@
 @section('description', 'THW Theorie: alle aktuelle Prüfungsfragen. Grundausbildung & Lehrgänge. Eigene Fragen erstellen. Ortsverband-Lernpools. Kostenlos & werbefrei.')
 
 @section('content')
-<div class="overflow-x-hidden">
+<div class="overflow-x-hidden" style="background-color: #ffffff;">
 
     {{-- Account gelöscht Meldung --}}
     @if (session('status') == 'account-deleted')
@@ -93,23 +93,23 @@
          STATS STRIP — Overlapping Hero/Content
          ============================================ --}}
     @if(isset($stats))
-    <section class="px-4 sm:px-6 lg:px-8 bg-white" aria-labelledby="stats-heading">
+    <section class="px-4 sm:px-6 lg:px-8" style="background-color: #ffffff;" aria-labelledby="stats-heading">
         <h2 id="stats-heading" class="sr-only">Plattform-Statistiken</h2>
         <div class="landing-stats-strip landing-fade-in">
             <div class="landing-stat-item">
-                <div class="landing-stat-value" data-count="{{ $stats['users'] }}">{{ number_format($stats['users'], 0, ',', '.') }}+</div>
+                <div class="landing-stat-value" @if(($stats['users'] ?? 0) > 0) data-count="{{ (int) $stats['users'] }}" @endif>{{ number_format($stats['users'] ?? 0, 0, ',', '.') }}+</div>
                 <div class="landing-stat-label">Registrierte Nutzer</div>
             </div>
             <div class="landing-stat-item">
-                <div class="landing-stat-value" data-count="{{ $stats['questions_answered'] }}">{{ number_format($stats['questions_answered'], 0, ',', '.') }}+</div>
+                <div class="landing-stat-value" @if(($stats['questions_answered'] ?? 0) > 0) data-count="{{ (int) $stats['questions_answered'] }}" @endif>{{ number_format($stats['questions_answered'] ?? 0, 0, ',', '.') }}+</div>
                 <div class="landing-stat-label">Fragen beantwortet</div>
             </div>
             <div class="landing-stat-item">
-                <div class="landing-stat-value" data-count="{{ $stats['exams_passed'] }}">{{ number_format($stats['exams_passed'], 0, ',', '.') }}+</div>
+                <div class="landing-stat-value" @if(($stats['exams_passed'] ?? 0) > 0) data-count="{{ (int) $stats['exams_passed'] }}" @endif>{{ number_format($stats['exams_passed'] ?? 0, 0, ',', '.') }}+</div>
                 <div class="landing-stat-label">Prüfungen bestanden</div>
             </div>
             <div class="landing-stat-item">
-                <div class="landing-stat-value">{{ $stats['pass_rate'] }}%</div>
+                <div class="landing-stat-value">{{ $stats['pass_rate'] ?? 0 }}%</div>
                 <div class="landing-stat-label">Bestehensquote</div>
             </div>
         </div>
@@ -597,32 +597,46 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function animateCounter(el) {
-    const raw = el.dataset.count;
-    const target = parseInt(raw, 10);
-    const originalText = el.textContent;
+    try {
+        var raw = el.getAttribute('data-count');
+        if (!raw || raw.trim() === '') return;
 
-    // Keep server-rendered text if target is invalid or zero
-    if (!raw || isNaN(target) || target <= 0) return;
+        var target = Number(raw);
+        if (!Number.isFinite(target) || target <= 0) return;
 
-    const duration = 1500;
-    const start = performance.now();
+        target = Math.floor(target);
+        var originalText = el.textContent;
+        var duration = 1500;
+        var start = performance.now();
 
-    function update(now) {
-        const elapsed = now - start;
-        const progress = Math.min(elapsed / duration, 1);
-        // Ease out cubic
-        const eased = 1 - Math.pow(1 - progress, 3);
-        const current = Math.floor(eased * target);
-        el.textContent = current.toLocaleString('de-DE') + '+';
+        function update(now) {
+            try {
+                var elapsed = now - start;
+                var progress = Math.min(elapsed / duration, 1);
+                var eased = 1 - Math.pow(1 - progress, 3);
+                var current = Math.floor(eased * target);
 
-        if (progress < 1) {
-            requestAnimationFrame(update);
-        } else {
-            el.textContent = target.toLocaleString('de-DE') + '+';
+                if (isNaN(current)) {
+                    el.textContent = originalText;
+                    return;
+                }
+
+                el.textContent = current.toLocaleString('de-DE') + '+';
+
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                } else {
+                    el.textContent = target.toLocaleString('de-DE') + '+';
+                }
+            } catch(e) {
+                el.textContent = originalText;
+            }
         }
-    }
 
-    requestAnimationFrame(update);
+        requestAnimationFrame(update);
+    } catch(e) {
+        // Keep server-rendered text on any error
+    }
 }
 </script>
 
