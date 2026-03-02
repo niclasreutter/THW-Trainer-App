@@ -1,6 +1,7 @@
 @extends(isset($isLanding) && $isLanding ? 'layouts.landing' : 'layouts.app')
-@section('title', 'THW Prüfungssimulation anonym - 40 Fragen ohne Anmeldung')
+@section('title', 'Prüfungssimulation anonym | THW-Trainer.de')
 @section('description', 'THW Prüfungssimulation anonym: Teste dich mit 40 zufälligen Fragen in 30 Minuten ohne Anmeldung. Sofortige Auswertung und Ergebnisanzeige!')
+@section('robots', 'noindex, follow')
 
 @push('styles')
 <style>

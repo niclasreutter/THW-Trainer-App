@@ -20,19 +20,18 @@ class SitemapController extends Controller
         $sitemap .= '        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9' . PHP_EOL;
         $sitemap .= '        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">' . PHP_EOL . PHP_EOL;
 
-        // Hauptseite (höchste Priorität)
+        // Hauptseite (höchste Priorität - DAS ist die wichtigste Seite!)
         $sitemap .= $this->addUrl(url('/'), '1.0', 'daily');
 
-        // Öffentliche Gast-Bereiche (wichtig für SEO!)
-        $sitemap .= $this->addUrl(route('guest.practice.menu'), '0.9', 'weekly');
-        $sitemap .= $this->addUrl(route('guest.practice.menu'), '0.8', 'weekly'); // Gast Übung
+        // Öffentliche Statistik-Seite
+        $sitemap .= $this->addUrl(route('landing.statistics'), '0.7', 'weekly');
+
+        // Gast-Übungsmodus (niedrigere Priorität als Hauptseite!)
+        $sitemap .= $this->addUrl(url('/guest/practice-menu'), '0.5', 'monthly');
 
         // Auth Seiten
-        $sitemap .= $this->addUrl(route('register'), '0.8', 'monthly');
-        $sitemap .= $this->addUrl(route('login'), '0.7', 'monthly');
-
-        // Dashboard (für eingeloggte User)
-        $sitemap .= $this->addUrl(route('dashboard'), '0.6', 'weekly');
+        $sitemap .= $this->addUrl(route('register'), '0.6', 'monthly');
+        $sitemap .= $this->addUrl(route('login'), '0.5', 'monthly');
 
         // Rechtliches
         $sitemap .= $this->addUrl(route('landing.impressum'), '0.3', 'yearly');

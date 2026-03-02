@@ -1,19 +1,7 @@
 @extends(isset($isLanding) && $isLanding ? 'layouts.landing' : 'layouts.app')
-@section('title', 'THW Theorie a        /* Practice Container ohne Margins */
-        #guestPracticeContainer {
-            margin: 0 !important;
-            margin-top: 0 !important;
-            margin-bottom: 0 !important;
-            padding: 0.75rem !important;
-            padding-bottom: 180px !important; /* Fallback für ältere Browser */
-            padding-bottom: calc(120px + env(safe-area-inset-bottom, 60px)) !important; /* Extra Platz für Browser-UI + Safe Area */
-            border-radius: 0 !important;
-            box-shadow: none !important;
-            max-width: 100% !important;
-            width: 100% !important;
-            min-height: 100vh !important;
-        }ofort starten ohne Anmeldung')
+@section('title', 'Anonym üben | THW-Trainer.de')
 @section('description', 'Übe THW Theoriefragen sofort und anonym ohne Anmeldung. Perfekt zum schnellen Testen und Lernen. Jederzeit kostenlos verfügbar!')
+@section('robots', 'noindex, nofollow')
 @section('content')
 <style>
     /* CACHE BUST v9.1 - CSS FALLBACK FIX - 2025-10-22-21:00 */

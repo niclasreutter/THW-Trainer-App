@@ -5,32 +5,33 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>@hasSection('title')@yield('title') - THW-Trainer @else THW-Trainer - Kostenlose THW Theorie Prüfungsvorbereitung 2026 @endif</title>
+        <title>@hasSection('title')@yield('title')@else THW-Trainer - THW Theorie kostenlos lernen 2026 @endif</title>
 
         <!-- SEO Meta Tags -->
-        <meta name="description" content="@hasSection('description')@yield('description')@else THW-Trainer: Kostenlose Prüfungsvorbereitung für die THW Grundausbildung. Alle Theoriefragen, Prüfungssimulation und Lernfortschritt. @endif">
-        <meta name="keywords" content="THW, Technisches Hilfswerk, Theorie, Prüfung, Grundausbildung, Übung, Lernfortschritt, kostenlos, Simulation">
+        <meta name="description" content="@hasSection('description')@yield('description')@else THW Theorie kostenlos lernen: Alle aktuellen Prüfungsfragen für die THW Grundausbildung 2026. Prüfungssimulation, Spaced Repetition & Lernfortschritt. @endif">
+        <meta name="keywords" content="THW Theorie, THW Prüfung, THW Grundausbildung, THW Theoriefragen, Technisches Hilfswerk Prüfungsvorbereitung, THW Trainer, THW lernen kostenlos, THW Prüfungssimulation">
         <meta name="author" content="Niclas Reutter">
         @if(app()->environment('testing') || str_contains(request()->getHost(), 'test.') || config('app.environment_type') === 'testing')
             <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
             <meta name="googlebot" content="noindex, nofollow">
         @else
-            <meta name="robots" content="index, follow">
+            <meta name="robots" content="@hasSection('robots')@yield('robots')@else index, follow @endif">
         @endif
 
         <!-- Open Graph / Facebook -->
         <meta property="og:type" content="website">
-        <meta property="og:url" content="{{ url()->current() }}">
-        <meta property="og:title" content="@hasSection('title')@yield('title') - THW-Trainer @else THW-Trainer - Kostenlose THW Theorie Prüfungsvorbereitung @endif">
-        <meta property="og:description" content="@hasSection('description')@yield('description')@else THW-Trainer: Kostenlose Prüfungsvorbereitung für die THW Grundausbildung. @endif">
+        <meta property="og:site_name" content="THW-Trainer">
+        <meta property="og:url" content="@hasSection('canonical')@yield('canonical')@else {{ url()->current() }} @endif">
+        <meta property="og:title" content="@hasSection('title')@yield('title')@else THW-Trainer - THW Theorie kostenlos lernen 2026 @endif">
+        <meta property="og:description" content="@hasSection('description')@yield('description')@else THW Theorie kostenlos lernen: Alle aktuellen Prüfungsfragen für die THW Grundausbildung 2026. @endif">
         <meta property="og:image" content="{{ asset('logo-thwtrainer.png') }}">
         <meta property="og:locale" content="de_DE">
 
         <!-- Twitter -->
         <meta property="twitter:card" content="summary_large_image">
-        <meta property="twitter:url" content="{{ url()->current() }}">
-        <meta property="twitter:title" content="@hasSection('title')@yield('title') - THW-Trainer @else THW-Trainer - Kostenlose THW Theorie Prüfungsvorbereitung @endif">
-        <meta property="twitter:description" content="@hasSection('description')@yield('description')@else THW-Trainer: Kostenlose Prüfungsvorbereitung für die THW Grundausbildung. @endif">
+        <meta property="twitter:url" content="@hasSection('canonical')@yield('canonical')@else {{ url()->current() }} @endif">
+        <meta property="twitter:title" content="@hasSection('title')@yield('title')@else THW-Trainer - THW Theorie kostenlos lernen 2026 @endif">
+        <meta property="twitter:description" content="@hasSection('description')@yield('description')@else THW Theorie kostenlos lernen: Alle aktuellen Prüfungsfragen für die THW Grundausbildung 2026. @endif">
         <meta property="twitter:image" content="{{ asset('logo-thwtrainer.png') }}">
 
         <!-- Favicons -->
@@ -39,7 +40,11 @@
         <link rel="apple-touch-icon" href="{{ asset('favicon.ico') }}?v={{ filemtime(public_path('favicon.ico')) }}">
 
         <!-- Canonical URL -->
-        <link rel="canonical" href="{{ url()->current() }}">
+        <link rel="canonical" href="@hasSection('canonical')@yield('canonical')@else {{ url()->current() }} @endif">
+
+        <!-- Language -->
+        <link rel="alternate" hreflang="de" href="@hasSection('canonical')@yield('canonical')@else {{ url()->current() }} @endif">
+        <link rel="alternate" hreflang="x-default" href="{{ url('/') }}">
 
         <!-- Performance Meta Tags -->
         <meta name="theme-color" content="#00337F">
@@ -71,6 +76,19 @@
                 "@@type": "Country",
                 "name": "Deutschland"
             }
+        }
+        </script>
+
+        <!-- Schema.org WebSite Markup (Sitelinks Search Box) -->
+        <script type="application/ld+json">
+        {
+            "@@context": "https://schema.org",
+            "@@type": "WebSite",
+            "name": "THW-Trainer",
+            "alternateName": ["THW Trainer", "THW-Trainer.de"],
+            "url": "{{ url('/') }}",
+            "description": "Kostenlose Lernplattform für die THW Theorie Prüfung. Alle Prüfungsfragen der Grundausbildung 2026.",
+            "inLanguage": "de"
         }
         </script>
 

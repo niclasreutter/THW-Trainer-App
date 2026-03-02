@@ -1,7 +1,9 @@
 @extends('layouts.landing')
 
-@section('title', 'Anonym üben - THW Theorie ohne Anmeldung')
+@section('title', 'Anonym üben - THW Theorie ohne Anmeldung | THW-Trainer.de')
 @section('description', 'THW Theorie anonym üben ohne Anmeldung. Wähle aus verschiedenen Übungsmodi und starte sofort mit dem Lernen. Kostenlos und ohne Registrierung.')
+@section('robots', 'noindex, follow')
+@section('canonical', url('/guest/practice-menu'))
 
 @push('styles')
 <style>

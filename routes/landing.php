@@ -57,19 +57,27 @@ Route::get('/robots.txt', function () {
 
     $robotsContent = "User-agent: *
 Allow: /
-Allow: /guest/*
 
-# Wichtige Seiten für Crawler
-Allow: /
+# Sekundäre öffentliche Seiten
 Allow: /guest/practice-menu
-Allow: /guest/exam
 Allow: /statistik
-# App-Subdomain wird separat gecrawlt
-# Siehe: app.thw-trainer.de/robots.txt
 
-# Cache und temporäre Dateien
+# Login/Register
+Allow: /login
+Allow: /register
+
+# Rechtliches
+Allow: /impressum
+Allow: /datenschutz
+
+# Nicht-öffentliche Bereiche blockieren
+Disallow: /guest/practice
+Disallow: /guest/exam
+Disallow: /dashboard
 Disallow: /storage/*
 Disallow: /vendor/*
+Disallow: /_debugbar/*
+Disallow: /api/*
 
 # Sitemap
 Sitemap: " . url('/sitemap.xml') . "

@@ -1,7 +1,8 @@
 @extends('layouts.landing')
 
-@section('title', 'THW Theorie kostenlos lernen 2026 | Alle Prüfungsfragen + Lernen im Ortsverband')
-@section('description', 'THW Theorie: alle aktuelle Prüfungsfragen. Grundausbildung & Lehrgänge. Eigene Fragen erstellen. Ortsverband-Lernpools. Kostenlos & werbefrei.')
+@section('title', 'THW Theorie kostenlos lernen 2026 | THW-Trainer.de')
+@section('description', 'THW Theorie kostenlos lernen: Alle aktuellen Prüfungsfragen für die Grundausbildung 2026. Prüfungssimulation, Spaced Repetition, Ortsverband-Lernpools. Kostenlos & werbefrei.')
+@section('canonical', url('/'))
 
 @section('content')
 <div class="overflow-x-hidden" style="background-color: #ffffff;">
@@ -770,10 +771,58 @@ function animateStatCounter(el) {
         },
         {
             "@@type": "Question",
+            "name": "Wie bereite ich mich auf die THW Grundausbildung Theorie vor?",
+            "acceptedAnswer": {
+                "@@type": "Answer",
+                "text": "Der THW-Trainer bietet dir alle aktuellen THW-Theoriefragen zur optimalen Vorbereitung. Übe systematisch alle Themenbereiche, nutze die Prüfungssimulation und verfolge deinen Lernfortschritt."
+            }
+        },
+        {
+            "@@type": "Question",
             "name": "Ist der THW-Trainer kostenlos?",
             "acceptedAnswer": {
                 "@@type": "Answer",
-                "text": "Ja, der THW-Trainer ist komplett kostenlos! Du kannst sofort mit dem Lernen beginnen, ohne jegliche Kosten."
+                "text": "Ja, der THW-Trainer ist komplett kostenlos! Du kannst sofort mit dem Lernen beginnen, ohne jegliche Kosten. Auch eine Anmeldung ist nicht zwingend erforderlich."
+            }
+        },
+        {
+            "@@type": "Question",
+            "name": "Wie viele Fragen gibt es im THW-Trainer?",
+            "acceptedAnswer": {
+                "@@type": "Answer",
+                "text": "Der THW-Trainer enthält alle aktuellen THW-Theoriefragen aus allen relevanten Bereichen der Grundausbildung. Die Fragen werden regelmäßig aktualisiert."
+            }
+        },
+        {
+            "@@type": "Question",
+            "name": "Welche Themen werden in der THW Grundausbildung abgefragt?",
+            "acceptedAnswer": {
+                "@@type": "Answer",
+                "text": "Die THW Grundausbildung umfasst Themen wie Rechtsgrundlagen, Organisation des THW, Einsatzgrundlagen, Gefahren der Einsatzstelle, Technische Hilfe, Einsatzablauf, Führung und Kommunikation."
+            }
+        },
+        {
+            "@@type": "Question",
+            "name": "Funktioniert der THW-Trainer auf dem Handy?",
+            "acceptedAnswer": {
+                "@@type": "Answer",
+                "text": "Ja, der THW-Trainer ist vollständig responsive und funktioniert optimal auf Smartphones, Tablets und Desktop-Computern. Du kannst die App als Progressive Web App auf deinem Homescreen installieren."
+            }
+        },
+        {
+            "@@type": "Question",
+            "name": "Wie schwer ist die THW Grundausbildung Theorie-Prüfung?",
+            "acceptedAnswer": {
+                "@@type": "Answer",
+                "text": "Mit der richtigen Vorbereitung ist die THW Grundausbildung Theorie-Prüfung gut zu schaffen. Der THW-Trainer hilft dir dabei, alle wichtigen Themen zu verstehen und zu üben."
+            }
+        },
+        {
+            "@@type": "Question",
+            "name": "Ist der THW-Trainer offiziell vom THW?",
+            "acceptedAnswer": {
+                "@@type": "Answer",
+                "text": "Der THW-Trainer ist eine private Initiative eines aktiven THW-Mitglieds und nicht offiziell vom THW herausgegeben. Die Fragen basieren jedoch auf den offiziellen Ausbildungsunterlagen."
             }
         }
     ]
@@ -786,9 +835,11 @@ function animateStatCounter(el) {
     "@@type": "WebApplication",
     "name": "THW-Trainer",
     "url": "{{ url('/') }}",
-    "description": "Kostenlose THW Theorie Lernplattform für Grundausbildung und mehr.",
+    "description": "THW Theorie kostenlos lernen: Alle aktuellen Prüfungsfragen für die THW Grundausbildung 2026. Prüfungssimulation, Spaced Repetition & Lernfortschritt.",
     "applicationCategory": "EducationalApplication",
     "operatingSystem": "Web Browser, iOS, Android",
+    "inLanguage": "de",
+    "isAccessibleForFree": true,
     "offers": {
         "@@type": "Offer",
         "price": "0",
@@ -818,6 +869,21 @@ function animateStatCounter(el) {
             "reviewBody": "Sehr übersichtlich und motivierend. Durch die täglichen Lernziele habe ich regelmäßig gelernt und die Prüfung beim ersten Versuch bestanden.",
             "author": { "@@type": "Person", "name": "Thomas M." },
             "reviewRating": { "@@type": "Rating", "ratingValue": "5", "bestRating": "5" }
+        }
+    ]
+}
+</script>
+
+<script type="application/ld+json">
+{
+    "@@context": "https://schema.org",
+    "@@type": "BreadcrumbList",
+    "itemListElement": [
+        {
+            "@@type": "ListItem",
+            "position": 1,
+            "name": "THW-Trainer",
+            "item": "{{ url('/') }}"
         }
     ]
 }
