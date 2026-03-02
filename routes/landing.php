@@ -17,12 +17,6 @@ use Illuminate\Support\Facades\Route;
 // Startseite mit Social Proof Statistiken
 Route::get('/', [LandingController::class, 'home'])->name('landing.home');
 
-// Dev-Zugang zur Landingpage (nur in Development, da / von web.php überschrieben wird)
-// Hinweis: config() ist beim Route-Laden noch nicht verfügbar, daher env()
-if (env('APP_ENV') === 'local') {
-    Route::get('/home', [LandingController::class, 'home'])->name('landing.home.dev');
-}
-
 // Rechtliche Seiten
 Route::get('/impressum', function () {
     return view('landing.impressum');

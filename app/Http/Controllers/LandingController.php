@@ -16,8 +16,8 @@ class LandingController extends Controller
      */
     public function home()
     {
-        // In Development: Redirect eingeloggte User zum Dashboard (nur auf /, nicht auf /home)
-        if (config('domains.development') && auth()->check() && ! request()->is('home')) {
+        // In Development: Redirect eingeloggte User zum Dashboard
+        if (config('domains.development') && auth()->check()) {
             return redirect()->route('dashboard');
         }
 
