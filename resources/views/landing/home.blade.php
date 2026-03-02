@@ -83,7 +83,10 @@
                                 <div class="landing-hero-chart-sublabel">Letzte 15 Tage</div>
                             </div>
                             @if(isset($stats['chart']))
-                                <div class="landing-hero-chart-total">{{ number_format(end($stats['chart'])['value'], 0, ',', '.') }}</div>
+                                <div class="landing-hero-chart-total-wrap">
+                                    <div class="landing-hero-chart-total">{{ number_format(end($stats['chart'])['value'], 0, ',', '.') }}</div>
+                                    <div class="landing-hero-chart-total-label">heute Aktiv</div>
+                                </div>
                             @endif
                         </div>
                         @if(isset($stats['chart']))

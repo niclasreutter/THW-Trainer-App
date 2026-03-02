@@ -2772,34 +2772,6 @@ html.light-mode ::-webkit-scrollbar-thumb:hover {
     backdrop-filter: blur(8px);
 }
 
-/* Decorative card top-right */
-.landing-hero-chart::before {
-    content: '';
-    position: absolute;
-    top: -30px;
-    right: -30px;
-    width: 140px;
-    height: 140px;
-    border-radius: 1.75rem 0.5rem;
-    background: linear-gradient(135deg, rgba(251, 191, 36, 0.2), transparent);
-    border: 1px solid rgba(251, 191, 36, 0.15);
-    pointer-events: none;
-}
-
-/* Decorative card bottom-left */
-.landing-hero-chart::after {
-    content: '';
-    position: absolute;
-    bottom: -20px;
-    left: -25px;
-    width: 100px;
-    height: 100px;
-    border-radius: 0.5rem 1.5rem;
-    background: linear-gradient(135deg, rgba(0, 51, 127, 0.3), transparent);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    pointer-events: none;
-}
-
 .landing-hero-chart-header {
     display: flex;
     justify-content: space-between;
@@ -2820,6 +2792,10 @@ html.light-mode ::-webkit-scrollbar-thumb:hover {
     font-weight: 500;
 }
 
+.landing-hero-chart-total-wrap {
+    text-align: right;
+}
+
 .landing-hero-chart-total {
     font-size: 1.5rem;
     font-weight: 800;
@@ -2828,6 +2804,13 @@ html.light-mode ::-webkit-scrollbar-thumb:hover {
     -webkit-text-fill-color: transparent;
     background-clip: text;
     line-height: 1;
+}
+
+.landing-hero-chart-total-label {
+    font-size: 0.65rem;
+    color: rgba(255, 255, 255, 0.4);
+    font-weight: 500;
+    margin-top: 0.15rem;
 }
 
 .landing-hero-chart-svg {
