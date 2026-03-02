@@ -77,43 +77,53 @@
                 {{-- Chart Visual --}}
                 <div class="landing-hero-visual" aria-hidden="true">
                     <div class="landing-hero-chart">
-                        <div class="landing-hero-chart-label">Beantwortete Fragen</div>
-                        <div class="landing-hero-chart-sublabel">Letzte 15 Tage</div>
+                        <div class="landing-hero-chart-header">
+                            <div>
+                                <div class="landing-hero-chart-label">Beantwortete Fragen</div>
+                                <div class="landing-hero-chart-sublabel">Letzte 15 Tage</div>
+                            </div>
+                            @if(isset($stats['chart']))
+                                <div class="landing-hero-chart-total">{{ number_format(end($stats['chart'])['value'], 0, ',', '.') }}</div>
+                            @endif
+                        </div>
                         @if(isset($stats['chart']))
                             @php
                                 $chartValues = collect($stats['chart'])->pluck('value')->toArray();
                                 $chartLabels = collect($stats['chart'])->pluck('label')->toArray();
-                                $maxVal = max(1, max($chartValues));
+                                $minVal = min($chartValues);
+                                $maxVal = max($chartValues);
+                                $range = max(1, $maxVal - $minVal);
                                 $width = 320;
-                                $height = 180;
+                                $height = 160;
                                 $padX = 10;
-                                $padY = 20;
+                                $padY = 15;
                                 $usableW = $width - 2 * $padX;
                                 $usableH = $height - 2 * $padY;
-                                $points = [];
+                                $coords = [];
                                 foreach ($chartValues as $i => $v) {
                                     $x = $padX + ($i / (count($chartValues) - 1)) * $usableW;
-                                    $y = $padY + $usableH - ($v / $maxVal) * $usableH;
-                                    $points[] = round($x, 1) . ',' . round($y, 1);
+                                    $y = $padY + $usableH - (($v - $minVal) / $range) * $usableH;
+                                    $coords[] = ['x' => round($x, 1), 'y' => round($y, 1)];
                                 }
-                                $polyline = implode(' ', $points);
-                                // Area fill path
-                                $areaPath = 'M' . $points[0];
-                                for ($i = 1; $i < count($points); $i++) {
-                                    $areaPath .= ' L' . $points[$i];
+                                // Build smooth bezier path
+                                $linePath = 'M' . $coords[0]['x'] . ',' . $coords[0]['y'];
+                                for ($i = 0; $i < count($coords) - 1; $i++) {
+                                    $cx = ($coords[$i]['x'] + $coords[$i + 1]['x']) / 2;
+                                    $linePath .= ' C' . $cx . ',' . $coords[$i]['y'] . ' ' . $cx . ',' . $coords[$i + 1]['y'] . ' ' . $coords[$i + 1]['x'] . ',' . $coords[$i + 1]['y'];
                                 }
-                                $lastX = $padX + $usableW;
-                                $firstX = $padX;
-                                $areaPath .= ' L' . $lastX . ',' . $height . ' L' . $firstX . ',' . $height . ' Z';
+                                // Area path (same curve, closed at bottom)
+                                $lastCoord = end($coords);
+                                $firstCoord = $coords[0];
+                                $areaPath = $linePath . ' L' . $lastCoord['x'] . ',' . $height . ' L' . $firstCoord['x'] . ',' . $height . ' Z';
                             @endphp
                             <svg class="landing-hero-chart-svg" viewBox="0 0 {{ $width }} {{ $height }}" preserveAspectRatio="none">
                                 <defs>
                                     <linearGradient id="chartGlow" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="0%" stop-color="#fbbf24" stop-opacity="0.35"/>
-                                        <stop offset="100%" stop-color="#fbbf24" stop-opacity="0.02"/>
+                                        <stop offset="0%" stop-color="#fbbf24" stop-opacity="0.3"/>
+                                        <stop offset="100%" stop-color="#fbbf24" stop-opacity="0.01"/>
                                     </linearGradient>
                                     <filter id="lineGlow">
-                                        <feGaussianBlur stdDeviation="4" result="blur"/>
+                                        <feGaussianBlur stdDeviation="5" result="blur"/>
                                         <feMerge>
                                             <feMergeNode in="blur"/>
                                             <feMergeNode in="SourceGraphic"/>
@@ -123,29 +133,27 @@
 
                                 {{-- Grid lines --}}
                                 @for($i = 0; $i < 4; $i++)
-                                    <line x1="{{ $padX }}" y1="{{ $padY + ($i / 3) * $usableH }}" x2="{{ $padX + $usableW }}" y2="{{ $padY + ($i / 3) * $usableH }}" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+                                    <line x1="{{ $padX }}" y1="{{ $padY + ($i / 3) * $usableH }}" x2="{{ $padX + $usableW }}" y2="{{ $padY + ($i / 3) * $usableH }}" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
                                 @endfor
 
                                 {{-- Area fill --}}
                                 <path d="{{ $areaPath }}" fill="url(#chartGlow)" class="chart-area"/>
 
                                 {{-- Glow line (behind) --}}
-                                <polyline points="{{ $polyline }}" fill="none" stroke="#fbbf24" stroke-width="3" stroke-opacity="0.5" filter="url(#lineGlow)" stroke-linecap="round" stroke-linejoin="round" class="chart-line"/>
+                                <path d="{{ $linePath }}" fill="none" stroke="#fbbf24" stroke-width="4" stroke-opacity="0.4" filter="url(#lineGlow)" stroke-linecap="round" stroke-linejoin="round" class="chart-line"/>
 
                                 {{-- Main line --}}
-                                <polyline points="{{ $polyline }}" fill="none" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="chart-line"/>
+                                <path d="{{ $linePath }}" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="chart-line"/>
 
-                                {{-- Data dots --}}
-                                @foreach($chartValues as $i => $v)
-                                    @php
-                                        $dotX = $padX + ($i / (count($chartValues) - 1)) * $usableW;
-                                        $dotY = $padY + $usableH - ($v / $maxVal) * $usableH;
-                                    @endphp
-                                    <circle cx="{{ round($dotX, 1) }}" cy="{{ round($dotY, 1) }}" r="3" fill="#fbbf24" opacity="0.9" class="chart-dot" style="animation-delay: {{ 1.2 + $i * 0.06 }}s;"/>
+                                {{-- Data dots (only every 3rd + last) --}}
+                                @foreach($coords as $i => $c)
+                                    @if($i % 3 === 0 || $i === count($coords) - 1)
+                                        <circle cx="{{ $c['x'] }}" cy="{{ $c['y'] }}" r="3.5" fill="#fbbf24" class="chart-dot" style="animation-delay: {{ 2.5 + $i * 0.08 }}s;"/>
+                                    @endif
                                 @endforeach
                             </svg>
 
-                            {{-- X-Axis labels (first, middle, last) --}}
+                            {{-- X-Axis labels --}}
                             <div class="landing-hero-chart-axis">
                                 <span>{{ $chartLabels[0] }}</span>
                                 <span>{{ $chartLabels[7] }}</span>
@@ -153,6 +161,7 @@
                             </div>
                         @endif
                     </div>
+                </div>
                 </div>
             </div>
         </div>

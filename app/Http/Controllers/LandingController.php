@@ -38,19 +38,20 @@ class LandingController extends Controller
                 + LehrgangQuestionStatistic::count()
                 + OrtsverbandLernpoolQuestionStatistic::count();
 
-            // Chart: Fragen beantwortet pro Tag (letzte 15 Tage)
+            // Chart: Gesamtanzahl beantworteter Fragen kumulativ (letzte 15 Tage)
             $chartData = [];
             for ($i = 14; $i >= 0; $i--) {
                 $date = Carbon::today()->subDays($i);
                 $dateStr = $date->format('Y-m-d');
 
-                $count = QuestionStatistic::whereDate('created_at', $dateStr)->count()
-                    + LehrgangQuestionStatistic::whereDate('created_at', $dateStr)->count()
-                    + OrtsverbandLernpoolQuestionStatistic::whereDate('created_at', $dateStr)->count();
+                // Kumulative Gesamtzahl bis einschließlich diesem Tag
+                $total = QuestionStatistic::whereDate('created_at', '<=', $dateStr)->count()
+                    + LehrgangQuestionStatistic::whereDate('created_at', '<=', $dateStr)->count()
+                    + OrtsverbandLernpoolQuestionStatistic::whereDate('created_at', '<=', $dateStr)->count();
 
                 $chartData[] = [
                     'label' => $date->format('d.m.'),
-                    'value' => (int) $count,
+                    'value' => (int) $total,
                 ];
             }
 
