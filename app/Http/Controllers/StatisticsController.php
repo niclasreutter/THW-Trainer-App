@@ -23,9 +23,6 @@ class StatisticsController extends Controller
         $totalAnswered = QuestionStatistic::count() +
                          LehrgangQuestionStatistic::count() +
                          OrtsverbandLernpoolQuestionStatistic::count();
-        $totalAnsweredToday = QuestionStatistic::whereDate('created_at', today())->count() +
-                              LehrgangQuestionStatistic::whereDate('created_at', today())->count() +
-                              OrtsverbandLernpoolQuestionStatistic::whereDate('created_at', today())->count();
         $totalCorrect = QuestionStatistic::where('is_correct', true)->count() +
                         LehrgangQuestionStatistic::where('is_correct', true)->count() +
                         OrtsverbandLernpoolQuestionStatistic::where('is_correct', true)->count();
@@ -118,43 +115,6 @@ class StatisticsController extends Controller
         // Top-10 falsch beantwortete Fragen für doppelte Punkte cachen
         $topWrongQuestionIds = $topWrongQuestions->pluck('question_id')->toArray();
         \Cache::put('top_wrong_questions', $topWrongQuestionIds, 3600); // 1 Stunde Cache
-        
-        // Lehrgang-Statistiken - anonyme Daten
-        $lehrgangStats = \App\Models\Lehrgang::withCount(['users'])
-            ->with([
-                'questions' => function($q) {
-                    $q->select('id', 'lehrgang_id');
-                }
-            ])
-            ->get()
-            ->map(function($lehrgang) {
-                // Berechne Statistiken für diesen Lehrgang
-                $stats = DB::table('lehrgang_question_statistics')
-                    ->whereIn('lehrgang_question_id', 
-                        \App\Models\LehrgangQuestion::where('lehrgang_id', $lehrgang->id)->pluck('id')
-                    )
-                    ->get();
-                
-                $totalAnswered = $stats->count();
-                $totalCorrect = $stats->where('is_correct', true)->count();
-                $successRate = $totalAnswered > 0 ? round(($totalCorrect / $totalAnswered) * 100, 1) : 0;
-                
-                return (object)[
-                    'id' => $lehrgang->id,
-                    'name' => $lehrgang->lehrgang,
-                    'users_count' => $lehrgang->users_count,
-                    'questions_count' => $lehrgang->questions->count(),
-                    'total_answered' => $totalAnswered,
-                    'total_correct' => $totalCorrect,
-                    'success_rate' => $successRate,
-                ];
-            })
-            ->sortByDesc('total_answered')
-            ->values();
-        
-        // Zusätzliche Statistiken für moderne Ansicht
-        $examsToday = ExamStatistic::whereDate('created_at', today())->count();
-        $examsThisWeek = ExamStatistic::where('created_at', '>=', now()->startOfWeek())->count();
 
         // Aktivität pro Wochentag (alle Quellen kombiniert, letzte 30 Tage)
         $activityGA = QuestionStatistic::select(DB::raw('DAYOFWEEK(created_at) as weekday'), DB::raw('COUNT(*) as count'))
@@ -184,7 +144,6 @@ class StatisticsController extends Controller
 
         return view('statistics', compact(
             'totalAnswered',
-            'totalAnsweredToday',
             'totalCorrect',
             'totalWrong',
             'successRate',
@@ -193,12 +152,9 @@ class StatisticsController extends Controller
             'passedExams',
             'failedExams',
             'examPassRate',
-            'examsToday',
-            'examsThisWeek',
             'topWrongQuestionsWithDetails',
             'topCorrectQuestionsWithDetails',
             'sectionStats',
-            'lehrgangStats',
             'chartData',
             'activityByWeekday',
             'peakHours'
