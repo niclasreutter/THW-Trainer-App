@@ -684,26 +684,31 @@ document.addEventListener('DOMContentLoaded', function() {
         stepsObserver.observe(stepsSection);
 
         function animateSteps() {
-            // Step 1 is already active
-            // Animate progress line to 50% then light up step 2
+            // Step 1 lights up gold immediately
+            steps[0].querySelector('.landing-step-number').classList.add('active');
+
+            // Progress line moves to 50% (Step 2)
             setTimeout(function() {
                 stepsProgress.style.width = '50%';
-            }, 200);
+            }, 800);
 
+            // Step 2 lights up with pulsing glow
             setTimeout(function() {
-                steps[1].querySelector('.landing-step-number').classList.add('active');
-                steps[1].classList.add('step-visible');
-            }, 900);
+                var num2 = steps[1].querySelector('.landing-step-number');
+                num2.classList.add('active');
+                num2.classList.add('glow-pulse');
+            }, 2000);
 
-            // Animate to 100% then light up step 3
+            // After ~4s at Step 2, remove pulse and progress to Step 3
             setTimeout(function() {
+                steps[1].querySelector('.landing-step-number').classList.remove('glow-pulse');
                 stepsProgress.style.width = '100%';
-            }, 1100);
+            }, 6000);
 
+            // Step 3 lights up
             setTimeout(function() {
                 steps[2].querySelector('.landing-step-number').classList.add('active');
-                steps[2].classList.add('step-visible');
-            }, 1800);
+            }, 7200);
         }
     }
 
