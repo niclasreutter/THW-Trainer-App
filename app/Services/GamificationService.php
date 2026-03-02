@@ -418,15 +418,12 @@ class GamificationService
             }
         }
 
-        // Milestone Celebrations für Streak-Meilensteine
-        $milestoneStreaks = [7, 30, 100];
-        if (in_array($user->streak_days, $milestoneStreaks)) {
-            session(['milestone_celebration' => [
-                'type' => 'streak',
-                'days' => $user->streak_days,
-            ]]);
-            session()->save();
-        }
+        // Streak Celebration bei jedem Fortschritt
+        session(['milestone_celebration' => [
+            'type' => 'streak',
+            'days' => $user->streak_days,
+        ]]);
+        session()->save();
     }
 
     private function checkExamAchievements(User $user, float $percentage)
