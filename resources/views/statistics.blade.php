@@ -582,7 +582,7 @@
                 <div class="stats-exam-summary">
                     <div class="stats-donut-wrap">
                         @php
-                            $circumference = 2 * 3.14159 * 40;
+                            $circumference = 2 * M_PI * 40;
                             $passOffset = $circumference - ($circumference * $examPassRate / 100);
                         @endphp
                         <svg width="100" height="100" viewBox="0 0 100 100">
