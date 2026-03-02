@@ -23,9 +23,10 @@ class LandingController extends Controller
 
         // Alten Cache löschen (Migration zu neuem Key)
         cache()->forget('landing_stats');
+        cache()->forget('landing_stats_v2');
 
         // Kurzer Cache (5 Min) mit frischen DB-Daten — gleicher Ansatz wie StatisticsController
-        $stats = cache()->remember('landing_stats_v2', 300, function () {
+        $stats = cache()->remember('landing_stats_v3', 300, function () {
             $totalExams = ExamStatistic::count();
             $passedExams = ExamStatistic::where('is_passed', true)->count();
             $users = User::count();
@@ -35,9 +36,9 @@ class LandingController extends Controller
                 + OrtsverbandLernpoolQuestionStatistic::count();
 
             return [
-                'users' => (int) $users,
-                'questions_answered' => (int) $questionsAnswered,
-                'exams_passed' => (int) $passedExams,
+                'users' => (int) (floor($users / 10) * 10),
+                'questions_answered' => (int) (floor($questionsAnswered / 100) * 100),
+                'exams_passed' => (int) (floor($passedExams / 10) * 10),
                 'pass_rate' => $totalExams > 0
                     ? (int) round(($passedExams / $totalExams) * 100)
                     : 0,
