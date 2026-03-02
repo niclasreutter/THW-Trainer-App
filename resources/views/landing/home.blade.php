@@ -79,7 +79,7 @@
                     <div class="landing-hero-chart">
                         <div class="landing-hero-chart-header">
                             <div>
-                                <div class="landing-hero-chart-label">Beantwortete Fragen</div>
+                                <div class="landing-hero-chart-label">Aktive Nutzer</div>
                                 <div class="landing-hero-chart-sublabel">Letzte 15 Tage</div>
                             </div>
                             @if(isset($stats['chart']))

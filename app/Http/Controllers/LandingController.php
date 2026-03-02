@@ -38,20 +38,32 @@ class LandingController extends Controller
                 + LehrgangQuestionStatistic::count()
                 + OrtsverbandLernpoolQuestionStatistic::count();
 
-            // Chart: Gesamtanzahl beantworteter Fragen kumulativ (letzte 15 Tage)
+            // Chart: Aktive Nutzer pro Tag (letzte 15 Tage)
+            // Ein Nutzer zählt als aktiv wenn er mindestens eine Frage beantwortet hat
             $chartData = [];
             for ($i = 14; $i >= 0; $i--) {
                 $date = Carbon::today()->subDays($i);
                 $dateStr = $date->format('Y-m-d');
 
-                // Kumulative Gesamtzahl bis einschließlich diesem Tag
-                $total = QuestionStatistic::whereDate('created_at', '<=', $dateStr)->count()
-                    + LehrgangQuestionStatistic::whereDate('created_at', '<=', $dateStr)->count()
-                    + OrtsverbandLernpoolQuestionStatistic::whereDate('created_at', '<=', $dateStr)->count();
+                // Eindeutige User-IDs die an diesem Tag aktiv waren
+                $activeUserIds = collect();
+
+                $activeUserIds = $activeUserIds->merge(
+                    QuestionStatistic::whereDate('created_at', $dateStr)
+                        ->distinct()->pluck('user_id')
+                );
+                $activeUserIds = $activeUserIds->merge(
+                    LehrgangQuestionStatistic::whereDate('created_at', $dateStr)
+                        ->distinct()->pluck('user_id')
+                );
+                $activeUserIds = $activeUserIds->merge(
+                    OrtsverbandLernpoolQuestionStatistic::whereDate('created_at', $dateStr)
+                        ->distinct()->pluck('user_id')
+                );
 
                 $chartData[] = [
                     'label' => $date->format('d.m.'),
-                    'value' => (int) $total,
+                    'value' => (int) $activeUserIds->unique()->count(),
                 ];
             }
 
