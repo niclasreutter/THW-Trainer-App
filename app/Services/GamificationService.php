@@ -230,6 +230,7 @@ class GamificationService
             if ($frozenDays >= $missedDays) {
                 // Alle verpassten Tage durch Freezes gedeckt
                 $user->streak_days += 1;
+                $this->flashStreakExtendedCelebration($user);
                 $this->checkStreakAchievements($user);
             } else {
                 // Streak unterbrochen
@@ -238,6 +239,7 @@ class GamificationService
         } elseif ($lastActivity->diffInDays($today) == 1) {
             // Streak fortgesetzt (normaler Folgetag)
             $user->streak_days += 1;
+            $this->flashStreakExtendedCelebration($user);
             $this->checkStreakAchievements($user);
         }
 
@@ -402,6 +404,19 @@ class GamificationService
                 $this->unlockAchievement($user, $achievement);
             }
         }
+    }
+
+    /**
+     * Zeigt eine Fullscreen-Celebration wenn der Streak verlängert wurde.
+     * Wird VOR checkStreakAchievements aufgerufen, damit Meilensteine (7, 30, 100) diese überschreiben.
+     */
+    private function flashStreakExtendedCelebration(User $user)
+    {
+        session(['milestone_celebration' => [
+            'type' => 'streak_extended',
+            'days' => $user->streak_days,
+        ]]);
+        session()->save();
     }
 
     private function checkStreakAchievements(User $user)
