@@ -57,6 +57,17 @@
                 {{ $milestoneData['days'] ?? '?' }} Tage
             </div>
 
+        @elseif($milestoneData['type'] === 'streak_extended')
+            <span class="milestone-icon">
+                <i class="bi bi-fire" style="color: #f59e0b;"></i>
+            </span>
+            <div class="milestone-title">Streak gesichert!</div>
+            <div class="milestone-subtitle">Du hast heute {{ \App\Services\GamificationService::STREAK_MIN_QUESTIONS }} Fragen beantwortet</div>
+            <div class="milestone-badge milestone-streak-glow" style="background: rgba(245, 158, 11, 0.2); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3);">
+                <i class="bi bi-fire"></i>
+                {{ $milestoneData['days'] ?? '?' }} {{ ($milestoneData['days'] ?? 0) == 1 ? 'Tag' : 'Tage' }} Streak
+            </div>
+
         @elseif($milestoneData['type'] === 'theory_complete')
             <span class="milestone-icon">
                 <i class="bi bi-stars" style="color: var(--gold-start);"></i>
@@ -99,6 +110,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#fbbf24', '#22c55e', '#3b82f6'] });
                 if (Date.now() < end) requestAnimationFrame(frame);
             }());
+        } else if (type === 'streak_extended') {
+            // Lighter fire-themed confetti for daily streak
+            confetti({ particleCount: 50, spread: 50, colors: ['#f59e0b', '#fbbf24', '#fcd34d'], origin: { y: 0.6 } });
         } else if (type === 'streak') {
             // Fire-themed confetti
             confetti({ particleCount: 80, spread: 60, colors: ['#ef4444', '#f59e0b', '#fbbf24'], origin: { y: 0.6 } });
