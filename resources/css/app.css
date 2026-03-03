@@ -3509,13 +3509,13 @@ html.light-mode .skeleton::after {
 .milestone-title {
     font-size: 2rem;
     font-weight: 800;
-    color: var(--text-primary);
+    color: #f5f5f5;
     margin-bottom: 0.5rem;
 }
 
 .milestone-subtitle {
     font-size: 1.1rem;
-    color: var(--text-secondary);
+    color: #a1a1aa;
     margin-bottom: 2rem;
 }
 
