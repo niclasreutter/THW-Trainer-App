@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'THW Theorie kostenlos lernen 2026 | Alle Prüfungsfragen + Lernen im Ortsverband')
-@section('description', 'THW Theorie: alle aktuelle Prüfungsfragen ✓ Grundausbildung & Lehrgänge ✓ Eigene Fragen erstellen ✓ Ortsverband-Lernpools ✓ Kostenlos & werbefrei')
+@section('title', 'THW Theorie kostenlos online lernen | Prüfungsfragen 2026')
+@section('description', 'THW Theorieprüfung online vorbereiten: Alle Prüfungsfragen der Grundausbildung 2026 ✓ Prüfungssimulation ✓ Als App installierbar ✓ Kostenlos & werbefrei')
 
 @section('content')
 <div class="overflow-x-hidden">
@@ -34,12 +34,12 @@
                 <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold mb-4 tracking-tight" style="color: white;">
                     <span style="display: inline-block; background: linear-gradient(90deg, #fbbf24, #f59e0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">THW Theorie lernen</span>
                     <br class="hidden sm:block">
-                    <span class="text-2xl sm:text-3xl lg:text-4xl font-light text-blue-100">Kostenlose Prüfungsvorbereitung 2026</span>
+                    <span class="text-2xl sm:text-3xl lg:text-4xl font-light text-blue-100">Kostenlose Prüfungsvorbereitung online 2026</span>
                 </h1>
 
                 <!-- Untertitel -->
                 <p class="text-lg sm:text-xl lg:text-2xl text-blue-100 mb-8 max-w-3xl mx-auto font-light leading-relaxed">
-                    Dein digitaler Begleiter für die THW Grundausbildung - Jetzt kostenlos starten!
+                    Dein digitaler Begleiter für die THW Grundausbildung Theorieprüfung - Jetzt kostenlos starten!
                 </p>
 
                 <!-- CTA Button -->
@@ -74,7 +74,7 @@
                     Was bietet der THW-Trainer?
                 </h2>
                 <p class="text-base lg:text-xl text-gray-600 max-w-4xl mx-auto leading-relaxed font-light">
-                    Alles für deine Grundausbildung Theorie-Prüfung im THW
+                    Alles für deine THW Theorieprüfung - online und kostenlos
                 </p>
             </header>
 
@@ -113,9 +113,9 @@
                 <!-- Feature 4: PWA -->
                 <article class="bg-white rounded-xl shadow-md p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
                     <div aria-hidden="true" class="text-4xl mb-3 text-thw-blue"><i class="bi bi-phone"></i></div>
-                    <h3 class="text-xl font-semibold text-thw-blue mb-3">Als App installierbar</h3>
+                    <h3 class="text-xl font-semibold text-thw-blue mb-3">Prüfungsfragen-App</h3>
                     <p class="text-gray-700 leading-relaxed">
-                        Installiere THW Trainer als <strong>Progressive Web App</strong> auf deinem Smartphone für schnelleren Zugriff vom Homescreen.
+                        Installiere die THW <strong>Prüfungsfragen App</strong> auf deinem Smartphone und lerne alle Fragen direkt vom Homescreen.
                     </p>
                 </article>
             </div>
@@ -129,7 +129,7 @@
                 Bereit zum Lernen?
             </h2>
             <p class="text-base lg:text-lg text-white mb-4 lg:mb-6 max-w-4xl mx-auto leading-relaxed font-light">
-                Starte jetzt mit dem THW-Trainer und bereite dich optimal auf deine <strong class="font-semibold">Grundausbildung Theorie-Prüfung im THW</strong> vor.
+                Starte jetzt mit dem THW-Trainer und bereite dich optimal auf deine <strong class="font-semibold">THW Grundausbildung Theorieprüfung</strong> vor - online und jederzeit.
             </p>
             <p class="text-sm lg:text-base text-white max-w-4xl mx-auto leading-relaxed font-light mb-8">
                 Registriere dich kostenlos und beginne sofort mit dem Lernen, egal ob Handy, Laptop oder Tablet!<br>
@@ -175,8 +175,9 @@
                         <p class="text-gray-700 leading-relaxed text-sm lg:text-base" itemprop="text">
                             Die <strong>THW Grundausbildung</strong> ist die erste Ausbildungsstufe im <strong>Technischen Hilfswerk</strong>.
                             Sie vermittelt die grundlegenden Kenntnisse und Fähigkeiten für alle THW-Helfer.
-                            Die <strong>Theorie-Prüfung</strong> ist ein wichtiger Bestandteil dieser Ausbildung und umfasst
+                            Die <strong>Theorieprüfung</strong> ist ein wichtiger Bestandteil dieser Ausbildung und umfasst
                             Themen wie Rechtsgrundlagen, Organisation des THW, Einsatzgrundlagen und technisches Wissen.
+                            Mit dem THW-Trainer kannst du dich online optimal darauf vorbereiten.
                         </p>
                     </div>
                 </article>
@@ -259,12 +260,12 @@
                 <!-- FAQ Item 7 -->
                 <article class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
                     <button class="faq-toggle w-full text-left p-5 lg:p-6 flex justify-between items-center hover:bg-blue-50 transition-colors" onclick="toggleFAQ('faq7')" aria-expanded="false" aria-controls="faq7">
-                        <span class="text-base lg:text-lg font-semibold text-gray-900 pr-4" itemprop="name">Wie schwer ist die THW Grundausbildung Theorie-Prüfung?</span>
+                        <span class="text-base lg:text-lg font-semibold text-gray-900 pr-4" itemprop="name">Wie schwer ist die THW Grundausbildung Theorieprüfung?</span>
                         <span class="faq-icon text-2xl text-thw-blue font-bold flex-shrink-0" aria-hidden="true">+</span>
                     </button>
                     <div id="faq7" class="faq-content hidden px-5 lg:px-6 pb-5 lg:pb-6" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
                         <p class="text-gray-700 leading-relaxed text-sm lg:text-base" itemprop="text">
-                            Mit der richtigen Vorbereitung ist die <strong>THW Grundausbildung Theorie-Prüfung</strong> gut zu schaffen.
+                            Mit der richtigen Vorbereitung ist die <strong>THW Grundausbildung Theorieprüfung</strong> gut zu schaffen.
                             Der THW-Trainer hilft dir dabei, alle wichtigen Themen zu verstehen und zu üben.
                             Nutze die <strong>Prüfungssimulation</strong>, um dich unter realistischen Bedingungen zu testen.
                         </p>
@@ -437,7 +438,7 @@ document.addEventListener('DOMContentLoaded', function() {
             "name": "Was ist die THW Grundausbildung?",
             "acceptedAnswer": {
                 "@@type": "Answer",
-                "text": "Die THW Grundausbildung ist die erste Ausbildungsstufe im Technischen Hilfswerk. Sie vermittelt die grundlegenden Kenntnisse und Fähigkeiten für alle THW-Helfer. Die Theorie-Prüfung ist ein wichtiger Bestandteil dieser Ausbildung und umfasst Themen wie Rechtsgrundlagen, Organisation des THW, Einsatzgrundlagen und technisches Wissen."
+                "text": "Die THW Grundausbildung ist die erste Ausbildungsstufe im Technischen Hilfswerk. Sie vermittelt die grundlegenden Kenntnisse und Fähigkeiten für alle THW-Helfer. Die Theorieprüfung ist ein wichtiger Bestandteil dieser Ausbildung und umfasst Themen wie Rechtsgrundlagen, Organisation des THW, Einsatzgrundlagen und technisches Wissen. Mit dem THW-Trainer kannst du dich online optimal darauf vorbereiten."
             }
         },
         {
@@ -482,10 +483,10 @@ document.addEventListener('DOMContentLoaded', function() {
         },
         {
             "@@type": "Question",
-            "name": "Wie schwer ist die THW Grundausbildung Theorie-Prüfung?",
+            "name": "Wie schwer ist die THW Grundausbildung Theorieprüfung?",
             "acceptedAnswer": {
                 "@@type": "Answer",
-                "text": "Mit der richtigen Vorbereitung ist die THW Grundausbildung Theorie-Prüfung gut zu schaffen. Der THW-Trainer hilft dir dabei, alle wichtigen Themen zu verstehen und zu üben. Nutze die Prüfungssimulation, um dich unter realistischen Bedingungen zu testen."
+                "text": "Mit der richtigen Vorbereitung ist die THW Grundausbildung Theorieprüfung gut zu schaffen. Der THW-Trainer hilft dir dabei, alle wichtigen Themen zu verstehen und zu üben. Nutze die Prüfungssimulation, um dich unter realistischen Bedingungen zu testen."
             }
         },
         {
@@ -507,7 +508,7 @@ document.addEventListener('DOMContentLoaded', function() {
     "@@type": "WebApplication",
     "name": "THW-Trainer",
     "url": "{{ url('/') }}",
-    "description": "Kostenlose THW Theorie Lernplattform für Grundausbildung, FüUF26 und mehr. Lernen im Ortsverband mit eigenen Fragen und Prüfungssimulation.",
+    "description": "Kostenlose THW Prüfungsfragen App für die Theorieprüfung. Online lernen für Grundausbildung, FüUF26 und mehr. Prüfungssimulation und Lernfortschritt.",
     "applicationCategory": "EducationalApplication",
     "operatingSystem": "Web Browser, iOS, Android",
     "offers": {

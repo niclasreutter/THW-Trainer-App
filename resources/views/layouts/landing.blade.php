@@ -9,7 +9,7 @@
 
         <!-- SEO Meta Tags -->
         <meta name="description" content="@hasSection('description')@yield('description')@else THW Theorie kostenlos lernen: Alle aktuellen Prüfungsfragen für die THW Grundausbildung 2026. Prüfungssimulation, Spaced Repetition & Lernfortschritt. @endif">
-        <meta name="keywords" content="THW Theorie, THW Prüfung, THW Grundausbildung, THW Theoriefragen, Technisches Hilfswerk Prüfungsvorbereitung, THW Trainer, THW lernen kostenlos, THW Prüfungssimulation">
+        <meta name="keywords" content="THW Theorie, THW Prüfung, THW Grundausbildung, THW Theoriefragen, Technisches Hilfswerk Prüfungsvorbereitung, THW Trainer, THW lernen kostenlos, THW Prüfungssimulation, THW online, THW Theorieprüfung, THW Prüfungsfragen App, THW online lernen">
         <meta name="author" content="Niclas Reutter">
         @if(app()->environment('testing') || str_contains(request()->getHost(), 'test.') || config('app.environment_type') === 'testing')
             <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
@@ -71,7 +71,7 @@
             "name": "THW-Trainer",
             "url": "{{ url('/') }}",
             "logo": "{{ asset('logo-thwtrainer.png') }}",
-            "description": "Kostenlose THW Theorie Prüfungsvorbereitung für Grundausbildung, FüUF26 und weitere Lehrgänge.",
+            "description": "Kostenlose THW Theorieprüfung Vorbereitung online. Alle Prüfungsfragen für Grundausbildung, FüUF26 und weitere Lehrgänge.",
             "areaServed": {
                 "@@type": "Country",
                 "name": "Deutschland"
@@ -87,7 +87,7 @@
             "name": "THW-Trainer",
             "alternateName": ["THW Trainer", "THW-Trainer.de"],
             "url": "{{ url('/') }}",
-            "description": "Kostenlose Lernplattform für die THW Theorie Prüfung. Alle Prüfungsfragen der Grundausbildung 2026.",
+            "description": "Kostenlose Online-Lernplattform für die THW Theorieprüfung. Alle Prüfungsfragen der Grundausbildung 2026 als App.",
             "inLanguage": "de"
         }
         </script>
