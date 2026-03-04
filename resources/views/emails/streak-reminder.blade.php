@@ -25,7 +25,9 @@
             </p>
 
             @php
-                $solved = $user->daily_questions_solved ?? 0;
+                // daily_questions_solved nur verwenden wenn es von heute ist
+                $isToday = $user->daily_questions_date && \Carbon\Carbon::parse($user->daily_questions_date)->isToday();
+                $solved = $isToday ? ($user->daily_questions_solved ?? 0) : 0;
                 $remaining = max(0, 20 - $solved);
             @endphp
 
