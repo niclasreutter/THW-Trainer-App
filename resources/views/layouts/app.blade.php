@@ -368,34 +368,35 @@
                     </div>
                 </footer>
 
-                <!-- Bottom Navigation (Mobile) -->
-                @auth
-                <nav class="lg:hidden bottom-nav-glass bottom-nav-pill z-40" data-tour-step="bottom-nav">
-                    <div class="flex items-center justify-around py-2">
-                        <a href="{{ route('dashboard') }}" class="bottom-nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
-                            <i class="bi bi-house-door{{ request()->routeIs('dashboard') ? '-fill' : '' }}"></i>
-                            <span>Home</span>
-                        </a>
-
-                        <a href="{{ route('practice.menu') }}" class="bottom-nav-item {{ request()->routeIs('practice.*') ? 'active' : '' }}">
-                            <i class="bi bi-book{{ request()->routeIs('practice.*') ? '-fill' : '' }}"></i>
-                            <span>Lernen</span>
-                        </a>
-
-                        <a href="{{ route('exam.index') }}" class="bottom-nav-item {{ request()->routeIs('exam.*') ? 'active' : '' }}">
-                            <i class="bi bi-clipboard{{ request()->routeIs('exam.*') ? '-check-fill' : '' }}"></i>
-                            <span>Prüfung</span>
-                        </a>
-
-                        <a href="{{ route('profile') }}" class="bottom-nav-item {{ request()->routeIs('profile') ? 'active' : '' }}">
-                            <i class="bi bi-person{{ request()->routeIs('profile') ? '-fill' : '' }}"></i>
-                            <span>Profil</span>
-                        </a>
-                    </div>
-                </nav>
-                @endauth
             </div>
         </div>
+
+        <!-- Bottom Navigation (Mobile) - Outside flex container for reliable backdrop-filter -->
+        @auth
+        <nav class="lg:hidden bottom-nav-glass bottom-nav-pill z-40" data-tour-step="bottom-nav">
+            <div class="flex items-center justify-around py-2">
+                <a href="{{ route('dashboard') }}" class="bottom-nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+                    <i class="bi bi-house-door{{ request()->routeIs('dashboard') ? '-fill' : '' }}"></i>
+                    <span>Home</span>
+                </a>
+
+                <a href="{{ route('practice.menu') }}" class="bottom-nav-item {{ request()->routeIs('practice.*') ? 'active' : '' }}">
+                    <i class="bi bi-book{{ request()->routeIs('practice.*') ? '-fill' : '' }}"></i>
+                    <span>Lernen</span>
+                </a>
+
+                <a href="{{ route('exam.index') }}" class="bottom-nav-item {{ request()->routeIs('exam.*') ? 'active' : '' }}">
+                    <i class="bi bi-clipboard{{ request()->routeIs('exam.*') ? '-check-fill' : '' }}"></i>
+                    <span>Prüfung</span>
+                </a>
+
+                <a href="{{ route('profile') }}" class="bottom-nav-item {{ request()->routeIs('profile') ? 'active' : '' }}">
+                    <i class="bi bi-person{{ request()->routeIs('profile') ? '-fill' : '' }}"></i>
+                    <span>Profil</span>
+                </a>
+            </div>
+        </nav>
+        @endauth
 
         <!-- Mobile Sidebar Overlay -->
         @auth
