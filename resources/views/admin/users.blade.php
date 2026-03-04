@@ -86,8 +86,18 @@
 
     <!-- Benutzertabelle -->
     <div class="glass" style="padding: 1.5rem;">
-        <div class="section-header" style="margin-bottom: 1.5rem; padding-left: 1rem; border-left: 3px solid var(--gold-start);">
-            <h2 class="section-title">Alle Benutzer</h2>
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+            <div class="section-header" style="padding-left: 1rem; border-left: 3px solid var(--gold-start);">
+                <h2 class="section-title">Alle Benutzer</h2>
+            </div>
+            <div style="position: relative; min-width: 220px; max-width: 360px; flex: 1;">
+                <i class="bi bi-search" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.9rem; pointer-events: none;"></i>
+                <input type="text" id="user-search" class="input-glass" placeholder="Name oder E-Mail suchen..." style="padding-left: 2.5rem; margin: 0;" oninput="filterUsers(this.value)" />
+            </div>
+        </div>
+
+        <div id="no-results" class="hidden" style="text-align: center; padding: 2rem; color: var(--text-muted);">
+            Keine Benutzer gefunden.
         </div>
 
         <!-- Desktop Tabelle -->
@@ -381,6 +391,33 @@
             icon.classList.remove('bi-chevron-up');
             icon.classList.add('bi-chevron-down');
         }
+    }
+
+    function filterUsers(query) {
+        const q = query.toLowerCase().trim();
+        let visibleCount = 0;
+
+        // Desktop-Tabelle filtern
+        document.querySelectorAll('table.table-glass tbody tr[id^="user-row-"]').forEach(function(row) {
+            const name = row.querySelector('td:nth-child(4)').textContent.toLowerCase();
+            const email = row.querySelector('td:nth-child(5)').textContent.toLowerCase();
+            const match = !q || name.includes(q) || email.includes(q);
+            const detailsRow = document.getElementById('user-details-' + row.id.replace('user-row-', ''));
+
+            row.style.display = match ? '' : 'none';
+            if (!match && detailsRow) detailsRow.classList.add('hidden');
+            if (match) visibleCount++;
+        });
+
+        // Mobile-Karten filtern
+        document.querySelectorAll('.block.md\\:hidden > div > .glass-subtle').forEach(function(card) {
+            const name = card.querySelector('div[style*="font-size: 1.1rem"]').textContent.toLowerCase();
+            const email = card.querySelector('div[style*="font-size: 0.875rem"]').textContent.toLowerCase();
+            const match = !q || name.includes(q) || email.includes(q);
+            card.style.display = match ? '' : 'none';
+        });
+
+        document.getElementById('no-results').classList.toggle('hidden', visibleCount > 0 || !q);
     }
 
     function toggleMobileDetails(userId) {
