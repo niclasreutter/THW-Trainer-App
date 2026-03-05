@@ -284,6 +284,12 @@ class GamificationService
         $streakBonus = $user->streak_days >= 3 ? $basePoints * (self::STREAK_BONUS_MULTIPLIER - 1) : 0;
         $totalPoints = $basePoints + $topWrongBonus + $streakBonus;
 
+        // Doppel-XP Boost prüfen
+        if ($user->double_xp_until && Carbon::parse($user->double_xp_until)->isFuture()) {
+            $totalPoints *= 2;
+            $reason .= ' (Doppel-XP)';
+        }
+
         $result = $this->awardPoints($user, $totalPoints, $reason);
 
         $this->checkQuestionAchievements($user);
@@ -305,7 +311,14 @@ class GamificationService
             $perfectBonus = $percentage == 100 ? 50 : 0;
             $totalPoints = $basePoints + $perfectBonus;
 
-            $result = $this->awardPoints($user, $totalPoints, 'Prüfung bestanden');
+            // Doppel-XP Boost prüfen
+            $reason = 'Prüfung bestanden';
+            if ($user->double_xp_until && Carbon::parse($user->double_xp_until)->isFuture()) {
+                $totalPoints *= 2;
+                $reason .= ' (Doppel-XP)';
+            }
+
+            $result = $this->awardPoints($user, $totalPoints, $reason);
             
             $this->checkExamAchievements($user, $percentage);
             
@@ -582,7 +595,9 @@ class GamificationService
                    ->orderBy('points', 'desc')
                    ->orderBy('level', 'desc')
                    ->limit($limit)
-                   ->get(['name', 'points', 'level', 'streak_days', 'leaderboard_consent']);
+                   ->get(['name', 'points', 'level', 'streak_days', 'leaderboard_consent',
+                          'glowing_name_until', 'glowing_name_type', 'profile_frame_until',
+                          'rank_color', 'rank_color_until', 'active_title', 'active_title_until']);
     }
 
     /**
@@ -598,7 +613,9 @@ class GamificationService
                    ->orderBy('weekly_points', 'desc')
                    ->orderBy('points', 'desc')
                    ->limit($limit)
-                   ->get(['name', 'weekly_points', 'points', 'level', 'streak_days', 'leaderboard_consent']);
+                   ->get(['name', 'weekly_points', 'points', 'level', 'streak_days', 'leaderboard_consent',
+                          'glowing_name_until', 'glowing_name_type', 'profile_frame_until',
+                          'rank_color', 'rank_color_until', 'active_title', 'active_title_until']);
     }
 
     /**
@@ -659,7 +676,7 @@ class GamificationService
      */
     private function useStreakFreeze(User $user, Carbon $missedDate): bool
     {
-        $available = $user->streak_freezes_available ?? self::MAX_STREAK_FREEZES_PER_WEEK;
+        $available = $user->streak_freezes_available ?? 0;
         $used = $user->streak_freezes_used ?? 0;
 
         if ($used >= $available) {
@@ -704,7 +721,7 @@ class GamificationService
     {
         $this->resetWeeklyFreezesIfNeeded($user);
 
-        $available = $user->streak_freezes_available ?? self::MAX_STREAK_FREEZES_PER_WEEK;
+        $available = $user->streak_freezes_available ?? 0;
         $used = $user->streak_freezes_used ?? 0;
         $log = $this->ensureArray($user->streak_freeze_log);
 
@@ -738,11 +755,11 @@ class GamificationService
 
         $this->resetWeeklyFreezesIfNeeded($user);
 
-        $available = $user->streak_freezes_available ?? self::MAX_STREAK_FREEZES_PER_WEEK;
+        $available = $user->streak_freezes_available ?? 0;
         $used = $user->streak_freezes_used ?? 0;
 
         if ($used >= $available) {
-            return ['success' => false, 'message' => 'Keine Streak Freezes mehr verfügbar diese Woche.'];
+            return ['success' => false, 'message' => 'Keine Streak Freezes mehr verfügbar. Kaufe Freezes im Shop.'];
         }
 
         $log = $this->ensureArray($user->streak_freeze_log);

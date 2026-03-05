@@ -186,6 +186,12 @@
                         Achievements
                     </a>
 
+                    <a href="{{ route('shop.index') }}"
+                       class="sidebar-link {{ request()->routeIs('shop.*') ? 'active' : '' }}">
+                        <i class="bi bi-shop"></i>
+                        Shop
+                    </a>
+
                     <a href="{{ route('contact.index') }}"
                        class="sidebar-link {{ request()->routeIs('contact.*') ? 'active' : '' }}">
                         <i class="bi bi-envelope"></i>
@@ -450,6 +456,11 @@
                 <a href="{{ route('gamification.achievements') }}" class="sidebar-link {{ request()->routeIs('gamification.achievements') ? 'active' : '' }}">
                     <i class="bi bi-award"></i>
                     Achievements
+                </a>
+
+                <a href="{{ route('shop.index') }}" class="sidebar-link {{ request()->routeIs('shop.*') ? 'active' : '' }}">
+                    <i class="bi bi-shop"></i>
+                    Shop
                 </a>
 
                 <a href="{{ route('ortsverband.index') }}" class="sidebar-link {{ request()->routeIs('ortsverband.*') ? 'active' : '' }}">

@@ -78,6 +78,11 @@ class User extends Authenticatable implements MustVerifyEmail
             'exam_date' => 'date',
             'streak_freeze_log' => 'array',
             'streak_freeze_reset_at' => 'date',
+            'glowing_name_until' => 'datetime',
+            'double_xp_until' => 'datetime',
+            'profile_frame_until' => 'datetime',
+            'rank_color_until' => 'datetime',
+            'active_title_until' => 'datetime',
         ];
     }
     
@@ -207,6 +212,14 @@ class User extends Authenticatable implements MustVerifyEmail
     public function lernpoolProgress()
     {
         return $this->hasMany(OrtsverbandLernpoolProgress::class);
+    }
+
+    /**
+     * User hat viele Shop-Käufe
+     */
+    public function shopPurchases()
+    {
+        return $this->hasMany(ShopPurchase::class)->orderBy('created_at', 'desc');
     }
 
     /**

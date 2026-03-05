@@ -140,6 +140,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/achievements', [\App\Http\Controllers\GamificationController::class, 'achievements'])->name('gamification.achievements');
     Route::get('/leaderboard', [\App\Http\Controllers\GamificationController::class, 'leaderboard'])->name('gamification.leaderboard');
 
+    // Shop Routes
+    Route::get('/shop', [\App\Http\Controllers\ShopController::class, 'index'])->name('shop.index');
+    Route::post('/shop/purchase', [\App\Http\Controllers\ShopController::class, 'purchase'])->name('shop.purchase');
+
     // Notification Routes
     Route::get('/notifications', [\App\Http\Controllers\NotificationController::class, 'index'])->name('notifications.index');
     Route::get('/notifications/unread', [\App\Http\Controllers\NotificationController::class, 'unread'])->name('notifications.unread');

@@ -447,6 +447,23 @@
                     if ($isCurrentUser) $rowClass = 'current-user';
                 @endphp
 
+                @php
+                    $nameClasses = 'user-name';
+                    $hasFrame = $user->profile_frame_until && \Carbon\Carbon::parse($user->profile_frame_until)->isFuture();
+                    $hasGlow = $user->glowing_name_until && \Carbon\Carbon::parse($user->glowing_name_until)->isFuture();
+                    $hasRankColor = $user->rank_color_until && \Carbon\Carbon::parse($user->rank_color_until)->isFuture() && $user->rank_color;
+                    $hasTitle = $user->active_title_until && \Carbon\Carbon::parse($user->active_title_until)->isFuture() && $user->active_title;
+
+                    if ($hasGlow) {
+                        $nameClasses .= $user->glowing_name_type === 'shimmer' ? ' glowing-name-shimmer' : ' glowing-name-static';
+                    }
+                    if ($hasRankColor) {
+                        $nameClasses .= ' rank-color-' . $user->rank_color;
+                    }
+                    if ($hasFrame) {
+                        $nameClasses .= ' profile-frame-gold';
+                    }
+                @endphp
                 <div class="leaderboard-row {{ $rowClass }}">
                     <div class="rank-col">
                         @if($rank <= 3)
@@ -455,7 +472,12 @@
                         <span class="rank-number">#{{ $rank }}</span>
                     </div>
                     <div class="user-col">
-                        <span class="user-name">{{ $user->name }}</span>
+                        <div>
+                            <span class="{{ $nameClasses }}">{{ $user->name }}</span>
+                            @if($hasTitle)
+                                <div class="user-title">{{ $user->active_title }}</div>
+                            @endif
+                        </div>
                         @if($isCurrentUser)
                             <span class="you-badge"><i class="bi bi-person-fill"></i> Du</span>
                         @endif
@@ -504,6 +526,13 @@
                 if ($isCurrentUser) $cardClass = 'current-user';
             @endphp
 
+            @php
+                $mNameClasses = 'mobile-user-name';
+                $mHasFrame = $user->profile_frame_until && \Carbon\Carbon::parse($user->profile_frame_until)->isFuture();
+                $mHasGlow = $user->glowing_name_until && \Carbon\Carbon::parse($user->glowing_name_until)->isFuture();
+                $mHasRankColor = $user->rank_color_until && \Carbon\Carbon::parse($user->rank_color_until)->isFuture() && $user->rank_color;
+                $mHasTitle = $user->active_title_until && \Carbon\Carbon::parse($user->active_title_until)->isFuture() && $user->active_title;
+            @endphp
             <div class="glass mobile-card {{ $cardClass }}">
                 <div class="mobile-rank-section">
                     @if($rank <= 3)
@@ -512,12 +541,15 @@
                     <div class="mobile-rank-number">#{{ $rank }}</div>
                 </div>
                 <div class="mobile-user-section">
-                    <div class="mobile-user-name">
-                        {{ $user->name }}
+                    <div class="{{ $mNameClasses }}">
+                        <span class="{{ $mHasGlow ? ($user->glowing_name_type === 'shimmer' ? 'glowing-name-shimmer' : 'glowing-name-static') : '' }} {{ $mHasRankColor ? 'rank-color-' . $user->rank_color : '' }} {{ $mHasFrame ? 'profile-frame-gold' : '' }}">{{ $user->name }}</span>
                         @if($isCurrentUser)
                             <span class="you-badge"><i class="bi bi-person-fill"></i></span>
                         @endif
                     </div>
+                    @if($mHasTitle)
+                        <div class="user-title" style="margin-bottom: 0.5rem;">{{ $user->active_title }}</div>
+                    @endif
                     <div class="mobile-stats-row">
                         <div class="mobile-stat">
                             <span style="color: #06b6d4;"><i class="bi bi-gem"></i></span>
