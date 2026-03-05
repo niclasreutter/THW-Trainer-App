@@ -1642,6 +1642,70 @@
     }
 }
 
+/* === Shop Effects (Leaderboard Cosmetics) === */
+
+/* Leuchtender Name - Statisch (Gold Glow) */
+.glowing-name-static {
+    color: var(--gold) !important;
+    text-shadow: 0 0 8px rgba(251, 191, 36, 0.5), 0 0 16px rgba(251, 191, 36, 0.25);
+    font-weight: 700;
+}
+
+/* Leuchtender Name - Shimmer (Gold Animation) */
+.glowing-name-shimmer {
+    background: linear-gradient(90deg, #fbbf24, #fef3c7, #fbbf24, #f59e0b, #fbbf24);
+    background-size: 300% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: nameShimmer 3s linear infinite;
+    font-weight: 700;
+}
+
+@keyframes nameShimmer {
+    0% { background-position: 0% center; }
+    100% { background-position: 300% center; }
+}
+
+/* Goldener Profilrahmen */
+.profile-frame-gold {
+    padding: 0.1rem 0.5rem;
+    border: 1.5px solid rgba(251, 191, 36, 0.5);
+    border-radius: 0.375rem;
+    box-shadow: 0 0 6px rgba(251, 191, 36, 0.2);
+}
+
+/* Individuelle Rangfarben */
+.rank-color-blue {
+    color: #60a5fa !important;
+    text-shadow: 0 0 8px rgba(96, 165, 250, 0.4);
+    -webkit-text-fill-color: #60a5fa;
+    font-weight: 700;
+}
+
+.rank-color-purple {
+    color: #a78bfa !important;
+    text-shadow: 0 0 8px rgba(167, 139, 250, 0.4);
+    -webkit-text-fill-color: #a78bfa;
+    font-weight: 700;
+}
+
+.rank-color-green {
+    color: #4ade80 !important;
+    text-shadow: 0 0 8px rgba(74, 222, 128, 0.4);
+    -webkit-text-fill-color: #4ade80;
+    font-weight: 700;
+}
+
+/* Exklusiver Titel */
+.user-title {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--gold);
+    opacity: 0.8;
+    letter-spacing: 0.3px;
+}
+
 /* === Animations === */
 
 /* Shake Animation for wrong answers */
