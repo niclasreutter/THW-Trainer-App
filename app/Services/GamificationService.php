@@ -723,6 +723,14 @@ class GamificationService
 
         $available = $user->streak_freezes_available ?? 0;
         $used = $user->streak_freezes_used ?? 0;
+
+        // Inkonsistenz bereinigen: used darf nie > available sein
+        if ($used > $available) {
+            $user->streak_freezes_used = 0;
+            $used = 0;
+            $user->save();
+        }
+
         $log = $this->ensureArray($user->streak_freeze_log);
 
         // Nur die letzten 4 Wochen im Log
