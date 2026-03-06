@@ -461,7 +461,8 @@
                         $nameClasses .= ' rank-color-' . $user->rank_color;
                     }
                     if ($hasFrame) {
-                        $nameClasses .= ' profile-frame-gold';
+                        $frameClass = ($user->profile_frame_type ?? 'gold') === 'diamond' ? 'profile-frame-diamond' : 'profile-frame-gold';
+                        $nameClasses .= ' ' . $frameClass;
                     }
                 @endphp
                 <div class="leaderboard-row {{ $rowClass }}">
@@ -542,7 +543,7 @@
                 </div>
                 <div class="mobile-user-section">
                     <div class="{{ $mNameClasses }}">
-                        <span class="{{ $mHasGlow ? ($user->glowing_name_type === 'shimmer' ? 'glowing-name-shimmer' : 'glowing-name-static') : '' }} {{ $mHasRankColor ? 'rank-color-' . $user->rank_color : '' }} {{ $mHasFrame ? 'profile-frame-gold' : '' }}">{{ $user->name }}</span>
+                        <span class="{{ $mHasGlow ? ($user->glowing_name_type === 'shimmer' ? 'glowing-name-shimmer' : 'glowing-name-static') : '' }} {{ $mHasRankColor ? 'rank-color-' . $user->rank_color : '' }} {{ $mHasFrame ? (($user->profile_frame_type ?? 'gold') === 'diamond' ? 'profile-frame-diamond' : 'profile-frame-gold') : '' }}">{{ $user->name }}</span>
                         @if($isCurrentUser)
                             <span class="you-badge"><i class="bi bi-person-fill"></i></span>
                         @endif

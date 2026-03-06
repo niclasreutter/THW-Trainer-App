@@ -284,10 +284,17 @@ class GamificationService
         $streakBonus = $user->streak_days >= 3 ? $basePoints * (self::STREAK_BONUS_MULTIPLIER - 1) : 0;
         $totalPoints = $basePoints + $topWrongBonus + $streakBonus;
 
-        // Doppel-XP Boost prüfen
-        if ($user->double_xp_until && Carbon::parse($user->double_xp_until)->isFuture()) {
+        // Boost prüfen (Doppel-XP und Wochenend-Krieger stapeln nicht, höchster gewinnt)
+        $hasDoubleXp = $user->double_xp_until && Carbon::parse($user->double_xp_until)->isFuture();
+        $hasWeekendBoost = $user->weekend_boost_until && Carbon::parse($user->weekend_boost_until)->isFuture()
+            && Carbon::now()->isWeekend();
+
+        if ($hasDoubleXp) {
             $totalPoints *= 2;
             $reason .= ' (Doppel-XP)';
+        } elseif ($hasWeekendBoost) {
+            $totalPoints = (int) round($totalPoints * 1.5);
+            $reason .= ' (Wochenend-Boost)';
         }
 
         $result = $this->awardPoints($user, $totalPoints, $reason);
@@ -311,11 +318,18 @@ class GamificationService
             $perfectBonus = $percentage == 100 ? 50 : 0;
             $totalPoints = $basePoints + $perfectBonus;
 
-            // Doppel-XP Boost prüfen
+            // Boost prüfen (Doppel-XP und Wochenend-Krieger stapeln nicht, höchster gewinnt)
             $reason = 'Prüfung bestanden';
-            if ($user->double_xp_until && Carbon::parse($user->double_xp_until)->isFuture()) {
+            $hasDoubleXp = $user->double_xp_until && Carbon::parse($user->double_xp_until)->isFuture();
+            $hasWeekendBoost = $user->weekend_boost_until && Carbon::parse($user->weekend_boost_until)->isFuture()
+                && Carbon::now()->isWeekend();
+
+            if ($hasDoubleXp) {
                 $totalPoints *= 2;
                 $reason .= ' (Doppel-XP)';
+            } elseif ($hasWeekendBoost) {
+                $totalPoints = (int) round($totalPoints * 1.5);
+                $reason .= ' (Wochenend-Boost)';
             }
 
             $result = $this->awardPoints($user, $totalPoints, $reason);
@@ -596,7 +610,7 @@ class GamificationService
                    ->orderBy('level', 'desc')
                    ->limit($limit)
                    ->get(['name', 'points', 'level', 'streak_days', 'leaderboard_consent',
-                          'glowing_name_until', 'glowing_name_type', 'profile_frame_until',
+                          'glowing_name_until', 'glowing_name_type', 'profile_frame_until', 'profile_frame_type',
                           'rank_color', 'rank_color_until', 'active_title', 'active_title_until']);
     }
 
@@ -607,14 +621,14 @@ class GamificationService
     {
         // Reset aller User wenn nötig
         $this->resetWeeklyPointsIfNeeded();
-        
+
         return User::where('leaderboard_consent', true)
                    ->where('weekly_points', '>', 0)
                    ->orderBy('weekly_points', 'desc')
                    ->orderBy('points', 'desc')
                    ->limit($limit)
                    ->get(['name', 'weekly_points', 'points', 'level', 'streak_days', 'leaderboard_consent',
-                          'glowing_name_until', 'glowing_name_type', 'profile_frame_until',
+                          'glowing_name_until', 'glowing_name_type', 'profile_frame_until', 'profile_frame_type',
                           'rank_color', 'rank_color_until', 'active_title', 'active_title_until']);
     }
 

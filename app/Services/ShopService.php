@@ -13,7 +13,7 @@ class ShopService
         'streak_freeze' => [
             'name' => 'Streak Freeze',
             'description' => 'Schützt deinen Streak für einen verpassten Tag.',
-            'price' => 500,
+            'price' => 750,
             'icon' => 'bi-shield-fill',
             'type' => 'instant',
             'duration_days' => null,
@@ -43,7 +43,7 @@ class ShopService
         'double_xp' => [
             'name' => 'Doppel-XP Boost',
             'description' => 'Erhalte 24 Stunden lang doppelte Punkte für alle Aktivitäten.',
-            'price' => 1000,
+            'price' => 1500,
             'icon' => 'bi-lightning-charge-fill',
             'type' => 'timed',
             'duration_hours' => 24,
@@ -53,7 +53,7 @@ class ShopService
         'profile_frame_gold' => [
             'name' => 'Goldener Profilrahmen',
             'description' => 'Ein goldener Rahmen hebt deinen Namen auf der Rangliste hervor.',
-            'price' => 2000,
+            'price' => 2500,
             'icon' => 'bi-award-fill',
             'type' => 'timed',
             'duration_days' => 14,
@@ -81,6 +81,26 @@ class ShopService
             'max_per_week' => null,
             'category' => 'cosmetic',
             'titles' => ['Meisterhelfer', 'THW-Legende', 'Wissensheld', 'Lernmaschine'],
+        ],
+        'weekend_boost' => [
+            'name' => 'Wochenend-Krieger',
+            'description' => '+50% XP am Wochenende. Stapelt nicht mit Doppel-XP.',
+            'price' => 800,
+            'icon' => 'bi-calendar-event-fill',
+            'type' => 'timed',
+            'duration_days' => null,
+            'max_per_week' => 1,
+            'category' => 'boost',
+        ],
+        'profile_frame_diamond' => [
+            'name' => 'Diamant-Profilrahmen',
+            'description' => 'Ein animierter Diamant-Rahmen mit Partikeleffekt. Das ultimative Prestige-Item.',
+            'price' => 5000,
+            'icon' => 'bi-gem',
+            'type' => 'timed',
+            'duration_days' => 30,
+            'max_per_week' => null,
+            'category' => 'cosmetic',
         ],
     ];
 
@@ -190,11 +210,21 @@ class ShopService
         }
 
         if ($user->profile_frame_until && Carbon::parse($user->profile_frame_until)->gt($now)) {
+            $frameType = $user->profile_frame_type === 'diamond' ? 'profile_frame_diamond' : 'profile_frame_gold';
             $effects[] = [
-                'slug' => 'profile_frame_gold',
-                'name' => self::SHOP_ITEMS['profile_frame_gold']['name'],
-                'icon' => self::SHOP_ITEMS['profile_frame_gold']['icon'],
+                'slug' => $frameType,
+                'name' => self::SHOP_ITEMS[$frameType]['name'],
+                'icon' => self::SHOP_ITEMS[$frameType]['icon'],
                 'expires_at' => Carbon::parse($user->profile_frame_until),
+            ];
+        }
+
+        if ($user->weekend_boost_until && Carbon::parse($user->weekend_boost_until)->gt($now)) {
+            $effects[] = [
+                'slug' => 'weekend_boost',
+                'name' => self::SHOP_ITEMS['weekend_boost']['name'],
+                'icon' => self::SHOP_ITEMS['weekend_boost']['icon'],
+                'expires_at' => Carbon::parse($user->weekend_boost_until),
             ];
         }
 
@@ -231,6 +261,7 @@ class ShopService
             'profile_frame' => $user->profile_frame_until && Carbon::parse($user->profile_frame_until)->gt($now),
             'rank_color' => $user->rank_color_until && Carbon::parse($user->rank_color_until)->gt($now),
             'title' => $user->active_title_until && Carbon::parse($user->active_title_until)->gt($now),
+            'weekend_boost' => $user->weekend_boost_until && Carbon::parse($user->weekend_boost_until)->gt($now),
             default => false,
         };
     }
@@ -314,6 +345,18 @@ class ShopService
                     $expiresAt = Carbon::parse($user->active_title_until);
                 }
                 break;
+            case 'weekend_boost':
+                if ($user->weekend_boost_until && Carbon::parse($user->weekend_boost_until)->gt($now)) {
+                    $isActive = true;
+                    $expiresAt = Carbon::parse($user->weekend_boost_until);
+                }
+                break;
+            case 'profile_frame_diamond':
+                if ($user->profile_frame_until && Carbon::parse($user->profile_frame_until)->gt($now) && $user->profile_frame_type === 'diamond') {
+                    $isActive = true;
+                    $expiresAt = Carbon::parse($user->profile_frame_until);
+                }
+                break;
         }
 
         return [
@@ -353,6 +396,7 @@ class ShopService
             case 'profile_frame_gold':
                 $expiresAt = Carbon::now()->addDays(14);
                 $user->profile_frame_until = $expiresAt;
+                $user->profile_frame_type = 'gold';
                 break;
 
             case 'rank_color':
@@ -375,6 +419,23 @@ class ShopService
                 $expiresAt = Carbon::now()->addDays(30);
                 $user->active_title = $title;
                 $user->active_title_until = $expiresAt;
+                break;
+
+            case 'weekend_boost':
+                // Läuft bis Ende des nächsten Sonntags
+                $now = Carbon::now();
+                if ($now->isSaturday() || $now->isSunday()) {
+                    $expiresAt = $now->copy()->endOfWeek(Carbon::SUNDAY);
+                } else {
+                    $expiresAt = $now->copy()->next(Carbon::SUNDAY)->endOfDay();
+                }
+                $user->weekend_boost_until = $expiresAt;
+                break;
+
+            case 'profile_frame_diamond':
+                $expiresAt = Carbon::now()->addDays(30);
+                $user->profile_frame_until = $expiresAt;
+                $user->profile_frame_type = 'diamond';
                 break;
         }
 
