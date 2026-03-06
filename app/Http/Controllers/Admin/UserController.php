@@ -3,6 +3,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Models\User;
 use App\Models\UserQuestionProgress;
+use App\Services\GamificationService;
 use App\Services\SpacedRepetitionService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -249,12 +250,32 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255',
             'useroll' => 'required|in:user,admin',
+            'points' => 'nullable|integer|min:0',
         ]);
         $user->name = $request->name;
         $user->email = $request->email;
         $user->useroll = $request->useroll;
+
+        if ($request->has('points')) {
+            $user->points = (int) $request->points;
+            $user->level = $this->calculateLevelFromPoints($user->points);
+        }
+
         $user->save();
         return redirect()->route('admin.users.index')->with('success', 'Nutzer aktualisiert');
+    }
+
+    private function calculateLevelFromPoints(int $points): int
+    {
+        $level = 1;
+        foreach (GamificationService::LEVEL_THRESHOLDS as $levelNum => $threshold) {
+            if ($points >= $threshold) {
+                $level = $levelNum;
+            } else {
+                break;
+            }
+        }
+        return $level;
     }
 
     public function destroy($id)
