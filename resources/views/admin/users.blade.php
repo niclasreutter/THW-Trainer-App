@@ -204,6 +204,11 @@
                                         </div>
 
                                         <div>
+                                            <label class="label-glass">Punkte (XP)</label>
+                                            <input type="number" name="points" value="{{ $user->points ?? 0 }}" min="0" class="input-glass" />
+                                        </div>
+
+                                        <div>
                                             <label class="label-glass">Registriert am</label>
                                             <div style="padding: 0.875rem 1rem; background: rgba(255, 255, 255, 0.03); border-radius: 0.75rem; color: var(--text-secondary); font-size: 0.9rem;">
                                                 {{ $user->created_at->format('d.m.Y H:i') }}
@@ -318,6 +323,11 @@
                                         <option value="user" @if($user->useroll === 'user') selected @endif>Benutzer</option>
                                         <option value="admin" @if($user->useroll === 'admin') selected @endif>Administrator</option>
                                     </select>
+                                </div>
+
+                                <div>
+                                    <label class="label-glass">Punkte (XP)</label>
+                                    <input type="number" name="points" value="{{ $user->points ?? 0 }}" min="0" class="input-glass" />
                                 </div>
 
                                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; font-size: 0.875rem;">
