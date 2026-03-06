@@ -1675,6 +1675,26 @@
     box-shadow: 0 0 6px rgba(251, 191, 36, 0.2);
 }
 
+/* Diamant-Profilrahmen (animiert) */
+.profile-frame-diamond {
+    padding: 0.1rem 0.5rem;
+    border: 1.5px solid rgba(147, 197, 253, 0.6);
+    border-radius: 0.375rem;
+    box-shadow: 0 0 8px rgba(147, 197, 253, 0.3), 0 0 16px rgba(167, 139, 250, 0.15);
+    animation: diamondShimmer 3s ease-in-out infinite;
+}
+
+@keyframes diamondShimmer {
+    0%, 100% {
+        border-color: rgba(147, 197, 253, 0.6);
+        box-shadow: 0 0 8px rgba(147, 197, 253, 0.3), 0 0 16px rgba(167, 139, 250, 0.15);
+    }
+    50% {
+        border-color: rgba(167, 139, 250, 0.6);
+        box-shadow: 0 0 12px rgba(167, 139, 250, 0.4), 0 0 20px rgba(147, 197, 253, 0.2);
+    }
+}
+
 /* Individuelle Rangfarben */
 .rank-color-blue {
     color: #60a5fa !important;
