@@ -54,6 +54,22 @@ $app = require_once $laravelPath . '/bootstrap/app.php';
 $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
 $kernel->bootstrap();
 
+// Datums-Simulation: Optional ein Fake-Datum übergeben
+// Verwendung: php cronjob-daily-reset-test.php 2026-03-10
+if (isset($argv[1])) {
+    $fakeDate = $argv[1];
+    try {
+        $parsedDate = \Carbon\Carbon::parse($fakeDate)->startOfDay()->addHours(0)->addMinutes(1);
+        \Carbon\Carbon::setTestNow($parsedDate);
+        echo "\n" . str_repeat("*", 80) . "\n";
+        echo "  ZEITSIMULATION AKTIV: Heute = {$parsedDate->format('Y-m-d H:i:s')}\n";
+        echo str_repeat("*", 80) . "\n\n";
+    } catch (Exception $e) {
+        echo "[FEHLER] Ungültiges Datum: '{$fakeDate}'. Format: YYYY-MM-DD\n";
+        exit(1);
+    }
+}
+
 // Führe die tägliche Reset-Logik aus
 try {
     echo "[" . date('Y-m-d H:i:s') . "] Starte tägliche Streak-Reset-Prüfung (TEST)...\n";
