@@ -54,6 +54,22 @@ $app = require_once $laravelPath . '/bootstrap/app.php';
 $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
 $kernel->bootstrap();
 
+// Datums-Simulation: Optional ein Fake-Datum übergeben
+// Verwendung: php cronjob-daily-reset-test.php 2026-03-10
+if (isset($argv[1])) {
+    $fakeDate = $argv[1];
+    try {
+        $parsedDate = \Carbon\Carbon::parse($fakeDate)->startOfDay()->addHours(0)->addMinutes(1);
+        \Carbon\Carbon::setTestNow($parsedDate);
+        echo "\n" . str_repeat("*", 80) . "\n";
+        echo "  ZEITSIMULATION AKTIV: Heute = {$parsedDate->format('Y-m-d H:i:s')}\n";
+        echo str_repeat("*", 80) . "\n\n";
+    } catch (Exception $e) {
+        echo "[FEHLER] Ungültiges Datum: '{$fakeDate}'. Format: YYYY-MM-DD\n";
+        exit(1);
+    }
+}
+
 // Führe die tägliche Reset-Logik aus
 try {
     echo "[" . date('Y-m-d H:i:s') . "] Starte tägliche Streak-Reset-Prüfung (TEST)...\n";
@@ -129,6 +145,21 @@ try {
                             echo "[" . date('Y-m-d H:i:s') . "] Streak Freeze auto-eingesetzt: {$user->name} ({$user->email})\n";
                             echo "  → Streak: {$user->streak_days} Tage (geschützt)\n";
                             echo "  → Verbleibende Freezes: {$freezeResult['remaining']}\n";
+
+                            // E-Mail-Benachrichtigung senden
+                            if ($user->email_consent) {
+                                try {
+                                    \Illuminate\Support\Facades\Mail::to($user->email)
+                                        ->send(new \App\Mail\StreakFreezeActivatedMail(
+                                            $user,
+                                            $user->streak_days,
+                                            $freezeResult['remaining']
+                                        ));
+                                    echo "  → Freeze-Benachrichtigung gesendet an: {$user->email}\n";
+                                } catch (Exception $mailError) {
+                                    echo "  → WARNUNG: E-Mail konnte nicht gesendet werden: " . $mailError->getMessage() . "\n";
+                                }
+                            }
                         } else {
                             // Freeze fehlgeschlagen - Streak resetten
                             $oldStreak = $user->streak_days;
@@ -138,6 +169,17 @@ try {
                             echo "[" . date('Y-m-d H:i:s') . "] Streak zurückgesetzt (Freeze fehlgeschlagen): {$user->name} ({$user->email})\n";
                             echo "  → Streak: {$oldStreak} → 0 Tage\n";
                             echo "  → Grund: {$freezeResult['message']}\n";
+
+                            // E-Mail: Streak verloren
+                            if ($user->email_consent) {
+                                try {
+                                    \Illuminate\Support\Facades\Mail::to($user->email)
+                                        ->send(new \App\Mail\StreakLostMail($user, $oldStreak));
+                                    echo "  → Streak-Verlust-Benachrichtigung gesendet an: {$user->email}\n";
+                                } catch (Exception $mailError) {
+                                    echo "  → WARNUNG: E-Mail konnte nicht gesendet werden: " . $mailError->getMessage() . "\n";
+                                }
+                            }
                         }
                     } else {
                         // Kein Freeze verfügbar - Streak resetten
@@ -149,6 +191,17 @@ try {
                         echo "[" . date('Y-m-d H:i:s') . "] Streak zurückgesetzt: {$user->name} ({$user->email})\n";
                         echo "  → Streak: {$oldStreak} → 0 Tage\n";
                         echo "  → Letzte Aktivität: {$lastActivityStr}\n";
+
+                        // E-Mail: Streak verloren
+                        if ($user->email_consent) {
+                            try {
+                                \Illuminate\Support\Facades\Mail::to($user->email)
+                                    ->send(new \App\Mail\StreakLostMail($user, $oldStreak));
+                                echo "  → Streak-Verlust-Benachrichtigung gesendet an: {$user->email}\n";
+                            } catch (Exception $mailError) {
+                                echo "  → WARNUNG: E-Mail konnte nicht gesendet werden: " . $mailError->getMessage() . "\n";
+                            }
+                        }
                     }
                 }
             }
