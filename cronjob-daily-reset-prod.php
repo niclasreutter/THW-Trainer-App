@@ -107,9 +107,16 @@ try {
 
                         if ($freezeResult['success']) {
                             $streakFreezeCount++;
-                            $changed = false; // applyManualFreeze speichert bereits
+                            // WICHTIG: last_activity_date auf GESTERN setzen, nicht heute!
+                            // Der Freeze deckt den gestrigen Tag ab. Wenn wir "heute" setzen,
+                            // denkt der nächste Cronjob-Lauf, der User war heute aktiv,
+                            // und überspringt den Reset am Folgetag ohne Freeze zu verbrauchen.
+                            $user->last_activity_date = $yesterday;
+                            $user->save();
+                            $changed = false; // Bereits gespeichert
                             echo "[" . date('Y-m-d H:i:s') . "] Streak Freeze auto-eingesetzt: {$user->name} ({$user->email})\n";
                             echo "  → Streak: {$user->streak_days} Tage (geschützt)\n";
+                            echo "  → last_activity_date korrigiert auf: {$yesterday->format('Y-m-d')}\n";
                             echo "  → Verbleibende Freezes: {$freezeResult['remaining']}\n";
                         } else {
                             // Freeze fehlgeschlagen - Streak resetten
