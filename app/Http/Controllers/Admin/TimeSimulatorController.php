@@ -34,7 +34,7 @@ class TimeSimulatorController extends Controller
                 'daily_questions_date' => $user->daily_questions_date,
                 'email_consent' => $user->email_consent,
                 'freezes_remaining' => $freezeStatus['remaining'],
-                'freezes_used' => $freezeStatus['used_this_week'],
+                'freezes_used' => $freezeStatus['used'],
             ];
         });
 
