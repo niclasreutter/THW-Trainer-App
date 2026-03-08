@@ -192,8 +192,8 @@ class TimeSimulatorController extends Controller
 
         $lastActivity = $user->last_activity_date ? Carbon::parse($user->last_activity_date) : null;
 
-        if ($user->streak_days <= 1) {
-            $log[] = "Streak <= 1 - kein Reminder noetig.";
+        if ($user->streak_days < 1) {
+            $log[] = "Streak = 0 - kein Reminder noetig.";
             return back()->with('simulator_log', $log)->with('simulator_status', 'info');
         }
 
