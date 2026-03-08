@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class GamificationService
 {
@@ -606,12 +607,15 @@ class GamificationService
     public function getLeaderboard(int $limit = 10)
     {
         return User::where('leaderboard_consent', true)
-                   ->orderBy('points', 'desc')
+                   ->select(['name', 'points', 'level', 'streak_days', 'leaderboard_consent',
+                          'glowing_name_until', 'glowing_name_type', 'profile_frame_until', 'profile_frame_type',
+                          'rank_color', 'rank_color_until', 'active_title', 'active_title_until',
+                          'total_points_spent',
+                          DB::raw('(points + COALESCE(total_points_spent, 0)) as total_points_earned')])
+                   ->orderBy('total_points_earned', 'desc')
                    ->orderBy('level', 'desc')
                    ->limit($limit)
-                   ->get(['name', 'points', 'level', 'streak_days', 'leaderboard_consent',
-                          'glowing_name_until', 'glowing_name_type', 'profile_frame_until', 'profile_frame_type',
-                          'rank_color', 'rank_color_until', 'active_title', 'active_title_until']);
+                   ->get();
     }
 
     /**

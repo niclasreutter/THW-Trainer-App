@@ -485,7 +485,7 @@
                     </div>
                     <div class="stat-col">
                         <span class="stat-icon" style="color: #06b6d4;"><i class="bi bi-gem"></i></span>
-                        <span class="stat-value">{{ number_format($tab === 'woche' ? $user->weekly_points : $user->points) }}</span>
+                        <span class="stat-value">{{ number_format($tab === 'woche' ? $user->weekly_points : $user->total_points_earned) }}</span>
                     </div>
                     <div class="stat-col">
                         <span class="stat-icon" style="color: #fbbf24;"><i class="bi bi-star-fill"></i></span>
@@ -555,7 +555,7 @@
                         <div class="mobile-stat">
                             <span style="color: #06b6d4;"><i class="bi bi-gem"></i></span>
                             <span class="mobile-stat-label">Punkte:</span>
-                            <span class="mobile-stat-value">{{ number_format($tab === 'woche' ? $user->weekly_points : $user->points) }}</span>
+                            <span class="mobile-stat-value">{{ number_format($tab === 'woche' ? $user->weekly_points : $user->total_points_earned) }}</span>
                         </div>
                     </div>
                     <div class="mobile-stats-row" style="margin-top: 0.5rem;">
@@ -600,10 +600,11 @@
             $currentUser = Auth::user();
             $userRank = null;
 
+            $totalEarned = $currentUser->points + ($currentUser->total_points_spent ?? 0);
             if ($tab === 'woche') {
                 $userRank = \App\Models\User::where('weekly_points', '>', $currentUser->weekly_points)->count() + 1;
             } else {
-                $userRank = \App\Models\User::where('points', '>', $currentUser->points)->count() + 1;
+                $userRank = \App\Models\User::whereRaw('(points + COALESCE(total_points_spent, 0)) > ?', [$totalEarned])->count() + 1;
             }
 
             $isInTop50 = $userRank <= 50;
@@ -620,7 +621,7 @@
                         @if($tab === 'woche')
                             {{ number_format($currentUser->weekly_points) }} Punkte diese Woche
                         @else
-                            {{ number_format($currentUser->points) }} Punkte gesamt
+                            {{ number_format($currentUser->points + ($currentUser->total_points_spent ?? 0)) }} Punkte gesamt
                         @endif
                     </div>
                 </div>
