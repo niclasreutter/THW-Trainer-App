@@ -498,6 +498,17 @@
                 <i class="bi bi-chevron-right text-dark-muted"></i>
             </a>
 
+            <a href="{{ route('admin.shop-analytics') }}" class="quick-action" style="margin-bottom: 0.5rem;">
+                <div class="quick-action-icon" style="background: rgba(251, 191, 36, 0.15); color: #fbbf24;">
+                    <i class="bi bi-bag-check"></i>
+                </div>
+                <div class="quick-action-text">
+                    <div class="quick-action-title">Shop Analyse</div>
+                    <div class="quick-action-desc">Käufe & Preise</div>
+                </div>
+                <i class="bi bi-chevron-right text-dark-muted"></i>
+            </a>
+
             <!-- Mini Stats -->
             <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.06);">
                 <div class="stat-row">
