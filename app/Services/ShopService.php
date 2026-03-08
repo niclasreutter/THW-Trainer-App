@@ -13,7 +13,7 @@ class ShopService
         'streak_freeze' => [
             'name' => 'Streak Freeze',
             'description' => 'Schützt deinen Streak für einen verpassten Tag.',
-            'price' => 750,
+            'price' => 1500,
             'icon' => 'bi-shield-fill',
             'type' => 'instant',
             'duration_days' => null,
@@ -23,7 +23,7 @@ class ShopService
         'glowing_name_static' => [
             'name' => 'Leuchtender Name',
             'description' => 'Dein Name leuchtet gold auf der Rangliste.',
-            'price' => 1000,
+            'price' => 3000,
             'icon' => 'bi-brightness-high-fill',
             'type' => 'timed',
             'duration_days' => 7,
@@ -33,7 +33,7 @@ class ShopService
         'glowing_name_shimmer' => [
             'name' => 'Schimmernder Name',
             'description' => 'Dein Name schimmert mit einer goldenen Animation auf der Rangliste.',
-            'price' => 1500,
+            'price' => 5000,
             'icon' => 'bi-stars',
             'type' => 'timed',
             'duration_days' => 7,
@@ -43,7 +43,7 @@ class ShopService
         'double_xp' => [
             'name' => 'Doppel-XP Boost',
             'description' => 'Erhalte 24 Stunden lang doppelte Punkte für alle Aktivitäten.',
-            'price' => 1500,
+            'price' => 4000,
             'icon' => 'bi-lightning-charge-fill',
             'type' => 'timed',
             'duration_hours' => 24,
@@ -53,7 +53,7 @@ class ShopService
         'profile_frame_gold' => [
             'name' => 'Goldener Profilrahmen',
             'description' => 'Ein goldener Rahmen hebt deinen Namen auf der Rangliste hervor.',
-            'price' => 2500,
+            'price' => 7500,
             'icon' => 'bi-award-fill',
             'type' => 'timed',
             'duration_days' => 14,
@@ -63,7 +63,7 @@ class ShopService
         'rank_color' => [
             'name' => 'Individuelle Rangfarbe',
             'description' => 'Wähle eine eigene Farbe für deinen Namen auf der Rangliste.',
-            'price' => 2500,
+            'price' => 7500,
             'icon' => 'bi-palette-fill',
             'type' => 'timed',
             'duration_days' => 14,
@@ -74,7 +74,7 @@ class ShopService
         'title' => [
             'name' => 'Exklusiver Titel',
             'description' => 'Trage einen besonderen Titel unter deinem Namen auf der Rangliste.',
-            'price' => 3000,
+            'price' => 10000,
             'icon' => 'bi-person-badge-fill',
             'type' => 'timed',
             'duration_days' => 30,
@@ -85,7 +85,7 @@ class ShopService
         'weekend_boost' => [
             'name' => 'Wochenend-Krieger',
             'description' => '+50% XP am Wochenende. Stapelt nicht mit Doppel-XP.',
-            'price' => 800,
+            'price' => 2000,
             'icon' => 'bi-calendar-event-fill',
             'type' => 'timed',
             'duration_days' => null,
@@ -95,7 +95,7 @@ class ShopService
         'profile_frame_diamond' => [
             'name' => 'Diamant-Profilrahmen',
             'description' => 'Ein animierter Diamant-Rahmen mit Partikeleffekt. Das ultimative Prestige-Item.',
-            'price' => 5000,
+            'price' => 20000,
             'icon' => 'bi-gem',
             'type' => 'timed',
             'duration_days' => 30,
