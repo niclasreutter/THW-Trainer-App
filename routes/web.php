@@ -279,6 +279,13 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix
     Route::post('ortsverband/{ortsverband}/view-as', [\App\Http\Controllers\Admin\OrtsverbandController::class, 'viewAs'])->name('ortsverband.view-as');
     Route::post('ortsverband/exit-view', [\App\Http\Controllers\Admin\OrtsverbandController::class, 'exitView'])->name('ortsverband.exit-view');
     Route::delete('ortsverband/{ortsverband}', [\App\Http\Controllers\Admin\OrtsverbandController::class, 'destroy'])->name('ortsverband.destroy');
+
+    // Zeitsimulator (nur Non-Production)
+    Route::get('/time-simulator', [\App\Http\Controllers\Admin\TimeSimulatorController::class, 'index'])->name('time-simulator');
+    Route::post('/time-simulator/simulate-activity', [\App\Http\Controllers\Admin\TimeSimulatorController::class, 'simulateActivity'])->name('time-simulator.activity');
+    Route::post('/time-simulator/daily-reset', [\App\Http\Controllers\Admin\TimeSimulatorController::class, 'runDailyReset'])->name('time-simulator.reset');
+    Route::post('/time-simulator/streak-reminder', [\App\Http\Controllers\Admin\TimeSimulatorController::class, 'runStreakReminder'])->name('time-simulator.reminder');
+    Route::post('/time-simulator/reset-user', [\App\Http\Controllers\Admin\TimeSimulatorController::class, 'resetUser'])->name('time-simulator.reset-user');
 });
 
 // Test Routes für Error Pages (nur für Development/Testing)

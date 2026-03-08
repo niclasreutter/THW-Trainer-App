@@ -273,6 +273,14 @@
                                 <span class="badge-error text-xs ml-auto">{{ $unreadContactCount }}</span>
                             @endif
                         </a>
+
+                        @if(!app()->environment('production'))
+                        <a href="{{ route('admin.time-simulator') }}"
+                           class="sidebar-link {{ request()->routeIs('admin.time-simulator*') ? 'active' : '' }}">
+                            <i class="bi bi-clock-history"></i>
+                            Zeitsimulator
+                        </a>
+                        @endif
                     </div>
                     @endif
                 </nav>
@@ -523,6 +531,13 @@
                             <span class="badge-error text-xs ml-auto">{{ $mobileUnreadContactCount }}</span>
                         @endif
                     </a>
+
+                    @if(!app()->environment('production'))
+                    <a href="{{ route('admin.time-simulator') }}" class="sidebar-link {{ request()->routeIs('admin.time-simulator*') ? 'active' : '' }}">
+                        <i class="bi bi-clock-history"></i>
+                        Zeitsimulator
+                    </a>
+                    @endif
                 </div>
                 @endif
             </nav>
