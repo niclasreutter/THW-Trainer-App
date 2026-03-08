@@ -228,10 +228,24 @@
                             {{ $index === 0 ? 'color: #fbbf24;' : ($index === 1 ? 'color: #94a3b8;' : ($index === 2 ? 'color: #cd7f32;' : 'color: var(--text-muted);')) }}">
                             {{ $index + 1 }}
                         </div>
+                        @php
+                            $sUser = $member['user'];
+                            $sHasGlow = $sUser->glowing_name_until && \Carbon\Carbon::parse($sUser->glowing_name_until)->isFuture();
+                            $sHasRankColor = $sUser->rank_color_until && \Carbon\Carbon::parse($sUser->rank_color_until)->isFuture() && $sUser->rank_color;
+                            $sHasFrame = $sUser->profile_frame_until && \Carbon\Carbon::parse($sUser->profile_frame_until)->isFuture();
+                            $sHasTitle = $sUser->active_title_until && \Carbon\Carbon::parse($sUser->active_title_until)->isFuture() && $sUser->active_title;
+                            $sNameClasses = '';
+                            if ($sHasGlow) $sNameClasses .= $sUser->glowing_name_type === 'shimmer' ? ' glowing-name-shimmer' : ' glowing-name-static';
+                            if ($sHasRankColor) $sNameClasses .= ' rank-color-' . $sUser->rank_color;
+                            if ($sHasFrame) $sNameClasses .= ($sUser->profile_frame_type ?? 'gold') === 'diamond' ? ' profile-frame-diamond' : ' profile-frame-gold';
+                        @endphp
                         <div style="flex: 1; min-width: 0;">
-                            <div style="font-weight: 600; font-size: 0.8rem; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                                {{ $member['user']->name }}
+                            <div class="{{ trim($sNameClasses) }}" style="font-weight: 600; font-size: 0.8rem; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                {{ $sUser->name }}
                             </div>
+                            @if($sHasTitle)
+                                <div class="user-title" style="font-size: 0.65rem;">{{ $sUser->active_title }}</div>
+                            @endif
                             <div style="font-size: 0.7rem; color: var(--text-muted);">{{ number_format($member['points']) }} Punkte</div>
                         </div>
                     </div>

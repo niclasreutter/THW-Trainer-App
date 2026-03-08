@@ -100,15 +100,29 @@
                             <span style="color: var(--text-muted);">{{ $index + 1 }}</span>
                         @endif
                     </div>
+                    @php
+                        $mUser = $member['user'];
+                        $mHasGlow = $mUser->glowing_name_until && \Carbon\Carbon::parse($mUser->glowing_name_until)->isFuture();
+                        $mHasRankColor = $mUser->rank_color_until && \Carbon\Carbon::parse($mUser->rank_color_until)->isFuture() && $mUser->rank_color;
+                        $mHasFrame = $mUser->profile_frame_until && \Carbon\Carbon::parse($mUser->profile_frame_until)->isFuture();
+                        $mHasTitle = $mUser->active_title_until && \Carbon\Carbon::parse($mUser->active_title_until)->isFuture() && $mUser->active_title;
+                        $mNameClasses = '';
+                        if ($mHasGlow) $mNameClasses .= $mUser->glowing_name_type === 'shimmer' ? ' glowing-name-shimmer' : ' glowing-name-static';
+                        if ($mHasRankColor) $mNameClasses .= ' rank-color-' . $mUser->rank_color;
+                        if ($mHasFrame) $mNameClasses .= ($mUser->profile_frame_type ?? 'gold') === 'diamond' ? ' profile-frame-diamond' : ' profile-frame-gold';
+                    @endphp
                     <div style="flex: 1; min-width: 0;">
                         <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
-                            <span style="font-weight: 700; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                                {{ $member['user']->name }}
+                            <span class="{{ trim($mNameClasses) }}" style="font-weight: 700; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                {{ $mUser->name }}
                             </span>
                             @if($member['role'] === 'ausbildungsbeauftragter')
                                 <span class="badge-thw" style="font-size: 0.6rem; padding: 0.15rem 0.4rem;">Ausbilder</span>
                             @endif
                         </div>
+                        @if($mHasTitle)
+                            <div class="user-title" style="font-size: 0.7rem; margin-bottom: 0.25rem;">{{ $mUser->active_title }}</div>
+                        @endif
                         <div style="display: flex; gap: 1rem; font-size: 0.75rem; color: var(--text-secondary);">
                             <span><i class="bi bi-book"></i> {{ $member['theory_progress_percent'] }}%</span>
                             <span><i class="bi bi-bullseye"></i> {{ $member['exams_passed'] }}/5</span>
