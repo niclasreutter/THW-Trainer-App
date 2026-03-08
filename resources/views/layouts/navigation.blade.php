@@ -139,6 +139,11 @@
                                     <a href="{{ route('admin.ortsverband.index') }}" class="dropdown-item-glass">
                                         Ortsverbände
                                     </a>
+                                    @if(!app()->environment('production'))
+                                    <a href="{{ route('admin.time-simulator') }}" class="dropdown-item-glass">
+                                        Zeitsimulator
+                                    </a>
+                                    @endif
                                 </div>
                             </div>
                         @endif
