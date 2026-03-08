@@ -123,7 +123,7 @@ class Ortsverband extends Model
                 'exams_passed' => $examStreak,
                 'streak' => $member->streak_days ?? 0,
                 'level' => $member->level ?? 1,
-                'points' => $member->points ?? 0,
+                'points' => ($member->points ?? 0) + ($member->total_points_spent ?? 0),
                 'last_activity' => $member->last_activity_date,
                 'role' => $member->pivot->role
             ];
