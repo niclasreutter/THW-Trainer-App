@@ -351,6 +351,19 @@
         color: var(--text-secondary);
     }
 
+    /* Profilrahmen auf Desktop-Zeilen */
+    .leaderboard-row.profile-frame-gold,
+    .leaderboard-row.profile-frame-diamond {
+        margin: 0.25rem 0.5rem;
+        border-radius: 0.75rem;
+    }
+
+    /* Profilrahmen auf Mobile-Karten (hohe Spezifität) */
+    .mobile-card.profile-frame-gold,
+    .mobile-card.profile-frame-diamond {
+        border-radius: 1rem;
+    }
+
     /* Responsive */
     @media (max-width: 768px) {
         .dashboard-container {

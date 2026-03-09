@@ -1669,51 +1669,50 @@
 
 /* Goldener Profilrahmen (auf Zeile/Karte) */
 .profile-frame-gold {
-    border: 1.5px solid rgba(251, 191, 36, 0.5) !important;
-    box-shadow: 0 0 8px rgba(251, 191, 36, 0.2), inset 0 0 8px rgba(251, 191, 36, 0.05);
+    border: 2px solid rgba(251, 191, 36, 0.6) !important;
+    border-radius: 0.75rem !important;
+    box-shadow: 0 0 10px rgba(251, 191, 36, 0.25), inset 0 0 10px rgba(251, 191, 36, 0.06) !important;
 }
 
 /* Diamant-Profilrahmen (animiert, auf Zeile/Karte) */
 .profile-frame-diamond {
-    border: 1.5px solid rgba(147, 197, 253, 0.6) !important;
-    box-shadow: 0 0 10px rgba(147, 197, 253, 0.3), 0 0 20px rgba(167, 139, 250, 0.15), inset 0 0 10px rgba(147, 197, 253, 0.05);
+    border: 2px solid rgba(147, 197, 253, 0.7) !important;
+    border-radius: 0.75rem !important;
+    box-shadow: 0 0 12px rgba(147, 197, 253, 0.35), 0 0 24px rgba(167, 139, 250, 0.2), inset 0 0 12px rgba(147, 197, 253, 0.06) !important;
     animation: diamondShimmer 3s ease-in-out infinite;
 }
 
 @keyframes diamondShimmer {
     0%, 100% {
-        border-color: rgba(147, 197, 253, 0.6);
-        box-shadow: 0 0 10px rgba(147, 197, 253, 0.3), 0 0 20px rgba(167, 139, 250, 0.15), inset 0 0 10px rgba(147, 197, 253, 0.05);
+        border-color: rgba(147, 197, 253, 0.7);
+        box-shadow: 0 0 12px rgba(147, 197, 253, 0.35), 0 0 24px rgba(167, 139, 250, 0.2), inset 0 0 12px rgba(147, 197, 253, 0.06);
     }
     50% {
-        border-color: rgba(167, 139, 250, 0.6);
-        box-shadow: 0 0 14px rgba(167, 139, 250, 0.4), 0 0 24px rgba(147, 197, 253, 0.2), inset 0 0 12px rgba(167, 139, 250, 0.05);
+        border-color: rgba(167, 139, 250, 0.7);
+        box-shadow: 0 0 16px rgba(167, 139, 250, 0.45), 0 0 28px rgba(147, 197, 253, 0.25), inset 0 0 14px rgba(167, 139, 250, 0.06);
     }
 }
 
 /* Light Mode: Profilrahmen stärker sichtbar */
 html.light-mode .profile-frame-gold {
-    border-color: rgba(217, 149, 0, 0.6) !important;
-    box-shadow: 0 0 10px rgba(217, 149, 0, 0.25), inset 0 0 8px rgba(217, 149, 0, 0.06);
+    border-color: rgba(180, 120, 0, 0.7) !important;
+    box-shadow: 0 0 12px rgba(180, 120, 0, 0.3), inset 0 0 10px rgba(180, 120, 0, 0.06) !important;
 }
 
 html.light-mode .profile-frame-diamond {
-    border-color: rgba(99, 102, 241, 0.6) !important;
-    box-shadow: 0 0 12px rgba(99, 102, 241, 0.3), 0 0 22px rgba(139, 92, 246, 0.15), inset 0 0 10px rgba(99, 102, 241, 0.05);
-}
-
-html.light-mode .profile-frame-diamond {
+    border-color: rgba(79, 70, 229, 0.65) !important;
+    box-shadow: 0 0 14px rgba(79, 70, 229, 0.3), 0 0 24px rgba(139, 92, 246, 0.15), inset 0 0 12px rgba(79, 70, 229, 0.05) !important;
     animation: diamondShimmerLight 3s ease-in-out infinite;
 }
 
 @keyframes diamondShimmerLight {
     0%, 100% {
-        border-color: rgba(99, 102, 241, 0.6);
-        box-shadow: 0 0 12px rgba(99, 102, 241, 0.3), 0 0 22px rgba(139, 92, 246, 0.15);
+        border-color: rgba(79, 70, 229, 0.65);
+        box-shadow: 0 0 14px rgba(79, 70, 229, 0.3), 0 0 24px rgba(139, 92, 246, 0.15);
     }
     50% {
-        border-color: rgba(139, 92, 246, 0.6);
-        box-shadow: 0 0 16px rgba(139, 92, 246, 0.4), 0 0 26px rgba(99, 102, 241, 0.2);
+        border-color: rgba(139, 92, 246, 0.65);
+        box-shadow: 0 0 18px rgba(139, 92, 246, 0.4), 0 0 28px rgba(79, 70, 229, 0.2);
     }
 }
 
