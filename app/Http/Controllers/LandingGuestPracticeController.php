@@ -27,7 +27,7 @@ class LandingGuestPracticeController extends Controller
      */
     public function all()
     {
-        session()->forget(['guest_practice_mode', 'guest_practice_parameter', 'guest_practice_ids', 'guest_practice_skipped']);
+        session()->forget(['guest_practice_mode', 'guest_practice_parameter', 'guest_practice_ids', 'guest_practice_skipped', 'guest_questions_answered']);
 
         return $this->practiceMode('all');
     }
@@ -85,6 +85,23 @@ class LandingGuestPracticeController extends Controller
 
     public function show(Request $request)
     {
+        $answered = session('guest_questions_answered', 0);
+        if ($answered > 0 && $answered % 20 === 0 && !$request->has('continue')) {
+            $prompts = $this->getRegistrationPrompts();
+            $promptIndex = (int) floor($answered / 20) - 1;
+            $prompt = $prompts[$promptIndex % count($prompts)];
+
+            return view('guest.practice', [
+                'registrationPrompt' => $prompt,
+                'questionsAnswered' => $answered,
+                'question' => null,
+                'progress' => 0,
+                'total' => Question::count(),
+                'mode' => session('guest_practice_mode', 'all'),
+                'isLanding' => true,
+            ]);
+        }
+
         $skipped = session('guest_practice_skipped', []);
         $practiceIds = session('guest_practice_ids', []);
         $mode = session('guest_practice_mode', 'all');
@@ -154,6 +171,9 @@ class LandingGuestPracticeController extends Controller
             'source' => 'practice',
         ]);
 
+        $answered = session('guest_questions_answered', 0) + 1;
+        session(['guest_questions_answered' => $answered]);
+
         $skipped = session('guest_practice_skipped', []);
 
         if ($isCorrect) {
@@ -193,5 +213,51 @@ class LandingGuestPracticeController extends Controller
             'mode' => $mode,
             'isLanding' => true
         ]);
+    }
+
+    private function getRegistrationPrompts(): array
+    {
+        return [
+            [
+                'title' => 'Dein Fortschritt geht verloren',
+                'description' => 'Als Gast werden deine Antworten nicht gespeichert. Mit einem kostenlosen Account siehst du jederzeit, welche Fragen du bereits beherrscht und wo du noch Nachholbedarf hast.',
+                'benefit' => 'Fortschritt speichern',
+            ],
+            [
+                'title' => 'Lerne effizienter mit Wiederholungen',
+                'description' => 'Registrierte Nutzer profitieren von intelligentem Spacing: Fragen, die du falsch beantwortest, werden gezielt wiederholt, bis sie sitzen. So lernst du schneller und nachhaltiger.',
+                'benefit' => 'Spaced Repetition',
+            ],
+            [
+                'title' => 'Sammle XP und steige im Level auf',
+                'description' => 'Für jede richtige Antwort erhältst du Erfahrungspunkte. Schalte neue Level frei und verfolge deine Entwicklung auf deinem persönlichen Dashboard.',
+                'benefit' => 'Level und XP',
+            ],
+            [
+                'title' => 'Verdiene Auszeichnungen',
+                'description' => 'Erreiche Meilensteine und erhalte Auszeichnungen für deine Leistungen. Ob Serien, Lernabschnitte oder Prüfungsergebnisse: Dein Einsatz wird belohnt.',
+                'benefit' => 'Achievements',
+            ],
+            [
+                'title' => 'Miss dich mit anderen',
+                'description' => 'Im Leaderboard siehst du, wo du im Vergleich zu anderen THW-Lernenden stehst. Motiviere dich durch freundschaftlichen Wettbewerb in deinem Ortsverband.',
+                'benefit' => 'Leaderboard',
+            ],
+            [
+                'title' => 'Behalte deine Lernserie bei',
+                'description' => 'Tägliches Lernen wird mit Streaks belohnt. Je länger deine Serie, desto mehr Bonus-XP erhältst du. Ohne Account geht jede Strähne verloren.',
+                'benefit' => 'Streaks',
+            ],
+            [
+                'title' => 'Detaillierte Statistiken',
+                'description' => 'Analysiere deine Stärken und Schwächen mit ausführlichen Statistiken pro Lernabschnitt. Erkenne Muster in deinen Fehlern und optimiere dein Lernverhalten.',
+                'benefit' => 'Statistiken',
+            ],
+            [
+                'title' => 'Prüfungsverlauf und Lesezeichen',
+                'description' => 'Speichere schwierige Fragen als Lesezeichen und greife jederzeit auf deine bisherigen Prüfungsergebnisse zu. So behältst du den Überblick.',
+                'benefit' => 'Prüfungshistorie',
+            ],
+        ];
     }
 }
