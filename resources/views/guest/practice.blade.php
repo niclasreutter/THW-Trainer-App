@@ -522,7 +522,53 @@
 
 <div class="max-w-xl mx-auto mt-0 sm:mt-4 p-3 sm:p-4 bg-white sm:rounded-lg sm:shadow-lg sm:hover:shadow-xl sm:transition-shadow sm:duration-300" 
      id="guestPracticeContainer">
-    @if($question)
+    @if(isset($registrationPrompt))
+        {{-- Registration Prompt Interstitial --}}
+        <div class="flex flex-col items-center justify-center min-h-[60vh] px-4 animate-fade-in">
+            <div class="w-full max-w-md">
+                <div class="flex justify-center mb-6">
+                    <div class="w-16 h-16 rounded-full flex items-center justify-center"
+                         style="background: linear-gradient(135deg, #1e3a8a, #2563eb);">
+                        <svg class="w-8 h-8 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <h2 class="text-xl sm:text-2xl font-bold text-center mb-3" style="color: #1e3a8a;">
+                    {{ $registrationPrompt['title'] }}
+                </h2>
+
+                <p class="text-sm sm:text-base text-gray-600 text-center mb-2 leading-relaxed">
+                    {{ $registrationPrompt['description'] }}
+                </p>
+
+                <div class="flex justify-center mb-8">
+                    <span class="inline-block text-xs font-semibold px-3 py-1 rounded-full"
+                          style="background-color: #fef3c7; color: #92400e;">
+                        {{ $registrationPrompt['benefit'] }}
+                    </span>
+                </div>
+
+                <p class="text-xs text-gray-400 text-center mb-6">
+                    Du hast bereits {{ $questionsAnswered ?? session('guest_questions_answered', 0) }} Fragen beantwortet
+                </p>
+
+                <a href="{{ route('register') }}"
+                   class="w-full block text-center font-bold text-base py-3 px-4 rounded-lg no-underline transition-all duration-300 mb-3"
+                   style="background-color: #fbbf24; color: #1e3a8a; box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4);"
+                   onmouseover="this.style.transform='scale(1.02)'; this.style.boxShadow='0 6px 20px rgba(251, 191, 36, 0.5)';"
+                   onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 15px rgba(251, 191, 36, 0.4)';">
+                    Kostenlos registrieren
+                </a>
+
+                <a href="{{ route('landing.guest.practice.index', ['continue' => 1]) }}"
+                   class="w-full block text-center font-medium text-sm py-2.5 px-4 rounded-lg no-underline transition-all duration-200 text-gray-500 hover:text-gray-700 hover:bg-gray-100">
+                    Weiter üben
+                </a>
+            </div>
+        </div>
+    @elseif($question)
         <!-- Mobile: Kompakter Header -->
         <div class="sm:hidden mb-2 flex items-center justify-between p-2 bg-white border-b">
             <a href="{{ route('landing.guest.practice.menu') }}" class="p-2 hover:bg-gray-100 rounded-lg">
