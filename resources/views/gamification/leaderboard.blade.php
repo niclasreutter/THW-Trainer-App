@@ -444,7 +444,7 @@
             @forelse($leaderboard as $index => $user)
                 @php
                     $rank = $index + 1;
-                    $isCurrentUser = Auth::check() && Auth::user()->name === $user->name;
+                    $isCurrentUser = Auth::check() && Auth::user()->id === $user->id;
                     $medal = match($rank) {
                         1 => '<i class="bi bi-trophy-fill" style="color: #fbbf24;"></i>',
                         2 => '<i class="bi bi-trophy-fill" style="color: #94a3b8;"></i>',
@@ -524,7 +524,7 @@
         @forelse($leaderboard as $index => $user)
             @php
                 $rank = $index + 1;
-                $isCurrentUser = Auth::check() && Auth::user()->name === $user->name;
+                $isCurrentUser = Auth::check() && Auth::user()->id === $user->id;
                 $medal = match($rank) {
                     1 => '<i class="bi bi-trophy-fill" style="color: #fbbf24;"></i>',
                     2 => '<i class="bi bi-trophy-fill" style="color: #94a3b8;"></i>',
