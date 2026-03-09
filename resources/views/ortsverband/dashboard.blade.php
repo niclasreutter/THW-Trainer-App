@@ -88,7 +88,19 @@
 
             <div style="flex: 1; overflow-y: auto; max-height: 400px;">
                 @forelse($memberProgress->take(10) as $index => $member)
-                <div class="glass-subtle" style="display: flex; align-items: center; gap: 1rem; padding: 0.875rem 1rem; margin-bottom: 0.5rem; border-radius: 0.75rem;">
+                @php
+                    $mUser = $member['user'];
+                    $mHasGlow = $mUser->glowing_name_until && \Carbon\Carbon::parse($mUser->glowing_name_until)->isFuture();
+                    $mHasRankColor = $mUser->rank_color_until && \Carbon\Carbon::parse($mUser->rank_color_until)->isFuture() && $mUser->rank_color;
+                    $mHasFrame = $mUser->profile_frame_until && \Carbon\Carbon::parse($mUser->profile_frame_until)->isFuture();
+                    $mHasTitle = $mUser->active_title_until && \Carbon\Carbon::parse($mUser->active_title_until)->isFuture() && $mUser->active_title;
+                    $mNameClasses = '';
+                    if ($mHasGlow) $mNameClasses .= $mUser->glowing_name_type === 'shimmer' ? ' glowing-name-shimmer' : ' glowing-name-static';
+                    if ($mHasRankColor) $mNameClasses .= ' rank-color-' . $mUser->rank_color;
+                    $mFrameClass = '';
+                    if ($mHasFrame) $mFrameClass = ($mUser->profile_frame_type ?? 'gold') === 'diamond' ? 'profile-frame-diamond' : 'profile-frame-gold';
+                @endphp
+                <div class="glass-subtle {{ $mFrameClass }}" style="display: flex; align-items: center; gap: 1rem; padding: 0.875rem 1rem; margin-bottom: 0.5rem; border-radius: 0.75rem;">
                     <div style="font-size: 1.25rem; min-width: 36px; text-align: center; font-weight: 700;">
                         @if($index === 0)
                             <span style="color: #fbbf24;">1</span>
@@ -100,17 +112,6 @@
                             <span style="color: var(--text-muted);">{{ $index + 1 }}</span>
                         @endif
                     </div>
-                    @php
-                        $mUser = $member['user'];
-                        $mHasGlow = $mUser->glowing_name_until && \Carbon\Carbon::parse($mUser->glowing_name_until)->isFuture();
-                        $mHasRankColor = $mUser->rank_color_until && \Carbon\Carbon::parse($mUser->rank_color_until)->isFuture() && $mUser->rank_color;
-                        $mHasFrame = $mUser->profile_frame_until && \Carbon\Carbon::parse($mUser->profile_frame_until)->isFuture();
-                        $mHasTitle = $mUser->active_title_until && \Carbon\Carbon::parse($mUser->active_title_until)->isFuture() && $mUser->active_title;
-                        $mNameClasses = '';
-                        if ($mHasGlow) $mNameClasses .= $mUser->glowing_name_type === 'shimmer' ? ' glowing-name-shimmer' : ' glowing-name-static';
-                        if ($mHasRankColor) $mNameClasses .= ' rank-color-' . $mUser->rank_color;
-                        if ($mHasFrame) $mNameClasses .= ($mUser->profile_frame_type ?? 'gold') === 'diamond' ? ' profile-frame-diamond' : ' profile-frame-gold';
-                    @endphp
                     <div style="flex: 1; min-width: 0;">
                         <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
                             <span class="{{ trim($mNameClasses) }}" style="font-weight: 700; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">

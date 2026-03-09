@@ -460,12 +460,12 @@
                     if ($hasRankColor) {
                         $nameClasses .= ' rank-color-' . $user->rank_color;
                     }
+                    $frameClass = '';
                     if ($hasFrame) {
                         $frameClass = ($user->profile_frame_type ?? 'gold') === 'diamond' ? 'profile-frame-diamond' : 'profile-frame-gold';
-                        $nameClasses .= ' ' . $frameClass;
                     }
                 @endphp
-                <div class="leaderboard-row {{ $rowClass }}">
+                <div class="leaderboard-row {{ $rowClass }} {{ $frameClass }}">
                     <div class="rank-col">
                         @if($rank <= 3)
                             <span class="rank-medal">{!! $medal !!}</span>
@@ -533,8 +533,12 @@
                 $mHasGlow = $user->glowing_name_until && \Carbon\Carbon::parse($user->glowing_name_until)->isFuture();
                 $mHasRankColor = $user->rank_color_until && \Carbon\Carbon::parse($user->rank_color_until)->isFuture() && $user->rank_color;
                 $mHasTitle = $user->active_title_until && \Carbon\Carbon::parse($user->active_title_until)->isFuture() && $user->active_title;
+                $mFrameClass = '';
+                if ($mHasFrame) {
+                    $mFrameClass = ($user->profile_frame_type ?? 'gold') === 'diamond' ? 'profile-frame-diamond' : 'profile-frame-gold';
+                }
             @endphp
-            <div class="glass mobile-card {{ $cardClass }}">
+            <div class="glass mobile-card {{ $cardClass }} {{ $mFrameClass }}">
                 <div class="mobile-rank-section">
                     @if($rank <= 3)
                         <div class="mobile-rank-medal">{!! $medal !!}</div>
@@ -543,7 +547,7 @@
                 </div>
                 <div class="mobile-user-section">
                     <div class="{{ $mNameClasses }}">
-                        <span class="{{ $mHasGlow ? ($user->glowing_name_type === 'shimmer' ? 'glowing-name-shimmer' : 'glowing-name-static') : '' }} {{ $mHasRankColor ? 'rank-color-' . $user->rank_color : '' }} {{ $mHasFrame ? (($user->profile_frame_type ?? 'gold') === 'diamond' ? 'profile-frame-diamond' : 'profile-frame-gold') : '' }}">{{ $user->name }}</span>
+                        <span class="{{ $mHasGlow ? ($user->glowing_name_type === 'shimmer' ? 'glowing-name-shimmer' : 'glowing-name-static') : '' }} {{ $mHasRankColor ? 'rank-color-' . $user->rank_color : '' }}">{{ $user->name }}</span>
                         @if($isCurrentUser)
                             <span class="you-badge"><i class="bi bi-person-fill"></i></span>
                         @endif
