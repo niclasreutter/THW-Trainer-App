@@ -277,12 +277,6 @@
         font-weight: 600;
         font-size: 0.9rem;
         z-index: 100;
-        transform: translateX(120%);
-        transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-
-    .shop-toast.show {
-        transform: translateX(0);
     }
 
     .shop-toast.success {
@@ -309,7 +303,13 @@
 <div class="dashboard-container" x-data="shopApp()">
 
     <!-- Toast -->
-    <div class="shop-toast" :class="[toast.show ? 'show' : '', toast.type]" x-text="toast.message"></div>
+    <div class="shop-toast" x-show="toast.show" x-cloak :class="toast.type" x-text="toast.message"
+         x-transition:enter="transition ease-out duration-400"
+         x-transition:enter-start="translate-x-full opacity-0"
+         x-transition:enter-end="translate-x-0 opacity-100"
+         x-transition:leave="transition ease-in duration-300"
+         x-transition:leave-start="translate-x-0 opacity-100"
+         x-transition:leave-end="translate-x-full opacity-0"></div>
 
     <header class="dashboard-header">
         <h1 class="page-title">Punkte <span>Shop</span></h1>
