@@ -3,6 +3,27 @@
 
 @push('styles')
 <style>
+    /* Match dashboard 3-column bento grid */
+    .bento-grid {
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 1.25rem;
+    }
+
+    .bento-wide {
+        grid-column: span 3;
+    }
+
+    @media (max-width: 900px) {
+        .bento-grid { grid-template-columns: 1fr 1fr; }
+        .bento-wide { grid-column: span 2; }
+        .bento-2of3 { grid-column: span 2; }
+    }
+
+    @media (max-width: 600px) {
+        .bento-grid { grid-template-columns: 1fr; }
+        .bento-wide, .bento-2of3, .bento-1of3 { grid-column: span 1; }
+    }
+
     .shop-item-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -324,7 +345,7 @@
 
     <div class="bento-grid">
         <!-- Main: Shop Items -->
-        <div class="glass-gold bento-2of3 p-6">
+        <div class="glass bento-2of3 p-6">
             <div class="section-header mb-5">
                 <h2 class="section-title">Verfügbare Items</h2>
             </div>
@@ -419,7 +440,7 @@
         </div>
 
         <!-- Sidebar: Active Effects -->
-        <div class="glass-tl bento-1of3 p-6">
+        <div class="glass bento-1of3 p-6">
             <div class="section-header mb-4">
                 <h2 class="section-title">Aktive Effekte</h2>
             </div>
