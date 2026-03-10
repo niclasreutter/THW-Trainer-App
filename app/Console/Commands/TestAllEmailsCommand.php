@@ -15,9 +15,11 @@ use App\Mail\ContactMail;
 use App\Mail\ExamReminderMail;
 use App\Mail\ExamGoodLuckMail;
 use App\Mail\ExamFeedbackRequestMail;
+use App\Models\ExamFeedback;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Carbon\Carbon;
 
 class TestAllEmailsCommand extends Command
@@ -151,8 +153,19 @@ class TestAllEmailsCommand extends Command
                 Mail::to($email)->send(new ExamGoodLuckMail($testUser));
             },
             '12. Feedback-Anfrage (exam-feedback-request)' => function() use ($testUser, $email) {
-                $fakeUrl = url('/exam-feedback/test-token-' . \Illuminate\Support\Str::random(32));
-                Mail::to($email)->send(new ExamFeedbackRequestMail($testUser, $fakeUrl));
+                // Echten DB-User finden oder ersten nehmen
+                $dbUser = User::where('email', $email)->first() ?? User::first();
+                $token = 'test-' . Str::random(32);
+
+                ExamFeedback::create([
+                    'user_id' => $dbUser->id,
+                    'token' => $token,
+                ]);
+
+                $feedbackUrl = url("/exam-feedback/{$token}");
+                Mail::to($email)->send(new ExamFeedbackRequestMail($testUser, $feedbackUrl));
+
+                $this->line("  Feedback-URL: {$feedbackUrl}");
             },
             '13. Admin Daily Report (admin-daily-report)' => function() use ($email) {
                 $reportData = $this->generateTestReportData();
