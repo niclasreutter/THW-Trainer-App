@@ -37,6 +37,7 @@ class ExamFeedbackController extends Controller
         $validated = $request->validate([
             'passed' => ['required', 'boolean'],
             'feedback' => ['nullable', 'string', 'max:2000'],
+            'rating' => ['nullable', 'integer', 'min:1', 'max:5'],
             'publish_mode' => ['required', 'in:anonymous,named'],
         ]);
 

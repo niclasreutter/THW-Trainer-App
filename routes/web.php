@@ -277,6 +277,10 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix
     Route::delete('contact-messages/{contactMessage}', [\App\Http\Controllers\Admin\ContactMessageController::class, 'destroy'])->name('contact-messages.destroy');
     Route::delete('contact-messages', [\App\Http\Controllers\Admin\ContactMessageController::class, 'bulkDelete'])->name('contact-messages.bulk-delete');
 
+    // Prüfungs-Feedback
+    Route::get('exam-feedback', [\App\Http\Controllers\Admin\ExamFeedbackController::class, 'index'])->name('exam-feedback.index');
+    Route::delete('exam-feedback/{examFeedback}', [\App\Http\Controllers\Admin\ExamFeedbackController::class, 'destroy'])->name('exam-feedback.destroy');
+
     // Ortsverband Routes (Admin) - Nur View und Delete
     Route::get('ortsverband', [\App\Http\Controllers\Admin\OrtsverbandController::class, 'index'])->name('ortsverband.index');
     Route::post('ortsverband/{ortsverband}/view-as', [\App\Http\Controllers\Admin\OrtsverbandController::class, 'viewAs'])->name('ortsverband.view-as');
