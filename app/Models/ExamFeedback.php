@@ -13,6 +13,7 @@ class ExamFeedback extends Model
         'token',
         'passed',
         'feedback',
+        'rating',
         'publish_mode',
     ];
 
@@ -20,6 +21,7 @@ class ExamFeedback extends Model
     {
         return [
             'passed' => 'boolean',
+            'rating' => 'integer',
         ];
     }
 

@@ -114,6 +114,30 @@
                     @enderror
                 </div>
 
+                <!-- Sterne-Rating -->
+                <div class="glass" style="padding:24px;border-radius:12px;margin-bottom:20px;">
+                    <label style="font-size:16px;font-weight:600;color:#fff;display:block;margin-bottom:4px;">
+                        Wie bewertest du den THW Trainer?
+                    </label>
+                    <p style="font-size:13px;color:rgba(255,255,255,0.5);margin:0 0 16px 0;">
+                        Wie hilfreich war die Vorbereitung mit dem THW Trainer?
+                    </p>
+                    <div style="display:flex;gap:8px;justify-content:center;" id="star-rating">
+                        @for($i = 1; $i <= 5; $i++)
+                            <label style="cursor:pointer;">
+                                <input type="radio" name="rating" value="{{ $i }}" {{ old('rating') == $i ? 'checked' : '' }} style="display:none;" class="star-input">
+                                <svg class="star" data-value="{{ $i }}" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1.5" style="transition:all 0.15s;cursor:pointer;">
+                                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                </svg>
+                            </label>
+                        @endfor
+                    </div>
+                    <div id="rating-label" style="text-align:center;margin-top:8px;font-size:14px;color:rgba(255,255,255,0.5);min-height:20px;"></div>
+                    @error('rating')
+                        <p style="color:#ef4444;font-size:14px;margin-top:8px;text-align:center;">{{ $message }}</p>
+                    @enderror
+                </div>
+
                 <!-- Feedback Text -->
                 <div class="glass" style="padding:24px;border-radius:12px;margin-bottom:20px;">
                     <label for="feedback" style="font-size:16px;font-weight:600;color:#fff;display:block;margin-bottom:12px;">
@@ -190,7 +214,7 @@
     </div>
 
     <script>
-        // Radio-Button visuelle Selektion
+        // Radio-Button visuelle Selektion (Bestanden/Nicht bestanden)
         document.querySelectorAll('input[name="passed"]').forEach(radio => {
             radio.addEventListener('change', function() {
                 const yesOption = document.getElementById('option-yes');
@@ -209,6 +233,54 @@
                 }
             });
         });
+
+        // Sterne-Rating
+        const ratingLabels = {1: 'Nicht hilfreich', 2: 'Wenig hilfreich', 3: 'OK', 4: 'Hilfreich', 5: 'Sehr hilfreich'};
+        const stars = document.querySelectorAll('#star-rating .star');
+        const ratingLabel = document.getElementById('rating-label');
+        let currentRating = 0;
+
+        function updateStars(value, isHover) {
+            stars.forEach(star => {
+                const v = parseInt(star.dataset.value);
+                if (v <= value) {
+                    star.style.fill = '#FFD700';
+                    star.style.stroke = '#FFD700';
+                    star.style.transform = v === value && isHover ? 'scale(1.15)' : 'scale(1)';
+                } else {
+                    star.style.fill = 'none';
+                    star.style.stroke = 'rgba(255,255,255,0.2)';
+                    star.style.transform = 'scale(1)';
+                }
+            });
+            if (value > 0) {
+                ratingLabel.textContent = ratingLabels[value];
+                ratingLabel.style.color = '#FFD700';
+            }
+        }
+
+        stars.forEach(star => {
+            star.addEventListener('mouseenter', () => updateStars(parseInt(star.dataset.value), true));
+            star.addEventListener('click', () => {
+                currentRating = parseInt(star.dataset.value);
+                star.closest('label').querySelector('.star-input').checked = true;
+                updateStars(currentRating, false);
+            });
+        });
+
+        document.getElementById('star-rating').addEventListener('mouseleave', () => {
+            updateStars(currentRating, false);
+            if (currentRating === 0) {
+                ratingLabel.textContent = '';
+            }
+        });
+
+        // Initialen Zustand setzen (bei old() Wert)
+        const checkedStar = document.querySelector('.star-input:checked');
+        if (checkedStar) {
+            currentRating = parseInt(checkedStar.value);
+            updateStars(currentRating, false);
+        }
     </script>
 </body>
 </html>

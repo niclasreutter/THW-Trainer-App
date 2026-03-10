@@ -289,6 +289,12 @@
                             @endif
                         </a>
 
+                        <a href="{{ route('admin.exam-feedback.index') }}"
+                           class="sidebar-link {{ request()->routeIs('admin.exam-feedback.*') ? 'active' : '' }}">
+                            <i class="bi bi-mortarboard"></i>
+                            Prüfungs-Feedback
+                        </a>
+
                         @if(!app()->environment('production'))
                         <a href="{{ route('admin.time-simulator') }}"
                            class="sidebar-link {{ request()->routeIs('admin.time-simulator*') ? 'active' : '' }}">
@@ -551,6 +557,11 @@
                         @if($mobileUnreadContactCount > 0)
                             <span class="badge-error text-xs ml-auto">{{ $mobileUnreadContactCount }}</span>
                         @endif
+                    </a>
+
+                    <a href="{{ route('admin.exam-feedback.index') }}" class="sidebar-link {{ request()->routeIs('admin.exam-feedback.*') ? 'active' : '' }}">
+                        <i class="bi bi-mortarboard"></i>
+                        Prüfungs-Feedback
                     </a>
 
                     @if(!app()->environment('production'))
