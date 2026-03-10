@@ -93,3 +93,21 @@ test('league order is correct from lowest to highest', function () {
     $orders = array_column($leagues, 'order');
     expect($orders)->toBe([1, 2, 3, 4, 5, 6, 7, 8]);
 });
+
+test('promotion min points increase with league tier', function () {
+    $minPoints = LeagueService::PROMOTION_MIN_POINTS;
+
+    // Alle Ligen ausser Diamant muessen Mindest-Punkte haben
+    expect($minPoints)->toHaveCount(7);
+    expect($minPoints)->not->toHaveKey('diamant');
+
+    // Punkte muessen aufsteigend sein
+    $values = array_values($minPoints);
+    for ($i = 1; $i < count($values); $i++) {
+        expect($values[$i])->toBeGreaterThan($values[$i - 1]);
+    }
+});
+
+test('min users for movement is at least 3', function () {
+    expect(LeagueService::MIN_USERS_FOR_MOVEMENT)->toBeGreaterThanOrEqual(3);
+});

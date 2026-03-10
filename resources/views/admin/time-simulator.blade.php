@@ -150,10 +150,101 @@
         </div>
     </div>
 
+    <!-- Liga-Simulator Section -->
+    <div class="glass-blue" style="margin-bottom: 1.5rem; padding: 1.5rem;">
+        <h2 class="text-lg font-semibold text-dark-primary mb-4">Liga-Simulator</h2>
+
+        <!-- Liga-Uebersicht -->
+        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.25rem;">
+            @foreach($leagues as $key => $league)
+                <div style="background: rgba(255,255,255,0.03); border: 1px solid {{ $league['color'] }}33; border-radius: 0.5rem; padding: 0.5rem 0.75rem; text-align: center; min-width: 80px;">
+                    <div style="color: {{ $league['color'] }}; font-weight: 600; font-size: 0.85rem;">{{ $league['name'] }}</div>
+                    <div style="color: var(--text-secondary); font-size: 0.75rem;">{{ $leagueStats[$key] ?? 0 }} User</div>
+                    <div style="color: var(--text-secondary); font-size: 0.65rem;">Min: {{ \App\Services\LeagueService::PROMOTION_MIN_POINTS[$key] ?? '-' }} Pkt</div>
+                </div>
+            @endforeach
+        </div>
+
+        <div class="simulator-actions">
+            <!-- Weekly Points setzen -->
+            <div class="action-card">
+                <h3>Weekly Points setzen</h3>
+                <p>Setzt die Wochen-Punkte eines Users manuell. Damit kann das Liga-Ranking simuliert werden.</p>
+                <form method="POST" action="{{ route('admin.time-simulator.set-weekly-points') }}">
+                    @csrf
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>User</label>
+                            <select name="user_id" required>
+                                @foreach($users as $user)
+                                    <option value="{{ $user['id'] }}">{{ $user['name'] }} ({{ $user['league'] }}, {{ $user['weekly_points'] }} Pkt)</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Weekly Points</label>
+                            <input type="number" name="weekly_points" value="100" min="0" max="10000" required
+                                   style="width: 100%; padding: 0.5rem 0.75rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 0.5rem; color: var(--text-primary); font-size: 0.85rem;">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-primary mt-3 w-full">Points setzen</button>
+                </form>
+            </div>
+
+            <!-- Liga setzen -->
+            <div class="action-card">
+                <h3>Liga manuell setzen</h3>
+                <p>Verschiebt einen User direkt in eine bestimmte Liga, unabhaengig von den Regeln.</p>
+                <form method="POST" action="{{ route('admin.time-simulator.set-league') }}">
+                    @csrf
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>User</label>
+                            <select name="user_id" required>
+                                @foreach($users as $user)
+                                    <option value="{{ $user['id'] }}">{{ $user['name'] }} ({{ $user['league'] }})</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Neue Liga</label>
+                            <select name="league" required>
+                                @foreach($leagues as $key => $league)
+                                    <option value="{{ $key }}">{{ $league['name'] }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-secondary mt-3 w-full">Liga setzen</button>
+                </form>
+            </div>
+
+            <!-- Liga-Verarbeitung ausfuehren -->
+            <div class="action-card">
+                <h3>Liga-Verarbeitung starten</h3>
+                <p>Fuehrt die woechentliche Liga-Logik aus: Auf-/Abstiege (Top/Bottom 20%, max 5) und Lootbox-Vergabe. Min. 3 aktive User pro Liga noetig.</p>
+                <form method="POST" action="{{ route('admin.time-simulator.run-league') }}" onsubmit="return confirm('Liga-Verarbeitung jetzt ausfuehren? Auf-/Abstiege und Lootboxen werden verarbeitet.')">
+                    @csrf
+                    <button type="submit" class="btn-primary mt-3 w-full">Liga-Verarbeitung starten</button>
+                </form>
+            </div>
+
+            <!-- Weekly Points Reset -->
+            <div class="action-card">
+                <h3>Weekly Points zuruecksetzen</h3>
+                <p>Setzt alle Weekly Points auf 0 zurueck. Simuliert den woechentlichen Reset nach der Liga-Verarbeitung.</p>
+                <form method="POST" action="{{ route('admin.time-simulator.reset-weekly-points') }}" onsubmit="return confirm('Alle Weekly Points auf 0 zuruecksetzen?')">
+                    @csrf
+                    <button type="submit" class="btn-danger mt-3 w-full">Alle Points zuruecksetzen</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <div class="bento-grid">
         <!-- Simulator Actions -->
         <div class="glass-gold bento-main">
-            <h2 class="text-lg font-semibold text-dark-primary mb-4">Aktionen</h2>
+            <h2 class="text-lg font-semibold text-dark-primary mb-4">Streak-Aktionen</h2>
 
             <div class="simulator-actions">
                 <!-- 1. Simulate Activity -->
@@ -290,6 +381,8 @@ Beispiel-Flow:
                     <thead>
                         <tr>
                             <th>Name</th>
+                            <th>Liga</th>
+                            <th>W-Pkt</th>
                             <th>Streak</th>
                             <th>Last Activity</th>
                             <th>Freezes</th>
@@ -300,6 +393,17 @@ Beispiel-Flow:
                         @foreach($users as $user)
                             <tr>
                                 <td>{{ $user['name'] }}</td>
+                                <td>
+                                    @php $leagueInfo = \App\Services\LeagueService::getLeagueInfo($user['league']); @endphp
+                                    <span style="color: {{ $leagueInfo['color'] }}; font-weight: 500;">{{ $leagueInfo['name'] }}</span>
+                                </td>
+                                <td>
+                                    @if($user['weekly_points'] > 0)
+                                        <span style="color: var(--gold);">{{ $user['weekly_points'] }}</span>
+                                    @else
+                                        <span class="text-dark-muted">0</span>
+                                    @endif
+                                </td>
                                 <td>
                                     @if($user['streak_days'] > 0)
                                         <span class="text-success">{{ $user['streak_days'] }}d</span>

@@ -289,6 +289,12 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix
     Route::post('/time-simulator/daily-reset', [\App\Http\Controllers\Admin\TimeSimulatorController::class, 'runDailyReset'])->name('time-simulator.reset');
     Route::post('/time-simulator/streak-reminder', [\App\Http\Controllers\Admin\TimeSimulatorController::class, 'runStreakReminder'])->name('time-simulator.reminder');
     Route::post('/time-simulator/reset-user', [\App\Http\Controllers\Admin\TimeSimulatorController::class, 'resetUser'])->name('time-simulator.reset-user');
+
+    // Liga-Simulator
+    Route::post('/time-simulator/set-weekly-points', [\App\Http\Controllers\Admin\TimeSimulatorController::class, 'setWeeklyPoints'])->name('time-simulator.set-weekly-points');
+    Route::post('/time-simulator/set-league', [\App\Http\Controllers\Admin\TimeSimulatorController::class, 'setLeague'])->name('time-simulator.set-league');
+    Route::post('/time-simulator/run-league', [\App\Http\Controllers\Admin\TimeSimulatorController::class, 'runLeagueProcessing'])->name('time-simulator.run-league');
+    Route::post('/time-simulator/reset-weekly-points', [\App\Http\Controllers\Admin\TimeSimulatorController::class, 'resetWeeklyPoints'])->name('time-simulator.reset-weekly-points');
 });
 
 // Test Routes für Error Pages (nur für Development/Testing)
