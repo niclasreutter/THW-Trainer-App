@@ -81,9 +81,22 @@ Route::get('/dashboard', function () {
     $gamificationService = new \App\Services\GamificationService();
     $streakFreezeStatus = $gamificationService->getStreakFreezeStatus($user);
 
+    // Daily Quests widget data
+    $dailyQuestService = new \App\Services\DailyQuestService();
+    $dailyQuestData = $dailyQuestService->getQuestWidgetData($user);
+
+    // Monthly Challenge widget data
+    $monthlyChallengeService = new \App\Services\MonthlyChallengeService();
+    $monthlyChallengeData = $monthlyChallengeService->getChallengeWidgetData($user);
+
+    // League info
+    $leagueService = new \App\Services\LeagueService();
+    $userLeagueInfo = $leagueService->getUserLeagueInfo($user);
+
     return view('dashboard', compact(
         'user', 'recentExams', 'totalQuestions', 'spacedRepetitionDue',
-        'weeklyActivity', 'sectionStats', 'streakFreezeStatus'
+        'weeklyActivity', 'sectionStats', 'streakFreezeStatus',
+        'dailyQuestData', 'monthlyChallengeData', 'userLeagueInfo'
     ));
 })->middleware(['auth', 'verified'])->name('dashboard');
 
@@ -139,6 +152,17 @@ Route::middleware('auth')->group(function () {
     // Gamification Routes
     Route::get('/achievements', [\App\Http\Controllers\GamificationController::class, 'achievements'])->name('gamification.achievements');
     Route::get('/leaderboard', [\App\Http\Controllers\GamificationController::class, 'leaderboard'])->name('gamification.leaderboard');
+
+    // League Routes
+    Route::get('/leagues', [\App\Http\Controllers\GamificationController::class, 'leagueLeaderboard'])->name('gamification.leagues');
+
+    // Daily Quests Routes
+    Route::get('/daily-quests', [\App\Http\Controllers\GamificationController::class, 'dailyQuests'])->name('gamification.daily-quests');
+    Route::post('/daily-quests/claim-chest', [\App\Http\Controllers\GamificationController::class, 'claimQuestChest'])->name('gamification.claim-chest');
+
+    // Monthly Challenge Routes
+    Route::get('/monthly-challenge', [\App\Http\Controllers\GamificationController::class, 'monthlyChallenge'])->name('gamification.monthly-challenge');
+    Route::post('/monthly-challenge/claim-milestone', [\App\Http\Controllers\GamificationController::class, 'claimMilestone'])->name('gamification.claim-milestone');
 
     // Shop Routes
     Route::get('/shop', [\App\Http\Controllers\ShopController::class, 'index'])->name('shop.index');

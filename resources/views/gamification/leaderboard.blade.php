@@ -418,6 +418,10 @@
                class="tab-glass {{ $tab === 'woche' ? 'active' : '' }}" style="text-decoration: none;">
                 <i class="bi bi-calendar-week"></i> Diese Woche
             </a>
+            <a href="{{ route('gamification.leagues') }}"
+               class="tab-glass" style="text-decoration: none;">
+                <i class="bi bi-gem"></i> Ligen
+            </a>
         </div>
     </div>
 

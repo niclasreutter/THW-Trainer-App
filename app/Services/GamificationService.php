@@ -16,6 +16,15 @@ class GamificationService
     const MAX_STREAK_FREEZES_PER_WEEK = 2;
     const STREAK_MIN_QUESTIONS = 20;
 
+    const COMBO_BONUSES = [
+        3  => 3,
+        5  => 5,
+        7  => 8,
+        10 => 15,
+        15 => 25,
+        20 => 40,
+    ];
+
     // Level-System (Punkte benötigt für nächstes Level)
     const LEVEL_THRESHOLDS = [
         1 => 0,
@@ -246,6 +255,9 @@ class GamificationService
 
         $user->last_activity_date = $today;
         $user->save();
+
+        // Monthly Challenge: Active day
+        (new MonthlyChallengeService())->updateProgress($user, 'active_day');
     }
 
     /**
@@ -814,6 +826,28 @@ class GamificationService
             'success'   => true,
             'message'   => 'Streak Freeze eingesetzt! Dein Streak ist heute geschützt.',
             'remaining' => max(0, $available - $user->streak_freezes_used),
+        ];
+    }
+
+    public function processComboBonus(User $user, int $comboCount): ?array
+    {
+        $bonus = self::COMBO_BONUSES[$comboCount] ?? null;
+        if (!$bonus) {
+            return null;
+        }
+
+        $this->awardPoints($user, $bonus, "Combo x{$comboCount}");
+
+        $newBest = $comboCount > ($user->best_combo ?? 0);
+        if ($newBest) {
+            $user->best_combo = $comboCount;
+            $user->save();
+        }
+
+        return [
+            'combo' => $comboCount,
+            'bonus_xp' => $bonus,
+            'new_best' => $newBest,
         ];
     }
 

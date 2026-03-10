@@ -50,3 +50,10 @@ Schedule::command('system:maintenance')
     ->timezone('Europe/Berlin')
     ->description('Führt System-Wartung und Speicher-Optimierung durch');
 
+// Wöchentliche Liga-Verarbeitung
+// Läuft jeden Montag um 00:05 Uhr (vor dem Weekly-Reset)
+Schedule::command('leagues:process-weekly')
+    ->weeklyOn(1, '00:05')
+    ->timezone('Europe/Berlin')
+    ->description('Verarbeitet wöchentliche Liga-Auf- und Abstiege');
+

@@ -273,6 +273,12 @@ class ExamController extends Controller
 
             $gamificationService = new GamificationService();
             $gamificationResult = $gamificationService->awardExamPoints($user, $correctCount, $total);
+
+            // Daily Quest: Exam passed
+            (new \App\Services\DailyQuestService())->updateQuestProgress($user, 'exam_passed');
+
+            // Monthly Challenge: Exam passed
+            (new \App\Services\MonthlyChallengeService())->updateProgress($user, 'exams_passed');
         } else {
             $user->exam_passed_count = 0;
             $user->exam_failed_questions = $failed;

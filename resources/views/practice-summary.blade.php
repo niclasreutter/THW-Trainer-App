@@ -185,6 +185,12 @@
             <div class="summary-stat-value" style="color: #a855f7;" data-count="{{ $stats['mastered'] }}">0</div>
             <div class="summary-stat-label">Gemeistert</div>
         </div>
+        @if(isset($stats['best_session_combo']) && $stats['best_session_combo'] >= 2)
+        <div class="glass summary-stat">
+            <div class="summary-stat-value" style="color: #f97316;" data-count="{{ $stats['best_session_combo'] }}">0</div>
+            <div class="summary-stat-label">Beste Combo</div>
+        </div>
+        @endif
     </div>
 
     <div class="summary-accuracy-bar glass" style="padding: 1.25rem;">

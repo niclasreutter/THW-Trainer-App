@@ -411,8 +411,12 @@ class PracticeController extends Controller
                 'points' => 0,
                 'mastered' => 0,
                 'started_at' => now()->timestamp,
+                'best_session_combo' => 0,
             ],
         ]);
+
+        // Initialize combo counter for new session
+        session(['practice_combo_count' => 0]);
 
         $currentInMode = 1;
 
@@ -658,12 +662,50 @@ class PracticeController extends Controller
             session(['gamification_result' => $gamificationResult]);
         }
 
+        // === COMBO COUNTER ===
+        $comboCount = session('practice_combo_count', 0);
+        $comboResult = null;
+        if ($isCorrect) {
+            $comboCount++;
+            session(['practice_combo_count' => $comboCount]);
+            $comboService = $gamificationService ?? new GamificationService();
+            $comboResult = $comboService->processComboBonus($user, $comboCount);
+        } else {
+            $comboCount = 0;
+            session(['practice_combo_count' => 0]);
+        }
+
+        // === DAILY QUESTS ===
+        $dailyQuestService = new \App\Services\DailyQuestService();
+        $dailyQuestService->updateQuestProgress($user, 'question_answered');
+        if ($isCorrect) {
+            $dailyQuestService->updateQuestProgress($user, 'correct_answer');
+        }
+        $practiceMode = session('practice_mode', 'all');
+        if ($practiceMode === 'spaced_repetition') {
+            $dailyQuestService->updateQuestProgress($user, 'sr_question_answered');
+        }
+        if ($practiceMode === 'section') {
+            $sectionParam = session('practice_parameter');
+            if ($sectionParam) {
+                $dailyQuestService->updateQuestProgress($user, 'section_practiced', ['section' => $sectionParam]);
+            }
+        }
+
+        // === MONTHLY CHALLENGE ===
+        $monthlyChallengeService = new \App\Services\MonthlyChallengeService();
+        $monthlyChallengeService->updateProgress($user, 'question_answered');
+        if ($isCorrect) {
+            $monthlyChallengeService->updateProgress($user, 'correct_answer');
+        }
+
         // Session-Statistiken aktualisieren
         $sessionStats = session('practice_session_stats', [
-            'correct' => 0, 'incorrect' => 0, 'points' => 0, 'mastered' => 0, 'started_at' => now()->timestamp,
+            'correct' => 0, 'incorrect' => 0, 'points' => 0, 'mastered' => 0, 'started_at' => now()->timestamp, 'best_session_combo' => 0,
         ]);
         if ($isCorrect) {
             $sessionStats['correct']++;
+            $sessionStats['best_session_combo'] = max($sessionStats['best_session_combo'] ?? 0, $comboCount);
         } else {
             $sessionStats['incorrect']++;
         }
@@ -682,7 +724,9 @@ class PracticeController extends Controller
                 'is_correct' => $isCorrect,
                 'user_answer' => $userAnswer->toArray(),
                 'question_progress' => $progress->consecutive_correct,
-                'answer_mapping' => $mapping // Mapping auch speichern für die Anzeige
+                'answer_mapping' => $mapping, // Mapping auch speichern für die Anzeige
+                'combo_count' => $comboCount,
+                'combo_result' => $comboResult,
             ]
         ]);
 
@@ -731,7 +775,7 @@ class PracticeController extends Controller
         };
 
         // Session aufräumen
-        session()->forget(['practice_mode', 'practice_parameter', 'practice_ids', 'practice_skipped', 'practice_total_in_mode', 'practice_session_stats']);
+        session()->forget(['practice_mode', 'practice_parameter', 'practice_ids', 'practice_skipped', 'practice_total_in_mode', 'practice_session_stats', 'practice_combo_count']);
 
         return view('practice-summary', compact('stats', 'totalAnswered', 'accuracy', 'durationMinutes', 'modeName'));
     }

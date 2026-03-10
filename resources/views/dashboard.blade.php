@@ -807,6 +807,15 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') dismi
                 <div class="stat-pill-label">Erfolge</div>
             </div>
         </div>
+        @if(isset($userLeagueInfo))
+        <a href="{{ route('gamification.leagues') }}" class="stat-pill" style="text-decoration: none;">
+            <span class="stat-pill-icon" style="color: {{ $userLeagueInfo['color'] }};"><i class="bi {{ $userLeagueInfo['icon'] }}"></i></span>
+            <div>
+                <div class="stat-pill-value">{{ $userLeagueInfo['label'] }}</div>
+                <div class="stat-pill-label">Liga</div>
+            </div>
+        </a>
+        @endif
     </div>
 
     <!-- Bento Grid Layout -->
@@ -1053,6 +1062,58 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') dismi
             @else
                 <span class="badge-glass" style="font-size: 0.7rem;">Noch nicht bereit</span>
                 <span class="btn-ghost btn-sm" style="opacity: 0.5;">Erst Theorie abschließen</span>
+            @endif
+        </div>
+        @endif
+
+        <!-- Daily Quests Widget -->
+        @if(isset($dailyQuestData))
+        <div class="glass-tl bento-2of3" style="padding: 1.25rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h3 style="font-size: 1rem; font-weight: 700; color: var(--text-primary); margin: 0;">Tagesaufgaben</h3>
+                <a href="{{ route('gamification.daily-quests') }}" style="font-size: 0.75rem; color: var(--gold);">Alle anzeigen</a>
+            </div>
+            @foreach($dailyQuestData['quests'] as $quest)
+            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
+                <div style="flex: 1; min-width: 0;">
+                    <div style="font-size: 0.8rem; color: {{ $quest->is_completed ? 'var(--success)' : 'var(--text-secondary)' }}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                        @if($quest->is_completed)<i class="bi bi-check-circle-fill" style="color: var(--success);"></i>@endif
+                        {{ $quest->quest_title }}
+                    </div>
+                    <div style="height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; margin-top: 0.25rem;">
+                        <div style="height: 100%; width: {{ min(100, $quest->target_value > 0 ? round(($quest->current_value / $quest->target_value) * 100) : 0) }}%; background: {{ $quest->is_completed ? 'var(--success)' : 'var(--gold)' }}; border-radius: 2px; transition: width 0.3s;"></div>
+                    </div>
+                </div>
+                <span style="font-size: 0.7rem; color: var(--text-muted); white-space: nowrap;">{{ $quest->current_value }}/{{ $quest->target_value }}</span>
+            </div>
+            @endforeach
+            @if($dailyQuestData['chest_available'])
+            <button onclick="claimQuestChest()" class="btn-primary btn-sm" style="width: 100%; margin-top: 0.5rem;">Truhe oeffnen (+{{ \App\Services\DailyQuestService::CHEST_XP }} XP)</button>
+            @elseif($dailyQuestData['chest_claimed'])
+            <div style="text-align: center; font-size: 0.75rem; color: var(--success); margin-top: 0.5rem;"><i class="bi bi-check-circle-fill"></i> Truhe beansprucht</div>
+            @endif
+        </div>
+        @endif
+
+        <!-- Monthly Challenge Widget -->
+        @if(isset($monthlyChallengeData))
+        <div class="glass-br bento-1of3" style="padding: 1.25rem;">
+            <h3 style="font-size: 1rem; font-weight: 700; color: var(--text-primary); margin: 0 0 0.75rem 0;">Monats-Challenge</h3>
+            <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.75rem;">{{ $monthlyChallengeData['challenge']->challenge_title }}</p>
+            <div style="position: relative; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; margin-bottom: 0.5rem;">
+                <div style="height: 100%; width: {{ $monthlyChallengeData['progress_percent'] }}%; background: linear-gradient(90deg, var(--gold), #f59e0b); border-radius: 3px; transition: width 0.3s;"></div>
+                @foreach([25, 50, 75, 100] as $ms)
+                <div style="position: absolute; top: -3px; left: {{ $ms }}%; width: 4px; height: 12px; background: {{ $monthlyChallengeData['progress_percent'] >= $ms ? 'var(--gold)' : 'rgba(255,255,255,0.2)' }}; border-radius: 2px; transform: translateX(-50%);"></div>
+                @endforeach
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--text-muted);">
+                <span>{{ $monthlyChallengeData['challenge']->current_value }}/{{ $monthlyChallengeData['challenge']->target_value }}</span>
+                <span>{{ $monthlyChallengeData['days_remaining'] }} Tage</span>
+            </div>
+            @if(!empty($monthlyChallengeData['claimable_milestones']))
+            <a href="{{ route('gamification.monthly-challenge') }}" class="btn-primary btn-sm" style="width: 100%; margin-top: 0.75rem;">Belohnung abholen</a>
+            @else
+            <a href="{{ route('gamification.monthly-challenge') }}" style="display: block; text-align: center; font-size: 0.75rem; color: var(--gold); margin-top: 0.75rem;">Details</a>
             @endif
         </div>
         @endif
@@ -1361,6 +1422,15 @@ function dismissEmailConsentBanner() {
     const banner = document.getElementById('email-consent-banner');
     if (banner) { banner.style.opacity = '0'; setTimeout(() => banner.remove(), 300); }
     fetch('/dashboard/dismiss-email-consent-banner', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') } });
+}
+
+function claimQuestChest() {
+    fetch('{{ route("gamification.claim-chest") }}', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') }
+    }).then(r => r.json()).then(data => {
+        if (data.success) { location.reload(); }
+    });
 }
 </script>
 @endsection

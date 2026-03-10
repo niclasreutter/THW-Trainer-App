@@ -11,6 +11,10 @@
     // Hole Gamification Result aus Session
     $gamificationResult = session('gamification_result');
 
+    // Combo Counter
+    $comboCount = session('practice_combo_count', 0);
+    $comboResult = $answerResult['combo_result'] ?? null;
+
     if ($hasAnswerResult) {
         $isCorrect = $answerResult['is_correct'];
         $userAnswer = collect($answerResult['user_answer']);
@@ -796,8 +800,14 @@
 
                     <h1 class="text-xl font-bold text-dark-primary mb-2">Theorie üben</h1>
 
-                    <!-- Overall Progress Info -->
+                    <!-- Combo Counter + Overall Progress Info -->
                     <div class="flex items-center gap-4">
+                        @if($comboCount >= 2)
+                        <div style="display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.2rem 0.6rem; border-radius: 1rem; background: rgba(249, 115, 22, 0.15); border: 1px solid rgba(249, 115, 22, 0.3);">
+                            <span style="font-size: 0.8rem; font-weight: 800; color: #f97316;">{{ $comboCount }}x</span>
+                            <span style="font-size: 0.7rem; color: #f97316;">Combo</span>
+                        </div>
+                        @endif
                         <div class="text-dark-secondary text-sm">
                             <span class="text-gold font-semibold">{{ $progress }}</span>
                             <span class="text-dark-muted">/{{ $total }} gemeistert</span>
@@ -1066,6 +1076,15 @@
                                     <div class="text-lg text-gold font-semibold">+{{ $gamificationResult['points_awarded'] }} Punkte</div>
                                 @endif
                             </div>
+                        </div>
+                    @endif
+
+                    @if(isset($answerResult['combo_count']) && $answerResult['combo_count'] >= 2)
+                        <div class="mt-2 text-center" style="font-size: 0.9rem; color: #f97316; font-weight: 700;">
+                            {{ $answerResult['combo_count'] }}x Combo
+                            @if($comboResult)
+                                <span style="color: var(--gold);">+{{ $comboResult['bonus_xp'] }} Bonus-XP</span>
+                            @endif
                         </div>
                     @endif
 

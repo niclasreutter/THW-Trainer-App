@@ -83,6 +83,8 @@ class User extends Authenticatable implements MustVerifyEmail
             'profile_frame_until' => 'datetime',
             'rank_color_until' => 'datetime',
             'active_title_until' => 'datetime',
+            'league_updated_at' => 'datetime',
+            'last_combo_bonus_at' => 'datetime',
         ];
     }
     
@@ -236,5 +238,25 @@ class User extends Authenticatable implements MustVerifyEmail
     public function unreadNotifications()
     {
         return $this->hasMany(Notification::class)->where('is_read', false)->orderBy('created_at', 'desc');
+    }
+
+    public function dailyQuests()
+    {
+        return $this->hasMany(DailyQuest::class);
+    }
+
+    public function dailyQuestChests()
+    {
+        return $this->hasMany(DailyQuestChest::class);
+    }
+
+    public function monthlyChallenge()
+    {
+        return $this->hasMany(MonthlyChallenge::class);
+    }
+
+    public function leagueHistory()
+    {
+        return $this->hasMany(LeagueHistory::class);
     }
 }
