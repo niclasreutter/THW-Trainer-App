@@ -23,26 +23,11 @@ class LeagueService
     ];
 
     /**
-     * Aufstiegs-Prozent pro Liga (hoehere Ligen = schwieriger)
+     * Aufstieg: einheitlich Top 20%, max 5 Plaetze
+     * Schwierigkeit kommt durch steigende Mindestpunkte
      */
-    const PROMOTION_PERCENT_PER_LEAGUE = [
-        'bronze'  => 30,
-        'silber'  => 25,
-        'gold'    => 20,
-        'platin'  => 15,
-        // diamant: kein Aufstieg moeglich
-    ];
-
-    /**
-     * Maximale Aufstiegsplaetze pro Liga (hoehere Ligen = weniger)
-     */
-    const MAX_PROMOTION_SLOTS_PER_LEAGUE = [
-        'bronze'  => 4,
-        'silber'  => 3,
-        'gold'    => 2,
-        'platin'  => 1,
-        // diamant: kein Aufstieg moeglich
-    ];
+    const PROMOTION_PERCENT = 20;
+    const MAX_PROMOTION_SLOTS = 5;
 
     /**
      * Abstieg: einheitlich Bottom 20%, max 5
@@ -60,10 +45,10 @@ class LeagueService
      * Mindest-Punkte fuer Aufstieg pro Liga (steigend)
      */
     const PROMOTION_MIN_POINTS = [
-        'bronze'  => 200,
-        'silber'  => 450,
-        'gold'    => 750,
-        'platin'  => 1200,
+        'bronze'  => 300,
+        'silber'  => 900,
+        'gold'    => 2700,
+        'platin'  => 7500,
         // diamant: kein Aufstieg moeglich
     ];
 
@@ -92,19 +77,19 @@ class LeagueService
     }
 
     /**
-     * Gibt den Aufstiegs-Prozentsatz fuer eine Liga zurück
+     * Gibt den Aufstiegs-Prozentsatz zurück (einheitlich fuer alle Ligen)
      */
     public static function getPromotionPercent(string $league): int
     {
-        return self::PROMOTION_PERCENT_PER_LEAGUE[$league] ?? 20;
+        return self::PROMOTION_PERCENT;
     }
 
     /**
-     * Gibt die max. Aufstiegsplaetze fuer eine Liga zurück
+     * Gibt die max. Aufstiegsplaetze zurück (einheitlich fuer alle Ligen)
      */
     public static function getMaxPromotionSlots(string $league): int
     {
-        return self::MAX_PROMOTION_SLOTS_PER_LEAGUE[$league] ?? 3;
+        return self::MAX_PROMOTION_SLOTS;
     }
 
     /**
@@ -223,11 +208,9 @@ class LeagueService
             // Aufstieg: Top X% steigen auf (liga-spezifisch, min Punkte erforderlich)
             $nextLeague = self::getNextLeague($league);
             if ($nextLeague && $userCount >= self::MIN_USERS_FOR_MOVEMENT) {
-                $promoPercent = self::PROMOTION_PERCENT_PER_LEAGUE[$league] ?? 20;
-                $promoMaxSlots = self::MAX_PROMOTION_SLOTS_PER_LEAGUE[$league] ?? 3;
                 $promotionSlots = min(
-                    $promoMaxSlots,
-                    max(1, (int) floor($userCount * $promoPercent / 100))
+                    self::MAX_PROMOTION_SLOTS,
+                    max(1, (int) floor($userCount * self::PROMOTION_PERCENT / 100))
                 );
                 $minPoints = self::PROMOTION_MIN_POINTS[$league] ?? 0;
 
