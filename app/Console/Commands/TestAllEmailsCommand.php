@@ -12,6 +12,9 @@ use App\Mail\StreakReminderMail;
 use App\Mail\InactiveReminderMail;
 use App\Mail\NewsletterMail;
 use App\Mail\ContactMail;
+use App\Mail\ExamReminderMail;
+use App\Mail\ExamGoodLuckMail;
+use App\Mail\ExamFeedbackRequestMail;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
@@ -134,7 +137,24 @@ class TestAllEmailsCommand extends Command
             '9. Kontaktformular (contact)' => function() use ($testContactMessage, $email) {
                 Mail::to($email)->send(new ContactMail($testContactMessage));
             },
-            '10. Admin Daily Report (admin-daily-report)' => function() use ($email) {
+            '10. Prüfungs-Erinnerung (exam-reminder)' => function() use ($testUser, $email) {
+                Mail::to($email)->send(new ExamReminderMail($testUser, [
+                    'days_left' => 14,
+                    'daily_target' => 25,
+                    'today_answered' => 8,
+                    'mastered_count' => 120,
+                    'total_questions' => 400,
+                    'progress_percent' => 30,
+                ]));
+            },
+            '11. Viel-Erfolg-Mail (exam-goodluck)' => function() use ($testUser, $email) {
+                Mail::to($email)->send(new ExamGoodLuckMail($testUser));
+            },
+            '12. Feedback-Anfrage (exam-feedback-request)' => function() use ($testUser, $email) {
+                $fakeUrl = url('/exam-feedback/test-token-' . \Illuminate\Support\Str::random(32));
+                Mail::to($email)->send(new ExamFeedbackRequestMail($testUser, $fakeUrl));
+            },
+            '13. Admin Daily Report (admin-daily-report)' => function() use ($email) {
                 $reportData = $this->generateTestReportData();
                 Mail::send('emails.admin-daily-report', $reportData, function ($message) use ($email, $reportData) {
                     $message->to($email)
