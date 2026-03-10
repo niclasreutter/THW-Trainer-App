@@ -25,8 +25,37 @@ class LeagueService
         'diamant' => ['name' => 'Diamant', 'icon' => 'bi-gem',          'color' => '#c084fc', 'order' => 8],
     ];
 
-    const PROMOTION_SLOTS = 5;
-    const RELEGATION_SLOTS = 5;
+    /**
+     * Prozentsatz der User die auf-/absteigen (Top/Bottom 20%)
+     */
+    const PROMOTION_PERCENT = 20;
+    const RELEGATION_PERCENT = 20;
+
+    /**
+     * Maximale Anzahl an Auf-/Abstiegsplaetzen pro Liga
+     */
+    const MAX_PROMOTION_SLOTS = 5;
+    const MAX_RELEGATION_SLOTS = 5;
+
+    /**
+     * Mindestens so viele aktive User muessen in einer Liga sein,
+     * damit Auf-/Abstiege stattfinden
+     */
+    const MIN_USERS_FOR_MOVEMENT = 3;
+
+    /**
+     * Mindest-Punkte fuer Aufstieg pro Liga (steigend)
+     */
+    const PROMOTION_MIN_POINTS = [
+        'bronze'  => 50,
+        'silber'  => 100,
+        'gold'    => 175,
+        'platin'  => 275,
+        'smaragd' => 400,
+        'rubin'   => 550,
+        'saphir'  => 750,
+        // diamant: kein Aufstieg moeglich
+    ];
 
     /**
      * Gibt alle Liga-Infos zurück
@@ -150,12 +179,24 @@ class LeagueService
                 $results['lootboxes_awarded']++;
             }
 
-            // Aufstieg: Top 5 steigen auf (wenn es eine höhere Liga gibt)
+            $userCount = $users->count();
+            $promotedIds = collect();
+
+            // Aufstieg: Top X% steigen auf (max 5, min Punkte erforderlich)
             $nextLeague = self::getNextLeague($league);
-            if ($nextLeague) {
-                $promotionUsers = $users->take(self::PROMOTION_SLOTS);
+            if ($nextLeague && $userCount >= self::MIN_USERS_FOR_MOVEMENT) {
+                $promotionSlots = min(
+                    self::MAX_PROMOTION_SLOTS,
+                    max(1, (int) floor($userCount * self::PROMOTION_PERCENT / 100))
+                );
+                $minPoints = self::PROMOTION_MIN_POINTS[$league] ?? 0;
+
+                $promotionUsers = $users->take($promotionSlots)
+                    ->filter(fn ($u) => $u->weekly_points >= $minPoints);
+
                 foreach ($promotionUsers as $user) {
                     User::where('id', $user->id)->update(['league' => $nextLeague]);
+                    $promotedIds->push($user->id);
 
                     $this->createLeagueNotification($user, 'promotion', [
                         'from' => $league,
@@ -166,19 +207,31 @@ class LeagueService
                 }
             }
 
-            // Abstieg: Letzte 5 steigen ab (wenn es eine niedrigere Liga gibt)
+            // Abstieg: Bottom X% steigen ab (max 5, nur wenn genug User)
             $prevLeague = self::getPreviousLeague($league);
-            if ($prevLeague && $users->count() > self::RELEGATION_SLOTS) {
-                $relegationUsers = $users->slice(-self::RELEGATION_SLOTS);
-                foreach ($relegationUsers as $user) {
-                    User::where('id', $user->id)->update(['league' => $prevLeague]);
+            if ($prevLeague && $userCount >= self::MIN_USERS_FOR_MOVEMENT) {
+                $relegationSlots = min(
+                    self::MAX_RELEGATION_SLOTS,
+                    max(1, (int) floor($userCount * self::RELEGATION_PERCENT / 100))
+                );
 
-                    $this->createLeagueNotification($user, 'relegation', [
-                        'from' => $league,
-                        'to' => $prevLeague,
-                    ]);
+                $remainingUsers = $userCount - $promotedIds->count();
+                if ($remainingUsers > $relegationSlots) {
+                    $relegationUsers = $users->slice(-$relegationSlots);
+                    foreach ($relegationUsers as $user) {
+                        if ($promotedIds->contains($user->id)) {
+                            continue;
+                        }
 
-                    $results['relegations']++;
+                        User::where('id', $user->id)->update(['league' => $prevLeague]);
+
+                        $this->createLeagueNotification($user, 'relegation', [
+                            'from' => $league,
+                            'to' => $prevLeague,
+                        ]);
+
+                        $results['relegations']++;
+                    }
                 }
             }
         }

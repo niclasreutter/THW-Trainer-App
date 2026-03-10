@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Services\GamificationService;
+use App\Services\LeagueService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
@@ -35,10 +36,21 @@ class TimeSimulatorController extends Controller
                 'email_consent' => $user->email_consent,
                 'freezes_remaining' => $freezeStatus['remaining'],
                 'freezes_used' => $freezeStatus['used'],
+                'league' => $user->league ?? 'bronze',
+                'weekly_points' => $user->weekly_points ?? 0,
+                'points' => $user->points ?? 0,
             ];
         });
 
-        return view('admin.time-simulator', compact('users'));
+        $leagues = LeagueService::getLeagues();
+
+        // Liga-Statistiken
+        $leagueStats = [];
+        foreach ($leagues as $key => $league) {
+            $leagueStats[$key] = User::where('league', $key)->count();
+        }
+
+        return view('admin.time-simulator', compact('users', 'leagues', 'leagueStats'));
     }
 
     public function simulateActivity(Request $request)
@@ -243,6 +255,109 @@ class TimeSimulatorController extends Controller
 
         $log[] = "Nachher: Streak = 0, Last Activity = NIE, Daily Questions = 0";
         $log[] = "User-Streak-Daten zurueckgesetzt (Punkte & Level bleiben erhalten).";
+
+        return back()->with('simulator_log', $log)->with('simulator_status', 'success');
+    }
+
+    // ==========================================
+    // Liga-Simulator Aktionen
+    // ==========================================
+
+    public function setWeeklyPoints(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'weekly_points' => 'required|integer|min:0|max:10000',
+        ]);
+
+        $user = User::findOrFail($request->user_id);
+        $oldPoints = $user->weekly_points ?? 0;
+        $leagueName = LeagueService::getLeagueName($user->league ?? 'bronze');
+
+        $user->weekly_points = $request->weekly_points;
+        $user->save();
+
+        $log = [];
+        $log[] = "=== WEEKLY POINTS GESETZT ===";
+        $log[] = "User: {$user->name} ({$user->email})";
+        $log[] = "Liga: {$leagueName}";
+        $log[] = "Weekly Points: {$oldPoints} -> {$request->weekly_points}";
+
+        return back()->with('simulator_log', $log)->with('simulator_status', 'success');
+    }
+
+    public function setLeague(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'league' => 'required|in:' . implode(',', array_keys(LeagueService::LEAGUES)),
+        ]);
+
+        $user = User::findOrFail($request->user_id);
+        $oldLeague = LeagueService::getLeagueName($user->league ?? 'bronze');
+        $newLeague = LeagueService::getLeagueName($request->league);
+
+        $user->league = $request->league;
+        $user->save();
+
+        $log = [];
+        $log[] = "=== LIGA GESETZT ===";
+        $log[] = "User: {$user->name} ({$user->email})";
+        $log[] = "Liga: {$oldLeague} -> {$newLeague}";
+
+        return back()->with('simulator_log', $log)->with('simulator_status', 'success');
+    }
+
+    public function runLeagueProcessing(Request $request)
+    {
+        $leagueService = new LeagueService();
+
+        $log = [];
+        $log[] = "=== WOECHENTLICHE LIGA-VERARBEITUNG ===";
+
+        // Zeige Vorher-Status
+        $leagues = LeagueService::getLeagues();
+        foreach ($leagues as $key => $league) {
+            $usersInLeague = User::where('league', $key)
+                ->where('weekly_points', '>', 0)
+                ->orderBy('weekly_points', 'desc')
+                ->get(['name', 'weekly_points']);
+
+            if ($usersInLeague->isNotEmpty()) {
+                $minPoints = LeagueService::PROMOTION_MIN_POINTS[$key] ?? '-';
+                $log[] = "";
+                $log[] = "{$league['name']}-Liga ({$usersInLeague->count()} aktive User, Aufstieg ab {$minPoints} Pkt):";
+                foreach ($usersInLeague as $u) {
+                    $log[] = "  {$u->name}: {$u->weekly_points} Pkt";
+                }
+            }
+        }
+
+        $log[] = "";
+        $log[] = "Verarbeite Auf-/Abstiege...";
+        $log[] = "Regeln: Top " . LeagueService::PROMOTION_PERCENT . "% steigen auf (max " . LeagueService::MAX_PROMOTION_SLOTS . "), Bottom " . LeagueService::RELEGATION_PERCENT . "% steigen ab (max " . LeagueService::MAX_RELEGATION_SLOTS . ")";
+        $log[] = "Mindestens " . LeagueService::MIN_USERS_FOR_MOVEMENT . " aktive User pro Liga noetig.";
+        $log[] = "";
+
+        $results = $leagueService->processWeeklyLeagues();
+
+        $log[] = "=== ERGEBNIS ===";
+        $log[] = "Aufstiege: {$results['promotions']}";
+        $log[] = "Abstiege: {$results['relegations']}";
+        $log[] = "Lootboxen vergeben: {$results['lootboxes_awarded']}";
+
+        return back()->with('simulator_log', $log)->with('simulator_status', 'success');
+    }
+
+    public function resetWeeklyPoints(Request $request)
+    {
+        $count = User::where('weekly_points', '>', 0)->count();
+        User::where('weekly_points', '>', 0)->update(['weekly_points' => 0]);
+
+        $log = [];
+        $log[] = "=== WEEKLY POINTS RESET ===";
+        $log[] = "Weekly Points von {$count} Usern auf 0 zurueckgesetzt.";
+        $log[] = "Dies simuliert den woechentlichen Reset nach der Liga-Verarbeitung.";
 
         return back()->with('simulator_log', $log)->with('simulator_status', 'success');
     }
