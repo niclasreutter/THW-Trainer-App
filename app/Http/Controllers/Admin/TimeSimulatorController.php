@@ -335,7 +335,7 @@ class TimeSimulatorController extends Controller
 
         $log[] = "";
         $log[] = "Verarbeite Auf-/Abstiege...";
-        $log[] = "Regeln: Top " . LeagueService::PROMOTION_PERCENT . "% steigen auf (max " . LeagueService::MAX_PROMOTION_SLOTS . "), Bottom " . LeagueService::RELEGATION_PERCENT . "% steigen ab (max " . LeagueService::MAX_RELEGATION_SLOTS . ")";
+        $log[] = "Regeln: Aufstieg liga-spezifisch (Bronze 30%/4, Silber 25%/3, Gold 20%/2, Platin 15%/1), Abstieg Bottom " . LeagueService::RELEGATION_PERCENT . "% (max " . LeagueService::MAX_RELEGATION_SLOTS . ")";
         $log[] = "Mindestens " . LeagueService::MIN_USERS_FOR_MOVEMENT . " aktive User pro Liga noetig.";
         $log[] = "";
 

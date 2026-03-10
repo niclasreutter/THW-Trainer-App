@@ -111,3 +111,15 @@ test('promotion min points increase with league tier', function () {
 test('min users for movement is at least 3', function () {
     expect(LeagueService::MIN_USERS_FOR_MOVEMENT)->toBeGreaterThanOrEqual(3);
 });
+
+test('promotion percent is uniform for all leagues', function () {
+    expect(LeagueService::PROMOTION_PERCENT)->toBe(20);
+    expect(LeagueService::getPromotionPercent('bronze'))->toBe(20);
+    expect(LeagueService::getPromotionPercent('platin'))->toBe(20);
+});
+
+test('max promotion slots is uniform for all leagues', function () {
+    expect(LeagueService::MAX_PROMOTION_SLOTS)->toBe(5);
+    expect(LeagueService::getMaxPromotionSlots('bronze'))->toBe(5);
+    expect(LeagueService::getMaxPromotionSlots('platin'))->toBe(5);
+});

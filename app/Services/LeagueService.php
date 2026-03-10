@@ -23,15 +23,16 @@ class LeagueService
     ];
 
     /**
-     * Prozentsatz der User die auf-/absteigen (Top/Bottom 20%)
+     * Aufstieg: einheitlich Top 20%, max 5 Plaetze
+     * Schwierigkeit kommt durch steigende Mindestpunkte
      */
     const PROMOTION_PERCENT = 20;
-    const RELEGATION_PERCENT = 20;
+    const MAX_PROMOTION_SLOTS = 5;
 
     /**
-     * Maximale Anzahl an Auf-/Abstiegsplaetzen pro Liga
+     * Abstieg: einheitlich Bottom 20%, max 5
      */
-    const MAX_PROMOTION_SLOTS = 5;
+    const RELEGATION_PERCENT = 20;
     const MAX_RELEGATION_SLOTS = 5;
 
     /**
@@ -44,10 +45,10 @@ class LeagueService
      * Mindest-Punkte fuer Aufstieg pro Liga (steigend)
      */
     const PROMOTION_MIN_POINTS = [
-        'bronze'  => 200,
-        'silber'  => 450,
-        'gold'    => 750,
-        'platin'  => 1200,
+        'bronze'  => 300,
+        'silber'  => 900,
+        'gold'    => 2700,
+        'platin'  => 7500,
         // diamant: kein Aufstieg moeglich
     ];
 
@@ -73,6 +74,22 @@ class LeagueService
     public static function getLeagueName(string $league): string
     {
         return self::LEAGUES[$league]['name'] ?? 'Bronze';
+    }
+
+    /**
+     * Gibt den Aufstiegs-Prozentsatz zurück (einheitlich fuer alle Ligen)
+     */
+    public static function getPromotionPercent(string $league): int
+    {
+        return self::PROMOTION_PERCENT;
+    }
+
+    /**
+     * Gibt die max. Aufstiegsplaetze zurück (einheitlich fuer alle Ligen)
+     */
+    public static function getMaxPromotionSlots(string $league): int
+    {
+        return self::MAX_PROMOTION_SLOTS;
     }
 
     /**
@@ -188,7 +205,7 @@ class LeagueService
             $userCount = $users->count();
             $promotedIds = collect();
 
-            // Aufstieg: Top X% steigen auf (max 5, min Punkte erforderlich)
+            // Aufstieg: Top X% steigen auf (liga-spezifisch, min Punkte erforderlich)
             $nextLeague = self::getNextLeague($league);
             if ($nextLeague && $userCount >= self::MIN_USERS_FOR_MOVEMENT) {
                 $promotionSlots = min(

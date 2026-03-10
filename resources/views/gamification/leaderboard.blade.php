@@ -550,7 +550,7 @@
                         {{ $weekRange['formatted'] }} (Montag - Sonntag)
                     @endif
                     @if($nextLeague)
-                        &middot; Top {{ \App\Services\LeagueService::PROMOTION_PERCENT }}% steigen auf in {{ \App\Services\LeagueService::getLeagueName($nextLeague) }} (min. {{ \App\Services\LeagueService::PROMOTION_MIN_POINTS[$userLeague] ?? 0 }} Pkt)
+                        &middot; Top {{ \App\Services\LeagueService::getPromotionPercent($userLeague) }}% steigen auf in {{ \App\Services\LeagueService::getLeagueName($nextLeague) }} (min. {{ \App\Services\LeagueService::PROMOTION_MIN_POINTS[$userLeague] ?? 0 }} Pkt)
                     @endif
                 </p>
             </div>
@@ -560,8 +560,8 @@
     @php
         $totalUsers = $leaderboard->count();
         $promotionSlots = min(
-            \App\Services\LeagueService::MAX_PROMOTION_SLOTS,
-            max(1, (int) floor($totalUsers * \App\Services\LeagueService::PROMOTION_PERCENT / 100))
+            \App\Services\LeagueService::getMaxPromotionSlots($userLeague),
+            max(1, (int) floor($totalUsers * \App\Services\LeagueService::getPromotionPercent($userLeague) / 100))
         );
         $relegationSlots = min(
             \App\Services\LeagueService::MAX_RELEGATION_SLOTS,
