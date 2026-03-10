@@ -2,11 +2,11 @@
 
 use App\Services\LeagueService;
 
-test('getLeagues returns all 8 leagues', function () {
+test('getLeagues returns all 5 leagues', function () {
     $leagues = LeagueService::getLeagues();
 
-    expect($leagues)->toHaveCount(8);
-    expect(array_keys($leagues))->toBe(['bronze', 'silber', 'gold', 'platin', 'smaragd', 'rubin', 'saphir', 'diamant']);
+    expect($leagues)->toHaveCount(5);
+    expect(array_keys($leagues))->toBe(['bronze', 'silber', 'gold', 'platin', 'diamant']);
 });
 
 test('getLeagueInfo returns correct info', function () {
@@ -25,21 +25,21 @@ test('getLeagueInfo returns bronze for unknown league', function () {
 test('getNextLeague returns correct next league', function () {
     expect(LeagueService::getNextLeague('bronze'))->toBe('silber');
     expect(LeagueService::getNextLeague('gold'))->toBe('platin');
-    expect(LeagueService::getNextLeague('saphir'))->toBe('diamant');
+    expect(LeagueService::getNextLeague('platin'))->toBe('diamant');
     expect(LeagueService::getNextLeague('diamant'))->toBeNull();
 });
 
 test('getPreviousLeague returns correct previous league', function () {
     expect(LeagueService::getPreviousLeague('silber'))->toBe('bronze');
     expect(LeagueService::getPreviousLeague('bronze'))->toBeNull();
-    expect(LeagueService::getPreviousLeague('diamant'))->toBe('saphir');
+    expect(LeagueService::getPreviousLeague('diamant'))->toBe('platin');
     expect(LeagueService::getPreviousLeague('platin'))->toBe('gold');
 });
 
 test('getLeagueName returns correct name', function () {
     expect(LeagueService::getLeagueName('bronze'))->toBe('Bronze');
     expect(LeagueService::getLeagueName('diamant'))->toBe('Diamant');
-    expect(LeagueService::getLeagueName('smaragd'))->toBe('Smaragd');
+    expect(LeagueService::getLeagueName('platin'))->toBe('Platin');
 });
 
 test('rollLootboxReward returns valid bronze rewards', function () {
@@ -91,14 +91,14 @@ test('league order is correct from lowest to highest', function () {
     $leagues = LeagueService::getLeagues();
 
     $orders = array_column($leagues, 'order');
-    expect($orders)->toBe([1, 2, 3, 4, 5, 6, 7, 8]);
+    expect($orders)->toBe([1, 2, 3, 4, 5]);
 });
 
 test('promotion min points increase with league tier', function () {
     $minPoints = LeagueService::PROMOTION_MIN_POINTS;
 
     // Alle Ligen ausser Diamant muessen Mindest-Punkte haben
-    expect($minPoints)->toHaveCount(7);
+    expect($minPoints)->toHaveCount(4);
     expect($minPoints)->not->toHaveKey('diamant');
 
     // Punkte muessen aufsteigend sein
