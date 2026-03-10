@@ -109,6 +109,10 @@
         transform: scale(1.05);
     }
 
+    .lootbox-card.opened {
+        display: none;
+    }
+
     /* Lootbox Opening Overlay */
     .lootbox-overlay {
         display: none;
@@ -417,12 +421,12 @@
 
                     // Hide the card
                     const card = document.querySelector(`[data-lootbox-id="${lootboxId}"]`);
-                    if (card) card.style.display = 'none';
+                    if (card) card.classList.add('opened');
 
                     // Check if all lootboxes opened
-                    const remaining = document.querySelectorAll('.lootbox-card[style*="display: none"]');
                     const total = document.querySelectorAll('.lootbox-card');
-                    if (remaining.length === total.length) {
+                    const remaining = document.querySelectorAll('.lootbox-card:not(.opened)');
+                    if (remaining.length === 0) {
                         setTimeout(() => location.reload(), 1500);
                     }
                 }, 1500);
@@ -447,7 +451,7 @@
 
         rewardIcon.innerHTML = icons[reward.type] || icons.xp;
         rewardLabel.textContent = reward.label;
-        rewardSublabel.textContent = ucfirst(type) + '-Lootbox';
+        rewardSublabel.textContent = capitalize(type) + '-Lootbox';
 
         rewardPhase.classList.add('visible');
         createParticles(type);
@@ -496,7 +500,7 @@
         document.getElementById('lootboxOverlay').classList.remove('active');
     }
 
-    function ucfirst(str) {
+    function capitalize(str) {
         return str.charAt(0).toUpperCase() + str.slice(1);
     }
 

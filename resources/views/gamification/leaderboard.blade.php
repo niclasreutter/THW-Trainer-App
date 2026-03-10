@@ -506,14 +506,10 @@
         <p class="page-subtitle">Zeige dein Können und klettere die Rangliste hinauf</p>
     </header>
 
-    @php
-        $unopenedCount = Auth::check() ? \App\Models\Lootbox::where('user_id', Auth::id())->where('opened', false)->count() : 0;
-    @endphp
-
-    @if($unopenedCount > 0)
+    @if($unopenedLootboxCount > 0)
         <a href="{{ route('gamification.lootboxes') }}" class="lootbox-link" style="margin-bottom: 1.5rem; display: inline-flex;">
             <i class="bi bi-gift-fill"></i> Lootboxen öffnen
-            <span class="lootbox-count">{{ $unopenedCount }}</span>
+            <span class="lootbox-count">{{ $unopenedLootboxCount }}</span>
         </a>
     @endif
 

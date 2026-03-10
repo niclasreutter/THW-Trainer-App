@@ -297,7 +297,7 @@ class LeagueService
                 break;
 
             case 'streak_freeze':
-                $user->streak_freezes_available = ($user->streak_freezes_available ?? 2) + 1;
+                $user->streak_freezes_available = ($user->streak_freezes_available ?? GamificationService::MAX_STREAK_FREEZES_PER_WEEK) + 1;
                 $user->save();
                 break;
 

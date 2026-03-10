@@ -50,15 +50,20 @@ class GamificationController extends Controller
         }
 
         $leagues = LeagueService::getLeagues();
+        $unopenedLootboxCount = Lootbox::where('user_id', Auth::id())->where('opened', false)->count();
 
         return view('gamification.leaderboard', compact(
             'leaderboard', 'tab', 'weekRange', 'userLeague', 'leagueInfo',
-            'nextLeague', 'prevLeague', 'leagues'
+            'nextLeague', 'prevLeague', 'leagues', 'unopenedLootboxCount'
         ));
     }
 
     public function openLootbox(Request $request): JsonResponse
     {
+        $request->validate([
+            'lootbox_id' => 'required|integer',
+        ]);
+
         $user = Auth::user();
         $lootbox = Lootbox::where('id', $request->input('lootbox_id'))
             ->where('user_id', $user->id)
