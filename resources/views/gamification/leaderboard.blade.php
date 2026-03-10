@@ -808,7 +808,7 @@
     <div class="glass-tl info-box">
         <h3><i class="bi bi-lightbulb" style="color: var(--gold);"></i> So funktioniert das Ligen-System</h3>
         <ul>
-            <li><i class="bi bi-shield-fill" style="color: var(--gold);"></i> <strong>8 Ligen</strong> von Bronze bis Diamant</li>
+            <li><i class="bi bi-shield-fill" style="color: var(--gold);"></i> <strong>5 Ligen</strong> von Bronze bis Diamant</li>
             <li><i class="bi bi-arrow-up-circle-fill" style="color: #22c55e;"></i> <strong>Top {{ $promotionSlots }}</strong> steigen wöchentlich in die nächste Liga auf</li>
             <li><i class="bi bi-dash-circle-fill" style="color: #94a3b8;"></i> <strong>Platz {{ $promotionSlots + 1 }}{{ $relegationStart ? ' - ' . $relegationStart : '+' }}</strong> bleiben in der aktuellen Liga</li>
             <li><i class="bi bi-arrow-down-circle-fill" style="color: #ef4444;"></i> <strong>Letzte {{ $relegationSlots }}</strong> steigen in die untere Liga ab</li>

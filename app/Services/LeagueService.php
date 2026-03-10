@@ -12,17 +12,14 @@ use Illuminate\Support\Facades\Log;
 class LeagueService
 {
     /**
-     * Alle 8 Ligen von niedrigster bis höchster
+     * Alle 5 Ligen von niedrigster bis höchster
      */
     const LEAGUES = [
         'bronze'  => ['name' => 'Bronze',  'icon' => 'bi-shield-fill',  'color' => '#cd7f32', 'order' => 1],
         'silber'  => ['name' => 'Silber',  'icon' => 'bi-shield-fill',  'color' => '#94a3b8', 'order' => 2],
         'gold'    => ['name' => 'Gold',    'icon' => 'bi-shield-fill',  'color' => '#fbbf24', 'order' => 3],
         'platin'  => ['name' => 'Platin',  'icon' => 'bi-shield-fill',  'color' => '#67e8f9', 'order' => 4],
-        'smaragd' => ['name' => 'Smaragd', 'icon' => 'bi-shield-fill',  'color' => '#22c55e', 'order' => 5],
-        'rubin'   => ['name' => 'Rubin',   'icon' => 'bi-shield-fill',  'color' => '#ef4444', 'order' => 6],
-        'saphir'  => ['name' => 'Saphir',  'icon' => 'bi-shield-fill',  'color' => '#3b82f6', 'order' => 7],
-        'diamant' => ['name' => 'Diamant', 'icon' => 'bi-gem',          'color' => '#c084fc', 'order' => 8],
+        'diamant' => ['name' => 'Diamant', 'icon' => 'bi-gem',          'color' => '#c084fc', 'order' => 5],
     ];
 
     /**
@@ -47,13 +44,10 @@ class LeagueService
      * Mindest-Punkte fuer Aufstieg pro Liga (steigend)
      */
     const PROMOTION_MIN_POINTS = [
-        'bronze'  => 50,
-        'silber'  => 100,
-        'gold'    => 175,
-        'platin'  => 275,
-        'smaragd' => 400,
-        'rubin'   => 550,
-        'saphir'  => 750,
+        'bronze'  => 200,
+        'silber'  => 450,
+        'gold'    => 750,
+        'platin'  => 1200,
         // diamant: kein Aufstieg moeglich
     ];
 
