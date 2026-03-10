@@ -23,15 +23,31 @@ class LeagueService
     ];
 
     /**
-     * Prozentsatz der User die auf-/absteigen (Top/Bottom 20%)
+     * Aufstiegs-Prozent pro Liga (hoehere Ligen = schwieriger)
      */
-    const PROMOTION_PERCENT = 20;
-    const RELEGATION_PERCENT = 20;
+    const PROMOTION_PERCENT_PER_LEAGUE = [
+        'bronze'  => 30,
+        'silber'  => 25,
+        'gold'    => 20,
+        'platin'  => 15,
+        // diamant: kein Aufstieg moeglich
+    ];
 
     /**
-     * Maximale Anzahl an Auf-/Abstiegsplaetzen pro Liga
+     * Maximale Aufstiegsplaetze pro Liga (hoehere Ligen = weniger)
      */
-    const MAX_PROMOTION_SLOTS = 5;
+    const MAX_PROMOTION_SLOTS_PER_LEAGUE = [
+        'bronze'  => 4,
+        'silber'  => 3,
+        'gold'    => 2,
+        'platin'  => 1,
+        // diamant: kein Aufstieg moeglich
+    ];
+
+    /**
+     * Abstieg: einheitlich Bottom 20%, max 5
+     */
+    const RELEGATION_PERCENT = 20;
     const MAX_RELEGATION_SLOTS = 5;
 
     /**
@@ -73,6 +89,22 @@ class LeagueService
     public static function getLeagueName(string $league): string
     {
         return self::LEAGUES[$league]['name'] ?? 'Bronze';
+    }
+
+    /**
+     * Gibt den Aufstiegs-Prozentsatz fuer eine Liga zurück
+     */
+    public static function getPromotionPercent(string $league): int
+    {
+        return self::PROMOTION_PERCENT_PER_LEAGUE[$league] ?? 20;
+    }
+
+    /**
+     * Gibt die max. Aufstiegsplaetze fuer eine Liga zurück
+     */
+    public static function getMaxPromotionSlots(string $league): int
+    {
+        return self::MAX_PROMOTION_SLOTS_PER_LEAGUE[$league] ?? 3;
     }
 
     /**
@@ -188,12 +220,14 @@ class LeagueService
             $userCount = $users->count();
             $promotedIds = collect();
 
-            // Aufstieg: Top X% steigen auf (max 5, min Punkte erforderlich)
+            // Aufstieg: Top X% steigen auf (liga-spezifisch, min Punkte erforderlich)
             $nextLeague = self::getNextLeague($league);
             if ($nextLeague && $userCount >= self::MIN_USERS_FOR_MOVEMENT) {
+                $promoPercent = self::PROMOTION_PERCENT_PER_LEAGUE[$league] ?? 20;
+                $promoMaxSlots = self::MAX_PROMOTION_SLOTS_PER_LEAGUE[$league] ?? 3;
                 $promotionSlots = min(
-                    self::MAX_PROMOTION_SLOTS,
-                    max(1, (int) floor($userCount * self::PROMOTION_PERCENT / 100))
+                    $promoMaxSlots,
+                    max(1, (int) floor($userCount * $promoPercent / 100))
                 );
                 $minPoints = self::PROMOTION_MIN_POINTS[$league] ?? 0;
 

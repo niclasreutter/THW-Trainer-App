@@ -111,3 +111,31 @@ test('promotion min points increase with league tier', function () {
 test('min users for movement is at least 3', function () {
     expect(LeagueService::MIN_USERS_FOR_MOVEMENT)->toBeGreaterThanOrEqual(3);
 });
+
+test('promotion percent decreases with higher leagues', function () {
+    $percents = LeagueService::PROMOTION_PERCENT_PER_LEAGUE;
+
+    expect($percents)->toHaveCount(4);
+    expect($percents['bronze'])->toBeGreaterThan($percents['silber']);
+    expect($percents['silber'])->toBeGreaterThan($percents['gold']);
+    expect($percents['gold'])->toBeGreaterThan($percents['platin']);
+});
+
+test('max promotion slots decrease with higher leagues', function () {
+    $slots = LeagueService::MAX_PROMOTION_SLOTS_PER_LEAGUE;
+
+    expect($slots)->toHaveCount(4);
+    expect($slots['bronze'])->toBeGreaterThanOrEqual($slots['silber']);
+    expect($slots['silber'])->toBeGreaterThanOrEqual($slots['gold']);
+    expect($slots['gold'])->toBeGreaterThanOrEqual($slots['platin']);
+});
+
+test('getPromotionPercent returns correct values', function () {
+    expect(LeagueService::getPromotionPercent('bronze'))->toBe(30);
+    expect(LeagueService::getPromotionPercent('platin'))->toBe(15);
+});
+
+test('getMaxPromotionSlots returns correct values', function () {
+    expect(LeagueService::getMaxPromotionSlots('bronze'))->toBe(4);
+    expect(LeagueService::getMaxPromotionSlots('platin'))->toBe(1);
+});
