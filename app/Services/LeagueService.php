@@ -143,8 +143,8 @@ class LeagueService
             'lootboxes_awarded' => 0,
         ];
 
-        // Duplikat-Schutz: Zeitfenster für diese Woche
-        $weekStart = Carbon::now()->startOfWeek(Carbon::MONDAY);
+        // Duplikat-Schutz: 10 Minuten Zeitfenster gegen doppelte Cronjob-Ausführung
+        $recentCutoff = Carbon::now()->subMinutes(10);
 
         $leagueKeys = array_keys(self::LEAGUES);
 
@@ -159,14 +159,14 @@ class LeagueService
                 continue;
             }
 
-            // Lootboxen für Plätze 1-3 (pro User max 1 pro Woche)
+            // Lootboxen für Plätze 1-3 (Duplikat-Schutz: nicht doppelt innerhalb 10 Min)
             foreach ($users->take(3) as $index => $user) {
-                $alreadyHasLootbox = Lootbox::where('user_id', $user->id)
-                    ->where('created_at', '>=', $weekStart)
+                $recentlyAwarded = Lootbox::where('user_id', $user->id)
+                    ->where('created_at', '>=', $recentCutoff)
                     ->exists();
 
-                if ($alreadyHasLootbox) {
-                    Log::info("Lootbox für User {$user->name} diese Woche bereits vergeben - überspringe");
+                if ($recentlyAwarded) {
+                    Log::info("Lootbox für User {$user->name} bereits kürzlich vergeben - überspringe (Duplikat-Schutz)");
                     continue;
                 }
 
