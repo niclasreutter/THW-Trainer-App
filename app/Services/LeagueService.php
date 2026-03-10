@@ -143,6 +143,13 @@ class LeagueService
             'lootboxes_awarded' => 0,
         ];
 
+        // Duplikat-Schutz: Prüfe ob diese Woche bereits Lootboxen vergeben wurden
+        $weekStart = Carbon::now()->startOfWeek(Carbon::MONDAY);
+        $alreadyProcessed = Lootbox::where('created_at', '>=', $weekStart)->exists();
+        if ($alreadyProcessed) {
+            Log::warning('Liga-Verarbeitung bereits diese Woche durchgeführt - überspringe Lootbox-Vergabe');
+        }
+
         $leagueKeys = array_keys(self::LEAGUES);
 
         foreach ($leagueKeys as $league) {
@@ -156,27 +163,29 @@ class LeagueService
                 continue;
             }
 
-            // Lootboxen für Plätze 1-3
-            foreach ($users->take(3) as $index => $user) {
-                $lootboxType = match ($index) {
-                    0 => 'gold',
-                    1 => 'silber',
-                    2 => 'bronze',
-                };
+            // Lootboxen für Plätze 1-3 (nur wenn nicht bereits vergeben)
+            if (!$alreadyProcessed) {
+                foreach ($users->take(3) as $index => $user) {
+                    $lootboxType = match ($index) {
+                        0 => 'gold',
+                        1 => 'silber',
+                        2 => 'bronze',
+                    };
 
-                Lootbox::create([
-                    'user_id' => $user->id,
-                    'type' => $lootboxType,
-                    'opened' => false,
-                ]);
+                    Lootbox::create([
+                        'user_id' => $user->id,
+                        'type' => $lootboxType,
+                        'opened' => false,
+                    ]);
 
-                $this->createLeagueNotification($user, 'lootbox', [
-                    'type' => $lootboxType,
-                    'rank' => $index + 1,
-                    'league' => $league,
-                ]);
+                    $this->createLeagueNotification($user, 'lootbox', [
+                        'type' => $lootboxType,
+                        'rank' => $index + 1,
+                        'league' => $league,
+                    ]);
 
-                $results['lootboxes_awarded']++;
+                    $results['lootboxes_awarded']++;
+                }
             }
 
             $userCount = $users->count();
