@@ -132,6 +132,13 @@
     .lootbox-animation {
         text-align: center;
         position: relative;
+        background: rgba(15, 23, 42, 0.9);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 1.5rem;
+        padding: 3rem 3.5rem;
+        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
+        max-width: 360px;
+        width: 90vw;
     }
 
     .lootbox-opening-icon {
@@ -191,26 +198,26 @@
     }
 
     .reward-sublabel {
-        font-size: 1rem;
-        color: var(--text-secondary);
+        font-size: 0.95rem;
+        color: rgba(255, 255, 255, 0.6);
         margin-bottom: 2rem;
     }
 
     .reward-close-btn {
-        padding: 0.75rem 2rem;
+        padding: 0.75rem 2.5rem;
         border-radius: 0.75rem;
         font-weight: 700;
         font-size: 0.9rem;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        background: rgba(255, 255, 255, 0.1);
-        color: var(--text-primary);
+        border: none;
+        background: linear-gradient(135deg, #fbbf24, #f59e0b);
+        color: #000;
         cursor: pointer;
         transition: all 0.2s;
     }
 
     .reward-close-btn:hover {
-        background: rgba(255, 255, 255, 0.15);
-        border-color: rgba(255, 255, 255, 0.3);
+        transform: scale(1.05);
+        box-shadow: 0 4px 20px rgba(251, 191, 36, 0.3);
     }
 
     /* Particles */

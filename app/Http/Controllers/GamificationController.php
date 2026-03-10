@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Lootbox;
+use App\Models\Notification;
 use App\Services\LeagueService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -48,6 +49,12 @@ class GamificationController extends Controller
             $nextLeague = null;
             $prevLeague = null;
         }
+
+        // Liga-Notifications als gelesen markieren
+        Notification::where('user_id', Auth::id())
+            ->where('is_read', false)
+            ->whereIn('type', ['league_promotion', 'league_relegation'])
+            ->update(['is_read' => true]);
 
         $leagues = LeagueService::getLeagues();
         $unopenedLootboxCount = Lootbox::where('user_id', Auth::id())->where('opened', false)->count();
