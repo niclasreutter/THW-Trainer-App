@@ -25,12 +25,11 @@ class ProcessWeeklyLeagues extends Command
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(LeagueService $leagueService)
     {
         $this->info('Starte wöchentliche Liga-Verarbeitung...');
 
         try {
-            $leagueService = new LeagueService();
             $results = $leagueService->processWeeklyLeagues();
 
             $this->info('Liga-Verarbeitung abgeschlossen:');
