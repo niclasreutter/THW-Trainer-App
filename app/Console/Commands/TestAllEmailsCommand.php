@@ -27,7 +27,7 @@ class TestAllEmailsCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'test:all-emails {email}';
+    protected $signature = 'test:all-emails {email} {--only= : Nur eine bestimmte Mail senden (z.B. exam-goodluck)} {--render : Mail nur rendern, nicht senden}';
 
     /**
      * The console command description.
@@ -162,6 +162,50 @@ class TestAllEmailsCommand extends Command
                 });
             },
         ];
+
+        $only = $this->option('only');
+        $renderOnly = $this->option('render');
+
+        if ($only) {
+            $filtered = array_filter($testEmails, fn($key) => str_contains(strtolower($key), strtolower($only)), ARRAY_FILTER_USE_KEY);
+            if (empty($filtered)) {
+                $this->error("Keine Mail gefunden für: {$only}");
+                $this->line('Verfügbare Mails:');
+                foreach (array_keys($testEmails) as $name) {
+                    $this->line("  - {$name}");
+                }
+                return Command::FAILURE;
+            }
+            $testEmails = $filtered;
+        }
+
+        if ($renderOnly) {
+            $this->info('Render-Modus: Mails werden nur gerendert, nicht gesendet.');
+            $this->line('');
+
+            $renderMails = [
+                'exam-reminder' => new ExamReminderMail($testUser, [
+                    'days_left' => 14, 'daily_target' => 25, 'today_answered' => 8,
+                    'mastered_count' => 120, 'total_questions' => 400, 'progress_percent' => 30,
+                ]),
+                'exam-goodluck' => new ExamGoodLuckMail($testUser),
+                'exam-feedback-request' => new ExamFeedbackRequestMail($testUser, url('/exam-feedback/test-token')),
+            ];
+
+            foreach ($renderMails as $key => $mailable) {
+                if ($only && !str_contains($key, strtolower($only))) {
+                    continue;
+                }
+                $this->info("=== {$key} ===");
+                $this->info("Subject: " . $mailable->envelope()->subject);
+                $html = $mailable->render();
+                $this->line("HTML-Länge: " . strlen($html) . " Bytes");
+                $this->line(substr($html, 0, 500) . '...');
+                $this->line('');
+            }
+
+            return Command::SUCCESS;
+        }
 
         $successful = 0;
         $failed = 0;
