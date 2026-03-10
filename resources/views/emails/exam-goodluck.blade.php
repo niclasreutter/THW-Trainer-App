@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Viel Erfolg bei deiner Prüfung - THW Trainer</title>
+    <title>Deine Prüfung ist morgen - THW Trainer</title>
 </head>
 <body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
     <div style="background:#f8fafc;padding:32px 16px;">
@@ -62,9 +62,16 @@
 
             <!-- Abschluss -->
             <p style="margin:24px 0;font-size:16px;color:#1a202c;line-height:1.6;">
-                Das gesamte THW-Trainer-Team drückt dir die Daumen!
+                Das gesamte THW-Trainer-Team drückt dir die Daumen.
                 Wir melden uns nach der Prüfung nochmal bei dir.
             </p>
+
+            <!-- Call-to-Action Button -->
+            <div style="text-align:center;margin:32px 0;">
+                <a href="https://thw-trainer.de/practice-menu" style="background:#FFD700;color:#003399;padding:14px 40px;border-radius:8px;text-decoration:none;font-weight:600;font-size:16px;display:inline-block;">
+                    Letzte Übungsrunde starten
+                </a>
+            </div>
 
             <!-- Footer -->
             <div style="margin-top:32px;padding-top:24px;border-top:1px solid #e5e7eb;">
