@@ -223,6 +223,22 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * User hat viele Lootboxen
+     */
+    public function lootboxes()
+    {
+        return $this->hasMany(Lootbox::class)->orderBy('created_at', 'desc');
+    }
+
+    /**
+     * Ungeöffnete Lootboxen
+     */
+    public function unopenedLootboxes()
+    {
+        return $this->hasMany(Lootbox::class)->where('opened', false);
+    }
+
+    /**
      * User hat viele Notifications
      */
     public function notifications()

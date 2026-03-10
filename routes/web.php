@@ -139,6 +139,8 @@ Route::middleware('auth')->group(function () {
     // Gamification Routes
     Route::get('/achievements', [\App\Http\Controllers\GamificationController::class, 'achievements'])->name('gamification.achievements');
     Route::get('/leaderboard', [\App\Http\Controllers\GamificationController::class, 'leaderboard'])->name('gamification.leaderboard');
+    Route::get('/lootboxes', [\App\Http\Controllers\GamificationController::class, 'lootboxes'])->name('gamification.lootboxes');
+    Route::post('/lootbox/open', [\App\Http\Controllers\GamificationController::class, 'openLootbox'])->name('gamification.lootbox.open');
 
     // Shop Routes
     Route::get('/shop', [\App\Http\Controllers\ShopController::class, 'index'])->name('shop.index');

@@ -20,31 +20,85 @@
         margin-bottom: 2rem;
     }
 
-    /* Week Info Banner */
-    .week-banner {
+    /* League Banner */
+    .league-banner {
         display: flex;
         align-items: center;
-        gap: 1rem;
-        padding: 1rem 1.25rem;
+        gap: 1.25rem;
+        padding: 1.25rem 1.5rem;
         margin-bottom: 2rem;
     }
 
-    .week-banner-icon {
-        font-size: 1.5rem;
-        color: var(--gold);
+    .league-banner-icon {
+        font-size: 2.5rem;
+        flex-shrink: 0;
     }
 
-    .week-banner-content h3 {
-        font-size: 0.9rem;
+    .league-banner-content h3 {
+        font-size: 1.1rem;
         font-weight: 700;
         color: var(--text-primary);
         margin: 0 0 0.25rem 0;
     }
 
-    .week-banner-content p {
-        font-size: 0.8rem;
+    .league-banner-content p {
+        font-size: 0.85rem;
         color: var(--text-secondary);
         margin: 0;
+    }
+
+    .league-badge-inline {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.2rem 0.6rem;
+        border-radius: 0.5rem;
+        font-size: 0.75rem;
+        font-weight: 700;
+        border: 1px solid;
+    }
+
+    /* Promotion/Relegation Zone Markers */
+    .zone-divider {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.5rem 1.25rem;
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .zone-divider::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+    }
+
+    .zone-divider.promotion {
+        color: #22c55e;
+    }
+
+    .zone-divider.promotion::after {
+        background: linear-gradient(90deg, rgba(34, 197, 94, 0.4), transparent);
+    }
+
+    .zone-divider.relegation {
+        color: #ef4444;
+    }
+
+    .zone-divider.relegation::after {
+        background: linear-gradient(90deg, rgba(239, 68, 68, 0.4), transparent);
+    }
+
+    .promotion-row {
+        border-left: 3px solid rgba(34, 197, 94, 0.5);
+    }
+
+    .relegation-row {
+        border-left: 3px solid rgba(239, 68, 68, 0.5);
+        opacity: 0.85;
     }
 
     /* Leaderboard Table */
@@ -198,6 +252,15 @@
         border-left: 3px solid var(--thw-blue);
     }
 
+    .mobile-card.promotion-row {
+        border-left: 3px solid rgba(34, 197, 94, 0.5);
+    }
+
+    .mobile-card.relegation-row {
+        border-left: 3px solid rgba(239, 68, 68, 0.5);
+        opacity: 0.85;
+    }
+
     .mobile-rank-section {
         flex-shrink: 0;
         text-align: center;
@@ -286,7 +349,7 @@
         font-size: 1rem;
     }
 
-    /* User Rank Card (not in top 50) */
+    /* User Rank Card (not in top list) */
     .user-rank-card {
         padding: 1.5rem;
         margin-top: 2rem;
@@ -358,10 +421,41 @@
         border-radius: 0.75rem;
     }
 
-    /* Profilrahmen auf Mobile-Karten (hohe Spezifität) */
+    /* Profilrahmen auf Mobile-Karten */
     .mobile-card.profile-frame-gold,
     .mobile-card.profile-frame-diamond {
         border-radius: 1rem;
+    }
+
+    /* Lootbox indicator */
+    .lootbox-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 0.75rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-decoration: none;
+        color: var(--gold);
+        background: rgba(251, 191, 36, 0.1);
+        border: 1px solid rgba(251, 191, 36, 0.2);
+        transition: all 0.2s;
+    }
+
+    .lootbox-link:hover {
+        background: rgba(251, 191, 36, 0.15);
+        border-color: rgba(251, 191, 36, 0.3);
+        transform: translateY(-1px);
+    }
+
+    .lootbox-count {
+        background: var(--gold);
+        color: #000;
+        padding: 0.1rem 0.4rem;
+        border-radius: 0.375rem;
+        font-size: 0.75rem;
+        font-weight: 800;
     }
 
     /* Responsive */
@@ -395,6 +489,11 @@
         .user-rank-stats {
             text-align: center;
         }
+
+        .league-banner {
+            flex-direction: column;
+            text-align: center;
+        }
     }
 </style>
 @endpush
@@ -407,40 +506,75 @@
         <p class="page-subtitle">Zeige dein Können und klettere die Rangliste hinauf</p>
     </header>
 
+    @php
+        $unopenedCount = Auth::check() ? \App\Models\Lootbox::where('user_id', Auth::id())->where('opened', false)->count() : 0;
+    @endphp
+
+    @if($unopenedCount > 0)
+        <a href="{{ route('gamification.lootboxes') }}" class="lootbox-link" style="margin-bottom: 1.5rem; display: inline-flex;">
+            <i class="bi bi-gift-fill"></i> Lootboxen öffnen
+            <span class="lootbox-count">{{ $unopenedCount }}</span>
+        </a>
+    @endif
+
     <!-- Tab Navigation -->
     <div class="tabs-container">
         <div class="tabs-glass">
+            <a href="{{ route('gamification.leaderboard', ['tab' => 'liga']) }}"
+               class="tab-glass {{ $tab === 'liga' ? 'active' : '' }}" style="text-decoration: none;">
+                <i class="bi bi-shield-fill"></i> Liga
+            </a>
             <a href="{{ route('gamification.leaderboard', ['tab' => 'gesamt']) }}"
                class="tab-glass {{ $tab === 'gesamt' ? 'active' : '' }}" style="text-decoration: none;">
                 <i class="bi bi-globe"></i> Gesamt
             </a>
-            <a href="{{ route('gamification.leaderboard', ['tab' => 'woche']) }}"
-               class="tab-glass {{ $tab === 'woche' ? 'active' : '' }}" style="text-decoration: none;">
-                <i class="bi bi-calendar-week"></i> Diese Woche
-            </a>
         </div>
     </div>
 
-    @if($tab === 'woche' && $weekRange)
-        <div class="glass-accent week-banner">
-            <span class="week-banner-icon"><i class="bi bi-calendar-event"></i></span>
-            <div class="week-banner-content">
-                <h3>Aktuelle Woche</h3>
-                <p>{{ $weekRange['formatted'] }} (Montag - Sonntag)</p>
+    @if($tab === 'liga')
+        <!-- League Info Banner -->
+        <div class="glass-accent league-banner">
+            <span class="league-banner-icon"><i class="{{ $leagueInfo['icon'] }}" style="color: {{ $leagueInfo['color'] }};"></i></span>
+            <div class="league-banner-content">
+                <h3>{{ $leagueInfo['name'] }}-Liga</h3>
+                <p>
+                    @if($weekRange)
+                        {{ $weekRange['formatted'] }} (Montag - Sonntag)
+                    @endif
+                    @if($nextLeague)
+                        &middot; Top {{ \App\Services\LeagueService::PROMOTION_SLOTS }} steigen auf in {{ \App\Services\LeagueService::getLeagueName($nextLeague) }}
+                    @endif
+                </p>
             </div>
         </div>
     @endif
+
+    @php
+        $totalUsers = $leaderboard->count();
+        $promotionSlots = \App\Services\LeagueService::PROMOTION_SLOTS;
+        $relegationSlots = \App\Services\LeagueService::RELEGATION_SLOTS;
+        $hasNextLeague = $tab === 'liga' && $nextLeague;
+        $hasPrevLeague = $tab === 'liga' && $prevLeague;
+        $relegationStart = $hasPrevLeague && $totalUsers > $relegationSlots ? $totalUsers - $relegationSlots : null;
+    @endphp
 
     <!-- Leaderboard Table (Desktop) -->
     <div class="glass desktop-table">
         <div class="table-header">
             <span class="rank-col">Rang</span>
             <span class="user-col">Name</span>
-            <span class="stat-col">{{ $tab === 'woche' ? 'Punkte' : 'Punkte' }}</span>
+            <span class="stat-col">{{ $tab === 'liga' ? 'Wochen-Punkte' : 'Punkte' }}</span>
             <span class="stat-col">Level</span>
             <span class="stat-col">Streak</span>
         </div>
         <div class="leaderboard-table-container">
+            @if($hasNextLeague && $totalUsers > 0)
+                <div class="zone-divider promotion">
+                    <i class="bi bi-arrow-up-circle-fill"></i>
+                    Aufstiegszone &rarr; {{ \App\Services\LeagueService::getLeagueName($nextLeague) }}
+                </div>
+            @endif
+
             @forelse($leaderboard as $index => $user)
                 @php
                     $rank = $index + 1;
@@ -458,7 +592,29 @@
                         default => ''
                     };
                     if ($isCurrentUser) $rowClass = 'current-user';
+
+                    // Zone classes
+                    $zoneClass = '';
+                    if ($tab === 'liga') {
+                        if ($hasNextLeague && $rank <= $promotionSlots) {
+                            $zoneClass = 'promotion-row';
+                        }
+                        if ($hasPrevLeague && $relegationStart && $rank > $relegationStart) {
+                            $zoneClass = 'relegation-row';
+                        }
+                    }
                 @endphp
+
+                @if($tab === 'liga' && $hasPrevLeague && $relegationStart && $rank === $relegationStart + 1)
+                    <div class="zone-divider relegation">
+                        <i class="bi bi-arrow-down-circle-fill"></i>
+                        Abstiegszone &rarr; {{ \App\Services\LeagueService::getLeagueName($prevLeague) }}
+                    </div>
+                @endif
+
+                @if($tab === 'liga' && $hasNextLeague && $rank === $promotionSlots + 1 && $totalUsers > $promotionSlots)
+                    <div style="height: 1px; background: rgba(255,255,255,0.06); margin: 0.25rem 0;"></div>
+                @endif
 
                 @php
                     $nameClasses = 'user-name';
@@ -478,7 +634,7 @@
                         $frameClass = ($user->profile_frame_type ?? 'gold') === 'diamond' ? 'profile-frame-diamond' : 'profile-frame-gold';
                     }
                 @endphp
-                <div class="leaderboard-row {{ $rowClass }} {{ $frameClass }}">
+                <div class="leaderboard-row {{ $rowClass }} {{ $zoneClass }} {{ $frameClass }}">
                     <div class="rank-col">
                         @if($rank <= 3)
                             <span class="rank-medal">{!! $medal !!}</span>
@@ -498,7 +654,7 @@
                     </div>
                     <div class="stat-col">
                         <span class="stat-icon" style="color: #06b6d4;"><i class="bi bi-gem"></i></span>
-                        <span class="stat-value">{{ number_format($tab === 'woche' ? $user->weekly_points : $user->total_points_earned) }}</span>
+                        <span class="stat-value">{{ number_format($tab === 'liga' ? $user->weekly_points : ($user->total_points_earned ?? $user->points)) }}</span>
                     </div>
                     <div class="stat-col">
                         <span class="stat-icon" style="color: #fbbf24;"><i class="bi bi-star-fill"></i></span>
@@ -512,8 +668,8 @@
             @empty
                 <div class="empty-state">
                     <div class="empty-state-icon"><i class="bi bi-trophy"></i></div>
-                    <p class="empty-state-title">{{ $tab === 'woche' ? 'Noch keine Aktivität diese Woche' : 'Noch keine Einträge' }}</p>
-                    <p class="empty-state-desc">{{ $tab === 'woche' ? 'Sei der Erste und sammle Punkte!' : '' }}</p>
+                    <p class="empty-state-title">{{ $tab === 'liga' ? 'Noch keine Aktivität in deiner Liga diese Woche' : 'Noch keine Einträge' }}</p>
+                    <p class="empty-state-desc">{{ $tab === 'liga' ? 'Sei der Erste und sammle Punkte!' : '' }}</p>
                 </div>
             @endforelse
         </div>
@@ -521,6 +677,13 @@
 
     <!-- Mobile Cards -->
     <div class="mobile-cards">
+        @if($hasNextLeague && $totalUsers > 0)
+            <div class="zone-divider promotion">
+                <i class="bi bi-arrow-up-circle-fill"></i>
+                Aufstiegszone
+            </div>
+        @endif
+
         @forelse($leaderboard as $index => $user)
             @php
                 $rank = $index + 1;
@@ -538,7 +701,28 @@
                     default => ''
                 };
                 if ($isCurrentUser) $cardClass = 'current-user';
+
+                $mZoneClass = '';
+                if ($tab === 'liga') {
+                    if ($hasNextLeague && $rank <= $promotionSlots) {
+                        $mZoneClass = 'promotion-row';
+                    }
+                    if ($hasPrevLeague && $relegationStart && $rank > $relegationStart) {
+                        $mZoneClass = 'relegation-row';
+                    }
+                }
             @endphp
+
+            @if($tab === 'liga' && $hasPrevLeague && $relegationStart && $rank === $relegationStart + 1)
+                <div class="zone-divider relegation">
+                    <i class="bi bi-arrow-down-circle-fill"></i>
+                    Abstiegszone
+                </div>
+            @endif
+
+            @if($tab === 'liga' && $hasNextLeague && $rank === $promotionSlots + 1 && $totalUsers > $promotionSlots)
+                <div style="height: 1px; background: rgba(255,255,255,0.06); margin: 0.5rem 0;"></div>
+            @endif
 
             @php
                 $mNameClasses = 'mobile-user-name';
@@ -551,7 +735,7 @@
                     $mFrameClass = ($user->profile_frame_type ?? 'gold') === 'diamond' ? 'profile-frame-diamond' : 'profile-frame-gold';
                 }
             @endphp
-            <div class="glass mobile-card {{ $cardClass }} {{ $mFrameClass }}">
+            <div class="glass mobile-card {{ $cardClass }} {{ $mZoneClass }} {{ $mFrameClass }}">
                 <div class="mobile-rank-section">
                     @if($rank <= 3)
                         <div class="mobile-rank-medal">{!! $medal !!}</div>
@@ -572,7 +756,7 @@
                         <div class="mobile-stat">
                             <span style="color: #06b6d4;"><i class="bi bi-gem"></i></span>
                             <span class="mobile-stat-label">Punkte:</span>
-                            <span class="mobile-stat-value">{{ number_format($tab === 'woche' ? $user->weekly_points : $user->total_points_earned) }}</span>
+                            <span class="mobile-stat-value">{{ number_format($tab === 'liga' ? $user->weekly_points : ($user->total_points_earned ?? $user->points)) }}</span>
                         </div>
                     </div>
                     <div class="mobile-stats-row" style="margin-top: 0.5rem;">
@@ -592,38 +776,32 @@
         @empty
             <div class="glass empty-state">
                 <div class="empty-state-icon"><i class="bi bi-trophy"></i></div>
-                <p class="empty-state-title">{{ $tab === 'woche' ? 'Noch keine Aktivität diese Woche' : 'Noch keine Einträge' }}</p>
-                <p class="empty-state-desc">{{ $tab === 'woche' ? 'Sei der Erste und sammle Punkte!' : '' }}</p>
+                <p class="empty-state-title">{{ $tab === 'liga' ? 'Noch keine Aktivität in deiner Liga' : 'Noch keine Einträge' }}</p>
+                <p class="empty-state-desc">{{ $tab === 'liga' ? 'Sei der Erste und sammle Punkte!' : '' }}</p>
             </div>
         @endforelse
     </div>
 
     <!-- Info Box -->
     <div class="glass-tl info-box">
-        <h3><i class="bi bi-lightbulb" style="color: var(--gold);"></i> So sammelst du Punkte</h3>
+        <h3><i class="bi bi-lightbulb" style="color: var(--gold);"></i> So funktioniert das Ligen-System</h3>
         <ul>
-            <li><i class="bi bi-check-circle-fill" style="color: #22c55e;"></i> <strong>+10 Punkte</strong> pro richtig beantwortete Frage</li>
-            <li><i class="bi bi-mortarboard" style="color: var(--thw-blue);"></i> <strong>+100 Punkte</strong> für bestandene Prüfungen</li>
-            <li><i class="bi bi-fire" style="color: #f97316;"></i> <strong>Streak-Bonus</strong> bei täglichem Lernen</li>
-            @if($tab === 'woche')
-                <li><i class="bi bi-arrow-repeat" style="color: #8b5cf6;"></i> <strong>Wöchentliche Rangliste</strong> wird jeden Montag zurückgesetzt</li>
+            <li><i class="bi bi-shield-fill" style="color: var(--gold);"></i> <strong>8 Ligen</strong> von Bronze bis Diamant</li>
+            <li><i class="bi bi-arrow-up-circle-fill" style="color: #22c55e;"></i> <strong>Top {{ $promotionSlots }}</strong> steigen wöchentlich in die nächste Liga auf</li>
+            <li><i class="bi bi-arrow-down-circle-fill" style="color: #ef4444;"></i> <strong>Letzte {{ $relegationSlots }}</strong> steigen in die untere Liga ab</li>
+            <li><i class="bi bi-gift-fill" style="color: #c084fc;"></i> <strong>Platz 1-3</strong> erhalten jede Woche eine Lootbox</li>
+            @if($tab === 'liga')
+                <li><i class="bi bi-arrow-repeat" style="color: #8b5cf6;"></i> <strong>Liga-Wertung</strong> wird jeden Montag zurückgesetzt</li>
             @endif
         </ul>
     </div>
 
-    <!-- Current User Rank (if not in Top 50) -->
-    @if(Auth::check())
+    <!-- Current User Rank (if not visible in league) -->
+    @if(Auth::check() && $tab === 'gesamt')
         @php
             $currentUser = Auth::user();
-            $userRank = null;
-
             $totalEarned = $currentUser->points + ($currentUser->total_points_spent ?? 0);
-            if ($tab === 'woche') {
-                $userRank = \App\Models\User::where('weekly_points', '>', $currentUser->weekly_points)->count() + 1;
-            } else {
-                $userRank = \App\Models\User::whereRaw('(points + COALESCE(total_points_spent, 0)) > ?', [$totalEarned])->count() + 1;
-            }
-
+            $userRank = \App\Models\User::whereRaw('(points + COALESCE(total_points_spent, 0)) > ?', [$totalEarned])->count() + 1;
             $isInTop50 = $userRank <= 50;
         @endphp
 
@@ -635,11 +813,7 @@
                     </div>
                     <div class="user-rank-number">Rang #{{ $userRank }}</div>
                     <div class="user-rank-details">
-                        @if($tab === 'woche')
-                            {{ number_format($currentUser->weekly_points) }} Punkte diese Woche
-                        @else
-                            {{ number_format($currentUser->points + ($currentUser->total_points_spent ?? 0)) }} Punkte gesamt
-                        @endif
+                        {{ number_format($currentUser->points + ($currentUser->total_points_spent ?? 0)) }} Punkte gesamt
                     </div>
                 </div>
                 <div class="user-rank-stats">
