@@ -5,13 +5,18 @@
  * WICHTIG: Dieses Script sollte JEDEN MONTAG um 00:00 Uhr ausgeführt werden
  * VOR dem täglichen Reset-Script (cronjob-daily-reset-prod.php)
  *
+ * HINWEIS: Dieses Script wird automatisch über den Laravel Scheduler ausgeführt:
+ *   php artisan league:process-weekly
+ * Der Scheduler wird in routes/console.php konfiguriert (weeklyOn Montag 00:00).
+ * Manueller Cronjob ist nicht mehr nötig, wenn `php artisan schedule:run` minütlich läuft.
+ *
  * LOGIK:
  * - Verarbeitet Auf- und Abstiege in allen 8 Ligen
  * - Top 5 jeder Liga steigen auf
  * - Letzte 5 jeder Liga steigen ab
  * - Platz 1-3 erhalten Lootboxen (Gold, Silber, Bronze)
  *
- * CRONJOB: 0 0 * * 1 /usr/bin/php /path/to/cronjob-league-weekly-prod.php
+ * CRONJOB (manuell, falls Scheduler nicht genutzt): 0 0 * * 1 /usr/bin/php /path/to/cronjob-league-weekly-prod.php
  */
 
 // Finde Laravel-Root (Script liegt im Root)
