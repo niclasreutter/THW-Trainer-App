@@ -538,7 +538,7 @@
                         {{ $weekRange['formatted'] }} (Montag - Sonntag)
                     @endif
                     @if($nextLeague)
-                        &middot; Top {{ \App\Services\LeagueService::PROMOTION_SLOTS }} steigen auf in {{ \App\Services\LeagueService::getLeagueName($nextLeague) }}
+                        &middot; Top {{ \App\Services\LeagueService::PROMOTION_PERCENT }}% steigen auf in {{ \App\Services\LeagueService::getLeagueName($nextLeague) }} (min. {{ \App\Services\LeagueService::PROMOTION_MIN_POINTS[$userLeague] ?? 0 }} Pkt)
                     @endif
                 </p>
             </div>
@@ -547,10 +547,16 @@
 
     @php
         $totalUsers = $leaderboard->count();
-        $promotionSlots = \App\Services\LeagueService::PROMOTION_SLOTS;
-        $relegationSlots = \App\Services\LeagueService::RELEGATION_SLOTS;
-        $hasNextLeague = $tab === 'liga' && $nextLeague;
-        $hasPrevLeague = $tab === 'liga' && $prevLeague;
+        $promotionSlots = min(
+            \App\Services\LeagueService::MAX_PROMOTION_SLOTS,
+            max(1, (int) floor($totalUsers * \App\Services\LeagueService::PROMOTION_PERCENT / 100))
+        );
+        $relegationSlots = min(
+            \App\Services\LeagueService::MAX_RELEGATION_SLOTS,
+            max(1, (int) floor($totalUsers * \App\Services\LeagueService::RELEGATION_PERCENT / 100))
+        );
+        $hasNextLeague = $tab === 'liga' && $nextLeague && $totalUsers >= \App\Services\LeagueService::MIN_USERS_FOR_MOVEMENT;
+        $hasPrevLeague = $tab === 'liga' && $prevLeague && $totalUsers >= \App\Services\LeagueService::MIN_USERS_FOR_MOVEMENT;
         $relegationStart = $hasPrevLeague && $totalUsers > $relegationSlots ? $totalUsers - $relegationSlots : null;
     @endphp
 
