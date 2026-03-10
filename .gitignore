@@ -44,3 +44,4 @@ VAPID_KEYS.txt
 *.dump
 backup/
 backups/
+node_modules/

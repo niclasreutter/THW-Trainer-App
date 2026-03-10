@@ -800,6 +800,17 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') dismi
                 <div class="stat-pill-label">Heute</div>
             </div>
         </div>
+        @php
+            $userLeague = $user->league ?? 'bronze';
+            $leagueInfo = \App\Services\LeagueService::getLeagueInfo($userLeague);
+        @endphp
+        <a href="{{ route('gamification.leaderboard', ['tab' => 'liga']) }}" class="stat-pill" style="text-decoration: none; cursor: pointer;">
+            <span class="stat-pill-icon"><i class="{{ $leagueInfo['icon'] }}" style="color: {{ $leagueInfo['color'] }};"></i></span>
+            <div>
+                <div class="stat-pill-value" style="color: {{ $leagueInfo['color'] }};">{{ $leagueInfo['name'] }}</div>
+                <div class="stat-pill-label">Liga</div>
+            </div>
+        </a>
         <div class="stat-pill" data-tour-step="achievements">
             <span class="stat-pill-icon" style="color: #a855f7;"><i class="bi bi-trophy"></i></span>
             <div>
