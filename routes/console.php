@@ -50,3 +50,17 @@ Schedule::command('system:maintenance')
     ->timezone('Europe/Berlin')
     ->description('Führt System-Wartung und Speicher-Optimierung durch');
 
+// Prüfungs-Viel-Erfolg-Mail
+// Läuft täglich um 17:00 Uhr (einen Tag vor der Prüfung)
+Schedule::command('exam:send-goodluck')
+    ->dailyAt('17:00')
+    ->timezone('Europe/Berlin')
+    ->description('Sendet Viel-Erfolg-Mails an User deren Prüfung morgen ist');
+
+// Prüfungs-Feedback-Anfrage
+// Läuft täglich um 10:00 Uhr (eine Woche nach der Prüfung)
+Schedule::command('exam:send-feedback-requests')
+    ->dailyAt('10:00')
+    ->timezone('Europe/Berlin')
+    ->description('Sendet Feedback-Anfragen an User deren Prüfung vor einer Woche war');
+

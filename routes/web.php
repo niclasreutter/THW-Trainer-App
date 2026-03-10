@@ -331,4 +331,8 @@ if (config('app.debug')) {
     });
 }
 
+// Exam Feedback (öffentlich via Token, kein Login nötig)
+Route::get('/exam-feedback/{token}', [\App\Http\Controllers\ExamFeedbackController::class, 'show'])->name('exam-feedback.show');
+Route::post('/exam-feedback/{token}', [\App\Http\Controllers\ExamFeedbackController::class, 'store'])->name('exam-feedback.store');
+
 require __DIR__.'/auth.php';
