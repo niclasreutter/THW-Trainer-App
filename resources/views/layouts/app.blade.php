@@ -177,7 +177,16 @@
                     <a href="{{ route('gamification.leaderboard') }}"
                        class="sidebar-link {{ request()->routeIs('gamification.leaderboard') ? 'active' : '' }}">
                         <i class="bi bi-trophy"></i>
-                        Rangliste
+                        Liga
+                        @php
+                            $unreadLeagueNotifs = \App\Models\Notification::where('user_id', auth()->id())
+                                ->where('is_read', false)
+                                ->whereIn('type', ['league_promotion', 'league_relegation'])
+                                ->count();
+                        @endphp
+                        @if($unreadLeagueNotifs > 0)
+                            <span class="badge-error text-xs ml-auto">{{ $unreadLeagueNotifs }}</span>
+                        @endif
                     </a>
 
                     <a href="{{ route('gamification.achievements') }}"
@@ -186,10 +195,16 @@
                         Achievements
                     </a>
 
+                    @php
+                        $unopenedLootboxCount = \App\Models\Lootbox::where('user_id', auth()->id())->where('opened', false)->count();
+                    @endphp
                     <a href="{{ route('shop.index') }}"
                        class="sidebar-link {{ request()->routeIs('shop.*') ? 'active' : '' }}">
                         <i class="bi bi-shop"></i>
                         Shop
+                        @if($unopenedLootboxCount > 0)
+                            <span class="badge-error text-xs ml-auto">{{ $unopenedLootboxCount }}</span>
+                        @endif
                     </a>
 
                     <a href="{{ route('contact.index') }}"
@@ -458,7 +473,10 @@
 
                 <a href="{{ route('gamification.leaderboard') }}" class="sidebar-link {{ request()->routeIs('gamification.leaderboard') ? 'active' : '' }}">
                     <i class="bi bi-trophy"></i>
-                    Rangliste
+                    Liga
+                    @if($unreadLeagueNotifs > 0)
+                        <span class="badge-error text-xs ml-auto">{{ $unreadLeagueNotifs }}</span>
+                    @endif
                 </a>
 
                 <a href="{{ route('gamification.achievements') }}" class="sidebar-link {{ request()->routeIs('gamification.achievements') ? 'active' : '' }}">
@@ -469,6 +487,9 @@
                 <a href="{{ route('shop.index') }}" class="sidebar-link {{ request()->routeIs('shop.*') ? 'active' : '' }}">
                     <i class="bi bi-shop"></i>
                     Shop
+                    @if($unopenedLootboxCount > 0)
+                        <span class="badge-error text-xs ml-auto">{{ $unopenedLootboxCount }}</span>
+                    @endif
                 </a>
 
                 <a href="{{ route('ortsverband.index') }}" class="sidebar-link {{ request()->routeIs('ortsverband.*') ? 'active' : '' }}">

@@ -343,6 +343,25 @@
         </div>
     </div>
 
+    @if($unopenedLootboxes->count() > 0)
+    <a href="{{ route('gamification.lootboxes') }}" class="glass-gold" style="display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.5rem; margin-bottom: 1.25rem; text-decoration: none; border-radius: 12px; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <i class="bi bi-gift-fill" style="font-size: 1.5rem; color: var(--gold);"></i>
+            <div>
+                <div style="font-weight: 700; color: var(--text-primary);">
+                    {{ $unopenedLootboxes->count() }} {{ $unopenedLootboxes->count() === 1 ? 'Lootbox' : 'Lootboxen' }} verfügbar
+                </div>
+                <div style="font-size: 0.8rem; color: var(--text-secondary);">
+                    @foreach($unopenedLootboxes->groupBy('type') as $type => $boxes)
+                        {{ $boxes->count() }}x {{ ucfirst($type) }}{{ !$loop->last ? ', ' : '' }}
+                    @endforeach
+                </div>
+            </div>
+        </div>
+        <i class="bi bi-chevron-right" style="color: var(--gold); font-size: 1.25rem;"></i>
+    </a>
+    @endif
+
     <div class="bento-grid">
         <!-- Main: Shop Items -->
         <div class="glass bento-2of3 p-6">

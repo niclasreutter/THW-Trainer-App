@@ -92,8 +92,20 @@
         background: linear-gradient(90deg, rgba(239, 68, 68, 0.4), transparent);
     }
 
+    .zone-divider.safe {
+        color: #94a3b8;
+    }
+
+    .zone-divider.safe::after {
+        background: linear-gradient(90deg, rgba(148, 163, 184, 0.25), transparent);
+    }
+
     .promotion-row {
         border-left: 3px solid rgba(34, 197, 94, 0.5);
+    }
+
+    .safe-row {
+        border-left: 3px solid transparent;
     }
 
     .relegation-row {
@@ -573,7 +585,7 @@
             @if($hasNextLeague && $totalUsers > 0)
                 <div class="zone-divider promotion">
                     <i class="bi bi-arrow-up-circle-fill"></i>
-                    Aufstiegszone &rarr; {{ \App\Services\LeagueService::getLeagueName($nextLeague) }}
+                    Aufstiegszone &rarr; {{ \App\Services\LeagueService::getLeagueName($nextLeague) }} (Top {{ $promotionSlots }})
                 </div>
             @endif
 
@@ -600,22 +612,26 @@
                     if ($tab === 'liga') {
                         if ($hasNextLeague && $rank <= $promotionSlots) {
                             $zoneClass = 'promotion-row';
-                        }
-                        if ($hasPrevLeague && $relegationStart && $rank > $relegationStart) {
+                        } elseif ($hasPrevLeague && $relegationStart && $rank > $relegationStart) {
                             $zoneClass = 'relegation-row';
+                        } else {
+                            $zoneClass = 'safe-row';
                         }
                     }
                 @endphp
 
-                @if($tab === 'liga' && $hasPrevLeague && $relegationStart && $rank === $relegationStart + 1)
-                    <div class="zone-divider relegation">
-                        <i class="bi bi-arrow-down-circle-fill"></i>
-                        Abstiegszone &rarr; {{ \App\Services\LeagueService::getLeagueName($prevLeague) }}
+                @if($tab === 'liga' && $hasNextLeague && $rank === $promotionSlots + 1 && $totalUsers > $promotionSlots)
+                    <div class="zone-divider safe">
+                        <i class="bi bi-dash-circle-fill"></i>
+                        Verbleibszone
                     </div>
                 @endif
 
-                @if($tab === 'liga' && $hasNextLeague && $rank === $promotionSlots + 1 && $totalUsers > $promotionSlots)
-                    <div style="height: 1px; background: rgba(255,255,255,0.06); margin: 0.25rem 0;"></div>
+                @if($tab === 'liga' && $hasPrevLeague && $relegationStart && $rank === $relegationStart + 1)
+                    <div class="zone-divider relegation">
+                        <i class="bi bi-arrow-down-circle-fill"></i>
+                        Abstiegszone &rarr; {{ \App\Services\LeagueService::getLeagueName($prevLeague) }} (Letzte {{ $relegationSlots }})
+                    </div>
                 @endif
 
                 @php
@@ -682,7 +698,7 @@
         @if($hasNextLeague && $totalUsers > 0)
             <div class="zone-divider promotion">
                 <i class="bi bi-arrow-up-circle-fill"></i>
-                Aufstiegszone
+                Aufstiegszone (Top {{ $promotionSlots }})
             </div>
         @endif
 
@@ -708,22 +724,26 @@
                 if ($tab === 'liga') {
                     if ($hasNextLeague && $rank <= $promotionSlots) {
                         $mZoneClass = 'promotion-row';
-                    }
-                    if ($hasPrevLeague && $relegationStart && $rank > $relegationStart) {
+                    } elseif ($hasPrevLeague && $relegationStart && $rank > $relegationStart) {
                         $mZoneClass = 'relegation-row';
+                    } else {
+                        $mZoneClass = 'safe-row';
                     }
                 }
             @endphp
 
-            @if($tab === 'liga' && $hasPrevLeague && $relegationStart && $rank === $relegationStart + 1)
-                <div class="zone-divider relegation">
-                    <i class="bi bi-arrow-down-circle-fill"></i>
-                    Abstiegszone
+            @if($tab === 'liga' && $hasNextLeague && $rank === $promotionSlots + 1 && $totalUsers > $promotionSlots)
+                <div class="zone-divider safe">
+                    <i class="bi bi-dash-circle-fill"></i>
+                    Verbleibszone
                 </div>
             @endif
 
-            @if($tab === 'liga' && $hasNextLeague && $rank === $promotionSlots + 1 && $totalUsers > $promotionSlots)
-                <div style="height: 1px; background: rgba(255,255,255,0.06); margin: 0.5rem 0;"></div>
+            @if($tab === 'liga' && $hasPrevLeague && $relegationStart && $rank === $relegationStart + 1)
+                <div class="zone-divider relegation">
+                    <i class="bi bi-arrow-down-circle-fill"></i>
+                    Abstiegszone (Letzte {{ $relegationSlots }})
+                </div>
             @endif
 
             @php
@@ -790,6 +810,7 @@
         <ul>
             <li><i class="bi bi-shield-fill" style="color: var(--gold);"></i> <strong>8 Ligen</strong> von Bronze bis Diamant</li>
             <li><i class="bi bi-arrow-up-circle-fill" style="color: #22c55e;"></i> <strong>Top {{ $promotionSlots }}</strong> steigen wöchentlich in die nächste Liga auf</li>
+            <li><i class="bi bi-dash-circle-fill" style="color: #94a3b8;"></i> <strong>Platz {{ $promotionSlots + 1 }}{{ $relegationStart ? ' - ' . $relegationStart : '+' }}</strong> bleiben in der aktuellen Liga</li>
             <li><i class="bi bi-arrow-down-circle-fill" style="color: #ef4444;"></i> <strong>Letzte {{ $relegationSlots }}</strong> steigen in die untere Liga ab</li>
             <li><i class="bi bi-gift-fill" style="color: #c084fc;"></i> <strong>Platz 1-3</strong> erhalten jede Woche eine Lootbox</li>
             @if($tab === 'liga')

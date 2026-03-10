@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use App\Services\ShopService;
+use App\Models\Lootbox;
 
 class ShopController extends Controller
 {
@@ -17,8 +18,9 @@ class ShopController extends Controller
         $items = $shopService->getAvailableItems($user);
         $activeEffects = $shopService->getActiveEffects($user);
         $purchaseHistory = $shopService->getPurchaseHistory($user);
+        $unopenedLootboxes = Lootbox::where('user_id', $user->id)->where('opened', false)->get();
 
-        return view('shop.index', compact('items', 'activeEffects', 'purchaseHistory'));
+        return view('shop.index', compact('items', 'activeEffects', 'purchaseHistory', 'unopenedLootboxes'));
     }
 
     public function purchase(Request $request): JsonResponse
