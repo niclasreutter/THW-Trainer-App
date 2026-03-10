@@ -23,7 +23,7 @@ class ExamGoodLuckMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Morgen ist es soweit - Viel Erfolg bei deiner Prüfung!',
+            subject: 'Deine Prüfung ist morgen - Letzte Tipps vom THW-Trainer',
         );
     }
 
