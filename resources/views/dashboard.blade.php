@@ -574,6 +574,59 @@
     html.light-mode .heatmap-cell.none .heatmap-cell-number {
         color: var(--text-muted);
     }
+
+    /* Live Session Banner */
+    .live-session-banner {
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+        padding: 1.25rem 1.5rem;
+        margin-bottom: 1.25rem;
+        border-radius: 0.75rem;
+        border: 1px solid rgba(34, 197, 94, 0.2);
+        background: linear-gradient(135deg, rgba(34, 197, 94, 0.06) 0%, rgba(34, 197, 94, 0.02) 100%);
+    }
+
+    .live-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: var(--success, #22c55e);
+        flex-shrink: 0;
+        animation: pulse-dot 2s ease-in-out infinite;
+        box-shadow: 0 0 8px rgba(34, 197, 94, 0.4);
+    }
+
+    @keyframes pulse-dot {
+        0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 8px rgba(34, 197, 94, 0.4); }
+        50% { opacity: 0.6; transform: scale(0.85); box-shadow: 0 0 16px rgba(34, 197, 94, 0.6); }
+    }
+
+    .live-session-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .live-session-title {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 0.2rem;
+    }
+
+    .live-session-meta {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        line-height: 1.5;
+    }
+
+    @media (max-width: 600px) {
+        .live-session-banner {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+    }
 </style>
 @endpush
 
@@ -713,6 +766,37 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') dismi
         </div>
         <a href="{{ route('practice.spaced-repetition') }}" class="btn-secondary btn-sm">Wiederholen</a>
     </div>
+    @endif
+
+    {{-- Live Lernsession Banner --}}
+    @php
+        $__liveInstance = app(\App\Services\LernsessionService::class)
+            ->getActiveSessionsForUser(auth()->user())
+            ->first();
+    @endphp
+    @if($__liveInstance)
+        @php
+            $__liveSession = $__liveInstance->learningSession;
+        @endphp
+        <div class="live-session-banner glass"
+             x-data="{ remaining: {{ $__liveInstance->getTimeRemainingSeconds() }} }"
+             x-init="setInterval(() => { if(remaining > 0) remaining-- }, 1000)">
+            <div class="live-dot"></div>
+            <div class="live-session-info">
+                <div class="live-session-title">Lernsession ist live</div>
+                <div class="live-session-meta">
+                    {{ $__liveSession->title }} &middot;
+                    {{ $__liveInstance->starts_at->format('d.m.Y H:i') }} – {{ $__liveInstance->ends_at->format('H:i') }} Uhr
+                    &middot; noch <span x-text="Math.floor(remaining/3600) > 0
+                        ? Math.floor(remaining/3600) + 'h ' + Math.floor((remaining%3600)/60) + 'min'
+                        : Math.floor(remaining/60) + ' min'"></span>
+                    @if($__liveSession->description)
+                        <br>{{ $__liveSession->description }}
+                    @endif
+                </div>
+            </div>
+            <a href="{{ route('lernsession.live', $__liveInstance) }}" class="btn-primary btn-sm" style="white-space: nowrap;">Teilnehmen</a>
+        </div>
     @endif
 
     @php
