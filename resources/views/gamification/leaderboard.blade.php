@@ -520,7 +520,7 @@
 
     @if($unopenedLootboxCount > 0)
         <a href="{{ route('gamification.lootboxes') }}" class="lootbox-link" style="margin-bottom: 1.5rem; display: inline-flex;">
-            <i class="bi bi-gift-fill"></i> Lootboxen öffnen
+            <i class="bi bi-gift-fill"></i> Belohnungen öffnen
             <span class="lootbox-count">{{ $unopenedLootboxCount }}</span>
         </a>
     @endif
@@ -812,7 +812,7 @@
             <li><i class="bi bi-arrow-up-circle-fill" style="color: #22c55e;"></i> <strong>Top {{ $promotionSlots }}</strong> steigen wöchentlich in die nächste Liga auf</li>
             <li><i class="bi bi-dash-circle-fill" style="color: #94a3b8;"></i> <strong>Platz {{ $promotionSlots + 1 }}{{ $relegationStart ? ' - ' . $relegationStart : '+' }}</strong> bleiben in der aktuellen Liga</li>
             <li><i class="bi bi-arrow-down-circle-fill" style="color: #ef4444;"></i> <strong>Letzte {{ $relegationSlots }}</strong> steigen in die untere Liga ab</li>
-            <li><i class="bi bi-gift-fill" style="color: #c084fc;"></i> <strong>Platz 1-3</strong> erhalten jede Woche eine Lootbox</li>
+            <li><i class="bi bi-gift-fill" style="color: #c084fc;"></i> <strong>Platz 1-3</strong> erhalten jede Woche eine Belohnung</li>
             @if($tab === 'liga')
                 <li><i class="bi bi-arrow-repeat" style="color: #8b5cf6;"></i> <strong>Liga-Wertung</strong> wird jeden Montag zurückgesetzt</li>
             @endif

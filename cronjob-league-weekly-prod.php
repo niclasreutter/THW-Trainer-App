@@ -9,7 +9,7 @@
  * - Verarbeitet Auf- und Abstiege in allen 8 Ligen
  * - Top 5 jeder Liga steigen auf
  * - Letzte 5 jeder Liga steigen ab
- * - Platz 1-3 erhalten Lootboxen (Gold, Silber, Bronze)
+ * - Platz 1-3 erhalten Wochenbelohnungen (Gold, Silber, Bronze)
  *
  * CRONJOB: 0 0 * * 1 /usr/bin/php /path/to/cronjob-league-weekly-prod.php
  */
@@ -46,7 +46,7 @@ try {
     echo "[" . date('Y-m-d H:i:s') . "] Liga-Verarbeitung abgeschlossen:\n";
     echo "  → Aufstiege: {$results['promotions']}\n";
     echo "  → Abstiege: {$results['relegations']}\n";
-    echo "  → Lootboxen vergeben: {$results['lootboxes_awarded']}\n";
+    echo "  → Wochenbelohnungen vergeben: {$results['lootboxes_awarded']}\n";
 
     echo "[" . date('Y-m-d H:i:s') . "] FERTIG\n";
 

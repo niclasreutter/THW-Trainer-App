@@ -349,7 +349,7 @@
             <i class="bi bi-gift-fill" style="font-size: 1.5rem; color: var(--gold);"></i>
             <div>
                 <div style="font-weight: 700; color: var(--text-primary);">
-                    {{ $unopenedLootboxes->count() }} {{ $unopenedLootboxes->count() === 1 ? 'Lootbox' : 'Lootboxen' }} verfügbar
+                    {{ $unopenedLootboxes->count() }} {{ $unopenedLootboxes->count() === 1 ? 'Wochenbelohnung' : 'Wochenbelohnungen' }} verfügbar
                 </div>
                 <div style="font-size: 0.8rem; color: var(--text-secondary);">
                     @foreach($unopenedLootboxes->groupBy('type') as $type => $boxes)

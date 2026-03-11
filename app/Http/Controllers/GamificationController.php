@@ -78,7 +78,7 @@ class GamificationController extends Controller
             ->first();
 
         if (!$lootbox) {
-            return response()->json(['success' => false, 'message' => 'Lootbox nicht gefunden.'], 404);
+            return response()->json(['success' => false, 'message' => 'Belohnung nicht gefunden.'], 404);
         }
 
         $result = (new LeagueService())->openLootbox($lootbox, $user);
