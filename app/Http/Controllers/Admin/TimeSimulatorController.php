@@ -344,7 +344,7 @@ class TimeSimulatorController extends Controller
         $log[] = "=== ERGEBNIS ===";
         $log[] = "Aufstiege: {$results['promotions']}";
         $log[] = "Abstiege: {$results['relegations']}";
-        $log[] = "Lootboxen vergeben: {$results['lootboxes_awarded']}";
+        $log[] = "Wochenbelohnungen vergeben: {$results['lootboxes_awarded']}";
 
         return back()->with('simulator_log', $log)->with('simulator_status', 'success');
     }

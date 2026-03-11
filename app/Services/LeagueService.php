@@ -143,7 +143,7 @@ class LeagueService
     }
 
     /**
-     * Verarbeitet wöchentliche Liga-Auf-/Abstiege und Lootbox-Vergabe.
+     * Verarbeitet wöchentliche Liga-Auf-/Abstiege und Wochenbelohnungs-Vergabe.
      * Sollte jeden Montag VOR dem Weekly-Reset aufgerufen werden.
      */
     public function processWeeklyLeagues(): array
@@ -170,14 +170,14 @@ class LeagueService
                 continue;
             }
 
-            // Lootboxen für Plätze 1-3 (Duplikat-Schutz: nicht doppelt innerhalb 10 Min)
+            // Wochenbelohnungen für Plätze 1-3 (Duplikat-Schutz: nicht doppelt innerhalb 10 Min)
             foreach ($users->take(3) as $index => $user) {
                 $recentlyAwarded = Lootbox::where('user_id', $user->id)
                     ->where('created_at', '>=', $recentCutoff)
                     ->exists();
 
                 if ($recentlyAwarded) {
-                    Log::info("Lootbox für User {$user->name} bereits kürzlich vergeben - überspringe (Duplikat-Schutz)");
+                    Log::info("Wochenbelohnung für User {$user->name} bereits kürzlich vergeben - überspringe (Duplikat-Schutz)");
                     continue;
                 }
 
@@ -265,12 +265,12 @@ class LeagueService
     }
 
     /**
-     * Öffnet eine Lootbox und bestimmt die Belohnung
+     * Öffnet eine Wochenbelohnung und bestimmt den Inhalt
      */
     public function openLootbox(Lootbox $lootbox, User $user): array
     {
         if ($lootbox->opened) {
-            return ['success' => false, 'message' => 'Diese Lootbox wurde bereits geöffnet.'];
+            return ['success' => false, 'message' => 'Diese Belohnung wurde bereits eingelöst.'];
         }
 
         $reward = $this->rollLootboxReward($lootbox->type);
@@ -293,7 +293,7 @@ class LeagueService
     }
 
     /**
-     * Würfelt die Belohnung einer Lootbox aus
+     * Würfelt die Belohnung einer Wochenbelohnung aus
      */
     private function rollLootboxReward(string $type): array
     {
@@ -308,7 +308,7 @@ class LeagueService
     }
 
     /**
-     * Bronze Lootbox: 40% 200 XP, 30% 400 XP, 20% 700 XP, 10% Streak Freeze
+     * Bronze Belohnung: 40% 200 XP, 30% 400 XP, 20% 700 XP, 10% Streak Freeze
      */
     private function rollBronzeReward(int $roll): array
     {
@@ -325,7 +325,7 @@ class LeagueService
     }
 
     /**
-     * Silber Lootbox: 40% 500 XP, 35% 700 XP, 20% Streak Freeze, 5% Doppel-XP
+     * Silber Belohnung: 40% 500 XP, 35% 700 XP, 20% Streak Freeze, 5% Doppel-XP
      */
     private function rollSilberReward(int $roll): array
     {
@@ -342,7 +342,7 @@ class LeagueService
     }
 
     /**
-     * Gold Lootbox: 20% 1000 XP, 20% 800 XP, 15% 1200 XP, 30% Streak Freeze, 15% Doppel-XP
+     * Gold Belohnung: 20% 1000 XP, 20% 800 XP, 15% 1200 XP, 30% Streak Freeze, 15% Doppel-XP
      */
     private function rollGoldReward(int $roll): array
     {
@@ -362,7 +362,7 @@ class LeagueService
     }
 
     /**
-     * Wendet die Belohnung einer Lootbox an
+     * Wendet die Belohnung einer Wochenbelohnung an
      */
     private function applyReward(User $user, array $reward): void
     {
@@ -385,7 +385,7 @@ class LeagueService
     }
 
     /**
-     * Gibt die ungeöffneten Lootboxen eines Users zurück
+     * Gibt die ungeöffneten Wochenbelohnungen eines Users zurück
      */
     public function getUnopenedLootboxes(User $user): \Illuminate\Support\Collection
     {
@@ -403,14 +403,14 @@ class LeagueService
         $title = match ($type) {
             'promotion' => 'Aufgestiegen!',
             'relegation' => 'Abgestiegen',
-            'lootbox' => 'Lootbox erhalten!',
+            'lootbox' => 'Wochenbelohnung erhalten!',
             default => 'Liga-Update',
         };
 
         $message = match ($type) {
             'promotion' => 'Du bist in die ' . self::getLeagueName($data['to']) . '-Liga aufgestiegen!',
             'relegation' => 'Du bist in die ' . self::getLeagueName($data['to']) . '-Liga abgestiegen.',
-            'lootbox' => 'Du hast eine ' . ucfirst($data['type']) . '-Lootbox für Platz ' . $data['rank'] . ' in der ' . self::getLeagueName($data['league']) . '-Liga erhalten!',
+            'lootbox' => 'Du hast eine ' . ucfirst($data['type']) . '-Belohnung für Platz ' . $data['rank'] . ' in der ' . self::getLeagueName($data['league']) . '-Liga erhalten!',
             default => 'Liga-Update',
         };
 

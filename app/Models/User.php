@@ -223,7 +223,7 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * User hat viele Lootboxen
+     * User hat viele Wochenbelohnungen
      */
     public function lootboxes()
     {
@@ -231,7 +231,7 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * Ungeöffnete Lootboxen
+     * Ungeöffnete Wochenbelohnungen
      */
     public function unopenedLootboxes()
     {

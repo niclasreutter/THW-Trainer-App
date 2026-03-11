@@ -222,8 +222,8 @@
             <!-- Liga-Verarbeitung ausfuehren -->
             <div class="action-card">
                 <h3>Liga-Verarbeitung starten</h3>
-                <p>Fuehrt die woechentliche Liga-Logik aus: Auf-/Abstiege (Top/Bottom 20%, max 5) und Lootbox-Vergabe. Min. 3 aktive User pro Liga noetig.</p>
-                <form method="POST" action="{{ route('admin.time-simulator.run-league') }}" onsubmit="return confirm('Liga-Verarbeitung jetzt ausfuehren? Auf-/Abstiege und Lootboxen werden verarbeitet.')">
+                <p>Fuehrt die woechentliche Liga-Logik aus: Auf-/Abstiege (Top/Bottom 20%, max 5) und Wochenbelohnungs-Vergabe. Min. 3 aktive User pro Liga noetig.</p>
+                <form method="POST" action="{{ route('admin.time-simulator.run-league') }}" onsubmit="return confirm('Liga-Verarbeitung jetzt ausfuehren? Auf-/Abstiege und Wochenbelohnungen werden verarbeitet.')">
                     @csrf
                     <button type="submit" class="btn-primary mt-3 w-full">Liga-Verarbeitung starten</button>
                 </form>

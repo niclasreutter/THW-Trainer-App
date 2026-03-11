@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Lootboxen - THW Trainer')
+@section('title', 'Wochenbelohnungen - THW Trainer')
 
 @push('styles')
 <style>
@@ -307,7 +307,7 @@
 @section('content')
 <div class="dashboard-container">
     <header class="dashboard-header">
-        <h1 class="page-title"><span>Lootboxen</span></h1>
+        <h1 class="page-title"><span>Wochenbelohnungen</span></h1>
         <p class="page-subtitle">Öffne deine Belohnungen aus den wöchentlichen Liga-Platzierungen</p>
     </header>
 
@@ -316,7 +316,7 @@
             @foreach($unopened as $lootbox)
                 <div class="glass lootbox-card type-{{ $lootbox->type }}" data-lootbox-id="{{ $lootbox->id }}">
                     <div class="lootbox-icon"><i class="bi bi-gift-fill"></i></div>
-                    <div class="lootbox-type">{{ ucfirst($lootbox->type) }}-Lootbox</div>
+                    <div class="lootbox-type">{{ ucfirst($lootbox->type) }}-Belohnung</div>
                     <div class="lootbox-desc">Platzierung in der Liga</div>
                     <button class="open-btn" onclick="openLootbox({{ $lootbox->id }}, '{{ $lootbox->type }}')">Öffnen</button>
                 </div>
@@ -325,14 +325,14 @@
     @else
         <div class="glass empty-lootbox-state">
             <div class="empty-lootbox-icon"><i class="bi bi-gift"></i></div>
-            <p style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.5rem;">Keine Lootboxen verfügbar</p>
-            <p style="color: var(--text-secondary); font-size: 0.9rem;">Erreiche Platz 1-3 in deiner Liga, um Lootboxen zu erhalten!</p>
+            <p style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.5rem;">Keine Wochenbelohnungen verfügbar</p>
+            <p style="color: var(--text-secondary); font-size: 0.9rem;">Erreiche Platz 1-3 in deiner Liga, um Wochenbelohnungen zu erhalten!</p>
         </div>
     @endif
 
     @if($opened->count() > 0)
         <div class="history-section">
-            <h2>Geöffnete Lootboxen</h2>
+            <h2>Eingelöste Belohnungen</h2>
             <div class="glass">
                 @foreach($opened as $lootbox)
                     <div class="history-item">
@@ -355,7 +355,7 @@
                                     Doppel-XP Boost (24h)
                                 @endif
                             </div>
-                            <div class="history-meta">{{ ucfirst($lootbox->type) }}-Lootbox &middot; {{ $lootbox->opened_at->format('d.m.Y H:i') }}</div>
+                            <div class="history-meta">{{ ucfirst($lootbox->type) }}-Belohnung &middot; {{ $lootbox->opened_at->format('d.m.Y H:i') }}</div>
                         </div>
                     </div>
                 @endforeach
@@ -453,7 +453,7 @@
 
         rewardIcon.innerHTML = icons[reward.type] || icons.xp;
         rewardLabel.textContent = reward.label;
-        rewardSublabel.textContent = capitalize(type) + '-Lootbox';
+        rewardSublabel.textContent = capitalize(type) + '-Belohnung';
 
         rewardPhase.classList.add('visible');
         createParticles(type);
