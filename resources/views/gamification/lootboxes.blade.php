@@ -132,11 +132,7 @@
     .lootbox-animation {
         text-align: center;
         position: relative;
-        background: rgba(15, 23, 42, 0.9);
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        border-radius: 1.5rem;
         padding: 3rem 3.5rem;
-        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
         max-width: 360px;
         width: 90vw;
     }
