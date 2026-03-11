@@ -187,6 +187,9 @@ class UserController extends Controller
         // Gamification-Notifications löschen
         \App\Models\Notification::where('user_id', $user->id)->delete();
 
+        // XP-Verlauf löschen
+        \App\Models\XpHistory::where('user_id', $user->id)->delete();
+
         // User-Felder zurücksetzen
         $user->solved_questions       = [];
         $user->exam_failed_questions  = [];
@@ -284,5 +287,14 @@ class UserController extends Controller
         $user = User::findOrFail($id);
         $user->delete();
         return redirect()->route('admin.users.index')->with('success', 'Nutzer gelöscht');
+    }
+
+    public function xpHistory($id)
+    {
+        $this->abortIfNotAdmin();
+        $user = User::findOrFail($id);
+        $entries = $user->xpHistories()->paginate(50);
+
+        return view('admin.xp-history', compact('user', 'entries'));
     }
 }

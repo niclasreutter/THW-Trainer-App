@@ -253,4 +253,12 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(Notification::class)->where('is_read', false)->orderBy('created_at', 'desc');
     }
+
+    /**
+     * User hat viele XP-Verlauf-Einträge
+     */
+    public function xpHistories()
+    {
+        return $this->hasMany(XpHistory::class)->orderBy('created_at', 'desc');
+    }
 }

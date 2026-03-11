@@ -163,6 +163,11 @@
                                     Fortschritt
                                 </a>
 
+                                <a href="{{ route('admin.users.xp-history', $user->id) }}" class="btn-secondary btn-sm" title="XP-Verlauf anzeigen">
+                                    <i class="bi bi-clock-history"></i>
+                                    XP-Verlauf
+                                </a>
+
                                 <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" style="display: inline;">
                                     @csrf
                                     @method('DELETE')
@@ -358,6 +363,11 @@
                     <a href="{{ route('admin.users.progress.edit', $user->id) }}" class="btn-primary btn-sm" style="justify-content: center;">
                         <i class="bi bi-graph-up"></i>
                         Fortschritt
+                    </a>
+
+                    <a href="{{ route('admin.users.xp-history', $user->id) }}" class="btn-secondary btn-sm" style="justify-content: center;">
+                        <i class="bi bi-clock-history"></i>
+                        XP-Verlauf
                     </a>
 
                     <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" style="grid-column: 1 / -1;">
