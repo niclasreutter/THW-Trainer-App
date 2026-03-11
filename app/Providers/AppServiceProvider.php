@@ -8,6 +8,8 @@ use App\Models\OrtsverbandLernpool;
 use App\Models\OrtsverbandLernpoolQuestion;
 use App\Policies\OrtsverbandLernpoolPolicy;
 use App\Policies\OrtsverbandLernpoolQuestionPolicy;
+use App\Models\LearningSession;
+use App\Policies\LearningSessionPolicy;
 use App\Helpers\DomainHelper;
 
 class AppServiceProvider extends ServiceProvider
@@ -62,5 +64,6 @@ class AppServiceProvider extends ServiceProvider
     {
         \Gate::policy(OrtsverbandLernpool::class, OrtsverbandLernpoolPolicy::class);
         \Gate::policy(OrtsverbandLernpoolQuestion::class, OrtsverbandLernpoolQuestionPolicy::class);
+        \Gate::policy(LearningSession::class, LearningSessionPolicy::class);
     }
 }

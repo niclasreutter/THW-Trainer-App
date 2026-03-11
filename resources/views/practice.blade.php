@@ -837,6 +837,7 @@
             <form method="POST" action="{{ route('practice.submit') }}" id="practiceForm">
                 @csrf
                 <input type="hidden" name="question_id" value="{{ $question->id }}">
+                <input type="hidden" name="answer_time_ms" id="answerTimeMs" value="0">
 
                 @php
                     // Erstelle ein Array mit den Antworten
@@ -1095,6 +1096,19 @@
         @endif
 
         <script>
+            // Lernsession: Antwortzeit messen
+            (function() {
+                var questionStart = Date.now();
+                var form = document.getElementById('practiceForm');
+                if (form) {
+                    form.addEventListener('submit', function() {
+                        var elapsed = Date.now() - questionStart;
+                        var input = document.getElementById('answerTimeMs');
+                        if (input) input.value = elapsed;
+                    });
+                }
+            })();
+
             // Update selection style on label
             function updateSelectionStyle(label) {
                 const checkbox = label.querySelector('input[type="checkbox"]');
