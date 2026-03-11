@@ -43,6 +43,11 @@ class LearningSessionParticipant extends Model
 
     public function calculateRankScore(): float
     {
+        // Basis: Richtige Antworten (10 Punkte pro richtige Antwort)
+        // Verwendet questions_correct statt xp_earned, damit XP-Multiplikatoren
+        // (Double XP, Wochenend-Boost, Lernsession-Boost) das Ranking nicht verzerren
+        $baseScore = $this->questions_correct * 10;
+
         $speedBonus = 0;
         if ($this->avg_answer_time_ms !== null && $this->avg_answer_time_ms < 30000) {
             $speedBonus = max(0, (30000 - $this->avg_answer_time_ms) / 1000);
@@ -50,6 +55,6 @@ class LearningSessionParticipant extends Model
 
         $accuracyBonus = (float) $this->accuracy_percent * 0.5;
 
-        return round($this->xp_earned + $speedBonus + $accuracyBonus, 2);
+        return round($baseScore + $speedBonus + $accuracyBonus, 2);
     }
 }

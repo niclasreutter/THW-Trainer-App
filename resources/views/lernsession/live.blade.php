@@ -182,7 +182,7 @@
                         <tr>
                             <th>#</th>
                             <th>Name</th>
-                            <th>XP</th>
+                            <th>Richtig</th>
                             <th>Genauigkeit</th>
                             <th>Fragen</th>
                         </tr>
@@ -192,7 +192,7 @@
                             <tr :class="entry.is_current_user ? 'is-me' : ''">
                                 <td class="lb-rank" :class="'lb-rank-' + entry.rank" x-text="entry.rank"></td>
                                 <td x-text="entry.user_name"></td>
-                                <td class="lb-xp" x-text="entry.xp_earned"></td>
+                                <td class="lb-xp" x-text="entry.correct"></td>
                                 <td x-text="entry.accuracy.toFixed(0) + '%'"></td>
                                 <td x-text="entry.questions"></td>
                             </tr>

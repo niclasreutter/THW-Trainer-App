@@ -322,7 +322,7 @@ class LernsessionService
                 'user_name' => $participant->ranking_consent
                     ? $participant->user->name
                     : ($isCurrentUser ? $participant->user->name : 'Anonymer Teilnehmer'),
-                'xp_earned' => $participant->xp_earned,
+                'correct' => $participant->questions_correct,
                 'accuracy' => (float) $participant->accuracy_percent,
                 'questions' => $participant->questions_answered,
                 'is_current_user' => $isCurrentUser,
