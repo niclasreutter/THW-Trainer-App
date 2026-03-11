@@ -220,7 +220,7 @@
 
             <div class="form-group">
                 <div class="radio-group">
-                    @if(auth()->user()->is_admin)
+                    @if(auth()->user()->useroll === 'admin')
                         <label class="radio-option">
                             <input type="radio" name="scope" value="global" x-model="scope" {{ old('scope', $ortsverband ? 'ortsverband' : 'global') === 'global' ? 'checked' : '' }}>
                             Global (alle Nutzer)
@@ -241,9 +241,15 @@
                 @else
                     <select name="ortsverband_id" class="form-select">
                         <option value="">Bitte wählen...</option>
-                        @foreach(auth()->user()->ortsverbände()->wherePivot('role', 'ausbildungsbeauftragter')->get() as $ov)
-                            <option value="{{ $ov->id }}" {{ old('ortsverband_id') == $ov->id ? 'selected' : '' }}>{{ $ov->name }}</option>
-                        @endforeach
+                        @if(auth()->user()->useroll === 'admin')
+                            @foreach(\App\Models\Ortsverband::orderBy('name')->get() as $ov)
+                                <option value="{{ $ov->id }}" {{ old('ortsverband_id') == $ov->id ? 'selected' : '' }}>{{ $ov->name }}</option>
+                            @endforeach
+                        @else
+                            @foreach(auth()->user()->ortsverbände()->wherePivot('role', 'ausbildungsbeauftragter')->get() as $ov)
+                                <option value="{{ $ov->id }}" {{ old('ortsverband_id') == $ov->id ? 'selected' : '' }}>{{ $ov->name }}</option>
+                            @endforeach
+                        @endif
                     </select>
                 @endif
             </div>
