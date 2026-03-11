@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\LearningSessionParticipant;
 use App\Models\User;
+use App\Models\XpHistory;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -121,7 +122,7 @@ class GamificationService
         ]
     ];
 
-    public function awardPoints(User $user, int $points, string $reason = '')
+    public function awardPoints(User $user, int $points, string $reason = '', string $sourceType = null, int $sourceId = null)
     {
         $oldPoints = $user->points;
         $oldLevel = $user->level;
@@ -133,6 +134,19 @@ class GamificationService
         $this->updateWeeklyPoints($user, $points);
 
         $user->save();
+
+        // XP-Verlauf protokollieren
+        XpHistory::create([
+            'user_id' => $user->id,
+            'points' => $points,
+            'reason' => $reason ?: 'Punkte vergeben',
+            'source_type' => $sourceType,
+            'source_id' => $sourceId,
+            'total_before' => $oldPoints,
+            'total_after' => $user->points,
+            'level_before' => $oldLevel,
+            'level_after' => $user->level,
+        ]);
 
         $notifications = [];
 
@@ -309,7 +323,7 @@ class GamificationService
 
         $totalPoints = (int) round($totalPoints * $multiplier);
 
-        $result = $this->awardPoints($user, $totalPoints, $reason);
+        $result = $this->awardPoints($user, $totalPoints, $reason, 'question', $questionId);
 
         $this->checkQuestionAchievements($user);
         $this->checkDailyAchievements($user);
@@ -353,7 +367,7 @@ class GamificationService
 
             $totalPoints = (int) round($totalPoints * $multiplier);
 
-            $result = $this->awardPoints($user, $totalPoints, $reason);
+            $result = $this->awardPoints($user, $totalPoints, $reason, 'exam');
             
             $this->checkExamAchievements($user, $percentage);
             

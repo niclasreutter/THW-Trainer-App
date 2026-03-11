@@ -507,7 +507,7 @@ class LehrgangController extends Controller
                     $enrollment->pivot->update(['punkte' => $newPoints]);
                     
                     // Award Points im GamificationService
-                    $gamificationResult = $gamification->awardPoints($user, 10, "Lehrgang: {$lehrgang->lehrgang}");
+                    $gamificationResult = $gamification->awardPoints($user, 10, "Lehrgang: {$lehrgang->lehrgang}", 'lehrgang', $lehrgang->id);
                     
                     // Check if Lehrgang completed
                     $totalSolvedInLehrgang = UserLehrgangProgress::where('user_id', $user->id)
