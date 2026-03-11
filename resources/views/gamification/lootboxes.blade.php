@@ -426,11 +426,10 @@
                     const card = document.querySelector(`[data-lootbox-id="${lootboxId}"]`);
                     if (card) card.classList.add('opened');
 
-                    // Check if all lootboxes opened
-                    const total = document.querySelectorAll('.lootbox-card');
+                    // Check if all lootboxes opened - reload after user closes overlay
                     const remaining = document.querySelectorAll('.lootbox-card:not(.opened)');
                     if (remaining.length === 0) {
-                        setTimeout(() => location.reload(), 1500);
+                        window._reloadAfterClose = true;
                     }
                 }, 1500);
             }
@@ -501,6 +500,9 @@
 
     function closeOverlay() {
         document.getElementById('lootboxOverlay').classList.remove('active');
+        if (window._reloadAfterClose) {
+            location.reload();
+        }
     }
 
     function capitalize(str) {
