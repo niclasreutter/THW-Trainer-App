@@ -7,8 +7,8 @@
  * - Aktiviert scheduled Instanzen wenn Startzeit erreicht
  * - Schließt aktive Instanzen ab wenn Endzeit erreicht (Winner + Lootbox)
  *
- * CRONJOB: */5 * * * * /usr/bin/php /path/to/cronjob-lernsession-test.php
  */
+// CRONJOB: alle 5 Minuten - */5 * * * * /usr/bin/php /path/to/cronjob-lernsession-test.php
 
 // Finde Laravel-Root (Script liegt im Root)
 $laravelPath = realpath(__DIR__);

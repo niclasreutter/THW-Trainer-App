@@ -24,11 +24,12 @@ class LernsessionService
 
         // Für Einmal-Sessions direkt eine Instanz erstellen
         if ($session->schedule_type === 'once') {
+            $status = $session->starts_at && $session->starts_at->lte(now()) ? 'active' : 'scheduled';
             LearningSessionInstance::create([
                 'learning_session_id' => $session->id,
                 'starts_at' => $session->starts_at,
                 'ends_at' => $session->ends_at,
-                'status' => 'scheduled',
+                'status' => $status,
             ]);
         } else {
             // Für wiederkehrende Sessions Instanzen generieren
