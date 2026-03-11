@@ -250,12 +250,14 @@ class OrtsverbandLernpoolPracticeController extends Controller
 
         // Gamification: Punkte & XP über awardQuestionPoints
         $gamificationResult = $this->gamificationService->awardQuestionPoints($user, $isCorrect, $question->id);
-        $pointsAwarded = $gamificationResult['points'] ?? 10;
+        $pointsAwarded = $gamificationResult['points_awarded'] ?? 0;
         $reason = $gamificationResult['reason'] ?? 'Frage beantwortet';
-        
+
         // Zusatzbonus bei Meisterung
         if ($isCorrect && $progress->solved && $progress->consecutive_correct == \App\Models\UserQuestionProgress::MASTERY_THRESHOLD) {
-            $pointsAwarded += 15;
+            $masteryBonus = 15;
+            $this->gamificationService->awardPoints($user, $masteryBonus, 'Frage gemeistert!');
+            $pointsAwarded += $masteryBonus;
             $reason = 'Frage gemeistert!';
         }
         
