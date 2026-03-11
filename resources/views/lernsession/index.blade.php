@@ -188,7 +188,7 @@
         </div>
     </div>
 
-    @if(auth()->user()->is_admin || auth()->user()->ortsverbände()->wherePivot('role', 'ausbildungsbeauftragter')->exists())
+    @if(auth()->user()->useroll === 'admin' || auth()->user()->ortsverbände()->wherePivot('role', 'ausbildungsbeauftragter')->exists())
         <div style="margin-bottom: 1.5rem;">
             <a href="{{ route('lernsession.create') }}" class="btn-primary">Session erstellen</a>
         </div>
