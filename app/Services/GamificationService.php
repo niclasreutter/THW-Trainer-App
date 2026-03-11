@@ -2,8 +2,10 @@
 
 namespace App\Services;
 
+use App\Models\LearningSessionParticipant;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class GamificationService
@@ -285,18 +287,27 @@ class GamificationService
         $streakBonus = $user->streak_days >= 3 ? $basePoints * (self::STREAK_BONUS_MULTIPLIER - 1) : 0;
         $totalPoints = $basePoints + $topWrongBonus + $streakBonus;
 
-        // Boost prüfen (Doppel-XP und Wochenend-Krieger stapeln nicht, höchster gewinnt)
+        // Boost prüfen (additives Multiplikator-System)
         $hasDoubleXp = $user->double_xp_until && Carbon::parse($user->double_xp_until)->isFuture();
         $hasWeekendBoost = $user->weekend_boost_until && Carbon::parse($user->weekend_boost_until)->isFuture()
             && Carbon::now()->isWeekend();
+        $inLernsession = $this->isInActiveLernsession($user);
 
+        $multiplier = 1.0;
         if ($hasDoubleXp) {
-            $totalPoints *= 2;
+            $multiplier += 1.0;
             $reason .= ' (Doppel-XP)';
         } elseif ($hasWeekendBoost) {
-            $totalPoints = (int) round($totalPoints * 1.5);
+            $multiplier += 0.5;
             $reason .= ' (Wochenend-Boost)';
         }
+
+        if ($inLernsession) {
+            $multiplier += 0.5;
+            $reason .= ' (Lernsession-Boost)';
+        }
+
+        $totalPoints = (int) round($totalPoints * $multiplier);
 
         $result = $this->awardPoints($user, $totalPoints, $reason);
 
@@ -319,19 +330,28 @@ class GamificationService
             $perfectBonus = $percentage == 100 ? 50 : 0;
             $totalPoints = $basePoints + $perfectBonus;
 
-            // Boost prüfen (Doppel-XP und Wochenend-Krieger stapeln nicht, höchster gewinnt)
+            // Boost prüfen (additives Multiplikator-System)
             $reason = 'Prüfung bestanden';
             $hasDoubleXp = $user->double_xp_until && Carbon::parse($user->double_xp_until)->isFuture();
             $hasWeekendBoost = $user->weekend_boost_until && Carbon::parse($user->weekend_boost_until)->isFuture()
                 && Carbon::now()->isWeekend();
+            $inLernsession = $this->isInActiveLernsession($user);
 
+            $multiplier = 1.0;
             if ($hasDoubleXp) {
-                $totalPoints *= 2;
+                $multiplier += 1.0;
                 $reason .= ' (Doppel-XP)';
             } elseif ($hasWeekendBoost) {
-                $totalPoints = (int) round($totalPoints * 1.5);
+                $multiplier += 0.5;
                 $reason .= ' (Wochenend-Boost)';
             }
+
+            if ($inLernsession) {
+                $multiplier += 0.5;
+                $reason .= ' (Lernsession-Boost)';
+            }
+
+            $totalPoints = (int) round($totalPoints * $multiplier);
 
             $result = $this->awardPoints($user, $totalPoints, $reason);
             
@@ -832,6 +852,22 @@ class GamificationService
         }
 
         return [];
+    }
+
+    /**
+     * Prüft ob ein User in einer aktiven Lernsession teilnimmt (mit 60s Cache)
+     */
+    private function isInActiveLernsession(User $user): bool
+    {
+        $cacheKey = "lernsession_active_{$user->id}";
+
+        return Cache::remember($cacheKey, 60, function () use ($user) {
+            return LearningSessionParticipant::whereHas('instance', function ($q) {
+                $q->where('status', 'active')
+                  ->where('starts_at', '<=', now())
+                  ->where('ends_at', '>=', now());
+            })->where('user_id', $user->id)->exists();
+        });
     }
 
     /**

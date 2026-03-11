@@ -146,6 +146,26 @@ Route::middleware('auth')->group(function () {
     Route::get('/shop', [\App\Http\Controllers\ShopController::class, 'index'])->name('shop.index');
     Route::post('/shop/purchase', [\App\Http\Controllers\ShopController::class, 'purchase'])->name('shop.purchase');
 
+    // Lernsession Routes
+    Route::prefix('lernsessions')->name('lernsession.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\LernsessionController::class, 'index'])->name('index');
+        Route::get('/create', [\App\Http\Controllers\LernsessionController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\LernsessionController::class, 'store'])->name('store');
+        Route::get('/{lernsession}', [\App\Http\Controllers\LernsessionController::class, 'show'])->name('show');
+        Route::get('/{lernsession}/edit', [\App\Http\Controllers\LernsessionController::class, 'edit'])->name('edit');
+        Route::put('/{lernsession}', [\App\Http\Controllers\LernsessionController::class, 'update'])->name('update');
+        Route::delete('/{lernsession}', [\App\Http\Controllers\LernsessionController::class, 'destroy'])->name('destroy');
+
+        // Instanz-Teilnahme
+        Route::post('/instance/{instance}/join', [\App\Http\Controllers\LernsessionController::class, 'join'])->name('join');
+        Route::post('/instance/{instance}/leave', [\App\Http\Controllers\LernsessionController::class, 'leave'])->name('leave');
+        Route::get('/instance/{instance}/live', [\App\Http\Controllers\LernsessionController::class, 'live'])->name('live');
+
+        // API für Alpine.js Polling (JSON)
+        Route::get('/instance/{instance}/ranking', [\App\Http\Controllers\LernsessionController::class, 'ranking'])->name('ranking');
+        Route::get('/instance/{instance}/stats', [\App\Http\Controllers\LernsessionController::class, 'stats'])->name('stats');
+    });
+
     // Notification Routes
     Route::get('/notifications', [\App\Http\Controllers\NotificationController::class, 'index'])->name('notifications.index');
     Route::get('/notifications/unread', [\App\Http\Controllers\NotificationController::class, 'unread'])->name('notifications.unread');

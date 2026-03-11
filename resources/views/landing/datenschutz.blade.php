@@ -73,6 +73,16 @@
                         <li>Ihre Position im Ranking</li>
                     </ul>
                     <p class="mb-4">Die Verarbeitung erfolgt auf Grundlage Ihrer Einwilligung (Art. 6 Abs. 1 lit. a DSGVO). Sie können diese Einwilligung jederzeit in Ihren Profileinstellungen widerrufen.</p>
+
+                    <h3 class="text-lg font-medium text-slate-800 mb-2">3.5 Lernsessions (Opt-In pro Session)</h3>
+                    <p class="mb-4">Sie können an geplanten Lernsessions teilnehmen. Beim Beitritt zu einer Session können Sie freiwillig der Anzeige Ihrer Daten im Session-Ranking zustimmen. Bei Zustimmung werden folgende Daten für andere Teilnehmer dieser Session sichtbar:</p>
+                    <ul class="list-disc ml-8 pl-2 mb-4 space-y-1">
+                        <li>Ihr Benutzername</li>
+                        <li>Ihre während der Session gesammelten Punkte (XP)</li>
+                        <li>Ihre Genauigkeit und Position im Ranking</li>
+                    </ul>
+                    <p class="mb-4">Die Einwilligung gilt ausschließlich für die jeweilige Session-Instanz und wird nicht dauerhaft oder für andere Sessions übernommen. Ohne Zustimmung nehmen Sie anonym teil.</p>
+                    <p class="mb-4">Die Verarbeitung erfolgt auf Grundlage Ihrer Einwilligung (Art. 6 Abs. 1 lit. a DSGVO).</p>
                 </div>
             </section>
 

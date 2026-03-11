@@ -658,6 +658,16 @@ class PracticeController extends Controller
             session(['gamification_result' => $gamificationResult]);
         }
 
+        // Lernsession-Tracking: Antwort in aktive Session aufzeichnen
+        $lernsessionService = app(\App\Services\LernsessionService::class);
+        $sessionParticipant = $lernsessionService->isUserInActiveSession($user);
+        if ($sessionParticipant) {
+            $xpAwarded = ($gamificationResult && isset($gamificationResult['points_awarded']))
+                ? $gamificationResult['points_awarded'] : 0;
+            $answerTimeMs = (int) $request->input('answer_time_ms', 0);
+            $lernsessionService->recordAnswer($sessionParticipant, $isCorrect, $answerTimeMs, $xpAwarded);
+        }
+
         // Session-Statistiken aktualisieren
         $sessionStats = session('practice_session_stats', [
             'correct' => 0, 'incorrect' => 0, 'points' => 0, 'mastered' => 0, 'started_at' => now()->timestamp,
