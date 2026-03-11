@@ -111,7 +111,7 @@
         <div class="boost-highlight">
             <div class="boost-highlight-text">
                 Während dieser Session erhältst du <span class="boost-highlight-value">+50% XP</span> auf alle beantworteten Fragen.
-                Der Gewinner erhält eine Gold-Lootbox!
+                Der Gewinner erhält eine Gold-Belohnungskiste!
             </div>
         </div>
 

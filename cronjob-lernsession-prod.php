@@ -5,7 +5,7 @@
  * LOGIK:
  * - Generiert Instanzen für wiederkehrende Sessions (nächste 14 Tage)
  * - Aktiviert scheduled Instanzen wenn Startzeit erreicht
- * - Schließt aktive Instanzen ab wenn Endzeit erreicht (Winner + Lootbox)
+ * - Schließt aktive Instanzen ab wenn Endzeit erreicht (Winner + Belohnungskiste)
  *
  */
 // CRONJOB: alle 5 Minuten - */5 * * * * /usr/bin/php /path/to/cronjob-lernsession-prod.php
