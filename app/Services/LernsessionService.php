@@ -246,6 +246,9 @@ class LernsessionService
     // Antwort aufzeichnen und Ranking aktualisieren
     public function recordAnswer(LearningSessionParticipant $participant, bool $isCorrect, int $answerTimeMs, int $xpAwarded = 0): void
     {
+        // Frische Daten aus DB laden - Cache kann veraltete Werte enthalten
+        $participant->refresh();
+
         $newAnswered = $participant->questions_answered + 1;
         $newCorrect = $participant->questions_correct + ($isCorrect ? 1 : 0);
         $newXp = $participant->xp_earned + $xpAwarded;
@@ -275,6 +278,9 @@ class LernsessionService
         $participant->update([
             'rank_score' => $participant->calculateRankScore(),
         ]);
+
+        // Cache invalidieren damit nächster Aufruf frische Daten bekommt
+        Cache::forget("lernsession_active_{$participant->user_id}");
     }
 
     // Prüft ob ein User in einer aktiven Session ist (mit Cache)
