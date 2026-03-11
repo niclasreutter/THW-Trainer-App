@@ -138,8 +138,9 @@ class LernsessionService
             $rank++;
         }
 
-        // Winner bestimmen und Belohnungskiste vergeben
+        // Winner bestimmen und Belohnungskiste vergeben (nur bei globalen Sessions)
         $winner = null;
+        $isOvSession = $instance->learningSession->isOvSession();
         if ($participants->isNotEmpty()) {
             $topParticipant = $participants->first();
             if ($topParticipant->questions_answered > 0) {
@@ -149,7 +150,10 @@ class LernsessionService
                     'winner_user_id' => $winner->id,
                 ]);
 
-                $this->awardWinnerLootbox($instance, $winner);
+                // OV-Sessions vergeben keine Belohnungskiste für Platz 1
+                if (!$isOvSession) {
+                    $this->awardWinnerLootbox($instance, $winner);
+                }
             } else {
                 $instance->update(['status' => 'completed']);
             }
@@ -162,13 +166,23 @@ class LernsessionService
         foreach ($participants as $participant) {
             if ($participant->questions_answered > 0) {
                 $isWinner = $winner && $participant->user_id === $winner->id;
+
+                if ($isWinner && !$isOvSession) {
+                    $title = 'Lernsession gewonnen!';
+                    $message = "Du hast die Lernsession \"{$sessionTitle}\" gewonnen! Platz {$participant->final_rank} mit {$participant->xp_earned} XP.";
+                } elseif ($isWinner && $isOvSession) {
+                    $title = 'Lernsession beendet - Platz 1!';
+                    $message = "Du hast Platz 1 in der Lernsession \"{$sessionTitle}\" erreicht! {$participant->xp_earned} XP verdient.";
+                } else {
+                    $title = 'Lernsession beendet';
+                    $message = "Lernsession \"{$sessionTitle}\" beendet. Dein Platz: {$participant->final_rank} mit {$participant->xp_earned} XP.";
+                }
+
                 Notification::create([
                     'user_id' => $participant->user_id,
                     'type' => 'lernsession',
-                    'title' => $isWinner ? 'Lernsession gewonnen!' : 'Lernsession beendet',
-                    'message' => $isWinner
-                        ? "Du hast die Lernsession \"{$sessionTitle}\" gewonnen! Platz {$participant->final_rank} mit {$participant->xp_earned} XP."
-                        : "Lernsession \"{$sessionTitle}\" beendet. Dein Platz: {$participant->final_rank} mit {$participant->xp_earned} XP.",
+                    'title' => $title,
+                    'message' => $message,
                     'data' => json_encode([
                         'instance_id' => $instance->id,
                         'rank' => $participant->final_rank,
