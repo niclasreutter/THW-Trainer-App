@@ -124,7 +124,7 @@ class LernsessionService
         $instance->update(['status' => 'active']);
     }
 
-    // Instanz abschließen: Ranking finalisieren, Winner bestimmen, Lootbox vergeben
+    // Instanz abschließen: Ranking finalisieren, Winner bestimmen, Belohnungskiste vergeben
     public function completeInstance(LearningSessionInstance $instance): array
     {
         $participants = $instance->participants()
@@ -138,7 +138,7 @@ class LernsessionService
             $rank++;
         }
 
-        // Winner bestimmen und Lootbox vergeben
+        // Winner bestimmen und Belohnungskiste vergeben
         $winner = null;
         if ($participants->isNotEmpty()) {
             $topParticipant = $participants->first();
@@ -189,7 +189,7 @@ class LernsessionService
         ];
     }
 
-    // Lootbox für Gewinner vergeben
+    // Belohnungskiste für Gewinner vergeben
     private function awardWinnerLootbox(LearningSessionInstance $instance, User $winner): void
     {
         Lootbox::create([
@@ -203,8 +203,8 @@ class LernsessionService
         Notification::create([
             'user_id' => $winner->id,
             'type' => 'league_lootbox',
-            'title' => 'Gold-Lootbox erhalten!',
-            'message' => "Du hast eine Gold-Lootbox als Belohnung für den Sieg in \"{$instance->learningSession->title}\" erhalten!",
+            'title' => 'Gold-Belohnungskiste erhalten!',
+            'message' => "Du hast eine Gold-Belohnungskiste als Belohnung für den Sieg in \"{$instance->learningSession->title}\" erhalten!",
             'data' => null,
         ]);
     }
