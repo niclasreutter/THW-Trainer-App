@@ -388,16 +388,6 @@
 
                 <!-- Page Content -->
                 <main class="flex-1 px-4 lg:px-8 py-6 lg:py-8 @auth pb-20 lg:pb-8 @endauth">
-                    @auth
-                        @php
-                            $__activeSessionInstance = app(\App\Services\LernsessionService::class)
-                                ->getActiveSessionsForUser(auth()->user())
-                                ->first();
-                        @endphp
-                        @if($__activeSessionInstance)
-                            <x-active-session-banner :instance="$__activeSessionInstance" />
-                        @endif
-                    @endauth
                     @yield('content')
                 </main>
 
