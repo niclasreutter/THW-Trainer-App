@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Mail\LernsessionEndedMail;
+use App\Mail\LernsessionStartedMail;
 use App\Models\LearningSession;
 use App\Models\LearningSessionInstance;
 use App\Models\LearningSessionParticipant;
@@ -12,6 +14,8 @@ use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class LernsessionService
 {
@@ -122,6 +126,9 @@ class LernsessionService
     public function activateInstance(LearningSessionInstance $instance): void
     {
         $instance->update(['status' => 'active']);
+
+        // E-Mail an alle berechtigten User senden
+        $this->sendSessionStartedEmails($instance);
     }
 
     // Instanz abschließen: Ranking finalisieren, Winner bestimmen, Belohnungskiste vergeben
@@ -192,6 +199,9 @@ class LernsessionService
             }
         }
 
+        // E-Mail an alle Teilnehmer mit email_consent senden
+        $this->sendSessionEndedEmails($instance, $participants, $winner, $isOvSession);
+
         // Cache invalidieren
         foreach ($participants as $participant) {
             Cache::forget("lernsession_active_{$participant->user_id}");
@@ -221,6 +231,75 @@ class LernsessionService
             'message' => "Du hast eine Gold-Belohnungskiste als Belohnung für den Sieg in \"{$instance->learningSession->title}\" erhalten!",
             'data' => null,
         ]);
+    }
+
+    // E-Mail an berechtigte User senden wenn eine Lernsession startet
+    private function sendSessionStartedEmails(LearningSessionInstance $instance): void
+    {
+        try {
+            $session = $instance->learningSession;
+
+            // Berechtigte User ermitteln: email_consent + Session-Scope
+            $query = User::where('email_consent', true);
+
+            if ($session->isOvSession()) {
+                // OV-Sessions: Nur User des Ortsverbands benachrichtigen
+                $query->whereHas('ortsverbände', function ($q) use ($session) {
+                    $q->where('ortsverbände.id', $session->ortsverband_id);
+                });
+            }
+
+            $users = $query->get();
+
+            foreach ($users as $user) {
+                try {
+                    Mail::to($user->email)->send(new LernsessionStartedMail($user, $session, $instance));
+                } catch (\Exception $e) {
+                    Log::warning("Lernsession-Start-Mail an {$user->email} fehlgeschlagen: {$e->getMessage()}");
+                }
+            }
+        } catch (\Exception $e) {
+            Log::error("Fehler beim Senden der Lernsession-Start-Mails: {$e->getMessage()}");
+        }
+    }
+
+    // E-Mail an Teilnehmer senden wenn eine Lernsession endet
+    private function sendSessionEndedEmails(LearningSessionInstance $instance, Collection $participants, ?User $winner, bool $isOvSession): void
+    {
+        try {
+            $session = $instance->learningSession;
+            $totalParticipants = $participants->count();
+
+            foreach ($participants as $participant) {
+                if ($participant->questions_answered <= 0) {
+                    continue;
+                }
+
+                $user = $participant->user;
+                if (!$user || !$user->email_consent) {
+                    continue;
+                }
+
+                $isWinner = $winner && $participant->user_id === $winner->id;
+                $hasLootbox = $isWinner && !$isOvSession;
+
+                try {
+                    Mail::to($user->email)->send(new LernsessionEndedMail(
+                        $user,
+                        $session,
+                        $instance,
+                        $participant,
+                        $isWinner,
+                        $totalParticipants,
+                        $hasLootbox
+                    ));
+                } catch (\Exception $e) {
+                    Log::warning("Lernsession-Ende-Mail an {$user->email} fehlgeschlagen: {$e->getMessage()}");
+                }
+            }
+        } catch (\Exception $e) {
+            Log::error("Fehler beim Senden der Lernsession-Ende-Mails: {$e->getMessage()}");
+        }
     }
 
     // Session beitreten
