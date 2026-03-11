@@ -859,7 +859,7 @@ class GamificationService
      */
     private function isInActiveLernsession(User $user): bool
     {
-        $cacheKey = "lernsession_active_{$user->id}";
+        $cacheKey = "lernsession_active_bool_{$user->id}";
 
         return Cache::remember($cacheKey, 60, function () use ($user) {
             return LearningSessionParticipant::whereHas('instance', function ($q) {
