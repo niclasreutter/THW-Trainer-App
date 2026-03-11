@@ -30,7 +30,7 @@ class OrtsverbandLernpoolPolicy
     public function create(User $user, Ortsverband $ortsverband): bool
     {
         // Global-Admin oder Ausbildungsbeauftragter des Ortsverbands
-        return $user->is_admin || $ortsverband->isAusbildungsbeauftragter($user);
+        return ($user->useroll === 'admin') || $ortsverband->isAusbildungsbeauftragter($user);
     }
 
     /**
@@ -40,7 +40,7 @@ class OrtsverbandLernpoolPolicy
     {
         // Nur der Ersteller, globaler Admin oder Ausbildungsbeauftragter des Ortsverbands
         return $user->id === $lernpool->created_by ||
-               $user->is_admin ||
+               ($user->useroll === 'admin') ||
                $lernpool->ortsverband->isAusbildungsbeauftragter($user);
     }
 
@@ -51,7 +51,7 @@ class OrtsverbandLernpoolPolicy
     {
         // Nur der Ersteller, globaler Admin oder Ausbildungsbeauftragter des Ortsverbands
         return $user->id === $lernpool->created_by ||
-               $user->is_admin ||
+               ($user->useroll === 'admin') ||
                $lernpool->ortsverband->isAusbildungsbeauftragter($user);
     }
 

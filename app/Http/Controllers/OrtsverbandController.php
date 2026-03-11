@@ -94,7 +94,7 @@ class OrtsverbandController extends Controller
         $isAdminViewing = session('admin_viewing_ortsverband_id') === $ortsverband->id;
 
         // Prüfe ob User Mitglied ist oder Admin ist
-        if (!$ortsverband->isMember($user) && !$isAdminViewing && !$user->is_admin) {
+        if (!$ortsverband->isMember($user) && !$isAdminViewing && $user->useroll !== 'admin') {
             abort(403, 'Du bist kein Mitglied dieses Ortsverbands.');
         }
 

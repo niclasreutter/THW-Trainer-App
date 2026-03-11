@@ -31,7 +31,7 @@ class OrtsverbandLernpoolQuestionPolicy
     {
         // Nur der Ersteller des Lernpools kann Fragen hinzufügen
         return $user->id === $lernpool->created_by || 
-               ($user->ortsverband_id === $lernpool->ortsverband_id && $user->is_admin);
+               ($user->ortsverband_id === $lernpool->ortsverband_id && ($user->useroll === 'admin'));
     }
 
     /**
@@ -41,7 +41,7 @@ class OrtsverbandLernpoolQuestionPolicy
     {
         // Nur der Ersteller oder OV-Admin
         return $user->id === $question->created_by ||
-               ($user->ortsverband_id === $question->lernpool->ortsverband_id && $user->is_admin);
+               ($user->ortsverband_id === $question->lernpool->ortsverband_id && ($user->useroll === 'admin'));
     }
 
     /**
@@ -50,6 +50,6 @@ class OrtsverbandLernpoolQuestionPolicy
     public function delete(User $user, OrtsverbandLernpoolQuestion $question): bool
     {
         return $user->id === $question->created_by ||
-               ($user->ortsverband_id === $question->lernpool->ortsverband_id && $user->is_admin);
+               ($user->ortsverband_id === $question->lernpool->ortsverband_id && ($user->useroll === 'admin'));
     }
 }
