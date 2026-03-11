@@ -186,9 +186,13 @@
                     </div>
                     <div style="font-size: 0.85rem; color: var(--text-secondary);">
                         @if($past->winner)
-                            Gewinner: {{ $past->winner->name }}
+                            @if($lernsession->isOvSession())
+                                Platz 1: {{ $past->winner->name }}
+                            @else
+                                Gewinner: {{ $past->winner->name }}
+                            @endif
                         @else
-                            Kein Gewinner
+                            Keine Teilnehmer
                         @endif
                     </div>
                 </div>
