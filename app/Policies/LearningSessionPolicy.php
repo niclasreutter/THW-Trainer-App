@@ -28,15 +28,15 @@ class LearningSessionPolicy
     public function create(User $user, ?Ortsverband $ortsverband = null): bool
     {
         if (!$ortsverband) {
-            return (bool) $user->is_admin;
+            return (bool) ($user->useroll === 'admin');
         }
 
-        return (bool) $user->is_admin || $ortsverband->isAusbildungsbeauftragter($user);
+        return (bool) ($user->useroll === 'admin') || $ortsverband->isAusbildungsbeauftragter($user);
     }
 
     public function update(User $user, LearningSession $session): bool
     {
-        if ((bool) $user->is_admin) {
+        if ((bool) ($user->useroll === 'admin')) {
             return true;
         }
 

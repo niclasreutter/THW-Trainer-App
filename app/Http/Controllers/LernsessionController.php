@@ -50,10 +50,9 @@ class LernsessionController extends Controller
         $ortsverband = null;
         if ($request->has('ortsverband_id')) {
             $ortsverband = Ortsverband::findOrFail($request->ortsverband_id);
-            $this->authorize('create', [LearningSession::class, $ortsverband]);
-        } else {
-            $this->authorize('create', [LearningSession::class, null]);
         }
+
+        $this->authorize('create', [LearningSession::class, $ortsverband]);
 
         // Verfügbare Lernpools (nur für OV-Sessions)
         $lernpools = $ortsverband
