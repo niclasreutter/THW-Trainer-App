@@ -66,5 +66,5 @@
 ### Technisch
 - [ ] Monitoring & Logging (Telescope, Sentry)
 - [ ] Sicherheits-Verbesserungen (Rate Limiting, 2FA)
-- [ ] Code-Qualität (PSR-12, Type Hints)
+- [ ] Code-Qualität (PSR-12, Type Hints).
 - [ ] Caching-Strategie erweitern (Redis)
