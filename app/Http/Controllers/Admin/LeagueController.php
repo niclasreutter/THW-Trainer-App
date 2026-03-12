@@ -15,9 +15,12 @@ class LeagueController extends Controller
     {
         $leagues = LeagueService::getLeagues();
 
+        $allUsers = User::whereIn('league', array_keys($leagues))->get();
+        $grouped = $allUsers->groupBy('league');
+
         $leagueStats = [];
         foreach ($leagues as $key => $league) {
-            $users = User::where('league', $key)->get();
+            $users = $grouped->get($key, collect());
 
             $leagueStats[$key] = [
                 'info' => $league,

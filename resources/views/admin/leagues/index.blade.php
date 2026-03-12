@@ -47,7 +47,7 @@
     <!-- Action Buttons -->
     <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 2rem;">
         <a href="{{ route('admin.dashboard') }}" class="btn-ghost">
-            <i class="bi bi-arrow-left"></i> Zum Admin Dashboard
+            Zum Admin Dashboard
         </a>
     </div>
 

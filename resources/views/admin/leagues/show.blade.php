@@ -63,16 +63,16 @@
     <!-- Action Buttons & League Navigation -->
     <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 2rem; align-items: center;">
         <a href="{{ route('admin.leagues.index') }}" class="btn-ghost">
-            <i class="bi bi-arrow-left"></i> Alle Ligen
+            Alle Ligen
         </a>
         @if($previousLeague)
             <a href="{{ route('admin.leagues.show', $previousLeague) }}" class="btn-ghost">
-                <i class="bi bi-chevron-left"></i> {{ $leagues[$previousLeague]['name'] }}
+                {{ $leagues[$previousLeague]['name'] }}
             </a>
         @endif
         @if($nextLeague)
             <a href="{{ route('admin.leagues.show', $nextLeague) }}" class="btn-ghost">
-                {{ $leagues[$nextLeague]['name'] }} <i class="bi bi-chevron-right"></i>
+                {{ $leagues[$nextLeague]['name'] }}
             </a>
         @endif
     </div>
