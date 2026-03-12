@@ -85,6 +85,14 @@ fetch(url, { cache: 'no-store' });
 | Admin Users | `AdminController` | `admin/users.blade.php` |
 | Gamification | `GamificationService` | `components/` |
 
+## Cronjobs / Scheduler
+
+- **Alle Cronjobs laufen über den Laravel Scheduler** (`routes/console.php`)
+- **CloudPanel:** Nur 1 Cronjob nötig → `schedule:run` jede Minute
+- **Keine separaten PHP-Cronjob-Dateien** mehr nötig (Legacy: `cronjob-*.php`)
+- **Monitoring:** Fehler werden per Mail an `protokolle@thw-trainer.de` gesendet
+- **Details:** [CLOUDPANEL_CRONJOB_SETUP.md](CLOUDPANEL_CRONJOB_SETUP.md)
+
 ## Bekannte Gotchas
 
 1. **DB-Spalte:** Immer `lernpool_id` (nicht `ortsverband_lernpool_id`)
@@ -99,4 +107,4 @@ fetch(url, { cache: 'no-store' });
 - **[docs/FILE-GUIDE.md](docs/FILE-GUIDE.md)** - Datei-Navigation, wo was ist
 
 ---
-*Letzte Aktualisierung: 28. Januar 2026*
+*Letzte Aktualisierung: 12. März 2026*
