@@ -267,6 +267,10 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix
     Route::resource('lehrgang-issues', \App\Http\Controllers\Admin\LehrgangIssueController::class)->only(['index', 'show', 'update', 'destroy']);
     Route::model('lehrgang_issue', \App\Models\LehrgangQuestionIssue::class);
 
+    // Ligen-Übersicht (Admin)
+    Route::get('leagues', [\App\Http\Controllers\Admin\LeagueController::class, 'index'])->name('leagues.index');
+    Route::get('leagues/{league}', [\App\Http\Controllers\Admin\LeagueController::class, 'show'])->name('leagues.show');
+
     // Neue vereinheitlichte Issues-Verwaltung (Lehrgänge + Grundausbildung)
     Route::get('issues', [\App\Http\Controllers\Admin\IssueController::class, 'index'])->name('issues.index');
     Route::get('issues/{issue}', [\App\Http\Controllers\Admin\IssueController::class, 'show'])->name('issues.show');
