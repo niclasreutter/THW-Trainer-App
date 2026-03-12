@@ -16,9 +16,33 @@ jobs:
           key: ${{ secrets.DEV_SSH_PRIVATE_KEY }}
           script: |
             cd /home/thw-trainer-dev/htdocs/dev.thw-trainer.de
+            
+            # 1. Wartungsmodus aktivieren
+            php artisan down
+            
+            # 2. Code updaten
             git pull origin dev
+            
+            # 3. Composer Dependencies
             composer install --no-dev --optimize-autoloader
+            
+            # 4. NPM Assets bauen (falls du JS/CSS hast)
+            npm ci
+            npm run build
+            
+            # 5. Storage Symlinks
+            php artisan storage:link
+            
+            # 6. Datenbank migrieren
             php artisan migrate --force
+            
+            # 7. Caches leeren & neu bauen
+            php artisan config:clear
+            php artisan route:clear
+            php artisan view:clear
             php artisan config:cache
             php artisan route:cache
             php artisan view:cache
+            
+            # 8. Wartungsmodus deaktivieren
+            php artisan up
