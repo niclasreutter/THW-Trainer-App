@@ -1,4 +1,4 @@
-# ☁️ CloudPanel Cronjob-Setup für THW-Trainer.de
+# CloudPanel Cronjob-Setup für THW-Trainer.de
 
 > Umstellung von Plesk auf CloudPanel — Stand: März 2026
 
@@ -13,7 +13,7 @@
 
 ---
 
-## 🚀 Setup: NUR 1 Cronjob nötig!
+## Setup: NUR 1 Cronjob nötig!
 
 Alle 15 Jobs sind im Laravel Scheduler registriert (`routes/console.php`).
 Du brauchst **nur einen einzigen Cronjob** in CloudPanel:
@@ -44,11 +44,11 @@ In CloudPanel: **Sites → dev.thw-trainer.de → Cron Jobs → New Cron Job**
 | **Weekday** | `*` |
 | **Command** | `/usr/bin/php8.5 /home/thw-trainer-prod/htdocs/thw-trainer.de/artisan schedule:run` |
 
-> ⚠️ Passe den Site-User (`thw-trainer-prod`) und PHP-Pfad an deine Server-Konfiguration an!
+> Passe den Site-User (`thw-trainer-prod`) und PHP-Pfad an deine Server-Konfiguration an!
 
 ---
 
-## 📋 Alle 15 Jobs im Laravel Scheduler
+## Alle 15 Jobs im Laravel Scheduler
 
 Der Scheduler (`routes/console.php`) verwaltet diese Jobs automatisch:
 
@@ -64,8 +64,8 @@ TÄGLICHE JOBS:
 1  0  * * *   gamification:daily-reset              → 00:01 Streak + Daily Questions Reset
 15 0  * * *   user-count:record                     → 00:15 User-Anzahl aufzeichnen
 0  8  * * *   app:send-spaced-repetition-reminders  → 08:00 Spaced Repetition Erinnerungen
-0  8  * * *   admin:daily-report                    → 08:00 Admin-Tagesbericht
-0  9  * * *   accounts:cleanup-unconfirmed          → 09:00 Unbestätigte Accounts bereinigen
+0  8  * * *   admin:daily-report                    → 08:00 Admin-Tagesbericht [nur Prod]
+0  9  * * *   accounts:cleanup-unconfirmed          → 09:00 Unbestätigte Accounts bereinigen [nur Prod]
 0  10 * * *   app:send-inactive-reminders           → 10:00 Inaktive User Erinnerungen
 0  10 * * *   exam:send-feedback-requests           → 10:00 Prüfungs-Feedback-Anfragen
 0  17 * * *   exam:send-goodluck                    → 17:00 Prüfungs-Viel-Erfolg-Mail
@@ -78,33 +78,49 @@ HÄUFIGE JOBS:
 
 WÖCHENTLICHE JOBS:
 0  0  * * 1   league:process-weekly                 → Mo 00:00 Liga Auf-/Abstiege
-0  2  * * 0   database:backup                       → So 02:00 Datenbank-Backup
+0  2  * * 0   database:backup                       → So 02:00 Datenbank-Backup [nur Prod]
 0  3  * * 0   system:maintenance                    → So 03:00 System-Wartung
 ```
 
 ### Artisan Commands Übersicht
 
-| # | Command | Datei | Neu? |
-|---|---------|-------|------|
-| 1 | `gamification:daily-reset` | `DailyReset.php` | ✅ NEU |
-| 2 | `user-count:record` | `RecordUserCount.php` | bestehend |
-| 3 | `app:send-spaced-repetition-reminders` | `SendSpacedRepetitionReminders.php` | bestehend |
-| 4 | `admin:daily-report` | `DailyAdminReport.php` | bestehend |
-| 5 | `accounts:cleanup-unconfirmed` | `CleanupUnconfirmedAccounts.php` | bestehend |
-| 6 | `app:send-inactive-reminders` | `SendInactiveReminders.php` | bestehend |
-| 7 | `exam:send-feedback-requests` | `SendExamFeedbackRequests.php` | bestehend |
-| 8 | `exam:send-goodluck` | `SendExamGoodLuck.php` | bestehend |
-| 9 | `exam:send-reminders` | `SendExamReminders.php` | ✅ NEU |
-| 10 | `gamification:send-streak-reminders` | `SendStreakReminders.php` | Signature gefixt |
-| 11 | `lernsession:lifecycle` | `LernsessionLifecycle.php` | ✅ NEU |
-| 12 | `system:performance-optimization` | `PerformanceOptimization.php` | bestehend |
-| 13 | `league:process-weekly` | `ProcessWeeklyLeagues.php` | ✅ NEU |
-| 14 | `database:backup` | `DatabaseBackup.php` | bestehend |
-| 15 | `system:maintenance` | `SystemMaintenance.php` | bestehend |
+| # | Command | Datei | Features |
+|---|---------|-------|----------|
+| 1 | `gamification:daily-reset` | `DailyReset.php` | withoutOverlapping(15) |
+| 2 | `user-count:record` | `RecordUserCount.php` | — |
+| 3 | `app:send-spaced-repetition-reminders` | `SendSpacedRepetitionReminders.php` | — |
+| 4 | `admin:daily-report` | `DailyAdminReport.php` | nur Production |
+| 5 | `accounts:cleanup-unconfirmed` | `CleanupUnconfirmedAccounts.php` | nur Production |
+| 6 | `app:send-inactive-reminders` | `SendInactiveReminders.php` | — |
+| 7 | `exam:send-feedback-requests` | `SendExamFeedbackRequests.php` | — |
+| 8 | `exam:send-goodluck` | `SendExamGoodLuck.php` | — |
+| 9 | `exam:send-reminders` | `SendExamReminders.php` | — |
+| 10 | `gamification:send-streak-reminders` | `SendStreakReminders.php` | — |
+| 11 | `lernsession:lifecycle` | `LernsessionLifecycle.php` | withoutOverlapping(10), runInBackground |
+| 12 | `system:performance-optimization` | `PerformanceOptimization.php` | withoutOverlapping(15), runInBackground |
+| 13 | `league:process-weekly` | `ProcessWeeklyLeagues.php` | withoutOverlapping(15) |
+| 14 | `database:backup` | `DatabaseBackup.php` | nur Production, withoutOverlapping(30), runInBackground |
+| 15 | `system:maintenance` | `SystemMaintenance.php` | withoutOverlapping(20), runInBackground |
 
 ---
 
-## 🔧 Testen
+## Scheduler-Features
+
+Alle Jobs nutzen folgende Features:
+
+| Feature | Beschreibung |
+|---------|-------------|
+| **timezone** | `Europe/Berlin` für alle Jobs |
+| **emailOutputOnFailure** | Fehler-Mails an `protokolle@thw-trainer.de` |
+| **appendOutputTo** | Alle Ausgaben in `storage/logs/scheduler.log` |
+| **onFailure** | Zusätzlich `Log::error()` für strukturiertes Logging |
+| **withoutOverlapping** | Verhindert doppelte Läufe bei langsamen Jobs |
+| **runInBackground** | Lange Jobs blockieren den Scheduler nicht |
+| **environments** | Bestimmte Jobs laufen nur in Production |
+
+---
+
+## Testen
 
 ### Schedule überprüfen
 
@@ -119,6 +135,13 @@ WÖCHENTLICHE JOBS:
 /usr/bin/php8.5 /home/thw-trainer-dev/htdocs/dev.thw-trainer.de/artisan gamification:daily-reset
 /usr/bin/php8.5 /home/thw-trainer-dev/htdocs/dev.thw-trainer.de/artisan lernsession:lifecycle
 /usr/bin/php8.5 /home/thw-trainer-dev/htdocs/dev.thw-trainer.de/artisan league:process-weekly
+```
+
+### Scheduler-Log prüfen
+
+```bash
+# Scheduler-spezifisches Log
+tail -f /home/thw-trainer-dev/htdocs/dev.thw-trainer.de/storage/logs/scheduler.log
 ```
 
 ### PHP-Version prüfen
@@ -141,20 +164,22 @@ tail -f /var/log/syslog | grep CRON
 
 ---
 
-## 🔄 Deployment
+## Deployment
 
 Für CloudPanel statt `deploy-plesk.sh` das `deploy-cloudpanel.sh` verwenden.
 
 ---
 
-## 💡 Hinweise
+## Hinweise
 
 1. **Nur 1 Cronjob in CloudPanel** — `schedule:run` jede Minute. Laravel entscheidet selbst welche Jobs fällig sind.
 2. **PHP-Version prüfen** — Im Screenshot steht `php8.5`. Falls andere Version, Pfad anpassen.
 3. **Reihenfolge** — League Weekly (Mo 00:00) läuft automatisch VOR Daily Reset (00:01).
-4. **Alte PHP-Scripts** — Die `cronjob-*.php` Dateien können perspektivisch entfernt werden, sobald alles über den Scheduler läuft.
+4. **Legacy-Dateien** — Die `cronjob-*.php` Dateien wurden entfernt. Alles läuft über den Laravel Scheduler.
 5. **Timezone** — Alle Jobs sind auf `Europe/Berlin` konfiguriert.
+6. **Overlap-Schutz** — Kritische Jobs nutzen `withoutOverlapping()` um doppelte Läufe zu verhindern.
+7. **Environment** — `database:backup`, `admin:daily-report` und `accounts:cleanup-unconfirmed` laufen nur in Production.
 
 ---
 
-*Letzte Aktualisierung: 12. März 2026*
+*Letzte Aktualisierung: 13. März 2026*
