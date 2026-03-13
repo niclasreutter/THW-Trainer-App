@@ -12,7 +12,12 @@ use Illuminate\Support\Facades\Mail;
 
 class TimeSimulatorController extends Controller
 {
-    public function __construct()
+    /**
+     * Prüft ob der Zeitsimulator verfügbar ist (nicht in Production).
+     * Wird in jeder Action aufgerufen statt im Constructor,
+     * damit route:cache in Production nicht crasht.
+     */
+    private function ensureNotProduction(): void
     {
         if (app()->environment('production')) {
             abort(403, 'Zeitsimulator ist nur in Test-Umgebungen verfügbar.');
@@ -21,6 +26,8 @@ class TimeSimulatorController extends Controller
 
     public function index()
     {
+        $this->ensureNotProduction();
+
         $users = User::orderBy('name')->get()->map(function ($user) {
             $gamificationService = new GamificationService();
             $freezeStatus = $gamificationService->getStreakFreezeStatus($user);
@@ -55,6 +62,8 @@ class TimeSimulatorController extends Controller
 
     public function simulateActivity(Request $request)
     {
+        $this->ensureNotProduction();
+
         $request->validate([
             'user_id' => 'required|exists:users,id',
             'date' => 'required|date',
@@ -95,6 +104,8 @@ class TimeSimulatorController extends Controller
 
     public function runDailyReset(Request $request)
     {
+        $this->ensureNotProduction();
+
         $request->validate([
             'user_id' => 'required|exists:users,id',
             'date' => 'required|date',
@@ -190,6 +201,8 @@ class TimeSimulatorController extends Controller
 
     public function runStreakReminder(Request $request)
     {
+        $this->ensureNotProduction();
+
         $request->validate([
             'user_id' => 'required|exists:users,id',
             'date' => 'required|date',
@@ -236,6 +249,8 @@ class TimeSimulatorController extends Controller
 
     public function resetUser(Request $request)
     {
+        $this->ensureNotProduction();
+
         $request->validate([
             'user_id' => 'required|exists:users,id',
         ]);
@@ -265,6 +280,8 @@ class TimeSimulatorController extends Controller
 
     public function setWeeklyPoints(Request $request)
     {
+        $this->ensureNotProduction();
+
         $request->validate([
             'user_id' => 'required|exists:users,id',
             'weekly_points' => 'required|integer|min:0|max:10000',
@@ -288,6 +305,8 @@ class TimeSimulatorController extends Controller
 
     public function setLeague(Request $request)
     {
+        $this->ensureNotProduction();
+
         $request->validate([
             'user_id' => 'required|exists:users,id',
             'league' => 'required|in:' . implode(',', array_keys(LeagueService::LEAGUES)),
@@ -310,6 +329,8 @@ class TimeSimulatorController extends Controller
 
     public function runLeagueProcessing(Request $request)
     {
+        $this->ensureNotProduction();
+
         $leagueService = new LeagueService();
 
         $log = [];
@@ -351,6 +372,8 @@ class TimeSimulatorController extends Controller
 
     public function resetWeeklyPoints(Request $request)
     {
+        $this->ensureNotProduction();
+
         $count = User::where('weekly_points', '>', 0)->count();
         User::where('weekly_points', '>', 0)->update(['weekly_points' => 0]);
 
