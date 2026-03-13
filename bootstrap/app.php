@@ -10,10 +10,10 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
         using: function () {
-            // Direkt env() verwenden, da config() hier noch nicht verfügbar ist
-            $appEnv = env('APP_ENV', 'local');
-            $landingDomain = env('LANDING_DOMAIN', 'thw-trainer.de');
-            $appDomain = env('APP_DOMAIN', 'app.thw-trainer.de');
+            // config() verwenden, da env() nach config:cache NULL zurückgibt!
+            $appEnv = config('app.env', env('APP_ENV', 'local'));
+            $landingDomain = config('domains.landing', env('LANDING_DOMAIN', 'thw-trainer.de'));
+            $appDomain = config('domains.app', env('APP_DOMAIN', 'app.thw-trainer.de'));
 
             // Multi-Domain nur in Production (wenn Landing und App unterschiedliche Domains sind)
             $useMultiDomain = $appEnv === 'production' && $landingDomain !== $appDomain;
