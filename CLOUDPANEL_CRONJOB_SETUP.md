@@ -164,6 +164,75 @@ tail -f /var/log/syslog | grep CRON
 
 ---
 
+## Queue Worker (Supervisor)
+
+Alle 16 Mail-Klassen der App nutzen den `Queueable`-Trait. Damit Mails zuverlässig und nicht-blockend versandt werden, muss ein Queue Worker dauerhaft laufen.
+
+### Supervisor installieren
+
+```bash
+sudo apt install supervisor
+```
+
+### Config einrichten
+
+Eine fertige Konfigurationsvorlage liegt unter `supervisor/thw-trainer-worker.conf`.
+
+**1. Platzhalter ersetzen:**
+
+| Platzhalter | DEV | PROD |
+|-------------|-----|------|
+| `SITE_USER` | `thw-trainer-dev` | `thw-trainer-prod` |
+| `DOMAIN` | `dev.thw-trainer.de` | `thw-trainer.de` |
+
+**2. Config kopieren:**
+
+```bash
+# Platzhalter ersetzen und nach /etc/supervisor/conf.d/ kopieren
+sudo sed \
+  -e 's/SITE_USER/thw-trainer-prod/g' \
+  -e 's/DOMAIN/thw-trainer.de/g' \
+  supervisor/thw-trainer-worker.conf \
+  | sudo tee /etc/supervisor/conf.d/thw-trainer-worker.conf
+```
+
+**3. Supervisor neu laden und Worker starten:**
+
+```bash
+sudo supervisorctl reread
+sudo supervisorctl update
+sudo supervisorctl start thw-trainer-worker
+```
+
+**4. Status prüfen:**
+
+```bash
+sudo supervisorctl status thw-trainer-worker
+# Erwartete Ausgabe: thw-trainer-worker    RUNNING   pid 1234, uptime 0:00:05
+```
+
+### Worker-Logs prüfen
+
+```bash
+# DEV
+tail -f /home/thw-trainer-dev/htdocs/dev.thw-trainer.de/storage/logs/worker.log
+
+# PROD
+tail -f /home/thw-trainer-prod/htdocs/thw-trainer.de/storage/logs/worker.log
+```
+
+### Worker nach Deployment neu starten
+
+Nach einem Deployment muss der Worker neu gestartet werden, damit er neuen Code aufnimmt:
+
+```bash
+sudo supervisorctl restart thw-trainer-worker
+```
+
+> Dies ist bereits im `deploy-cloudpanel.sh` integriert.
+
+---
+
 ## Deployment
 
 Für CloudPanel statt `deploy-plesk.sh` das `deploy-cloudpanel.sh` verwenden.
