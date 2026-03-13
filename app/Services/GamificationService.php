@@ -122,7 +122,7 @@ class GamificationService
         ]
     ];
 
-    public function awardPoints(User $user, int $points, string $reason = '', string $sourceType = null, int $sourceId = null)
+    public function awardPoints(User $user, int $points, string $reason = '', ?string $sourceType = null, ?int $sourceId = null)
     {
         $oldPoints = $user->points;
         $oldLevel = $user->level;
@@ -273,7 +273,7 @@ class GamificationService
         $this->updateStreak($user);
     }
 
-    public function awardQuestionPoints(User $user, bool $isCorrect = true, int $questionId = null)
+    public function awardQuestionPoints(User $user, bool $isCorrect = true, ?int $questionId = null)
     {
         if (!$isCorrect) {
             // Bei falscher Antwort: Nur Aktivität aktualisieren, keine Punkte
