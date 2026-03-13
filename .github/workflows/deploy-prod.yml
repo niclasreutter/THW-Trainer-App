@@ -1,27 +1,27 @@
-name: Deploy DEV
+name: Deploy PROD
 
 on:
   push:
-    branches: [ "dev" ]
+    branches: [ "main" ]
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: production  # ermöglicht manuelle Bestätigung in GitHub
     steps:
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.DEV_SSH_USER }}
-          key: ${{ secrets.DEV_SSH_PRIVATE_KEY }}
+          host: ${{ secrets.PROD_SSH_HOST }}
+          username: ${{ secrets.PROD_SSH_USER }}
+          key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
           script: |
-            cd /home/thw-trainer-dev/htdocs/dev.thw-trainer.de
-            
+            cd /home/thw-trainer-prod/htdocs/thw-trainer.de
             # 1. Wartungsmodus aktivieren
             php artisan down
             
             # 2. Code updaten
-            git pull origin dev
+            git pull origin main
             
             # 3. Composer Dependencies
             composer install --no-dev --optimize-autoloader
