@@ -16,7 +16,7 @@ jobs:
           username: ${{ secrets.PROD_SSH_USER }}
           key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
           script: |
-            cd /home/thw-trainer-prod/htdocs/thw-trainer.de
+            cd /home/thw-trainer/htdocs/thw-trainer.de
             # 1. Wartungsmodus aktivieren
             php artisan down
             
