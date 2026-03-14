@@ -303,10 +303,16 @@
                             Prüfungs-Feedback
                         </a>
 
-                        <a href="{{ route('admin.scheduler-logs.index') }}"
-                           class="sidebar-link {{ request()->routeIs('admin.scheduler-logs.*') ? 'active' : '' }}">
+                        <a href="{{ route('admin.logs.index', 'scheduler') }}"
+                           class="sidebar-link {{ request()->routeIs('admin.logs.*') && request()->route('type') === 'scheduler' ? 'active' : '' }}">
                             <i class="bi bi-terminal"></i>
                             Scheduler-Logs
+                        </a>
+
+                        <a href="{{ route('admin.logs.index', 'worker') }}"
+                           class="sidebar-link {{ request()->routeIs('admin.logs.*') && request()->route('type') === 'worker' ? 'active' : '' }}">
+                            <i class="bi bi-gear"></i>
+                            Worker-Logs
                         </a>
 
                         @if(!app()->environment('production'))

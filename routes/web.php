@@ -323,9 +323,9 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix
     Route::get('exam-feedback', [\App\Http\Controllers\Admin\ExamFeedbackController::class, 'index'])->name('exam-feedback.index');
     Route::delete('exam-feedback/{examFeedback}', [\App\Http\Controllers\Admin\ExamFeedbackController::class, 'destroy'])->name('exam-feedback.destroy');
 
-    // Scheduler Logs
-    Route::get('scheduler-logs', [\App\Http\Controllers\Admin\SchedulerLogController::class, 'index'])->name('scheduler-logs.index');
-    Route::delete('scheduler-logs', [\App\Http\Controllers\Admin\SchedulerLogController::class, 'destroy'])->name('scheduler-logs.destroy');
+    // Log Viewer (Scheduler, Worker)
+    Route::get('logs/{type}', [\App\Http\Controllers\Admin\SchedulerLogController::class, 'index'])->name('logs.index')->whereIn('type', ['scheduler', 'worker']);
+    Route::delete('logs/{type}', [\App\Http\Controllers\Admin\SchedulerLogController::class, 'destroy'])->name('logs.destroy')->whereIn('type', ['scheduler', 'worker']);
 
     // Ortsverband Routes (Admin) - Nur View und Delete
     Route::get('ortsverband', [\App\Http\Controllers\Admin\OrtsverbandController::class, 'index'])->name('ortsverband.index');

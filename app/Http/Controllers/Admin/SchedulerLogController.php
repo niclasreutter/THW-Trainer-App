@@ -7,14 +7,33 @@ use Illuminate\Http\Request;
 
 class SchedulerLogController extends Controller
 {
-    private function logPath(): string
+    private const LOG_TYPES = [
+        'scheduler' => [
+            'file' => 'logs/scheduler.log',
+            'title' => 'Scheduler',
+            'subtitle' => 'Ausgabe der geplanten Aufgaben',
+        ],
+        'worker' => [
+            'file' => 'logs/worker.log',
+            'title' => 'Worker',
+            'subtitle' => 'Ausgabe der Queue-Worker Prozesse',
+        ],
+    ];
+
+    private function resolveLogType(string $type): ?array
     {
-        return storage_path('logs/scheduler.log');
+        return self::LOG_TYPES[$type] ?? null;
     }
 
-    public function index(Request $request)
+    public function index(Request $request, string $type = 'scheduler')
     {
-        $path = $this->logPath();
+        $config = $this->resolveLogType($type);
+
+        if (!$config) {
+            abort(404);
+        }
+
+        $path = storage_path($config['file']);
         $lines = [];
         $stats = [
             'size' => 0,
@@ -51,18 +70,28 @@ class SchedulerLogController extends Controller
             'stats' => $stats,
             'search' => $request->input('search', ''),
             'linesLimit' => $request->input('lines', 500),
+            'logType' => $type,
+            'logTitle' => $config['title'],
+            'logSubtitle' => $config['subtitle'],
+            'logTypes' => self::LOG_TYPES,
         ]);
     }
 
-    public function destroy()
+    public function destroy(string $type = 'scheduler')
     {
-        $path = $this->logPath();
+        $config = $this->resolveLogType($type);
+
+        if (!$config) {
+            abort(404);
+        }
+
+        $path = storage_path($config['file']);
 
         if (file_exists($path)) {
             file_put_contents($path, '');
         }
 
-        return redirect()->route('admin.scheduler-logs.index')
-            ->with('success', 'Scheduler-Log wurde geleert.');
+        return redirect()->route('admin.logs.index', $type)
+            ->with('success', $config['title'] . '-Log wurde geleert.');
     }
 }

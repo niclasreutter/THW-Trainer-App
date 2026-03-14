@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Scheduler-Logs - Admin')
+@section('title', $logTitle . '-Logs - Admin')
 
 @push('styles')
 <style>
@@ -51,14 +51,39 @@
     .log-input::placeholder {
         color: var(--text-muted);
     }
+    .log-tabs {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 2rem;
+    }
+    .log-tab {
+        padding: 0.5rem 1.25rem;
+        border-radius: 0.5rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        text-decoration: none;
+        color: var(--text-muted);
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        transition: all 0.2s;
+    }
+    .log-tab:hover {
+        color: var(--text-primary);
+        background: rgba(255, 255, 255, 0.06);
+    }
+    .log-tab-active {
+        color: var(--gold);
+        background: rgba(255, 215, 0, 0.08);
+        border-color: rgba(255, 215, 0, 0.25);
+    }
 </style>
 @endpush
 
 @section('content')
 <div class="dashboard-container">
     <header class="dashboard-header">
-        <h1 class="page-title">Scheduler <span>Logs</span></h1>
-        <p class="page-subtitle">Ausgabe der geplanten Aufgaben</p>
+        <h1 class="page-title">{{ $logTitle }} <span>Logs</span></h1>
+        <p class="page-subtitle">{{ $logSubtitle }}</p>
     </header>
 
     @if(session('success'))
@@ -70,6 +95,16 @@
             </div>
         </div>
     @endif
+
+    {{-- Tab Navigation --}}
+    <div class="log-tabs">
+        @foreach($logTypes as $key => $config)
+            <a href="{{ route('admin.logs.index', $key) }}"
+               class="log-tab {{ $logType === $key ? 'log-tab-active' : '' }}">
+                {{ $config['title'] }}-Log
+            </a>
+        @endforeach
+    </div>
 
     <div class="stats-row">
         <div class="stat-pill">
@@ -115,7 +150,7 @@
 
     {{-- Toolbar --}}
     <div class="glass" style="padding: 1.25rem; margin-bottom: 2rem;">
-        <form method="GET" action="{{ route('admin.scheduler-logs.index') }}" class="log-toolbar">
+        <form method="GET" action="{{ route('admin.logs.index', $logType) }}" class="log-toolbar">
             <input type="text"
                    name="search"
                    value="{{ $search }}"
@@ -130,11 +165,11 @@
             </select>
 
             <button type="submit" class="btn-primary" style="padding: 0.625rem 1.25rem;">Filtern</button>
-            <a href="{{ route('admin.scheduler-logs.index') }}" class="btn-ghost" style="padding: 0.625rem 1.25rem;">Zurücksetzen</a>
+            <a href="{{ route('admin.logs.index', $logType) }}" class="btn-ghost" style="padding: 0.625rem 1.25rem;">Zurücksetzen</a>
 
             <div style="margin-left: auto;">
-                <form method="POST" action="{{ route('admin.scheduler-logs.destroy') }}"
-                      onsubmit="return confirm('Scheduler-Log wirklich leeren? Diese Aktion kann nicht rückgängig gemacht werden.')"
+                <form method="POST" action="{{ route('admin.logs.destroy', $logType) }}"
+                      onsubmit="return confirm('{{ $logTitle }}-Log wirklich leeren? Diese Aktion kann nicht rückgängig gemacht werden.')"
                       style="display: inline;">
                     @csrf
                     @method('DELETE')
@@ -164,7 +199,7 @@
             <div style="padding: 3rem 1rem; text-align: center; color: var(--text-muted);">
                 <div style="font-size: 3rem; margin-bottom: 1rem;"><i class="bi bi-terminal"></i></div>
                 <p style="margin: 0 0 0.5rem 0; font-weight: 700;">Keine Log-Einträge vorhanden</p>
-                <p style="margin: 0; font-size: 0.95rem;">Sobald geplante Aufgaben ausgeführt werden, erscheinen die Ausgaben hier.</p>
+                <p style="margin: 0; font-size: 0.95rem;">Sobald Prozesse ausgeführt werden, erscheinen die Ausgaben hier.</p>
             </div>
         @endif
     </div>
