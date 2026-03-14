@@ -12,6 +12,7 @@
 */
 
 use App\Http\Controllers\ProfileController;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 
@@ -22,6 +23,22 @@ Route::get('/', function () {
     }
     return redirect()->route('login');
 })->name('app.home');
+
+// Health-Check für externes Monitoring (Uptime Robot, etc.)
+Route::get('/health', function () {
+    try {
+        DB::connection()->getPdo();
+        $db = 'ok';
+    } catch (\Exception $e) {
+        $db = 'error';
+    }
+    $status = $db === 'ok' ? 'ok' : 'degraded';
+    return response()->json([
+        'status'    => $status,
+        'db'        => $db,
+        'timestamp' => now()->toIso8601String(),
+    ], $status === 'ok' ? 200 : 503);
+})->name('health');
 
 // robots.txt für App-Subdomain (blockiert Crawler)
 Route::get('/robots.txt', function () {
