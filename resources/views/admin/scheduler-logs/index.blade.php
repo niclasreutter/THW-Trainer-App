@@ -18,17 +18,17 @@
         line-height: 1.6;
         white-space: pre-wrap;
         word-break: break-all;
-        border-bottom: 1px solid rgba(255,255,255,0.03);
-        color: var(--text-secondary);
+        border-bottom: 1px solid rgba(0,0,0,0.06);
+        color: #1e293b;
     }
     .log-line:nth-child(even) {
-        background: rgba(255,255,255,0.02);
+        background: rgba(0,0,0,0.02);
     }
     .log-line:hover {
-        background: rgba(255,255,255,0.05);
+        background: rgba(0,0,0,0.04);
     }
     .log-line-highlight {
-        background: rgba(255, 215, 0, 0.08) !important;
+        background: rgba(255, 215, 0, 0.12) !important;
     }
     .log-toolbar {
         display: flex;
