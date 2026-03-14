@@ -6,12 +6,13 @@ use App\Models\LearningSession;
 use App\Models\LearningSessionInstance;
 use App\Models\User;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class LernsessionStartedMail extends Mailable
+class LernsessionStartedMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
