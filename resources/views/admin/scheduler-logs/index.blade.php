@@ -150,33 +150,33 @@
 
     {{-- Toolbar --}}
     <div class="glass" style="padding: 1.25rem; margin-bottom: 2rem;">
-        <form method="GET" action="{{ route('admin.logs.index', $logType) }}" class="log-toolbar">
-            <input type="text"
-                   name="search"
-                   value="{{ $search }}"
-                   placeholder="Log durchsuchen..."
-                   class="log-input"
-                   style="flex: 1; min-width: 200px;">
+        <div class="log-toolbar">
+            <form method="GET" action="{{ route('admin.logs.index', $logType) }}" style="display: contents;">
+                <input type="text"
+                       name="search"
+                       value="{{ $search }}"
+                       placeholder="Log durchsuchen..."
+                       class="log-input"
+                       style="flex: 1; min-width: 200px;">
 
-            <select name="lines" class="log-input">
-                @foreach([100, 500, 1000, 2000] as $opt)
-                    <option value="{{ $opt }}" {{ (int) $linesLimit === $opt ? 'selected' : '' }}>{{ $opt }} Zeilen</option>
-                @endforeach
-            </select>
+                <select name="lines" class="log-input">
+                    @foreach([100, 500, 1000, 2000] as $opt)
+                        <option value="{{ $opt }}" {{ (int) $linesLimit === $opt ? 'selected' : '' }}>{{ $opt }} Zeilen</option>
+                    @endforeach
+                </select>
 
-            <button type="submit" class="btn-primary" style="padding: 0.625rem 1.25rem;">Filtern</button>
-            <a href="{{ route('admin.logs.index', $logType) }}" class="btn-ghost" style="padding: 0.625rem 1.25rem;">Zurücksetzen</a>
+                <button type="submit" class="btn-primary" style="padding: 0.625rem 1.25rem;">Filtern</button>
+                <a href="{{ route('admin.logs.index', $logType) }}" class="btn-ghost" style="padding: 0.625rem 1.25rem;">Zurücksetzen</a>
+            </form>
 
-            <div style="margin-left: auto;">
-                <form method="POST" action="{{ route('admin.logs.destroy', $logType) }}"
-                      onsubmit="return confirm('{{ $logTitle }}-Log wirklich leeren? Diese Aktion kann nicht rückgängig gemacht werden.')"
-                      style="display: inline;">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="btn-danger" style="padding: 0.625rem 1.25rem;">Log leeren</button>
-                </form>
-            </div>
-        </form>
+            <form method="POST" action="{{ route('admin.logs.destroy', $logType) }}"
+                  onsubmit="return confirm('{{ $logTitle }}-Log wirklich leeren? Diese Aktion kann nicht rückgängig gemacht werden.')"
+                  style="margin-left: auto;">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="btn-danger" style="padding: 0.625rem 1.25rem;">Log leeren</button>
+            </form>
+        </div>
     </div>
 
     {{-- Log Content --}}
