@@ -7,6 +7,8 @@
                 var theme = localStorage.getItem('theme');
                 if (theme === 'light') {
                     document.documentElement.classList.add('light-mode');
+                } else if (!theme && window.matchMedia('(prefers-color-scheme: light)').matches) {
+                    document.documentElement.classList.add('light-mode');
                 }
             })();
         </script>
@@ -657,29 +659,36 @@
             // Theme Management
             (function() {
                 const savedTheme = localStorage.getItem('theme');
-                if (savedTheme === 'light') {
-                    document.documentElement.classList.add('light-mode');
-                    document.body.classList.add('light-mode');
-                } else if (savedTheme === 'dark') {
-                    document.documentElement.classList.remove('light-mode');
-                    document.body.classList.remove('light-mode');
+
+                function applyTheme(light) {
+                    document.documentElement.classList.toggle('light-mode', light);
+                    document.body.classList.toggle('light-mode', light);
                 }
+
+                if (savedTheme === 'light') {
+                    applyTheme(true);
+                } else if (savedTheme === 'dark') {
+                    applyTheme(false);
+                } else {
+                    // Kein gespeichertes Theme → Systemeinstellung verwenden
+                    applyTheme(window.matchMedia('(prefers-color-scheme: light)').matches);
+                }
+
+                // Live auf Systemänderungen reagieren (nur wenn kein manuelles Theme gesetzt)
+                window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', function(e) {
+                    if (!localStorage.getItem('theme')) {
+                        applyTheme(e.matches);
+                    }
+                });
             })();
 
             function toggleTheme() {
-                const html = document.documentElement;
-                const body = document.body;
-                const isLightMode = html.classList.contains('light-mode');
+                const isLightMode = document.documentElement.classList.contains('light-mode');
+                const newLight = !isLightMode;
 
-                if (isLightMode) {
-                    html.classList.remove('light-mode');
-                    body.classList.remove('light-mode');
-                    localStorage.setItem('theme', 'dark');
-                } else {
-                    html.classList.add('light-mode');
-                    body.classList.add('light-mode');
-                    localStorage.setItem('theme', 'light');
-                }
+                document.documentElement.classList.toggle('light-mode', newLight);
+                document.body.classList.toggle('light-mode', newLight);
+                localStorage.setItem('theme', newLight ? 'light' : 'dark');
             }
         </script>
 
