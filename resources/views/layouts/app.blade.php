@@ -303,6 +303,12 @@
                             Prüfungs-Feedback
                         </a>
 
+                        <a href="{{ route('admin.scheduler-logs.index') }}"
+                           class="sidebar-link {{ request()->routeIs('admin.scheduler-logs.*') ? 'active' : '' }}">
+                            <i class="bi bi-terminal"></i>
+                            Scheduler-Logs
+                        </a>
+
                         @if(!app()->environment('production'))
                         <a href="{{ route('admin.time-simulator') }}"
                            class="sidebar-link {{ request()->routeIs('admin.time-simulator*') ? 'active' : '' }}">
