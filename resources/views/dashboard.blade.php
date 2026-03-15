@@ -1044,6 +1044,61 @@
     </a>
     @endif
 
+    {{-- 4. STATS GRID --}}
+    @php
+        $lastExam = isset($recentExams) ? $recentExams->first() : null;
+        $lastExamPct = $lastExam ? round(($lastExam->correct_answers / 40) * 100) : null;
+        $avgExamPct  = isset($recentExams) && $recentExams->count() > 0
+            ? round($recentExams->avg(fn($e) => round(($e->correct_answers / 40) * 100)))
+            : null;
+    @endphp
+    <div class="stats-grid">
+
+        {{-- Karte links: Theorie-Fortschritt --}}
+        <div class="stat-card glass-tl">
+            <div class="stat-card-title">Theorie-Fortschritt</div>
+            <div class="stat-card-value">{{ $progressPercent }}<span style="font-size:1rem;font-weight:600;color:var(--text-secondary);">%</span></div>
+            <div class="stat-bar"><div class="stat-bar-fill" style="width:{{ $progressPercent }}%;"></div></div>
+            <div class="stat-card-sub">{{ $progress }} von {{ $total }} gemeistert</div>
+            <div class="stat-card-row">
+                <span class="stat-card-detail">Heute: {{ $todayAnswered }} Fragen</span>
+                @if(isset($spacedRepetitionDue) && $spacedRepetitionDue > 0)
+                    <span class="stat-card-detail" style="color:var(--thw-blue-light);">SR: {{ $spacedRepetitionDue }} fällig</span>
+                @endif
+            </div>
+            <div style="margin-top:0.25rem;">
+                <a href="{{ route('practice.menu') }}" class="btn-secondary btn-sm">Abschnitte üben</a>
+            </div>
+        </div>
+
+        {{-- Karte rechts: Prüfungs-Status --}}
+        <div class="stat-card glass-br">
+            <div class="stat-card-title">Prüfungs-Status</div>
+            <div class="stat-card-value">{{ $exams }}<span style="font-size:1rem;font-weight:600;color:var(--text-secondary);">/5</span></div>
+            <div class="stat-bar"><div class="stat-bar-fill" style="width:{{ min(100, $exams * 20) }}%;"></div></div>
+            <div class="stat-card-row">
+                @if($lastExamPct !== null)
+                    <span class="stat-card-detail">Letzter Versuch:
+                        <strong class="{{ $lastExamPct >= 75 ? 'gold' : '' }} stat-card-detail">{{ $lastExamPct }}%</strong>
+                    </span>
+                @endif
+                @if($avgExamPct !== null)
+                    <span class="stat-card-detail">Schnitt:
+                        <strong class="{{ $avgExamPct >= 75 ? 'gold' : '' }} stat-card-detail">{{ $avgExamPct }}%</strong>
+                    </span>
+                @endif
+            </div>
+            <div style="margin-top:0.25rem;">
+                @if($canStartExam)
+                    <a href="{{ route('exam.index') }}" class="btn-secondary btn-sm">Prüfung starten</a>
+                @elseif($hasFailedQuestions)
+                    <a href="{{ route('failed.index') }}" class="btn-ghost btn-sm">Fehler wiederholen</a>
+                @else
+                    <span class="btn-ghost btn-sm" style="opacity:0.45;cursor:not-allowed;">Erst Theorie</span>
+                @endif
+            </div>
+        </div>
+    </div>
 
 </div>{{-- .ops-container --}}
 
