@@ -4,6 +4,9 @@
 @section('description', 'Dein persönliches THW-Trainer Dashboard: Verfolge deinen Lernfortschritt, wiederhole falsche Fragen und bereite dich optimal auf deine THW-Prüfung vor.')
 
 @push('styles')
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
     /* ─── Layout ─────────────────────────────────────── */
     .ops-container {
@@ -703,6 +706,156 @@
         .countdown-strip { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
         .ausbilder-card { flex-direction: column; align-items: flex-start; }
     }
+
+    /* ═══════════════════════════════════════════════════
+       DESIGN ENHANCEMENTS — Field Operations Terminal
+       ═══════════════════════════════════════════════════ */
+
+    /* ─── Custom Font Applications ──────────────────── */
+    .stat-card-value,
+    .countdown-days-num,
+    .spaced-count,
+    .hero-ring-text,
+    .status-stat-value,
+    .ausbilder-stat-val {
+        font-family: 'Barlow Condensed', sans-serif;
+    }
+
+    .stat-card-title,
+    .activity-title,
+    .kurs-section-title,
+    .countdown-days-label,
+    .ausbilder-stat-label,
+    .status-stat-label,
+    .hero-label,
+    .status-level-badge,
+    .heatmap-cell-num,
+    .heatmap-cell-pct {
+        font-family: 'IBM Plex Mono', monospace;
+    }
+
+    /* ─── Hero titles & large values ────────────────── */
+    .hero-title {
+        font-family: 'Barlow Condensed', sans-serif;
+        font-size: 2rem;
+        font-weight: 800;
+        letter-spacing: -0.01em;
+    }
+
+    .stat-card-value  { font-size: 2.6rem; letter-spacing: -0.04em; }
+    .countdown-days-num { font-size: 2.6rem; letter-spacing: -0.04em; color: var(--thw-blue-light); }
+    .spaced-count     { font-size: 3.2rem; letter-spacing: -0.05em; }
+    .status-stat-value { font-size: 1.15rem; }
+    .status-stat-value.gold { text-shadow: 0 0 18px rgba(251,191,36,0.45); }
+
+    /* ─── Level badge — angular tactical cut ────────── */
+    .status-level-badge {
+        clip-path: polygon(0 0, calc(100% - 5px) 0, 100% 5px, 100% 100%, 5px 100%, 0 calc(100% - 5px));
+        border-radius: 0;
+        letter-spacing: 1.5px;
+        font-size: 0.58rem;
+    }
+
+    /* ─── Ops container — dot grid atmosphere ───────── */
+    .ops-container {
+        background-image: radial-gradient(rgba(0,51,127,0.05) 1px, transparent 1px);
+        background-size: 22px 22px;
+    }
+    html.light-mode .ops-container {
+        background-image: radial-gradient(rgba(0,51,127,0.09) 1px, transparent 1px);
+    }
+
+    /* ─── Staggered section load animations ─────────── */
+    @keyframes ops-rise {
+        from { opacity: 0; transform: translateY(12px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+    .ops-container > * {
+        animation: ops-rise 0.5s cubic-bezier(0.22,1,0.36,1) both;
+    }
+    .ops-container > *:nth-child(1) { animation-delay: 0.04s; }
+    .ops-container > *:nth-child(2) { animation-delay: 0.09s; }
+    .ops-container > *:nth-child(3) { animation-delay: 0.14s; }
+    .ops-container > *:nth-child(4) { animation-delay: 0.19s; }
+    .ops-container > *:nth-child(5) { animation-delay: 0.24s; }
+    .ops-container > *:nth-child(6) { animation-delay: 0.29s; }
+    .ops-container > *:nth-child(7) { animation-delay: 0.34s; }
+    .ops-container > *:nth-child(8) { animation-delay: 0.39s; }
+    .ops-container > *:nth-child(9) { animation-delay: 0.44s; }
+    .ops-container > *:nth-child(10) { animation-delay: 0.49s; }
+
+    /* ─── XP bar shimmer ────────────────────────────── */
+    @keyframes xp-shimmer {
+        0%   { background-position: -200% center; }
+        100% { background-position: 200% center; }
+    }
+    .status-xp-fill {
+        background: linear-gradient(90deg, var(--thw-blue) 30%, var(--thw-blue-light) 50%, var(--thw-blue) 70%);
+        background-size: 200% 100%;
+        animation: xp-shimmer 4s ease-in-out infinite;
+    }
+
+    /* ─── Hero card — sweep + hover lift ────────────── */
+    .hero-card {
+        transition: transform 0.3s cubic-bezier(0.22,1,0.36,1),
+                    box-shadow 0.3s ease;
+        overflow: hidden;
+    }
+    .hero-card:hover { transform: translateY(-3px); }
+    .hero-card::after {
+        content: '';
+        position: absolute;
+        top: 0; left: -100%;
+        width: 55%; height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.07), transparent);
+        transform: skewX(-15deg);
+        transition: left 0.65s ease;
+        pointer-events: none;
+    }
+    .hero-card:hover::after { left: 160%; }
+
+    /* ─── Progress bars — height + glow ─────────────── */
+    .stat-bar, .countdown-mini-bar, .kurs-bar { height: 5px; border-radius: 3px; }
+    .stat-bar-fill { box-shadow: 0 0 7px rgba(0,51,127,0.45); }
+    html.light-mode .stat-bar-fill { box-shadow: 0 0 5px rgba(0,51,127,0.2); }
+    .status-xp-bar { height: 4px; border-radius: 2px; }
+
+    /* ─── Activity bars — rise animation ────────────── */
+    @keyframes bar-rise {
+        from { transform: scaleY(0); transform-origin: bottom; opacity: 0; }
+        to   { transform: scaleY(1); transform-origin: bottom; opacity: 1; }
+    }
+    .activity-bar-new { animation: bar-rise 0.55s cubic-bezier(0.22,1,0.36,1) both; }
+    .activity-bar-col:nth-child(1) .activity-bar-new { animation-delay: 0.35s; }
+    .activity-bar-col:nth-child(2) .activity-bar-new { animation-delay: 0.40s; }
+    .activity-bar-col:nth-child(3) .activity-bar-new { animation-delay: 0.45s; }
+    .activity-bar-col:nth-child(4) .activity-bar-new { animation-delay: 0.50s; }
+    .activity-bar-col:nth-child(5) .activity-bar-new { animation-delay: 0.55s; }
+    .activity-bar-col:nth-child(6) .activity-bar-new { animation-delay: 0.60s; }
+    .activity-bar-col:nth-child(7) .activity-bar-new { animation-delay: 0.65s; }
+    .activity-chart-wrap { height: 115px; }
+
+    /* ─── Heatmap — semantic hover glows ────────────── */
+    .heatmap-cell-new {
+        transition: transform 0.18s cubic-bezier(0.22,1,0.36,1),
+                    box-shadow 0.18s ease,
+                    filter 0.18s ease;
+    }
+    .heatmap-cell-new:hover { transform: scale(1.15); position: relative; z-index: 2; filter: brightness(1.12); }
+    .heatmap-cell-new.strong:hover { box-shadow: 0 4px 14px rgba(34,197,94,0.4); }
+    .heatmap-cell-new.medium:hover { box-shadow: 0 4px 14px rgba(245,158,11,0.4); }
+    .heatmap-cell-new.weak:hover   { box-shadow: 0 4px 14px rgba(239,68,68,0.4); }
+    .heatmap-cell-new.none:hover   { box-shadow: 0 4px 14px rgba(0,51,127,0.25); }
+
+    /* ─── Kurs cards — hover lift ────────────────────── */
+    .kurs-card {
+        transition: transform 0.22s cubic-bezier(0.22,1,0.36,1),
+                    box-shadow 0.22s ease;
+    }
+    .kurs-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0,51,127,0.14);
+    }
 </style>
 @endpush
 
@@ -1391,5 +1544,18 @@ function dismissLeaderboardModal(accept) {
 }
 document.addEventListener('keydown', function(e) { if (e.key === 'Escape') dismissLeaderboardModal(false); });
 
+// Animate SVG progress rings on load
+document.querySelectorAll('.hero-ring-wrap svg circle').forEach(function(el) {
+    var stroke = el.getAttribute('stroke') || '';
+    if (!stroke.startsWith('url(')) return;
+    var target = parseFloat(el.getAttribute('stroke-dashoffset'));
+    var full = parseFloat(el.getAttribute('stroke-dasharray'));
+    if (isNaN(target) || isNaN(full) || target === 0) return;
+    el.style.strokeDashoffset = String(full);
+    el.style.transition = 'stroke-dashoffset 1.2s cubic-bezier(0.22,1,0.36,1) 0.55s';
+    requestAnimationFrame(function() {
+        requestAnimationFrame(function() { el.style.strokeDashoffset = String(target); });
+    });
+});
 </script>
 @endsection
