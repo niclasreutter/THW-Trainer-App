@@ -1,1776 +1,1504 @@
-# Dashboard Redesign "THW Operations" Implementation Plan
+# Dashboard & Statistik-Seite Redesign — Implementation Plan
 
 > **For agentic workers:** REQUIRED: Use superpowers:subagent-driven-development (if subagents available) or superpowers:executing-plans to implement this plan. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Komplett neues Dashboard (`/dashboard`) im "Command Center"-Stil: THW-Blau dominant, technische Grid-Ästhetik, eckigere Karten, keine collapsible Sections, Dark/Light Mode.
+**Goal:** Komplett neues Dashboard mit modularen Sektionen (Smart Action Card, Journey-Stepper, Gamification-Row) plus neue Statistik-Seite. Mobile-First, Dark/Light Mode, THW-Blau als Primärfarbe.
 
-**Architecture:** Einzige geänderte Datei ist `resources/views/dashboard.blade.php` – komplette Neuerstellung. Alle Variablen kommen wie bisher aus der Route-Closure (`routes/web.php`) oder werden inline in `@php`-Blöcken berechnet. Keine Backend-Änderungen.
+**Architecture:** Dashboard-View wird komplett neu geschrieben. Route-Closure in `routes/web.php` wird um Smart Action Logik erweitert. Neue `StatisticsController` + View für ausgelagerte Statistiken. CSS-Erweiterungen sind Dashboard-spezifisch, kein globaler Design-System-Wechsel.
 
-**Tech Stack:** Laravel 12 Blade, Tailwind CSS (über bestehende `app.css` Klassen), Alpine.js, Bootstrap Icons (`bi bi-*`), bestehende CSS-Variablen (`--thw-blue`, `--gold-start`, `--glass-bg` etc.)
+**Tech Stack:** Laravel 12, Blade, Tailwind CSS, Alpine.js, Bootstrap Icons. Kein externes Chart-Library — alle Visualisierungen mit CSS/Tailwind.
 
 **Spec:** `docs/superpowers/specs/2026-03-15-dashboard-redesign.md`
 
 ---
 
-## File Map
+## File Structure
 
-| Datei | Aktion | Verantwortung |
-|-------|--------|---------------|
-| `resources/views/dashboard.blade.php` | **Komplette Neuerstellung** | Alle 10 Sektionen des neuen Dashboards |
-| `routes/web.php` | Nur lesen, **nicht ändern** | Referenz für übergebene Variablen |
-| `resources/css/app.css` | Nur lesen, **nicht ändern** | Referenz für bestehende CSS-Klassen |
-
----
-
-## Variablen-Referenz
-
-Aus Route-Closure `routes/web.php` übergeben:
-- `$user` – Auth-User
-- `$recentExams` – letzte Prüfungen (`ExamStatistic`)
-- `$totalQuestions` – Gesamtanzahl Fragen
-- `$spacedRepetitionDue` – Anzahl fälliger SR-Fragen (int)
-- `$weeklyActivity` – Collection mit `date`, `count`, `correct` pro Tag
-- `$sectionStats` – Collection mit `lernabschnitt`, `total`, `correct`
-- `$streakFreezeStatus` – `['remaining' => int]`
-
-Inline in `@php`-Blöcken berechnet (exakt wie aktueller View):
-- `$total`, `$progress`, `$progressPercent`, `$progressData`, `$threshold`
-- `$exams`, `$failedArr`, `$hasFailedQuestions`, `$canStartExam`
-- `$circumference`, `$theoryOffset`, `$examOffset`
-- `$enrolledLehrgaenge`, `$enrolledLernpools`
-- `$userAchievements`, `$unlockedCount`, `$totalAchievements`
-- `$userLeague`, `$leagueInfo`
-- `$streakMinQuestions`, `$todayQuestions`, `$questionsRemaining`, `$streakAtRisk`
-- `$activeLernsession` (umbenennung von `$__liveInstance`)
-- `$daysLeft`, `$dailyTarget`, `$todayAnswered`
-- `$userOV`, `$isAusbilder`, `$ovStats`
-- `$thisWeekTotal`, `$thisWeekCorrect`, `$thisWeekRate`, `$lastWeekTotal`, `$lastWeekRate`, `$rateDiff`
+| Action | Path | Responsibility |
+|--------|------|----------------|
+| Rewrite | `resources/views/dashboard.blade.php` | Komplettes Dashboard-View |
+| Modify | `resources/css/app.css` | Dashboard-spezifische CSS-Klassen, Light-Mode-Erweiterungen |
+| Modify | `routes/web.php` | Smart Action Logik in Dashboard-Route + neue `/statistics` Route |
+| Create | `app/Http/Controllers/StatisticsController.php` | Daten-Aggregation für Statistik-Seite |
+| Create | `resources/views/statistics.blade.php` | Statistik-Seite View |
 
 ---
 
-## Chunk 1: CSS Foundation + Status-Strip + Alert-Banner
+## Chunk 1: CSS Foundation & Dashboard Route
 
-### Task 1: Datei leeren und CSS-Grundgerüst + @php-Blöcke aufsetzen
+### Task 1: Dashboard-spezifische CSS-Klassen hinzufügen
 
 **Files:**
-- Modify: `resources/views/dashboard.blade.php` (komplette Neuerstellung)
+- Modify: `resources/css/app.css` (am Ende der Datei anhängen)
 
-- [ ] **Step 1: Alten Inhalt durch neuen Dateikopf ersetzen**
+- [ ] **Step 1: Read current app.css to find insertion point**
 
-Datei mit folgendem Inhalt neu anlegen (alle @php-Berechnungen + CSS-Grundgerüst):
+Read `resources/css/app.css` and find the last section. New dashboard-specific CSS will be appended at the end.
 
-```blade
-@extends('layouts.app')
+- [ ] **Step 2: Add dashboard-specific CSS classes**
 
-@section('title', 'Dashboard - Dein Lernfortschritt')
-@section('description', 'Dein persönliches THW-Trainer Dashboard: Verfolge deinen Lernfortschritt, wiederhole falsche Fragen und bereite dich optimal auf deine THW-Prüfung vor.')
+Append to `resources/css/app.css`:
 
-@push('styles')
-<style>
-    /* ─── Layout ─────────────────────────────────────── */
-    .ops-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 1.5rem;
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-    }
+```css
+/* =====================================================
+   DASHBOARD REDESIGN - Modulare Sektionen
+   Scope: nur /dashboard und /statistics
+   ===================================================== */
 
-    /* ─── Status-Strip ───────────────────────────────── */
-    .status-strip {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 1.5rem;
-        padding: 0.875rem 1.25rem;
-        border-left: 4px solid var(--thw-blue);
-        border-radius: 0 0.5rem 0.5rem 0;
-        flex-wrap: wrap;
-    }
-
-    .status-left { display: flex; flex-direction: column; gap: 0.35rem; min-width: 0; }
-
-    .status-name {
-        font-size: 1rem;
-        font-weight: 700;
-        color: var(--text-primary);
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    .status-level-badge {
-        font-size: 0.6rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        padding: 0.15rem 0.5rem;
-        border-radius: 0.25rem;
-        background: var(--thw-blue);
-        color: white;
-        flex-shrink: 0;
-    }
-
-    .status-xp-bar {
-        height: 3px;
-        width: 200px;
-        background: rgba(0, 51, 127, 0.15);
-        border-radius: 2px;
-        overflow: hidden;
-    }
-
-    html.light-mode .status-xp-bar {
-        background: rgba(0, 51, 127, 0.12);
-    }
-
-    .status-xp-fill {
-        height: 100%;
-        background: var(--thw-blue);
-        border-radius: 2px;
-        transition: width 0.8s ease-out;
-    }
-
-    .status-right {
-        display: flex;
-        align-items: center;
-        gap: 1.5rem;
-        flex-shrink: 0;
-    }
-
-    .status-stat {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 0.1rem;
-    }
-
-    .status-stat-value {
-        font-size: 1rem;
-        font-weight: 800;
-        color: var(--text-primary);
-        line-height: 1;
-    }
-
-    .status-stat-value.gold { color: var(--gold-start); }
-
-    .status-stat-label {
-        font-size: 0.6rem;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        color: var(--text-muted);
-    }
-
-    .status-divider {
-        width: 1px;
-        height: 28px;
-        background: var(--glass-border);
-    }
-
-    .status-freeze-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.2rem;
-        font-size: 0.6rem;
-        color: #93c5fd;
-        font-weight: 600;
-    }
-
-    /* ─── Next-Step Hero Card ────────────────────────── */
-    .hero-card {
-        padding: 1.75rem 2rem;
-        border-radius: 0.75rem 0.25rem 0.75rem 0.75rem;
-        display: flex;
-        align-items: center;
-        gap: 2rem;
-        text-decoration: none;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .hero-card:hover { text-decoration: none; }
-
-    .hero-content { flex: 1; min-width: 0; }
-
-    .hero-label {
-        font-size: 0.65rem;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        color: rgba(255,255,255,0.7);
-        margin-bottom: 0.35rem;
-        font-weight: 600;
-    }
-
-    html.light-mode .hero-label { color: var(--thw-blue); }
-
-    .hero-title {
-        font-size: 1.5rem;
-        font-weight: 800;
-        color: var(--text-primary);
-        margin-bottom: 0.5rem;
-        line-height: 1.2;
-    }
-
-    .hero-desc {
-        font-size: 0.875rem;
-        color: var(--text-secondary);
-        margin-bottom: 1.25rem;
-        line-height: 1.5;
-    }
-
-    .hero-ring-wrap {
-        flex-shrink: 0;
-        width: 88px;
-        height: 88px;
-        position: relative;
-    }
-
-    .hero-ring-text {
-        position: absolute;
-        inset: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.1rem;
-        font-weight: 800;
-        color: var(--text-primary);
-    }
-
-    /* ─── Stats Grid ─────────────────────────────────── */
-    .stats-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1rem;
-    }
-
-    .stat-card {
-        padding: 1.25rem 1.5rem;
-        border-radius: 0.75rem 0.25rem 0.75rem 0.75rem;
-        border-top: 3px solid var(--thw-blue);
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-
-    .stat-card-title {
-        font-size: 0.6rem;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        color: var(--text-muted);
-        font-weight: 700;
-    }
-
-    .stat-card-value {
-        font-size: 2rem;
-        font-weight: 800;
-        color: var(--text-primary);
-        line-height: 1;
-        letter-spacing: -0.03em;
-    }
-
-    .stat-card-sub {
-        font-size: 0.8rem;
-        color: var(--text-secondary);
-    }
-
-    .stat-bar {
-        height: 4px;
-        background: rgba(0, 51, 127, 0.12);
-        border-radius: 2px;
-        overflow: hidden;
-        margin: 0.25rem 0;
-    }
-
-    html.light-mode .stat-bar {
-        background: rgba(0, 51, 127, 0.1);
-    }
-
-    .stat-bar-fill {
-        height: 100%;
-        background: var(--thw-blue);
-        border-radius: 2px;
-        transition: width 0.6s ease-out;
-    }
-
-    .stat-bar-fill.green { background: #22c55e; }
-
-    .stat-card-row {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 0.5rem;
-    }
-
-    .stat-card-detail {
-        font-size: 0.75rem;
-        color: var(--text-secondary);
-    }
-
-    .stat-card-detail.gold { color: var(--gold-start); font-weight: 700; }
-
-    /* ─── Countdown-Strip ───────────────────────────── */
-    .countdown-strip {
-        display: flex;
-        align-items: center;
-        gap: 1.5rem;
-        padding: 0.875rem 1.25rem;
-        border-left: 4px solid var(--thw-blue);
-        border-radius: 0 0.5rem 0.5rem 0;
-        flex-wrap: wrap;
-    }
-
-    .countdown-strip.no-date {
-        border-left-style: dashed;
-        opacity: 0.8;
-    }
-
-    .countdown-days {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        flex-shrink: 0;
-    }
-
-    .countdown-days-num {
-        font-size: 1.75rem;
-        font-weight: 800;
-        color: var(--text-primary);
-        line-height: 1;
-        letter-spacing: -0.03em;
-    }
-
-    .countdown-days-label {
-        font-size: 0.65rem;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        color: var(--text-muted);
-    }
-
-    .countdown-mid {
-        flex: 1;
-        min-width: 160px;
-    }
-
-    .countdown-target-label {
-        font-size: 0.75rem;
-        color: var(--text-secondary);
-        margin-bottom: 0.35rem;
-    }
-
-    .countdown-mini-bar {
-        height: 4px;
-        background: rgba(0, 51, 127, 0.12);
-        border-radius: 2px;
-        overflow: hidden;
-    }
-
-    html.light-mode .countdown-mini-bar { background: rgba(0, 51, 127, 0.1); }
-
-    .countdown-mini-fill {
-        height: 100%;
-        border-radius: 2px;
-        transition: width 0.5s ease-out;
-    }
-
-    .countdown-status {
-        font-size: 0.7rem;
-        margin-top: 0.25rem;
-        font-weight: 600;
-    }
-
-    .countdown-status.done { color: #22c55e; }
-    .countdown-status.pending { color: var(--text-muted); }
-
-    /* ─── Activity Chart ─────────────────────────────── */
-    .activity-section {
-        padding: 1.25rem 1.5rem;
-        border-radius: 0.75rem 0.25rem 0.75rem 0.75rem;
-    }
-
-    .activity-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 1rem;
-    }
-
-    .activity-title {
-        font-size: 0.6rem;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        color: var(--text-muted);
-        font-weight: 700;
-    }
-
-    .activity-trend {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-size: 0.75rem;
-    }
-
-    .activity-chart-wrap {
-        display: flex;
-        align-items: flex-end;
-        gap: 0.4rem;
-        height: 100px;
-    }
-
-    .activity-bar-col {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 0.3rem;
-        height: 100%;
-    }
-
-    .activity-bar-space {
-        flex: 1;
-        width: 100%;
-        display: flex;
-        align-items: flex-end;
-        justify-content: center;
-    }
-
-    .activity-bar-new {
-        width: 100%;
-        max-width: 28px;
-        min-height: 4px;
-        border-radius: 3px 3px 2px 2px;
-        background: var(--thw-blue);
-        position: relative;
-        transition: height 0.5s ease-out;
-    }
-
-    .activity-bar-new.today {
-        background: var(--thw-blue-light);
-        box-shadow: 0 0 10px rgba(0, 77, 179, 0.35);
-    }
-
-    .activity-bar-new.empty {
-        background: rgba(0, 51, 127, 0.08);
-        min-height: 4px;
-    }
-
-    html.light-mode .activity-bar-new.empty {
-        background: rgba(0, 51, 127, 0.1);
-    }
-
-    .activity-bar-count-new {
-        font-size: 0.55rem;
-        font-weight: 700;
-        color: var(--text-muted);
-        position: absolute;
-        top: -15px;
-        left: 50%;
-        transform: translateX(-50%);
-        white-space: nowrap;
-    }
-
-    .activity-day-label {
-        font-size: 0.6rem;
-        color: var(--text-muted);
-        font-weight: 600;
-        text-transform: uppercase;
-    }
-
-    .activity-day-label.today { color: var(--thw-blue-light); font-weight: 700; }
-
-    /* ─── Heatmap + Spaced Rep ──────────────────────── */
-    .heatmap-row {
-        display: grid;
-        grid-template-columns: 2fr 1fr;
-        gap: 1rem;
-    }
-
-    .heatmap-card {
-        padding: 1.25rem 1.5rem;
-        border-radius: 0.5rem 1.5rem 0.5rem 0.5rem;
-    }
-
-    .spaced-card {
-        padding: 1.25rem 1.5rem;
-        border-radius: 0.75rem 0.25rem 0.75rem 0.75rem;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        text-align: center;
-        gap: 0.5rem;
-    }
-
-    .spaced-count {
-        font-size: 2.5rem;
-        font-weight: 800;
-        color: var(--text-primary);
-        line-height: 1;
-        letter-spacing: -0.04em;
-    }
-
-    .spaced-count.zero { color: #22c55e; }
-
-    .heatmap-grid-new {
-        display: grid;
-        grid-template-columns: repeat(5, 1fr);
-        gap: 0.4rem;
-        margin-bottom: 0.75rem;
-    }
-
-    .heatmap-cell-new {
-        aspect-ratio: 1;
-        border-radius: 0.4rem;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        transition: transform 0.15s, box-shadow 0.15s;
-        cursor: pointer;
-        text-decoration: none;
-    }
-
-    .heatmap-cell-new:hover { transform: scale(1.1); }
-    .heatmap-cell-new.strong { background: rgba(34, 197, 94, 0.3); border: 1px solid rgba(34, 197, 94, 0.35); }
-    .heatmap-cell-new.medium { background: rgba(245, 158, 11, 0.3); border: 1px solid rgba(245, 158, 11, 0.3); }
-    .heatmap-cell-new.weak   { background: rgba(239, 68, 68, 0.25); border: 1px solid rgba(239, 68, 68, 0.25); }
-    .heatmap-cell-new.none   { background: rgba(0, 51, 127, 0.06); border: 1px solid rgba(0, 51, 127, 0.1); }
-
-    html.light-mode .heatmap-cell-new.none { background: rgba(0,51,127,0.06); border-color: rgba(0,51,127,0.15); }
-
-    .heatmap-cell-num { font-size: 0.7rem; font-weight: 800; color: var(--text-primary); }
-    .heatmap-cell-pct { font-size: 0.5rem; font-weight: 600; color: var(--text-secondary); }
-    .heatmap-cell-new.weak .heatmap-cell-num { color: #fca5a5; }
-    html.light-mode .heatmap-cell-new.weak .heatmap-cell-num { color: #dc2626; }
-
-    .heatmap-legend-new {
-        display: flex;
-        gap: 0.75rem;
-        flex-wrap: wrap;
-    }
-
-    .heatmap-legend-item-new {
-        display: flex;
-        align-items: center;
-        gap: 0.25rem;
-        font-size: 0.58rem;
-        color: var(--text-muted);
-    }
-
-    .heatmap-legend-dot-new {
-        width: 7px;
-        height: 7px;
-        border-radius: 2px;
-        flex-shrink: 0;
-    }
-
-    /* ─── Kurs-Grid ──────────────────────────────────── */
-    .kurs-section-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 0.75rem;
-    }
-
-    .kurs-section-title {
-        font-size: 0.6rem;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        color: var(--text-muted);
-        font-weight: 700;
-    }
-
-    .kurs-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 0.875rem;
-    }
-
-    .kurs-card {
-        padding: 1rem 1.25rem;
-        border-top: 3px solid var(--thw-blue);
-        border-radius: 0 0 0.5rem 0.5rem;
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-
-    .kurs-card-title {
-        font-size: 0.875rem;
-        font-weight: 700;
-        color: var(--text-primary);
-    }
-
-    .kurs-card-desc {
-        font-size: 0.75rem;
-        color: var(--text-secondary);
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-        flex: 1;
-    }
-
-    .kurs-bar { height: 3px; background: rgba(0,51,127,0.1); border-radius: 2px; overflow: hidden; margin: 0.1rem 0; }
-    .kurs-bar-fill { height: 100%; background: var(--thw-blue); border-radius: 2px; }
-    .kurs-bar-fill.done { background: #22c55e; }
-    .kurs-percent { font-size: 0.7rem; font-weight: 700; color: var(--thw-blue-light); }
-
-    /* ─── Ausbilder-Karte ────────────────────────────── */
-    .ausbilder-card {
-        padding: 1rem 1.5rem;
-        border-radius: 0.5rem 0.25rem 0.5rem 0.5rem;
-        display: flex;
-        align-items: center;
-        gap: 1.5rem;
-        flex-wrap: wrap;
-    }
-
-    .ausbilder-stats {
-        display: flex;
-        gap: 2rem;
-    }
-
-    .ausbilder-stat-val {
-        font-size: 1.4rem;
-        font-weight: 800;
-        color: var(--text-primary);
-        line-height: 1;
-    }
-
-    .ausbilder-stat-label {
-        font-size: 0.6rem;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        color: var(--text-muted);
-    }
-
-    /* ─── Live-Session Banner ────────────────────────── */
-    .live-session-banner {
-        display: flex;
-        align-items: center;
-        gap: 1.25rem;
-        padding: 1rem 1.25rem;
-        border-left: 4px solid #22c55e;
-        border-radius: 0 0.5rem 0.5rem 0;
-        flex-wrap: wrap;
-    }
-
-    .live-dot {
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        background: #22c55e;
-        flex-shrink: 0;
-        animation: pulse-dot 2s ease-in-out infinite;
-        box-shadow: 0 0 8px rgba(34, 197, 94, 0.4);
-    }
-
-    @keyframes pulse-dot {
-        0%, 100% { opacity: 1; transform: scale(1); }
-        50% { opacity: 0.6; transform: scale(0.8); }
-    }
-
-    .live-session-info { flex: 1; min-width: 0; }
-    .live-session-title { font-size: 0.875rem; font-weight: 700; color: var(--text-primary); }
-    .live-session-meta { font-size: 0.75rem; color: var(--text-secondary); line-height: 1.5; }
-
-    /* ─── Leaderboard-Modal ──────────────────────────── */
-    .leaderboard-modal-overlay {
-        position: fixed;
-        inset: 0;
-        background: rgba(0,0,0,0.8);
-        backdrop-filter: blur(8px);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 9999;
-        padding: 20px;
-        animation: fadeInModal 0.3s ease-out;
-    }
-
-    .leaderboard-modal {
-        background: var(--gradient-gold-135);
-        border-radius: 1.5rem 0.5rem 1.5rem 1.5rem;
-        max-width: 480px;
-        width: 100%;
-        position: relative;
-        box-shadow: 0 25px 60px rgba(0,0,0,0.5), 0 0 80px rgba(251,191,36,0.15);
-        animation: slideUpModal 0.4s ease-out;
-        overflow: hidden;
-    }
-
-    .leaderboard-modal-content { padding: 2rem; position: relative; }
-
-    .leaderboard-modal-close {
-        position: absolute;
-        top: 0.75rem;
-        right: 0.75rem;
-        width: 40px;
-        height: 40px;
-        border-radius: 0.5rem;
-        background: rgba(255,255,255,0.2);
-        border: none;
-        color: white;
-        font-size: 1.2rem;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: background 0.2s;
-    }
-
-    .leaderboard-modal-close:hover { background: rgba(255,255,255,0.3); }
-
-    @keyframes fadeInModal { from { opacity: 0; } to { opacity: 1; } }
-    @keyframes slideUpModal { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-    @keyframes fadeOutModal { from { opacity: 1; } to { opacity: 0; } }
-
-    /* ─── Responsive ─────────────────────────────────── */
-    @media (max-width: 1023px) {
-        .stats-grid { grid-template-columns: 1fr; }
-        .kurs-grid { grid-template-columns: 1fr 1fr; }
-    }
-
-    @media (max-width: 767px) {
-        .ops-container { padding: 1rem; }
-        .status-strip { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
-        .status-right { gap: 1rem; flex-wrap: wrap; }
-        .status-xp-bar { width: 100%; }
-        .hero-card { flex-direction: column; padding: 1.25rem; }
-        .hero-ring-wrap { align-self: flex-end; }
-        .heatmap-row { grid-template-columns: 1fr; }
-        .kurs-grid { grid-template-columns: 1fr; }
-        .countdown-strip { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
-        .ausbilder-card { flex-direction: column; align-items: flex-start; }
-    }
-</style>
-@endpush
-
-@section('content')
-@php
-    $user = Auth::user();
-    $total = $totalQuestions ?? \App\Models\Question::count();
-    if (empty($total)) { $total = \App\Models\Question::count(); }
-
-    $allExams = \App\Models\ExamStatistic::where('user_id', $user->id)
-        ->orderBy('created_at', 'desc')
-        ->get();
-
-    $exams = 0;
-    foreach ($allExams as $exam) {
-        if ($exam->is_passed) { $exams++; } else { break; }
-    }
-
-    try {
-        $threshold = \App\Models\UserQuestionProgress::MASTERY_THRESHOLD;
-        $progressData = \App\Models\UserQuestionProgress::where('user_id', $user->id)->get();
-        $totalProgressPoints = 0;
-        if ($progressData && $progressData->count() > 0) {
-            foreach ($progressData as $prog) { $totalProgressPoints += min($prog->consecutive_correct ?? 0, $threshold); }
-        }
-        $maxProgressPoints = $total * $threshold;
-        $progressPercent = $maxProgressPoints > 0 ? round(($totalProgressPoints / $maxProgressPoints) * 100) : 0;
-    } catch (\Exception $e) { $progressPercent = 0; $totalProgressPoints = 0; $progressData = collect(); $threshold = \App\Models\UserQuestionProgress::MASTERY_THRESHOLD ?? 2; }
-
-    $progress = \App\Models\UserQuestionProgress::countMastered($user->id);
-
-    $enrolledLehrgaenge = Auth::user()->enrolledLehrgaenge()->get();
-
-    $gamificationService = new \App\Services\GamificationService();
-    $userAchievements = $gamificationService->getUserAchievements($user);
-    $totalAchievements = count(\App\Services\GamificationService::ACHIEVEMENTS);
-    $unlockedCount = count(array_filter($userAchievements, fn($a) => $a['unlocked']));
-
-    $failedArr = is_array($user->exam_failed_questions ?? null)
-        ? $user->exam_failed_questions
-        : (is_string($user->exam_failed_questions) ? json_decode($user->exam_failed_questions, true) ?? [] : []);
-    $hasFailedQuestions = $failedArr && count($failedArr) > 0;
-    $canStartExam = $progress >= $total && !$hasFailedQuestions;
-
-    $circumference = 2 * 3.14159 * 26;
-    $theoryOffset  = $circumference - ($progressPercent / 100) * $circumference;
-    $examOffset    = $circumference - (min(100, $exams * 20) / 100) * $circumference;
-
-    $userLeague = $user->league ?? 'bronze';
-    $leagueInfo = \App\Services\LeagueService::getLeagueInfo($userLeague);
-
-    $streakMinQuestions    = \App\Services\GamificationService::STREAK_MIN_QUESTIONS;
-    $todayQuestions        = $user->daily_questions_solved ?? 0;
-    $questionsRemaining    = max(0, $streakMinQuestions - $todayQuestions);
-    $streakAtRisk = ($user->streak_days ?? 0) > 0
-        && $questionsRemaining > 0
-        && (!$user->last_activity_date || \Carbon\Carbon::parse($user->last_activity_date)->lt(\Carbon\Carbon::today()));
-
-    $activeLernsession = app(\App\Services\LernsessionService::class)
-        ->getActiveSessionsForUser(auth()->user())
-        ->first();
-
-    $daysLeft = ($user->exam_date && $user->exam_date->isFuture())
-        ? (int) now()->startOfDay()->diffInDays($user->exam_date, false)
-        : null;
-    $unmasteredCount = $total - $progress;
-    $dailyTarget     = null;
-    $todayAnswered   = \App\Models\QuestionStatistic::where('user_id', $user->id)
-        ->whereDate('created_at', today())
-        ->count();
-
-    if ($daysLeft && $daysLeft > 0 && $unmasteredCount > 0) {
-        $examBuffer   = min(7, max(0, $daysLeft - 1));
-        $effectiveDays = max(1, $daysLeft - $examBuffer);
-        $statCount    = \App\Models\QuestionStatistic::where('user_id', $user->id)->count();
-        $statCorrect  = \App\Models\QuestionStatistic::where('user_id', $user->id)->where('is_correct', true)->count();
-        $accuracy     = ($statCount >= 20) ? ($statCorrect / $statCount) : 0.65;
-        $errorFactor  = 1 / max(0.4, $accuracy);
-        $remainingInteractions = 0;
-        $seenQuestionIds = $progressData->pluck('question_id');
-        foreach ($progressData as $prog) {
-            if ($prog->consecutive_correct < $threshold) {
-                $remainingInteractions += ($threshold - $prog->consecutive_correct) * $errorFactor;
-            }
-        }
-        $unseenCount = $total - $seenQuestionIds->count();
-        $remainingInteractions += $unseenCount * $threshold * $errorFactor;
-        $dailyTarget = max(1, (int) ceil($remainingInteractions / $effectiveDays));
-    }
-
-    $userOV      = auth()->user()->ortsverbände->first();
-    $isAusbilder = false;
-    $ovStats     = null;
-    if ($userOV) {
-        $memberPivot = $userOV->members()->where('user_id', auth()->id())->first();
-        $isAusbilder = $memberPivot && $memberPivot->pivot->role === 'ausbildungsbeauftragter';
-        if ($isAusbilder) {
-            $regularMembers = $userOV->members()->wherePivot('role', 'member')->get();
-            $memberProgress = $userOV->getMemberProgress()->filter(fn($m) => $m['role'] === 'member');
-            $ovStats = [
-                'members'      => $regularMembers->count(),
-                'avg_progress' => round($memberProgress->avg('theory_progress_percent') ?? 0),
-            ];
-        }
-    }
-
-    $enrolledLernpools = auth()->user()->enrolledLernpools()->where('is_active', true)->get();
-
-    $thisWeekTotal   = isset($weeklyActivity) ? $weeklyActivity->sum('count') : 0;
-    $thisWeekCorrect = isset($weeklyActivity) ? $weeklyActivity->sum('correct') : 0;
-    $thisWeekRate    = $thisWeekTotal > 0 ? round(($thisWeekCorrect / $thisWeekTotal) * 100) : 0;
-    $lastWeekData    = \DB::table('question_statistics')
-        ->where('user_id', $user->id)
-        ->where('created_at', '>=', now()->subDays(14))
-        ->where('created_at', '<', now()->subDays(7))
-        ->selectRaw('COUNT(*) as total, SUM(is_correct) as correct')
-        ->first();
-    $lastWeekTotal   = $lastWeekData ? $lastWeekData->total : 0;
-    $lastWeekRate    = $lastWeekTotal > 0 ? round(($lastWeekData->correct / $lastWeekTotal) * 100) : 0;
-    $rateDiff        = $thisWeekRate - $lastWeekRate;
-@endphp
-```
-
-- [ ] **Step 2: Build prüfen**
-
-```bash
-cd /Users/niclasreutter/THW-Trainer-App
-npm run build && php artisan view:clear && php artisan cache:clear
-```
-Erwartung: Kein Fehler.
-
-- [ ] **Step 3: Commit**
-
-```bash
-git add resources/views/dashboard.blade.php
-git commit -m "🎨: Dashboard CSS Grundgerüst"
-```
-
----
-
-### Task 2: Status-Strip implementieren
-
-**Files:**
-- Modify: `resources/views/dashboard.blade.php`
-
-- [ ] **Step 1: SVG-Gradienten + Leaderboard-Modal-Script + Status-Strip HTML einfügen**
-
-Direkt nach dem `@endphp`-Block, vor dem schließenden `@endsection`-Platzhalter, folgenden Inhalt anhängen:
-
-```blade
-<!-- SVG Gradients -->
-<svg width="0" height="0" style="position: absolute;">
-    <defs>
-        <linearGradient id="blueGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" style="stop-color:#004db3"/>
-            <stop offset="100%" style="stop-color:#00337F"/>
-        </linearGradient>
-        <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" style="stop-color:#fbbf24"/>
-            <stop offset="100%" style="stop-color:#f59e0b"/>
-        </linearGradient>
-    </defs>
-</svg>
-
-<div class="ops-container">
-
-    {{-- 1. STATUS-STRIP --}}
-    <div class="status-strip glass">
-        <div class="status-left">
-            <div class="status-name">
-                {{ $user->name }}
-                <span class="status-level-badge">Level {{ $user->level ?? 1 }}</span>
-            </div>
-            <div class="status-xp-bar">
-                <div class="status-xp-fill" style="width: {{ $progressPercent }}%;"></div>
-            </div>
-        </div>
-        <div class="status-right">
-            <div class="status-stat">
-                <div class="status-stat-value gold">
-                    {{ $user->streak_days ?? 0 }}
-                    @if(isset($streakFreezeStatus) && $streakFreezeStatus['remaining'] > 0)
-                        <span class="status-freeze-badge"><i class="bi bi-snow"></i>{{ $streakFreezeStatus['remaining'] }}</span>
-                    @endif
-                </div>
-                <div class="status-stat-label">Streak</div>
-            </div>
-            <div class="status-divider"></div>
-            <div class="status-stat">
-                <div class="status-stat-value">{{ number_format($user->points ?? 0) }}</div>
-                <div class="status-stat-label">Punkte</div>
-            </div>
-            <div class="status-divider"></div>
-            <a href="{{ route('gamification.leaderboard', ['tab' => 'liga']) }}" style="text-decoration: none;">
-                <div class="status-stat">
-                    <div class="status-stat-value" style="color: {{ $leagueInfo['color'] }};">{{ $leagueInfo['name'] }}</div>
-                    <div class="status-stat-label">Liga</div>
-                </div>
-            </a>
-        </div>
-    </div>
-```
-
-- [ ] **Step 2: `@endsection` und schließendes `</div>` ans Ende der Datei anhängen**
-
-```blade
-
-</div>{{-- .ops-container --}}
-
-<x-onboarding-tour />
-
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.0/dist/confetti.browser.min.js"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    @if($progressPercent == 100)
-    setTimeout(() => confetti({ particleCount: 80, spread: 60, origin: { y: 0.6 } }), 1000);
-    @endif
-});
-function dismissLeaderboardModal(accept) {
-    const modal = document.getElementById('leaderboard-modal');
-    if (modal) { modal.style.animation = 'fadeOutModal 0.3s ease-out forwards'; setTimeout(() => modal.remove(), 300); }
-    if (accept === false) { document.getElementById('lb-decline-form').submit(); }
+/* Dashboard Container */
+.dash-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    width: 100%;
 }
-document.addEventListener('keydown', function(e) { if (e.key === 'Escape') dismissLeaderboardModal(false); });
-function dismissEmailConsentBanner() {
-    const banner = document.getElementById('email-consent-banner');
-    if (banner) { banner.style.opacity = '0'; setTimeout(() => banner.remove(), 300); }
-    fetch('/dashboard/dismiss-email-consent-banner', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') } });
+
+/* Smart Action Card */
+.smart-action {
+    background: linear-gradient(135deg, #00337F, #0055cc);
+    border-radius: 1rem;
+    padding: 1.25rem;
+    position: relative;
+    overflow: hidden;
+    color: #fff;
 }
-</script>
-@endsection
+
+.smart-action::before {
+    content: '';
+    position: absolute;
+    bottom: -30px;
+    right: -20px;
+    width: 120px;
+    height: 120px;
+    background: radial-gradient(circle, rgba(91, 154, 255, 0.25), transparent);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.smart-action--urgent {
+    background: linear-gradient(135deg, #7f1d1d, #991b1b);
+}
+
+.smart-action__label {
+    font-size: 0.625rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 0.375rem;
+}
+
+.smart-action__title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+
+.smart-action__desc {
+    font-size: 0.8125rem;
+    color: rgba(255, 255, 255, 0.6);
+    margin-bottom: 0.75rem;
+}
+
+.smart-action__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+    border-radius: 0.5rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background var(--transition-fast);
+}
+
+.smart-action__btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    color: #fff;
+}
+
+.smart-action__countdown {
+    font-size: 0.6875rem;
+    color: rgba(255, 255, 255, 0.5);
+    margin-top: 0.75rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Journey Stepper */
+.journey {
+    display: flex;
+    align-items: flex-start;
+    gap: 0;
+}
+
+.journey--horizontal {
+    flex-direction: row;
+    align-items: center;
+}
+
+.journey--vertical {
+    flex-direction: column;
+}
+
+.journey__step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    flex: 1;
+}
+
+.journey--vertical .journey__step {
+    flex-direction: row;
+    text-align: left;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding-bottom: 1.5rem;
+}
+
+.journey__circle {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+}
+
+.journey__circle--done {
+    background: #0055cc;
+    color: #fff;
+}
+
+.journey__circle--active {
+    background: rgba(0, 85, 204, 0.3);
+    border: 2px solid #0055cc;
+    color: #5b9aff;
+}
+
+.journey__circle--locked {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.3);
+}
+
+.light-mode .journey__circle--locked {
+    background: rgba(0, 0, 0, 0.05);
+    border-color: rgba(0, 0, 0, 0.15);
+    color: rgba(0, 0, 0, 0.3);
+}
+
+.journey__line {
+    flex: 1;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.1);
+    align-self: center;
+}
+
+.light-mode .journey__line {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.journey__line--done {
+    background: #0055cc;
+}
+
+.journey--vertical .journey__line {
+    width: 3px;
+    height: 1.5rem;
+    margin-left: 0.9375rem;
+    flex: none;
+}
+
+.journey__label {
+    font-size: 0.5625rem;
+    color: var(--text-muted);
+    margin-top: 0.375rem;
+    line-height: 1.2;
+}
+
+.journey__label--active {
+    color: #5b9aff;
+}
+
+.light-mode .journey__label--active {
+    color: #00337F;
+}
+
+.journey__pct {
+    font-size: 0.6875rem;
+    font-weight: 600;
+}
+
+/* Gamification Pills */
+.gami-pill {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 0.75rem;
+    padding: 0.75rem;
+    text-align: center;
+    flex: 1;
+}
+
+.gami-pill__value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.gami-pill__value--gold {
+    color: var(--gold);
+}
+
+.gami-pill__value--blue {
+    color: #5b9aff;
+}
+
+.light-mode .gami-pill__value--blue {
+    color: #00337F;
+}
+
+.gami-pill__label {
+    font-size: 0.5625rem;
+    color: var(--text-muted);
+    margin-top: 0.125rem;
+}
+
+.gami-pill--streak-risk {
+    animation: streak-pulse 2s ease-in-out infinite;
+    border-color: var(--gold);
+}
+
+@keyframes streak-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.3); }
+    50% { box-shadow: 0 0 12px 4px rgba(251, 191, 36, 0.15); }
+}
+
+/* Weekly Activity Bars */
+.activity-bar {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.25rem;
+    height: 80px;
+}
+
+.activity-bar__col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    height: 100%;
+    justify-content: flex-end;
+}
+
+.activity-bar__fill {
+    width: 100%;
+    border-radius: 0.25rem 0.25rem 0 0;
+    background: #0055cc;
+    min-height: 2px;
+    transition: height var(--transition-normal);
+}
+
+.activity-bar__fill--today {
+    background: #5b9aff;
+    box-shadow: 0 0 8px rgba(91, 154, 255, 0.3);
+}
+
+.activity-bar__fill--empty {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.light-mode .activity-bar__fill--empty {
+    background: rgba(0, 0, 0, 0.06);
+}
+
+.activity-bar__count {
+    font-size: 0.5625rem;
+    color: var(--text-muted);
+}
+
+.activity-bar__day {
+    font-size: 0.5625rem;
+    color: var(--text-muted);
+}
+
+.activity-bar__day--today {
+    color: #5b9aff;
+    font-weight: 600;
+}
+
+.light-mode .activity-bar__day--today {
+    color: #00337F;
+}
+
+/* Quick Link Buttons (Dashboard) */
+.dash-quick-link {
+    background: rgba(0, 51, 127, 0.15);
+    border: 1px solid rgba(0, 51, 127, 0.25);
+    border-radius: 0.75rem;
+    padding: 0.875rem 0.625rem;
+    text-align: center;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #5b9aff;
+    text-decoration: none;
+    transition: background var(--transition-fast);
+    flex: 1;
+}
+
+.dash-quick-link:hover {
+    background: rgba(0, 51, 127, 0.25);
+    color: #5b9aff;
+}
+
+.light-mode .dash-quick-link {
+    background: rgba(0, 51, 127, 0.08);
+    color: #00337F;
+}
+
+.light-mode .dash-quick-link:hover {
+    background: rgba(0, 51, 127, 0.15);
+}
+
+/* Statistics Page - Section Cards */
+.stat-section-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 0.75rem;
+    padding: 1rem;
+    transition: transform var(--transition-fast);
+}
+
+.stat-section-card:hover {
+    transform: translateY(-2px);
+}
+
+.stat-section-card__bar {
+    height: 0.375rem;
+    border-radius: 0.1875rem;
+    background: rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+}
+
+.light-mode .stat-section-card__bar {
+    background: rgba(0, 0, 0, 0.08);
+}
+
+.stat-section-card__fill--green { background: var(--success); }
+.stat-section-card__fill--blue { background: #0055cc; }
+.stat-section-card__fill--red { background: var(--error); }
+
+/* Heatmap Calendar */
+.heatmap-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.1875rem;
+}
+
+.heatmap-cell {
+    aspect-ratio: 1;
+    border-radius: 0.1875rem;
+    background: rgba(255, 255, 255, 0.06);
+    transition: transform var(--transition-fast);
+}
+
+.light-mode .heatmap-cell {
+    background: rgba(0, 0, 0, 0.06);
+}
+
+.heatmap-cell:hover {
+    transform: scale(1.2);
+}
+
+.heatmap-cell--l1 { background: rgba(0, 85, 204, 0.2); }
+.heatmap-cell--l2 { background: rgba(0, 85, 204, 0.4); }
+.heatmap-cell--l3 { background: rgba(0, 85, 204, 0.6); }
+.heatmap-cell--l4 { background: #0055cc; }
+
+/* Desktop Dashboard Layout */
+@media (min-width: 1024px) {
+    .dash-grid {
+        display: grid;
+        grid-template-columns: 1fr 320px;
+        gap: 1.5rem;
+    }
+}
 ```
 
-- [ ] **Step 3: Build + Cache clear**
+- [ ] **Step 3: Build CSS**
 
-```bash
-npm run build && php artisan view:clear && php artisan cache:clear
-```
-Erwartung: Kein Fehler. Im Browser `/dashboard` aufrufen: Status-Strip soll oben erscheinen mit Name, Level, XP-Balken, Streak (gold), Punkte, Liga.
+Run: `npm run build`
+Expected: Build succeeds without errors.
 
 - [ ] **Step 4: Commit**
 
 ```bash
-git add resources/views/dashboard.blade.php
-git commit -m "🎨: Dashboard Status-Strip"
+git add resources/css/app.css
+git commit -m "🎨: Dashboard CSS-Klassen"
 ```
 
 ---
 
-### Task 3: Alert-Banner implementieren
+### Task 2: Dashboard Route erweitern — Smart Action Logik
 
 **Files:**
-- Modify: `resources/views/dashboard.blade.php`
+- Modify: `routes/web.php` (Dashboard Route-Closure, ~lines 55-105)
 
-- [ ] **Step 1: Alert-Banner HTML nach dem Status-Strip einfügen**
+- [ ] **Step 1: Read current dashboard route**
 
-Direkt nach dem Status-Strip-`</div>`-Block und vor dem `</div>{{-- .ops-container --}}` Block einfügen:
+Read `routes/web.php` lines 55-110 to see the current route closure.
+
+- [ ] **Step 2: Add Smart Action variables to dashboard route**
+
+Inside the existing dashboard route closure, after the existing data fetching but before `return view(...)`, add Smart Action computation:
+
+```php
+// Smart Action Card Logic
+$activeLernsession = app(\App\Services\LernsessionService::class)
+    ->getActiveSessionsForUser($user)->first();
+
+$failedArr = is_string($user->exam_failed_questions)
+    ? json_decode($user->exam_failed_questions, true)
+    : ($user->exam_failed_questions ?? []);
+$hasFailedQuestions = !empty($failedArr);
+
+$progress = \App\Models\UserQuestionProgress::where('user_id', $user->id)
+    ->where('consecutive_correct', '>=', 3)->count();
+$canStartExam = ($progress >= $totalQuestions && !$hasFailedQuestions);
+$progressPercent = $totalQuestions > 0 ? round(($progress / $totalQuestions) * 100) : 0;
+
+$exams = \App\Models\ExamStatistic::where('user_id', $user->id)
+    ->where('is_passed', true)->count();
+
+// Smart Action priority
+$smartAction = null;
+if ($activeLernsession) {
+    $smartAction = [
+        'type' => 'live', 'label' => 'Live',
+        'title' => 'Aktive Session läuft',
+        'desc' => $activeLernsession->learningSession->title ?? 'Lernsession',
+        'route' => route('lernsession.live', $activeLernsession),
+        'btn' => 'Beitreten',
+    ];
+} elseif ($hasFailedQuestions) {
+    $smartAction = [
+        'type' => 'urgent', 'label' => 'Dringend',
+        'title' => count($failedArr) . ' Fehlerfragen wiederholen',
+        'desc' => 'Korrigiere deine Fehler aus der letzten Prüfung',
+        'route' => route('failed.index'),
+        'btn' => 'Wiederholen',
+    ];
+} elseif ($spacedRepetitionDue > 0) {
+    $smartAction = [
+        'type' => 'recommended', 'label' => 'Empfohlen',
+        'title' => $spacedRepetitionDue . ' Fragen zur Wiederholung fällig',
+        'desc' => 'Spaced Repetition — halte dein Wissen frisch',
+        'route' => route('practice.spaced-repetition'),
+        'btn' => 'Wiederholen',
+    ];
+} elseif ($canStartExam) {
+    $smartAction = [
+        'type' => 'ready', 'label' => 'Bereit',
+        'title' => 'Alle Fragen gemeistert — Prüfung ablegen!',
+        'desc' => $exams . '/5 Prüfungen bestanden',
+        'route' => route('exam.index'),
+        'btn' => 'Prüfung starten',
+    ];
+} else {
+    // Find best section to continue
+    $solvedCount = \App\Models\UserQuestionProgress::where('user_id', $user->id)->count();
+    if ($solvedCount > 0) {
+        $bestSection = \App\Models\UserQuestionProgress::where('user_id', $user->id)
+            ->join('questions', 'user_question_progress.question_id', '=', 'questions.id')
+            ->selectRaw('questions.lernabschnitt, COUNT(*) as cnt')
+            ->groupBy('questions.lernabschnitt')
+            ->orderByDesc('cnt')
+            ->first();
+        $sectionNum = $bestSection?->lernabschnitt ?? 1;
+        $smartAction = [
+            'type' => 'continue', 'label' => 'Weitermachen',
+            'title' => 'Weiter mit Lernabschnitt ' . $sectionNum,
+            'desc' => 'Du bist auf einem guten Weg',
+            'route' => route('practice.section', $sectionNum),
+            'btn' => 'Starten',
+        ];
+    } else {
+        $smartAction = [
+            'type' => 'start', 'label' => "Los geht's",
+            'title' => 'Starte mit deiner ersten Frage',
+            'desc' => 'Beginne deine Reise zur Grundausbildungsprüfung',
+            'route' => route('practice.all'),
+            'btn' => 'Erste Frage',
+        ];
+    }
+}
+
+// Exam countdown
+$examCountdown = null;
+if ($user->exam_date && $user->exam_date->isFuture()) {
+    $daysLeft = (int) now()->startOfDay()->diffInDays($user->exam_date, false);
+    $remaining = $totalQuestions - $progress;
+    $effectiveDays = max($daysLeft - 1, 1);
+    $dailyTarget = $remaining > 0 ? (int) ceil($remaining / $effectiveDays) : 0;
+    $todayAnswered = \App\Models\QuestionStatistic::where('user_id', $user->id)
+        ->whereDate('created_at', today())->count();
+    $examCountdown = compact('daysLeft', 'dailyTarget', 'todayAnswered');
+}
+
+// Enrolled Lehrgänge
+$enrolledLehrgaenge = $user->enrolledLehrgaenge()->get();
+
+// Streak at risk
+$streakAtRisk = $user->streak_days > 0
+    && (!$user->last_activity_date || \Carbon\Carbon::parse($user->last_activity_date)->lt(\Carbon\Carbon::today()));
+
+// Leaderboard rank
+$leaderboardRank = null;
+if ($user->leaderboard_consent) {
+    $leaderboardRank = \App\Models\User::where('leaderboard_consent', true)
+        ->where('points', '>', $user->points)->count() + 1;
+}
+
+// Mastery percent (for journey stepper)
+$masteryPercent = $totalQuestions > 0
+    ? round((\App\Models\UserQuestionProgress::where('user_id', $user->id)
+        ->where('consecutive_correct', '>=', 3)->count() / $totalQuestions) * 100)
+    : 0;
+
+// Solved questions total
+$solvedTotal = \App\Models\UserQuestionProgress::where('user_id', $user->id)->count();
+$solvedPercent = $totalQuestions > 0 ? round(($solvedTotal / $totalQuestions) * 100) : 0;
+```
+
+Update the `compact()` call to include all new variables:
+
+```php
+return view('dashboard', compact(
+    'user', 'recentExams', 'totalQuestions', 'spacedRepetitionDue',
+    'weeklyActivity', 'sectionStats', 'streakFreezeStatus',
+    'smartAction', 'examCountdown', 'enrolledLehrgaenge',
+    'streakAtRisk', 'leaderboardRank', 'progressPercent',
+    'masteryPercent', 'solvedPercent', 'solvedTotal',
+    'canStartExam', 'exams', 'hasFailedQuestions'
+));
+```
+
+- [ ] **Step 3: Clear caches and verify no errors**
+
+Run: `php artisan view:clear && php artisan cache:clear && php artisan route:list --path=dashboard`
+Expected: Route listed without errors.
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add routes/web.php
+git commit -m "⚡: Dashboard Smart Action Logik"
+```
+
+---
+
+## Chunk 2: Dashboard View — Complete Rewrite
+
+### Task 3: Dashboard View neu schreiben
+
+**Files:**
+- Rewrite: `resources/views/dashboard.blade.php`
+
+This is the largest task. The entire dashboard.blade.php is rewritten. Read the current file first to preserve any component includes (gamification notifications, leaderboard modal, etc.).
+
+- [ ] **Step 1: Read current dashboard.blade.php completely**
+
+Read the full file to identify all component includes, Alpine.js data bindings, and JavaScript that must be preserved (especially the leaderboard modal, onboarding tour references, and gamification notification triggers).
+
+- [ ] **Step 2: Write the new dashboard.blade.php**
+
+Rewrite the file with the following structure (all sections from the spec):
 
 ```blade
-    {{-- 2. ALERT-BANNER (konditionell) --}}
-    @if(session('error'))
-    <div class="alert-compact glass-error">
-        <i class="bi bi-exclamation-triangle alert-compact-icon"></i>
-        <div class="alert-compact-content">
-            <div class="alert-compact-title">{{ session('error') }}</div>
-        </div>
-        <button onclick="this.parentElement.remove()" style="background:none;border:none;cursor:pointer;color:var(--text-secondary);font-size:1.1rem;">×</button>
-    </div>
-    @endif
+@extends('layouts.app')
+@section('title', 'Dashboard')
 
-    @if($hasFailedQuestions)
-    <div class="alert-compact glass-warning">
-        <i class="bi bi-arrow-repeat alert-compact-icon"></i>
-        <div class="alert-compact-content">
-            <div class="alert-compact-title">{{ count($failedArr) }} Frage{{ count($failedArr) == 1 ? '' : 'n' }} wiederholen</div>
-            <div class="alert-compact-desc">Bevor du eine neue Prüfung starten kannst</div>
-        </div>
-        <a href="{{ route('failed.index') }}" class="btn-primary btn-sm">Los</a>
-    </div>
-    @endif
+@push('styles')
+<style>
+    /* Minimal view-specific overrides only — bulk CSS is in app.css */
+</style>
+@endpush
 
-    @if(isset($spacedRepetitionDue) && $spacedRepetitionDue > 0)
-    <div class="alert-compact glass" style="border-left: 3px solid var(--thw-blue-light);">
-        <i class="bi bi-arrow-repeat alert-compact-icon" style="color: var(--thw-blue-light);"></i>
-        <div class="alert-compact-content">
-            <div class="alert-compact-title">{{ $spacedRepetitionDue }} Wiederholung{{ $spacedRepetitionDue == 1 ? '' : 'en' }} fällig</div>
-            <div class="alert-compact-desc">Spaced Repetition: Wiederhole Fragen für langfristiges Behalten</div>
-        </div>
-        <a href="{{ route('practice.spaced-repetition') }}" class="btn-secondary btn-sm">Wiederholen</a>
-    </div>
-    @endif
+@section('content')
+<div class="dash-container">
 
-    @if($activeLernsession)
-        @php $activeLernsessionData = $activeLernsession->learningSession; @endphp
-        <div class="live-session-banner glass"
-             x-data="{ remaining: {{ $activeLernsession->getTimeRemainingSeconds() }} }"
-             x-init="setInterval(() => { if(remaining > 0) remaining-- }, 1000)">
-            <div class="live-dot"></div>
-            <div class="live-session-info">
-                <div class="live-session-title">Lernsession ist live</div>
-                <div class="live-session-meta">
-                    {{ $activeLernsessionData->title }} &middot;
-                    {{ $activeLernsession->starts_at->format('d.m.Y H:i') }} – {{ $activeLernsession->ends_at->format('H:i') }} Uhr
-                    &middot; noch <span x-text="Math.floor(remaining/3600) > 0
-                        ? Math.floor(remaining/3600) + 'h ' + Math.floor((remaining%3600)/60) + 'min'
-                        : Math.floor(remaining/60) + ' min'"></span>
-                    @if($activeLernsessionData->description)
-                        <br>{{ $activeLernsessionData->description }}
-                    @endif
+    {{-- 1. Header --}}
+    <div class="mb-4">
+        <p class="text-sm" style="color: var(--text-muted);">
+            {{ now()->hour < 12 ? 'Guten Morgen' : (now()->hour < 18 ? 'Guten Tag' : 'Guten Abend') }}
+        </p>
+        <div class="flex items-baseline gap-2">
+            <h1 class="text-xl font-bold" style="color: var(--text-primary);">
+                {{ $user->name }}
+            </h1>
+            <span class="text-sm font-semibold" style="color: #5b9aff;">
+                Level {{ $user->level }} · {{ number_format($user->points) }} XP
+            </span>
+        </div>
+    </div>
+
+    {{-- Desktop: 2-column grid --}}
+    <div class="dash-grid">
+        {{-- Main Column --}}
+        <div class="space-y-4">
+
+            {{-- 2. Smart Action Card --}}
+            <a href="{{ $smartAction['route'] }}"
+               class="smart-action block {{ $smartAction['type'] === 'urgent' ? 'smart-action--urgent' : '' }}">
+                <div class="smart-action__label">{{ $smartAction['label'] }}</div>
+                <div class="smart-action__title">{{ $smartAction['title'] }}</div>
+                <div class="smart-action__desc">{{ $smartAction['desc'] }}</div>
+                <span class="smart-action__btn">
+                    {{ $smartAction['btn'] }}
+                    <i class="bi bi-arrow-right"></i>
+                </span>
+                @if($examCountdown)
+                <div class="smart-action__countdown">
+                    Noch {{ $examCountdown['daysLeft'] }} Tage bis zur Prüfung ·
+                    {{ $examCountdown['dailyTarget'] }} Fragen/Tag empfohlen
                 </div>
-            </div>
-            <a href="{{ route('lernsession.live', $activeLernsession) }}" class="btn-primary btn-sm">Teilnehmen</a>
-        </div>
-    @endif
-
-    @if($streakAtRisk)
-    <div x-data="{ frozen: false, loading: false, async applyFreeze() { this.loading = true; try { const res = await fetch('{{ route('streak.freeze') }}', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content, 'Accept': 'application/json' }, cache: 'no-store' }); const data = await res.json(); if (data.success) this.frozen = true; } finally { this.loading = false; } } }"
-         class="alert-compact"
-         :class="frozen ? 'glass-success' : 'glass-warning'">
-        <i class="bi alert-compact-icon" :class="frozen ? 'bi-shield-check' : 'bi-fire'" :style="frozen ? 'color:#10b981;' : 'color:#f59e0b;'"></i>
-        <div class="alert-compact-content">
-            <div class="alert-compact-title" x-show="!frozen">Dein {{ $user->streak_days }}-Tage-Streak läuft ab</div>
-            <div class="alert-compact-title" x-show="frozen">Streak gesichert</div>
-            <div class="alert-compact-desc" x-show="!frozen">Noch {{ $questionsRemaining }} von {{ $streakMinQuestions }} Fragen nötig ({{ $todayQuestions }}/{{ $streakMinQuestions }} beantwortet)</div>
-            <div class="alert-compact-desc" x-show="frozen">Ein Streak Freeze schützt deinen Streak für heute.</div>
-            <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;" x-show="!frozen">
-                @if(isset($streakFreezeStatus) && $streakFreezeStatus['remaining'] > 0)
-                <button class="btn-secondary btn-sm" @click="applyFreeze()" :disabled="loading" x-text="loading ? 'Wird eingesetzt...' : 'Freeze einsetzen ({{ $streakFreezeStatus['remaining'] }})'"></button>
                 @endif
-                <a href="{{ route('practice.all') }}" class="btn-primary btn-sm">Jetzt lernen</a>
-            </div>
-        </div>
-    </div>
-    @endif
-```
+            </a>
 
-- [ ] **Step 2: Build + prüfen**
-
-```bash
-npm run build && php artisan view:clear && php artisan cache:clear
-```
-Erwartung: Seite lädt ohne Fehler. Alerts erscheinen nur wenn die jeweilige Bedingung erfüllt ist (zum Testen vorübergehend `session()->flash('error', 'Test')` in tinker setzen).
-
-- [ ] **Step 3: Commit**
-
-```bash
-git add resources/views/dashboard.blade.php
-git commit -m "🎨: Dashboard Alert-Banner"
-```
-
----
-
-## Chunk 2: Next-Step Hero Card + Stats Grid
-
-### Task 4: Next-Step Hero Card implementieren
-
-**Files:**
-- Modify: `resources/views/dashboard.blade.php`
-
-- [ ] **Step 1: Hero Card HTML nach den Alert-Bannern einfügen**
-
-```blade
-    {{-- 3. NEXT-STEP HERO CARD --}}
-    @if($hasFailedQuestions)
-    {{-- Zustand A: Fehler ausstehend --}}
-    <a href="{{ route('failed.index') }}" class="hero-card glass-blue" style="text-decoration:none;">
-        <div class="hero-content">
-            <div class="hero-label">Nächster Schritt</div>
-            <div class="hero-title">{{ count($failedArr) }} Fehler-Fragen ausstehend</div>
-            <div class="hero-desc">Wiederhole deine falsch beantworteten Fragen, bevor du eine neue Prüfung starten kannst.</div>
-            <span class="btn-primary">Fehler wiederholen</span>
-        </div>
-        <div class="hero-ring-wrap">
-            <svg width="88" height="88" viewBox="0 0 64 64">
-                <circle fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="6" cx="32" cy="32" r="26"/>
-                <circle fill="none" stroke="url(#blueGradient)" stroke-width="6" stroke-linecap="round"
-                    cx="32" cy="32" r="26"
-                    stroke-dasharray="{{ $circumference }}"
-                    stroke-dashoffset="{{ $theoryOffset }}"
-                    transform="rotate(-90 32 32)"/>
-            </svg>
-            <div class="hero-ring-text">{{ $progressPercent }}%</div>
-        </div>
-    </a>
-
-    @elseif($progressPercent < 100)
-    {{-- Zustand B: Theorie lernen --}}
-    <a href="{{ route('practice.all') }}" class="hero-card glass-blue" style="text-decoration:none;">
-        <div class="hero-content">
-            <div class="hero-label">Nächster Schritt</div>
-            <div class="hero-title">Noch {{ $total - $progress }} Fragen zu meistern</div>
-            <div class="hero-desc">Jede Frage muss {{ $threshold }}x richtig beantwortet werden. Du bist bei {{ $progressPercent }}%.</div>
-            <span class="btn-primary">Weiter lernen</span>
-        </div>
-        <div class="hero-ring-wrap">
-            <svg width="88" height="88" viewBox="0 0 64 64">
-                <circle fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="6" cx="32" cy="32" r="26"/>
-                <circle fill="none" stroke="url(#blueGradient)" stroke-width="6" stroke-linecap="round"
-                    cx="32" cy="32" r="26"
-                    stroke-dasharray="{{ $circumference }}"
-                    stroke-dashoffset="{{ $theoryOffset }}"
-                    transform="rotate(-90 32 32)"/>
-            </svg>
-            <div class="hero-ring-text">{{ $progressPercent }}%</div>
-        </div>
-    </a>
-
-    @elseif($canStartExam && $exams < 5)
-    {{-- Zustand C: Prüfung starten --}}
-    <a href="{{ route('exam.index') }}" class="hero-card glass-blue" style="text-decoration:none;">
-        <div class="hero-content">
-            <div class="hero-label">Nächster Schritt</div>
-            <div class="hero-title">Bereit für die Prüfung!</div>
-            <div class="hero-desc">{{ $exams }}/5 Prüfungen bestanden. Du kannst jetzt die nächste Prüfungssimulation starten.</div>
-            <span class="btn-primary">Prüfung starten</span>
-        </div>
-        <div class="hero-ring-wrap">
-            <svg width="88" height="88" viewBox="0 0 64 64">
-                <circle fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="6" cx="32" cy="32" r="26"/>
-                <circle fill="none" stroke="url(#goldGradient)" stroke-width="6" stroke-linecap="round"
-                    cx="32" cy="32" r="26"
-                    stroke-dasharray="{{ $circumference }}"
-                    stroke-dashoffset="{{ $examOffset }}"
-                    transform="rotate(-90 32 32)"/>
-            </svg>
-            <div class="hero-ring-text">{{ $exams }}/5</div>
-        </div>
-    </a>
-
-    @else
-    {{-- Zustand D: Abgeschlossen --}}
-    <a href="{{ route('exam.index') }}" class="hero-card glass-gold" style="text-decoration:none;">
-        <div class="hero-content">
-            <div class="hero-label">Abgeschlossen</div>
-            <div class="hero-title">5/5 Prüfungen bestanden!</div>
-            <div class="hero-desc">Du hast alle Prüfungssimulationen erfolgreich abgeschlossen. Herzlichen Glückwunsch!</div>
-            <span class="btn-primary">Prüfung wiederholen</span>
-        </div>
-        <div class="hero-ring-wrap">
-            <svg width="88" height="88" viewBox="0 0 64 64">
-                <circle fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="6" cx="32" cy="32" r="26"/>
-                <circle fill="none" stroke="url(#goldGradient)" stroke-width="6" stroke-linecap="round"
-                    cx="32" cy="32" r="26"
-                    stroke-dasharray="{{ $circumference }}"
-                    stroke-dashoffset="0"
-                    transform="rotate(-90 32 32)"/>
-            </svg>
-            <div class="hero-ring-text">5/5</div>
-        </div>
-    </a>
-    @endif
-```
-
-- [ ] **Step 2: Build + visuell prüfen**
-
-```bash
-npm run build && php artisan view:clear && php artisan cache:clear
-```
-Im Browser `/dashboard` aufrufen. Hero Card soll in THW-Blau erscheinen mit dem passenden Text je nach Lernstatus. Ring soll korrekt gefüllt sein.
-
-- [ ] **Step 3: Commit**
-
-```bash
-git add resources/views/dashboard.blade.php
-git commit -m "🎨: Dashboard Next-Step Hero Card"
-```
-
----
-
-### Task 5: Stats Grid (Theorie + Prüfung) implementieren
-
-**Files:**
-- Modify: `resources/views/dashboard.blade.php`
-
-- [ ] **Step 1: Stats Grid HTML nach der Hero Card einfügen**
-
-```blade
-    {{-- 4. STATS GRID --}}
-    @php
-        $lastExam = isset($recentExams) ? $recentExams->first() : null;
-        $lastExamPct = $lastExam ? round(($lastExam->correct_answers / 40) * 100) : null;
-        $avgExamPct  = isset($recentExams) && $recentExams->count() > 0
-            ? round($recentExams->avg(fn($e) => round(($e->correct_answers / 40) * 100)))
-            : null;
-    @endphp
-    <div class="stats-grid">
-
-        {{-- Karte links: Theorie-Fortschritt --}}
-        <div class="stat-card glass-tl">
-            <div class="stat-card-title">Theorie-Fortschritt</div>
-            <div class="stat-card-value">{{ $progressPercent }}<span style="font-size:1rem;font-weight:600;color:var(--text-secondary);">%</span></div>
-            <div class="stat-bar"><div class="stat-bar-fill" style="width:{{ $progressPercent }}%;"></div></div>
-            <div class="stat-card-sub">{{ $progress }} von {{ $total }} gemeistert</div>
-            <div class="stat-card-row">
-                <span class="stat-card-detail">Heute: {{ $todayAnswered }} Fragen</span>
-                @if(isset($spacedRepetitionDue) && $spacedRepetitionDue > 0)
-                    <span class="stat-card-detail" style="color:var(--thw-blue-light);">SR: {{ $spacedRepetitionDue }} fällig</span>
-                @endif
-            </div>
-            <div style="margin-top:0.25rem;">
-                <a href="{{ route('practice.menu') }}" class="btn-secondary btn-sm">Abschnitte üben</a>
-            </div>
-        </div>
-
-        {{-- Karte rechts: Prüfungs-Status --}}
-        <div class="stat-card glass-br">
-            <div class="stat-card-title">Prüfungs-Status</div>
-            <div class="stat-card-value">{{ $exams }}<span style="font-size:1rem;font-weight:600;color:var(--text-secondary);">/5</span></div>
-            <div class="stat-bar"><div class="stat-bar-fill" style="width:{{ min(100, $exams * 20) }}%;"></div></div>
-            <div class="stat-card-row">
-                @if($lastExamPct !== null)
-                    <span class="stat-card-detail">Letzter Versuch:
-                        <strong class="{{ $lastExamPct >= 75 ? 'gold' : '' }} stat-card-detail">{{ $lastExamPct }}%</strong>
-                    </span>
-                @endif
-                @if($avgExamPct !== null)
-                    <span class="stat-card-detail">Schnitt:
-                        <strong class="{{ $avgExamPct >= 75 ? 'gold' : '' }} stat-card-detail">{{ $avgExamPct }}%</strong>
-                    </span>
-                @endif
-            </div>
-            <div style="margin-top:0.25rem;">
-                @if($canStartExam)
-                    <a href="{{ route('exam.index') }}" class="btn-secondary btn-sm">Prüfung starten</a>
-                @elseif($hasFailedQuestions)
-                    <a href="{{ route('failed.index') }}" class="btn-ghost btn-sm">Fehler wiederholen</a>
-                @else
-                    <span class="btn-ghost btn-sm" style="opacity:0.45;cursor:not-allowed;">Erst Theorie</span>
-                @endif
-            </div>
-        </div>
-    </div>
-```
-
-- [ ] **Step 2: Build + visuell prüfen**
-
-```bash
-npm run build && php artisan view:clear && php artisan cache:clear
-```
-Beide Karten sollen nebeneinander erscheinen mit THW-Blau Top-Border. Buttons zeigen den korrekten Status.
-
-- [ ] **Step 3: Commit**
-
-```bash
-git add resources/views/dashboard.blade.php
-git commit -m "🎨: Dashboard Stats Grid"
-```
-
----
-
-## Chunk 3: Countdown + Aktivitäts-Chart
-
-### Task 6: Countdown-Strip implementieren
-
-**Files:**
-- Modify: `resources/views/dashboard.blade.php`
-
-- [ ] **Step 1: Countdown-Strip nach dem Stats Grid einfügen**
-
-```blade
-    {{-- 5. COUNTDOWN-STRIP (immer sichtbar) --}}
-    @if($daysLeft !== null && $daysLeft > 0)
-    @php
-        $todayPct  = $dailyTarget ? min(100, round(($todayAnswered / $dailyTarget) * 100)) : 0;
-        $todayDone = $dailyTarget && $todayAnswered >= $dailyTarget;
-    @endphp
-    <div class="countdown-strip glass">
-        <div class="countdown-days">
-            <div class="countdown-days-num">{{ $daysLeft }}</div>
-            <div class="countdown-days-label">Tag{{ $daysLeft != 1 ? 'e' : '' }} bis zur Prüfung</div>
-        </div>
-        @if($dailyTarget && $unmasteredCount > 0)
-        <div class="countdown-mid">
-            <div class="countdown-target-label">Tagesziel: {{ $dailyTarget }} Fragen</div>
-            <div class="countdown-mini-bar">
-                <div class="countdown-mini-fill" style="width:{{ $todayPct }}%; background: {{ $todayDone ? '#22c55e' : 'var(--thw-blue)' }};"></div>
-            </div>
-            <div class="countdown-status {{ $todayDone ? 'done' : 'pending' }}">
-                {{ $todayAnswered }}/{{ $dailyTarget }} heute
-                @if($todayDone) &check; Ziel erreicht! @endif
-            </div>
-        </div>
-        @elseif($unmasteredCount <= 0)
-        <div class="countdown-mid">
-            <div class="countdown-status done">Alle Fragen gemeistert – bereit!</div>
-        </div>
-        @endif
-    </div>
-
-    @else
-    <div class="countdown-strip no-date glass">
-        <div style="flex:1; font-size:0.875rem; color:var(--text-secondary);">
-            Prüfungsdatum eintragen für eine personalisierte Lernempfehlung
-        </div>
-        <a href="{{ route('profile') }}#exam_date" class="btn-ghost btn-sm">Datum eintragen</a>
-    </div>
-    @endif
-```
-
-- [ ] **Step 2: Build + prüfen**
-
-```bash
-npm run build && php artisan view:clear && php artisan cache:clear
-```
-Erwartung: Wenn Prüfungsdatum gesetzt → Countdown mit Tagen + Mini-Bar. Sonst → CTA-Strip mit gestrichelter Borderlinie.
-
-- [ ] **Step 3: Commit**
-
-```bash
-git add resources/views/dashboard.blade.php
-git commit -m "🎨: Dashboard Countdown-Strip"
-```
-
----
-
-### Task 7: Aktivitäts-Chart implementieren
-
-**Files:**
-- Modify: `resources/views/dashboard.blade.php`
-
-- [ ] **Step 1: Aktivitäts-Chart nach dem Countdown-Strip einfügen**
-
-```blade
-    {{-- 6. AKTIVITÄTS-CHART --}}
-    <div class="activity-section glass">
-        <div class="activity-header">
-            <span class="activity-title">Diese Woche</span>
-            <div class="activity-trend">
-                @if($thisWeekTotal > 0)
-                    <span style="font-size:0.875rem;font-weight:700;color:{{ $thisWeekRate >= 70 ? '#22c55e' : ($thisWeekRate >= 50 ? '#f59e0b' : '#ef4444') }};">{{ $thisWeekRate }}%</span>
-                    <span style="font-size:0.75rem;color:var(--text-muted);">Trefferquote</span>
-                    @if($lastWeekTotal > 0)
-                        <span style="font-size:0.7rem;font-weight:600;color:{{ $rateDiff >= 0 ? '#22c55e' : '#ef4444' }};">
-                            <i class="bi bi-{{ $rateDiff >= 0 ? 'arrow-up' : 'arrow-down' }}"></i>{{ abs($rateDiff) }}%
-                        </span>
-                    @endif
-                    <span style="font-size:0.7rem;color:var(--text-muted);">{{ $thisWeekTotal }} Fragen</span>
-                @else
-                    <span style="font-size:0.75rem;color:var(--text-muted);">Noch keine Aktivität diese Woche</span>
-                @endif
-            </div>
-        </div>
-
-        @php
-            $maxCount = isset($weeklyActivity) ? max($weeklyActivity->max('count'), 1) : 1;
-            $days = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
-            $startOfWeek = \Carbon\Carbon::now()->startOfWeek(\Carbon\Carbon::MONDAY);
-        @endphp
-
-        <div class="activity-chart-wrap">
-            @for($i = 0; $i < 7; $i++)
-                @php
-                    $dayDate = $startOfWeek->copy()->addDays($i);
-                    $dateStr = $dayDate->toDateString();
-                    $dayData = isset($weeklyActivity) ? $weeklyActivity->firstWhere('date', $dateStr) : null;
-                    $count   = $dayData ? $dayData->count : 0;
-                    $barHeight = $count > 0 ? max(8, ($count / $maxCount) * 100) : 0;
-                    $isToday = $dayDate->isToday();
-                @endphp
-                <div class="activity-bar-col">
-                    <div class="activity-bar-space">
-                        @if($count > 0)
-                            <div class="activity-bar-new {{ $isToday ? 'today' : '' }}"
-                                 style="height:{{ $barHeight }}%;"
-                                 title="{{ $count }} Fragen">
-                                <span class="activity-bar-count-new">{{ $count }}</span>
-                            </div>
-                        @else
-                            <div class="activity-bar-new empty" style="height:4px;"></div>
-                        @endif
+            {{-- 3. Journey Stepper (Mobile: horizontal) --}}
+            <div class="glass p-4 lg:hidden" style="border-radius: 0.75rem;">
+                <div class="text-xs uppercase tracking-wider mb-3" style="color: var(--text-muted);">
+                    Dein Fortschritt
+                </div>
+                <div class="journey journey--horizontal">
+                    {{-- Step 1: Fragen lernen --}}
+                    <div class="journey__step">
+                        <div class="journey__circle {{ $solvedPercent >= 100 ? 'journey__circle--done' : 'journey__circle--active' }}">
+                            @if($solvedPercent >= 100) ✓ @else 1 @endif
+                        </div>
+                        <div class="journey__label {{ $solvedPercent > 0 ? 'journey__label--active' : '' }}">
+                            Fragen lernen
+                            <div class="journey__pct">{{ $solvedPercent }}%</div>
+                        </div>
                     </div>
-                    <span class="activity-day-label {{ $isToday ? 'today' : '' }}">{{ $days[$i] }}</span>
+                    <div class="journey__line {{ $solvedPercent >= 100 ? 'journey__line--done' : '' }}"
+                         style="background: linear-gradient(90deg, #0055cc {{ $solvedPercent }}%, rgba(255,255,255,0.1) {{ $solvedPercent }}%);"></div>
+
+                    {{-- Step 2: Alle meistern --}}
+                    <div class="journey__step">
+                        <div class="journey__circle {{ $masteryPercent >= 100 ? 'journey__circle--done' : ($masteryPercent > 0 ? 'journey__circle--active' : 'journey__circle--locked') }}">
+                            @if($masteryPercent >= 100) ✓ @else 2 @endif
+                        </div>
+                        <div class="journey__label {{ $masteryPercent > 0 ? 'journey__label--active' : '' }}">
+                            Alle meistern
+                            <div class="journey__pct">{{ $masteryPercent }}%</div>
+                        </div>
+                    </div>
+                    <div class="journey__line {{ $masteryPercent >= 100 ? 'journey__line--done' : '' }}"></div>
+
+                    {{-- Step 3: Prüfung --}}
+                    <div class="journey__step">
+                        <div class="journey__circle {{ $exams >= 5 ? 'journey__circle--done' : ($canStartExam ? 'journey__circle--active' : 'journey__circle--locked') }}">
+                            @if($exams >= 5) ✓ @else 3 @endif
+                        </div>
+                        <div class="journey__label {{ $canStartExam ? 'journey__label--active' : '' }}">
+                            Prüfung
+                            <div class="journey__pct">
+                                @if($exams >= 5) Bestanden
+                                @elseif($canStartExam) Bereit
+                                @else Gesperrt
+                                @endif
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            @endfor
-        </div>
-    </div>
-```
+            </div>
 
-- [ ] **Step 2: Build + prüfen**
-
-```bash
-npm run build && php artisan view:clear && php artisan cache:clear
-```
-Balken sollen in THW-Blau erscheinen (nicht Gold wie vorher). Heutiger Balken = helleres Blau mit leichtem Glow.
-
-- [ ] **Step 3: Commit**
-
-```bash
-git add resources/views/dashboard.blade.php
-git commit -m "🎨: Dashboard Aktivitäts-Chart"
-```
-
----
-
-## Chunk 4: Heatmap + Spaced Rep + Ausbilder + Lehrgänge
-
-### Task 8: Heatmap + Spaced Rep implementieren
-
-**Files:**
-- Modify: `resources/views/dashboard.blade.php`
-
-- [ ] **Step 1: Heatmap-Zeile nach dem Aktivitäts-Chart einfügen**
-
-```blade
-    {{-- 7. HEATMAP + SPACED REP --}}
-    <div class="heatmap-row">
-
-        {{-- Heatmap 2/3 --}}
-        <div class="heatmap-card glass-br">
-            <div style="font-size:0.6rem;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);font-weight:700;margin-bottom:0.75rem;">Stärken & Schwächen</div>
-            <div class="heatmap-grid-new">
-                @for($s = 1; $s <= 10; $s++)
-                    @php
-                        $sData    = isset($sectionStats) ? $sectionStats->firstWhere('lernabschnitt', $s) : null;
-                        $sTotal   = $sData ? $sData->total : 0;
-                        $sCorrect = $sData ? $sData->correct : 0;
-                        $sPct     = $sTotal > 0 ? round(($sCorrect / $sTotal) * 100) : -1;
-                        $sClass   = $sPct < 0 ? 'none' : ($sPct >= 75 ? 'strong' : ($sPct >= 50 ? 'medium' : 'weak'));
-                    @endphp
-                    <a href="{{ route('practice.section', $s) }}"
-                       class="heatmap-cell-new {{ $sClass }}"
-                       title="Abschnitt {{ $s }}: {{ $sPct >= 0 ? $sPct.'% richtig ('.$sTotal.' Fragen)' : 'Noch nicht geübt' }}"
-                       style="text-decoration:none;">
-                        <span class="heatmap-cell-num">{{ $s }}</span>
-                        @if($sPct >= 0)
-                            <span class="heatmap-cell-pct">{{ $sPct }}%</span>
-                        @endif
+            {{-- 5. Wochenaktivität --}}
+            <div class="glass p-4" style="border-radius: 0.75rem;">
+                <div class="flex justify-between items-center mb-3">
+                    <span class="text-xs uppercase tracking-wider" style="color: var(--text-muted);">Diese Woche</span>
+                    <a href="{{ route('statistics') }}" class="text-xs font-medium" style="color: #5b9aff; text-decoration: none;">
+                        Statistiken →
                     </a>
-                @endfor
+                </div>
+                @php
+                    $days = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
+                    $weeklyCollection = collect($weeklyActivity);
+                    $maxCount = $weeklyCollection->max('count') ?: 1;
+                @endphp
+                <div class="activity-bar">
+                    @for($d = 0; $d < 7; $d++)
+                        @php
+                            $date = now()->startOfWeek()->addDays($d)->format('Y-m-d');
+                            $dayData = $weeklyCollection->firstWhere('date', $date);
+                            $count = $dayData->count ?? 0;
+                            $heightPct = $maxCount > 0 ? max(($count / $maxCount) * 100, 3) : 3;
+                            $isToday = $date === now()->format('Y-m-d');
+                        @endphp
+                        <div class="activity-bar__col">
+                            <span class="activity-bar__count">{{ $count ?: '' }}</span>
+                            <div class="activity-bar__fill {{ $isToday ? 'activity-bar__fill--today' : ($count === 0 ? 'activity-bar__fill--empty' : '') }}"
+                                 style="height: {{ $count > 0 ? $heightPct : 8 }}%;"></div>
+                            <span class="activity-bar__day {{ $isToday ? 'activity-bar__day--today' : '' }}">
+                                {{ $days[$d] }}
+                            </span>
+                        </div>
+                    @endfor
+                </div>
             </div>
-            <div class="heatmap-legend-new">
-                <div class="heatmap-legend-item-new"><span class="heatmap-legend-dot-new" style="background:rgba(239,68,68,0.5);"></span>&lt; 50%</div>
-                <div class="heatmap-legend-item-new"><span class="heatmap-legend-dot-new" style="background:rgba(245,158,11,0.5);"></span>50–75%</div>
-                <div class="heatmap-legend-item-new"><span class="heatmap-legend-dot-new" style="background:rgba(34,197,94,0.5);"></span>&gt; 75%</div>
-                <div class="heatmap-legend-item-new"><span class="heatmap-legend-dot-new" style="background:rgba(0,51,127,0.2);"></span>Noch nicht</div>
+
+            {{-- 6. Lehrgänge --}}
+            <div class="glass p-4" style="border-radius: 0.75rem;">
+                <div class="flex justify-between items-center mb-3">
+                    <span class="text-xs uppercase tracking-wider" style="color: var(--text-muted);">Lehrgänge</span>
+                    <a href="{{ route('lehrgaenge.index') }}" class="text-xs font-medium" style="color: #5b9aff; text-decoration: none;">
+                        Alle anzeigen →
+                    </a>
+                </div>
+                @if($enrolledLehrgaenge->isEmpty())
+                    <div class="text-center py-4">
+                        <p class="text-sm mb-2" style="color: var(--text-muted);">
+                            Entdecke Lehrgänge für strukturiertes Lernen
+                        </p>
+                        <a href="{{ route('lehrgaenge.index') }}" class="btn-secondary btn-sm">Lehrgänge entdecken</a>
+                    </div>
+                @else
+                    <div class="space-y-2">
+                        @foreach($enrolledLehrgaenge->take(3) as $lehrgang)
+                            @php
+                                $lgTotal = $lehrgang->questions()->count();
+                                $lgSolved = $lgTotal > 0
+                                    ? \App\Models\UserQuestionProgress::where('user_id', $user->id)
+                                        ->whereIn('question_id', $lehrgang->questions()->pluck('question_id'))
+                                        ->where('consecutive_correct', '>=', 3)->count()
+                                    : 0;
+                                $lgPct = $lgTotal > 0 ? round(($lgSolved / $lgTotal) * 100) : 0;
+                            @endphp
+                            <a href="{{ route('lehrgaenge.practice', $lehrgang->slug) }}"
+                               class="block p-3 rounded-lg hover:opacity-80 transition-opacity"
+                               style="background: var(--glass-bg); border: 1px solid var(--glass-border); text-decoration: none;">
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-sm font-medium" style="color: var(--text-primary);">
+                                        {{ $lehrgang->lehrgang }}
+                                    </span>
+                                    <span class="text-xs font-semibold" style="color: #5b9aff;">{{ $lgPct }}%</span>
+                                </div>
+                                <div class="h-1 rounded-full" style="background: rgba(255,255,255,0.1);">
+                                    <div class="h-full rounded-full" style="background: #0055cc; width: {{ $lgPct }}%;"></div>
+                                </div>
+                            </a>
+                        @endforeach
+                    </div>
+                @endif
             </div>
+
+            {{-- Ausbilder-Karte (konditionell) --}}
+            @php
+                $userOV = $user->ortsverbande->first();
+                $isAusbilder = $userOV && $userOV->members()->where('user_id', $user->id)->first()?->pivot->role === 'ausbildungsbeauftragter';
+            @endphp
+            @if($isAusbilder && $userOV)
+                <div class="glass-blue p-4" style="border-radius: 0.75rem;">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <span class="badge-thw text-xs mb-1">Ausbilder</span>
+                            <p class="text-sm font-medium mt-1" style="color: var(--text-primary);">
+                                {{ $userOV->name }}
+                            </p>
+                        </div>
+                        <a href="{{ route('ortsverband.index') }}" class="btn-secondary btn-sm">Verwalten</a>
+                    </div>
+                </div>
+            @endif
         </div>
 
-        {{-- Spaced Rep 1/3 --}}
-        <div class="spaced-card glass">
-            <div style="font-size:0.6rem;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);font-weight:700;">Wiederholungen</div>
-            @if(isset($spacedRepetitionDue) && $spacedRepetitionDue > 0)
-                <div class="spaced-count">{{ $spacedRepetitionDue }}</div>
-                <div style="font-size:0.8rem;color:var(--text-secondary);text-align:center;line-height:1.4;">Fragen fällig</div>
-                <div style="font-size:0.7rem;color:var(--text-muted);text-align:center;line-height:1.4;">Spaced Repetition für langfristiges Behalten</div>
-                <a href="{{ route('practice.spaced-repetition') }}" class="btn-secondary btn-sm" style="margin-top:0.5rem;">Wiederholen</a>
-            @else
-                <div class="spaced-count zero"><i class="bi bi-check-lg" style="font-size:2rem;"></i></div>
-                <div style="font-size:0.875rem;font-weight:600;color:#22c55e;">Alles aktuell</div>
-                <div style="font-size:0.75rem;color:var(--text-muted);text-align:center;">Keine Wiederholungen fällig</div>
+        {{-- Sidebar (Desktop only) --}}
+        <div class="hidden lg:block space-y-4">
+
+            {{-- Journey Stepper (vertical on desktop) --}}
+            <div class="glass p-4" style="border-radius: 0.75rem;">
+                <div class="text-xs uppercase tracking-wider mb-3" style="color: var(--text-muted);">
+                    Dein Weg zur Prüfung
+                </div>
+                <div class="journey journey--vertical">
+                    {{-- Step 1 --}}
+                    <div class="journey__step">
+                        <div class="journey__circle {{ $solvedPercent >= 100 ? 'journey__circle--done' : 'journey__circle--active' }}">
+                            @if($solvedPercent >= 100) ✓ @else 1 @endif
+                        </div>
+                        <div>
+                            <div class="text-sm font-medium" style="color: {{ $solvedPercent > 0 ? '#5b9aff' : 'var(--text-muted)' }};">
+                                Fragen lernen
+                            </div>
+                            <div class="text-xs mt-1" style="color: var(--text-muted);">{{ $solvedPercent }}% gelöst</div>
+                            <div class="h-1 rounded-full mt-1" style="background: rgba(255,255,255,0.1); width: 100%;">
+                                <div class="h-full rounded-full" style="background: #0055cc; width: {{ $solvedPercent }}%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="journey__line {{ $solvedPercent >= 100 ? 'journey__line--done' : '' }}"></div>
+
+                    {{-- Step 2 --}}
+                    <div class="journey__step">
+                        <div class="journey__circle {{ $masteryPercent >= 100 ? 'journey__circle--done' : ($masteryPercent > 0 ? 'journey__circle--active' : 'journey__circle--locked') }}">
+                            @if($masteryPercent >= 100) ✓ @else 2 @endif
+                        </div>
+                        <div>
+                            <div class="text-sm font-medium" style="color: {{ $masteryPercent > 0 ? '#5b9aff' : 'var(--text-muted)' }};">
+                                Alle meistern
+                            </div>
+                            <div class="text-xs mt-1" style="color: var(--text-muted);">{{ $masteryPercent }}% gemeistert</div>
+                            <div class="h-1 rounded-full mt-1" style="background: rgba(255,255,255,0.1); width: 100%;">
+                                <div class="h-full rounded-full" style="background: #0055cc; width: {{ $masteryPercent }}%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="journey__line {{ $masteryPercent >= 100 ? 'journey__line--done' : '' }}"></div>
+
+                    {{-- Step 3 --}}
+                    <div class="journey__step">
+                        <div class="journey__circle {{ $exams >= 5 ? 'journey__circle--done' : ($canStartExam ? 'journey__circle--active' : 'journey__circle--locked') }}">
+                            @if($exams >= 5) ✓ @else 3 @endif
+                        </div>
+                        <div>
+                            <div class="text-sm font-medium" style="color: {{ $canStartExam ? '#5b9aff' : 'var(--text-muted)' }};">
+                                Prüfung
+                            </div>
+                            <div class="text-xs mt-1" style="color: var(--text-muted);">
+                                @if($exams >= 5) {{ $exams }}/5 bestanden
+                                @elseif($canStartExam) Bereit
+                                @else Erst alle Fragen meistern
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- 4. Gamification Row --}}
+            <div class="flex gap-2">
+                <div class="gami-pill {{ $streakAtRisk ? 'gami-pill--streak-risk' : '' }}"
+                     style="{{ $user->streak_days > 0 ? 'background: rgba(251,191,36,0.08); border-color: rgba(251,191,36,0.15);' : '' }}">
+                    <div class="gami-pill__value gami-pill__value--gold">{{ $user->streak_days }}</div>
+                    <div class="gami-pill__label">Tage Streak</div>
+                </div>
+                <div class="gami-pill">
+                    <div class="gami-pill__value">{{ $solvedTotal }}</div>
+                    <div class="gami-pill__label">Gelöst</div>
+                </div>
+                <div class="gami-pill">
+                    <div class="gami-pill__value gami-pill__value--blue">
+                        {{ $leaderboardRank ? '#' . $leaderboardRank : '—' }}
+                    </div>
+                    <div class="gami-pill__label">Ranking</div>
+                </div>
+            </div>
+
+            {{-- Exam Countdown (if set) --}}
+            @if($examCountdown)
+            <div class="glass p-3" style="border-radius: 0.75rem; border-left: 3px solid #0055cc;">
+                <div class="text-xs uppercase tracking-wider mb-2" style="color: var(--text-muted);">Prüfungscountdown</div>
+                <div class="text-2xl font-bold" style="color: var(--text-primary);">{{ $examCountdown['daysLeft'] }} Tage</div>
+                <div class="text-xs mt-1" style="color: var(--text-muted);">
+                    Heute: {{ $examCountdown['todayAnswered'] }}/{{ $examCountdown['dailyTarget'] }} Fragen
+                </div>
+                <div class="h-1 rounded-full mt-2" style="background: rgba(255,255,255,0.1);">
+                    <div class="h-full rounded-full" style="background: #0055cc; width: {{ $examCountdown['dailyTarget'] > 0 ? min(100, round($examCountdown['todayAnswered'] / $examCountdown['dailyTarget'] * 100)) : 0 }}%;"></div>
+                </div>
+            </div>
             @endif
         </div>
     </div>
-```
 
-- [ ] **Step 2: Build + prüfen**
-
-```bash
-npm run build && php artisan view:clear && php artisan cache:clear
-```
-Heatmap zeigt 10 farbige Zellen (2/3 der Breite), Spaced Rep Widget rechts daneben.
-
-- [ ] **Step 3: Commit**
-
-```bash
-git add resources/views/dashboard.blade.php
-git commit -m "🎨: Dashboard Heatmap und Spaced Rep"
-```
-
----
-
-### Task 9: Ausbilder-Karte + Lehrgänge Grid + Leaderboard-Modal implementieren
-
-**Files:**
-- Modify: `resources/views/dashboard.blade.php`
-
-- [ ] **Step 1: Ausbilder-Karte nach Heatmap-Zeile einfügen**
-
-```blade
-    {{-- 8. AUSBILDER-KARTE (konditionell) --}}
-    @if($isAusbilder && $userOV)
-    <div class="ausbilder-card glass-blue">
-        <div>
-            <span class="badge-thw" style="display:inline-block;margin-bottom:0.4rem;">Ausbilder</span>
-            <div style="font-size:1.1rem;font-weight:700;color:var(--text-primary);">{{ $userOV->name }}</div>
-        </div>
-        <div class="ausbilder-stats">
-            <div>
-                <div class="ausbilder-stat-val">{{ $ovStats['members'] }}</div>
-                <div class="ausbilder-stat-label">Mitglieder</div>
+    {{-- Mobile: Gamification Row + Quick Links --}}
+    <div class="lg:hidden space-y-4 mt-4">
+        {{-- Gamification Row --}}
+        <div class="flex gap-2">
+            <div class="gami-pill {{ $streakAtRisk ? 'gami-pill--streak-risk' : '' }}"
+                 style="{{ $user->streak_days > 0 ? 'background: rgba(251,191,36,0.08); border-color: rgba(251,191,36,0.15);' : '' }}">
+                <div class="gami-pill__value gami-pill__value--gold">{{ $user->streak_days }}</div>
+                <div class="gami-pill__label">Tage Streak</div>
             </div>
-            <div>
-                <div class="ausbilder-stat-val" style="color:{{ $ovStats['avg_progress'] >= 50 ? '#22c55e' : '#f59e0b' }};">{{ $ovStats['avg_progress'] }}%</div>
-                <div class="ausbilder-stat-label">Ø Fortschritt</div>
+            <div class="gami-pill">
+                <div class="gami-pill__value">{{ $solvedTotal }}</div>
+                <div class="gami-pill__label">Gelöst</div>
+            </div>
+            <div class="gami-pill">
+                <div class="gami-pill__value gami-pill__value--blue">
+                    {{ $leaderboardRank ? '#' . $leaderboardRank : '—' }}
+                </div>
+                <div class="gami-pill__label">Ranking</div>
             </div>
         </div>
-        <div style="margin-left:auto;">
-            <a href="{{ route('ortsverband.index') }}" class="btn-secondary btn-sm">Verwalten</a>
+
+        {{-- Quick Links --}}
+        <div class="flex gap-2">
+            <a href="{{ route('practice.menu') }}" class="dash-quick-link">Üben</a>
+            <a href="{{ route('lehrgaenge.index') }}" class="dash-quick-link">Lehrgänge</a>
+            <a href="{{ route('shop.index') }}" class="dash-quick-link">Shop</a>
         </div>
     </div>
-    @endif
-```
 
-- [ ] **Step 2: Lehrgänge & Lernpools Grid einfügen**
-
-```blade
-    {{-- 9. LEHRGÄNGE & LERNPOOLS --}}
-    <div>
-        <div class="kurs-section-header">
-            <span class="kurs-section-title">Lehrgänge & Lernpools</span>
-            <a href="{{ route('lehrgaenge.index') }}" style="font-size:0.75rem;color:var(--thw-blue-light);text-decoration:none;font-weight:600;">Alle anzeigen</a>
-        </div>
-
-        @if($enrolledLehrgaenge->isNotEmpty() || $enrolledLernpools->isNotEmpty())
-        <div class="kurs-grid">
-            {{-- Lehrgänge (max 2) --}}
-            @foreach($enrolledLehrgaenge->take(2) as $lehrgang)
-                @php
-                    $lProgress = \App\Models\UserLehrgangProgress::where('user_id', Auth::id())
-                        ->whereHas('lehrgangQuestion', fn($q) => $q->where('lehrgang_id', $lehrgang->id))
-                        ->get();
-                    $lTotal = \App\Models\LehrgangQuestion::where('lehrgang_id', $lehrgang->id)->count();
-                    $lPoints = 0;
-                    foreach ($lProgress as $lp) { $lPoints += min($lp->consecutive_correct, \App\Models\UserQuestionProgress::MASTERY_THRESHOLD); }
-                    $lMax = $lTotal * \App\Models\UserQuestionProgress::MASTERY_THRESHOLD;
-                    $lPct = $lMax > 0 ? round(($lPoints / $lMax) * 100) : 0;
-                    $lDone = $lPct == 100 && $lProgress->count() > 0;
-                @endphp
-                <div class="kurs-card glass">
-                    <div class="kurs-card-title">{{ $lehrgang->lehrgang }}</div>
-                    <div class="kurs-card-desc">{{ $lehrgang->beschreibung }}</div>
-                    <div style="display:flex;align-items:center;gap:0.5rem;">
-                        <div class="kurs-bar" style="flex:1;"><div class="kurs-bar-fill {{ $lDone ? 'done' : '' }}" style="width:{{ $lPct }}%;"></div></div>
-                        <span class="kurs-percent">{{ $lPct }}%</span>
-                    </div>
-                    @if($lDone)
-                        <span class="btn-ghost btn-sm" style="background:rgba(34,197,94,0.15);color:#22c55e;border-color:rgba(34,197,94,0.25);">Fertig</span>
-                    @else
-                        <a href="{{ route('lehrgaenge.practice', $lehrgang->slug) }}" class="btn-primary btn-sm">Weiter</a>
-                    @endif
-                </div>
-            @endforeach
-
-            {{-- Lernpools (max 1) --}}
-            @foreach($enrolledLernpools->take(1) as $lernpool)
-                @php
-                    $lpSolved = auth()->user()->lernpoolProgress()
-                        ->whereHas('question', fn($q) => $q->where('lernpool_id', $lernpool->id))
-                        ->where('solved', true)->count();
-                    $lpTotal = $lernpool->getQuestionCount();
-                    $lpPct   = $lpTotal > 0 ? round(($lpSolved / $lpTotal) * 100) : 0;
-                    $lpDone  = $lpPct == 100 && $lpSolved > 0;
-                @endphp
-                <div class="kurs-card glass">
-                    <div style="display:flex;align-items:center;gap:0.4rem;margin-bottom:0.1rem;">
-                        <div class="kurs-card-title" style="margin:0;">{{ $lernpool->name }}</div>
-                        <span class="badge-thw" style="font-size:0.55rem;padding:0.1rem 0.35rem;">Lernpool</span>
-                    </div>
-                    <div class="kurs-card-desc">{{ $lernpool->description }}</div>
-                    <div style="display:flex;align-items:center;gap:0.5rem;">
-                        <div class="kurs-bar" style="flex:1;"><div class="kurs-bar-fill {{ $lpDone ? 'done' : '' }}" style="width:{{ $lpPct }}%;"></div></div>
-                        <span class="kurs-percent">{{ $lpPct }}%</span>
-                    </div>
-                    @if($lpDone)
-                        <span class="btn-ghost btn-sm" style="background:rgba(34,197,94,0.15);color:#22c55e;border-color:rgba(34,197,94,0.25);">Gemeistert</span>
-                    @else
-                        <a href="{{ route('ortsverband.lernpools.practice', [$lernpool->ortsverband_id, $lernpool->id]) }}" class="btn-primary btn-sm">Weiter</a>
-                    @endif
-                </div>
-            @endforeach
-        </div>
-
-        @else
-        {{-- Leer-Zustand --}}
-        <div class="glass" style="text-align:center;padding:2rem;">
-            <div style="font-size:0.875rem;color:var(--text-muted);margin-bottom:0.75rem;">Keine Lehrgänge oder Lernpools eingeschrieben</div>
-            <a href="{{ route('lehrgaenge.index') }}" class="btn-secondary btn-sm">Lehrgänge entdecken</a>
-        </div>
-        @endif
-    </div>
-```
-
-- [ ] **Step 3: Leaderboard-Modal vor schließendem `</div>{{-- .ops-container --}}` einfügen**
-
-```blade
-</div>{{-- .ops-container --}}
-
-{{-- 10. LEADERBOARD-MODAL --}}
-@if(!$user->leaderboard_banner_dismissed && !$user->leaderboard_consent)
-<div class="leaderboard-modal-overlay" id="leaderboard-modal">
-    <div class="leaderboard-modal">
-        <div class="leaderboard-modal-content">
-            <button class="leaderboard-modal-close" onclick="dismissLeaderboardModal(false)">×</button>
-            <div style="text-align:center;margin-bottom:1.5rem;">
-                <div style="display:inline-block;background:rgba(255,255,255,0.2);border-radius:1rem;padding:1rem;margin-bottom:1rem;">
-                    <i class="bi bi-bar-chart" style="font-size:2.5rem;color:white;"></i>
-                </div>
-                <h2 style="font-size:1.5rem;font-weight:800;color:white;margin-bottom:0.5rem;">Leaderboard</h2>
-                <p style="color:white;font-size:0.95rem;opacity:0.9;">Vergleiche dich mit anderen</p>
-            </div>
-            <div style="background:rgba(255,255,255,0.15);border-radius:0.75rem;padding:1rem;margin-bottom:1.5rem;">
-                <p style="color:white;font-size:0.85rem;margin-bottom:0.5rem;"><strong>Name & Punkte</strong> werden angezeigt</p>
-                <p style="color:white;font-size:0.85rem;margin:0;"><strong>Jederzeit änderbar</strong> in den Einstellungen</p>
-            </div>
-            <div style="display:flex;gap:0.75rem;">
-                <form action="{{ route('profile.dismiss.leaderboard.banner') }}" method="POST" id="lb-decline-form" style="flex:1;">
-                    @csrf
-                    <input type="hidden" name="accept" value="0">
-                    <button type="submit" style="width:100%;background:rgba(255,255,255,0.2);color:white;font-weight:600;padding:0.75rem;border-radius:0.5rem;border:none;cursor:pointer;">Nein</button>
-                </form>
-                <form action="{{ route('profile.dismiss.leaderboard.banner') }}" method="POST" style="flex:1;">
-                    @csrf
-                    <input type="hidden" name="accept" value="1">
-                    <button type="submit" style="width:100%;background:white;color:#d97706;font-weight:700;padding:0.75rem;border-radius:0.5rem;border:none;cursor:pointer;">Ja, mitmachen</button>
-                </form>
-            </div>
-        </div>
-    </div>
 </div>
-@endif
+
+{{-- Preserve existing: Leaderboard Modal --}}
+{{-- Copy the leaderboard modal code from the old dashboard verbatim --}}
+
+@endsection
+
+@push('scripts')
+<script>
+    // Preserve any existing dashboard JS (leaderboard dismiss, etc.)
+</script>
+@endpush
 ```
 
-> **Hinweis:** Das `</div>{{-- .ops-container --}}` aus Task 2 muss entfernt und durch diesen Block ersetzt werden. Die Datei endet jetzt mit dem Leaderboard-Modal, dann den Script-Tags, dann `@endsection`.
+**Important implementation notes:**
+- Read the old `dashboard.blade.php` completely before rewriting
+- Copy the leaderboard modal section verbatim from the old file
+- Copy any Alpine.js data bindings for the leaderboard dismiss logic
+- Preserve `@include('components.onboarding-tour')` if it exists
+- The `$weeklyActivity` array structure needs to be checked — adapt the `day_of_week` key to match what the route provides
+- The `$user->ortsverbande` relation (note: no umlaut in method name) is used throughout
+- Lehrgang progress is computed inline (query `LehrgangQuestion` count vs `UserQuestionProgress` mastered count) — no helper method exists on User
 
-- [ ] **Step 4: Build + vollständiger visueller Test**
+- [ ] **Step 3: Build and clear caches**
 
-```bash
-npm run build && php artisan view:clear && php artisan cache:clear
-```
+Run: `npm run build && php artisan view:clear && php artisan cache:clear`
+Expected: Build succeeds. No errors.
 
-Im Browser prüfen:
-- `/dashboard` lädt ohne PHP-Fehler
-- Alle 9 Sektionen sichtbar (je nach Nutzerstatus)
-- Dark Mode: alle Karten korrekt transparent/gläsern
-- Light Mode (mit `localStorage.setItem('theme','light')` in Konsole): Borders und Balken sichtbar
-- Mobil (< 768px): alles eingespaltig, kein horizontales Scrollen
+- [ ] **Step 4: Test in browser**
+
+Open `/dashboard` in browser. Verify:
+- Header shows greeting + name + level
+- Smart Action Card renders with correct priority
+- Journey Stepper shows on mobile (horizontal) and desktop (vertical in sidebar)
+- Gamification pills show streak, solved count, ranking
+- Weekly activity chart renders
+- Lehrgänge section shows enrolled courses or empty state
+- Quick links visible on mobile, hidden on desktop
 
 - [ ] **Step 5: Commit**
 
 ```bash
 git add resources/views/dashboard.blade.php
-git commit -m "🎨: Dashboard Lehrgänge, Ausbilder, Leaderboard-Modal"
+git commit -m "🎨: Dashboard Modulares Redesign"
 ```
 
 ---
 
-## Chunk 5: Abschluss & Qualitätsprüfung
+## Chunk 3: Statistics Page
 
-### Task 10: Finale Prüfung und Bereinigung
+### Task 4: StatisticsController erstellen
 
 **Files:**
-- Modify: `resources/views/dashboard.blade.php` (ggf. kleine Fixes)
+- Create: `app/Http/Controllers/StatisticsController.php`
 
-- [ ] **Step 1: Alle Zustände der Hero Card manuell durchgehen**
-
-Prüfe in tinker / DB direkt:
-
-```bash
-php artisan tinker
-```
+- [ ] **Step 1: Create StatisticsController**
 
 ```php
-// Zustand B simulieren: Fortschritt < 100%
-// (Normalzustand für neue User – kein Eingriff nötig)
+<?php
 
-// Prüfe ob $canStartExam korrekt berechnet wird
-$user = \App\Models\User::find(YOUR_USER_ID);
-$progress = \App\Models\UserQuestionProgress::countMastered($user->id);
-$total = \App\Models\Question::count();
-$failedArr = is_array($user->exam_failed_questions) ? $user->exam_failed_questions : json_decode($user->exam_failed_questions, true) ?? [];
-$canStart = $progress >= $total && count($failedArr) === 0;
-echo "Progress: $progress/$total, CanStart: " . ($canStart ? 'YES' : 'NO');
+namespace App\Http\Controllers;
+
+use App\Models\ExamStatistic;
+use App\Models\Question;
+use App\Models\QuestionStatistic;
+use App\Models\UserQuestionProgress;
+use Illuminate\Support\Facades\Cache;
+
+class StatisticsController extends Controller
+{
+    public function index()
+    {
+        $user = auth()->user();
+
+        $totalQuestions = Cache::remember('total_questions_count', 3600, fn () => Question::count());
+
+        // Overall progress
+        $solvedTotal = UserQuestionProgress::where('user_id', $user->id)->count();
+        $masteredTotal = UserQuestionProgress::where('user_id', $user->id)
+            ->where('consecutive_correct', '>=', 3)->count();
+        $progressPercent = $totalQuestions > 0 ? round(($solvedTotal / $totalQuestions) * 100) : 0;
+        $masteryPercent = $totalQuestions > 0 ? round(($masteredTotal / $totalQuestions) * 100) : 0;
+
+        // Hit rate
+        $totalAnswered = QuestionStatistic::where('user_id', $user->id)->count();
+        $totalCorrect = QuestionStatistic::where('user_id', $user->id)->where('is_correct', true)->count();
+        $hitRate = $totalAnswered > 0 ? round(($totalCorrect / $totalAnswered) * 100) : 0;
+
+        // Section analysis
+        $sectionStats = [];
+        for ($s = 1; $s <= 10; $s++) {
+            $sectionQuestions = Question::where('lernabschnitt', $s)->count();
+            $sectionMastered = UserQuestionProgress::where('user_id', $user->id)
+                ->whereHas('question', fn ($q) => $q->where('lernabschnitt', $s))
+                ->where('consecutive_correct', '>=', 3)->count();
+            $sectionAnswered = QuestionStatistic::where('user_id', $user->id)
+                ->whereHas('question', fn ($q) => $q->where('lernabschnitt', $s))->count();
+            $sectionCorrect = QuestionStatistic::where('user_id', $user->id)
+                ->where('is_correct', true)
+                ->whereHas('question', fn ($q) => $q->where('lernabschnitt', $s))->count();
+
+            $sectionStats[] = [
+                'section' => $s,
+                'total' => $sectionQuestions,
+                'mastered' => $sectionMastered,
+                'percent' => $sectionQuestions > 0 ? round(($sectionMastered / $sectionQuestions) * 100) : 0,
+                'hit_rate' => $sectionAnswered > 0 ? round(($sectionCorrect / $sectionAnswered) * 100) : 0,
+            ];
+        }
+
+        // Activity (last 30 days)
+        $activity = QuestionStatistic::where('user_id', $user->id)
+            ->where('created_at', '>=', now()->subDays(30))
+            ->selectRaw('DATE(created_at) as date, COUNT(*) as count, SUM(is_correct) as correct')
+            ->groupBy('date')
+            ->orderBy('date')
+            ->get()
+            ->keyBy('date');
+
+        // Weekly activity (last 7 days)
+        $weeklyActivity = QuestionStatistic::where('user_id', $user->id)
+            ->where('created_at', '>=', now()->subDays(7))
+            ->selectRaw('DATE(created_at) as date, COUNT(*) as count, SUM(is_correct) as correct')
+            ->groupBy('date')
+            ->orderBy('date')
+            ->get();
+
+        // Exam history
+        $examHistory = ExamStatistic::where('user_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // Spaced repetition stats
+        $srStats = app(\App\Services\SpacedRepetitionService::class)->getStats($user->id);
+
+        // SR interval distribution
+        $intervalDistribution = UserQuestionProgress::where('user_id', $user->id)
+            ->where('review_interval', '>', 0)
+            ->selectRaw('review_interval, COUNT(*) as count')
+            ->groupBy('review_interval')
+            ->orderBy('review_interval')
+            ->get();
+
+        return view('statistics', compact(
+            'totalQuestions', 'solvedTotal', 'masteredTotal',
+            'progressPercent', 'masteryPercent', 'hitRate',
+            'sectionStats', 'activity', 'weeklyActivity',
+            'examHistory', 'srStats', 'intervalDistribution'
+        ));
+    }
+}
 ```
 
-- [ ] **Step 2: Light Mode visuell prüfen**
+- [ ] **Step 2: Add route**
 
-In Browser-Konsole:
-```javascript
-localStorage.setItem('theme', 'light');
-location.reload();
-```
-Prüfen: XP-Balken sichtbar, Borders sichtbar, Heatmap "none"-Zellen sichtbar, kein unsichtbarer weißer Text auf weißem Hintergrund.
+In `routes/web.php`, after the dashboard route (around line 107), add:
 
-Zurücksetzen:
-```javascript
-localStorage.setItem('theme', 'dark');
-location.reload();
+```php
+Route::get('/statistics', [\App\Http\Controllers\StatisticsController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('statistics');
 ```
 
-- [ ] **Step 3: Mobile Breakpoints prüfen**
+- [ ] **Step 3: Verify route registers**
 
-DevTools auf 375px (iPhone SE) stellen. Prüfen:
-- Kein horizontales Scrollen
-- Status-Strip zweizeilig (Name + Stats untereinander)
-- Hero Card einspaltig
-- Stats-Grid einspaltig
-- Heatmap + Spaced Rep gestapelt
-- Kurs-Grid einspaltig
+Run: `php artisan route:list --path=statistics`
+Expected: Route listed successfully.
 
-- [ ] **Step 4: Finaler Commit**
+- [ ] **Step 4: Commit**
+
+```bash
+git add app/Http/Controllers/StatisticsController.php routes/web.php
+git commit -m "✨: StatisticsController und Route"
+```
+
+---
+
+### Task 5: Statistics View erstellen
+
+**Files:**
+- Create: `resources/views/statistics.blade.php`
+
+- [ ] **Step 1: Create statistics.blade.php**
+
+```blade
+@extends('layouts.app')
+@section('title', 'Statistiken')
+
+@section('content')
+<div class="dash-container">
+
+    {{-- Header --}}
+    <div class="mb-6">
+        <h1 class="text-xl font-bold" style="color: var(--text-primary);">Statistiken</h1>
+        <p class="text-sm" style="color: var(--text-muted);">Dein detaillierter Lernfortschritt</p>
+    </div>
+
+    {{-- Overview Stats --}}
+    <div class="flex gap-3 mb-6">
+        <div class="gami-pill">
+            <div class="gami-pill__value gami-pill__value--blue">{{ $progressPercent }}%</div>
+            <div class="gami-pill__label">Fortschritt</div>
+        </div>
+        <div class="gami-pill">
+            <div class="gami-pill__value">{{ $solvedTotal }}/{{ $totalQuestions }}</div>
+            <div class="gami-pill__label">Gelöst</div>
+        </div>
+        <div class="gami-pill">
+            <div class="gami-pill__value gami-pill__value--blue">{{ $hitRate }}%</div>
+            <div class="gami-pill__label">Trefferquote</div>
+        </div>
+    </div>
+
+    {{-- Desktop 2-column --}}
+    <div class="dash-grid">
+        {{-- Main: Section Analysis --}}
+        <div class="space-y-4">
+            <div class="glass p-4" style="border-radius: 0.75rem;">
+                <div class="text-xs uppercase tracking-wider mb-3" style="color: var(--text-muted);">
+                    Lernabschnitte
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    @foreach($sectionStats as $section)
+                        <a href="{{ route('practice.section', $section['section']) }}"
+                           class="stat-section-card block" style="text-decoration: none;">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-sm font-semibold" style="color: var(--text-primary);">
+                                    Abschnitt {{ $section['section'] }}
+                                </span>
+                                <span class="text-xs font-bold" style="color: {{ $section['percent'] > 80 ? 'var(--success)' : ($section['percent'] >= 50 ? '#5b9aff' : 'var(--error)') }};">
+                                    {{ $section['percent'] }}%
+                                </span>
+                            </div>
+                            <div class="stat-section-card__bar">
+                                <div class="h-full rounded-sm transition-all {{ $section['percent'] > 80 ? 'stat-section-card__fill--green' : ($section['percent'] >= 50 ? 'stat-section-card__fill--blue' : 'stat-section-card__fill--red') }}"
+                                     style="width: {{ $section['percent'] }}%;"></div>
+                            </div>
+                            <div class="flex justify-between mt-2">
+                                <span class="text-xs" style="color: var(--text-muted);">
+                                    {{ $section['mastered'] }}/{{ $section['total'] }} gemeistert
+                                </span>
+                                <span class="text-xs" style="color: var(--text-muted);">
+                                    {{ $section['hit_rate'] }}% Trefferquote
+                                </span>
+                            </div>
+                        </a>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+
+        {{-- Sidebar --}}
+        <div class="space-y-4">
+            {{-- Activity Chart --}}
+            <div class="glass p-4" style="border-radius: 0.75rem;" x-data="{ view: 'week' }">
+                <div class="flex justify-between items-center mb-3">
+                    <span class="text-xs uppercase tracking-wider" style="color: var(--text-muted);">Aktivität</span>
+                    <div class="flex gap-1">
+                        <button @click="view = 'week'"
+                                :class="view === 'week' ? 'font-semibold' : ''"
+                                class="text-xs px-2 py-1 rounded"
+                                :style="view === 'week' ? 'color: #5b9aff; background: rgba(0,85,204,0.15);' : 'color: var(--text-muted);'">
+                            Woche
+                        </button>
+                        <button @click="view = 'month'"
+                                :class="view === 'month' ? 'font-semibold' : ''"
+                                class="text-xs px-2 py-1 rounded"
+                                :style="view === 'month' ? 'color: #5b9aff; background: rgba(0,85,204,0.15);' : 'color: var(--text-muted);'">
+                            Monat
+                        </button>
+                    </div>
+                </div>
+
+                {{-- Weekly Barchart --}}
+                <div x-show="view === 'week'">
+                    @php
+                        $days = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
+                        $maxWeekCount = $weeklyActivity->max('count') ?: 1;
+                    @endphp
+                    <div class="activity-bar" style="height: 120px;">
+                        @for($d = 0; $d < 7; $d++)
+                            @php
+                                $date = now()->startOfWeek()->addDays($d)->format('Y-m-d');
+                                $dayData = $weeklyActivity->firstWhere('date', $date);
+                                $count = $dayData->count ?? 0;
+                                $heightPct = $maxWeekCount > 0 ? max(($count / $maxWeekCount) * 100, 3) : 3;
+                                $isToday = $date === now()->format('Y-m-d');
+                            @endphp
+                            <div class="activity-bar__col">
+                                <span class="activity-bar__count">{{ $count ?: '' }}</span>
+                                <div class="activity-bar__fill {{ $isToday ? 'activity-bar__fill--today' : ($count === 0 ? 'activity-bar__fill--empty' : '') }}"
+                                     style="height: {{ $count > 0 ? $heightPct : 8 }}%;"></div>
+                                <span class="activity-bar__day {{ $isToday ? 'activity-bar__day--today' : '' }}">
+                                    {{ $days[$d] }}
+                                </span>
+                            </div>
+                        @endfor
+                    </div>
+                </div>
+
+                {{-- Monthly Heatmap --}}
+                <div x-show="view === 'month'" x-cloak>
+                    @php
+                        $maxDayCount = $activity->max('count') ?: 1;
+                    @endphp
+                    <div class="heatmap-grid">
+                        @for($d = 29; $d >= 0; $d--)
+                            @php
+                                $date = now()->subDays($d)->format('Y-m-d');
+                                $dayData = $activity->get($date);
+                                $count = $dayData->count ?? 0;
+                                $level = $count === 0 ? '' : ($count <= $maxDayCount * 0.25 ? 'heatmap-cell--l1' : ($count <= $maxDayCount * 0.5 ? 'heatmap-cell--l2' : ($count <= $maxDayCount * 0.75 ? 'heatmap-cell--l3' : 'heatmap-cell--l4')));
+                            @endphp
+                            <div class="heatmap-cell {{ $level }}" title="{{ $date }}: {{ $count }} Fragen"></div>
+                        @endfor
+                    </div>
+                    <div class="flex justify-between mt-2">
+                        <span class="text-xs" style="color: var(--text-muted);">{{ now()->subDays(29)->format('d.m.') }}</span>
+                        <span class="text-xs" style="color: var(--text-muted);">{{ now()->format('d.m.') }}</span>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Exam History --}}
+            <div class="glass p-4" style="border-radius: 0.75rem;">
+                <div class="text-xs uppercase tracking-wider mb-3" style="color: var(--text-muted);">
+                    Prüfungshistorie
+                </div>
+                @if($examHistory->isEmpty())
+                    <p class="text-sm text-center py-4" style="color: var(--text-muted);">
+                        Noch keine Prüfungen abgelegt
+                    </p>
+                @else
+                    <div class="space-y-2">
+                        @foreach($examHistory->take(10) as $index => $exam)
+                            @php
+                                $pct = round(($exam->correct_answers / 40) * 100);
+                                $prevExam = $examHistory->get($index + 1);
+                                $prevPct = $prevExam ? round(($prevExam->correct_answers / 40) * 100) : null;
+                            @endphp
+                            <div class="flex items-center gap-3 p-2 rounded-lg" style="background: var(--glass-bg);">
+                                <span class="text-xs" style="color: var(--text-muted); min-width: 60px;">
+                                    {{ $exam->created_at->format('d.m.Y') }}
+                                </span>
+                                <div class="flex-1 h-1 rounded-full" style="background: rgba(255,255,255,0.1);">
+                                    <div class="h-full rounded-full" style="background: {{ $exam->is_passed ? 'var(--success)' : 'var(--error)' }}; width: {{ $pct }}%;"></div>
+                                </div>
+                                <span class="text-sm font-bold" style="color: {{ $exam->is_passed ? 'var(--success)' : 'var(--error)' }}; min-width: 35px;">
+                                    {{ $pct }}%
+                                </span>
+                                @if($prevPct !== null)
+                                    <span class="text-xs" style="color: {{ $pct > $prevPct ? 'var(--success)' : ($pct < $prevPct ? 'var(--error)' : 'var(--text-muted)') }};">
+                                        @if($pct > $prevPct) ↑ @elseif($pct < $prevPct) ↓ @else → @endif
+                                    </span>
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+
+            {{-- Spaced Repetition --}}
+            <div class="glass p-4" style="border-radius: 0.75rem;">
+                <div class="text-xs uppercase tracking-wider mb-3" style="color: var(--text-muted);">
+                    Spaced Repetition
+                </div>
+                <div class="flex gap-3 mb-3">
+                    <div class="text-center flex-1">
+                        <div class="text-xl font-bold" style="color: #5b9aff;">{{ $srStats['due_now'] }}</div>
+                        <div class="text-xs" style="color: var(--text-muted);">Heute fällig</div>
+                    </div>
+                    <div class="text-center flex-1">
+                        <div class="text-xl font-bold" style="color: var(--text-primary);">{{ $srStats['due_this_week'] }}</div>
+                        <div class="text-xs" style="color: var(--text-muted);">Diese Woche</div>
+                    </div>
+                    <div class="text-center flex-1">
+                        <div class="text-xl font-bold" style="color: var(--text-primary);">{{ $masteryPercent }}%</div>
+                        <div class="text-xs" style="color: var(--text-muted);">Gemeistert</div>
+                    </div>
+                </div>
+                @if($intervalDistribution->isNotEmpty())
+                    <div class="text-xs uppercase tracking-wider mb-2 mt-4" style="color: var(--text-muted);">
+                        Review-Intervalle
+                    </div>
+                    <div class="space-y-1">
+                        @foreach($intervalDistribution->take(5) as $interval)
+                            <div class="flex justify-between text-xs">
+                                <span style="color: var(--text-secondary);">{{ $interval->review_interval }} Tage</span>
+                                <span style="color: var(--text-muted);">{{ $interval->count }} Fragen</span>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+        </div>
+    </div>
+</div>
+@endsection
+```
+
+- [ ] **Step 2: Add navigation link to sidebar**
+
+In `resources/views/layouts/app.blade.php`, find the sidebar navigation and add a "Statistiken" link after the Dashboard link. Look for the pattern of nav links and add:
+
+```blade
+<a href="{{ route('statistics') }}"
+   class="nav-link {{ request()->routeIs('statistics') ? 'active' : '' }}">
+    <i class="bi bi-bar-chart"></i>
+    <span>Statistiken</span>
+</a>
+```
+
+- [ ] **Step 3: Build and clear caches**
+
+Run: `npm run build && php artisan view:clear && php artisan cache:clear`
+Expected: Build succeeds.
+
+- [ ] **Step 4: Test in browser**
+
+Open `/statistics`. Verify:
+- Overview stats show at top
+- 10 section cards render with color coding
+- Activity chart shows week/month toggle
+- Exam history shows or shows empty state
+- Spaced repetition stats render
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add resources/views/statistics.blade.php resources/views/layouts/app.blade.php
+git commit -m "✨: Statistik-Seite View"
+```
+
+---
+
+## Chunk 4: Polish & Integration
+
+### Task 6: Dark/Light Mode für Dashboard verifizieren
+
+**Files:**
+- Modify: `resources/css/app.css` (add any missing `.light-mode` overrides)
+
+- [ ] **Step 1: Test light mode in browser**
+
+Toggle to light mode. Check all dashboard and statistics page elements for readability.
+
+- [ ] **Step 2: Add missing `.light-mode` overrides**
+
+After testing, add any needed light mode overrides to `app.css`. Common issues:
+- Progress bar backgrounds too transparent
+- Text contrast insufficient
+- Glass borders not visible enough
+
+The spec's light mode values:
+- Base background: `#f0f2f5`
+- Card background: `rgba(255,255,255,0.7)` with blue shadows
+- Text primary: `#111`, secondary: `#666`
+- Gold accent: `#d97706`
+
+Key overrides to add if missing:
+
+```css
+.light-mode .smart-action {
+    box-shadow: 0 4px 24px rgba(0, 51, 127, 0.2);
+}
+
+.light-mode .gami-pill {
+    background: rgba(255, 255, 255, 0.7);
+    border-color: rgba(0, 51, 127, 0.1);
+}
+
+.light-mode .stat-section-card {
+    background: rgba(255, 255, 255, 0.7);
+    border-color: rgba(0, 51, 127, 0.1);
+}
+
+.light-mode .stat-section-card__bar {
+    background: rgba(0, 0, 0, 0.08);
+}
+```
+
+- [ ] **Step 3: Build**
+
+Run: `npm run build && php artisan view:clear && php artisan cache:clear`
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add resources/css/app.css
+git commit -m "🎨: Dashboard Light-Mode Fixes"
+```
+
+---
+
+### Task 7: Responsive Testing & Mobile-Fixes
+
+- [ ] **Step 1: Test at mobile breakpoint (375px width)**
+
+Open browser DevTools, set to 375px width. Verify:
+- Smart Action Card readable, button tappable
+- Journey Stepper horizontal, all 3 steps visible
+- Gamification pills don't overflow
+- Activity bars visible
+- Quick links row visible
+- Lehrgänge cards stack vertically
+
+- [ ] **Step 2: Test at tablet breakpoint (768px)**
+
+Verify: Layout still single-column, gamification pills side by side.
+
+- [ ] **Step 3: Test at desktop (1280px)**
+
+Verify: 2-column layout, Journey in sidebar, Quick Links hidden.
+
+- [ ] **Step 4: Fix any responsive issues found**
+
+Apply Tailwind responsive utilities or CSS fixes as needed.
+
+- [ ] **Step 5: Commit if changes were made**
+
+```bash
+git add resources/views/dashboard.blade.php resources/views/statistics.blade.php resources/css/app.css
+git commit -m "🎨: Dashboard Responsive Fixes"
+```
+
+---
+
+### Task 8: Final Integration — Preserve Existing Features
+
+**Files:**
+- Modify: `resources/views/dashboard.blade.php`
+
+- [ ] **Step 1: Verify leaderboard modal is preserved**
+
+Read the old dashboard (from git history if needed: `git show HEAD~4:resources/views/dashboard.blade.php`) and ensure the leaderboard modal HTML + JS is copied into the new dashboard.
+
+- [ ] **Step 2: Verify onboarding tour reference**
+
+If `@include('components.onboarding-tour')` was in the old dashboard, add it to the new one.
+
+- [ ] **Step 3: Verify gamification notifications work**
+
+Navigate around, solve a question, return to dashboard. Ensure `@include('components.gamification-notifications')` is loaded via the layout (it is — in `layouts/app.blade.php`).
+
+- [ ] **Step 4: Final build and cache clear**
+
+Run: `npm run build && php artisan view:clear && php artisan cache:clear`
+
+- [ ] **Step 5: Commit**
 
 ```bash
 git add resources/views/dashboard.blade.php
-git commit -m "🎨: Dashboard Redesign THW Operations"
+git commit -m "🎨: Dashboard Integration Fixes"
 ```
-
----
-
-## Variablen-Checkliste (Quick Reference)
-
-| Variable | Quelle | Fallback |
-|----------|--------|---------|
-| `$totalQuestions` | Route-Closure | `Question::count()` |
-| `$recentExams` | Route-Closure | `collect()` |
-| `$spacedRepetitionDue` | Route-Closure | `0` |
-| `$weeklyActivity` | Route-Closure | `collect()` |
-| `$sectionStats` | Route-Closure | `collect()` |
-| `$streakFreezeStatus` | Route-Closure | `['remaining' => 0]` |
-| `$progressPercent` | inline `@php` | `0` |
-| `$progress` | inline `@php` | `0` |
-| `$exams` | inline `@php` | `0` |
-| `$canStartExam` | inline `@php` | `false` |
-| `$daysLeft` | inline `@php` | `null` |
-| `$dailyTarget` | inline `@php` | `null` |
-| `$todayAnswered` | inline `@php` | `0` |
-| `$activeLernsession` | inline `@php` | `null` |
-| `$isAusbilder` | inline `@php` | `false` |
-| `$ovStats` | inline `@php` | `null` |
