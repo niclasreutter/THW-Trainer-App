@@ -1101,6 +1101,98 @@
         </div>
     </div>
 
+    {{-- 5. COUNTDOWN-STRIP (immer sichtbar) --}}
+    @if($daysLeft !== null && $daysLeft > 0)
+    @php
+        $todayPct  = $dailyTarget ? min(100, round(($todayAnswered / $dailyTarget) * 100)) : 0;
+        $todayDone = $dailyTarget && $todayAnswered >= $dailyTarget;
+    @endphp
+    <div class="countdown-strip glass">
+        <div class="countdown-days">
+            <div class="countdown-days-num">{{ $daysLeft }}</div>
+            <div class="countdown-days-label">Tag{{ $daysLeft != 1 ? 'e' : '' }} bis zur Prüfung</div>
+        </div>
+        @if($dailyTarget && $unmasteredCount > 0)
+        <div class="countdown-mid">
+            <div class="countdown-target-label">Tagesziel: {{ $dailyTarget }} Fragen</div>
+            <div class="countdown-mini-bar">
+                <div class="countdown-mini-fill" style="width:{{ $todayPct }}%; background: {{ $todayDone ? '#22c55e' : 'var(--thw-blue)' }};"></div>
+            </div>
+            <div class="countdown-status {{ $todayDone ? 'done' : 'pending' }}">
+                {{ $todayAnswered }}/{{ $dailyTarget }} heute
+                @if($todayDone) &check; Ziel erreicht! @endif
+            </div>
+        </div>
+        @elseif($unmasteredCount <= 0)
+        <div class="countdown-mid">
+            <div class="countdown-status done">Alle Fragen gemeistert – bereit!</div>
+        </div>
+        @endif
+    </div>
+
+    @else
+    <div class="countdown-strip no-date glass">
+        <div style="flex:1; font-size:0.875rem; color:var(--text-secondary);">
+            Prüfungsdatum eintragen für eine personalisierte Lernempfehlung
+        </div>
+        <a href="{{ route('profile') }}#exam_date" class="btn-ghost btn-sm">Datum eintragen</a>
+    </div>
+    @endif
+
+    {{-- 6. AKTIVITÄTS-CHART --}}
+    <div class="activity-section glass">
+        <div class="activity-header">
+            <span class="activity-title">Diese Woche</span>
+            <div class="activity-trend">
+                @if($thisWeekTotal > 0)
+                    <span style="font-size:0.875rem;font-weight:700;color:{{ $thisWeekRate >= 70 ? '#22c55e' : ($thisWeekRate >= 50 ? '#f59e0b' : '#ef4444') }};">{{ $thisWeekRate }}%</span>
+                    <span style="font-size:0.75rem;color:var(--text-muted);">Trefferquote</span>
+                    @if($lastWeekTotal > 0)
+                        <span style="font-size:0.7rem;font-weight:600;color:{{ $rateDiff >= 0 ? '#22c55e' : '#ef4444' }};">
+                            <i class="bi bi-{{ $rateDiff >= 0 ? 'arrow-up' : 'arrow-down' }}"></i>{{ abs($rateDiff) }}%
+                        </span>
+                    @endif
+                    <span style="font-size:0.7rem;color:var(--text-muted);">{{ $thisWeekTotal }} Fragen</span>
+                @else
+                    <span style="font-size:0.75rem;color:var(--text-muted);">Noch keine Aktivität diese Woche</span>
+                @endif
+            </div>
+        </div>
+
+        @php
+            $maxCount = isset($weeklyActivity) ? max($weeklyActivity->max('count'), 1) : 1;
+            $days = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
+            $startOfWeek = \Carbon\Carbon::now()->startOfWeek(\Carbon\Carbon::MONDAY);
+        @endphp
+
+        <div class="activity-chart-wrap">
+            @for($i = 0; $i < 7; $i++)
+                @php
+                    $dayDate = $startOfWeek->copy()->addDays($i);
+                    $dateStr = $dayDate->toDateString();
+                    $dayData = isset($weeklyActivity) ? $weeklyActivity->firstWhere('date', $dateStr) : null;
+                    $count   = $dayData ? $dayData->count : 0;
+                    $barHeight = $count > 0 ? max(8, ($count / $maxCount) * 100) : 0;
+                    $isToday = $dayDate->isToday();
+                @endphp
+                <div class="activity-bar-col">
+                    <div class="activity-bar-space">
+                        @if($count > 0)
+                            <div class="activity-bar-new {{ $isToday ? 'today' : '' }}"
+                                 style="height:{{ $barHeight }}%;"
+                                 title="{{ $count }} Fragen">
+                                <span class="activity-bar-count-new">{{ $count }}</span>
+                            </div>
+                        @else
+                            <div class="activity-bar-new empty" style="height:4px;"></div>
+                        @endif
+                    </div>
+                    <span class="activity-day-label {{ $isToday ? 'today' : '' }}">{{ $days[$i] }}</span>
+                </div>
+            @endfor
+        </div>
+    </div>
+
 </div>{{-- .ops-container --}}
 
 <x-onboarding-tour />
