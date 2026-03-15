@@ -805,3 +805,80 @@
     $lastWeekRate    = $lastWeekTotal > 0 ? round(($lastWeekData->correct / $lastWeekTotal) * 100) : 0;
     $rateDiff        = $thisWeekRate - $lastWeekRate;
 @endphp
+
+<!-- SVG Gradients -->
+<svg width="0" height="0" style="position: absolute;">
+    <defs>
+        <linearGradient id="blueGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" style="stop-color:#004db3"/>
+            <stop offset="100%" style="stop-color:#00337F"/>
+        </linearGradient>
+        <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" style="stop-color:#fbbf24"/>
+            <stop offset="100%" style="stop-color:#f59e0b"/>
+        </linearGradient>
+    </defs>
+</svg>
+
+<div class="ops-container">
+
+    {{-- 1. STATUS-STRIP --}}
+    <div class="status-strip glass">
+        <div class="status-left">
+            <div class="status-name">
+                {{ $user->name }}
+                <span class="status-level-badge">Level {{ $user->level ?? 1 }}</span>
+            </div>
+            <div class="status-xp-bar">
+                <div class="status-xp-fill" style="width: {{ $progressPercent }}%;"></div>
+            </div>
+        </div>
+        <div class="status-right">
+            <div class="status-stat">
+                <div class="status-stat-value gold">
+                    {{ $user->streak_days ?? 0 }}
+                    @if(isset($streakFreezeStatus) && $streakFreezeStatus['remaining'] > 0)
+                        <span class="status-freeze-badge"><i class="bi bi-snow"></i>{{ $streakFreezeStatus['remaining'] }}</span>
+                    @endif
+                </div>
+                <div class="status-stat-label">Streak</div>
+            </div>
+            <div class="status-divider"></div>
+            <div class="status-stat">
+                <div class="status-stat-value">{{ number_format($user->points ?? 0) }}</div>
+                <div class="status-stat-label">Punkte</div>
+            </div>
+            <div class="status-divider"></div>
+            <a href="{{ route('gamification.leaderboard', ['tab' => 'liga']) }}" style="text-decoration: none;">
+                <div class="status-stat">
+                    <div class="status-stat-value" style="color: {{ $leagueInfo['color'] }};">{{ $leagueInfo['name'] }}</div>
+                    <div class="status-stat-label">Liga</div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+</div>{{-- .ops-container --}}
+
+<x-onboarding-tour />
+
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.0/dist/confetti.browser.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    @if($progressPercent == 100)
+    setTimeout(() => confetti({ particleCount: 80, spread: 60, origin: { y: 0.6 } }), 1000);
+    @endif
+});
+function dismissLeaderboardModal(accept) {
+    const modal = document.getElementById('leaderboard-modal');
+    if (modal) { modal.style.animation = 'fadeOutModal 0.3s ease-out forwards'; setTimeout(() => modal.remove(), 300); }
+    if (accept === false) { document.getElementById('lb-decline-form').submit(); }
+}
+document.addEventListener('keydown', function(e) { if (e.key === 'Escape') dismissLeaderboardModal(false); });
+function dismissEmailConsentBanner() {
+    const banner = document.getElementById('email-consent-banner');
+    if (banner) { banner.style.opacity = '0'; setTimeout(() => banner.remove(), 300); }
+    fetch('/dashboard/dismiss-email-consent-banner', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') } });
+}
+</script>
+@endsection
