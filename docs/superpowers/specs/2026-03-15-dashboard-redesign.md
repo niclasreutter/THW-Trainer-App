@@ -1,263 +1,214 @@
-# Dashboard Redesign – "THW Operations"
+# Dashboard & Statistik-Seite Redesign
 
 **Datum:** 2026-03-15
-**Route:** `/dashboard`
-**View:** `resources/views/dashboard.blade.php`
+**Scope:** Dashboard (`/dashboard`) + neue Statistik-Seite (`/statistics`)
 **Stack:** Laravel 12 + Blade + Tailwind CSS + Alpine.js
 
 ---
 
-## Ziel
+## Zusammenfassung
 
-Komplettes Redesign des Nutzer-Dashboards. Weg vom generischen Glassmorphism-Look, hin zu einem einzigartigen "Command Center"-Stil mit THW-Blau als dominante Akzentfarbe. Das Layout nutzt die bestehende App-Sidebar und füllt den Content-Bereich mit einem technischen, strukturierten Grid.
+Komplettes Redesign des THW-Trainer Dashboards mit neuer Statistik-Seite. Mobile-First, Dark/Light Mode, THW-Blau als Primärfarbe, modulare Sektionen mit klarer Nutzerführung durch Journey-Stepper und kontextabhängige Smart Action Card.
 
----
+## Entscheidungen
 
-## Design-Prinzipien
-
-- **THW-Blau dominant** (`#00337F`, `#004db3`) – Struktur, Borders, Fortschrittsbalken, primäre CTAs
-- **Gold** (`#fbbf24`) – nur für Gamification-Elemente: Streak, besondere Achievements, Prüfung 5/5 bestanden
-- **Eckigere Radii** – `0.75rem 0.25rem 0.75rem 0.75rem` statt gleichmäßig rund → technischer Look
-- **Keine Emojis** im UI
-- **Keine Icons in Buttons**
-- **Dark + Light Mode** vollständig unterstützt via bestehende CSS-Variablen
-- **Kein Collapsible** für wichtige Bereiche – alles direkt sichtbar, kompakt
-
----
-
-## Layout-Struktur
-
-Die bestehende App-Sidebar (`lg:w-64 lg:fixed`) bleibt unverändert. Das Dashboard füllt den Content-Bereich (`lg:pl-64`).
-
-```
-[Bestehende App-Sidebar 256px] | [Dashboard Content Area]
-                               |  1.  Status-Strip
-                               |  2.  Alert-Banner (konditionell)
-                               |  3.  Next-Step Hero Card
-                               |  4.  Stats Grid (2-spaltig)
-                               |  5.  Countdown-Strip (immer sichtbar, 2 Varianten)
-                               |  6.  Aktivitäts-Chart
-                               |  7.  Heatmap + Spaced Rep (2/3 + 1/3)
-                               |  8.  Ausbilder-Karte (konditionell)
-                               |  9.  Lehrgänge & Lernpools Grid
-                               |  10. Leaderboard-Modal (overlay, konditionell)
-```
+| Thema | Entscheidung |
+|-------|-------------|
+| Features | Alle behalten, tiefere Statistiken auf eigene Seite auslagern |
+| Nutzerführung | Journey-Stepper + Smart Action Card kombiniert |
+| Dark/Light Mode | System-Präferenz als Default + manueller Toggle |
+| Farbakzente | THW-Blau solid als Marke, Gold nur für Streak/Belohnungen |
+| Light Mode Stil | Glassmorphism (iOS-Style) |
+| Responsive | Mobile-First, Desktop muss ebenfalls stark aussehen |
+| Layout | Modulare Sektionen — Hero Action → Journey → Gamification → Aktivität → Lehrgänge |
 
 ---
 
-## Sektionen im Detail
+## Dashboard-Struktur
 
-### 1. Status-Strip
+### Mobile (1 Spalte, top-down)
 
-Kompakte Leiste oben im Content-Bereich. Ersetzt den bisherigen "Hallo Name"-Header.
+1. **Header** — Zeitabhängige Begrüßung ("Guten Morgen/Tag/Abend"), Name, Level + XP inline
+2. **Smart Action Card** — Blauer Hero-Gradient, kontextabhängige Empfehlung (siehe Smart Action Logik)
+3. **Journey-Stepper** — Horizontal: Fragen lernen (%) → Alle meistern (%) → Prüfung (gesperrt/bereit/bestanden)
+4. **Gamification-Row** — 3 Pill-Cards: Streak (Gold-Akzent), Gelöst, Ranking
+5. **Wochenaktivität** — Mini-Barchart der letzten 7 Tage
+6. **Lehrgänge** — Kompakte Karten der eingeschriebenen Kurse mit Fortschritt
+7. **Quick Links** — Üben, Lehrgänge, Shop (entfällt auf Desktop, da Navigation vorhanden)
 
-- **Linke Seite:** Nutzername + Level-Badge, darunter XP/Theorie-Fortschrittsbalken (THW-Blau Füllung, Breite = `progressPercent`%)
-- **Rechte Seite:** Streak-Wert (gold, mit Freeze-Indikator falls vorhanden), Punkte, Liga-Badge
-- **Styling:** Dünne linke THW-Blau-Borderlinie (4px), `glass`-Hintergrund, `border-radius: 0.5rem`
-- **Kein großer Header** – kompakt, einzeilig auf Desktop, zweizeilig auf Mobile
+### Desktop (2-3 Spalten)
 
-**Daten:** `$user->name`, `$user->level`, `$progressPercent`, `$user->streak_days`, `$user->points`, `$user->league`
-
----
-
-### 2. Alert-Banner (konditionell)
-
-Direkt unter Status-Strip. Jeder Alert ist eine schmale Zeile (`alert-compact`).
-
-Priorität (höchste zuerst):
-1. `session('error')` → `glass-error`
-2. `$hasFailedQuestions` → `glass-warning` + Button "Fehler wiederholen" → `route('failed.index')`
-3. `$spacedRepetitionDue > 0` (`$spacedRepetitionDue` aus Route-Closure via `SpacedRepetitionService`) → `glass` mit blauer Border + Button "Wiederholen" → `route('practice.spaced-repetition')`
-4. `$activeLernsession` (inline berechnet: `app(LernsessionService::class)->getActiveSessionsForUser(auth()->user())->first()`) → `glass` mit grünem Puls-Dot + Alpine.js-Timer + Button "Teilnehmen" → `route('lernsession.live', $activeLernsession)`. Die zugehörige Session: `$activeLernsession->learningSession`.
-5. `$streakAtRisk` (inline berechnet: `$user->streak_days > 0 && $questionsRemaining > 0 && (!$user->last_activity_date || Carbon::parse($user->last_activity_date)->lt(Carbon::today()))`) → `glass-warning` mit Freeze-Option (falls `$streakFreezeStatus['remaining'] > 0`) + Button "Jetzt lernen" → `route('practice.all')`
-
-Alle Alerts bleiben funktional identisch zum aktuellen Stand.
+- **Links (breit):** Smart Action + Wochenaktivität + Lehrgänge
+- **Rechts (schmal):** Journey-Stepper (vertikal), Gamification, Prüfungscountdown
 
 ---
 
-### 3. Next-Step Hero Card
+## Smart Action Card — Kontextlogik
 
-**Volle Breite**, prominenteste Karte. Zeigt dynamisch genau eine Hauptaktion.
+Die Card zeigt immer genau eine Aktion, priorisiert nach:
 
-**Zustandslogik (Priorität, exklusiv, erste zutreffende Bedingung gewinnt):**
+| Priorität | Bedingung | Label | Anzeige | Button / Route |
+|-----------|-----------|-------|---------|----------------|
+| 1 | Aktive Lernsession vorhanden | "Live" | "Aktive Session läuft" | "Beitreten" → `route('lernsession.live', $session)` |
+| 2 | `exam_failed_questions` nicht leer | "Dringend" | "X Fehlerfragen wiederholen" | "Wiederholen" → `route('failed.index')` |
+| 3 | `next_review_at <= now` (fällige Reviews) | "Empfohlen" | "X Fragen zur Wiederholung fällig" | "Wiederholen" → `route('practice.spaced-repetition')` |
+| 4 | Alle `consecutive_correct >= 3` | "Bereit" | "Alle Fragen gemeistert — Prüfung ablegen!" | "Prüfung starten" → `route('exam.index')` |
+| 5 | Fortschritt vorhanden, nicht fertig | "Weitermachen" | "Weiter mit Lernabschnitt X" (der mit meistem Fortschritt, noch nicht fertig) | "Starten" → `route('practice.section', $section)` |
+| 6 | Noch nie geübt | "Los geht's" | "Starte mit deiner ersten Frage" | "Erste Frage" → `route('practice.all')` |
 
-| Zustand | Bedingung | Inhalt | Button |
-|---------|-----------|--------|--------|
-| A – Fehler ausstehend | `$hasFailedQuestions` | "X Fehler-Fragen ausstehend" + Erklärung | "Fehler wiederholen" → `route('failed.index')` |
-| B – Theorie lernen | `!$hasFailedQuestions && $progressPercent < 100` | "Noch X Fragen zu meistern" + Fortschritts-Ring | "Weiter lernen" → `route('practice.all')` |
-| C – Prüfung starten | `!$hasFailedQuestions && $progressPercent >= 100 && $exams < 5` | "Bereit für Prüfung! X/5 bestanden" + Ring | "Prüfung starten" → `route('exam.index')` |
-| D – Abschluss | `$exams >= 5` | "5/5 Prüfungen bestanden!" | "Prüfung wiederholen" → `route('exam.index')` |
-
-Hinweis: `$canStartExam = ($progress >= $total && !$hasFailedQuestions)`. Zustand C entspricht `$canStartExam && $exams < 5`, was äquivalent ist aber oben explizit ausgeschrieben.
+**Zusatz:** Falls `exam_date` gesetzt und in der Zukunft, zeigt die Card zusätzlich klein: "Noch X Tage bis zur Prüfung · Y Fragen/Tag empfohlen"
 
 **Styling:**
-- Zustand A/B/C: `glass-blue` mit THW-Blau Lensflare-Glow
-- Zustand D: `glass-gold` mit Gold-Glow (Ausnahme der Gold-Regel – besonderer Moment)
-- Border-Radius: `0.75rem 0.25rem 0.75rem 0.75rem`
-- Layout: Linke Seite Text + CTA, rechte Seite Fortschritts-Ring (SVG, 80px)
-- Ring-Farbe: THW-Blau für Theorie, Gold für Prüfungs-Streak
+- Blauer Gradient-Hintergrund: `linear-gradient(135deg, #00337F, #0055cc)` mit radialem Lichteffekt
+- Priorität 2 (Fehlerfragen): leicht rötlicher Akzent als Warnung
+- Weißer Text, Action-Button mit `rgba(255,255,255,0.2)` Background
+- Pfeil-Icon rechts als visueller Indikator
 
 ---
 
-### 4. Stats Grid (2-spaltig)
+## Journey-Stepper
 
-Zwei gleichbreite Karten nebeneinander.
+Zeigt den Lernweg in 3 Schritten:
 
-**Karte links – Theorie-Fortschritt** (`glass-tl`):
-- Titel: "THEORIE-FORTSCHRITT" (uppercase, letter-spacing, klein)
-- Große Zahl: `$progressPercent`% (font-weight 800)
-- Fortschrittsbalken: THW-Blau, `$progress / $total`
-- Zeile 1: "`$progress` von `$total` gemeistert"
-- Zeile 2: "Heute: `$todayAnswered` Fragen"
-- Zeile 3 (falls vorhanden): "Spaced Rep: `$spacedRepetitionDue` fällig"
-- Button: "Abschnitte üben" → `route('practice.menu')`
-- Top-Border: 3px THW-Blau
+| Schritt | Label | Fortschrittsanzeige | Status-Logik |
+|---------|-------|---------------------|--------------|
+| 1 | Fragen lernen | Prozent der gelösten Fragen | Aktiv wenn `progress < total` |
+| 2 | Alle meistern | Prozent der gemeisterten Fragen (`consecutive_correct >= 3`) | Aktiv wenn Schritt 1 begonnen, alle Fragen mindestens einmal beantwortet |
+| 3 | Prüfung | bestanden/nicht bestanden/gesperrt | "Gesperrt" wenn nicht alle gemeistert, "Bereit" wenn alle gemeistert, "Bestanden" wenn `exams >= 5` |
 
-**Karte rechts – Prüfungs-Status** (`glass-br`):
-- Titel: "PRÜFUNGS-STATUS"
-- Großer Wert: "`$exams`/5 bestanden"
-- Fortschrittsbalken: THW-Blau (Prüfungs-Streak, `$exams / 5 * 100`%)
-- Letzter Versuch: Prozent aus `$recentExams->first()` (gold falls ≥ 75%)
-- Schnitt: `$recentExams->avg(fn($e) => round(($e->correct_answers / 40) * 100))` (gold falls ≥ 75%)
-- Top-Border: 3px THW-Blau
-- **Button-Logik:**
-  - `$canStartExam` → "Prüfung starten" (`btn-secondary`) → `route('exam.index')`
-  - `$hasFailedQuestions` → "Fehler wiederholen" (`btn-ghost`) → `route('failed.index')`
-  - sonst (Theorie nicht fertig) → "Erst Theorie" (`btn-ghost`, disabled-Optik, kein Link)
+**Mobile:** Horizontal, Kreise mit Verbindungslinien, Labels darunter
+**Desktop (Sidebar):** Vertikal, mehr Platz für Details pro Schritt
 
 ---
 
-### 5. Countdown-Strip (konditionell)
+## Dark/Light Mode & Farbsystem
 
-Position 5 im Layout wird **immer belegt** – entweder Countdown oder Fallback-Karte:
+### Dark Mode (Standard)
 
-**Variablen-Quellen (alle inline in `@php` berechnet, wie im aktuellen View):**
-- `$daysLeft` = `($user->exam_date && $user->exam_date->isFuture()) ? (int) now()->startOfDay()->diffInDays($user->exam_date, false) : null`
-- `$dailyTarget` = komplexe Berechnung aus `$progressData`, Fehlerquote, `$effectiveDays` (exakt wie aktueller View, unverändert übernehmen). Kann `null` sein wenn kein Datum.
-- `$todayAnswered` = `QuestionStatistic::where('user_id', $user->id)->whereDate('created_at', today())->count()`
+| Element | Wert |
+|---------|------|
+| Hintergrund Base | `#0a0a0b` |
+| Hintergrund Elevated | `#121214` |
+| Hintergrund Surface | `#1a1a1d` |
+| Cards | Glassmorphism: `backdrop-filter: blur(12px)`, Border `rgba(255,255,255,0.08-0.10)` |
+| Text Primary | `#fff` |
+| Text Secondary | `rgba(255,255,255,0.5-0.7)` |
+| Primärfarbe (Flächen) | `#00337F` |
+| Primärfarbe (Text/Icons) | `#5b9aff` |
+| Gold-Akzent | `#fbbf24` — nur Streak und Belohnungen |
 
-**Wenn `$daysLeft !== null && $daysLeft > 0`** (Datum gesetzt, Datum in der Zukunft):
-Schmale volle Breite, `glass` mit linker THW-Blau-Border (4px):
-- Links: "`$daysLeft` Tage bis zur Prüfung"
-- Mitte: Tages-Zielwert (`$dailyTarget`) + Mini-Fortschrittsbar (`$todayAnswered / $dailyTarget * 100`%)
-- Rechts: Status ("X/Y heute – geschafft!" wenn `$todayAnswered >= $dailyTarget`, sonst "noch X übrig")
+### Light Mode (Glassmorphism, iOS-Style)
 
-**Sonst** (kein Datum gesetzt oder Datum vergangen):
-Schmale Karte gleicher Höhe, `glass` mit linker THW-Blau-Border (4px, gestrichelt):
-- Text: "Prüfungsdatum eintragen für personalisierte Lernempfehlung"
-- Link-Button (ghost): "Datum eintragen" → `route('profile') . '#exam_date'`
+| Element | Wert |
+|---------|------|
+| Hintergrund Base | `#f0f2f5` |
+| Hintergrund Elevated | `#fff` |
+| Cards | `rgba(255,255,255,0.7)`, `backdrop-filter: blur(12px)`, leichte blaue Schatten |
+| Text Primary | `#111` |
+| Text Secondary | `#666` |
+| Primärfarbe (Flächen) | `#00337F` (unverändert) |
+| Primärfarbe (Text/Icons) | `#00337F` |
+| Gold-Akzent | `#d97706` (dunkler für Kontrast auf Hell) |
 
----
+### Toggle-Mechanik
 
-### 6. Aktivitäts-Chart
+- CSS `prefers-color-scheme` als Default
+- Toggle-Button im Header (Sonne/Mond-Icon via Bootstrap Icons)
+- Präferenz in `localStorage` gespeichert, überschreibt System-Setting
+- Klasse `.dark` / `.light` auf `<html>` Element
 
-Volle Breite, `glass`.
-
-- Titel-Zeile: "DIESE WOCHE" links, Trefferquote + Trend-Pfeil rechts
-- 7-Balken-Chart (Mo–So), Balken in **THW-Blau** (nicht gold wie bisher)
-- Heutiger Balken: helleres Blau mit leichtem Glow
-- Leere Tage: subtiler Platzhalter-Balken
-- Anzahl über den Balken (klein, `var(--text-muted)`)
-- Wochentag-Label darunter, heute in THW-Blau
-
----
-
-### 7. Heatmap + Spaced Rep (2/3 + 1/3)
-
-**Heatmap (2/3-Breite)**, `glass-br`:
-- Titel: "STÄRKEN & SCHWÄCHEN"
-- 10 Zellen (Abschnitt 1–10), **fest 10 Zellen** – der THW-Grundausbildungs-Katalog hat exakt 10 Lernabschnitte (kein dynamischer Count nötig)
-- Datenquelle: `$sectionStats` (aus Route-Closure: `DB::table('question_statistics')...groupBy('lernabschnitt')`) → `$sectionStats->firstWhere('lernabschnitt', $s)`
-- Grid: 5 Spalten × 2 Reihen
-- Farben unverändert: Grün/Gelb/Rot/Grau (semantische Bedeutung, kein THW-Blau)
-- Klickbar → `route('practice.section', $s)`
-- Legende unten
-
-**Spaced Rep (1/3-Breite)**, `glass`:
-- Titel: "WIEDERHOLUNGEN"
-- Große Zahl: `$spacedRepetitionDue` fällig
-- Kurze Erklärung: "Spaced Repetition für langfristiges Behalten"
-- Button: "Wiederholen" → `route('practice.spaced-repetition')`
-- Falls 0: "Alles aktuell" Meldung
+```
+:root          → Light Mode Defaults
+.dark          → Dark Mode Overrides
+@media (prefers-color-scheme: dark) → Auto-Dark wenn kein manueller Toggle gesetzt
+```
 
 ---
 
-### 8. Ausbilder-Karte (konditionell)
+## Statistik-Seite (`/statistics`)
 
-Nur wenn `$isAusbilder && $userOV`.
+Neue Route und View. Erreichbar über Link im Dashboard ("Detaillierte Statistiken →") und über die Navigation.
 
-**Variablen-Quellen (alle inline in `@php` berechnet, wie im aktuellen View):**
-- `$userOV` = `auth()->user()->ortsverbände->first()`
-- `$isAusbilder` = `$userOV && $userOV->members()->where('user_id', auth()->id())->first()?->pivot->role === 'ausbildungsbeauftragter'`
-- `$ovStats` = `['members' => $regularMembers->count(), 'avg_progress' => round($memberProgress->avg('theory_progress_percent') ?? 0)]` – alles inline, kein Controller nötig
+### Aufbau (Mobile-First, gleiche Design-Sprache)
 
-Schmale Karte volle Breite, `glass-blue` (bestehende Klasse):
-- Badge "Ausbilder" + OV-Name
-- Mitgliederanzahl (`$ovStats['members']`) + Ø-Fortschritt (`$ovStats['avg_progress']`%)
-- Button "Verwalten" → `route('ortsverband.index')`
+#### 1. Übersichts-Header
+- Gesamtfortschritt als großer Prozentwert
+- Gesamtanzahl gelöste Fragen / Total
+- Durchschnittliche Trefferquote
 
----
+#### 2. Sektions-Analyse (Hauptbereich)
+- Alle 10 Lernabschnitte als Cards
+- Pro Abschnitt: Fortschrittsbalken, Anzahl gemeistert/total, Trefferquote
+- Farbkodierung: Grün (>80%), Blau (50-80%), Rot (<50%)
+- Stärken/Schwächen auf einen Blick erkennbar
+- Klickbar → `route('practice.section', $section)`
 
-### 9. Lehrgänge & Lernpools Grid
+#### 3. Aktivitätsverlauf
+- Wochenansicht: Barchart (wie im Dashboard, aber größer und detaillierter)
+- Monatsansicht: Heatmap-Kalender (Tage mit Aktivität eingefärbt nach Intensität)
+- Toggle zwischen Wochen/Monat (Alpine.js)
 
-Volle Breite, 3-Spalten-Grid.
+#### 4. Prüfungshistorie
+- Liste aller Prüfungen: Datum, Ergebnis (%), bestanden/nicht bestanden Badge
+- Trend-Linie: Verbesserung über Zeit sichtbar
 
-**Datenquellen (aus bestehendem Dashboard-View):**
-- Lehrgänge: `$enrolledLehrgaenge` (`Auth::user()->enrolledLehrgaenge()->get()`)
-- Lernpools: `$enrolledLernpools` (`auth()->user()->enrolledLernpools()->where('is_active', true)->get()`)
-- Fortschritt je Lehrgang: inline via `UserLehrgangProgress` (wie im aktuellen View)
-- Fortschritt je Lernpool: inline via `lernpoolProgress()` (wie im aktuellen View)
+#### 5. Spaced Repetition Stats
+- Fällige Fragen (heute/diese Woche)
+- Verteilung der Review-Intervalle
+- Meisterungsgrad insgesamt (% der Fragen mit `consecutive_correct >= 3`)
 
-**Darstellung:**
-- Titel-Zeile: "LEHRGÄNGE & LERNPOOLS" + "Alle anzeigen" Link → `route('lehrgaenge.index')`
-- Max. 3 Karten sichtbar (Lehrgänge zuerst, dann Lernpools, max. je 3 kombiniert)
-- Jede Karte: `glass` + 3px THW-Blau Top-Border
-- Laufend: Fortschrittsbalken THW-Blau, Button "Weiter" → `route('lehrgaenge.practice', $lehrgang->slug)`
-- Abgeschlossen: Fortschrittsbalken Grün, "Fertig"-Badge statt Button
-- Falls `$enrolledLehrgaenge->isEmpty() && $enrolledLernpools->isEmpty()`: Leerer Zustand mit "Lehrgänge entdecken" CTA → `route('lehrgaenge.index')`
-
----
-
-### 10. Leaderboard-Modal
-
-Bleibt funktional identisch. Erscheint nur wenn `!$user->leaderboard_banner_dismissed && !$user->leaderboard_consent`.
+### Desktop-Layout
+2-Spalten — Sektions-Analyse links (groß), Aktivität + Prüfungen + SR rechts
 
 ---
 
 ## Responsive Verhalten
 
-| Breakpoint | Verhalten |
-|-----------|-----------|
-| `lg` (≥1024px) | Sidebar fixiert, 2-spaltige Stats-Grid, Heatmap 2/3 + Spaced Rep 1/3 nebeneinander, 3-spaltige Lehrgänge |
-| `md` (768–1023px) | Sidebar eingeklappt (bestehende Mobile-Nav), Stats-Grid 1-spaltig, Heatmap 2/3 + Spaced Rep 1/3 nebeneinander, Lehrgänge 2-spaltig |
-| `sm` (<768px) | Alles 1-spaltig, Heatmap + Spaced Rep gestapelt (Heatmap zuerst, Spaced Rep darunter), Lehrgänge 1-spaltig |
+| Breakpoint | Dashboard | Statistik-Seite |
+|-----------|-----------|-----------------|
+| `sm` (<640px) | 1 Spalte, alles gestapelt, Journey horizontal | 1 Spalte, alles gestapelt |
+| `md` (640-1023px) | 1 Spalte, Gamification-Row nebeneinander | 1 Spalte, Sektions-Cards 2-spaltig |
+| `lg` (≥1024px) | 2 Spalten (Main + Sidebar), Journey vertikal in Sidebar | 2 Spalten (Sektionen + Sidebar) |
 
 ---
 
-## Dark/Light Mode
+## Konditionelle Elemente (bestehend, werden integriert)
 
-Alle Elemente nutzen die bestehenden CSS-Variablen (`--text-primary`, `--glass-bg`, `--glass-border` etc.). Keine hardcodierten Farben außer semantische States (Grün/Gelb/Rot).
+Diese Elemente aus dem aktuellen Dashboard bleiben erhalten und werden ins neue Layout integriert:
 
-THW-Blau-Borders und Akzente verwenden `var(--thw-blue)` / `var(--thw-blue-light)`.
-
-Im Light Mode: Fortschrittsbalken und Borders sichtbarer da `--glass-border` bereits auf `rgba(0, 51, 127, 0.18)` gesetzt.
-
----
-
-## Was sich NICHT ändert
-
-- Alle Routen und Controller-Logik
-- `$canStartExam` Prüflogik (Alle Fragen + keine Fehler)
-- Leaderboard-Modal Logik
-- Streak-Freeze Mechanismus
-- Spaced-Repetition Logik
-- Live-Lernsession Banner Logik
-- Bestehende CSS-Klassen in `app.css`
+- **Active Session Banner** — wird in Smart Action Card Priorität 1
+- **Streak-at-Risk Warnung** — wird Teil der Smart Action Card oder als kleine Badge in der Gamification-Row
+- **Prüfungscountdown** — wird als Zusatzinfo in der Smart Action Card angezeigt (wenn `exam_date` gesetzt)
+- **Ausbilder-Karte** — bleibt als eigene Sektion nach Lehrgängen (nur für Ausbildungsbeauftragte)
+- **Leaderboard-Modal** — bleibt als Overlay, unverändert
 
 ---
+
+## Technische Anmerkungen
+
+- **Bestehender Stack:** Laravel 12 + Blade + Tailwind CSS + Alpine.js
+- **CSS:** Erweitern der bestehenden `app.css` um Light-Mode-Variablen und neue Dashboard-spezifische Klassen
+- **Alpine.js:** Für Dark/Light Toggle, Journey-Stepper-Interaktion, Wochenansicht-Toggle auf Statistik-Seite
+- **Dashboard-Route:** Inline Route-Closure in `routes/web.php` erweitern um Smart Action Logik
+- **Neue Route:** `GET /statistics` mit eigenem Controller oder Route-Closure
+- **Bestehende Modelle:** Kein Schema-Änderung nötig, alle Daten sind bereits vorhanden
+- **Bestehende Komponenten wiederverwenden:** `active-session-banner`, `skeleton-loader`, `milestone-celebration`, `achievement-popup`
 
 ## Dateien die geändert werden
 
-- `resources/views/dashboard.blade.php` – komplette Neuerstellung
-- Keine Controller-Änderungen
-- Keine neuen CSS-Dateien (nur `@push('styles')` im View)
+- `resources/views/dashboard.blade.php` — komplette Neuerstellung
+- `resources/css/app.css` — Light Mode Variablen, neue Dashboard-Klassen
+- `routes/web.php` — Smart Action Logik in Dashboard-Route, neue `/statistics` Route
+- **Neu:** `resources/views/statistics.blade.php`
+- **Neu:** `app/Http/Controllers/StatisticsController.php` (optional, kann auch Route-Closure sein)
+
+## Was sich NICHT ändert
+
+- Alle bestehenden Routen und deren Logik
+- `$canStartExam` Prüflogik (Alle Fragen gemeistert + keine Fehler)
+- Leaderboard-Modal Logik
+- Streak-Freeze Mechanismus
+- Spaced-Repetition Logik (SM-2 Algorithmus)
+- Gamification-Service
+- Bestehende Policies und Authorization
+- Datenbank-Schema
