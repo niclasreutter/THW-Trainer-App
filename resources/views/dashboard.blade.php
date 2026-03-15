@@ -161,8 +161,8 @@
 
     .hero-ring-wrap {
         flex-shrink: 0;
-        width: 88px;
-        height: 88px;
+        width: 80px;
+        height: 80px;
         position: relative;
     }
 
@@ -965,7 +965,7 @@
             <span class="btn-primary">Fehler wiederholen</span>
         </div>
         <div class="hero-ring-wrap">
-            <svg width="88" height="88" viewBox="0 0 64 64">
+            <svg width="80" height="80" viewBox="0 0 64 64">
                 <circle fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="6" cx="32" cy="32" r="26"/>
                 <circle fill="none" stroke="url(#blueGradient)" stroke-width="6" stroke-linecap="round"
                     cx="32" cy="32" r="26"
@@ -987,7 +987,7 @@
             <span class="btn-primary">Weiter lernen</span>
         </div>
         <div class="hero-ring-wrap">
-            <svg width="88" height="88" viewBox="0 0 64 64">
+            <svg width="80" height="80" viewBox="0 0 64 64">
                 <circle fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="6" cx="32" cy="32" r="26"/>
                 <circle fill="none" stroke="url(#blueGradient)" stroke-width="6" stroke-linecap="round"
                     cx="32" cy="32" r="26"
@@ -1004,12 +1004,12 @@
     <a href="{{ route('exam.index') }}" class="hero-card glass-blue" style="text-decoration:none;">
         <div class="hero-content">
             <div class="hero-label">Nächster Schritt</div>
-            <div class="hero-title">Bereit für die Prüfung!</div>
+            <div class="hero-title">Bereit für Prüfung!</div>
             <div class="hero-desc">{{ $exams }}/5 Prüfungen bestanden. Du kannst jetzt die nächste Prüfungssimulation starten.</div>
             <span class="btn-primary">Prüfung starten</span>
         </div>
         <div class="hero-ring-wrap">
-            <svg width="88" height="88" viewBox="0 0 64 64">
+            <svg width="80" height="80" viewBox="0 0 64 64">
                 <circle fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="6" cx="32" cy="32" r="26"/>
                 <circle fill="none" stroke="url(#goldGradient)" stroke-width="6" stroke-linecap="round"
                     cx="32" cy="32" r="26"
@@ -1031,7 +1031,7 @@
             <span class="btn-primary">Prüfung wiederholen</span>
         </div>
         <div class="hero-ring-wrap">
-            <svg width="88" height="88" viewBox="0 0 64 64">
+            <svg width="80" height="80" viewBox="0 0 64 64">
                 <circle fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="6" cx="32" cy="32" r="26"/>
                 <circle fill="none" stroke="url(#goldGradient)" stroke-width="6" stroke-linecap="round"
                     cx="32" cy="32" r="26"
@@ -1063,7 +1063,7 @@
             <div class="stat-card-row">
                 <span class="stat-card-detail">Heute: {{ $todayAnswered }} Fragen</span>
                 @if(isset($spacedRepetitionDue) && $spacedRepetitionDue > 0)
-                    <span class="stat-card-detail" style="color:var(--thw-blue-light);">SR: {{ $spacedRepetitionDue }} fällig</span>
+                    <span class="stat-card-detail" style="color:var(--thw-blue-light);">Spaced Rep: {{ $spacedRepetitionDue }} fällig</span>
                 @endif
             </div>
             <div style="margin-top:0.25rem;">
@@ -1075,6 +1075,7 @@
         <div class="stat-card glass-br">
             <div class="stat-card-title">Prüfungs-Status</div>
             <div class="stat-card-value">{{ $exams }}<span style="font-size:1rem;font-weight:600;color:var(--text-secondary);">/5</span></div>
+            <div class="stat-card-sub">bestanden</div>
             <div class="stat-bar"><div class="stat-bar-fill" style="width:{{ min(100, $exams * 20) }}%;"></div></div>
             <div class="stat-card-row">
                 @if($lastExamPct !== null)
