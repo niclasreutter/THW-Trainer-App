@@ -28,25 +28,34 @@ class StatisticsController extends Controller
         $totalCorrect = QuestionStatistic::where('user_id', $user->id)->where('is_correct', true)->count();
         $hitRate = $totalAnswered > 0 ? round(($totalCorrect / $totalAnswered) * 100) : 0;
 
-        // Section analysis
+        // Section analysis (batch queries to avoid N+1)
+        $questionsBySection = Question::selectRaw('lernabschnitt, COUNT(*) as total')
+            ->groupBy('lernabschnitt')->pluck('total', 'lernabschnitt');
+
+        $masteredBySection = UserQuestionProgress::where('user_id', $user->id)
+            ->where('consecutive_correct', '>=', 3)
+            ->join('questions', 'user_question_progress.question_id', '=', 'questions.id')
+            ->selectRaw('questions.lernabschnitt, COUNT(*) as cnt')
+            ->groupBy('questions.lernabschnitt')->pluck('cnt', 'lernabschnitt');
+
+        $answeredBySection = QuestionStatistic::where('question_statistics.user_id', $user->id)
+            ->join('questions', 'question_statistics.question_id', '=', 'questions.id')
+            ->selectRaw('questions.lernabschnitt, COUNT(*) as cnt, SUM(question_statistics.is_correct) as correct_cnt')
+            ->groupBy('questions.lernabschnitt')->get()->keyBy('lernabschnitt');
+
         $sectionStats = [];
         for ($s = 1; $s <= 10; $s++) {
-            $sectionQuestions = Question::where('lernabschnitt', $s)->count();
-            $sectionMastered = UserQuestionProgress::where('user_id', $user->id)
-                ->whereHas('question', fn ($q) => $q->where('lernabschnitt', $s))
-                ->where('consecutive_correct', '>=', 3)->count();
-            $sectionAnswered = QuestionStatistic::where('user_id', $user->id)
-                ->whereHas('question', fn ($q) => $q->where('lernabschnitt', $s))->count();
-            $sectionCorrect = QuestionStatistic::where('user_id', $user->id)
-                ->where('is_correct', true)
-                ->whereHas('question', fn ($q) => $q->where('lernabschnitt', $s))->count();
+            $total = $questionsBySection[$s] ?? 0;
+            $mastered = $masteredBySection[$s] ?? 0;
+            $answered = $answeredBySection[$s]->cnt ?? 0;
+            $correct = $answeredBySection[$s]->correct_cnt ?? 0;
 
             $sectionStats[] = [
                 'section' => $s,
-                'total' => $sectionQuestions,
-                'mastered' => $sectionMastered,
-                'percent' => $sectionQuestions > 0 ? round(($sectionMastered / $sectionQuestions) * 100) : 0,
-                'hit_rate' => $sectionAnswered > 0 ? round(($sectionCorrect / $sectionAnswered) * 100) : 0,
+                'total' => $total,
+                'mastered' => $mastered,
+                'percent' => $total > 0 ? round(($mastered / $total) * 100) : 0,
+                'hit_rate' => $answered > 0 ? round(($correct / $answered) * 100) : 0,
             ];
         }
 

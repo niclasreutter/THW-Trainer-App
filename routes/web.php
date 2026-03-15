@@ -203,11 +203,8 @@ Route::get('/dashboard', function () {
             ->where('points', '>', $user->points)->count() + 1;
     }
 
-    // Mastery percent (for journey stepper)
-    $masteryPercent = $totalQuestions > 0
-        ? round((\App\Models\UserQuestionProgress::where('user_id', $user->id)
-            ->where('consecutive_correct', '>=', 3)->count() / $totalQuestions) * 100)
-        : 0;
+    // Mastery percent (for journey stepper) — reuse $progress from above
+    $masteryPercent = $progressPercent;
 
     // Solved questions total
     $solvedTotal = \App\Models\UserQuestionProgress::where('user_id', $user->id)->count();

@@ -117,22 +117,29 @@
                 <div x-show="view === 'month'" x-cloak>
                     @php
                         $maxDayCount = $activity->max('count') ?: 1;
+                        $hasAnyActivity = $activity->sum('count') > 0;
                     @endphp
-                    <div class="heatmap-grid">
-                        @for($d = 29; $d >= 0; $d--)
-                            @php
-                                $date = now()->subDays($d)->format('Y-m-d');
-                                $dayData = $activity->get($date);
-                                $count = $dayData->count ?? 0;
-                                $level = $count === 0 ? '' : ($count <= $maxDayCount * 0.25 ? 'heatmap-cell--l1' : ($count <= $maxDayCount * 0.5 ? 'heatmap-cell--l2' : ($count <= $maxDayCount * 0.75 ? 'heatmap-cell--l3' : 'heatmap-cell--l4')));
-                            @endphp
-                            <div class="heatmap-cell {{ $level }}" title="{{ $date }}: {{ $count }} Fragen"></div>
-                        @endfor
-                    </div>
-                    <div class="flex justify-between mt-2">
-                        <span class="text-xs" style="color: var(--text-muted);">{{ now()->subDays(29)->format('d.m.') }}</span>
-                        <span class="text-xs" style="color: var(--text-muted);">{{ now()->format('d.m.') }}</span>
-                    </div>
+                    @if(!$hasAnyActivity)
+                        <p class="text-sm text-center py-6" style="color: var(--text-muted);">
+                            Starte mit deiner ersten Frage
+                        </p>
+                    @else
+                        <div class="heatmap-grid">
+                            @for($d = 29; $d >= 0; $d--)
+                                @php
+                                    $date = now()->subDays($d)->format('Y-m-d');
+                                    $dayData = $activity->get($date);
+                                    $count = $dayData->count ?? 0;
+                                    $level = $count === 0 ? '' : ($count <= $maxDayCount * 0.25 ? 'heatmap-cell--l1' : ($count <= $maxDayCount * 0.5 ? 'heatmap-cell--l2' : ($count <= $maxDayCount * 0.75 ? 'heatmap-cell--l3' : 'heatmap-cell--l4')));
+                                @endphp
+                                <div class="heatmap-cell {{ $level }}" title="{{ $date }}: {{ $count }} Fragen"></div>
+                            @endfor
+                        </div>
+                        <div class="flex justify-between mt-2">
+                            <span class="text-xs" style="color: var(--text-muted);">{{ now()->subDays(29)->format('d.m.') }}</span>
+                            <span class="text-xs" style="color: var(--text-muted);">{{ now()->format('d.m.') }}</span>
+                        </div>
+                    @endif
                 </div>
             </div>
 
