@@ -667,6 +667,11 @@
     @keyframes fadeOutModal { from { opacity: 1; } to { opacity: 0; } }
 
     /* ─── Responsive ─────────────────────────────────── */
+    @media (min-width: 768px) and (max-width: 1023px) {
+        .stats-grid { grid-template-columns: 1fr 1fr; }
+        .heatmap-row { grid-template-columns: 2fr 1fr; }
+    }
+
     @media (max-width: 1023px) {
         .stats-grid { grid-template-columns: 1fr; }
         .kurs-grid { grid-template-columns: 1fr 1fr; }
@@ -703,7 +708,7 @@
     }
 
     try {
-        $threshold = \App\Models\UserQuestionProgress::MASTERY_THRESHOLD;
+        $threshold = \App\Models\UserQuestionProgress::MASTERY_THRESHOLD ?? 2;
         $progressData = \App\Models\UserQuestionProgress::where('user_id', $user->id)->get();
         $totalProgressPoints = 0;
         if ($progressData && $progressData->count() > 0) {
@@ -792,6 +797,7 @@
 
     $enrolledLernpools = auth()->user()->enrolledLernpools()->where('is_active', true)->get();
 
+    $weeklyChartData = $weeklyActivity ?? collect();
     $thisWeekTotal   = isset($weeklyActivity) ? $weeklyActivity->sum('count') : 0;
     $thisWeekCorrect = isset($weeklyActivity) ? $weeklyActivity->sum('correct') : 0;
     $thisWeekRate    = $thisWeekTotal > 0 ? round(($thisWeekCorrect / $thisWeekTotal) * 100) : 0;
@@ -876,7 +882,7 @@
             <div class="alert-compact-title">{{ count($failedArr) }} Frage{{ count($failedArr) == 1 ? '' : 'n' }} wiederholen</div>
             <div class="alert-compact-desc">Bevor du eine neue Prüfung starten kannst</div>
         </div>
-        <a href="{{ route('failed.index') }}" class="btn-primary btn-sm">Los</a>
+        <a href="{{ route('failed.index') }}" class="btn-primary btn-sm">Fehler wiederholen</a>
     </div>
     @endif
 
@@ -916,7 +922,7 @@
 
     @if($streakAtRisk)
     <div x-data="{ frozen: false, loading: false, async applyFreeze() { this.loading = true; try { const res = await fetch('{{ route('streak.freeze') }}', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content, 'Accept': 'application/json' }, cache: 'no-store' }); const data = await res.json(); if (data.success) this.frozen = true; } finally { this.loading = false; } } }"
-         class="alert-compact"
+         class="alert-compact glass-warning"
          :class="frozen ? 'glass-success' : 'glass-warning'">
         <i class="bi alert-compact-icon" :class="frozen ? 'bi-shield-check' : 'bi-fire'" :style="frozen ? 'color:#10b981;' : 'color:#f59e0b;'"></i>
         <div class="alert-compact-content">
