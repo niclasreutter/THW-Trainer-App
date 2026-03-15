@@ -1327,7 +1327,7 @@
                         <span class="kurs-percent">{{ $lpPct }}%</span>
                     </div>
                     @if($lpDone)
-                        <span class="btn-ghost btn-sm" style="background:rgba(34,197,94,0.15);color:#22c55e;border-color:rgba(34,197,94,0.25);">Gemeistert</span>
+                        <span class="btn-ghost btn-sm" style="background:rgba(34,197,94,0.15);color:#22c55e;border-color:rgba(34,197,94,0.25);">Fertig</span>
                     @else
                         <a href="{{ route('ortsverband.lernpools.practice', [$lernpool->ortsverband_id, $lernpool->id]) }}" class="btn-primary btn-sm">Weiter</a>
                     @endif
