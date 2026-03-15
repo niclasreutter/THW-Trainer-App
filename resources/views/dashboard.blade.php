@@ -271,6 +271,41 @@
         50% { border-color: rgba(245, 158, 11, 0.5); }
     }
 
+    /* ─── Streak Daily Progress ────────────────────── */
+    .streak-progress {
+        width: 100%;
+        height: 3px;
+        background: rgba(255,255,255,0.08);
+        border-radius: 2px;
+        overflow: hidden;
+        margin-top: 0.35rem;
+    }
+
+    html.light-mode .streak-progress { background: rgba(0,0,0,0.08); }
+
+    .streak-progress__fill {
+        height: 100%;
+        background: #f59e0b;
+        border-radius: 2px;
+        transition: width 0.5s ease-out;
+    }
+
+    .streak-progress__fill--done {
+        background: #22c55e;
+    }
+
+    .streak-progress__text {
+        font-size: 0.5rem;
+        color: var(--text-muted);
+        margin-top: 0.15rem;
+        font-family: 'IBM Plex Mono', monospace;
+        letter-spacing: 0.02em;
+    }
+
+    .streak-progress__text--done {
+        color: #22c55e;
+    }
+
     /* ─── Lootbox Nudge ────────────────────────────── */
     .lootbox-nudge {
         display: flex;
@@ -812,6 +847,12 @@
                 <div class="gami-pill {{ isset($streakAtRisk) && $streakAtRisk ? 'gami-pill--streak-risk' : '' }}" data-tour-step="streak">
                     <div class="gami-pill__value gami-pill__value--gold">{{ $user->streak_days ?? 0 }}</div>
                     <div class="gami-pill__label">Streak</div>
+                    @if(($user->streak_days ?? 0) >= 1)
+                        <div class="streak-progress">
+                            <div class="streak-progress__fill {{ $todayAnswered >= 20 ? 'streak-progress__fill--done' : '' }}" style="width:{{ min(100, ($todayAnswered / 20) * 100) }}%;"></div>
+                        </div>
+                        <div class="streak-progress__text {{ $todayAnswered >= 20 ? 'streak-progress__text--done' : '' }}">{{ min($todayAnswered, 20) }}/20</div>
+                    @endif
                 </div>
                 <div class="gami-pill" data-tour-step="achievements">
                     <div class="gami-pill__value gami-pill__value--blue">{{ $solvedTotal }}</div>
@@ -912,6 +953,12 @@
             <div class="gami-pill {{ isset($streakAtRisk) && $streakAtRisk ? 'gami-pill--streak-risk' : '' }}" data-tour-step="streak">
                 <div class="gami-pill__value gami-pill__value--gold">{{ $user->streak_days ?? 0 }}</div>
                 <div class="gami-pill__label">Streak</div>
+                @if(($user->streak_days ?? 0) >= 1)
+                    <div class="streak-progress">
+                        <div class="streak-progress__fill {{ $todayAnswered >= 20 ? 'streak-progress__fill--done' : '' }}" style="width:{{ min(100, ($todayAnswered / 20) * 100) }}%;"></div>
+                    </div>
+                    <div class="streak-progress__text {{ $todayAnswered >= 20 ? 'streak-progress__text--done' : '' }}">{{ min($todayAnswered, 20) }}/20</div>
+                @endif
             </div>
             <div class="gami-pill" data-tour-step="achievements">
                 <div class="gami-pill__value gami-pill__value--blue">{{ $solvedTotal }}</div>
