@@ -1119,8 +1119,11 @@
                 <div class="countdown-mini-fill" style="width:{{ $todayPct }}%; background: {{ $todayDone ? '#22c55e' : 'var(--thw-blue)' }};"></div>
             </div>
             <div class="countdown-status {{ $todayDone ? 'done' : 'pending' }}">
-                {{ $todayAnswered }}/{{ $dailyTarget }} heute
-                @if($todayDone) &check; Ziel erreicht! @endif
+                @if($todayDone)
+                    {{ $todayAnswered }}/{{ $dailyTarget }} heute – geschafft!
+                @else
+                    noch {{ $dailyTarget - $todayAnswered }} übrig
+                @endif
             </div>
         </div>
         @elseif($unmasteredCount <= 0)
@@ -1133,7 +1136,7 @@
     @else
     <div class="countdown-strip no-date glass">
         <div style="flex:1; font-size:0.875rem; color:var(--text-secondary);">
-            Prüfungsdatum eintragen für eine personalisierte Lernempfehlung
+            Prüfungsdatum eintragen für personalisierte Lernempfehlung
         </div>
         <a href="{{ route('profile') }}#exam_date" class="btn-ghost btn-sm">Datum eintragen</a>
     </div>
