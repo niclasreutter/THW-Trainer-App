@@ -4219,6 +4219,21 @@ html.light-mode .skeleton::after {
 .heatmap-cell--l3 { background: rgba(0, 85, 204, 0.6); }
 .heatmap-cell--l4 { background: #0055cc; }
 
+/* Light Mode Overrides - Dashboard */
+.light-mode .smart-action {
+    box-shadow: 0 4px 24px rgba(0, 51, 127, 0.2);
+}
+
+.light-mode .gami-pill {
+    background: rgba(255, 255, 255, 0.7);
+    border-color: rgba(0, 51, 127, 0.1);
+}
+
+.light-mode .stat-section-card {
+    background: rgba(255, 255, 255, 0.7);
+    border-color: rgba(0, 51, 127, 0.1);
+}
+
 /* Desktop Dashboard Layout */
 @media (min-width: 1024px) {
     .dash-grid {

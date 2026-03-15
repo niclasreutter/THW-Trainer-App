@@ -329,7 +329,7 @@
             </a>
 
             {{-- 2. Journey Stepper (mobile only) --}}
-            <div class="glass lg:hidden" style="padding:1rem;">
+            <div class="glass lg:hidden" style="padding:1rem;overflow:hidden;">
                 <div class="section-label" style="margin-bottom:0.75rem;">Dein Fortschritt</div>
                 <div class="journey journey--horizontal">
                     {{-- Step 1: Fragen lernen --}}
