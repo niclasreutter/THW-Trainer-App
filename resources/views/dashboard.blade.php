@@ -331,7 +331,7 @@
 
             {{-- Exam date hint (mobile, if no date set) --}}
             @if(!$examCountdown)
-            <a href="{{ route('profile.edit') }}" class="glass lg:hidden" data-tour-step="countdown" style="display:block;text-decoration:none;padding:0.875rem 1rem;">
+            <a href="{{ route('profile') }}" class="glass lg:hidden" data-tour-step="countdown" style="display:block;text-decoration:none;padding:0.875rem 1rem;">
                 <div style="display:flex;align-items:center;justify-content:space-between;">
                     <div>
                         <div style="font-size:0.8125rem;font-weight:600;color:var(--text-primary);">Prüfungsdatum eintragen</div>
@@ -627,7 +627,7 @@
                 @endif
             </div>
             @else
-            <a href="{{ route('profile.edit') }}" class="countdown-widget" data-tour-step="countdown" style="display:block;text-decoration:none;">
+            <a href="{{ route('profile') }}" class="countdown-widget" data-tour-step="countdown" style="display:block;text-decoration:none;">
                 <div class="countdown-label-small" style="margin-bottom:0.5rem;">Prüfungs-Countdown</div>
                 <div style="font-size:0.8125rem;color:var(--text-secondary);line-height:1.5;margin-bottom:0.75rem;">
                     Trage dein Prüfungsdatum ein und erhalte ein tägliches Lernziel.
