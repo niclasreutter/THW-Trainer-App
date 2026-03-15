@@ -666,15 +666,29 @@
     @keyframes slideUpModal { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     @keyframes fadeOutModal { from { opacity: 1; } to { opacity: 0; } }
 
-    /* ─── Responsive ─────────────────────────────────── */
-    @media (min-width: 768px) and (max-width: 1023px) {
-        .stats-grid { grid-template-columns: 1fr 1fr; }
-        .heatmap-row { grid-template-columns: 2fr 1fr; }
+    /* ─── Alert-Banner ─────────────────────────────────── */
+    .alert-compact {
+        padding: 0.875rem 1rem;
+        border-radius: 0.75rem 0.75rem 0.75rem 0;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
     }
+    .alert-compact-icon { font-size: 1.25rem; }
+    .alert-compact-content { flex: 1; min-width: 0; }
+    .alert-compact-title { font-size: 0.9rem; font-weight: 600; color: var(--text-primary); }
+    .alert-compact-desc { font-size: 0.8rem; color: var(--text-muted); }
 
+    /* ─── Responsive ─────────────────────────────────── */
     @media (max-width: 1023px) {
         .stats-grid { grid-template-columns: 1fr; }
         .kurs-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (min-width: 768px) and (max-width: 1023px) {
+        .stats-grid { grid-template-columns: 1fr 1fr; }
+        .heatmap-row { grid-template-columns: 2fr 1fr; }
     }
 
     @media (max-width: 767px) {
@@ -720,7 +734,7 @@
 
     $progress = \App\Models\UserQuestionProgress::countMastered($user->id);
 
-    $enrolledLehrgaenge = Auth::user()->enrolledLehrgaenge()->get();
+    $enrolledLehrgaenge = $user->enrolledLehrgaenge()->get();
 
     $gamificationService = new \App\Services\GamificationService();
     $userAchievements = $gamificationService->getUserAchievements($user);
@@ -748,7 +762,7 @@
         && (!$user->last_activity_date || \Carbon\Carbon::parse($user->last_activity_date)->lt(\Carbon\Carbon::today()));
 
     $activeLernsession = app(\App\Services\LernsessionService::class)
-        ->getActiveSessionsForUser(auth()->user())
+        ->getActiveSessionsForUser($user)
         ->first();
 
     $daysLeft = ($user->exam_date && $user->exam_date->isFuture())
@@ -779,7 +793,7 @@
         $dailyTarget = max(1, (int) ceil($remainingInteractions / $effectiveDays));
     }
 
-    $userOV      = auth()->user()->ortsverbände->first();
+    $userOV      = $user->ortsverbände->first();
     $isAusbilder = false;
     $ovStats     = null;
     if ($userOV) {
@@ -795,7 +809,7 @@
         }
     }
 
-    $enrolledLernpools = auth()->user()->enrolledLernpools()->where('is_active', true)->get();
+    $enrolledLernpools = $user->enrolledLernpools()->where('is_active', true)->get();
 
     $weeklyChartData = $weeklyActivity ?? collect();
     $thisWeekTotal   = isset($weeklyActivity) ? $weeklyActivity->sum('count') : 0;
@@ -922,7 +936,7 @@
 
     @if($streakAtRisk)
     <div x-data="{ frozen: false, loading: false, async applyFreeze() { this.loading = true; try { const res = await fetch('{{ route('streak.freeze') }}', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content, 'Accept': 'application/json' }, cache: 'no-store' }); const data = await res.json(); if (data.success) this.frozen = true; } finally { this.loading = false; } } }"
-         class="alert-compact glass-warning"
+         class="alert-compact"
          :class="frozen ? 'glass-success' : 'glass-warning'">
         <i class="bi alert-compact-icon" :class="frozen ? 'bi-shield-check' : 'bi-fire'" :style="frozen ? 'color:#10b981;' : 'color:#f59e0b;'"></i>
         <div class="alert-compact-content">
