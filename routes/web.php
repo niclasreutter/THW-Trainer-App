@@ -12,6 +12,7 @@
 */
 
 use App\Http\Controllers\ProfileController;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 
@@ -22,6 +23,22 @@ Route::get('/', function () {
     }
     return redirect()->route('login');
 })->name('app.home');
+
+// Health-Check für externes Monitoring (Uptime Robot, etc.)
+Route::get('/health', function () {
+    try {
+        DB::connection()->getPdo();
+        $db = 'ok';
+    } catch (\Exception $e) {
+        $db = 'error';
+    }
+    $status = $db === 'ok' ? 'ok' : 'degraded';
+    return response()->json([
+        'status'    => $status,
+        'db'        => $db,
+        'timestamp' => now()->toIso8601String(),
+    ], $status === 'ok' ? 200 : 503);
+})->name('health');
 
 // robots.txt für App-Subdomain (blockiert Crawler)
 Route::get('/robots.txt', function () {
@@ -305,6 +322,10 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix
     // Prüfungs-Feedback
     Route::get('exam-feedback', [\App\Http\Controllers\Admin\ExamFeedbackController::class, 'index'])->name('exam-feedback.index');
     Route::delete('exam-feedback/{examFeedback}', [\App\Http\Controllers\Admin\ExamFeedbackController::class, 'destroy'])->name('exam-feedback.destroy');
+
+    // Log Viewer (Scheduler, Worker)
+    Route::get('logs/{type}', [\App\Http\Controllers\Admin\SchedulerLogController::class, 'index'])->name('logs.index')->whereIn('type', ['scheduler', 'worker']);
+    Route::delete('logs/{type}', [\App\Http\Controllers\Admin\SchedulerLogController::class, 'destroy'])->name('logs.destroy')->whereIn('type', ['scheduler', 'worker']);
 
     // Ortsverband Routes (Admin) - Nur View und Delete
     Route::get('ortsverband', [\App\Http\Controllers\Admin\OrtsverbandController::class, 'index'])->name('ortsverband.index');

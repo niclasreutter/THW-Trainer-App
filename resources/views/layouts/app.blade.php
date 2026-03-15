@@ -7,6 +7,8 @@
                 var theme = localStorage.getItem('theme');
                 if (theme === 'light') {
                     document.documentElement.classList.add('light-mode');
+                } else if (!theme && window.matchMedia('(prefers-color-scheme: light)').matches) {
+                    document.documentElement.classList.add('light-mode');
                 }
             })();
         </script>
@@ -301,6 +303,18 @@
                             Prüfungs-Feedback
                         </a>
 
+                        <a href="{{ route('admin.logs.index', 'scheduler') }}"
+                           class="sidebar-link {{ request()->routeIs('admin.logs.*') && request()->route('type') === 'scheduler' ? 'active' : '' }}">
+                            <i class="bi bi-terminal"></i>
+                            Scheduler-Logs
+                        </a>
+
+                        <a href="{{ route('admin.logs.index', 'worker') }}"
+                           class="sidebar-link {{ request()->routeIs('admin.logs.*') && request()->route('type') === 'worker' ? 'active' : '' }}">
+                            <i class="bi bi-gear"></i>
+                            Worker-Logs
+                        </a>
+
                         @if(!app()->environment('production'))
                         <a href="{{ route('admin.time-simulator') }}"
                            class="sidebar-link {{ request()->routeIs('admin.time-simulator*') ? 'active' : '' }}">
@@ -385,6 +399,12 @@
                         </div>
                     </div>
                 </header>
+
+                @unless(app()->environment('production'))
+                <div style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #92400e; text-align: center; padding: 0.75rem 1rem; font-size: 0.95rem; font-weight: 700; letter-spacing: 0.5px; border-radius: 0.5rem; margin: 0 1rem 0 1rem;">
+                    Testumgebung ({{ app()->environment() }}) – Dies ist nicht die produktive Version von THW-Trainer!
+                </div>
+                @endunless
 
                 <!-- Page Content -->
                 <main class="flex-1 px-4 lg:px-8 py-6 lg:py-8 @auth pb-20 lg:pb-8 @endauth">
@@ -575,6 +595,16 @@
                         Prüfungs-Feedback
                     </a>
 
+                    <a href="{{ route('admin.logs.index', 'scheduler') }}" class="sidebar-link {{ request()->routeIs('admin.logs.*') && request()->route('type') === 'scheduler' ? 'active' : '' }}">
+                        <i class="bi bi-terminal"></i>
+                        Scheduler-Logs
+                    </a>
+
+                    <a href="{{ route('admin.logs.index', 'worker') }}" class="sidebar-link {{ request()->routeIs('admin.logs.*') && request()->route('type') === 'worker' ? 'active' : '' }}">
+                        <i class="bi bi-gear"></i>
+                        Worker-Logs
+                    </a>
+
                     @if(!app()->environment('production'))
                     <a href="{{ route('admin.time-simulator') }}" class="sidebar-link {{ request()->routeIs('admin.time-simulator*') ? 'active' : '' }}">
                         <i class="bi bi-clock-history"></i>
@@ -657,29 +687,36 @@
             // Theme Management
             (function() {
                 const savedTheme = localStorage.getItem('theme');
-                if (savedTheme === 'light') {
-                    document.documentElement.classList.add('light-mode');
-                    document.body.classList.add('light-mode');
-                } else if (savedTheme === 'dark') {
-                    document.documentElement.classList.remove('light-mode');
-                    document.body.classList.remove('light-mode');
+
+                function applyTheme(light) {
+                    document.documentElement.classList.toggle('light-mode', light);
+                    document.body.classList.toggle('light-mode', light);
                 }
+
+                if (savedTheme === 'light') {
+                    applyTheme(true);
+                } else if (savedTheme === 'dark') {
+                    applyTheme(false);
+                } else {
+                    // Kein gespeichertes Theme → Systemeinstellung verwenden
+                    applyTheme(window.matchMedia('(prefers-color-scheme: light)').matches);
+                }
+
+                // Live auf Systemänderungen reagieren (nur wenn kein manuelles Theme gesetzt)
+                window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', function(e) {
+                    if (!localStorage.getItem('theme')) {
+                        applyTheme(e.matches);
+                    }
+                });
             })();
 
             function toggleTheme() {
-                const html = document.documentElement;
-                const body = document.body;
-                const isLightMode = html.classList.contains('light-mode');
+                const isLightMode = document.documentElement.classList.contains('light-mode');
+                const newLight = !isLightMode;
 
-                if (isLightMode) {
-                    html.classList.remove('light-mode');
-                    body.classList.remove('light-mode');
-                    localStorage.setItem('theme', 'dark');
-                } else {
-                    html.classList.add('light-mode');
-                    body.classList.add('light-mode');
-                    localStorage.setItem('theme', 'light');
-                }
+                document.documentElement.classList.toggle('light-mode', newLight);
+                document.body.classList.toggle('light-mode', newLight);
+                localStorage.setItem('theme', newLight ? 'light' : 'dark');
             }
         </script>
 

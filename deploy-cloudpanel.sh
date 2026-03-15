@@ -55,5 +55,14 @@ if [ -f "package.json" ]; then
     npm run build 2>&1
 fi
 
+# 7. Queue Worker neu starten (falls Supervisor läuft)
+echo ""
+echo "🔄 Restarting queue worker..."
+if command -v supervisorctl &> /dev/null; then
+    sudo supervisorctl restart thw-trainer-worker 2>/dev/null && echo "  Queue worker restarted." || echo "  Supervisor nicht verfügbar oder Worker nicht konfiguriert – übersprungen."
+else
+    echo "  Supervisor nicht installiert – übersprungen."
+fi
+
 echo ""
 echo "=== ✅ CloudPanel Deployment Complete ==="

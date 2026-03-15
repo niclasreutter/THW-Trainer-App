@@ -122,6 +122,12 @@
             </div>
         </div>
 
+        @unless(app()->environment('production'))
+        <div style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #92400e; text-align: center; padding: 0.75rem 1rem; font-size: 0.95rem; font-weight: 700; font-family: 'Figtree', sans-serif; letter-spacing: 0.5px;">
+            Testumgebung ({{ app()->environment() }}) – Dies ist nicht die produktive Version von THW-Trainer!
+        </div>
+        @endunless
+
         <!-- Main Content -->
         <div class="auth-main">
             @yield('content')
