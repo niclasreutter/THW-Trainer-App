@@ -221,6 +221,16 @@ Route::get('/dashboard', function () {
     $levelProgress = $gamificationService->getLevelProgress($user);
     $nextLevelPoints = $gamificationService->getNextLevelPoints($user);
 
+    // Unopened lootboxes
+    $unopenedLootboxes = \App\Models\Lootbox::where('user_id', $user->id)
+        ->where('opened', false)->count();
+
+    // Today stats (for weekly summary)
+    $todayAnswered = \App\Models\QuestionStatistic::where('user_id', $user->id)
+        ->whereDate('created_at', today())->count();
+    $todayCorrect = \App\Models\QuestionStatistic::where('user_id', $user->id)
+        ->whereDate('created_at', today())->where('is_correct', true)->count();
+
     return view('dashboard', compact(
         'user', 'recentExams', 'totalQuestions', 'spacedRepetitionDue',
         'weeklyActivity', 'sectionStats', 'streakFreezeStatus',
@@ -228,7 +238,8 @@ Route::get('/dashboard', function () {
         'streakAtRisk', 'leagueRank', 'leagueSize', 'progressPercent',
         'masteryPercent', 'solvedPercent', 'solvedTotal',
         'canStartExam', 'exams', 'hasFailedQuestions',
-        'levelProgress', 'nextLevelPoints'
+        'levelProgress', 'nextLevelPoints', 'unopenedLootboxes',
+        'todayAnswered', 'todayCorrect'
     ));
 })->middleware(['auth', 'verified'])->name('dashboard');
 

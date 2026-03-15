@@ -231,6 +231,96 @@
         transition: width 0.5s ease-out;
     }
 
+    /* ─── Smart Action: Live ───────────────────────── */
+    .smart-action--live {
+        background: linear-gradient(135deg, #064e3b, #065f46);
+    }
+
+    .live-dot {
+        display: inline-block;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #22c55e;
+        margin-right: 0.25rem;
+        vertical-align: middle;
+        animation: live-pulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes live-pulse {
+        0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.6); }
+        50% { opacity: 0.7; box-shadow: 0 0 0 4px rgba(34, 197, 94, 0); }
+    }
+
+    /* ─── Streak Warning ───────────────────────────── */
+    .streak-warning {
+        padding: 0.75rem 1rem;
+        border-radius: 0.75rem;
+        border: 1px solid rgba(245, 158, 11, 0.25);
+        background: rgba(245, 158, 11, 0.08);
+        animation: streak-glow 2s ease-in-out infinite;
+    }
+
+    html.light-mode .streak-warning {
+        background: rgba(245, 158, 11, 0.1);
+        border-color: rgba(245, 158, 11, 0.3);
+    }
+
+    @keyframes streak-glow {
+        0%, 100% { border-color: rgba(245, 158, 11, 0.25); }
+        50% { border-color: rgba(245, 158, 11, 0.5); }
+    }
+
+    /* ─── Lootbox Nudge ────────────────────────────── */
+    .lootbox-nudge {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.75rem 1rem;
+        border-radius: 0.75rem;
+        border: 1px solid rgba(251, 191, 36, 0.2);
+        background: rgba(251, 191, 36, 0.06);
+        text-decoration: none;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .lootbox-nudge:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(251, 191, 36, 0.12);
+        text-decoration: none;
+    }
+
+    .lootbox-nudge__icon {
+        width: 2rem;
+        height: 2rem;
+        border-radius: 0.5rem;
+        background: linear-gradient(135deg, #fbbf24, #f59e0b);
+        color: #1a1a2e;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        animation: lootbox-shimmer 3s ease-in-out infinite;
+    }
+
+    @keyframes lootbox-shimmer {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0); }
+        50% { box-shadow: 0 0 12px 2px rgba(251, 191, 36, 0.3); }
+    }
+
+    .lootbox-nudge__title {
+        font-size: 0.8125rem;
+        font-weight: 600;
+        color: #fbbf24;
+    }
+
+    html.light-mode .lootbox-nudge__title { color: #d97706; }
+
+    .lootbox-nudge__desc {
+        font-size: 0.625rem;
+        color: var(--text-muted);
+        margin-top: 0.1rem;
+    }
+
     /* ─── League Badge ─────────────────────────────── */
     .league-badge {
         display: inline-flex;
@@ -410,10 +500,15 @@
 
             {{-- 1. Smart Action Card --}}
             <a href="{{ $smartAction['route'] }}"
-               class="smart-action {{ $smartAction['type'] === 'urgent' ? 'smart-action--urgent' : '' }}"
+               class="smart-action {{ $smartAction['type'] === 'urgent' ? 'smart-action--urgent' : ($smartAction['type'] === 'live' ? 'smart-action--live' : '') }}"
                data-tour-step="practice"
                style="display:block;text-decoration:none;">
-                <div class="smart-action__label">{{ $smartAction['label'] }}</div>
+                <div class="smart-action__label">
+                    @if($smartAction['type'] === 'live')
+                        <span class="live-dot"></span>
+                    @endif
+                    {{ $smartAction['label'] }}
+                </div>
                 <div class="smart-action__title">{{ $smartAction['title'] }}</div>
                 <div class="smart-action__desc">{{ $smartAction['desc'] }}</div>
                 <span class="smart-action__btn">
@@ -428,6 +523,26 @@
                     </div>
                 @endif
             </a>
+
+            {{-- Streak-at-risk Warning --}}
+            @if(isset($streakAtRisk) && $streakAtRisk)
+            <div class="streak-warning">
+                <div style="display:flex;align-items:center;gap:0.5rem;">
+                    <i class="bi bi-fire" style="color:#f59e0b;font-size:1rem;"></i>
+                    <div>
+                        <div style="font-size:0.8125rem;font-weight:600;color:var(--text-primary);">
+                            {{ $user->streak_days }} Tage Streak in Gefahr!
+                        </div>
+                        <div style="font-size:0.6875rem;color:var(--text-muted);">
+                            Beantworte heute mind. 20 Fragen
+                            @if(($user->streak_freezes_available ?? 0) > 0)
+                                &middot; {{ $user->streak_freezes_available }} Freeze{{ $user->streak_freezes_available > 1 ? 's' : '' }} verfügbar
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @endif
 
             {{-- Exam date hint (mobile, if no date set) --}}
             @if(!$examCountdown)
@@ -512,29 +627,48 @@
                     <a href="{{ route('statistics') }}" style="font-size:0.75rem;color:#5b9aff;text-decoration:none;font-weight:600;">Statistiken &rarr;</a>
                 </div>
 
-                <div class="activity-bar">
-                    @for($d = 0; $d < 7; $d++)
-                        @php
-                            $dayDate = $weekStart->copy()->addDays($d);
-                            $dateStr = $dayDate->format('Y-m-d');
-                            $dayData = $weeklyActivity->firstWhere('date', $dateStr);
-                            $count   = $dayData->count ?? 0;
-                            $barPct  = $count > 0 ? max(4, ($count / $maxCount) * 100) : 0;
-                            $isToday = $dayDate->isToday();
-                        @endphp
-                        <div class="activity-bar__col">
-                            @if($count > 0)
-                                <span class="activity-bar__count">{{ $count }}</span>
-                                <div class="activity-bar__fill {{ $isToday ? 'activity-bar__fill--today' : '' }}"
-                                     style="height:{{ $barPct }}%;"
-                                     title="{{ $count }} Fragen am {{ $dayDate->format('d.m.') }}"></div>
-                            @else
-                                <div class="activity-bar__fill activity-bar__fill--empty" style="height:4px;"></div>
-                            @endif
-                            <span class="activity-bar__day {{ $isToday ? 'activity-bar__day--today' : '' }}">{{ $days[$d] }}</span>
-                        </div>
-                    @endfor
-                </div>
+                @php
+                    $weekTotal = $weeklyActivity->sum('count');
+                    $weekCorrect = $weeklyActivity->sum('correct');
+                    $weekHitRate = $weekTotal > 0 ? round(($weekCorrect / $weekTotal) * 100) : 0;
+                @endphp
+
+                @if($weekTotal > 0)
+                    <div style="font-size:0.75rem;color:var(--text-secondary);margin-bottom:0.625rem;">
+                        {{ $weekTotal }} Fragen &middot; {{ $weekHitRate }}% richtig
+                        @if($todayAnswered > 0)
+                            &middot; heute {{ $todayAnswered }}
+                        @endif
+                    </div>
+                    <div class="activity-bar">
+                        @for($d = 0; $d < 7; $d++)
+                            @php
+                                $dayDate = $weekStart->copy()->addDays($d);
+                                $dateStr = $dayDate->format('Y-m-d');
+                                $dayData = $weeklyActivity->firstWhere('date', $dateStr);
+                                $count   = $dayData->count ?? 0;
+                                $barPct  = $count > 0 ? max(4, ($count / $maxCount) * 100) : 0;
+                                $isToday = $dayDate->isToday();
+                            @endphp
+                            <div class="activity-bar__col">
+                                @if($count > 0)
+                                    <span class="activity-bar__count">{{ $count }}</span>
+                                    <div class="activity-bar__fill {{ $isToday ? 'activity-bar__fill--today' : '' }}"
+                                         style="height:{{ $barPct }}%;"
+                                         title="{{ $count }} Fragen am {{ $dayDate->format('d.m.') }}"></div>
+                                @else
+                                    <div class="activity-bar__fill activity-bar__fill--empty" style="height:4px;"></div>
+                                @endif
+                                <span class="activity-bar__day {{ $isToday ? 'activity-bar__day--today' : '' }}">{{ $days[$d] }}</span>
+                            </div>
+                        @endfor
+                    </div>
+                @else
+                    <div style="text-align:center;padding:1.25rem 0;">
+                        <div style="font-size:0.8125rem;color:var(--text-muted);margin-bottom:0.75rem;">Beantworte deine erste Frage diese Woche</div>
+                        <a href="{{ route('practice.all') }}" class="btn-secondary btn-sm">Jetzt starten</a>
+                    </div>
+                @endif
             </div>
 
             {{-- 4. Lehrgänge --}}
@@ -710,6 +844,22 @@
             </a>
             @endif
 
+            {{-- Unopened Lootboxes --}}
+            @if($unopenedLootboxes > 0)
+            <a href="{{ route('gamification.lootboxes') }}" class="lootbox-nudge">
+                <div style="display:flex;align-items:center;gap:0.625rem;">
+                    <div class="lootbox-nudge__icon">
+                        <i class="bi bi-gift-fill" style="font-size:0.875rem;"></i>
+                    </div>
+                    <div>
+                        <div class="lootbox-nudge__title">{{ $unopenedLootboxes }} Belohnung{{ $unopenedLootboxes > 1 ? 'en' : '' }}</div>
+                        <div class="lootbox-nudge__desc">Wochenbelohnung wartet</div>
+                    </div>
+                </div>
+                <i class="bi bi-arrow-right" style="color:#fbbf24;font-size:0.75rem;"></i>
+            </a>
+            @endif
+
             {{-- Exam Countdown (desktop sidebar) --}}
             @if($examCountdown)
             @php
@@ -781,10 +931,11 @@
         </div>
 
         {{-- Quick Links --}}
-        <div style="display:flex;gap:0.5rem;">
-            <a href="{{ route('practice.menu') }}" class="dash-quick-link">Üben</a>
-            <a href="{{ route('lehrgaenge.index') }}" class="dash-quick-link">Lehrgänge</a>
-            <a href="{{ route('shop.index') }}" class="dash-quick-link">Shop</a>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.5rem;">
+            <a href="{{ route('practice.menu') }}" class="dash-quick-link"><i class="bi bi-book" style="font-size:0.875rem;"></i> Üben</a>
+            <a href="{{ route('statistics') }}" class="dash-quick-link"><i class="bi bi-bar-chart" style="font-size:0.875rem;"></i> Stats</a>
+            <a href="{{ route('gamification.leaderboard') }}" class="dash-quick-link"><i class="bi bi-trophy" style="font-size:0.875rem;"></i> Rang</a>
+            <a href="{{ route('shop.index') }}" class="dash-quick-link"><i class="bi bi-bag" style="font-size:0.875rem;"></i> Shop</a>
         </div>
 
     </div>
