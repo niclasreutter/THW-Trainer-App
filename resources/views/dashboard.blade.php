@@ -8,616 +8,6 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-    /* ─── Layout ─────────────────────────────────────── */
-    .ops-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 1.5rem;
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-    }
-
-    /* ─── Status-Strip ───────────────────────────────── */
-    .status-strip {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 1.5rem;
-        padding: 0.875rem 1.25rem;
-        border-left: 4px solid var(--thw-blue);
-        border-radius: 0 0.5rem 0.5rem 0;
-        flex-wrap: wrap;
-    }
-
-    .status-left { display: flex; flex-direction: column; gap: 0.35rem; min-width: 0; }
-
-    .status-name {
-        font-size: 1rem;
-        font-weight: 700;
-        color: var(--text-primary);
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    .status-level-badge {
-        font-size: 0.6rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        padding: 0.15rem 0.5rem;
-        border-radius: 0.25rem;
-        background: var(--thw-blue);
-        color: white;
-        flex-shrink: 0;
-    }
-
-    .status-xp-bar {
-        height: 3px;
-        width: 200px;
-        background: rgba(0, 51, 127, 0.15);
-        border-radius: 2px;
-        overflow: hidden;
-    }
-
-    html.light-mode .status-xp-bar {
-        background: rgba(0, 51, 127, 0.12);
-    }
-
-    .status-xp-fill {
-        height: 100%;
-        background: var(--thw-blue);
-        border-radius: 2px;
-        transition: width 0.8s ease-out;
-    }
-
-    .status-right {
-        display: flex;
-        align-items: center;
-        gap: 1.5rem;
-        flex-shrink: 0;
-    }
-
-    .status-stat {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 0.1rem;
-    }
-
-    .status-stat-value {
-        font-size: 1rem;
-        font-weight: 800;
-        color: var(--text-primary);
-        line-height: 1;
-    }
-
-    .status-stat-value.gold { color: var(--gold-start); }
-
-    .status-stat-label {
-        font-size: 0.6rem;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        color: var(--text-muted);
-    }
-
-    .status-divider {
-        width: 1px;
-        height: 28px;
-        background: var(--glass-border);
-    }
-
-    .status-freeze-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.2rem;
-        font-size: 0.6rem;
-        color: #93c5fd;
-        font-weight: 600;
-    }
-
-    /* ─── Next-Step Hero Card ────────────────────────── */
-    .hero-card {
-        padding: 1.75rem 2rem;
-        border-radius: 0.75rem 0.25rem 0.75rem 0.75rem;
-        display: flex;
-        align-items: center;
-        gap: 2rem;
-        text-decoration: none;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .hero-card:hover { text-decoration: none; }
-
-    .hero-content { flex: 1; min-width: 0; }
-
-    .hero-label {
-        font-size: 0.65rem;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        color: rgba(255,255,255,0.7);
-        margin-bottom: 0.35rem;
-        font-weight: 600;
-    }
-
-    html.light-mode .hero-label { color: var(--thw-blue); }
-
-    .hero-title {
-        font-size: 1.5rem;
-        font-weight: 800;
-        color: var(--text-primary);
-        margin-bottom: 0.5rem;
-        line-height: 1.2;
-    }
-
-    .hero-desc {
-        font-size: 0.875rem;
-        color: var(--text-secondary);
-        margin-bottom: 1.25rem;
-        line-height: 1.5;
-    }
-
-    .hero-ring-wrap {
-        flex-shrink: 0;
-        width: 80px;
-        height: 80px;
-        position: relative;
-    }
-
-    .hero-ring-text {
-        position: absolute;
-        inset: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.1rem;
-        font-weight: 800;
-        color: var(--text-primary);
-    }
-
-    /* ─── Stats Grid ─────────────────────────────────── */
-    .stats-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1rem;
-    }
-
-    .stat-card {
-        padding: 1.25rem 1.5rem;
-        border-radius: 0.75rem 0.25rem 0.75rem 0.75rem;
-        border-top: 3px solid var(--thw-blue);
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-
-    .stat-card-title {
-        font-size: 0.6rem;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        color: var(--text-muted);
-        font-weight: 700;
-    }
-
-    .stat-card-value {
-        font-size: 2rem;
-        font-weight: 800;
-        color: var(--text-primary);
-        line-height: 1;
-        letter-spacing: -0.03em;
-    }
-
-    .stat-card-sub {
-        font-size: 0.8rem;
-        color: var(--text-secondary);
-    }
-
-    .stat-bar {
-        height: 4px;
-        background: rgba(0, 51, 127, 0.12);
-        border-radius: 2px;
-        overflow: hidden;
-        margin: 0.25rem 0;
-    }
-
-    html.light-mode .stat-bar {
-        background: rgba(0, 51, 127, 0.1);
-    }
-
-    .stat-bar-fill {
-        height: 100%;
-        background: var(--thw-blue);
-        border-radius: 2px;
-        transition: width 0.6s ease-out;
-    }
-
-    .stat-bar-fill.green { background: #22c55e; }
-
-    .stat-card-row {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 0.5rem;
-    }
-
-    .stat-card-detail {
-        font-size: 0.75rem;
-        color: var(--text-secondary);
-    }
-
-    .stat-card-detail.gold { color: var(--gold-start); font-weight: 700; }
-
-    /* ─── Countdown-Strip ───────────────────────────── */
-    .countdown-strip {
-        display: flex;
-        align-items: center;
-        gap: 1.5rem;
-        padding: 0.875rem 1.25rem;
-        border-left: 4px solid var(--thw-blue);
-        border-radius: 0 0.5rem 0.5rem 0;
-        flex-wrap: wrap;
-    }
-
-    .countdown-strip.no-date {
-        border-left-style: dashed;
-        opacity: 0.8;
-    }
-
-    .countdown-days {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        flex-shrink: 0;
-    }
-
-    .countdown-days-num {
-        font-size: 1.75rem;
-        font-weight: 800;
-        color: var(--text-primary);
-        line-height: 1;
-        letter-spacing: -0.03em;
-    }
-
-    .countdown-days-label {
-        font-size: 0.65rem;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        color: var(--text-muted);
-    }
-
-    .countdown-mid {
-        flex: 1;
-        min-width: 160px;
-    }
-
-    .countdown-target-label {
-        font-size: 0.75rem;
-        color: var(--text-secondary);
-        margin-bottom: 0.35rem;
-    }
-
-    .countdown-mini-bar {
-        height: 4px;
-        background: rgba(0, 51, 127, 0.12);
-        border-radius: 2px;
-        overflow: hidden;
-    }
-
-    html.light-mode .countdown-mini-bar { background: rgba(0, 51, 127, 0.1); }
-
-    .countdown-mini-fill {
-        height: 100%;
-        border-radius: 2px;
-        transition: width 0.5s ease-out;
-    }
-
-    .countdown-status {
-        font-size: 0.7rem;
-        margin-top: 0.25rem;
-        font-weight: 600;
-    }
-
-    .countdown-status.done { color: #22c55e; }
-    .countdown-status.pending { color: var(--text-muted); }
-
-    /* ─── Activity Chart ─────────────────────────────── */
-    .activity-section {
-        padding: 1.25rem 1.5rem;
-        border-radius: 0.75rem 0.25rem 0.75rem 0.75rem;
-    }
-
-    .activity-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 1rem;
-    }
-
-    .activity-title {
-        font-size: 0.6rem;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        color: var(--text-muted);
-        font-weight: 700;
-    }
-
-    .activity-trend {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-size: 0.75rem;
-    }
-
-    .activity-chart-wrap {
-        display: flex;
-        align-items: flex-end;
-        gap: 0.4rem;
-        height: 100px;
-    }
-
-    .activity-bar-col {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 0.3rem;
-        height: 100%;
-    }
-
-    .activity-bar-space {
-        flex: 1;
-        width: 100%;
-        display: flex;
-        align-items: flex-end;
-        justify-content: center;
-    }
-
-    .activity-bar-new {
-        width: 100%;
-        max-width: 28px;
-        min-height: 4px;
-        border-radius: 3px 3px 2px 2px;
-        background: var(--thw-blue);
-        position: relative;
-        transition: height 0.5s ease-out;
-    }
-
-    .activity-bar-new.today {
-        background: var(--thw-blue-light);
-        box-shadow: 0 0 10px rgba(0, 77, 179, 0.35);
-    }
-
-    .activity-bar-new.empty {
-        background: rgba(0, 51, 127, 0.08);
-        min-height: 4px;
-    }
-
-    html.light-mode .activity-bar-new.empty {
-        background: rgba(0, 51, 127, 0.1);
-    }
-
-    .activity-bar-count-new {
-        font-size: 0.55rem;
-        font-weight: 700;
-        color: var(--text-muted);
-        position: absolute;
-        top: -15px;
-        left: 50%;
-        transform: translateX(-50%);
-        white-space: nowrap;
-    }
-
-    .activity-day-label {
-        font-size: 0.6rem;
-        color: var(--text-muted);
-        font-weight: 600;
-        text-transform: uppercase;
-    }
-
-    .activity-day-label.today { color: var(--thw-blue-light); font-weight: 700; }
-
-    /* ─── Heatmap + Spaced Rep ──────────────────────── */
-    .heatmap-row {
-        display: grid;
-        grid-template-columns: 2fr 1fr;
-        gap: 1rem;
-    }
-
-    .heatmap-card {
-        padding: 1.25rem 1.5rem;
-        border-radius: 0.5rem 1.5rem 0.5rem 0.5rem;
-    }
-
-    .spaced-card {
-        padding: 1.25rem 1.5rem;
-        border-radius: 0.75rem 0.25rem 0.75rem 0.75rem;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        text-align: center;
-        gap: 0.5rem;
-    }
-
-    .spaced-count {
-        font-size: 2.5rem;
-        font-weight: 800;
-        color: var(--text-primary);
-        line-height: 1;
-        letter-spacing: -0.04em;
-    }
-
-    .spaced-count.zero { color: #22c55e; }
-
-    .heatmap-grid-new {
-        display: grid;
-        grid-template-columns: repeat(5, 1fr);
-        gap: 0.4rem;
-        margin-bottom: 0.75rem;
-    }
-
-    .heatmap-cell-new {
-        aspect-ratio: 1;
-        border-radius: 0.4rem;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        transition: transform 0.15s, box-shadow 0.15s;
-        cursor: pointer;
-        text-decoration: none;
-    }
-
-    .heatmap-cell-new:hover { transform: scale(1.1); }
-    .heatmap-cell-new.strong { background: rgba(34, 197, 94, 0.3); border: 1px solid rgba(34, 197, 94, 0.35); }
-    .heatmap-cell-new.medium { background: rgba(245, 158, 11, 0.3); border: 1px solid rgba(245, 158, 11, 0.3); }
-    .heatmap-cell-new.weak   { background: rgba(239, 68, 68, 0.25); border: 1px solid rgba(239, 68, 68, 0.25); }
-    .heatmap-cell-new.none   { background: rgba(0, 51, 127, 0.06); border: 1px solid rgba(0, 51, 127, 0.1); }
-
-    html.light-mode .heatmap-cell-new.none { background: rgba(0,51,127,0.06); border-color: rgba(0,51,127,0.15); }
-
-    .heatmap-cell-num { font-size: 0.7rem; font-weight: 800; color: var(--text-primary); }
-    .heatmap-cell-pct { font-size: 0.5rem; font-weight: 600; color: var(--text-secondary); }
-    .heatmap-cell-new.weak .heatmap-cell-num { color: #fca5a5; }
-    html.light-mode .heatmap-cell-new.weak .heatmap-cell-num { color: #dc2626; }
-
-    .heatmap-legend-new {
-        display: flex;
-        gap: 0.75rem;
-        flex-wrap: wrap;
-    }
-
-    .heatmap-legend-item-new {
-        display: flex;
-        align-items: center;
-        gap: 0.25rem;
-        font-size: 0.58rem;
-        color: var(--text-muted);
-    }
-
-    .heatmap-legend-dot-new {
-        width: 7px;
-        height: 7px;
-        border-radius: 2px;
-        flex-shrink: 0;
-    }
-
-    /* ─── Kurs-Grid ──────────────────────────────────── */
-    .kurs-section-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 0.75rem;
-    }
-
-    .kurs-section-title {
-        font-size: 0.6rem;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        color: var(--text-muted);
-        font-weight: 700;
-    }
-
-    .kurs-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 0.875rem;
-    }
-
-    .kurs-card {
-        padding: 1rem 1.25rem;
-        border-top: 3px solid var(--thw-blue);
-        border-radius: 0 0 0.5rem 0.5rem;
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-
-    .kurs-card-title {
-        font-size: 0.875rem;
-        font-weight: 700;
-        color: var(--text-primary);
-    }
-
-    .kurs-card-desc {
-        font-size: 0.75rem;
-        color: var(--text-secondary);
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-        flex: 1;
-    }
-
-    .kurs-bar { height: 3px; background: rgba(0,51,127,0.1); border-radius: 2px; overflow: hidden; margin: 0.1rem 0; }
-    .kurs-bar-fill { height: 100%; background: var(--thw-blue); border-radius: 2px; }
-    .kurs-bar-fill.done { background: #22c55e; }
-    .kurs-percent { font-size: 0.7rem; font-weight: 700; color: var(--thw-blue-light); }
-
-    /* ─── Ausbilder-Karte ────────────────────────────── */
-    .ausbilder-card {
-        padding: 1rem 1.5rem;
-        border-radius: 0.5rem 0.25rem 0.5rem 0.5rem;
-        display: flex;
-        align-items: center;
-        gap: 1.5rem;
-        flex-wrap: wrap;
-    }
-
-    .ausbilder-stats {
-        display: flex;
-        gap: 2rem;
-    }
-
-    .ausbilder-stat-val {
-        font-size: 1.4rem;
-        font-weight: 800;
-        color: var(--text-primary);
-        line-height: 1;
-    }
-
-    .ausbilder-stat-label {
-        font-size: 0.6rem;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        color: var(--text-muted);
-    }
-
-    /* ─── Live-Session Banner ────────────────────────── */
-    .live-session-banner {
-        display: flex;
-        align-items: center;
-        gap: 1.25rem;
-        padding: 1rem 1.25rem;
-        border-left: 4px solid #22c55e;
-        border-radius: 0 0.5rem 0.5rem 0;
-        flex-wrap: wrap;
-    }
-
-    .live-dot {
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        background: #22c55e;
-        flex-shrink: 0;
-        animation: pulse-dot 2s ease-in-out infinite;
-        box-shadow: 0 0 8px rgba(34, 197, 94, 0.4);
-    }
-
-    @keyframes pulse-dot {
-        0%, 100% { opacity: 1; transform: scale(1); }
-        50% { opacity: 0.6; transform: scale(0.8); }
-    }
-
-    .live-session-info { flex: 1; min-width: 0; }
-    .live-session-title { font-size: 0.875rem; font-weight: 700; color: var(--text-primary); }
-    .live-session-meta { font-size: 0.75rem; color: var(--text-secondary); line-height: 1.5; }
-
     /* ─── Leaderboard-Modal ──────────────────────────── */
     .leaderboard-modal-overlay {
         position: fixed;
@@ -669,832 +59,603 @@
     @keyframes slideUpModal { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     @keyframes fadeOutModal { from { opacity: 1; } to { opacity: 0; } }
 
-    /* ─── Alert-Banner ─────────────────────────────────── */
-    .alert-compact {
-        padding: 0.875rem 1rem;
-        border-radius: 0.75rem 0.75rem 0.75rem 0;
-        margin-bottom: 0.5rem;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-    }
-    .alert-compact-icon { font-size: 1.25rem; }
-    .alert-compact-content { flex: 1; min-width: 0; }
-    .alert-compact-title { font-size: 0.9rem; font-weight: 600; color: var(--text-primary); }
-    .alert-compact-desc { font-size: 0.8rem; color: var(--text-muted); }
-
-    /* ─── Responsive ─────────────────────────────────── */
-    @media (max-width: 1023px) {
-        .stats-grid { grid-template-columns: 1fr; }
-        .kurs-grid { grid-template-columns: 1fr 1fr; }
+    /* ─── Header ────────────────────────────────────── */
+    .dash-header {
+        margin-bottom: 1.25rem;
     }
 
-    @media (min-width: 768px) and (max-width: 1023px) {
-        .stats-grid { grid-template-columns: 1fr 1fr; }
-        .heatmap-row { grid-template-columns: 2fr 1fr; }
+    .dash-greeting {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--text-muted);
+        font-weight: 600;
+        margin-bottom: 0.25rem;
     }
 
-    @media (max-width: 767px) {
-        .ops-container { padding: 1rem; }
-        .status-strip { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
-        .status-right { gap: 1rem; flex-wrap: wrap; }
-        .status-xp-bar { width: 100%; }
-        .hero-card { flex-direction: column; padding: 1.25rem; }
-        .hero-ring-wrap { align-self: flex-end; }
-        .heatmap-row { grid-template-columns: 1fr; }
-        .kurs-grid { grid-template-columns: 1fr; }
-        .countdown-strip { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
-        .ausbilder-card { flex-direction: column; align-items: flex-start; }
-    }
-
-    /* ═══════════════════════════════════════════════════
-       DESIGN ENHANCEMENTS — Field Operations Terminal
-       ═══════════════════════════════════════════════════ */
-
-    /* ─── Custom Font Applications ──────────────────── */
-    .stat-card-value,
-    .countdown-days-num,
-    .spaced-count,
-    .hero-ring-text,
-    .status-stat-value,
-    .ausbilder-stat-val {
+    .dash-username {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: var(--text-primary);
+        line-height: 1.2;
+        margin-bottom: 0.25rem;
         font-family: 'Barlow Condensed', sans-serif;
     }
 
-    .stat-card-title,
-    .activity-title,
-    .kurs-section-title,
-    .countdown-days-label,
-    .ausbilder-stat-label,
-    .status-stat-label,
-    .hero-label,
-    .status-level-badge,
-    .heatmap-cell-num,
-    .heatmap-cell-pct {
+    .dash-level-line {
+        font-size: 0.8125rem;
+        color: #5b9aff;
+        font-weight: 600;
+    }
+
+    html.light-mode .dash-level-line { color: #00337F; }
+
+    /* ─── Journey Stepper (Desktop Sidebar) ─────────── */
+    .journey-sidebar-label {
+        font-size: 0.5625rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--text-muted);
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+
+    .journey-step-detail {
+        font-size: 0.6875rem;
+        color: var(--text-muted);
+        margin-top: 0.25rem;
+        line-height: 1.3;
+    }
+
+    .journey-step-bar {
+        height: 3px;
+        background: rgba(255,255,255,0.08);
+        border-radius: 2px;
+        overflow: hidden;
+        margin-top: 0.4rem;
+        width: 100%;
+    }
+
+    html.light-mode .journey-step-bar {
+        background: rgba(0,0,0,0.08);
+    }
+
+    .journey-step-bar-fill {
+        height: 100%;
+        background: #0055cc;
+        border-radius: 2px;
+    }
+
+    /* ─── Section Labels ─────────────────────────────── */
+    .section-label {
+        font-size: 0.5625rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--text-muted);
+        font-weight: 700;
         font-family: 'IBM Plex Mono', monospace;
     }
 
-    /* ─── Hero titles & large values ────────────────── */
-    .hero-title {
-        font-family: 'Barlow Condensed', sans-serif;
-        font-size: 2rem;
+    /* ─── Lehrgang Card ─────────────────────────────── */
+    .lg-card {
+        display: block;
+        padding: 0.875rem 1rem;
+        border-radius: 0.5rem;
+        border: 1px solid var(--glass-border);
+        background: var(--glass-bg);
+        text-decoration: none;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .lg-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 18px rgba(0,51,127,0.12);
+        text-decoration: none;
+    }
+
+    .lg-card-title {
+        font-size: 0.875rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 0.25rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .lg-bar {
+        height: 4px;
+        background: rgba(0,51,127,0.12);
+        border-radius: 2px;
+        overflow: hidden;
+        margin: 0.35rem 0;
+    }
+
+    html.light-mode .lg-bar { background: rgba(0,51,127,0.1); }
+
+    .lg-bar-fill {
+        height: 100%;
+        background: #0055cc;
+        border-radius: 2px;
+    }
+
+    .lg-bar-fill--done { background: #22c55e; }
+
+    .lg-pct {
+        font-size: 0.6875rem;
+        font-weight: 700;
+        color: #5b9aff;
+    }
+
+    html.light-mode .lg-pct { color: #00337F; }
+
+    /* ─── Exam Countdown (Sidebar) ──────────────────── */
+    .countdown-widget {
+        padding: 1rem;
+        border-radius: 0.75rem;
+        border: 1px solid var(--glass-border);
+        background: var(--glass-bg);
+    }
+
+    .countdown-days-big {
+        font-size: 2.5rem;
         font-weight: 800;
-        letter-spacing: -0.01em;
+        color: #5b9aff;
+        line-height: 1;
+        font-family: 'Barlow Condensed', sans-serif;
+        letter-spacing: -0.03em;
     }
 
-    .stat-card-value  { font-size: 2.6rem; letter-spacing: -0.04em; }
-    .countdown-days-num { font-size: 2.6rem; letter-spacing: -0.04em; color: var(--thw-blue-light); }
-    .spaced-count     { font-size: 3.2rem; letter-spacing: -0.05em; }
-    .status-stat-value { font-size: 1.15rem; }
-    .status-stat-value.gold { text-shadow: 0 0 18px rgba(251,191,36,0.45); }
+    html.light-mode .countdown-days-big { color: #00337F; }
 
-    /* ─── Level badge — angular tactical cut ────────── */
-    .status-level-badge {
-        clip-path: polygon(0 0, calc(100% - 5px) 0, 100% 5px, 100% 100%, 5px 100%, 0 calc(100% - 5px));
-        border-radius: 0;
-        letter-spacing: 1.5px;
-        font-size: 0.58rem;
+    .countdown-label-small {
+        font-size: 0.625rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--text-muted);
+        font-family: 'IBM Plex Mono', monospace;
     }
 
-    /* ─── Ops container — dot grid atmosphere ───────── */
-    .ops-container {
-        background-image: radial-gradient(rgba(0,51,127,0.05) 1px, transparent 1px);
-        background-size: 22px 22px;
-    }
-    html.light-mode .ops-container {
-        background-image: radial-gradient(rgba(0,51,127,0.09) 1px, transparent 1px);
+    .countdown-mini-bar {
+        height: 4px;
+        background: rgba(255,255,255,0.08);
+        border-radius: 2px;
+        overflow: hidden;
+        margin: 0.4rem 0 0.25rem;
     }
 
-    /* ─── Staggered section load animations ─────────── */
-    @keyframes ops-rise {
-        from { opacity: 0; transform: translateY(12px); }
+    html.light-mode .countdown-mini-bar { background: rgba(0,0,0,0.08); }
+
+    .countdown-mini-fill {
+        height: 100%;
+        border-radius: 2px;
+        transition: width 0.5s ease-out;
+    }
+
+    /* ─── Stagger animation ─────────────────────────── */
+    @keyframes dash-rise {
+        from { opacity: 0; transform: translateY(10px); }
         to   { opacity: 1; transform: translateY(0); }
     }
-    .ops-container > * {
-        animation: ops-rise 0.5s cubic-bezier(0.22,1,0.36,1) both;
-    }
-    .ops-container > *:nth-child(1) { animation-delay: 0.04s; }
-    .ops-container > *:nth-child(2) { animation-delay: 0.09s; }
-    .ops-container > *:nth-child(3) { animation-delay: 0.14s; }
-    .ops-container > *:nth-child(4) { animation-delay: 0.19s; }
-    .ops-container > *:nth-child(5) { animation-delay: 0.24s; }
-    .ops-container > *:nth-child(6) { animation-delay: 0.29s; }
-    .ops-container > *:nth-child(7) { animation-delay: 0.34s; }
-    .ops-container > *:nth-child(8) { animation-delay: 0.39s; }
-    .ops-container > *:nth-child(9) { animation-delay: 0.44s; }
-    .ops-container > *:nth-child(10) { animation-delay: 0.49s; }
 
-    /* ─── XP bar shimmer ────────────────────────────── */
-    @keyframes xp-shimmer {
-        0%   { background-position: -200% center; }
-        100% { background-position: 200% center; }
-    }
-    .status-xp-fill {
-        background: linear-gradient(90deg, var(--thw-blue) 30%, var(--thw-blue-light) 50%, var(--thw-blue) 70%);
-        background-size: 200% 100%;
-        animation: xp-shimmer 4s ease-in-out infinite;
+    .dash-container > * {
+        animation: dash-rise 0.45s cubic-bezier(0.22,1,0.36,1) both;
     }
 
-    /* ─── Hero card — sweep + hover lift ────────────── */
-    .hero-card {
-        transition: transform 0.3s cubic-bezier(0.22,1,0.36,1),
-                    box-shadow 0.3s ease;
-        overflow: hidden;
-    }
-    .hero-card:hover { transform: translateY(-3px); }
-    .hero-card::after {
-        content: '';
-        position: absolute;
-        top: 0; left: -100%;
-        width: 55%; height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.07), transparent);
-        transform: skewX(-15deg);
-        transition: left 0.65s ease;
-        pointer-events: none;
-    }
-    .hero-card:hover::after { left: 160%; }
+    .dash-container > *:nth-child(1) { animation-delay: 0.03s; }
+    .dash-container > *:nth-child(2) { animation-delay: 0.07s; }
+    .dash-container > *:nth-child(3) { animation-delay: 0.11s; }
+    .dash-container > *:nth-child(4) { animation-delay: 0.15s; }
 
-    /* ─── Progress bars — height + glow ─────────────── */
-    .stat-bar, .countdown-mini-bar, .kurs-bar { height: 5px; border-radius: 3px; }
-    .stat-bar-fill { box-shadow: 0 0 7px rgba(0,51,127,0.45); }
-    html.light-mode .stat-bar-fill { box-shadow: 0 0 5px rgba(0,51,127,0.2); }
-    .status-xp-bar { height: 4px; border-radius: 2px; }
-
-    /* ─── Activity bars — rise animation ────────────── */
+    /* Activity bars animate in */
     @keyframes bar-rise {
         from { transform: scaleY(0); transform-origin: bottom; opacity: 0; }
         to   { transform: scaleY(1); transform-origin: bottom; opacity: 1; }
     }
-    .activity-bar-new { animation: bar-rise 0.55s cubic-bezier(0.22,1,0.36,1) both; }
-    .activity-bar-col:nth-child(1) .activity-bar-new { animation-delay: 0.35s; }
-    .activity-bar-col:nth-child(2) .activity-bar-new { animation-delay: 0.40s; }
-    .activity-bar-col:nth-child(3) .activity-bar-new { animation-delay: 0.45s; }
-    .activity-bar-col:nth-child(4) .activity-bar-new { animation-delay: 0.50s; }
-    .activity-bar-col:nth-child(5) .activity-bar-new { animation-delay: 0.55s; }
-    .activity-bar-col:nth-child(6) .activity-bar-new { animation-delay: 0.60s; }
-    .activity-bar-col:nth-child(7) .activity-bar-new { animation-delay: 0.65s; }
-    .activity-chart-wrap { height: 115px; }
 
-    /* ─── Heatmap — semantic hover glows ────────────── */
-    .heatmap-cell-new {
-        transition: transform 0.18s cubic-bezier(0.22,1,0.36,1),
-                    box-shadow 0.18s ease,
-                    filter 0.18s ease;
+    .activity-bar__fill {
+        animation: bar-rise 0.5s cubic-bezier(0.22,1,0.36,1) both;
     }
-    .heatmap-cell-new:hover { transform: scale(1.15); position: relative; z-index: 2; filter: brightness(1.12); }
-    .heatmap-cell-new.strong:hover { box-shadow: 0 4px 14px rgba(34,197,94,0.4); }
-    .heatmap-cell-new.medium:hover { box-shadow: 0 4px 14px rgba(245,158,11,0.4); }
-    .heatmap-cell-new.weak:hover   { box-shadow: 0 4px 14px rgba(239,68,68,0.4); }
-    .heatmap-cell-new.none:hover   { box-shadow: 0 4px 14px rgba(0,51,127,0.25); }
 
-    /* ─── Kurs cards — hover lift ────────────────────── */
-    .kurs-card {
-        transition: transform 0.22s cubic-bezier(0.22,1,0.36,1),
-                    box-shadow 0.22s ease;
-    }
-    .kurs-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 24px rgba(0,51,127,0.14);
-    }
+    .activity-bar__col:nth-child(1) .activity-bar__fill { animation-delay: 0.3s; }
+    .activity-bar__col:nth-child(2) .activity-bar__fill { animation-delay: 0.35s; }
+    .activity-bar__col:nth-child(3) .activity-bar__fill { animation-delay: 0.4s; }
+    .activity-bar__col:nth-child(4) .activity-bar__fill { animation-delay: 0.45s; }
+    .activity-bar__col:nth-child(5) .activity-bar__fill { animation-delay: 0.5s; }
+    .activity-bar__col:nth-child(6) .activity-bar__fill { animation-delay: 0.55s; }
+    .activity-bar__col:nth-child(7) .activity-bar__fill { animation-delay: 0.6s; }
 </style>
 @endpush
 
 @section('content')
 @php
     $user = Auth::user();
-    $total = $totalQuestions ?? \App\Models\Question::count();
-    if (empty($total)) { $total = \App\Models\Question::count(); }
 
-    $allExams = \App\Models\ExamStatistic::where('user_id', $user->id)
-        ->orderBy('created_at', 'desc')
-        ->get();
+    /* ── Time-based greeting ─────────────────────── */
+    $hour = (int) now()->format('H');
+    $greeting = $hour < 12 ? 'Guten Morgen' : ($hour < 18 ? 'Guten Tag' : 'Guten Abend');
 
-    $exams = 0;
-    foreach ($allExams as $exam) {
-        if ($exam->is_passed) { $exams++; } else { break; }
-    }
-
-    try {
-        $threshold = \App\Models\UserQuestionProgress::MASTERY_THRESHOLD ?? 2;
-        $progressData = \App\Models\UserQuestionProgress::where('user_id', $user->id)->get();
-        $totalProgressPoints = 0;
-        if ($progressData && $progressData->count() > 0) {
-            foreach ($progressData as $prog) { $totalProgressPoints += min($prog->consecutive_correct ?? 0, $threshold); }
-        }
-        $maxProgressPoints = $total * $threshold;
-        $progressPercent = $maxProgressPoints > 0 ? round(($totalProgressPoints / $maxProgressPoints) * 100) : 0;
-    } catch (\Exception $e) { $progressPercent = 0; $totalProgressPoints = 0; $progressData = collect(); $threshold = \App\Models\UserQuestionProgress::MASTERY_THRESHOLD ?? 2; }
-
-    $progress = \App\Models\UserQuestionProgress::countMastered($user->id);
-
-    $enrolledLehrgaenge = $user->enrolledLehrgaenge()->get();
-
-    $failedArr = is_array($user->exam_failed_questions ?? null)
-        ? $user->exam_failed_questions
-        : (is_string($user->exam_failed_questions) ? json_decode($user->exam_failed_questions, true) ?? [] : []);
-    $hasFailedQuestions = $failedArr && count($failedArr) > 0;
-    $canStartExam = $progress >= $total && !$hasFailedQuestions;
-
-    $circumference = 2 * 3.14159 * 26;
-    $theoryOffset  = $circumference - ($progressPercent / 100) * $circumference;
-    $examOffset    = $circumference - (min(100, $exams * 20) / 100) * $circumference;
-
+    /* ── League info ─────────────────────────────── */
     $userLeague = $user->league ?? 'bronze';
     $leagueInfo = \App\Services\LeagueService::getLeagueInfo($userLeague);
 
-    $streakMinQuestions    = \App\Services\GamificationService::STREAK_MIN_QUESTIONS;
-    $todayQuestions        = $user->daily_questions_solved ?? 0;
-    $questionsRemaining    = max(0, $streakMinQuestions - $todayQuestions);
-    $streakAtRisk = ($user->streak_days ?? 0) > 0
-        && $questionsRemaining > 0
-        && (!$user->last_activity_date || \Carbon\Carbon::parse($user->last_activity_date)->lt(\Carbon\Carbon::today()));
-
-    $activeLernsession = app(\App\Services\LernsessionService::class)
-        ->getActiveSessionsForUser($user)
-        ->first();
-
-    $daysLeft = ($user->exam_date && $user->exam_date->isFuture())
-        ? (int) now()->startOfDay()->diffInDays($user->exam_date, false)
-        : null;
-    $unmasteredCount = $total - $progress;
-    $dailyTarget     = null;
-    $todayAnswered   = \App\Models\QuestionStatistic::where('user_id', $user->id)
-        ->whereDate('created_at', today())
-        ->count();
-
-    if ($daysLeft && $daysLeft > 0 && $unmasteredCount > 0) {
-        $examBuffer   = min(7, max(0, $daysLeft - 1));
-        $effectiveDays = max(1, $daysLeft - $examBuffer);
-        $statCount    = \App\Models\QuestionStatistic::where('user_id', $user->id)->count();
-        $statCorrect  = \App\Models\QuestionStatistic::where('user_id', $user->id)->where('is_correct', true)->count();
-        $accuracy     = ($statCount >= 20) ? ($statCorrect / $statCount) : 0.65;
-        $errorFactor  = 1 / max(0.4, $accuracy);
-        $remainingInteractions = 0;
-        $seenQuestionIds = $progressData->pluck('question_id');
-        foreach ($progressData as $prog) {
-            if ($prog->consecutive_correct < $threshold) {
-                $remainingInteractions += ($threshold - $prog->consecutive_correct) * $errorFactor;
-            }
-        }
-        $unseenCount = $total - $seenQuestionIds->count();
-        $remainingInteractions += $unseenCount * $threshold * $errorFactor;
-        $dailyTarget = max(1, (int) ceil($remainingInteractions / $effectiveDays));
-    }
-
-    $userOV      = $user->ortsverbände->first();
+    /* ── Ausbilder check ─────────────────────────── */
+    $userOV = $user->ortsverbände->first();
     $isAusbilder = false;
-    $ovStats     = null;
     if ($userOV) {
-        $memberPivot = $userOV->members()->where('user_id', auth()->id())->first();
+        $memberPivot = $userOV->members()->where('user_id', $user->id)->first();
         $isAusbilder = $memberPivot && $memberPivot->pivot->role === 'ausbildungsbeauftragter';
-        if ($isAusbilder) {
-            $regularMembers = $userOV->members()->wherePivot('role', 'member')->get();
-            $memberProgress = $userOV->getMemberProgress()->filter(fn($m) => $m['role'] === 'member');
-            $ovStats = [
-                'members'      => $regularMembers->count(),
-                'avg_progress' => round($memberProgress->avg('theory_progress_percent') ?? 0),
-            ];
-        }
     }
 
-    $enrolledLernpools = $user->enrolledLernpools()->where('is_active', true)->get();
-
-    $weeklyChartData = $weeklyActivity ?? collect();
-    $thisWeekTotal   = isset($weeklyActivity) ? $weeklyActivity->sum('count') : 0;
-    $thisWeekCorrect = isset($weeklyActivity) ? $weeklyActivity->sum('correct') : 0;
-    $thisWeekRate    = $thisWeekTotal > 0 ? round(($thisWeekCorrect / $thisWeekTotal) * 100) : 0;
-    $lastWeekData    = \DB::table('question_statistics')
-        ->where('user_id', $user->id)
-        ->where('created_at', '>=', now()->subDays(14))
-        ->where('created_at', '<', now()->subDays(7))
-        ->selectRaw('COUNT(*) as total, SUM(is_correct) as correct')
-        ->first();
-    $lastWeekTotal   = $lastWeekData ? $lastWeekData->total : 0;
-    $lastWeekRate    = $lastWeekTotal > 0 ? round(($lastWeekData->correct / $lastWeekTotal) * 100) : 0;
-    $rateDiff        = $thisWeekRate - $lastWeekRate;
+    /* ── Weekly activity data ────────────────────── */
+    $weekStart = \Carbon\Carbon::now()->startOfWeek();
+    $days = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
+    $maxCount = max((int) ($weeklyActivity->max('count') ?? 0), 1);
 @endphp
 
-<!-- SVG Gradients -->
-<svg width="0" height="0" style="position: absolute;">
-    <defs>
-        <linearGradient id="blueGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" style="stop-color:#004db3"/>
-            <stop offset="100%" style="stop-color:#00337F"/>
-        </linearGradient>
-        <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" style="stop-color:#fbbf24"/>
-            <stop offset="100%" style="stop-color:#f59e0b"/>
-        </linearGradient>
-    </defs>
-</svg>
+<div class="dash-container">
 
-<div class="ops-container">
-
-    {{-- 1. STATUS-STRIP --}}
-    <div class="status-strip glass">
-        <div class="status-left">
-            <div class="status-name">
-                {{ $user->name }}
-                <span class="status-level-badge">Level {{ $user->level ?? 1 }}</span>
-            </div>
-            <div class="status-xp-bar">
-                <div class="status-xp-fill" style="width: {{ $progressPercent }}%;"></div>
-            </div>
-        </div>
-        <div class="status-right">
-            <div class="status-stat">
-                <div class="status-stat-value gold">
-                    {{ $user->streak_days ?? 0 }}
-                    @if(isset($streakFreezeStatus) && $streakFreezeStatus['remaining'] > 0)
-                        <span class="status-freeze-badge"><i class="bi bi-snow"></i>{{ $streakFreezeStatus['remaining'] }}</span>
-                    @endif
-                </div>
-                <div class="status-stat-label">Streak</div>
-            </div>
-            <div class="status-divider"></div>
-            <div class="status-stat">
-                <div class="status-stat-value">{{ number_format($user->points ?? 0) }}</div>
-                <div class="status-stat-label">Punkte</div>
-            </div>
-            <div class="status-divider"></div>
-            <a href="{{ route('gamification.leaderboard', ['tab' => 'liga']) }}" style="text-decoration: none;">
-                <div class="status-stat">
-                    <div class="status-stat-value" style="color: {{ $leagueInfo['color'] }};">{{ $leagueInfo['name'] }}</div>
-                    <div class="status-stat-label">Liga</div>
-                </div>
-            </a>
-        </div>
+    {{-- ── Header ──────────────────────────────────────── --}}
+    <div class="dash-header">
+        <div class="dash-greeting">{{ $greeting }}</div>
+        <div class="dash-username">{{ $user->name }}</div>
+        <div class="dash-level-line">Level {{ $user->level ?? 1 }} &middot; {{ number_format($user->points ?? 0) }} Punkte</div>
     </div>
 
-    {{-- 2. ALERT-BANNER (konditionell) --}}
-    @if(session('error'))
-    <div class="alert-compact glass-error">
-        <i class="bi bi-exclamation-triangle alert-compact-icon"></i>
-        <div class="alert-compact-content">
-            <div class="alert-compact-title">{{ session('error') }}</div>
-        </div>
-        <button onclick="this.parentElement.remove()" style="background:none;border:none;cursor:pointer;color:var(--text-secondary);font-size:1.1rem;">×</button>
-    </div>
-    @endif
+    {{-- ── Main grid (desktop: 2 cols) ───────────────── --}}
+    <div class="dash-grid">
 
-    @if($hasFailedQuestions)
-    <div class="alert-compact glass-warning">
-        <i class="bi bi-arrow-repeat alert-compact-icon"></i>
-        <div class="alert-compact-content">
-            <div class="alert-compact-title">{{ count($failedArr) }} Frage{{ count($failedArr) == 1 ? '' : 'n' }} wiederholen</div>
-            <div class="alert-compact-desc">Bevor du eine neue Prüfung starten kannst</div>
-        </div>
-        <a href="{{ route('failed.index') }}" class="btn-primary btn-sm">Fehler wiederholen</a>
-    </div>
-    @endif
+        {{-- ═══ MAIN COLUMN ═══════════════════════════════ --}}
+        <div class="space-y-4">
 
-    @if(isset($spacedRepetitionDue) && $spacedRepetitionDue > 0)
-    <div class="alert-compact glass" style="border-left: 3px solid var(--thw-blue-light);">
-        <i class="bi bi-arrow-repeat alert-compact-icon" style="color: var(--thw-blue-light);"></i>
-        <div class="alert-compact-content">
-            <div class="alert-compact-title">{{ $spacedRepetitionDue }} Wiederholung{{ $spacedRepetitionDue == 1 ? '' : 'en' }} fällig</div>
-            <div class="alert-compact-desc">Spaced Repetition: Wiederhole Fragen für langfristiges Behalten</div>
-        </div>
-        <a href="{{ route('practice.spaced-repetition') }}" class="btn-secondary btn-sm">Wiederholen</a>
-    </div>
-    @endif
-
-    @if($activeLernsession)
-        @php $activeLernsessionData = $activeLernsession->learningSession; @endphp
-        <div class="live-session-banner glass"
-             x-data="{ remaining: {{ $activeLernsession->getTimeRemainingSeconds() }} }"
-             x-init="setInterval(() => { if(remaining > 0) remaining-- }, 1000)">
-            <div class="live-dot"></div>
-            <div class="live-session-info">
-                <div class="live-session-title">Lernsession ist live</div>
-                <div class="live-session-meta">
-                    {{ $activeLernsessionData->title }} &middot;
-                    {{ $activeLernsession->starts_at->format('d.m.Y H:i') }} – {{ $activeLernsession->ends_at->format('H:i') }} Uhr
-                    &middot; noch <span x-text="Math.floor(remaining/3600) > 0
-                        ? Math.floor(remaining/3600) + 'h ' + Math.floor((remaining%3600)/60) + 'min'
-                        : Math.floor(remaining/60) + ' min'"></span>
-                    @if($activeLernsessionData->description)
-                        <br>{{ $activeLernsessionData->description }}
-                    @endif
-                </div>
-            </div>
-            <a href="{{ route('lernsession.live', $activeLernsession) }}" class="btn-primary btn-sm">Teilnehmen</a>
-        </div>
-    @endif
-
-    @if($streakAtRisk)
-    <div x-data="{ frozen: false, loading: false, async applyFreeze() { this.loading = true; try { const res = await fetch('{{ route('streak.freeze') }}', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content, 'Accept': 'application/json' }, cache: 'no-store' }); const data = await res.json(); if (data.success) this.frozen = true; } finally { this.loading = false; } } }"
-         class="alert-compact"
-         :class="frozen ? 'glass-success' : 'glass-warning'">
-        <i class="bi alert-compact-icon" :class="frozen ? 'bi-shield-check' : 'bi-fire'" :style="frozen ? 'color:#10b981;' : 'color:#f59e0b;'"></i>
-        <div class="alert-compact-content">
-            <div class="alert-compact-title" x-show="!frozen">Dein {{ $user->streak_days }}-Tage-Streak läuft ab</div>
-            <div class="alert-compact-title" x-show="frozen">Streak gesichert</div>
-            <div class="alert-compact-desc" x-show="!frozen">Noch {{ $questionsRemaining }} von {{ $streakMinQuestions }} Fragen nötig ({{ $todayQuestions }}/{{ $streakMinQuestions }} beantwortet)</div>
-            <div class="alert-compact-desc" x-show="frozen">Ein Streak Freeze schützt deinen Streak für heute.</div>
-            <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;" x-show="!frozen">
-                @if(isset($streakFreezeStatus) && $streakFreezeStatus['remaining'] > 0)
-                <button class="btn-secondary btn-sm" @click="applyFreeze()" :disabled="loading" x-text="loading ? 'Wird eingesetzt...' : 'Freeze einsetzen ({{ $streakFreezeStatus['remaining'] }})'"></button>
-                @endif
-                <a href="{{ route('practice.all') }}" class="btn-primary btn-sm">Jetzt lernen</a>
-            </div>
-        </div>
-    </div>
-    @endif
-
-    {{-- 3. NEXT-STEP HERO CARD --}}
-    @if($hasFailedQuestions)
-    {{-- Zustand A: Fehler ausstehend --}}
-    <a href="{{ route('failed.index') }}" class="hero-card glass-blue" style="text-decoration:none;">
-        <div class="hero-content">
-            <div class="hero-label">Nächster Schritt</div>
-            <div class="hero-title">{{ count($failedArr) }} Fehler-Fragen ausstehend</div>
-            <div class="hero-desc">Wiederhole deine falsch beantworteten Fragen, bevor du eine neue Prüfung starten kannst.</div>
-            <span class="btn-primary">Fehler wiederholen</span>
-        </div>
-        <div class="hero-ring-wrap">
-            <svg width="80" height="80" viewBox="0 0 64 64">
-                <circle fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="6" cx="32" cy="32" r="26"/>
-                <circle fill="none" stroke="url(#blueGradient)" stroke-width="6" stroke-linecap="round"
-                    cx="32" cy="32" r="26"
-                    stroke-dasharray="{{ $circumference }}"
-                    stroke-dashoffset="{{ $theoryOffset }}"
-                    transform="rotate(-90 32 32)"/>
-            </svg>
-            <div class="hero-ring-text">{{ $progressPercent }}%</div>
-        </div>
-    </a>
-
-    @elseif($progressPercent < 100)
-    {{-- Zustand B: Theorie lernen --}}
-    <a href="{{ route('practice.all') }}" class="hero-card glass-blue" style="text-decoration:none;">
-        <div class="hero-content">
-            <div class="hero-label">Nächster Schritt</div>
-            <div class="hero-title">Noch {{ $total - $progress }} Fragen zu meistern</div>
-            <div class="hero-desc">Jede Frage muss {{ $threshold }}x richtig beantwortet werden. Du bist bei {{ $progressPercent }}%.</div>
-            <span class="btn-primary">Weiter lernen</span>
-        </div>
-        <div class="hero-ring-wrap">
-            <svg width="80" height="80" viewBox="0 0 64 64">
-                <circle fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="6" cx="32" cy="32" r="26"/>
-                <circle fill="none" stroke="url(#blueGradient)" stroke-width="6" stroke-linecap="round"
-                    cx="32" cy="32" r="26"
-                    stroke-dasharray="{{ $circumference }}"
-                    stroke-dashoffset="{{ $theoryOffset }}"
-                    transform="rotate(-90 32 32)"/>
-            </svg>
-            <div class="hero-ring-text">{{ $progressPercent }}%</div>
-        </div>
-    </a>
-
-    @elseif($canStartExam && $exams < 5)
-    {{-- Zustand C: Prüfung starten --}}
-    <a href="{{ route('exam.index') }}" class="hero-card glass-blue" style="text-decoration:none;">
-        <div class="hero-content">
-            <div class="hero-label">Nächster Schritt</div>
-            <div class="hero-title">Bereit für Prüfung!</div>
-            <div class="hero-desc">{{ $exams }}/5 Prüfungen bestanden. Du kannst jetzt die nächste Prüfungssimulation starten.</div>
-            <span class="btn-primary">Prüfung starten</span>
-        </div>
-        <div class="hero-ring-wrap">
-            <svg width="80" height="80" viewBox="0 0 64 64">
-                <circle fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="6" cx="32" cy="32" r="26"/>
-                <circle fill="none" stroke="url(#goldGradient)" stroke-width="6" stroke-linecap="round"
-                    cx="32" cy="32" r="26"
-                    stroke-dasharray="{{ $circumference }}"
-                    stroke-dashoffset="{{ $examOffset }}"
-                    transform="rotate(-90 32 32)"/>
-            </svg>
-            <div class="hero-ring-text">{{ $exams }}/5</div>
-        </div>
-    </a>
-
-    @else
-    {{-- Zustand D: Abgeschlossen --}}
-    <a href="{{ route('exam.index') }}" class="hero-card glass-gold" style="text-decoration:none;">
-        <div class="hero-content">
-            <div class="hero-label">Abgeschlossen</div>
-            <div class="hero-title">5/5 Prüfungen bestanden!</div>
-            <div class="hero-desc">Du hast alle Prüfungssimulationen erfolgreich abgeschlossen. Herzlichen Glückwunsch!</div>
-            <span class="btn-primary">Prüfung wiederholen</span>
-        </div>
-        <div class="hero-ring-wrap">
-            <svg width="80" height="80" viewBox="0 0 64 64">
-                <circle fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="6" cx="32" cy="32" r="26"/>
-                <circle fill="none" stroke="url(#goldGradient)" stroke-width="6" stroke-linecap="round"
-                    cx="32" cy="32" r="26"
-                    stroke-dasharray="{{ $circumference }}"
-                    stroke-dashoffset="0"
-                    transform="rotate(-90 32 32)"/>
-            </svg>
-            <div class="hero-ring-text">5/5</div>
-        </div>
-    </a>
-    @endif
-
-    {{-- 4. STATS GRID --}}
-    @php
-        $lastExam = isset($recentExams) ? $recentExams->first() : null;
-        $lastExamPct = $lastExam ? round(($lastExam->correct_answers / 40) * 100) : null;
-        $avgExamPct  = isset($recentExams) && $recentExams->count() > 0
-            ? round($recentExams->avg(fn($e) => round(($e->correct_answers / 40) * 100)))
-            : null;
-    @endphp
-    <div class="stats-grid">
-
-        {{-- Karte links: Theorie-Fortschritt --}}
-        <div class="stat-card glass-tl">
-            <div class="stat-card-title">Theorie-Fortschritt</div>
-            <div class="stat-card-value">{{ $progressPercent }}<span style="font-size:1rem;font-weight:600;color:var(--text-secondary);">%</span></div>
-            <div class="stat-bar"><div class="stat-bar-fill" style="width:{{ $progressPercent }}%;"></div></div>
-            <div class="stat-card-sub">{{ $progress }} von {{ $total }} gemeistert</div>
-            <div class="stat-card-row">
-                <span class="stat-card-detail">Heute: {{ $todayAnswered }} Fragen</span>
-                @if(isset($spacedRepetitionDue) && $spacedRepetitionDue > 0)
-                    <span class="stat-card-detail" style="color:var(--thw-blue-light);">Spaced Rep: {{ $spacedRepetitionDue }} fällig</span>
-                @endif
-            </div>
-            <div style="margin-top:0.25rem;">
-                <a href="{{ route('practice.menu') }}" class="btn-secondary btn-sm">Abschnitte üben</a>
-            </div>
-        </div>
-
-        {{-- Karte rechts: Prüfungs-Status --}}
-        <div class="stat-card glass-br">
-            <div class="stat-card-title">Prüfungs-Status</div>
-            <div class="stat-card-value">{{ $exams }}<span style="font-size:1rem;font-weight:600;color:var(--text-secondary);">/5</span></div>
-            <div class="stat-card-sub">bestanden</div>
-            <div class="stat-bar"><div class="stat-bar-fill" style="width:{{ min(100, $exams * 20) }}%;"></div></div>
-            <div class="stat-card-row">
-                @if($lastExamPct !== null)
-                    <span class="stat-card-detail">Letzter Versuch:
-                        <strong class="{{ $lastExamPct >= 75 ? 'gold ' : '' }}stat-card-detail">{{ $lastExamPct }}%</strong>
-                    </span>
-                @endif
-                @if($avgExamPct !== null)
-                    <span class="stat-card-detail">Schnitt:
-                        <strong class="{{ $avgExamPct >= 75 ? 'gold ' : '' }}stat-card-detail">{{ $avgExamPct }}%</strong>
-                    </span>
-                @endif
-            </div>
-            <div style="margin-top:0.25rem;">
-                @if($canStartExam)
-                    <a href="{{ route('exam.index') }}" class="btn-secondary btn-sm">Prüfung starten</a>
-                @elseif($hasFailedQuestions)
-                    <a href="{{ route('failed.index') }}" class="btn-ghost btn-sm">Fehler wiederholen</a>
-                @else
-                    <span class="btn-ghost btn-sm" style="opacity:0.45;cursor:not-allowed;">Erst Theorie</span>
-                @endif
-            </div>
-        </div>
-    </div>
-
-    {{-- 5. COUNTDOWN-STRIP (immer sichtbar) --}}
-    @if($daysLeft !== null && $daysLeft > 0)
-    @php
-        $todayPct  = $dailyTarget ? min(100, round(($todayAnswered / $dailyTarget) * 100)) : 0;
-        $todayDone = $dailyTarget && $todayAnswered >= $dailyTarget;
-    @endphp
-    <div class="countdown-strip glass">
-        <div class="countdown-days">
-            <div class="countdown-days-num">{{ $daysLeft }}</div>
-            <div class="countdown-days-label">Tag{{ $daysLeft != 1 ? 'e' : '' }} bis zur Prüfung</div>
-        </div>
-        @if($dailyTarget && $unmasteredCount > 0)
-        <div class="countdown-mid">
-            <div class="countdown-target-label">Tagesziel: {{ $dailyTarget }} Fragen</div>
-            <div class="countdown-mini-bar">
-                <div class="countdown-mini-fill" style="width:{{ $todayPct }}%; background: {{ $todayDone ? '#22c55e' : 'var(--thw-blue)' }};"></div>
-            </div>
-            <div class="countdown-status {{ $todayDone ? 'done' : 'pending' }}">
-                @if($todayDone)
-                    {{ $todayAnswered }}/{{ $dailyTarget }} heute – geschafft!
-                @else
-                    noch {{ $dailyTarget - $todayAnswered }} übrig
-                @endif
-            </div>
-        </div>
-        @elseif($unmasteredCount <= 0)
-        <div class="countdown-mid">
-            <div class="countdown-status done">Alle Fragen gemeistert – bereit!</div>
-        </div>
-        @endif
-    </div>
-
-    @else
-    <div class="countdown-strip no-date glass">
-        <div style="flex:1; font-size:0.875rem; color:var(--text-secondary);">
-            Prüfungsdatum eintragen für personalisierte Lernempfehlung
-        </div>
-        <a href="{{ route('profile') }}#exam_date" class="btn-ghost btn-sm">Datum eintragen</a>
-    </div>
-    @endif
-
-    {{-- 6. AKTIVITÄTS-CHART --}}
-    <div class="activity-section glass">
-        <div class="activity-header">
-            <span class="activity-title">Letzte 7 Tage</span>
-            <div class="activity-trend">
-                @if($thisWeekTotal > 0)
-                    <span style="font-size:0.875rem;font-weight:700;color:{{ $thisWeekRate >= 70 ? '#22c55e' : ($thisWeekRate >= 50 ? '#f59e0b' : '#ef4444') }};">{{ $thisWeekRate }}%</span>
-                    <span style="font-size:0.75rem;color:var(--text-muted);">Trefferquote</span>
-                    @if($lastWeekTotal > 0)
-                        <span style="font-size:0.7rem;font-weight:600;color:{{ $rateDiff >= 0 ? '#22c55e' : '#ef4444' }};">
-                            <i class="bi bi-{{ $rateDiff >= 0 ? 'arrow-up' : 'arrow-down' }}"></i>{{ abs($rateDiff) }}%
-                        </span>
-                    @endif
-                    <span style="font-size:0.7rem;color:var(--text-muted);">{{ $thisWeekTotal }} Fragen</span>
-                @else
-                    <span style="font-size:0.75rem;color:var(--text-muted);">Noch keine Aktivität letzte 7 Tage</span>
-                @endif
-            </div>
-        </div>
-
-        @php
-            $maxCount = max((int) $weeklyActivity->max('count'), 1);
-            $days = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
-            $chartStart = \Carbon\Carbon::now()->subDays(6)->startOfDay();
-        @endphp
-
-        <div class="activity-chart-wrap">
-            @for($i = 0; $i < 7; $i++)
-                @php
-                    $dayDate = $chartStart->copy()->addDays($i);
-                    $dateStr = $dayDate->toDateString();
-                    $dayData = isset($weeklyActivity) ? $weeklyActivity->firstWhere('date', $dateStr) : null;
-                    $count   = $dayData ? $dayData->count : 0;
-                    $barHeight = $count > 0 ? max(8, ($count / $maxCount) * 100) : 0;
-                    $isToday = $dayDate->isToday();
-                @endphp
-                <div class="activity-bar-col">
-                    <div class="activity-bar-space">
-                        @if($count > 0)
-                            <div class="activity-bar-new {{ $isToday ? 'today' : '' }}"
-                                 style="height:{{ $barHeight }}%;"
-                                 title="{{ $count }} Fragen">
-                                <span class="activity-bar-count-new">{{ $count }}</span>
-                            </div>
-                        @else
-                            <div class="activity-bar-new empty" style="height:4px;"></div>
-                        @endif
+            {{-- 1. Smart Action Card --}}
+            <a href="{{ $smartAction['route'] }}"
+               class="smart-action {{ $smartAction['type'] === 'urgent' ? 'smart-action--urgent' : '' }}"
+               style="display:block;text-decoration:none;">
+                <div class="smart-action__label">{{ $smartAction['label'] }}</div>
+                <div class="smart-action__title">{{ $smartAction['title'] }}</div>
+                <div class="smart-action__desc">{{ $smartAction['desc'] }}</div>
+                <span class="smart-action__btn">
+                    {{ $smartAction['btn'] }}
+                    <i class="bi bi-arrow-right"></i>
+                </span>
+                @if($examCountdown)
+                    <div class="smart-action__countdown">
+                        {{ $examCountdown['daysLeft'] }} Tag{{ $examCountdown['daysLeft'] != 1 ? 'e' : '' }} bis zur Prüfung
+                        &middot; Tagesziel {{ $examCountdown['dailyTarget'] }} Fragen
+                        &middot; heute {{ $examCountdown['todayAnswered'] }}/{{ $examCountdown['dailyTarget'] }}
                     </div>
-                    <span class="activity-day-label {{ $isToday ? 'today' : '' }}">{{ $days[$i] }}</span>
-                </div>
-            @endfor
-        </div>
-    </div>
+                @endif
+            </a>
 
-    {{-- 7. HEATMAP + SPACED REP --}}
-    <div class="heatmap-row">
+            {{-- 2. Journey Stepper (mobile only) --}}
+            <div class="glass lg:hidden" style="padding:1rem;">
+                <div class="section-label" style="margin-bottom:0.75rem;">Dein Fortschritt</div>
+                <div class="journey journey--horizontal">
+                    {{-- Step 1: Fragen lernen --}}
+                    <div class="journey__step">
+                        <div class="journey__circle {{ $solvedPercent >= 100 ? 'journey__circle--done' : 'journey__circle--active' }}">
+                            @if($solvedPercent >= 100)
+                                <i class="bi bi-check" style="font-size:0.75rem;"></i>
+                            @else
+                                1
+                            @endif
+                        </div>
+                        <div class="journey__label {{ $solvedPercent < 100 ? 'journey__label--active' : '' }}">
+                            Lernen<br>
+                            <span class="journey__pct">{{ $solvedPercent }}%</span>
+                        </div>
+                    </div>
 
-        {{-- Heatmap 2/3 --}}
-        <div class="heatmap-card glass-br">
-            <div style="font-size:0.6rem;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);font-weight:700;margin-bottom:0.75rem;">Stärken & Schwächen</div>
-            <div class="heatmap-grid-new">
-                @for($s = 1; $s <= 10; $s++)
+                    <div class="journey__line {{ $solvedPercent >= 100 ? 'journey__line--done' : '' }}"></div>
+
+                    {{-- Step 2: Alle meistern --}}
                     @php
-                        $sData    = isset($sectionStats) ? $sectionStats->firstWhere('lernabschnitt', $s) : null;
-                        $sTotal   = $sData ? $sData->total : 0;
-                        $sCorrect = $sData ? $sData->correct : 0;
-                        $sPct     = $sTotal > 0 ? round(($sCorrect / $sTotal) * 100) : -1;
-                        $sClass   = $sPct < 0 ? 'none' : ($sPct >= 75 ? 'strong' : ($sPct >= 50 ? 'medium' : 'weak'));
+                        $step2Class = $masteryPercent >= 100 ? 'journey__circle--done' : ($masteryPercent > 0 ? 'journey__circle--active' : 'journey__circle--locked');
+                        $step2LabelClass = ($masteryPercent > 0 && $masteryPercent < 100) ? 'journey__label--active' : '';
                     @endphp
-                    <a href="{{ route('practice.section', $s) }}"
-                       class="heatmap-cell-new {{ $sClass }}"
-                       title="Abschnitt {{ $s }}: {{ $sPct >= 0 ? $sPct.'% richtig ('.$sTotal.' Fragen)' : 'Noch nicht geübt' }}"
-                       style="text-decoration:none;">
-                        <span class="heatmap-cell-num">{{ $s }}</span>
-                        @if($sPct >= 0)
-                            <span class="heatmap-cell-pct">{{ $sPct }}%</span>
-                        @endif
-                    </a>
-                @endfor
-            </div>
-            <div class="heatmap-legend-new">
-                <div class="heatmap-legend-item-new"><span class="heatmap-legend-dot-new" style="background:rgba(239,68,68,0.5);"></span>&lt; 50%</div>
-                <div class="heatmap-legend-item-new"><span class="heatmap-legend-dot-new" style="background:rgba(245,158,11,0.5);"></span>50–75%</div>
-                <div class="heatmap-legend-item-new"><span class="heatmap-legend-dot-new" style="background:rgba(34,197,94,0.5);"></span>&gt; 75%</div>
-                <div class="heatmap-legend-item-new"><span class="heatmap-legend-dot-new" style="background:rgba(0,51,127,0.2);"></span>Noch nicht</div>
-            </div>
-        </div>
+                    <div class="journey__step">
+                        <div class="journey__circle {{ $step2Class }}">
+                            @if($masteryPercent >= 100)
+                                <i class="bi bi-check" style="font-size:0.75rem;"></i>
+                            @else
+                                2
+                            @endif
+                        </div>
+                        <div class="journey__label {{ $step2LabelClass }}">
+                            Meistern<br>
+                            <span class="journey__pct">{{ $masteryPercent }}%</span>
+                        </div>
+                    </div>
 
-        {{-- Spaced Rep 1/3 --}}
-        <div class="spaced-card glass">
-            <div style="font-size:0.6rem;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);font-weight:700;">Wiederholungen</div>
-            @if(isset($spacedRepetitionDue) && $spacedRepetitionDue > 0)
-                <div class="spaced-count">{{ $spacedRepetitionDue }}</div>
-                <div style="font-size:0.8rem;color:var(--text-secondary);text-align:center;line-height:1.4;">Fragen fällig</div>
-                <div style="font-size:0.7rem;color:var(--text-muted);text-align:center;line-height:1.4;">Spaced Repetition für langfristiges Behalten</div>
-                <a href="{{ route('practice.spaced-repetition') }}" class="btn-secondary btn-sm" style="margin-top:0.5rem;">Wiederholen</a>
+                    <div class="journey__line {{ $masteryPercent >= 100 ? 'journey__line--done' : '' }}"></div>
+
+                    {{-- Step 3: Prüfung --}}
+                    @php
+                        $step3Class = $exams >= 5 ? 'journey__circle--done' : ($canStartExam ? 'journey__circle--active' : 'journey__circle--locked');
+                        $step3LabelClass = $canStartExam && $exams < 5 ? 'journey__label--active' : '';
+                    @endphp
+                    <div class="journey__step">
+                        <div class="journey__circle {{ $step3Class }}">
+                            @if($exams >= 5)
+                                <i class="bi bi-check" style="font-size:0.75rem;"></i>
+                            @else
+                                3
+                            @endif
+                        </div>
+                        <div class="journey__label {{ $step3LabelClass }}">
+                            Prüfung<br>
+                            <span class="journey__pct">{{ $exams }}/5</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- 3. Wochenaktivität --}}
+            <div class="glass" style="padding:1rem;">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.875rem;">
+                    <span class="section-label">Diese Woche</span>
+                    <a href="{{ route('statistics') }}" style="font-size:0.75rem;color:#5b9aff;text-decoration:none;font-weight:600;">Statistiken &rarr;</a>
+                </div>
+
+                <div class="activity-bar">
+                    @for($d = 0; $d < 7; $d++)
+                        @php
+                            $dayDate = $weekStart->copy()->addDays($d);
+                            $dateStr = $dayDate->format('Y-m-d');
+                            $dayData = $weeklyActivity->firstWhere('date', $dateStr);
+                            $count   = $dayData->count ?? 0;
+                            $barPct  = $count > 0 ? max(4, ($count / $maxCount) * 100) : 0;
+                            $isToday = $dayDate->isToday();
+                        @endphp
+                        <div class="activity-bar__col">
+                            @if($count > 0)
+                                <span class="activity-bar__count">{{ $count }}</span>
+                                <div class="activity-bar__fill {{ $isToday ? 'activity-bar__fill--today' : '' }}"
+                                     style="height:{{ $barPct }}%;"
+                                     title="{{ $count }} Fragen am {{ $dayDate->format('d.m.') }}"></div>
+                            @else
+                                <div class="activity-bar__fill activity-bar__fill--empty" style="height:4px;"></div>
+                            @endif
+                            <span class="activity-bar__day {{ $isToday ? 'activity-bar__day--today' : '' }}">{{ $days[$d] }}</span>
+                        </div>
+                    @endfor
+                </div>
+            </div>
+
+            {{-- 4. Lehrgänge --}}
+            <div class="glass" style="padding:1rem;">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.875rem;">
+                    <span class="section-label">Lehrgänge</span>
+                    <a href="{{ route('lehrgaenge.index') }}" style="font-size:0.75rem;color:#5b9aff;text-decoration:none;font-weight:600;">Alle anzeigen &rarr;</a>
+                </div>
+
+                @if($enrolledLehrgaenge->isEmpty())
+                    <div style="text-align:center;padding:1.5rem 0;">
+                        <div style="font-size:0.8125rem;color:var(--text-muted);margin-bottom:0.75rem;">Noch keine Lehrgänge eingeschrieben</div>
+                        <a href="{{ route('lehrgaenge.index') }}" class="btn-secondary btn-sm">Lehrgänge entdecken</a>
+                    </div>
+                @else
+                    <div class="space-y-2">
+                        @foreach($enrolledLehrgaenge->take(3) as $lehrgang)
+                            @php
+                                $lgTotal = $lehrgang->questions()->count();
+                                $lgSolved = $lgTotal > 0
+                                    ? \App\Models\UserQuestionProgress::where('user_id', $user->id)
+                                        ->whereIn('question_id', $lehrgang->questions()->pluck('question_id'))
+                                        ->where('consecutive_correct', '>=', 3)->count()
+                                    : 0;
+                                $lgPct = $lgTotal > 0 ? round(($lgSolved / $lgTotal) * 100) : 0;
+                                $lgDone = $lgPct >= 100 && $lgSolved > 0;
+                            @endphp
+                            <a href="{{ route('lehrgaenge.practice', $lehrgang->slug) }}" class="lg-card">
+                                <div class="lg-card-title">{{ $lehrgang->lehrgang }}</div>
+                                <div class="lg-bar">
+                                    <div class="lg-bar-fill {{ $lgDone ? 'lg-bar-fill--done' : '' }}" style="width:{{ $lgPct }}%;"></div>
+                                </div>
+                                <div style="display:flex;align-items:center;justify-content:space-between;">
+                                    <span style="font-size:0.6875rem;color:var(--text-muted);">{{ $lgSolved }}/{{ $lgTotal }} gemeistert</span>
+                                    <span class="lg-pct">{{ $lgPct }}%</span>
+                                </div>
+                            </a>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+
+            {{-- 5. Ausbilder-Karte (konditionell) --}}
+            @if($isAusbilder && $userOV)
+            <div class="glass-blue" style="padding:1rem;border-radius:0.75rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+                <div style="flex:1;min-width:0;">
+                    <span class="badge-thw" style="display:inline-block;margin-bottom:0.35rem;">Ausbilder</span>
+                    <div style="font-size:1rem;font-weight:700;color:var(--text-primary);">{{ $userOV->name }}</div>
+                </div>
+                <div style="margin-left:auto;">
+                    <a href="{{ route('ortsverband.index') }}" class="btn-secondary btn-sm">Verwalten</a>
+                </div>
+            </div>
+            @endif
+
+        </div>{{-- end main column --}}
+
+        {{-- ═══ DESKTOP SIDEBAR ════════════════════════════ --}}
+        <div class="hidden lg:block space-y-4">
+
+            {{-- Journey Stepper (vertical, desktop) --}}
+            <div class="glass" style="padding:1rem;">
+                <div class="journey-sidebar-label">Dein Fortschritt</div>
+                <div class="journey journey--vertical">
+
+                    {{-- Step 1 --}}
+                    <div class="journey__step">
+                        <div>
+                            <div class="journey__circle {{ $solvedPercent >= 100 ? 'journey__circle--done' : 'journey__circle--active' }}">
+                                @if($solvedPercent >= 100)
+                                    <i class="bi bi-check" style="font-size:0.75rem;"></i>
+                                @else
+                                    1
+                                @endif
+                            </div>
+                        </div>
+                        <div style="flex:1;min-width:0;">
+                            <div class="journey__label {{ $solvedPercent < 100 ? 'journey__label--active' : '' }}" style="margin-top:0;font-size:0.75rem;font-weight:600;">
+                                Fragen lernen
+                            </div>
+                            <div class="journey-step-detail">{{ $solvedPercent }}% bearbeitet</div>
+                            <div class="journey-step-bar">
+                                <div class="journey-step-bar-fill" style="width:{{ $solvedPercent }}%;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="journey__line {{ $solvedPercent >= 100 ? 'journey__line--done' : '' }}"></div>
+
+                    {{-- Step 2 --}}
+                    <div class="journey__step">
+                        <div>
+                            <div class="journey__circle {{ $masteryPercent >= 100 ? 'journey__circle--done' : ($masteryPercent > 0 ? 'journey__circle--active' : 'journey__circle--locked') }}">
+                                @if($masteryPercent >= 100)
+                                    <i class="bi bi-check" style="font-size:0.75rem;"></i>
+                                @else
+                                    2
+                                @endif
+                            </div>
+                        </div>
+                        <div style="flex:1;min-width:0;">
+                            <div class="journey__label {{ $masteryPercent > 0 && $masteryPercent < 100 ? 'journey__label--active' : '' }}" style="margin-top:0;font-size:0.75rem;font-weight:600;">
+                                Alle meistern
+                            </div>
+                            <div class="journey-step-detail">{{ $masteryPercent }}% gemeistert · {{ $solvedTotal }} Fragen</div>
+                            <div class="journey-step-bar">
+                                <div class="journey-step-bar-fill" style="width:{{ $masteryPercent }}%;background:{{ $masteryPercent >= 100 ? '#22c55e' : '#0055cc' }};"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="journey__line {{ $masteryPercent >= 100 ? 'journey__line--done' : '' }}"></div>
+
+                    {{-- Step 3 --}}
+                    <div class="journey__step" style="padding-bottom:0;">
+                        <div>
+                            <div class="journey__circle {{ $exams >= 5 ? 'journey__circle--done' : ($canStartExam ? 'journey__circle--active' : 'journey__circle--locked') }}">
+                                @if($exams >= 5)
+                                    <i class="bi bi-check" style="font-size:0.75rem;"></i>
+                                @else
+                                    3
+                                @endif
+                            </div>
+                        </div>
+                        <div style="flex:1;min-width:0;">
+                            <div class="journey__label {{ $canStartExam && $exams < 5 ? 'journey__label--active' : '' }}" style="margin-top:0;font-size:0.75rem;font-weight:600;">
+                                Prüfung
+                            </div>
+                            <div class="journey-step-detail">{{ $exams }}/5 bestanden</div>
+                            <div class="journey-step-bar">
+                                <div class="journey-step-bar-fill" style="width:{{ min(100, $exams * 20) }}%;background:{{ $exams >= 5 ? '#22c55e' : '#0055cc' }};"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            {{-- Gamification Pills (desktop sidebar) --}}
+            <div style="display:flex;gap:0.5rem;">
+                <div class="gami-pill {{ isset($streakAtRisk) && $streakAtRisk ? 'gami-pill--streak-risk' : '' }}">
+                    <div class="gami-pill__value gami-pill__value--gold">{{ $user->streak_days ?? 0 }}</div>
+                    <div class="gami-pill__label">Streak</div>
+                </div>
+                <div class="gami-pill">
+                    <div class="gami-pill__value gami-pill__value--blue">{{ $solvedTotal }}</div>
+                    <div class="gami-pill__label">Gelöst</div>
+                </div>
+                @if($leaderboardRank)
+                    <div class="gami-pill">
+                        <div class="gami-pill__value">{{ $leaderboardRank }}</div>
+                        <div class="gami-pill__label">Ranking</div>
+                    </div>
+                @else
+                    <div class="gami-pill">
+                        <div class="gami-pill__value" style="color:{{ $leagueInfo['color'] }};">{{ $leagueInfo['name'] }}</div>
+                        <div class="gami-pill__label">Liga</div>
+                    </div>
+                @endif
+            </div>
+
+            {{-- Exam Countdown (desktop sidebar, if set) --}}
+            @if($examCountdown)
+            @php
+                $cdPct = $examCountdown['dailyTarget'] > 0
+                    ? min(100, round(($examCountdown['todayAnswered'] / $examCountdown['dailyTarget']) * 100))
+                    : 0;
+                $cdDone = $examCountdown['todayAnswered'] >= $examCountdown['dailyTarget'];
+            @endphp
+            <div class="countdown-widget">
+                <div class="countdown-label-small" style="margin-bottom:0.5rem;">Prüfung in</div>
+                <div class="countdown-days-big">{{ $examCountdown['daysLeft'] }}</div>
+                <div class="countdown-label-small">Tag{{ $examCountdown['daysLeft'] != 1 ? 'en' : '' }}</div>
+                @if($examCountdown['dailyTarget'] > 0)
+                    <div style="margin-top:0.75rem;">
+                        <div style="font-size:0.6875rem;color:var(--text-secondary);margin-bottom:0.25rem;">
+                            Tagesziel: {{ $examCountdown['dailyTarget'] }} Fragen
+                        </div>
+                        <div class="countdown-mini-bar">
+                            <div class="countdown-mini-fill" style="width:{{ $cdPct }}%;background:{{ $cdDone ? '#22c55e' : '#0055cc' }};"></div>
+                        </div>
+                        <div style="font-size:0.625rem;font-weight:600;color:{{ $cdDone ? '#22c55e' : 'var(--text-muted)' }};">
+                            @if($cdDone)
+                                {{ $examCountdown['todayAnswered'] }}/{{ $examCountdown['dailyTarget'] }} – geschafft!
+                            @else
+                                noch {{ $examCountdown['dailyTarget'] - $examCountdown['todayAnswered'] }} übrig
+                            @endif
+                        </div>
+                    </div>
+                @endif
+            </div>
+            @endif
+
+        </div>{{-- end desktop sidebar --}}
+
+    </div>{{-- end dash-grid --}}
+
+    {{-- ── Mobile-only: Gamification + Quick Links ────── --}}
+    <div class="lg:hidden space-y-4 mt-4">
+
+        {{-- Gamification Pills --}}
+        <div style="display:flex;gap:0.5rem;">
+            <div class="gami-pill {{ isset($streakAtRisk) && $streakAtRisk ? 'gami-pill--streak-risk' : '' }}">
+                <div class="gami-pill__value gami-pill__value--gold">{{ $user->streak_days ?? 0 }}</div>
+                <div class="gami-pill__label">Streak</div>
+            </div>
+            <div class="gami-pill">
+                <div class="gami-pill__value gami-pill__value--blue">{{ $solvedTotal }}</div>
+                <div class="gami-pill__label">Gelöst</div>
+            </div>
+            @if($leaderboardRank)
+                <div class="gami-pill">
+                    <div class="gami-pill__value">{{ $leaderboardRank }}</div>
+                    <div class="gami-pill__label">Ranking</div>
+                </div>
             @else
-                <div class="spaced-count zero"><i class="bi bi-check-lg" style="font-size:2rem;"></i></div>
-                <div style="font-size:0.875rem;font-weight:600;color:#22c55e;">Alles aktuell</div>
-                <div style="font-size:0.75rem;color:var(--text-muted);text-align:center;">Keine Wiederholungen fällig</div>
+                <div class="gami-pill">
+                    <div class="gami-pill__value" style="color:{{ $leagueInfo['color'] }};">{{ $leagueInfo['name'] }}</div>
+                    <div class="gami-pill__label">Liga</div>
+                </div>
             @endif
         </div>
+
+        {{-- Quick Links --}}
+        <div style="display:flex;gap:0.5rem;">
+            <a href="{{ route('practice.menu') }}" class="dash-quick-link">Üben</a>
+            <a href="{{ route('lehrgaenge.index') }}" class="dash-quick-link">Lehrgänge</a>
+            <a href="{{ route('shop.index') }}" class="dash-quick-link">Shop</a>
+        </div>
+
     </div>
 
-    {{-- 8. AUSBILDER-KARTE (konditionell) --}}
-    @if($isAusbilder && $userOV)
-    <div class="ausbilder-card glass-blue">
-        <div>
-            <span class="badge-thw" style="display:inline-block;margin-bottom:0.4rem;">Ausbilder</span>
-            <div style="font-size:1.1rem;font-weight:700;color:var(--text-primary);">{{ $userOV->name }}</div>
-        </div>
-        <div class="ausbilder-stats">
-            <div>
-                <div class="ausbilder-stat-val">{{ $ovStats['members'] }}</div>
-                <div class="ausbilder-stat-label">Mitglieder</div>
-            </div>
-            <div>
-                <div class="ausbilder-stat-val" style="color:{{ $ovStats['avg_progress'] >= 50 ? '#22c55e' : '#f59e0b' }};">{{ $ovStats['avg_progress'] }}%</div>
-                <div class="ausbilder-stat-label">Ø Fortschritt</div>
-            </div>
-        </div>
-        <div style="margin-left:auto;">
-            <a href="{{ route('ortsverband.index') }}" class="btn-secondary btn-sm">Verwalten</a>
-        </div>
-    </div>
-    @endif
+</div>{{-- .dash-container --}}
 
-    {{-- 9. LEHRGÄNGE & LERNPOOLS --}}
-    <div>
-        <div class="kurs-section-header">
-            <span class="kurs-section-title">Lehrgänge & Lernpools</span>
-            <a href="{{ route('lehrgaenge.index') }}" style="font-size:0.75rem;color:var(--thw-blue-light);text-decoration:none;font-weight:600;">Alle anzeigen</a>
-        </div>
-
-        @if($enrolledLehrgaenge->isNotEmpty() || $enrolledLernpools->isNotEmpty())
-        <div class="kurs-grid">
-            {{-- Lehrgänge (max 2) --}}
-            @foreach($enrolledLehrgaenge->take(2) as $lehrgang)
-                @php
-                    $lProgress = \App\Models\UserLehrgangProgress::where('user_id', $user->id)
-                        ->whereHas('lehrgangQuestion', fn($q) => $q->where('lehrgang_id', $lehrgang->id))
-                        ->get();
-                    $lTotal = \App\Models\LehrgangQuestion::where('lehrgang_id', $lehrgang->id)->count();
-                    $lPoints = 0;
-                    foreach ($lProgress as $lp) { $lPoints += min($lp->consecutive_correct, \App\Models\UserQuestionProgress::MASTERY_THRESHOLD); }
-                    $lMax = $lTotal * \App\Models\UserQuestionProgress::MASTERY_THRESHOLD;
-                    $lPct = $lMax > 0 ? round(($lPoints / $lMax) * 100) : 0;
-                    $lDone = $lPct == 100 && $lProgress->count() > 0;
-                @endphp
-                <div class="kurs-card glass">
-                    <div class="kurs-card-title">{{ $lehrgang->lehrgang }}</div>
-                    <div class="kurs-card-desc">{{ $lehrgang->beschreibung }}</div>
-                    <div style="display:flex;align-items:center;gap:0.5rem;">
-                        <div class="kurs-bar" style="flex:1;"><div class="kurs-bar-fill {{ $lDone ? 'done' : '' }}" style="width:{{ $lPct }}%;"></div></div>
-                        <span class="kurs-percent">{{ $lPct }}%</span>
-                    </div>
-                    @if($lDone)
-                        <span class="btn-ghost btn-sm" style="background:rgba(34,197,94,0.15);color:#22c55e;border-color:rgba(34,197,94,0.25);">Fertig</span>
-                    @else
-                        <a href="{{ route('lehrgaenge.practice', $lehrgang->slug) }}" class="btn-primary btn-sm">Weiter</a>
-                    @endif
-                </div>
-            @endforeach
-
-            {{-- Lernpools (max 1) --}}
-            @foreach($enrolledLernpools->take(1) as $lernpool)
-                @php
-                    $lpSolved = $user->lernpoolProgress()
-                        ->whereHas('question', fn($q) => $q->where('lernpool_id', $lernpool->id))
-                        ->where('solved', true)->count();
-                    $lpTotal = $lernpool->getQuestionCount();
-                    $lpPct   = $lpTotal > 0 ? round(($lpSolved / $lpTotal) * 100) : 0;
-                    $lpDone  = $lpPct == 100 && $lpSolved > 0;
-                @endphp
-                <div class="kurs-card glass">
-                    <div style="display:flex;align-items:center;gap:0.4rem;margin-bottom:0.1rem;">
-                        <div class="kurs-card-title" style="margin:0;">{{ $lernpool->name }}</div>
-                        <span class="badge-thw" style="font-size:0.55rem;padding:0.1rem 0.35rem;">Lernpool</span>
-                    </div>
-                    <div class="kurs-card-desc">{{ $lernpool->description }}</div>
-                    <div style="display:flex;align-items:center;gap:0.5rem;">
-                        <div class="kurs-bar" style="flex:1;"><div class="kurs-bar-fill {{ $lpDone ? 'done' : '' }}" style="width:{{ $lpPct }}%;"></div></div>
-                        <span class="kurs-percent">{{ $lpPct }}%</span>
-                    </div>
-                    @if($lpDone)
-                        <span class="btn-ghost btn-sm" style="background:rgba(34,197,94,0.15);color:#22c55e;border-color:rgba(34,197,94,0.25);">Fertig</span>
-                    @else
-                        <a href="{{ route('ortsverband.lernpools.practice', [$lernpool->ortsverband_id, $lernpool->id]) }}" class="btn-primary btn-sm">Weiter</a>
-                    @endif
-                </div>
-            @endforeach
-        </div>
-
-        @else
-        {{-- Leer-Zustand --}}
-        <div class="glass" style="text-align:center;padding:2rem;">
-            <div style="font-size:0.875rem;color:var(--text-muted);margin-bottom:0.75rem;">Keine Lehrgänge oder Lernpools eingeschrieben</div>
-            <a href="{{ route('lehrgaenge.index') }}" class="btn-secondary btn-sm">Lehrgänge entdecken</a>
-        </div>
-        @endif
-    </div>
-
-</div>{{-- .ops-container --}}
-
-{{-- 10. LEADERBOARD-MODAL --}}
+{{-- Leaderboard Consent Modal --}}
 @if(!$user->leaderboard_banner_dismissed && !$user->leaderboard_consent)
 <div class="leaderboard-modal-overlay" id="leaderboard-modal">
     <div class="leaderboard-modal">
@@ -1508,7 +669,7 @@
                 <p style="color:white;font-size:0.95rem;opacity:0.9;">Vergleiche dich mit anderen</p>
             </div>
             <div style="background:rgba(255,255,255,0.15);border-radius:0.75rem;padding:1rem;margin-bottom:1.5rem;">
-                <p style="color:white;font-size:0.85rem;margin-bottom:0.5rem;"><strong>Name & Punkte</strong> werden angezeigt</p>
+                <p style="color:white;font-size:0.85rem;margin-bottom:0.5rem;"><strong>Name &amp; Punkte</strong> werden angezeigt</p>
                 <p style="color:white;font-size:0.85rem;margin:0;"><strong>Jederzeit änderbar</strong> in den Einstellungen</p>
             </div>
             <div style="display:flex;gap:0.75rem;">
@@ -1530,32 +691,22 @@
 
 <x-onboarding-tour />
 
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.0/dist/confetti.browser.min.js"></script>
+@push('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    @if($progressPercent == 100)
-    setTimeout(() => confetti({ particleCount: 80, spread: 60, origin: { y: 0.6 } }), 1000);
-    @endif
-});
 function dismissLeaderboardModal(accept) {
     const modal = document.getElementById('leaderboard-modal');
-    if (modal) { modal.style.animation = 'fadeOutModal 0.3s ease-out forwards'; setTimeout(() => modal.remove(), 300); }
-    if (accept === false) { document.getElementById('lb-decline-form').submit(); }
+    if (modal) {
+        modal.style.animation = 'fadeOutModal 0.3s ease-out forwards';
+        setTimeout(() => modal.remove(), 300);
+    }
+    if (accept === false) {
+        document.getElementById('lb-decline-form').submit();
+    }
 }
-document.addEventListener('keydown', function(e) { if (e.key === 'Escape') dismissLeaderboardModal(false); });
-
-// Animate SVG progress rings on load
-document.querySelectorAll('.hero-ring-wrap svg circle').forEach(function(el) {
-    var stroke = el.getAttribute('stroke') || '';
-    if (!stroke.startsWith('url(')) return;
-    var target = parseFloat(el.getAttribute('stroke-dashoffset'));
-    var full = parseFloat(el.getAttribute('stroke-dasharray'));
-    if (isNaN(target) || isNaN(full) || target === 0) return;
-    el.style.strokeDashoffset = String(full);
-    el.style.transition = 'stroke-dashoffset 1.2s cubic-bezier(0.22,1,0.36,1) 0.55s';
-    requestAnimationFrame(function() {
-        requestAnimationFrame(function() { el.style.strokeDashoffset = String(target); });
-    });
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') dismissLeaderboardModal(false);
 });
 </script>
+@endpush
+
 @endsection
