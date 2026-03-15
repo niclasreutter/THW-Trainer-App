@@ -736,11 +736,6 @@
 
     $enrolledLehrgaenge = $user->enrolledLehrgaenge()->get();
 
-    $gamificationService = new \App\Services\GamificationService();
-    $userAchievements = $gamificationService->getUserAchievements($user);
-    $totalAchievements = count(\App\Services\GamificationService::ACHIEVEMENTS);
-    $unlockedCount = count(array_filter($userAchievements, fn($a) => $a['unlocked']));
-
     $failedArr = is_array($user->exam_failed_questions ?? null)
         ? $user->exam_failed_questions
         : (is_string($user->exam_failed_questions) ? json_decode($user->exam_failed_questions, true) ?? [] : []);
@@ -1395,10 +1390,6 @@ function dismissLeaderboardModal(accept) {
     if (accept === false) { document.getElementById('lb-decline-form').submit(); }
 }
 document.addEventListener('keydown', function(e) { if (e.key === 'Escape') dismissLeaderboardModal(false); });
-function dismissEmailConsentBanner() {
-    const banner = document.getElementById('email-consent-banner');
-    if (banner) { banner.style.opacity = '0'; setTimeout(() => banner.remove(), 300); }
-    fetch('/dashboard/dismiss-email-consent-banner', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') } });
-}
+
 </script>
 @endsection
