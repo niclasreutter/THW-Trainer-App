@@ -3835,3 +3835,395 @@ html.light-mode .skeleton::after {
 .fade-in-on-scroll:nth-child(2) { transition-delay: 0.1s; }
 .fade-in-on-scroll:nth-child(3) { transition-delay: 0.2s; }
 .fade-in-on-scroll:nth-child(4) { transition-delay: 0.3s; }
+
+/* =====================================================
+   DASHBOARD REDESIGN - Modulare Sektionen
+   Scope: nur /dashboard und /statistics
+   ===================================================== */
+
+/* Dashboard Container */
+.dash-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* Smart Action Card */
+.smart-action {
+    background: linear-gradient(135deg, #00337F, #0055cc);
+    border-radius: 1rem;
+    padding: 1.25rem;
+    position: relative;
+    overflow: hidden;
+    color: #fff;
+}
+
+.smart-action::before {
+    content: '';
+    position: absolute;
+    bottom: -30px;
+    right: -20px;
+    width: 120px;
+    height: 120px;
+    background: radial-gradient(circle, rgba(91, 154, 255, 0.25), transparent);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.smart-action--urgent {
+    background: linear-gradient(135deg, #7f1d1d, #991b1b);
+}
+
+.smart-action__label {
+    font-size: 0.625rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 0.375rem;
+}
+
+.smart-action__title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+
+.smart-action__desc {
+    font-size: 0.8125rem;
+    color: rgba(255, 255, 255, 0.6);
+    margin-bottom: 0.75rem;
+}
+
+.smart-action__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+    border-radius: 0.5rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background var(--transition-fast);
+}
+
+.smart-action__btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    color: #fff;
+}
+
+.smart-action__countdown {
+    font-size: 0.6875rem;
+    color: rgba(255, 255, 255, 0.5);
+    margin-top: 0.75rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Journey Stepper */
+.journey {
+    display: flex;
+    align-items: flex-start;
+    gap: 0;
+}
+
+.journey--horizontal {
+    flex-direction: row;
+    align-items: center;
+}
+
+.journey--vertical {
+    flex-direction: column;
+}
+
+.journey__step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    flex: 1;
+}
+
+.journey--vertical .journey__step {
+    flex-direction: row;
+    text-align: left;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding-bottom: 1.5rem;
+}
+
+.journey__circle {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+}
+
+.journey__circle--done {
+    background: #0055cc;
+    color: #fff;
+}
+
+.journey__circle--active {
+    background: rgba(0, 85, 204, 0.3);
+    border: 2px solid #0055cc;
+    color: #5b9aff;
+}
+
+.journey__circle--locked {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.3);
+}
+
+.light-mode .journey__circle--locked {
+    background: rgba(0, 0, 0, 0.05);
+    border-color: rgba(0, 0, 0, 0.15);
+    color: rgba(0, 0, 0, 0.3);
+}
+
+.journey__line {
+    flex: 1;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.1);
+    align-self: center;
+}
+
+.light-mode .journey__line {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.journey__line--done {
+    background: #0055cc;
+}
+
+.journey--vertical .journey__line {
+    width: 3px;
+    height: 1.5rem;
+    margin-left: 0.9375rem;
+    flex: none;
+}
+
+.journey__label {
+    font-size: 0.5625rem;
+    color: var(--text-muted);
+    margin-top: 0.375rem;
+    line-height: 1.2;
+}
+
+.journey__label--active {
+    color: #5b9aff;
+}
+
+.light-mode .journey__label--active {
+    color: #00337F;
+}
+
+.journey__pct {
+    font-size: 0.6875rem;
+    font-weight: 600;
+}
+
+/* Gamification Pills */
+.gami-pill {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 0.75rem;
+    padding: 0.75rem;
+    text-align: center;
+    flex: 1;
+}
+
+.gami-pill__value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.gami-pill__value--gold {
+    color: var(--gold);
+}
+
+.gami-pill__value--blue {
+    color: #5b9aff;
+}
+
+.light-mode .gami-pill__value--blue {
+    color: #00337F;
+}
+
+.gami-pill__label {
+    font-size: 0.5625rem;
+    color: var(--text-muted);
+    margin-top: 0.125rem;
+}
+
+.gami-pill--streak-risk {
+    animation: streak-pulse 2s ease-in-out infinite;
+    border-color: var(--gold);
+}
+
+@keyframes streak-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.3); }
+    50% { box-shadow: 0 0 12px 4px rgba(251, 191, 36, 0.15); }
+}
+
+/* Weekly Activity Bars */
+.activity-bar {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.25rem;
+    height: 80px;
+}
+
+.activity-bar__col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    height: 100%;
+    justify-content: flex-end;
+}
+
+.activity-bar__fill {
+    width: 100%;
+    border-radius: 0.25rem 0.25rem 0 0;
+    background: #0055cc;
+    min-height: 2px;
+    transition: height var(--transition-normal);
+}
+
+.activity-bar__fill--today {
+    background: #5b9aff;
+    box-shadow: 0 0 8px rgba(91, 154, 255, 0.3);
+}
+
+.activity-bar__fill--empty {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.light-mode .activity-bar__fill--empty {
+    background: rgba(0, 0, 0, 0.06);
+}
+
+.activity-bar__count {
+    font-size: 0.5625rem;
+    color: var(--text-muted);
+}
+
+.activity-bar__day {
+    font-size: 0.5625rem;
+    color: var(--text-muted);
+}
+
+.activity-bar__day--today {
+    color: #5b9aff;
+    font-weight: 600;
+}
+
+.light-mode .activity-bar__day--today {
+    color: #00337F;
+}
+
+/* Quick Link Buttons (Dashboard) */
+.dash-quick-link {
+    background: rgba(0, 51, 127, 0.15);
+    border: 1px solid rgba(0, 51, 127, 0.25);
+    border-radius: 0.75rem;
+    padding: 0.875rem 0.625rem;
+    text-align: center;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #5b9aff;
+    text-decoration: none;
+    transition: background var(--transition-fast);
+    flex: 1;
+}
+
+.dash-quick-link:hover {
+    background: rgba(0, 51, 127, 0.25);
+    color: #5b9aff;
+}
+
+.light-mode .dash-quick-link {
+    background: rgba(0, 51, 127, 0.08);
+    color: #00337F;
+}
+
+.light-mode .dash-quick-link:hover {
+    background: rgba(0, 51, 127, 0.15);
+}
+
+/* Statistics Page - Section Cards */
+.stat-section-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 0.75rem;
+    padding: 1rem;
+    transition: transform var(--transition-fast);
+}
+
+.stat-section-card:hover {
+    transform: translateY(-2px);
+}
+
+.stat-section-card__bar {
+    height: 0.375rem;
+    border-radius: 0.1875rem;
+    background: rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+}
+
+.light-mode .stat-section-card__bar {
+    background: rgba(0, 0, 0, 0.08);
+}
+
+.stat-section-card__fill--green { background: var(--success); }
+.stat-section-card__fill--blue { background: #0055cc; }
+.stat-section-card__fill--red { background: var(--error); }
+
+/* Heatmap Calendar */
+.heatmap-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.1875rem;
+}
+
+.heatmap-cell {
+    aspect-ratio: 1;
+    border-radius: 0.1875rem;
+    background: rgba(255, 255, 255, 0.06);
+    transition: transform var(--transition-fast);
+}
+
+.light-mode .heatmap-cell {
+    background: rgba(0, 0, 0, 0.06);
+}
+
+.heatmap-cell:hover {
+    transform: scale(1.2);
+}
+
+.heatmap-cell--l1 { background: rgba(0, 85, 204, 0.2); }
+.heatmap-cell--l2 { background: rgba(0, 85, 204, 0.4); }
+.heatmap-cell--l3 { background: rgba(0, 85, 204, 0.6); }
+.heatmap-cell--l4 { background: #0055cc; }
+
+/* Desktop Dashboard Layout */
+@media (min-width: 1024px) {
+    .dash-grid {
+        display: grid;
+        grid-template-columns: 1fr 320px;
+        gap: 1.5rem;
+    }
+}
