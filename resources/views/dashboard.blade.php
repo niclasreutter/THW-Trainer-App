@@ -1145,7 +1145,7 @@
     {{-- 6. AKTIVITÄTS-CHART --}}
     <div class="activity-section glass">
         <div class="activity-header">
-            <span class="activity-title">Diese Woche</span>
+            <span class="activity-title">Letzte 7 Tage</span>
             <div class="activity-trend">
                 @if($thisWeekTotal > 0)
                     <span style="font-size:0.875rem;font-weight:700;color:{{ $thisWeekRate >= 70 ? '#22c55e' : ($thisWeekRate >= 50 ? '#f59e0b' : '#ef4444') }};">{{ $thisWeekRate }}%</span>
@@ -1157,21 +1157,21 @@
                     @endif
                     <span style="font-size:0.7rem;color:var(--text-muted);">{{ $thisWeekTotal }} Fragen</span>
                 @else
-                    <span style="font-size:0.75rem;color:var(--text-muted);">Noch keine Aktivität diese Woche</span>
+                    <span style="font-size:0.75rem;color:var(--text-muted);">Noch keine Aktivität letzte 7 Tage</span>
                 @endif
             </div>
         </div>
 
         @php
-            $maxCount = isset($weeklyActivity) ? max($weeklyActivity->max('count'), 1) : 1;
+            $maxCount = max((int) $weeklyActivity->max('count'), 1);
             $days = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
-            $startOfWeek = \Carbon\Carbon::now()->startOfWeek(\Carbon\Carbon::MONDAY);
+            $chartStart = \Carbon\Carbon::now()->subDays(6)->startOfDay();
         @endphp
 
         <div class="activity-chart-wrap">
             @for($i = 0; $i < 7; $i++)
                 @php
-                    $dayDate = $startOfWeek->copy()->addDays($i);
+                    $dayDate = $chartStart->copy()->addDays($i);
                     $dateStr = $dayDate->toDateString();
                     $dayData = isset($weeklyActivity) ? $weeklyActivity->firstWhere('date', $dateStr) : null;
                     $count   = $dayData ? $dayData->count : 0;
