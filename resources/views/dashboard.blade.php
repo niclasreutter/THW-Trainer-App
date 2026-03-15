@@ -858,6 +858,82 @@
         </div>
     </div>
 
+    {{-- 2. ALERT-BANNER (konditionell) --}}
+    @if(session('error'))
+    <div class="alert-compact glass-error">
+        <i class="bi bi-exclamation-triangle alert-compact-icon"></i>
+        <div class="alert-compact-content">
+            <div class="alert-compact-title">{{ session('error') }}</div>
+        </div>
+        <button onclick="this.parentElement.remove()" style="background:none;border:none;cursor:pointer;color:var(--text-secondary);font-size:1.1rem;">×</button>
+    </div>
+    @endif
+
+    @if($hasFailedQuestions)
+    <div class="alert-compact glass-warning">
+        <i class="bi bi-arrow-repeat alert-compact-icon"></i>
+        <div class="alert-compact-content">
+            <div class="alert-compact-title">{{ count($failedArr) }} Frage{{ count($failedArr) == 1 ? '' : 'n' }} wiederholen</div>
+            <div class="alert-compact-desc">Bevor du eine neue Prüfung starten kannst</div>
+        </div>
+        <a href="{{ route('failed.index') }}" class="btn-primary btn-sm">Los</a>
+    </div>
+    @endif
+
+    @if(isset($spacedRepetitionDue) && $spacedRepetitionDue > 0)
+    <div class="alert-compact glass" style="border-left: 3px solid var(--thw-blue-light);">
+        <i class="bi bi-arrow-repeat alert-compact-icon" style="color: var(--thw-blue-light);"></i>
+        <div class="alert-compact-content">
+            <div class="alert-compact-title">{{ $spacedRepetitionDue }} Wiederholung{{ $spacedRepetitionDue == 1 ? '' : 'en' }} fällig</div>
+            <div class="alert-compact-desc">Spaced Repetition: Wiederhole Fragen für langfristiges Behalten</div>
+        </div>
+        <a href="{{ route('practice.spaced-repetition') }}" class="btn-secondary btn-sm">Wiederholen</a>
+    </div>
+    @endif
+
+    @if($activeLernsession)
+        @php $activeLernsessionData = $activeLernsession->learningSession; @endphp
+        <div class="live-session-banner glass"
+             x-data="{ remaining: {{ $activeLernsession->getTimeRemainingSeconds() }} }"
+             x-init="setInterval(() => { if(remaining > 0) remaining-- }, 1000)">
+            <div class="live-dot"></div>
+            <div class="live-session-info">
+                <div class="live-session-title">Lernsession ist live</div>
+                <div class="live-session-meta">
+                    {{ $activeLernsessionData->title }} &middot;
+                    {{ $activeLernsession->starts_at->format('d.m.Y H:i') }} – {{ $activeLernsession->ends_at->format('H:i') }} Uhr
+                    &middot; noch <span x-text="Math.floor(remaining/3600) > 0
+                        ? Math.floor(remaining/3600) + 'h ' + Math.floor((remaining%3600)/60) + 'min'
+                        : Math.floor(remaining/60) + ' min'"></span>
+                    @if($activeLernsessionData->description)
+                        <br>{{ $activeLernsessionData->description }}
+                    @endif
+                </div>
+            </div>
+            <a href="{{ route('lernsession.live', $activeLernsession) }}" class="btn-primary btn-sm">Teilnehmen</a>
+        </div>
+    @endif
+
+    @if($streakAtRisk)
+    <div x-data="{ frozen: false, loading: false, async applyFreeze() { this.loading = true; try { const res = await fetch('{{ route('streak.freeze') }}', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content, 'Accept': 'application/json' }, cache: 'no-store' }); const data = await res.json(); if (data.success) this.frozen = true; } finally { this.loading = false; } } }"
+         class="alert-compact"
+         :class="frozen ? 'glass-success' : 'glass-warning'">
+        <i class="bi alert-compact-icon" :class="frozen ? 'bi-shield-check' : 'bi-fire'" :style="frozen ? 'color:#10b981;' : 'color:#f59e0b;'"></i>
+        <div class="alert-compact-content">
+            <div class="alert-compact-title" x-show="!frozen">Dein {{ $user->streak_days }}-Tage-Streak läuft ab</div>
+            <div class="alert-compact-title" x-show="frozen">Streak gesichert</div>
+            <div class="alert-compact-desc" x-show="!frozen">Noch {{ $questionsRemaining }} von {{ $streakMinQuestions }} Fragen nötig ({{ $todayQuestions }}/{{ $streakMinQuestions }} beantwortet)</div>
+            <div class="alert-compact-desc" x-show="frozen">Ein Streak Freeze schützt deinen Streak für heute.</div>
+            <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;" x-show="!frozen">
+                @if(isset($streakFreezeStatus) && $streakFreezeStatus['remaining'] > 0)
+                <button class="btn-secondary btn-sm" @click="applyFreeze()" :disabled="loading" x-text="loading ? 'Wird eingesetzt...' : 'Freeze einsetzen ({{ $streakFreezeStatus['remaining'] }})'"></button>
+                @endif
+                <a href="{{ route('practice.all') }}" class="btn-primary btn-sm">Jetzt lernen</a>
+            </div>
+        </div>
+    </div>
+    @endif
+
 </div>{{-- .ops-container --}}
 
 <x-onboarding-tour />
