@@ -577,11 +577,11 @@
                 <div class="section-radar">
                     @foreach($sectionStats as $section)
                         @php
-                            $pct = $section['percent'] ?? 0;
+                            $pct = $section->total > 0 ? round(($section->correct / $section->total) * 100) : 0;
                             $barColor = $pct >= 80 ? '#22c55e' : ($pct >= 40 ? '#5b9aff' : ($pct > 0 ? '#ef4444' : 'rgba(255,255,255,0.08)'));
                         @endphp
-                        <a href="{{ route('practice.section', $section['section']) }}" class="section-radar__item" title="Abschnitt {{ $section['section'] }}: {{ $pct }}%">
-                            <span class="section-radar__num">{{ $section['section'] }}</span>
+                        <a href="{{ route('practice.section', $section->lernabschnitt) }}" class="section-radar__item" title="Abschnitt {{ $section->lernabschnitt }}: {{ $pct }}%">
+                            <span class="section-radar__num">{{ $section->lernabschnitt }}</span>
                             <div class="section-radar__track">
                                 <div class="section-radar__fill" style="width:{{ max($pct, 2) }}%;background:{{ $barColor }};"></div>
                             </div>
