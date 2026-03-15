@@ -223,6 +223,10 @@ Route::get('/dashboard', function () {
     ));
 })->middleware(['auth', 'verified'])->name('dashboard');
 
+Route::get('/statistics', [\App\Http\Controllers\StatisticsController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('statistics');
+
 Route::post('/dashboard/dismiss-email-consent-banner', function () {
     session(['email_consent_banner_dismissed' => true]);
     return response()->json(['success' => true]);
