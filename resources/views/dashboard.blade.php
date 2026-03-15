@@ -231,6 +231,24 @@
         transition: width 0.5s ease-out;
     }
 
+    /* ─── League Badge ─────────────────────────────── */
+    .league-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        font-size: 0.5625rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--league-color);
+        background: color-mix(in srgb, var(--league-color) 12%, transparent);
+        border: 1px solid color-mix(in srgb, var(--league-color) 25%, transparent);
+        border-radius: 0.375rem;
+        padding: 0.2rem 0.5rem;
+        line-height: 1;
+        white-space: nowrap;
+    }
+
     /* ─── XP Progress Bar ──────────────────────────── */
     .xp-bar {
         height: 4px;
@@ -254,61 +272,6 @@
         font-size: 0.625rem;
         color: var(--text-muted);
         margin-top: 0.25rem;
-        font-family: 'IBM Plex Mono', monospace;
-    }
-
-    /* ─── Section Radar ────────────────────────────── */
-    .section-radar {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 0.375rem;
-    }
-
-    @media (min-width: 640px) {
-        .section-radar { grid-template-columns: repeat(5, 1fr); }
-    }
-
-    .section-radar__item {
-        display: flex;
-        align-items: center;
-        gap: 0.375rem;
-        text-decoration: none;
-        padding: 0.3rem 0;
-        transition: opacity 0.15s;
-    }
-
-    .section-radar__item:hover { opacity: 0.75; }
-
-    .section-radar__num {
-        font-size: 0.625rem;
-        font-weight: 700;
-        color: var(--text-muted);
-        min-width: 1rem;
-        text-align: right;
-        font-family: 'IBM Plex Mono', monospace;
-    }
-
-    .section-radar__track {
-        flex: 1;
-        height: 4px;
-        background: rgba(255,255,255,0.08);
-        border-radius: 2px;
-        overflow: hidden;
-    }
-
-    html.light-mode .section-radar__track { background: rgba(0,0,0,0.08); }
-
-    .section-radar__fill {
-        height: 100%;
-        border-radius: 2px;
-        transition: width 0.4s ease-out;
-    }
-
-    .section-radar__pct {
-        font-size: 0.5625rem;
-        font-weight: 700;
-        min-width: 1.75rem;
-        text-align: right;
         font-family: 'IBM Plex Mono', monospace;
     }
 
@@ -423,7 +386,13 @@
     {{-- ── Header ──────────────────────────────────────── --}}
     <div class="dash-header">
         <div class="dash-greeting">{{ $greeting }}</div>
-        <div class="dash-username">{{ $user->name }}</div>
+        <div style="display:flex;align-items:center;gap:0.5rem;">
+            <div class="dash-username">{{ $user->name }}</div>
+            <span class="league-badge" style="--league-color:{{ $leagueInfo['color'] }};">
+                <i class="{{ $leagueInfo['icon'] }}" style="font-size:0.55rem;"></i>
+                {{ $leagueInfo['name'] }}
+            </span>
+        </div>
         <div class="dash-level-line">Level {{ $user->level ?? 1 }} &middot; {{ number_format($user->points ?? 0) }} Punkte</div>
         @if($nextLevelPoints > 0)
         <div class="xp-bar">
@@ -568,30 +537,7 @@
                 </div>
             </div>
 
-            {{-- 4. Abschnitt-Radar --}}
-            <div class="glass" style="padding:1rem;">
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.875rem;">
-                    <span class="section-label">Lernabschnitte</span>
-                    <a href="{{ route('statistics') }}" style="font-size:0.75rem;color:#5b9aff;text-decoration:none;font-weight:600;">Details &rarr;</a>
-                </div>
-                <div class="section-radar">
-                    @foreach($sectionStats as $section)
-                        @php
-                            $pct = $section->total > 0 ? round(($section->correct / $section->total) * 100) : 0;
-                            $barColor = $pct >= 80 ? '#22c55e' : ($pct >= 40 ? '#5b9aff' : ($pct > 0 ? '#ef4444' : 'rgba(255,255,255,0.08)'));
-                        @endphp
-                        <a href="{{ route('practice.section', $section->lernabschnitt) }}" class="section-radar__item" title="Abschnitt {{ $section->lernabschnitt }}: {{ $pct }}%">
-                            <span class="section-radar__num">{{ $section->lernabschnitt }}</span>
-                            <div class="section-radar__track">
-                                <div class="section-radar__fill" style="width:{{ max($pct, 2) }}%;background:{{ $barColor }};"></div>
-                            </div>
-                            <span class="section-radar__pct" style="color:{{ $barColor }};">{{ $pct }}%</span>
-                        </a>
-                    @endforeach
-                </div>
-            </div>
-
-            {{-- 5. Lehrgänge --}}
+            {{-- 4. Lehrgänge --}}
             <div class="glass" style="padding:1rem;">
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.875rem;">
                     <span class="section-label">Lehrgänge</span>
@@ -737,16 +683,16 @@
                     <div class="gami-pill__value gami-pill__value--blue">{{ $solvedTotal }}</div>
                     <div class="gami-pill__label">Gelöst</div>
                 </div>
-                @if($leaderboardRank)
-                    <div class="gami-pill">
-                        <div class="gami-pill__value">{{ $leaderboardRank }}</div>
-                        <div class="gami-pill__label">Ranking</div>
-                    </div>
+                @if($leagueRank)
+                    <a href="{{ route('gamification.leaderboard') }}" class="gami-pill" style="text-decoration:none;cursor:pointer;">
+                        <div class="gami-pill__value" style="color:{{ $leagueInfo['color'] }};">#{{ $leagueRank }}</div>
+                        <div class="gami-pill__label">{{ $leagueInfo['name'] }}-Liga</div>
+                    </a>
                 @else
-                    <div class="gami-pill">
-                        <div class="gami-pill__value" style="color:{{ $leagueInfo['color'] }};">{{ $leagueInfo['name'] }}</div>
-                        <div class="gami-pill__label">Liga</div>
-                    </div>
+                    <a href="{{ route('gamification.leaderboard') }}" class="gami-pill" style="text-decoration:none;cursor:pointer;">
+                        <div class="gami-pill__value" style="color:{{ $leagueInfo['color'] }};font-size:0.75rem;">{{ $leagueInfo['name'] }}</div>
+                        <div class="gami-pill__label" style="font-size:0.5rem;">Teilnehmen &rarr;</div>
+                    </a>
                 @endif
             </div>
 
@@ -821,16 +767,16 @@
                 <div class="gami-pill__value gami-pill__value--blue">{{ $solvedTotal }}</div>
                 <div class="gami-pill__label">Gelöst</div>
             </div>
-            @if($leaderboardRank)
-                <div class="gami-pill">
-                    <div class="gami-pill__value">{{ $leaderboardRank }}</div>
-                    <div class="gami-pill__label">Ranking</div>
-                </div>
+            @if($leagueRank)
+                <a href="{{ route('gamification.leaderboard') }}" class="gami-pill" style="text-decoration:none;cursor:pointer;">
+                    <div class="gami-pill__value" style="color:{{ $leagueInfo['color'] }};">#{{ $leagueRank }}</div>
+                    <div class="gami-pill__label">{{ $leagueInfo['name'] }}-Liga</div>
+                </a>
             @else
-                <div class="gami-pill">
-                    <div class="gami-pill__value" style="color:{{ $leagueInfo['color'] }};">{{ $leagueInfo['name'] }}</div>
-                    <div class="gami-pill__label">Liga</div>
-                </div>
+                <a href="{{ route('gamification.leaderboard') }}" class="gami-pill" style="text-decoration:none;cursor:pointer;">
+                    <div class="gami-pill__value" style="color:{{ $leagueInfo['color'] }};font-size:0.75rem;">{{ $leagueInfo['name'] }}</div>
+                    <div class="gami-pill__label" style="font-size:0.5rem;">Teilnehmen &rarr;</div>
+                </a>
             @endif
         </div>
 

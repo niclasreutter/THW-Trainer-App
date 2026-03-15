@@ -196,11 +196,17 @@ Route::get('/dashboard', function () {
     $streakAtRisk = $user->streak_days > 0
         && (!$user->last_activity_date || \Carbon\Carbon::parse($user->last_activity_date)->lt(\Carbon\Carbon::today()));
 
-    // Leaderboard rank
-    $leaderboardRank = null;
+    // Liga-Position (innerhalb der aktuellen Liga)
+    $leagueRank = null;
+    $leagueSize = null;
     if ($user->leaderboard_consent) {
-        $leaderboardRank = \App\Models\User::where('leaderboard_consent', true)
-            ->where('points', '>', $user->points)->count() + 1;
+        $userLeague = $user->league ?? 'bronze';
+        $leagueRank = \App\Models\User::where('leaderboard_consent', true)
+            ->where('league', $userLeague)
+            ->where('weekly_points', '>', $user->weekly_points ?? 0)->count() + 1;
+        $leagueSize = \App\Models\User::where('leaderboard_consent', true)
+            ->where('league', $userLeague)
+            ->where('weekly_points', '>', 0)->count();
     }
 
     // Mastery percent (for journey stepper) — reuse $progress from above
@@ -219,7 +225,7 @@ Route::get('/dashboard', function () {
         'user', 'recentExams', 'totalQuestions', 'spacedRepetitionDue',
         'weeklyActivity', 'sectionStats', 'streakFreezeStatus',
         'smartAction', 'examCountdown', 'enrolledLehrgaenge',
-        'streakAtRisk', 'leaderboardRank', 'progressPercent',
+        'streakAtRisk', 'leagueRank', 'leagueSize', 'progressPercent',
         'masteryPercent', 'solvedPercent', 'solvedTotal',
         'canStartExam', 'exams', 'hasFailedQuestions',
         'levelProgress', 'nextLevelPoints'
