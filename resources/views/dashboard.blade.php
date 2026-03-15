@@ -700,8 +700,8 @@
                     </div>
                 @else
                     <div style="text-align:center;padding:1.25rem 0;">
-                        <div style="font-size:0.8125rem;color:var(--text-muted);margin-bottom:0.75rem;">Beantworte deine erste Frage diese Woche</div>
-                        <a href="{{ route('practice.all') }}" class="btn-secondary btn-sm">Jetzt starten</a>
+                        <div style="font-size:0.8125rem;color:var(--text-muted);margin-bottom:0.5rem;">Noch keine Aktivität diese Woche</div>
+                        <a href="{{ route('practice.all') }}" style="font-size:0.75rem;font-weight:600;color:#5b9aff;text-decoration:none;">Erste Frage beantworten &rarr;</a>
                     </div>
                 @endif
             </div>
@@ -714,10 +714,13 @@
                 </div>
 
                 @if($enrolledLehrgaenge->isEmpty())
-                    <div style="text-align:center;padding:1.5rem 0;">
-                        <div style="font-size:0.8125rem;color:var(--text-muted);margin-bottom:0.75rem;">Noch keine Lehrgänge eingeschrieben</div>
-                        <a href="{{ route('lehrgaenge.index') }}" class="btn-secondary btn-sm">Lehrgänge entdecken</a>
-                    </div>
+                    <a href="{{ route('lehrgaenge.index') }}" class="lg-card" style="display:flex;align-items:center;justify-content:space-between;">
+                        <div>
+                            <div style="font-size:0.8125rem;font-weight:600;color:var(--text-primary);">Lehrgänge entdecken</div>
+                            <div style="font-size:0.6875rem;color:var(--text-muted);margin-top:0.15rem;">Spezialisiere dein Wissen</div>
+                        </div>
+                        <i class="bi bi-arrow-right" style="color:#5b9aff;font-size:0.875rem;"></i>
+                    </a>
                 @else
                     <div class="space-y-2">
                         @foreach($enrolledLehrgaenge->take(3) as $lehrgang)
