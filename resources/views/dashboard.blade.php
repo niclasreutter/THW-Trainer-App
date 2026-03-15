@@ -1281,7 +1281,7 @@
             {{-- Lehrgänge (max 2) --}}
             @foreach($enrolledLehrgaenge->take(2) as $lehrgang)
                 @php
-                    $lProgress = \App\Models\UserLehrgangProgress::where('user_id', Auth::id())
+                    $lProgress = \App\Models\UserLehrgangProgress::where('user_id', $user->id)
                         ->whereHas('lehrgangQuestion', fn($q) => $q->where('lehrgang_id', $lehrgang->id))
                         ->get();
                     $lTotal = \App\Models\LehrgangQuestion::where('lehrgang_id', $lehrgang->id)->count();
