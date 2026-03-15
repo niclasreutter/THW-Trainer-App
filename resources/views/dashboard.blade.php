@@ -1080,12 +1080,12 @@
             <div class="stat-card-row">
                 @if($lastExamPct !== null)
                     <span class="stat-card-detail">Letzter Versuch:
-                        <strong class="{{ $lastExamPct >= 75 ? 'gold' : '' }} stat-card-detail">{{ $lastExamPct }}%</strong>
+                        <strong class="{{ $lastExamPct >= 75 ? 'gold ' : '' }}stat-card-detail">{{ $lastExamPct }}%</strong>
                     </span>
                 @endif
                 @if($avgExamPct !== null)
                     <span class="stat-card-detail">Schnitt:
-                        <strong class="{{ $avgExamPct >= 75 ? 'gold' : '' }} stat-card-detail">{{ $avgExamPct }}%</strong>
+                        <strong class="{{ $avgExamPct >= 75 ? 'gold ' : '' }}stat-card-detail">{{ $avgExamPct }}%</strong>
                     </span>
                 @endif
             </div>
