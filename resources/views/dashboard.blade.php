@@ -231,6 +231,132 @@
         transition: width 0.5s ease-out;
     }
 
+    /* ─── XP Progress Bar ──────────────────────────── */
+    .xp-bar {
+        height: 4px;
+        background: rgba(255,255,255,0.08);
+        border-radius: 2px;
+        overflow: hidden;
+        margin-top: 0.5rem;
+        max-width: 200px;
+    }
+
+    html.light-mode .xp-bar { background: rgba(0,0,0,0.08); }
+
+    .xp-bar__fill {
+        height: 100%;
+        background: linear-gradient(90deg, #5b9aff, #0055cc);
+        border-radius: 2px;
+        transition: width 0.6s ease-out;
+    }
+
+    .xp-bar__hint {
+        font-size: 0.625rem;
+        color: var(--text-muted);
+        margin-top: 0.25rem;
+        font-family: 'IBM Plex Mono', monospace;
+    }
+
+    /* ─── Section Radar ────────────────────────────── */
+    .section-radar {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.375rem;
+    }
+
+    @media (min-width: 640px) {
+        .section-radar { grid-template-columns: repeat(5, 1fr); }
+    }
+
+    .section-radar__item {
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+        text-decoration: none;
+        padding: 0.3rem 0;
+        transition: opacity 0.15s;
+    }
+
+    .section-radar__item:hover { opacity: 0.75; }
+
+    .section-radar__num {
+        font-size: 0.625rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        min-width: 1rem;
+        text-align: right;
+        font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .section-radar__track {
+        flex: 1;
+        height: 4px;
+        background: rgba(255,255,255,0.08);
+        border-radius: 2px;
+        overflow: hidden;
+    }
+
+    html.light-mode .section-radar__track { background: rgba(0,0,0,0.08); }
+
+    .section-radar__fill {
+        height: 100%;
+        border-radius: 2px;
+        transition: width 0.4s ease-out;
+    }
+
+    .section-radar__pct {
+        font-size: 0.5625rem;
+        font-weight: 700;
+        min-width: 1.75rem;
+        text-align: right;
+        font-family: 'IBM Plex Mono', monospace;
+    }
+
+    /* ─── Spaced Repetition Nudge ──────────────────── */
+    .sr-nudge {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.75rem 1rem;
+        border-radius: 0.75rem;
+        border: 1px solid var(--glass-border);
+        background: var(--glass-bg);
+        text-decoration: none;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .sr-nudge:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0,51,127,0.1);
+        text-decoration: none;
+    }
+
+    .sr-nudge__badge {
+        width: 2rem;
+        height: 2rem;
+        border-radius: 0.5rem;
+        background: linear-gradient(135deg, #0055cc, #5b9aff);
+        color: #fff;
+        font-size: 0.8125rem;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Barlow Condensed', sans-serif;
+    }
+
+    .sr-nudge__title {
+        font-size: 0.8125rem;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    .sr-nudge__desc {
+        font-size: 0.625rem;
+        color: var(--text-muted);
+        margin-top: 0.1rem;
+    }
+
     /* ─── Stagger animation ─────────────────────────── */
     @keyframes dash-rise {
         from { opacity: 0; transform: translateY(10px); }
@@ -299,6 +425,12 @@
         <div class="dash-greeting">{{ $greeting }}</div>
         <div class="dash-username">{{ $user->name }}</div>
         <div class="dash-level-line">Level {{ $user->level ?? 1 }} &middot; {{ number_format($user->points ?? 0) }} Punkte</div>
+        @if($nextLevelPoints > 0)
+        <div class="xp-bar">
+            <div class="xp-bar__fill" style="width:{{ $levelProgress }}%;"></div>
+        </div>
+        <div class="xp-bar__hint">noch {{ number_format($nextLevelPoints) }} XP bis Level {{ ($user->level ?? 1) + 1 }}</div>
+        @endif
     </div>
 
     {{-- ── Main grid (desktop: 2 cols) ───────────────── --}}
@@ -436,7 +568,30 @@
                 </div>
             </div>
 
-            {{-- 4. Lehrgänge --}}
+            {{-- 4. Abschnitt-Radar --}}
+            <div class="glass" style="padding:1rem;">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.875rem;">
+                    <span class="section-label">Lernabschnitte</span>
+                    <a href="{{ route('statistics') }}" style="font-size:0.75rem;color:#5b9aff;text-decoration:none;font-weight:600;">Details &rarr;</a>
+                </div>
+                <div class="section-radar">
+                    @foreach($sectionStats as $section)
+                        @php
+                            $pct = $section['percent'] ?? 0;
+                            $barColor = $pct >= 80 ? '#22c55e' : ($pct >= 40 ? '#5b9aff' : ($pct > 0 ? '#ef4444' : 'rgba(255,255,255,0.08)'));
+                        @endphp
+                        <a href="{{ route('practice.section', $section['section']) }}" class="section-radar__item" title="Abschnitt {{ $section['section'] }}: {{ $pct }}%">
+                            <span class="section-radar__num">{{ $section['section'] }}</span>
+                            <div class="section-radar__track">
+                                <div class="section-radar__fill" style="width:{{ max($pct, 2) }}%;background:{{ $barColor }};"></div>
+                            </div>
+                            <span class="section-radar__pct" style="color:{{ $barColor }};">{{ $pct }}%</span>
+                        </a>
+                    @endforeach
+                </div>
+            </div>
+
+            {{-- 5. Lehrgänge --}}
             <div class="glass" style="padding:1rem;">
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.875rem;">
                     <span class="section-label">Lehrgänge</span>
@@ -594,6 +749,20 @@
                     </div>
                 @endif
             </div>
+
+            {{-- Spaced Repetition Nudge --}}
+            @if($spacedRepetitionDue > 0)
+            <a href="{{ route('practice.spaced-repetition') }}" class="sr-nudge">
+                <div style="display:flex;align-items:center;gap:0.625rem;">
+                    <div class="sr-nudge__badge">{{ $spacedRepetitionDue }}</div>
+                    <div>
+                        <div class="sr-nudge__title">Reviews fällig</div>
+                        <div class="sr-nudge__desc">Halte dein Wissen frisch</div>
+                    </div>
+                </div>
+                <i class="bi bi-arrow-right" style="color:#5b9aff;font-size:0.75rem;"></i>
+            </a>
+            @endif
 
             {{-- Exam Countdown (desktop sidebar) --}}
             @if($examCountdown)

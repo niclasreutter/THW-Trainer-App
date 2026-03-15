@@ -210,13 +210,19 @@ Route::get('/dashboard', function () {
     $solvedTotal = \App\Models\UserQuestionProgress::where('user_id', $user->id)->count();
     $solvedPercent = $totalQuestions > 0 ? round(($solvedTotal / $totalQuestions) * 100) : 0;
 
+    // XP level progress
+    $gamificationService = app(\App\Services\GamificationService::class);
+    $levelProgress = $gamificationService->getLevelProgress($user);
+    $nextLevelPoints = $gamificationService->getNextLevelPoints($user);
+
     return view('dashboard', compact(
         'user', 'recentExams', 'totalQuestions', 'spacedRepetitionDue',
         'weeklyActivity', 'sectionStats', 'streakFreezeStatus',
         'smartAction', 'examCountdown', 'enrolledLehrgaenge',
         'streakAtRisk', 'leaderboardRank', 'progressPercent',
         'masteryPercent', 'solvedPercent', 'solvedTotal',
-        'canStartExam', 'exams', 'hasFailedQuestions'
+        'canStartExam', 'exams', 'hasFailedQuestions',
+        'levelProgress', 'nextLevelPoints'
     ));
 })->middleware(['auth', 'verified'])->name('dashboard');
 
