@@ -1196,7 +1196,189 @@
         </div>
     </div>
 
+    {{-- 7. HEATMAP + SPACED REP --}}
+    <div class="heatmap-row">
+
+        {{-- Heatmap 2/3 --}}
+        <div class="heatmap-card glass-br">
+            <div style="font-size:0.6rem;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);font-weight:700;margin-bottom:0.75rem;">Stärken & Schwächen</div>
+            <div class="heatmap-grid-new">
+                @for($s = 1; $s <= 10; $s++)
+                    @php
+                        $sData    = isset($sectionStats) ? $sectionStats->firstWhere('lernabschnitt', $s) : null;
+                        $sTotal   = $sData ? $sData->total : 0;
+                        $sCorrect = $sData ? $sData->correct : 0;
+                        $sPct     = $sTotal > 0 ? round(($sCorrect / $sTotal) * 100) : -1;
+                        $sClass   = $sPct < 0 ? 'none' : ($sPct >= 75 ? 'strong' : ($sPct >= 50 ? 'medium' : 'weak'));
+                    @endphp
+                    <a href="{{ route('practice.section', $s) }}"
+                       class="heatmap-cell-new {{ $sClass }}"
+                       title="Abschnitt {{ $s }}: {{ $sPct >= 0 ? $sPct.'% richtig ('.$sTotal.' Fragen)' : 'Noch nicht geübt' }}"
+                       style="text-decoration:none;">
+                        <span class="heatmap-cell-num">{{ $s }}</span>
+                        @if($sPct >= 0)
+                            <span class="heatmap-cell-pct">{{ $sPct }}%</span>
+                        @endif
+                    </a>
+                @endfor
+            </div>
+            <div class="heatmap-legend-new">
+                <div class="heatmap-legend-item-new"><span class="heatmap-legend-dot-new" style="background:rgba(239,68,68,0.5);"></span>&lt; 50%</div>
+                <div class="heatmap-legend-item-new"><span class="heatmap-legend-dot-new" style="background:rgba(245,158,11,0.5);"></span>50–75%</div>
+                <div class="heatmap-legend-item-new"><span class="heatmap-legend-dot-new" style="background:rgba(34,197,94,0.5);"></span>&gt; 75%</div>
+                <div class="heatmap-legend-item-new"><span class="heatmap-legend-dot-new" style="background:rgba(0,51,127,0.2);"></span>Noch nicht</div>
+            </div>
+        </div>
+
+        {{-- Spaced Rep 1/3 --}}
+        <div class="spaced-card glass">
+            <div style="font-size:0.6rem;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);font-weight:700;">Wiederholungen</div>
+            @if(isset($spacedRepetitionDue) && $spacedRepetitionDue > 0)
+                <div class="spaced-count">{{ $spacedRepetitionDue }}</div>
+                <div style="font-size:0.8rem;color:var(--text-secondary);text-align:center;line-height:1.4;">Fragen fällig</div>
+                <div style="font-size:0.7rem;color:var(--text-muted);text-align:center;line-height:1.4;">Spaced Repetition für langfristiges Behalten</div>
+                <a href="{{ route('practice.spaced-repetition') }}" class="btn-secondary btn-sm" style="margin-top:0.5rem;">Wiederholen</a>
+            @else
+                <div class="spaced-count zero"><i class="bi bi-check-lg" style="font-size:2rem;"></i></div>
+                <div style="font-size:0.875rem;font-weight:600;color:#22c55e;">Alles aktuell</div>
+                <div style="font-size:0.75rem;color:var(--text-muted);text-align:center;">Keine Wiederholungen fällig</div>
+            @endif
+        </div>
+    </div>
+
+    {{-- 8. AUSBILDER-KARTE (konditionell) --}}
+    @if($isAusbilder && $userOV)
+    <div class="ausbilder-card glass-blue">
+        <div>
+            <span class="badge-thw" style="display:inline-block;margin-bottom:0.4rem;">Ausbilder</span>
+            <div style="font-size:1.1rem;font-weight:700;color:var(--text-primary);">{{ $userOV->name }}</div>
+        </div>
+        <div class="ausbilder-stats">
+            <div>
+                <div class="ausbilder-stat-val">{{ $ovStats['members'] }}</div>
+                <div class="ausbilder-stat-label">Mitglieder</div>
+            </div>
+            <div>
+                <div class="ausbilder-stat-val" style="color:{{ $ovStats['avg_progress'] >= 50 ? '#22c55e' : '#f59e0b' }};">{{ $ovStats['avg_progress'] }}%</div>
+                <div class="ausbilder-stat-label">Ø Fortschritt</div>
+            </div>
+        </div>
+        <div style="margin-left:auto;">
+            <a href="{{ route('ortsverband.index') }}" class="btn-secondary btn-sm">Verwalten</a>
+        </div>
+    </div>
+    @endif
+
+    {{-- 9. LEHRGÄNGE & LERNPOOLS --}}
+    <div>
+        <div class="kurs-section-header">
+            <span class="kurs-section-title">Lehrgänge & Lernpools</span>
+            <a href="{{ route('lehrgaenge.index') }}" style="font-size:0.75rem;color:var(--thw-blue-light);text-decoration:none;font-weight:600;">Alle anzeigen</a>
+        </div>
+
+        @if($enrolledLehrgaenge->isNotEmpty() || $enrolledLernpools->isNotEmpty())
+        <div class="kurs-grid">
+            {{-- Lehrgänge (max 2) --}}
+            @foreach($enrolledLehrgaenge->take(2) as $lehrgang)
+                @php
+                    $lProgress = \App\Models\UserLehrgangProgress::where('user_id', Auth::id())
+                        ->whereHas('lehrgangQuestion', fn($q) => $q->where('lehrgang_id', $lehrgang->id))
+                        ->get();
+                    $lTotal = \App\Models\LehrgangQuestion::where('lehrgang_id', $lehrgang->id)->count();
+                    $lPoints = 0;
+                    foreach ($lProgress as $lp) { $lPoints += min($lp->consecutive_correct, \App\Models\UserQuestionProgress::MASTERY_THRESHOLD); }
+                    $lMax = $lTotal * \App\Models\UserQuestionProgress::MASTERY_THRESHOLD;
+                    $lPct = $lMax > 0 ? round(($lPoints / $lMax) * 100) : 0;
+                    $lDone = $lPct == 100 && $lProgress->count() > 0;
+                @endphp
+                <div class="kurs-card glass">
+                    <div class="kurs-card-title">{{ $lehrgang->lehrgang }}</div>
+                    <div class="kurs-card-desc">{{ $lehrgang->beschreibung }}</div>
+                    <div style="display:flex;align-items:center;gap:0.5rem;">
+                        <div class="kurs-bar" style="flex:1;"><div class="kurs-bar-fill {{ $lDone ? 'done' : '' }}" style="width:{{ $lPct }}%;"></div></div>
+                        <span class="kurs-percent">{{ $lPct }}%</span>
+                    </div>
+                    @if($lDone)
+                        <span class="btn-ghost btn-sm" style="background:rgba(34,197,94,0.15);color:#22c55e;border-color:rgba(34,197,94,0.25);">Fertig</span>
+                    @else
+                        <a href="{{ route('lehrgaenge.practice', $lehrgang->slug) }}" class="btn-primary btn-sm">Weiter</a>
+                    @endif
+                </div>
+            @endforeach
+
+            {{-- Lernpools (max 1) --}}
+            @foreach($enrolledLernpools->take(1) as $lernpool)
+                @php
+                    $lpSolved = $user->lernpoolProgress()
+                        ->whereHas('question', fn($q) => $q->where('lernpool_id', $lernpool->id))
+                        ->where('solved', true)->count();
+                    $lpTotal = $lernpool->getQuestionCount();
+                    $lpPct   = $lpTotal > 0 ? round(($lpSolved / $lpTotal) * 100) : 0;
+                    $lpDone  = $lpPct == 100 && $lpSolved > 0;
+                @endphp
+                <div class="kurs-card glass">
+                    <div style="display:flex;align-items:center;gap:0.4rem;margin-bottom:0.1rem;">
+                        <div class="kurs-card-title" style="margin:0;">{{ $lernpool->name }}</div>
+                        <span class="badge-thw" style="font-size:0.55rem;padding:0.1rem 0.35rem;">Lernpool</span>
+                    </div>
+                    <div class="kurs-card-desc">{{ $lernpool->description }}</div>
+                    <div style="display:flex;align-items:center;gap:0.5rem;">
+                        <div class="kurs-bar" style="flex:1;"><div class="kurs-bar-fill {{ $lpDone ? 'done' : '' }}" style="width:{{ $lpPct }}%;"></div></div>
+                        <span class="kurs-percent">{{ $lpPct }}%</span>
+                    </div>
+                    @if($lpDone)
+                        <span class="btn-ghost btn-sm" style="background:rgba(34,197,94,0.15);color:#22c55e;border-color:rgba(34,197,94,0.25);">Gemeistert</span>
+                    @else
+                        <a href="{{ route('ortsverband.lernpools.practice', [$lernpool->ortsverband_id, $lernpool->id]) }}" class="btn-primary btn-sm">Weiter</a>
+                    @endif
+                </div>
+            @endforeach
+        </div>
+
+        @else
+        {{-- Leer-Zustand --}}
+        <div class="glass" style="text-align:center;padding:2rem;">
+            <div style="font-size:0.875rem;color:var(--text-muted);margin-bottom:0.75rem;">Keine Lehrgänge oder Lernpools eingeschrieben</div>
+            <a href="{{ route('lehrgaenge.index') }}" class="btn-secondary btn-sm">Lehrgänge entdecken</a>
+        </div>
+        @endif
+    </div>
+
 </div>{{-- .ops-container --}}
+
+{{-- 10. LEADERBOARD-MODAL --}}
+@if(!$user->leaderboard_banner_dismissed && !$user->leaderboard_consent)
+<div class="leaderboard-modal-overlay" id="leaderboard-modal">
+    <div class="leaderboard-modal">
+        <div class="leaderboard-modal-content">
+            <button class="leaderboard-modal-close" onclick="dismissLeaderboardModal(false)">×</button>
+            <div style="text-align:center;margin-bottom:1.5rem;">
+                <div style="display:inline-block;background:rgba(255,255,255,0.2);border-radius:1rem;padding:1rem;margin-bottom:1rem;">
+                    <i class="bi bi-bar-chart" style="font-size:2.5rem;color:white;"></i>
+                </div>
+                <h2 style="font-size:1.5rem;font-weight:800;color:white;margin-bottom:0.5rem;">Leaderboard</h2>
+                <p style="color:white;font-size:0.95rem;opacity:0.9;">Vergleiche dich mit anderen</p>
+            </div>
+            <div style="background:rgba(255,255,255,0.15);border-radius:0.75rem;padding:1rem;margin-bottom:1.5rem;">
+                <p style="color:white;font-size:0.85rem;margin-bottom:0.5rem;"><strong>Name & Punkte</strong> werden angezeigt</p>
+                <p style="color:white;font-size:0.85rem;margin:0;"><strong>Jederzeit änderbar</strong> in den Einstellungen</p>
+            </div>
+            <div style="display:flex;gap:0.75rem;">
+                <form action="{{ route('profile.dismiss.leaderboard.banner') }}" method="POST" id="lb-decline-form" style="flex:1;">
+                    @csrf
+                    <input type="hidden" name="accept" value="0">
+                    <button type="submit" style="width:100%;background:rgba(255,255,255,0.2);color:white;font-weight:600;padding:0.75rem;border-radius:0.5rem;border:none;cursor:pointer;">Nein</button>
+                </form>
+                <form action="{{ route('profile.dismiss.leaderboard.banner') }}" method="POST" style="flex:1;">
+                    @csrf
+                    <input type="hidden" name="accept" value="1">
+                    <button type="submit" style="width:100%;background:white;color:#d97706;font-weight:700;padding:0.75rem;border-radius:0.5rem;border:none;cursor:pointer;">Ja, mitmachen</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+@endif
 
 <x-onboarding-tour />
 
