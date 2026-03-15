@@ -52,7 +52,7 @@ Die Card zeigt immer genau eine Aktion, priorisiert nach:
 | 1 | Aktive Lernsession vorhanden | "Live" | "Aktive Session läuft" | "Beitreten" → `route('lernsession.live', $session)` |
 | 2 | `exam_failed_questions` nicht leer | "Dringend" | "X Fehlerfragen wiederholen" | "Wiederholen" → `route('failed.index')` |
 | 3 | `next_review_at <= now` (fällige Reviews) | "Empfohlen" | "X Fragen zur Wiederholung fällig" | "Wiederholen" → `route('practice.spaced-repetition')` |
-| 4 | Alle `consecutive_correct >= 3` | "Bereit" | "Alle Fragen gemeistert — Prüfung ablegen!" | "Prüfung starten" → `route('exam.index')` |
+| 4 | `$canStartExam` (alle gemeistert + keine Fehler) | "Bereit" | "Alle Fragen gemeistert — Prüfung ablegen!" | "Prüfung starten" → `route('exam.index')` |
 | 5 | Fortschritt vorhanden, nicht fertig | "Weitermachen" | "Weiter mit Lernabschnitt X" (der mit meistem Fortschritt, noch nicht fertig) | "Starten" → `route('practice.section', $section)` |
 | 6 | Noch nie geübt | "Los geht's" | "Starte mit deiner ersten Frage" | "Erste Frage" → `route('practice.all')` |
 
@@ -73,7 +73,7 @@ Zeigt den Lernweg in 3 Schritten:
 | Schritt | Label | Fortschrittsanzeige | Status-Logik |
 |---------|-------|---------------------|--------------|
 | 1 | Fragen lernen | Prozent der gelösten Fragen | Aktiv wenn `progress < total` |
-| 2 | Alle meistern | Prozent der gemeisterten Fragen (`consecutive_correct >= 3`) | Aktiv wenn Schritt 1 begonnen, alle Fragen mindestens einmal beantwortet |
+| 2 | Alle meistern | Prozent der gemeisterten Fragen (`consecutive_correct >= 3`) | Immer sichtbar mit Fortschritt. Zeigt aktuellen %-Wert. Grau/inaktiv wenn 0%, aktiv (blau) sobald >0% |
 | 3 | Prüfung | bestanden/nicht bestanden/gesperrt | "Gesperrt" wenn nicht alle gemeistert, "Bereit" wenn alle gemeistert, "Bestanden" wenn `exams >= 5` |
 
 **Mobile:** Horizontal, Kreise mit Verbindungslinien, Labels darunter
@@ -115,13 +115,16 @@ Zeigt den Lernweg in 3 Schritten:
 - CSS `prefers-color-scheme` als Default
 - Toggle-Button im Header (Sonne/Mond-Icon via Bootstrap Icons)
 - Präferenz in `localStorage` gespeichert, überschreibt System-Setting
-- Klasse `.dark` / `.light` auf `<html>` Element
+- Klasse `.light-mode` auf `<body>` Element (bestehende Konvention aus `app.css` beibehalten)
+- Ohne `.light-mode` → Dark Mode (Standard)
 
 ```
-:root          → Light Mode Defaults
-.dark          → Dark Mode Overrides
-@media (prefers-color-scheme: dark) → Auto-Dark wenn kein manueller Toggle gesetzt
+:root                              → Dark Mode Defaults (bestehend)
+.light-mode                        → Light Mode Overrides (bestehende Klasse erweitern)
+@media (prefers-color-scheme: light) → Auto-Light wenn kein manueller Toggle gesetzt
 ```
+
+**Wichtig:** Die bestehende `.light-mode` Klasse wird wiederverwendet, nicht `.dark`/`.light`. Alle bestehenden `.light-mode` Regeln in `app.css` bleiben kompatibel.
 
 ---
 
@@ -144,18 +147,22 @@ Neue Route und View. Erreichbar über Link im Dashboard ("Detaillierte Statistik
 - Klickbar → `route('practice.section', $section)`
 
 #### 3. Aktivitätsverlauf
-- Wochenansicht: Barchart (wie im Dashboard, aber größer und detaillierter)
-- Monatsansicht: Heatmap-Kalender (Tage mit Aktivität eingefärbt nach Intensität)
-- Toggle zwischen Wochen/Monat (Alpine.js)
+- Wochenansicht: Barchart (reine CSS/Tailwind-Balken, wie im Dashboard aber größer)
+- Monatsansicht: Heatmap-Kalender der letzten 30 Tage (CSS-Grid mit Farbintensität basierend auf Anzahl gelöster Fragen)
+- Toggle zwischen Wochen/Monat (Alpine.js `x-show`)
+- **Datenquelle:** `QuestionStatistic::where('user_id', $user->id)->where('created_at', '>=', now()->subDays(30))->selectRaw('DATE(created_at) as date, COUNT(*) as count, SUM(is_correct) as correct')->groupBy('date')`
 
 #### 4. Prüfungshistorie
 - Liste aller Prüfungen: Datum, Ergebnis (%), bestanden/nicht bestanden Badge
-- Trend-Linie: Verbesserung über Zeit sichtbar
+- Trend-Anzeige: Verbesserung über Zeit als einfache Auf/Ab-Pfeile zwischen Prüfungen (kein Chart-Library nötig)
+- **Datenquelle:** `ExamStatistic::where('user_id', $user->id)->orderBy('created_at', 'desc')->get()`
+- **Leerer Zustand:** "Noch keine Prüfungen abgelegt" mit Link zu Prüfungsinfos
 
 #### 5. Spaced Repetition Stats
-- Fällige Fragen (heute/diese Woche)
-- Verteilung der Review-Intervalle
+- Fällige Fragen (heute/diese Woche): Zähler als große Zahl
+- Verteilung der Review-Intervalle: Einfache Tabelle (Intervall → Anzahl Fragen)
 - Meisterungsgrad insgesamt (% der Fragen mit `consecutive_correct >= 3`)
+- **Datenquelle:** `UserQuestionProgress::where('user_id', $user->id)` gruppiert nach `review_interval`
 
 ### Desktop-Layout
 2-Spalten — Sektions-Analyse links (groß), Aktivität + Prüfungen + SR rechts
@@ -177,10 +184,35 @@ Neue Route und View. Erreichbar über Link im Dashboard ("Detaillierte Statistik
 Diese Elemente aus dem aktuellen Dashboard bleiben erhalten und werden ins neue Layout integriert:
 
 - **Active Session Banner** — wird in Smart Action Card Priorität 1
-- **Streak-at-Risk Warnung** — wird Teil der Smart Action Card oder als kleine Badge in der Gamification-Row
+- **Streak-at-Risk Warnung** — wird als pulsierende Border/Glow auf der Streak-Pill in der Gamification-Row angezeigt (Gold-Puls wenn Streak gefährdet)
 - **Prüfungscountdown** — wird als Zusatzinfo in der Smart Action Card angezeigt (wenn `exam_date` gesetzt)
 - **Ausbilder-Karte** — bleibt als eigene Sektion nach Lehrgängen (nur für Ausbildungsbeauftragte)
 - **Leaderboard-Modal** — bleibt als Overlay, unverändert
+
+---
+
+## Leere Zustände (Empty States)
+
+| Sektion | Leerer Zustand |
+|---------|---------------|
+| Journey-Stepper (0 Fortschritt) | Alle 3 Schritte grau, Schritt 1 hat "0%" — Smart Action Card zeigt "Los geht's" |
+| Wochenaktivität (0 Tage) | 7 leere Platzhalter-Balken, Text "Diese Woche noch keine Aktivität" |
+| Lehrgänge (keine eingeschrieben) | Kompakte Karte: "Entdecke Lehrgänge für strukturiertes Lernen" + CTA → `route('lehrgaenge.index')` |
+| Gamification-Row (neuer User) | Streak: "0", Gelöst: "0", Ranking: "—" (noch nicht platziert) |
+| Statistik: Prüfungshistorie | "Noch keine Prüfungen abgelegt" + Info wann Prüfung freigeschaltet wird |
+| Statistik: Aktivitätsverlauf | Leeres Grid mit Text "Starte mit deiner ersten Frage" |
+| Statistik: Sektions-Analyse | Alle 10 Sektionen mit 0%-Balken, Grau-Farbkodierung |
+
+---
+
+## CSS-Architektur
+
+Die bestehenden CSS-Variablen und Klassen in `app.css` bleiben erhalten. Das Dashboard-Redesign:
+
+- **Erweitert** die bestehenden `.light-mode` Regeln um neue Dashboard-Variablen
+- **Nutzt** bestehende Glassmorphism-Klassen (`.glass`, `.glass-blue`, etc.) wo passend
+- **Verschiebt** den Primär-Akzent von Gold zu THW-Blau **nur im Dashboard und der Statistik-Seite** — andere Seiten bleiben unverändert. Die globalen `.btn-primary` (Gold) und `.btn-secondary` (Blau) Klassen bleiben bestehen. Dashboard-spezifische Buttons nutzen eigene Klassen oder inline Tailwind.
+- **Kein globaler Design-System-Wechsel** — CLAUDE.md bleibt gültig für alle anderen Seiten
 
 ---
 
@@ -190,7 +222,8 @@ Diese Elemente aus dem aktuellen Dashboard bleiben erhalten und werden ins neue 
 - **CSS:** Erweitern der bestehenden `app.css` um Light-Mode-Variablen und neue Dashboard-spezifische Klassen
 - **Alpine.js:** Für Dark/Light Toggle, Journey-Stepper-Interaktion, Wochenansicht-Toggle auf Statistik-Seite
 - **Dashboard-Route:** Inline Route-Closure in `routes/web.php` erweitern um Smart Action Logik
-- **Neue Route:** `GET /statistics` mit eigenem Controller oder Route-Closure
+- **Neue Route:** `GET /statistics` mit eigenem `StatisticsController` (5 Daten-Sektionen rechtfertigen einen Controller)
+- **Charting:** Alle Visualisierungen (Barcharts, Heatmap) werden mit reinem CSS/Tailwind + Alpine.js gebaut — keine externe Chart-Library. Trend-Vergleiche als einfache Pfeile/Badges.
 - **Bestehende Modelle:** Kein Schema-Änderung nötig, alle Daten sind bereits vorhanden
 - **Bestehende Komponenten wiederverwenden:** `active-session-banner`, `skeleton-loader`, `milestone-celebration`, `achievement-popup`
 
@@ -200,7 +233,7 @@ Diese Elemente aus dem aktuellen Dashboard bleiben erhalten und werden ins neue 
 - `resources/css/app.css` — Light Mode Variablen, neue Dashboard-Klassen
 - `routes/web.php` — Smart Action Logik in Dashboard-Route, neue `/statistics` Route
 - **Neu:** `resources/views/statistics.blade.php`
-- **Neu:** `app/Http/Controllers/StatisticsController.php` (optional, kann auch Route-Closure sein)
+- **Neu:** `app/Http/Controllers/StatisticsController.php`
 
 ## Was sich NICHT ändert
 
