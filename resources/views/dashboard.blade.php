@@ -954,6 +954,97 @@
     </div>
     @endif
 
+    {{-- 3. NEXT-STEP HERO CARD --}}
+    @if($hasFailedQuestions)
+    {{-- Zustand A: Fehler ausstehend --}}
+    <a href="{{ route('failed.index') }}" class="hero-card glass-blue" style="text-decoration:none;">
+        <div class="hero-content">
+            <div class="hero-label">Nächster Schritt</div>
+            <div class="hero-title">{{ count($failedArr) }} Fehler-Fragen ausstehend</div>
+            <div class="hero-desc">Wiederhole deine falsch beantworteten Fragen, bevor du eine neue Prüfung starten kannst.</div>
+            <span class="btn-primary">Fehler wiederholen</span>
+        </div>
+        <div class="hero-ring-wrap">
+            <svg width="88" height="88" viewBox="0 0 64 64">
+                <circle fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="6" cx="32" cy="32" r="26"/>
+                <circle fill="none" stroke="url(#blueGradient)" stroke-width="6" stroke-linecap="round"
+                    cx="32" cy="32" r="26"
+                    stroke-dasharray="{{ $circumference }}"
+                    stroke-dashoffset="{{ $theoryOffset }}"
+                    transform="rotate(-90 32 32)"/>
+            </svg>
+            <div class="hero-ring-text">{{ $progressPercent }}%</div>
+        </div>
+    </a>
+
+    @elseif($progressPercent < 100)
+    {{-- Zustand B: Theorie lernen --}}
+    <a href="{{ route('practice.all') }}" class="hero-card glass-blue" style="text-decoration:none;">
+        <div class="hero-content">
+            <div class="hero-label">Nächster Schritt</div>
+            <div class="hero-title">Noch {{ $total - $progress }} Fragen zu meistern</div>
+            <div class="hero-desc">Jede Frage muss {{ $threshold }}x richtig beantwortet werden. Du bist bei {{ $progressPercent }}%.</div>
+            <span class="btn-primary">Weiter lernen</span>
+        </div>
+        <div class="hero-ring-wrap">
+            <svg width="88" height="88" viewBox="0 0 64 64">
+                <circle fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="6" cx="32" cy="32" r="26"/>
+                <circle fill="none" stroke="url(#blueGradient)" stroke-width="6" stroke-linecap="round"
+                    cx="32" cy="32" r="26"
+                    stroke-dasharray="{{ $circumference }}"
+                    stroke-dashoffset="{{ $theoryOffset }}"
+                    transform="rotate(-90 32 32)"/>
+            </svg>
+            <div class="hero-ring-text">{{ $progressPercent }}%</div>
+        </div>
+    </a>
+
+    @elseif($canStartExam && $exams < 5)
+    {{-- Zustand C: Prüfung starten --}}
+    <a href="{{ route('exam.index') }}" class="hero-card glass-blue" style="text-decoration:none;">
+        <div class="hero-content">
+            <div class="hero-label">Nächster Schritt</div>
+            <div class="hero-title">Bereit für die Prüfung!</div>
+            <div class="hero-desc">{{ $exams }}/5 Prüfungen bestanden. Du kannst jetzt die nächste Prüfungssimulation starten.</div>
+            <span class="btn-primary">Prüfung starten</span>
+        </div>
+        <div class="hero-ring-wrap">
+            <svg width="88" height="88" viewBox="0 0 64 64">
+                <circle fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="6" cx="32" cy="32" r="26"/>
+                <circle fill="none" stroke="url(#goldGradient)" stroke-width="6" stroke-linecap="round"
+                    cx="32" cy="32" r="26"
+                    stroke-dasharray="{{ $circumference }}"
+                    stroke-dashoffset="{{ $examOffset }}"
+                    transform="rotate(-90 32 32)"/>
+            </svg>
+            <div class="hero-ring-text">{{ $exams }}/5</div>
+        </div>
+    </a>
+
+    @else
+    {{-- Zustand D: Abgeschlossen --}}
+    <a href="{{ route('exam.index') }}" class="hero-card glass-gold" style="text-decoration:none;">
+        <div class="hero-content">
+            <div class="hero-label">Abgeschlossen</div>
+            <div class="hero-title">5/5 Prüfungen bestanden!</div>
+            <div class="hero-desc">Du hast alle Prüfungssimulationen erfolgreich abgeschlossen. Herzlichen Glückwunsch!</div>
+            <span class="btn-primary">Prüfung wiederholen</span>
+        </div>
+        <div class="hero-ring-wrap">
+            <svg width="88" height="88" viewBox="0 0 64 64">
+                <circle fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="6" cx="32" cy="32" r="26"/>
+                <circle fill="none" stroke="url(#goldGradient)" stroke-width="6" stroke-linecap="round"
+                    cx="32" cy="32" r="26"
+                    stroke-dasharray="{{ $circumference }}"
+                    stroke-dashoffset="0"
+                    transform="rotate(-90 32 32)"/>
+            </svg>
+            <div class="hero-ring-text">5/5</div>
+        </div>
+    </a>
+    @endif
+
+
 </div>{{-- .ops-container --}}
 
 <x-onboarding-tour />
