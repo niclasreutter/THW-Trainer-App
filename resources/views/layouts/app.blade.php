@@ -146,6 +146,12 @@
                         Dashboard
                     </a>
 
+                    <a href="{{ route('statistics') }}"
+                       class="sidebar-link {{ request()->routeIs('statistics') ? 'active' : '' }}">
+                        <i class="bi bi-bar-chart"></i>
+                        Statistiken
+                    </a>
+
                     <a href="{{ route('practice.menu') }}"
                        class="sidebar-link {{ request()->routeIs('practice.*') ? 'active' : '' }}">
                         <i class="bi bi-book"></i>
