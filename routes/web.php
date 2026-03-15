@@ -98,9 +98,128 @@ Route::get('/dashboard', function () {
     $gamificationService = new \App\Services\GamificationService();
     $streakFreezeStatus = $gamificationService->getStreakFreezeStatus($user);
 
+    // Smart Action Card Logic
+    $activeLernsession = app(\App\Services\LernsessionService::class)
+        ->getActiveSessionsForUser($user)->first();
+
+    $failedArr = is_string($user->exam_failed_questions)
+        ? json_decode($user->exam_failed_questions, true)
+        : ($user->exam_failed_questions ?? []);
+    $hasFailedQuestions = !empty($failedArr);
+
+    $progress = \App\Models\UserQuestionProgress::where('user_id', $user->id)
+        ->where('consecutive_correct', '>=', 3)->count();
+    $canStartExam = ($progress >= $totalQuestions && !$hasFailedQuestions);
+    $progressPercent = $totalQuestions > 0 ? round(($progress / $totalQuestions) * 100) : 0;
+
+    $exams = \App\Models\ExamStatistic::where('user_id', $user->id)
+        ->where('is_passed', true)->count();
+
+    // Smart Action priority
+    $smartAction = null;
+    if ($activeLernsession) {
+        $smartAction = [
+            'type' => 'live', 'label' => 'Live',
+            'title' => 'Aktive Session läuft',
+            'desc' => $activeLernsession->learningSession->title ?? 'Lernsession',
+            'route' => route('lernsession.live', $activeLernsession),
+            'btn' => 'Beitreten',
+        ];
+    } elseif ($hasFailedQuestions) {
+        $smartAction = [
+            'type' => 'urgent', 'label' => 'Dringend',
+            'title' => count($failedArr) . ' Fehlerfragen wiederholen',
+            'desc' => 'Korrigiere deine Fehler aus der letzten Prüfung',
+            'route' => route('failed.index'),
+            'btn' => 'Wiederholen',
+        ];
+    } elseif ($spacedRepetitionDue > 0) {
+        $smartAction = [
+            'type' => 'recommended', 'label' => 'Empfohlen',
+            'title' => $spacedRepetitionDue . ' Fragen zur Wiederholung fällig',
+            'desc' => 'Spaced Repetition — halte dein Wissen frisch',
+            'route' => route('practice.spaced-repetition'),
+            'btn' => 'Wiederholen',
+        ];
+    } elseif ($canStartExam) {
+        $smartAction = [
+            'type' => 'ready', 'label' => 'Bereit',
+            'title' => 'Alle Fragen gemeistert — Prüfung ablegen!',
+            'desc' => $exams . '/5 Prüfungen bestanden',
+            'route' => route('exam.index'),
+            'btn' => 'Prüfung starten',
+        ];
+    } else {
+        $solvedCount = \App\Models\UserQuestionProgress::where('user_id', $user->id)->count();
+        if ($solvedCount > 0) {
+            $bestSection = \App\Models\UserQuestionProgress::where('user_id', $user->id)
+                ->join('questions', 'user_question_progress.question_id', '=', 'questions.id')
+                ->selectRaw('questions.lernabschnitt, COUNT(*) as cnt')
+                ->groupBy('questions.lernabschnitt')
+                ->orderByDesc('cnt')
+                ->first();
+            $sectionNum = $bestSection?->lernabschnitt ?? 1;
+            $smartAction = [
+                'type' => 'continue', 'label' => 'Weitermachen',
+                'title' => 'Weiter mit Lernabschnitt ' . $sectionNum,
+                'desc' => 'Du bist auf einem guten Weg',
+                'route' => route('practice.section', $sectionNum),
+                'btn' => 'Starten',
+            ];
+        } else {
+            $smartAction = [
+                'type' => 'start', 'label' => "Los geht's",
+                'title' => 'Starte mit deiner ersten Frage',
+                'desc' => 'Beginne deine Reise zur Grundausbildungsprüfung',
+                'route' => route('practice.all'),
+                'btn' => 'Erste Frage',
+            ];
+        }
+    }
+
+    // Exam countdown
+    $examCountdown = null;
+    if ($user->exam_date && $user->exam_date->isFuture()) {
+        $daysLeft = (int) now()->startOfDay()->diffInDays($user->exam_date, false);
+        $remaining = $totalQuestions - $progress;
+        $effectiveDays = max($daysLeft - 1, 1);
+        $dailyTarget = $remaining > 0 ? (int) ceil($remaining / $effectiveDays) : 0;
+        $todayAnswered = \App\Models\QuestionStatistic::where('user_id', $user->id)
+            ->whereDate('created_at', today())->count();
+        $examCountdown = compact('daysLeft', 'dailyTarget', 'todayAnswered');
+    }
+
+    // Enrolled Lehrgänge
+    $enrolledLehrgaenge = $user->enrolledLehrgaenge()->get();
+
+    // Streak at risk
+    $streakAtRisk = $user->streak_days > 0
+        && (!$user->last_activity_date || \Carbon\Carbon::parse($user->last_activity_date)->lt(\Carbon\Carbon::today()));
+
+    // Leaderboard rank
+    $leaderboardRank = null;
+    if ($user->leaderboard_consent) {
+        $leaderboardRank = \App\Models\User::where('leaderboard_consent', true)
+            ->where('points', '>', $user->points)->count() + 1;
+    }
+
+    // Mastery percent (for journey stepper)
+    $masteryPercent = $totalQuestions > 0
+        ? round((\App\Models\UserQuestionProgress::where('user_id', $user->id)
+            ->where('consecutive_correct', '>=', 3)->count() / $totalQuestions) * 100)
+        : 0;
+
+    // Solved questions total
+    $solvedTotal = \App\Models\UserQuestionProgress::where('user_id', $user->id)->count();
+    $solvedPercent = $totalQuestions > 0 ? round(($solvedTotal / $totalQuestions) * 100) : 0;
+
     return view('dashboard', compact(
         'user', 'recentExams', 'totalQuestions', 'spacedRepetitionDue',
-        'weeklyActivity', 'sectionStats', 'streakFreezeStatus'
+        'weeklyActivity', 'sectionStats', 'streakFreezeStatus',
+        'smartAction', 'examCountdown', 'enrolledLehrgaenge',
+        'streakAtRisk', 'leaderboardRank', 'progressPercent',
+        'masteryPercent', 'solvedPercent', 'solvedTotal',
+        'canStartExam', 'exams', 'hasFailedQuestions'
     ));
 })->middleware(['auth', 'verified'])->name('dashboard');
 
