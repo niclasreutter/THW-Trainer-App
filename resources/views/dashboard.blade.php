@@ -311,6 +311,7 @@
             {{-- 1. Smart Action Card --}}
             <a href="{{ $smartAction['route'] }}"
                class="smart-action {{ $smartAction['type'] === 'urgent' ? 'smart-action--urgent' : '' }}"
+               data-tour-step="practice"
                style="display:block;text-decoration:none;">
                 <div class="smart-action__label">{{ $smartAction['label'] }}</div>
                 <div class="smart-action__title">{{ $smartAction['title'] }}</div>
@@ -327,6 +328,19 @@
                     </div>
                 @endif
             </a>
+
+            {{-- Exam date hint (mobile, if no date set) --}}
+            @if(!$examCountdown)
+            <a href="{{ route('profile.edit') }}" class="glass lg:hidden" data-tour-step="countdown" style="display:block;text-decoration:none;padding:0.875rem 1rem;">
+                <div style="display:flex;align-items:center;justify-content:space-between;">
+                    <div>
+                        <div style="font-size:0.8125rem;font-weight:600;color:var(--text-primary);">Prüfungsdatum eintragen</div>
+                        <div style="font-size:0.6875rem;color:var(--text-muted);margin-top:0.15rem;">Erhalte ein tägliches Lernziel</div>
+                    </div>
+                    <i class="bi bi-arrow-right" style="color:#5b9aff;font-size:0.875rem;"></i>
+                </div>
+            </a>
+            @endif
 
             {{-- 2. Journey Stepper (mobile only) --}}
             <div class="glass lg:hidden" style="padding:1rem;overflow:hidden;">
@@ -392,7 +406,7 @@
             </div>
 
             {{-- 3. Wochenaktivität --}}
-            <div class="glass" style="padding:1rem;">
+            <div class="glass" style="padding:1rem;" data-tour-step="stats">
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.875rem;">
                     <span class="section-label">Diese Woche</span>
                     <a href="{{ route('statistics') }}" style="font-size:0.75rem;color:#5b9aff;text-decoration:none;font-weight:600;">Statistiken &rarr;</a>
@@ -535,7 +549,7 @@
                     <div class="journey__line {{ $masteryPercent >= 100 ? 'journey__line--done' : '' }}"></div>
 
                     {{-- Step 3 --}}
-                    <div class="journey__step" style="padding-bottom:0;">
+                    <div class="journey__step" style="padding-bottom:0;" data-tour-step="exam">
                         <div>
                             <div class="journey__circle {{ $exams >= 5 ? 'journey__circle--done' : ($canStartExam ? 'journey__circle--active' : 'journey__circle--locked') }}">
                                 @if($exams >= 5)
@@ -561,11 +575,11 @@
 
             {{-- Gamification Pills (desktop sidebar) --}}
             <div style="display:flex;gap:0.5rem;">
-                <div class="gami-pill {{ isset($streakAtRisk) && $streakAtRisk ? 'gami-pill--streak-risk' : '' }}">
+                <div class="gami-pill {{ isset($streakAtRisk) && $streakAtRisk ? 'gami-pill--streak-risk' : '' }}" data-tour-step="streak">
                     <div class="gami-pill__value gami-pill__value--gold">{{ $user->streak_days ?? 0 }}</div>
                     <div class="gami-pill__label">Streak</div>
                 </div>
-                <div class="gami-pill">
+                <div class="gami-pill" data-tour-step="achievements">
                     <div class="gami-pill__value gami-pill__value--blue">{{ $solvedTotal }}</div>
                     <div class="gami-pill__label">Gelöst</div>
                 </div>
@@ -582,7 +596,7 @@
                 @endif
             </div>
 
-            {{-- Exam Countdown (desktop sidebar, if set) --}}
+            {{-- Exam Countdown (desktop sidebar) --}}
             @if($examCountdown)
             @php
                 $cdPct = $examCountdown['dailyTarget'] > 0
@@ -590,7 +604,7 @@
                     : 0;
                 $cdDone = $examCountdown['todayAnswered'] >= $examCountdown['dailyTarget'];
             @endphp
-            <div class="countdown-widget">
+            <div class="countdown-widget" data-tour-step="countdown">
                 <div class="countdown-label-small" style="margin-bottom:0.5rem;">Prüfung in</div>
                 <div class="countdown-days-big">{{ $examCountdown['daysLeft'] }}</div>
                 <div class="countdown-label-small">Tag{{ $examCountdown['daysLeft'] != 1 ? 'en' : '' }}</div>
@@ -612,6 +626,14 @@
                     </div>
                 @endif
             </div>
+            @else
+            <a href="{{ route('profile.edit') }}" class="countdown-widget" data-tour-step="countdown" style="display:block;text-decoration:none;">
+                <div class="countdown-label-small" style="margin-bottom:0.5rem;">Prüfungs-Countdown</div>
+                <div style="font-size:0.8125rem;color:var(--text-secondary);line-height:1.5;margin-bottom:0.75rem;">
+                    Trage dein Prüfungsdatum ein und erhalte ein tägliches Lernziel.
+                </div>
+                <span style="font-size:0.75rem;font-weight:600;color:#5b9aff;">Prüfungsdatum eintragen &rarr;</span>
+            </a>
             @endif
 
         </div>{{-- end desktop sidebar --}}
@@ -623,11 +645,11 @@
 
         {{-- Gamification Pills --}}
         <div style="display:flex;gap:0.5rem;">
-            <div class="gami-pill {{ isset($streakAtRisk) && $streakAtRisk ? 'gami-pill--streak-risk' : '' }}">
+            <div class="gami-pill {{ isset($streakAtRisk) && $streakAtRisk ? 'gami-pill--streak-risk' : '' }}" data-tour-step="streak">
                 <div class="gami-pill__value gami-pill__value--gold">{{ $user->streak_days ?? 0 }}</div>
                 <div class="gami-pill__label">Streak</div>
             </div>
-            <div class="gami-pill">
+            <div class="gami-pill" data-tour-step="achievements">
                 <div class="gami-pill__value gami-pill__value--blue">{{ $solvedTotal }}</div>
                 <div class="gami-pill__label">Gelöst</div>
             </div>
