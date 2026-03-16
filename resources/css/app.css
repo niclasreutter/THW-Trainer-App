@@ -536,81 +536,83 @@
         align-items: center;
         justify-content: center;
         gap: 0.5rem;
-        padding: 0.875rem 1.75rem;
-        background: var(--gradient-gold-135);
-        color: var(--thw-blue-dark);
+        padding: 0.7rem 1.25rem;
+        background: linear-gradient(135deg, #00337F, #0055cc);
+        color: #fff;
         font-weight: 700;
-        font-size: 0.95rem;
-        border-radius: 0.75rem;
+        font-size: 0.8125rem;
+        border-radius: 0.5rem;
         border: none;
         cursor: pointer;
         transition: all var(--transition-normal);
-        box-shadow: 0 4px 15px rgba(251, 191, 36, 0.3);
+        box-shadow: 0 4px 15px rgba(0, 51, 127, 0.4);
         text-decoration: none;
     }
 
     .btn-primary:hover {
         transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(251, 191, 36, 0.4), 0 0 30px rgba(251, 191, 36, 0.2);
+        box-shadow: 0 8px 25px rgba(0, 51, 127, 0.5), 0 0 30px rgba(0, 51, 127, 0.2);
     }
 
     .btn-primary:active {
         transform: translateY(0);
     }
 
-    /* Secondary Button - THW Blue */
+    /* Secondary Button - Soft Fill Blue */
     .btn-secondary {
         display: inline-flex;
         align-items: center;
         justify-content: center;
         gap: 0.5rem;
-        padding: 0.875rem 1.75rem;
-        background: linear-gradient(135deg, var(--thw-blue) 0%, var(--thw-blue-dark) 100%);
-        color: var(--gold-start);
+        padding: 0.7rem 1.25rem;
+        background: rgba(91, 154, 255, 0.12);
+        color: #5b9aff;
         font-weight: 700;
-        font-size: 0.95rem;
-        border-radius: 0.75rem;
-        border: none;
+        font-size: 0.8125rem;
+        border-radius: 0.5rem;
+        border: 1px solid rgba(91, 154, 255, 0.2);
         cursor: pointer;
         transition: all var(--transition-normal);
-        box-shadow: 0 4px 15px rgba(0, 51, 127, 0.3);
+        box-shadow: none;
         text-decoration: none;
     }
 
     .btn-secondary:hover {
         transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(0, 51, 127, 0.4), 0 0 30px rgba(0, 51, 127, 0.2);
+        box-shadow: none;
+        background: rgba(91, 154, 255, 0.2);
+        border-color: rgba(91, 154, 255, 0.35);
     }
 
     .btn-secondary:active {
         transform: translateY(0);
     }
 
-    /* Ghost Button - Transparent with border */
+    /* Ghost Button - Outline */
     .btn-ghost {
         display: inline-flex;
         align-items: center;
         justify-content: center;
         gap: 0.5rem;
-        padding: 0.75rem 1.5rem;
+        padding: 0.6rem 1rem;
         background: transparent;
-        color: var(--text-primary);
+        color: #5b9aff;
         font-weight: 600;
-        font-size: 0.95rem;
-        border-radius: 0.75rem;
-        border: 1px solid rgba(255, 255, 255, 0.20);
+        font-size: 0.8125rem;
+        border-radius: 0.5rem;
+        border: 1px solid rgba(91, 154, 255, 0.35);
         cursor: pointer;
         transition: all var(--transition-normal);
         text-decoration: none;
     }
 
     .btn-ghost:hover {
-        background: rgba(255, 255, 255, 0.05);
-        border-color: rgba(255, 255, 255, 0.30);
+        background: rgba(91, 154, 255, 0.08);
+        border-color: rgba(91, 154, 255, 0.5);
     }
 
     .btn-ghost:active {
-        background: rgba(255, 255, 255, 0.08);
+        background: rgba(91, 154, 255, 0.12);
     }
 
     /* Danger Button */
@@ -643,8 +645,8 @@
 
     /* Small Button Variant */
     .btn-sm {
-        padding: 0.5rem 1rem;
-        font-size: 0.85rem;
+        padding: 0.45rem 0.875rem;
+        font-size: 0.75rem;
     }
 
     /* Large Button Variant */
@@ -2038,15 +2040,18 @@ html.light-mode .dropdown-item-glass:hover {
 
 /* Buttons in light mode */
 html.light-mode .btn-primary {
-    box-shadow: 0 4px 12px rgba(217, 119, 6, 0.25) !important;
+    box-shadow: 0 4px 12px rgba(0, 51, 127, 0.2) !important;
 }
 
 html.light-mode .btn-secondary {
-    box-shadow: 0 4px 12px rgba(0, 51, 127, 0.15) !important;
+    background: rgba(0, 51, 127, 0.06) !important;
+    color: #00337F !important;
+    border-color: rgba(0, 51, 127, 0.15) !important;
+    box-shadow: none !important;
 }
 
 html.light-mode .btn-ghost {
-    border-color: rgba(0, 51, 127, 0.2) !important;
+    border-color: rgba(0, 51, 127, 0.3) !important;
     color: #00337F !important;
     background: transparent !important;
 }
