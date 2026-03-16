@@ -785,7 +785,8 @@
         backdrop-filter: blur(var(--glass-blur-lg));
         -webkit-backdrop-filter: blur(var(--glass-blur-lg));
         border-bottom: 1px solid rgba(255, 255, 255, 0.10);
-        position: relative;
+        position: sticky;
+        top: 0;
         z-index: 100;
     }
 
