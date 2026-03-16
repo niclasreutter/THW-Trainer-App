@@ -554,12 +554,10 @@
                 <div class="smart-action__desc">
                     {{ session('error') ? $smartAction['desc'] : $smartAction['desc'] }}
                 </div>
-                @if(!session('error'))
-                    <span class="smart-action__btn">
-                        {{ $smartAction['btn'] }}
-                        <i class="bi bi-arrow-right"></i>
-                    </span>
-                @endif
+                <span class="smart-action__btn">
+                    {{ session('error') ? 'Jetzt weiterlernen' : $smartAction['btn'] }}
+                    <i class="bi bi-arrow-right"></i>
+                </span>
                 @if($examCountdown && !session('error'))
                     <div class="smart-action__countdown">
                         {{ $examCountdown['daysLeft'] }} Tag{{ $examCountdown['daysLeft'] != 1 ? 'e' : '' }} bis zur Prüfung
