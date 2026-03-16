@@ -1350,7 +1350,7 @@
                 <!-- Question Text -->
                 <p class="question-text">{{ $question->frage }}</p>
 
-                {{-- Inline Result Banner --}}
+                {{-- Inline Result Banner (nur wenn KEIN Special-Event) --}}
                 @if(isset($isCorrect))
                     @php
                         $showGamification = $isCorrect && $gamificationResult && isset($gamificationResult['points_awarded']);
@@ -1367,25 +1367,34 @@
                         $showMastered = isset($questionProgress) && $questionProgress->consecutive_correct >= $masteryThreshold;
                         $remaining = isset($questionProgress) ? $masteryThreshold - $questionProgress->consecutive_correct : $masteryThreshold;
                         $showAlmostMastered = isset($questionProgress) && $questionProgress->consecutive_correct > 0 && $questionProgress->consecutive_correct < $masteryThreshold;
+
+                        // Special-Events prüfen - wenn vorhanden, Banner unterdrücken
+                        $hasSpecialEvent = $gamificationResult && (
+                            (isset($gamificationResult['level_up']) && $gamificationResult['level_up']) ||
+                            isset($gamificationResult['achievement']) ||
+                            isset($gamificationResult['streak_milestone'])
+                        );
                     @endphp
-                    <div class="result-banner {{ $isCorrect ? 'result-banner--correct' : 'result-banner--wrong' }}">
-                        <div class="result-banner-left">
-                            <span class="result-banner-icon">
-                                <i class="bi {{ $isCorrect ? 'bi-check-circle-fill' : 'bi-x-circle-fill' }}" style="color:{{ $isCorrect ? '#22c55e' : '#ef4444' }};"></i>
-                            </span>
-                            <span class="result-banner-text">{{ $isCorrect ? $celebrationText : 'Falsch' }}</span>
+                    @if(!$hasSpecialEvent)
+                        <div class="result-banner {{ $isCorrect ? 'result-banner--correct' : 'result-banner--wrong' }}">
+                            <div class="result-banner-left">
+                                <span class="result-banner-icon">
+                                    <i class="bi {{ $isCorrect ? 'bi-check-circle-fill' : 'bi-x-circle-fill' }}" style="color:{{ $isCorrect ? '#22c55e' : '#ef4444' }};"></i>
+                                </span>
+                                <span class="result-banner-text">{{ $isCorrect ? $celebrationText : 'Falsch' }}</span>
+                            </div>
+                            <div style="display:flex;align-items:center;gap:0.75rem;">
+                                @if($isCorrect && $showGamification && $pointsAwarded > 0)
+                                    <span class="result-banner-xp">+{{ $pointsAwarded }} XP</span>
+                                @endif
+                                @if($showMastered)
+                                    <span class="result-banner-mastery">Gemeistert!</span>
+                                @elseif($showAlmostMastered)
+                                    <span class="result-banner-mastery">Noch {{ $remaining }}x</span>
+                                @endif
+                            </div>
                         </div>
-                        <div style="display:flex;align-items:center;gap:0.75rem;">
-                            @if($isCorrect && $showGamification && $pointsAwarded > 0)
-                                <span class="result-banner-xp">+{{ $pointsAwarded }} XP</span>
-                            @endif
-                            @if($showMastered)
-                                <span class="result-banner-mastery">Gemeistert!</span>
-                            @elseif($showAlmostMastered)
-                                <span class="result-banner-mastery">Noch {{ $remaining }}x</span>
-                            @endif
-                        </div>
-                    </div>
+                    @endif
                 @endif
 
                 <!-- Answers -->
@@ -1504,6 +1513,9 @@
                     <span class="fs-icon"><i class="bi bi-trophy-fill" style="color:#1a1a2e;"></i></span>
                     <div class="fs-title" style="color:#1a1a2e;">Level Up!</div>
                     <div class="fs-subtitle" style="color:rgba(26,26,46,0.7);">Du bist jetzt Level {{ $newLevel }}</div>
+                    @if($gamificationResult && isset($gamificationResult['points_awarded']) && $gamificationResult['points_awarded'] > 0)
+                        <div class="fs-detail" style="color:rgba(26,26,46,0.5);margin-top:0.5rem;">+{{ $gamificationResult['points_awarded'] }} XP</div>
+                    @endif
                     <div class="fs-dismiss" style="color:rgba(26,26,46,0.4);">Tippen zum Schliessen</div>
                 </div>
             </div>
@@ -1614,16 +1626,12 @@
                     }
                 @endif
 
-                // Build overlay queue for special events
+                // Nur das wichtigste Special-Event zeigen (Prio: LevelUp > Achievement > Streak)
                 @if($hasLevelUp)
                     overlayQueue.push({ id: 'overlayLevelUp', delay: 100, duration: 3500, confetti: 'triggerLevelUpConfetti' });
-                @endif
-
-                @if($hasAchievement)
+                @elseif($hasAchievement)
                     overlayQueue.push({ id: 'overlayAchievement', delay: 100, duration: 3000, confetti: 'triggerAchievementConfetti' });
-                @endif
-
-                @if($hasStreakMilestone)
+                @elseif($hasStreakMilestone)
                     overlayQueue.push({ id: 'overlayStreak', delay: 100, duration: 3000, confetti: 'triggerLevelUpConfetti' });
                 @endif
 
@@ -1632,8 +1640,8 @@
                     showNextOverlay();
                 }
 
-                // Floating points for correct answers
-                @if(isset($isCorrect) && $isCorrect && $gamificationResult && isset($gamificationResult['points_awarded']) && $gamificationResult['points_awarded'] > 0)
+                // Floating points nur bei normalen Antworten (kein Special-Event)
+                @if(isset($isCorrect) && $isCorrect && !($hasLevelUp || $hasAchievement || $hasStreakMilestone) && $gamificationResult && isset($gamificationResult['points_awarded']) && $gamificationResult['points_awarded'] > 0)
                     setTimeout(function() {
                         if (typeof window.showFloatingPoints === 'function') {
                             window.showFloatingPoints(window.innerWidth / 2, window.innerHeight / 2 - 50, {{ $gamificationResult['points_awarded'] }});
