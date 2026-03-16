@@ -6,18 +6,36 @@
 <link rel="preconnect" href="https://fonts.bunny.net">
 <link href="https://fonts.bunny.net/css2?family=Barlow+Condensed:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-    /* ─── Page Label ─────────────────────────────── */
-    .pm-label {
-        font-size: 0.625rem;
-        text-transform: uppercase;
-        letter-spacing: 0.14em;
-        color: #5b9aff;
-        font-weight: 700;
-        font-family: 'IBM Plex Mono', monospace;
-        margin-bottom: 0.625rem;
+    /* ─── Stat Pills (vertical mini-cards) ───────── */
+    .pm-pills {
+        display: flex;
+        gap: 0.5rem;
     }
 
-    html.light-mode .pm-label { color: #00337F; }
+    .pm-pill {
+        flex: 1;
+        padding: 0.625rem 0.5rem;
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 0.75rem;
+        text-align: center;
+    }
+
+    .pm-pill__val {
+        font-size: 1.25rem;
+        font-weight: 800;
+        font-family: 'Barlow Condensed', sans-serif;
+        line-height: 1;
+        margin-bottom: 0.2rem;
+    }
+
+    .pm-pill__lbl {
+        font-size: 0.5rem;
+        color: var(--text-muted);
+        font-family: 'IBM Plex Mono', monospace;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+    }
 
     /* ─── Section Labels ─────────────────────────── */
     .pm-section-label {
@@ -91,12 +109,6 @@
         font-weight: 700;
         padding: 0.4rem 0.875rem;
         border-radius: 0.375rem;
-    }
-
-    /* ─── Stat Pill font override ────────────────── */
-    .pm-container .stat-pill-value {
-        font-family: 'Barlow Condensed', sans-serif;
-        font-weight: 800;
     }
 
     /* ─── Mode Tiles ─────────────────────────────── */
@@ -370,26 +382,29 @@
 @section('content')
 <div class="pm-container">
 
-    {{-- ── Page Label ── --}}
-    <div class="pm-label">Theorie lernen</div>
+    {{-- ── Header (konsistent mit Statistics) ── --}}
+    <div class="mb-6">
+        <h1 class="text-xl font-bold" style="color: var(--text-primary);">Theorie lernen</h1>
+        <p class="text-sm" style="color: var(--text-muted);">Wähle deinen Lernmodus</p>
+    </div>
 
-    {{-- ── Stat Pills ── --}}
-    <div class="stats-row">
-        <div class="stat-pill">
-            <span class="stat-pill-value" style="color:var(--error);">{{ $failedCount }}</span>
-            <span class="stat-pill-label">Fehlgeschlagen</span>
+    {{-- ── Stat Pills (vertical mini-cards) ── --}}
+    <div class="pm-pills">
+        <div class="pm-pill">
+            <div class="pm-pill__val" style="color:var(--error);">{{ $failedCount }}</div>
+            <div class="pm-pill__lbl">Fehler</div>
         </div>
-        <div class="stat-pill">
-            <span class="stat-pill-value" style="color:var(--warning);">{{ $unsolvedCount }}</span>
-            <span class="stat-pill-label">Ungelöst</span>
+        <div class="pm-pill">
+            <div class="pm-pill__val" style="color:var(--warning);">{{ $unsolvedCount }}</div>
+            <div class="pm-pill__lbl">Ungelöst</div>
         </div>
-        <div class="stat-pill">
-            <span class="stat-pill-value" style="color:var(--success);">{{ $solvedCount }}</span>
-            <span class="stat-pill-label">Gemeistert</span>
+        <div class="pm-pill">
+            <div class="pm-pill__val" style="color:var(--success);">{{ $solvedCount }}</div>
+            <div class="pm-pill__lbl">Gemeistert</div>
         </div>
-        <div class="stat-pill">
-            <span class="stat-pill-value">{{ $totalQuestions }}</span>
-            <span class="stat-pill-label">Gesamt</span>
+        <div class="pm-pill">
+            <div class="pm-pill__val" style="color:var(--text-primary);">{{ $totalQuestions }}</div>
+            <div class="pm-pill__lbl">Gesamt</div>
         </div>
     </div>
 
