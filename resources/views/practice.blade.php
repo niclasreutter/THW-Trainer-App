@@ -885,140 +885,8 @@
         border-radius: 0.625rem;
     }
 
-    /* ── Fullscreen Overlays ─────────────────────── */
-    .fs-overlay {
-        position: fixed;
-        inset: 0;
-        z-index: 10000;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: rgba(0, 0, 0, 0.85);
-        -webkit-backdrop-filter: blur(12px);
-        backdrop-filter: blur(12px);
-        opacity: 0;
-        pointer-events: none;
-        transition: opacity 0.35s ease;
-    }
-
-    .fs-overlay.show {
-        opacity: 1;
-        pointer-events: auto;
-    }
-
-    .fs-overlay-card {
-        max-width: 380px;
-        width: 90%;
-        padding: 2.5rem 2rem;
-        text-align: center;
-        border-radius: 1.5rem 0.5rem 1.5rem 1.5rem;
-        position: relative;
-        overflow: hidden;
-        animation: overlayPop 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
-    }
-
-    @keyframes overlayPop {
-        from { transform: scale(0.9) translateY(20px); opacity: 0; }
-        to { transform: scale(1) translateY(0); opacity: 1; }
-    }
-
-    .fs-overlay-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 3px;
-    }
-
-    /* Level-up overlay */
-    .fs-overlay--levelup .fs-overlay-card {
-        background: var(--gradient-gold-135);
-        border: none;
-        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5), 0 0 100px rgba(251, 191, 36, 0.2);
-    }
-
-    .fs-overlay--levelup .fs-overlay-card::before {
-        display: none;
-    }
-
-    /* Achievement overlay */
-    .fs-overlay--achievement .fs-overlay-card {
-        background: linear-gradient(135deg, rgba(147, 51, 234, 0.3), rgba(236, 72, 153, 0.2));
-        border: 1px solid rgba(147, 51, 234, 0.35);
-        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5), 0 0 80px rgba(147, 51, 234, 0.15);
-    }
-
-    .fs-overlay--achievement .fs-overlay-card::before {
-        background: linear-gradient(90deg, #9333ea, #ec4899);
-    }
-
-    /* Streak overlay */
-    .fs-overlay--streak .fs-overlay-card {
-        background: linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(251, 191, 36, 0.15));
-        border: 1px solid rgba(245, 158, 11, 0.35);
-        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5), 0 0 80px rgba(245, 158, 11, 0.15);
-    }
-
-    .fs-overlay--streak .fs-overlay-card::before {
-        background: linear-gradient(90deg, #f59e0b, #fbbf24);
-    }
-
-    .fs-icon {
-        font-size: 2.5rem;
-        margin-bottom: 1rem;
-        display: block;
-    }
-
-    .fs-title {
-        font-size: 1.75rem;
-        font-weight: 800;
-        color: #fff;
-        margin-bottom: 0.5rem;
-        font-family: 'Barlow Condensed', sans-serif;
-    }
-
-    .fs-subtitle {
-        font-size: 1rem;
-        color: rgba(255, 255, 255, 0.8);
-        margin-bottom: 0.375rem;
-    }
-
-    .fs-detail {
-        font-size: 0.8125rem;
-        color: rgba(255, 255, 255, 0.55);
-        font-family: 'IBM Plex Mono', monospace;
-    }
-
-    .fs-points {
-        font-size: 1.5rem;
-        font-weight: 800;
-        color: var(--gold);
-        margin: 0.75rem 0;
-        font-family: 'Barlow Condensed', sans-serif;
-    }
-
-    .fs-mastery-bar {
-        margin-top: 1rem;
-        padding: 0.75rem;
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 0.75rem;
-        border: 1px solid rgba(255, 255, 255, 0.15);
-    }
-
-    .fs-mastery-text {
-        font-size: 0.8125rem;
-        font-weight: 700;
-        color: #fff;
-    }
-
-    .fs-dismiss {
-        margin-top: 1.25rem;
-        font-size: 0.75rem;
-        color: rgba(255, 255, 255, 0.4);
-        font-family: 'IBM Plex Mono', monospace;
-        letter-spacing: 0.05em;
-    }
+    /* Fullscreen Overlays werden global via Layout gerendert
+       (milestone-celebration.blade.php + gamification-notifications.blade.php) */
 
     /* ── Report Modal ────────────────────────────── */
     .report-overlay {
@@ -1044,7 +912,12 @@
         width: 90%;
         max-width: 400px;
         padding: 1.5rem;
-        animation: overlayPop 0.25s ease;
+        animation: reportPop 0.25s ease;
+    }
+
+    @keyframes reportPop {
+        from { transform: translateY(10px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
     }
 
     .report-header {
@@ -1368,7 +1241,8 @@
                         $remaining = isset($questionProgress) ? $masteryThreshold - $questionProgress->consecutive_correct : $masteryThreshold;
                         $showAlmostMastered = isset($questionProgress) && $questionProgress->consecutive_correct > 0 && $questionProgress->consecutive_correct < $masteryThreshold;
 
-                        // Special-Events prüfen - wenn vorhanden, Banner unterdrücken
+                        // Special-Events prüfen - wenn vorhanden, zeigt das Layout
+                        // den Fullscreen-Overlay, also hier kein Banner nötig
                         $hasSpecialEvent = $gamificationResult && (
                             (isset($gamificationResult['level_up']) && $gamificationResult['level_up']) ||
                             isset($gamificationResult['achievement']) ||
@@ -1494,59 +1368,11 @@
             </div>
         </div>
 
-        {{-- ═══ FULLSCREEN OVERLAYS (Level-Up, Achievement, Streak) ═══ --}}
-
-        @php
-            $hasLevelUp = $gamificationResult && isset($gamificationResult['level_up']) && $gamificationResult['level_up'];
-            $hasAchievement = $gamificationResult && isset($gamificationResult['achievement']);
-            $hasStreakMilestone = $gamificationResult && isset($gamificationResult['streak_milestone']);
-            $newLevel = $hasLevelUp ? ($gamificationResult['new_level'] ?? null) : null;
-            $achievementName = $hasAchievement ? ($gamificationResult['achievement']['name'] ?? '') : '';
-            $achievementDesc = $hasAchievement ? ($gamificationResult['achievement']['description'] ?? '') : '';
-            $streakDays = $hasStreakMilestone ? ($gamificationResult['streak_milestone'] ?? 0) : 0;
-        @endphp
-
-        {{-- Level Up Overlay --}}
-        @if($hasLevelUp)
-            <div id="overlayLevelUp" class="fs-overlay fs-overlay--levelup">
-                <div class="fs-overlay-card">
-                    <span class="fs-icon"><i class="bi bi-trophy-fill" style="color:#1a1a2e;"></i></span>
-                    <div class="fs-title" style="color:#1a1a2e;">Level Up!</div>
-                    <div class="fs-subtitle" style="color:rgba(26,26,46,0.7);">Du bist jetzt Level {{ $newLevel }}</div>
-                    @if($gamificationResult && isset($gamificationResult['points_awarded']) && $gamificationResult['points_awarded'] > 0)
-                        <div class="fs-detail" style="color:rgba(26,26,46,0.5);margin-top:0.5rem;">+{{ $gamificationResult['points_awarded'] }} XP</div>
-                    @endif
-                    <div class="fs-dismiss" style="color:rgba(26,26,46,0.4);">Tippen zum Schliessen</div>
-                </div>
-            </div>
-        @endif
-
-        {{-- Achievement Overlay --}}
-        @if($hasAchievement)
-            <div id="overlayAchievement" class="fs-overlay fs-overlay--achievement">
-                <div class="fs-overlay-card">
-                    <span class="fs-icon"><i class="bi bi-award-fill" style="color:#a855f7;"></i></span>
-                    <div class="fs-title">Achievement!</div>
-                    <div class="fs-subtitle">{{ $achievementName }}</div>
-                    @if($achievementDesc)
-                        <div class="fs-detail">{{ $achievementDesc }}</div>
-                    @endif
-                    <div class="fs-dismiss">Tippen zum Schliessen</div>
-                </div>
-            </div>
-        @endif
-
-        {{-- Streak Milestone Overlay --}}
-        @if($hasStreakMilestone)
-            <div id="overlayStreak" class="fs-overlay fs-overlay--streak">
-                <div class="fs-overlay-card">
-                    <span class="fs-icon"><i class="bi bi-fire" style="color:#f59e0b;"></i></span>
-                    <div class="fs-title">{{ $streakDays }} Tage Streak!</div>
-                    <div class="fs-subtitle">Weiter so, du bist auf Kurs</div>
-                    <div class="fs-dismiss">Tippen zum Schliessen</div>
-                </div>
-            </div>
-        @endif
+        {{-- Fullscreen-Overlays (Level-Up, Achievement, Streak) werden
+             global über layouts/app.blade.php gerendert via:
+             - components/milestone-celebration.blade.php (Fullscreen)
+             - components/gamification-notifications.blade.php (Fly-in)
+             Hier NICHT nochmal rendern! --}}
 
         <script>
             // Answer time measurement
@@ -1579,45 +1405,8 @@
                 });
             }
 
-            // Overlay management
+            // Shake on wrong answer + Floating points
             document.addEventListener('DOMContentLoaded', function() {
-                var overlayQueue = [];
-                var currentOverlay = null;
-
-                function showNextOverlay() {
-                    if (overlayQueue.length === 0) return;
-                    currentOverlay = overlayQueue.shift();
-                    var el = document.getElementById(currentOverlay.id);
-                    if (!el) { showNextOverlay(); return; }
-
-                    setTimeout(function() { el.classList.add('show'); }, currentOverlay.delay || 50);
-
-                    // Trigger confetti if needed
-                    if (currentOverlay.confetti && typeof window[currentOverlay.confetti] === 'function') {
-                        setTimeout(function() { window[currentOverlay.confetti](); }, (currentOverlay.delay || 50) + 100);
-                    }
-
-                    // Auto-dismiss
-                    var autoDismissTime = currentOverlay.duration || 2500;
-                    var dismissTimer = setTimeout(function() { dismissOverlay(el); }, autoDismissTime);
-
-                    // Click to dismiss
-                    el.addEventListener('click', function handler() {
-                        clearTimeout(dismissTimer);
-                        dismissOverlay(el);
-                        el.removeEventListener('click', handler);
-                    });
-                }
-
-                function dismissOverlay(el) {
-                    if (!el.classList.contains('show')) return;
-                    el.classList.remove('show');
-                    setTimeout(function() {
-                        showNextOverlay();
-                    }, 350);
-                }
-
-                // Shake on wrong answer
                 @if(isset($isCorrect) && !$isCorrect)
                     var qc = document.getElementById('questionContent');
                     if (qc) {
@@ -1626,22 +1415,7 @@
                     }
                 @endif
 
-                // Nur das wichtigste Special-Event zeigen (Prio: LevelUp > Achievement > Streak)
-                @if($hasLevelUp)
-                    overlayQueue.push({ id: 'overlayLevelUp', delay: 100, duration: 3500, confetti: 'triggerLevelUpConfetti' });
-                @elseif($hasAchievement)
-                    overlayQueue.push({ id: 'overlayAchievement', delay: 100, duration: 3000, confetti: 'triggerAchievementConfetti' });
-                @elseif($hasStreakMilestone)
-                    overlayQueue.push({ id: 'overlayStreak', delay: 100, duration: 3000, confetti: 'triggerLevelUpConfetti' });
-                @endif
-
-                // Start the queue
-                if (overlayQueue.length > 0) {
-                    showNextOverlay();
-                }
-
-                // Floating points nur bei normalen Antworten (kein Special-Event)
-                @if(isset($isCorrect) && $isCorrect && !($hasLevelUp || $hasAchievement || $hasStreakMilestone) && $gamificationResult && isset($gamificationResult['points_awarded']) && $gamificationResult['points_awarded'] > 0)
+                @if(isset($isCorrect) && $isCorrect && $gamificationResult && isset($gamificationResult['points_awarded']) && $gamificationResult['points_awarded'] > 0)
                     setTimeout(function() {
                         if (typeof window.showFloatingPoints === 'function') {
                             window.showFloatingPoints(window.innerWidth / 2, window.innerHeight / 2 - 50, {{ $gamificationResult['points_awarded'] }});
