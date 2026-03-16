@@ -353,3 +353,43 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+// DEBUG: Find overflowing elements
+document.addEventListener('DOMContentLoaded', function() {
+    const docWidth = document.documentElement.clientWidth;
+    const results = [];
+    document.querySelectorAll('*').forEach(function(el) {
+        const rect = el.getBoundingClientRect();
+        if (rect.right > docWidth || rect.left < 0) {
+            results.push({
+                tag: el.tagName,
+                class: el.className,
+                id: el.id,
+                right: Math.round(rect.right),
+                left: Math.round(rect.left),
+                width: Math.round(rect.width),
+                scrollWidth: el.scrollWidth,
+                clientWidth: el.clientWidth,
+                style: el.getAttribute('style') || ''
+            });
+        }
+    });
+    if (results.length > 0) {
+        const banner = document.createElement('div');
+        banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:red;color:white;padding:8px;font-size:11px;max-height:50vh;overflow:auto;';
+        banner.innerHTML = '<b>OVERFLOW DEBUG (' + results.length + ' elements):</b><br>' +
+            results.map(function(r) {
+                return '&lt;' + r.tag + '&gt; class="' + r.class + '" right=' + r.right + ' width=' + r.width + ' scrollW=' + r.scrollWidth + ' | style="' + r.style.substring(0,80) + '"';
+            }).join('<br>');
+        document.body.prepend(banner);
+    } else {
+        const banner = document.createElement('div');
+        banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:green;color:white;padding:8px;font-size:11px;';
+        banner.textContent = 'NO OVERFLOW DETECTED. Viewport: ' + docWidth + 'px. Body scrollWidth: ' + document.body.scrollWidth + ', clientWidth: ' + document.body.clientWidth;
+        document.body.prepend(banner);
+    }
+});
+</script>
+@endpush
