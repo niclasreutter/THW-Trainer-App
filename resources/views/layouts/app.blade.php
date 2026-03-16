@@ -379,7 +379,7 @@
             @endauth
 
             <!-- Main Content -->
-            <div class="flex-1 @auth lg:pl-64 @endauth flex flex-col min-h-screen">
+            <div class="flex-1 @auth lg:pl-64 @endauth flex flex-col min-h-screen" style="min-width:0;">
                 <!-- Mobile Header -->
                 <header class="lg:hidden sticky top-0 z-40 mobile-header-glass">
                     <div class="flex items-center justify-between px-4 py-3">
@@ -413,7 +413,7 @@
                 @endunless
 
                 <!-- Page Content -->
-                <main class="flex-1 px-4 lg:px-8 py-6 lg:py-8 @auth pb-28 lg:pb-8 @endauth" id="main-content">
+                <main class="flex-1 px-4 lg:px-8 py-6 lg:py-8 @auth pb-28 lg:pb-8 @endauth" id="main-content" style="min-width:0;overflow-x:hidden;">
                     @yield('content')
                 </main>
 
