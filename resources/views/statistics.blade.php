@@ -6,7 +6,8 @@
 
     {{-- Header --}}
     <div class="mb-6">
-        <h1 class="text-xl font-bold" style="color: var(--text-primary);">Statistiken</h1>
+        <p style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);font-weight:600;margin-bottom:0.25rem;">Fortschritt</p>
+        <h1 style="font-size:1.5rem;font-weight:800;line-height:1.2;font-family:'Barlow Condensed',sans-serif;background:linear-gradient(135deg,#5b9aff,#0055cc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Statistiken</h1>
         <p class="text-sm" style="color: var(--text-muted);">Dein detaillierter Lernfortschritt</p>
     </div>
 
