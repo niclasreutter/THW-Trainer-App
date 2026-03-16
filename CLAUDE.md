@@ -99,6 +99,7 @@ fetch(url, { cache: 'no-store' });
 2. **User-Rolle:** `$user->useroll` (Typo im Schema, nicht ändern)
 3. **Lösung-Format:** Sortiert, komma-getrennt: `"A,B"` nicht `"B,A"`
 4. **Flash-Data:** Nur für 1 Request, dann weg
+5. **Tailwind-Klassen:** Nur Klassen verwenden, die bereits im kompilierten CSS existieren oder nach Änderung `npm run build` ausführen. Neue Tailwind-Klassen (z.B. `pb-36`) werden ohne Build ignoriert! `public/build/` ist im Repo committet.
 
 ## Detail-Dokumentation
 
@@ -107,4 +108,4 @@ fetch(url, { cache: 'no-store' });
 - **[docs/FILE-GUIDE.md](docs/FILE-GUIDE.md)** - Datei-Navigation, wo was ist
 
 ---
-*Letzte Aktualisierung: 12. März 2026*
+*Letzte Aktualisierung: 16. März 2026*
