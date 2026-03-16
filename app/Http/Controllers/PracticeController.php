@@ -767,10 +767,12 @@ class PracticeController extends Controller
             default => 'Übung',
         };
 
+        $streak = auth()->user()->streak_days ?? 0;
+
         // Session aufräumen
         session()->forget(['practice_mode', 'practice_parameter', 'practice_ids', 'practice_skipped', 'practice_total_in_mode', 'practice_session_stats']);
 
-        return view('practice-summary', compact('stats', 'totalAnswered', 'accuracy', 'durationMinutes', 'modeName'));
+        return view('practice-summary', compact('stats', 'totalAnswered', 'accuracy', 'durationMinutes', 'modeName', 'streak'));
     }
 
     /**
