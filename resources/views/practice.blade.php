@@ -570,6 +570,82 @@
         color: #ef4444;
     }
 
+    /* ── Inline Result Banner ────────────────────── */
+    .result-banner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        padding: 0.75rem 1rem;
+        border-radius: 0.75rem;
+        margin-bottom: 1rem;
+        animation: bannerSlide 0.35s cubic-bezier(0.22,1,0.36,1) both;
+    }
+
+    @keyframes bannerSlide {
+        from { opacity: 0; transform: translateY(-8px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .result-banner--correct {
+        background: rgba(34, 197, 94, 0.1);
+        border: 1px solid rgba(34, 197, 94, 0.25);
+    }
+
+    .result-banner--wrong {
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.25);
+    }
+
+    html.light-mode .result-banner--correct {
+        background: rgba(34, 197, 94, 0.08);
+        border-color: rgba(34, 197, 94, 0.2);
+    }
+
+    html.light-mode .result-banner--wrong {
+        background: rgba(239, 68, 68, 0.08);
+        border-color: rgba(239, 68, 68, 0.2);
+    }
+
+    .result-banner-left {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        min-width: 0;
+    }
+
+    .result-banner-icon {
+        font-size: 1.25rem;
+        flex-shrink: 0;
+    }
+
+    .result-banner-text {
+        font-size: 0.875rem;
+        font-weight: 700;
+        font-family: 'Barlow Condensed', sans-serif;
+    }
+
+    .result-banner--correct .result-banner-text { color: #22c55e; }
+    .result-banner--wrong .result-banner-text { color: #ef4444; }
+
+    html.light-mode .result-banner--correct .result-banner-text { color: #16a34a; }
+    html.light-mode .result-banner--wrong .result-banner-text { color: #dc2626; }
+
+    .result-banner-xp {
+        font-size: 0.875rem;
+        font-weight: 800;
+        color: var(--gold);
+        font-family: 'Barlow Condensed', sans-serif;
+        flex-shrink: 0;
+    }
+
+    .result-banner-mastery {
+        font-size: 0.6875rem;
+        color: var(--text-muted);
+        font-family: 'IBM Plex Mono', monospace;
+        flex-shrink: 0;
+    }
+
     /* ── Result Summary Line ─────────────────────── */
     .result-summary {
         display: flex;
@@ -830,72 +906,6 @@
         pointer-events: auto;
     }
 
-    /* Correct/Wrong: compact toast instead of fullscreen */
-    .fs-overlay--correct,
-    .fs-overlay--wrong {
-        inset: auto;
-        top: 1rem;
-        right: 1rem;
-        left: auto;
-        bottom: auto;
-        background: none;
-        backdrop-filter: none;
-        -webkit-backdrop-filter: none;
-        align-items: flex-start;
-        justify-content: flex-end;
-    }
-
-    @media (max-width: 640px) {
-        .fs-overlay--correct,
-        .fs-overlay--wrong {
-            top: calc(env(safe-area-inset-top, 0px) + 3.5rem);
-            right: 0.75rem;
-            left: 0.75rem;
-        }
-    }
-
-    .fs-overlay--correct .fs-overlay-card,
-    .fs-overlay--wrong .fs-overlay-card {
-        max-width: 320px;
-        padding: 1.25rem 1.5rem;
-        border-radius: 1rem 0.375rem 1rem 1rem;
-        text-align: left;
-    }
-
-    @media (max-width: 640px) {
-        .fs-overlay--correct .fs-overlay-card,
-        .fs-overlay--wrong .fs-overlay-card {
-            max-width: 100%;
-            width: 100%;
-        }
-    }
-
-    .fs-overlay--correct .fs-icon,
-    .fs-overlay--wrong .fs-icon {
-        font-size: 1.5rem;
-        margin-bottom: 0;
-        display: inline;
-        margin-right: 0.5rem;
-        vertical-align: middle;
-    }
-
-    .fs-overlay--correct .fs-title,
-    .fs-overlay--wrong .fs-title {
-        font-size: 1.125rem;
-        display: inline;
-        vertical-align: middle;
-    }
-
-    .fs-overlay--correct .fs-points {
-        font-size: 1.125rem;
-        margin: 0.5rem 0 0.25rem;
-    }
-
-    .fs-overlay--correct .fs-dismiss,
-    .fs-overlay--wrong .fs-dismiss {
-        display: none;
-    }
-
     .fs-overlay-card {
         max-width: 380px;
         width: 90%;
@@ -919,28 +929,6 @@
         left: 0;
         right: 0;
         height: 3px;
-    }
-
-    /* Correct overlay */
-    .fs-overlay--correct .fs-overlay-card {
-        background: rgba(34, 197, 94, 0.12);
-        border: 1px solid rgba(34, 197, 94, 0.25);
-        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5), 0 0 80px rgba(34, 197, 94, 0.15);
-    }
-
-    .fs-overlay--correct .fs-overlay-card::before {
-        background: linear-gradient(90deg, #22c55e, #16a34a);
-    }
-
-    /* Wrong overlay */
-    .fs-overlay--wrong .fs-overlay-card {
-        background: rgba(239, 68, 68, 0.12);
-        border: 1px solid rgba(239, 68, 68, 0.25);
-        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5), 0 0 60px rgba(239, 68, 68, 0.12);
-    }
-
-    .fs-overlay--wrong .fs-overlay-card::before {
-        background: linear-gradient(90deg, #ef4444, #dc2626);
     }
 
     /* Level-up overlay */
@@ -1213,6 +1201,9 @@
             </div>
 
             <div class="topbar-actions">
+                <button type="button" onclick="openReportModal()" class="report-btn" title="Fehler melden">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                </button>
                 <button type="button" class="bookmark-btn {{ $isBookmarked ? 'active' : '' }}" id="bookmarkBtnMobile"
                         data-bookmarked="{{ $isBookmarked ? 'true' : 'false' }}"
                         onclick="toggleBookmark({{ $question->id }}, {{ $isBookmarked ? 'true' : 'false' }})">
@@ -1251,18 +1242,23 @@
                     </div>
                 </div>
 
-                <button type="button"
-                        class="bookmark-btn bookmark-btn-lg {{ $isBookmarked ? 'active' : '' }}"
-                        title="{{ $isBookmarked ? 'Aus Lesezeichen entfernen' : 'Zu Lesezeichen hinzufügen' }}"
-                        id="bookmarkBtn"
-                        data-bookmarked="{{ $isBookmarked ? 'true' : 'false' }}"
-                        onclick="toggleBookmark({{ $question->id }}, {{ $isBookmarked ? 'true' : 'false' }})">
-                    <svg class="w-5 h-5" viewBox="0 0 20 20" id="bookmarkIcon">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M5 5a2 2 0 012-2h6a2 2 0 012 2v10l-5-3-5 3V5z"
-                              style="stroke: {{ $isBookmarked ? '#fbbf24' : 'rgba(255,255,255,0.4)' }}; fill: {{ $isBookmarked ? '#fbbf24' : 'none' }};"></path>
-                    </svg>
-                </button>
+                <div style="display:flex;align-items:center;gap:0.5rem;">
+                    <button type="button" onclick="openReportModal()" class="report-btn bookmark-btn-lg" title="Fehler melden">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                    </button>
+                    <button type="button"
+                            class="bookmark-btn bookmark-btn-lg {{ $isBookmarked ? 'active' : '' }}"
+                            title="{{ $isBookmarked ? 'Aus Lesezeichen entfernen' : 'Zu Lesezeichen hinzufügen' }}"
+                            id="bookmarkBtn"
+                            data-bookmarked="{{ $isBookmarked ? 'true' : 'false' }}"
+                            onclick="toggleBookmark({{ $question->id }}, {{ $isBookmarked ? 'true' : 'false' }})">
+                        <svg class="w-5 h-5" viewBox="0 0 20 20" id="bookmarkIcon">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M5 5a2 2 0 012-2h6a2 2 0 012 2v10l-5-3-5 3V5z"
+                                  style="stroke: {{ $isBookmarked ? '#fbbf24' : 'rgba(255,255,255,0.4)' }}; fill: {{ $isBookmarked ? '#fbbf24' : 'none' }};"></path>
+                        </svg>
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -1349,13 +1345,48 @@
                     <span class="question-meta-left">
                         ID {{ $question->id }} &middot; LA {{ $question->lernabschnitt ?? '-' }}.{{ $question->nummer ?? '-' }}
                     </span>
-                    <button type="button" onclick="openReportModal()" class="report-btn" title="Fehler melden">
-                        <i class="bi bi-exclamation-triangle-fill"></i>
-                    </button>
                 </div>
 
                 <!-- Question Text -->
                 <p class="question-text">{{ $question->frage }}</p>
+
+                {{-- Inline Result Banner --}}
+                @if(isset($isCorrect))
+                    @php
+                        $showGamification = $isCorrect && $gamificationResult && isset($gamificationResult['points_awarded']);
+                        $celebrations = ['Grandios!', 'Fantastisch!', 'Super!', 'Stark!', 'Mega!', 'Klasse!', 'Volltreffer!', 'Genial!'];
+                        $celebrationText = $celebrations[$question->id % count($celebrations)];
+                        $pointsAwarded = $showGamification ? ($gamificationResult['points_awarded'] ?? 0) : 0;
+                        $reason = $showGamification ? ($gamificationResult['reason'] ?? '') : '';
+                        if ($pointsAwarded >= 20) {
+                            $reasonText = str_contains($reason, 'Häufig falsche') ? 'Schwere Frage gelöst' : 'Mit Streak-Bonus';
+                        } else {
+                            $reasonText = $reason;
+                        }
+                        $masteryThreshold = \App\Models\UserQuestionProgress::MASTERY_THRESHOLD;
+                        $showMastered = isset($questionProgress) && $questionProgress->consecutive_correct >= $masteryThreshold;
+                        $remaining = isset($questionProgress) ? $masteryThreshold - $questionProgress->consecutive_correct : $masteryThreshold;
+                        $showAlmostMastered = isset($questionProgress) && $questionProgress->consecutive_correct > 0 && $questionProgress->consecutive_correct < $masteryThreshold;
+                    @endphp
+                    <div class="result-banner {{ $isCorrect ? 'result-banner--correct' : 'result-banner--wrong' }}">
+                        <div class="result-banner-left">
+                            <span class="result-banner-icon">
+                                <i class="bi {{ $isCorrect ? 'bi-check-circle-fill' : 'bi-x-circle-fill' }}" style="color:{{ $isCorrect ? '#22c55e' : '#ef4444' }};"></i>
+                            </span>
+                            <span class="result-banner-text">{{ $isCorrect ? $celebrationText : 'Falsch' }}</span>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:0.75rem;">
+                            @if($isCorrect && $showGamification && $pointsAwarded > 0)
+                                <span class="result-banner-xp">+{{ $pointsAwarded }} XP</span>
+                            @endif
+                            @if($showMastered)
+                                <span class="result-banner-mastery">Gemeistert!</span>
+                            @elseif($showAlmostMastered)
+                                <span class="result-banner-mastery">Noch {{ $remaining }}x</span>
+                            @endif
+                        </div>
+                    </div>
+                @endif
 
                 <!-- Answers -->
                 <div class="answers-grid">
@@ -1454,31 +1485,9 @@
             </div>
         </div>
 
-        {{-- ═══ FULLSCREEN OVERLAYS ═══════════════════════ --}}
+        {{-- ═══ FULLSCREEN OVERLAYS (Level-Up, Achievement, Streak) ═══ --}}
 
         @php
-            $showGamification = isset($isCorrect) && $isCorrect && $gamificationResult && isset($gamificationResult['points_awarded']);
-
-            $celebrations = [
-                'Grandios!', 'Fantastisch!', 'Super!', 'Stark!',
-                'Mega!', 'Klasse!', 'Volltreffer!', 'Genial!',
-            ];
-            $celebrationText = $celebrations[$question->id % count($celebrations)];
-            $pointsAwarded = $showGamification ? ($gamificationResult['points_awarded'] ?? 0) : 0;
-            $reason = $showGamification ? ($gamificationResult['reason'] ?? '') : '';
-
-            if ($pointsAwarded >= 20) {
-                $reasonText = str_contains($reason, 'Häufig falsche') ? 'Schwere Frage gelöst' : 'Mit Streak-Bonus';
-            } else {
-                $reasonText = $reason;
-            }
-
-            $masteryThreshold = \App\Models\UserQuestionProgress::MASTERY_THRESHOLD;
-            $showMastered = isset($questionProgress) && $questionProgress->consecutive_correct >= $masteryThreshold;
-            $remaining = isset($questionProgress) ? $masteryThreshold - $questionProgress->consecutive_correct : $masteryThreshold;
-            $showAlmostMastered = isset($questionProgress) && $questionProgress->consecutive_correct > 0 && $questionProgress->consecutive_correct < $masteryThreshold;
-
-            // Check for special gamification events
             $hasLevelUp = $gamificationResult && isset($gamificationResult['level_up']) && $gamificationResult['level_up'];
             $hasAchievement = $gamificationResult && isset($gamificationResult['achievement']);
             $hasStreakMilestone = $gamificationResult && isset($gamificationResult['streak_milestone']);
@@ -1487,42 +1496,6 @@
             $achievementDesc = $hasAchievement ? ($gamificationResult['achievement']['description'] ?? '') : '';
             $streakDays = $hasStreakMilestone ? ($gamificationResult['streak_milestone'] ?? 0) : 0;
         @endphp
-
-        {{-- Correct Answer Overlay --}}
-        @if(isset($isCorrect) && $isCorrect)
-            <div id="overlayCorrect" class="fs-overlay fs-overlay--correct">
-                <div class="fs-overlay-card">
-                    <span class="fs-icon"><i class="bi bi-check-circle-fill" style="color:#22c55e;"></i></span>
-                    <div class="fs-title">{{ $celebrationText }}</div>
-                    @if($showGamification && $pointsAwarded > 0)
-                        <div class="fs-points">+{{ $pointsAwarded }} XP</div>
-                        <div class="fs-detail">{{ $reasonText }}</div>
-                    @endif
-                    @if($showMastered)
-                        <div class="fs-mastery-bar">
-                            <div class="fs-mastery-text">Frage gemeistert!</div>
-                        </div>
-                    @elseif($showAlmostMastered)
-                        <div class="fs-mastery-bar">
-                            <div class="fs-mastery-text">Noch {{ $remaining }}x richtig</div>
-                        </div>
-                    @endif
-                    <div class="fs-dismiss">Tippen zum Schliessen</div>
-                </div>
-            </div>
-        @endif
-
-        {{-- Wrong Answer Overlay --}}
-        @if(isset($isCorrect) && !$isCorrect)
-            <div id="overlayWrong" class="fs-overlay fs-overlay--wrong">
-                <div class="fs-overlay-card">
-                    <span class="fs-icon"><i class="bi bi-x-circle-fill" style="color:#ef4444;"></i></span>
-                    <div class="fs-title">Nicht ganz</div>
-                    <div class="fs-subtitle">Die richtigen Antworten sind markiert</div>
-                    <div class="fs-dismiss">Tippen zum Schliessen</div>
-                </div>
-            </div>
-        @endif
 
         {{-- Level Up Overlay --}}
         @if($hasLevelUp)
@@ -1632,14 +1605,8 @@
                     }, 350);
                 }
 
-                // Build overlay queue based on what's available
-                @if(isset($isCorrect) && $isCorrect)
-                    overlayQueue.push({ id: 'overlayCorrect', delay: 50, duration: 2000 });
-                @endif
-
+                // Shake on wrong answer
                 @if(isset($isCorrect) && !$isCorrect)
-                    overlayQueue.push({ id: 'overlayWrong', delay: 50, duration: 2000 });
-                    // Shake the card
                     var qc = document.getElementById('questionContent');
                     if (qc) {
                         qc.classList.add('shake');
@@ -1647,6 +1614,7 @@
                     }
                 @endif
 
+                // Build overlay queue for special events
                 @if($hasLevelUp)
                     overlayQueue.push({ id: 'overlayLevelUp', delay: 100, duration: 3500, confetti: 'triggerLevelUpConfetti' });
                 @endif
@@ -1665,10 +1633,10 @@
                 }
 
                 // Floating points for correct answers
-                @if(isset($showGamification) && $showGamification && $pointsAwarded > 0)
+                @if(isset($isCorrect) && $isCorrect && $gamificationResult && isset($gamificationResult['points_awarded']) && $gamificationResult['points_awarded'] > 0)
                     setTimeout(function() {
                         if (typeof window.showFloatingPoints === 'function') {
-                            window.showFloatingPoints(window.innerWidth / 2, window.innerHeight / 2 - 50, {{ $pointsAwarded }});
+                            window.showFloatingPoints(window.innerWidth / 2, window.innerHeight / 2 - 50, {{ $gamificationResult['points_awarded'] }});
                         }
                     }, 600);
                 @endif
