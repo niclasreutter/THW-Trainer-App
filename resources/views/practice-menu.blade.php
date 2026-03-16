@@ -120,7 +120,6 @@
 
     .pm-mode-grid > * {
         flex: 1 1 0;
-        min-width: 90px;
     }
 
     .pm-mode-tile {
@@ -369,8 +368,20 @@
         .pm-container > * { animation: none; }
     }
 
-    /* ─── Spacing ────────────────────────────────── */
+    /* ─── Container ──────────────────────────────── */
+    .pm-container {
+        overflow: hidden;
+    }
+
     .pm-container > * + * { margin-top: 0.75rem; }
+
+    /* ─── Pills overflow fix ─────────────────────── */
+    .pm-pills {
+        overflow-x: auto;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+    .pm-pills::-webkit-scrollbar { display: none; }
 </style>
 @endpush
 
