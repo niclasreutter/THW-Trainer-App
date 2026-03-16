@@ -217,7 +217,5 @@
         </div>
     </div>
 
-    {{-- Spacer für Bottom-Navigation auf Mobile --}}
-    <div class="h-8 lg:hidden"></div>
 </div>
 @endsection
