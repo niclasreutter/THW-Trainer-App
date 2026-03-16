@@ -369,18 +369,13 @@
         .pm-container > * { animation: none; }
     }
 
-    /* ─── Container ──────────────────────────────── */
-    .pm-container {
-        max-width: 680px;
-        margin: 0 auto;
-    }
-
+    /* ─── Spacing ────────────────────────────────── */
     .pm-container > * + * { margin-top: 0.75rem; }
 </style>
 @endpush
 
 @section('content')
-<div class="pm-container">
+<div class="dash-container pm-container">
 
     {{-- ── Header (konsistent mit Statistics) ── --}}
     <div class="mb-6">
