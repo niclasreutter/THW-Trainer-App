@@ -413,7 +413,7 @@
                 @endunless
 
                 <!-- Page Content -->
-                <main class="flex-1 px-4 lg:px-8 py-6 lg:py-8 @auth pb-20 lg:pb-8 @endauth">
+                <main class="flex-1 px-4 lg:px-8 py-6 lg:py-8 @auth pb-28 lg:pb-8 @endauth">
                     @yield('content')
                 </main>
 
