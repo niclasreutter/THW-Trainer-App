@@ -87,7 +87,34 @@ class PracticeController extends Controller
         }
 
         $sectionNames = self::SECTION_NAMES;
-        return view('practice-menu', compact('sectionStats', 'totalQuestions', 'solvedCount', 'failedCount', 'unsolvedCount', 'sectionNames', 'progressPercentage'));
+
+        // Smart Action — kontextabhängige Empfehlung
+        $smartAction = match(true) {
+            $failedCount > 0 => [
+                'label' => 'Empfohlen',
+                'title' => "$failedCount Fehler wiederholen",
+                'desc'  => 'Priorisiere fehlgeschlagene Fragen zuerst',
+                'route' => route('failed.index'),
+            ],
+            $unsolvedCount > 0 => [
+                'label' => 'Weiterlernen',
+                'title' => "$unsolvedCount ungelöste Fragen",
+                'desc'  => 'Lerne neue Fragen und erweitere dein Wissen',
+                'route' => route('practice.unsolved'),
+            ],
+            default => [
+                'label' => 'Wiederholen',
+                'title' => 'Alle Fragen wiederholen',
+                'desc'  => 'Festige dein Wissen durch Wiederholung',
+                'route' => route('practice.all'),
+            ],
+        };
+
+        // Spaced Repetition — fällige Reviews
+        $spacedRepetitionDue = app(SpacedRepetitionService::class)
+            ->getDueCount($user->id);
+
+        return view('practice-menu', compact('sectionStats', 'totalQuestions', 'solvedCount', 'failedCount', 'unsolvedCount', 'sectionNames', 'progressPercentage', 'smartAction', 'spacedRepetitionDue'));
     }
 
     /**
