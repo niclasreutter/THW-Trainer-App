@@ -244,7 +244,7 @@
 @endpush
 
 @section('content')
-<div class="dash-container">
+<div class="dash-container" style="overflow-x:hidden;">
 
     {{-- ── Header (identisch mit Statistics) ── --}}
     <div class="mb-6">
@@ -305,7 +305,7 @@
         </div>
 
         {{-- ── Spaced Repetition + Fragensuche ── --}}
-        <div class="grid gap-2" style="grid-template-columns: {{ $spacedRepetitionDue > 0 ? '1fr 1fr' : '1fr' }};">
+        <div class="grid grid-cols-1 gap-2" style="{{ $spacedRepetitionDue > 0 ? 'grid-template-columns:1fr 1fr;' : '' }}">
             @if($spacedRepetitionDue > 0)
             <a href="{{ route('practice.spaced-repetition') }}" class="glass sr-nudge">
                 <div class="sr-nudge__badge">{{ $spacedRepetitionDue }}</div>
