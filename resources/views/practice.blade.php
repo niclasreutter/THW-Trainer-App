@@ -53,7 +53,7 @@
 
     /* ── Practice Shell ──────────────────────────── */
     .practice-shell {
-        max-width: 800px;
+        max-width: 1100px;
         margin: 0 auto;
         padding: 1.5rem;
     }
@@ -830,6 +830,72 @@
         pointer-events: auto;
     }
 
+    /* Correct/Wrong: compact toast instead of fullscreen */
+    .fs-overlay--correct,
+    .fs-overlay--wrong {
+        inset: auto;
+        top: 1rem;
+        right: 1rem;
+        left: auto;
+        bottom: auto;
+        background: none;
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+        align-items: flex-start;
+        justify-content: flex-end;
+    }
+
+    @media (max-width: 640px) {
+        .fs-overlay--correct,
+        .fs-overlay--wrong {
+            top: calc(env(safe-area-inset-top, 0px) + 3.5rem);
+            right: 0.75rem;
+            left: 0.75rem;
+        }
+    }
+
+    .fs-overlay--correct .fs-overlay-card,
+    .fs-overlay--wrong .fs-overlay-card {
+        max-width: 320px;
+        padding: 1.25rem 1.5rem;
+        border-radius: 1rem 0.375rem 1rem 1rem;
+        text-align: left;
+    }
+
+    @media (max-width: 640px) {
+        .fs-overlay--correct .fs-overlay-card,
+        .fs-overlay--wrong .fs-overlay-card {
+            max-width: 100%;
+            width: 100%;
+        }
+    }
+
+    .fs-overlay--correct .fs-icon,
+    .fs-overlay--wrong .fs-icon {
+        font-size: 1.5rem;
+        margin-bottom: 0;
+        display: inline;
+        margin-right: 0.5rem;
+        vertical-align: middle;
+    }
+
+    .fs-overlay--correct .fs-title,
+    .fs-overlay--wrong .fs-title {
+        font-size: 1.125rem;
+        display: inline;
+        vertical-align: middle;
+    }
+
+    .fs-overlay--correct .fs-points {
+        font-size: 1.125rem;
+        margin: 0.5rem 0 0.25rem;
+    }
+
+    .fs-overlay--correct .fs-dismiss,
+    .fs-overlay--wrong .fs-dismiss {
+        display: none;
+    }
+
     .fs-overlay-card {
         max-width: 380px;
         width: 90%;
@@ -1147,9 +1213,6 @@
             </div>
 
             <div class="topbar-actions">
-                <button type="button" onclick="openReportModal()" class="report-btn" title="Fehler melden">
-                    <i class="bi bi-exclamation-triangle-fill"></i>
-                </button>
                 <button type="button" class="bookmark-btn {{ $isBookmarked ? 'active' : '' }}" id="bookmarkBtnMobile"
                         data-bookmarked="{{ $isBookmarked ? 'true' : 'false' }}"
                         onclick="toggleBookmark({{ $question->id }}, {{ $isBookmarked ? 'true' : 'false' }})">
@@ -1286,7 +1349,7 @@
                     <span class="question-meta-left">
                         ID {{ $question->id }} &middot; LA {{ $question->lernabschnitt ?? '-' }}.{{ $question->nummer ?? '-' }}
                     </span>
-                    <button type="button" onclick="openReportModal()" class="report-btn hidden sm:flex" title="Fehler melden">
+                    <button type="button" onclick="openReportModal()" class="report-btn" title="Fehler melden">
                         <i class="bi bi-exclamation-triangle-fill"></i>
                     </button>
                 </div>
@@ -1362,7 +1425,7 @@
                             Antwort absenden
                         </button>
                     @else
-                        <a href="{{ route('practice.index') }}" class="action-submit action-submit--gold">
+                        <a href="{{ route('practice.index') }}" class="action-submit action-submit--primary">
                             Nächste Frage
                         </a>
                     @endif
