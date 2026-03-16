@@ -535,22 +535,32 @@
 
             {{-- 1. Smart Action Card --}}
             <a href="{{ $smartAction['route'] }}"
-               class="smart-action {{ $smartAction['type'] === 'urgent' ? 'smart-action--urgent' : ($smartAction['type'] === 'live' ? 'smart-action--live' : '') }}"
+               class="smart-action {{ session('error') ? 'smart-action--error' : ($smartAction['type'] === 'urgent' ? 'smart-action--urgent' : ($smartAction['type'] === 'live' ? 'smart-action--live' : '')) }}"
                data-tour-step="practice"
                style="display:block;text-decoration:none;">
                 <div class="smart-action__label">
-                    @if($smartAction['type'] === 'live')
+                    @if(session('error'))
+                        Nicht möglich
+                    @elseif($smartAction['type'] === 'live')
                         <span class="live-dot"></span>
+                        {{ $smartAction['label'] }}
+                    @else
+                        {{ $smartAction['label'] }}
                     @endif
-                    {{ $smartAction['label'] }}
                 </div>
-                <div class="smart-action__title">{{ $smartAction['title'] }}</div>
-                <div class="smart-action__desc">{{ $smartAction['desc'] }}</div>
-                <span class="smart-action__btn">
-                    {{ $smartAction['btn'] }}
-                    <i class="bi bi-arrow-right"></i>
-                </span>
-                @if($examCountdown)
+                <div class="smart-action__title">
+                    {{ session('error') ?? $smartAction['title'] }}
+                </div>
+                <div class="smart-action__desc">
+                    {{ session('error') ? $smartAction['desc'] : $smartAction['desc'] }}
+                </div>
+                @if(!session('error'))
+                    <span class="smart-action__btn">
+                        {{ $smartAction['btn'] }}
+                        <i class="bi bi-arrow-right"></i>
+                    </span>
+                @endif
+                @if($examCountdown && !session('error'))
                     <div class="smart-action__countdown">
                         {{ $examCountdown['daysLeft'] }} Tag{{ $examCountdown['daysLeft'] != 1 ? 'e' : '' }} bis zur Prüfung
                         &middot; Tagesziel {{ $examCountdown['dailyTarget'] }} Fragen
