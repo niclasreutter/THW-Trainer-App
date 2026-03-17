@@ -16,11 +16,17 @@ jobs:
           username: ${{ secrets.PROD_SSH_USER }}
           key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
           script: |
+            set -e
             cd /home/thw-trainer/htdocs/thw-trainer.de
+
             # 1. Wartungsmodus aktivieren
             php artisan down
-            
-            # 2. Code updaten
+
+            # 2. Lokale Änderungen verwerfen (npm run build erzeugt Diffs in public/build/)
+            git checkout -- .
+            git clean -fd public/build/assets/ temp/
+
+            # 3. Code updaten
             git pull origin main
             
             # 3. Composer Dependencies
