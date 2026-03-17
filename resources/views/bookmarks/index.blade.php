@@ -1,232 +1,216 @@
 @extends('layouts.app')
-@section('title', 'Gespeicherte Fragen - THW Trainer')
+@section('title', 'Lesezeichen - THW Trainer')
 
 @push('styles')
+<link rel="preconnect" href="https://fonts.bunny.net">
+<link href="https://fonts.bunny.net/css2?family=Barlow+Condensed:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-    .dashboard-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 2rem;
-    }
-
-    .dashboard-header {
-        margin-bottom: 2.5rem;
-        padding-top: 1rem;
-        max-width: 600px;
-    }
-
-    /* Bento Grid Layout */
-    .bento-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
-        gap: 1rem;
-        margin-bottom: 2rem;
-    }
-
-    .bento-wide {
-        grid-column: span 3;
-        padding: 1.5rem;
-    }
-
-    @media (max-width: 768px) {
-        .bento-grid {
-            grid-template-columns: 1fr;
-        }
-        .bento-wide {
-            grid-column: span 1;
-        }
-        .dashboard-container {
-            padding: 1rem;
-        }
-    }
-
-    /* Practice Card */
-    .practice-card-content {
+    /* ─── Section Group ──────────────────────────── */
+    .bm-section-header {
         display: flex;
-        flex-direction: column;
-        gap: 1rem;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+        padding-left: 0.25rem;
     }
 
-    .practice-card-title {
-        font-size: 1.5rem;
-        font-weight: 800;
+    .bm-section-num {
+        width: 1.5rem;
+        height: 1.5rem;
+        border-radius: 0.375rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.6875rem;
+        font-weight: 700;
+        flex-shrink: 0;
+        font-family: 'IBM Plex Mono', monospace;
+        background: rgba(0,85,204,0.12);
+        color: #5b9aff;
+    }
+
+    html.light-mode .bm-section-num {
+        background: rgba(0,51,127,0.08);
+        color: #00337F;
+    }
+
+    .bm-section-name {
+        font-size: 0.75rem;
+        font-weight: 600;
         color: var(--text-primary);
-        margin-bottom: 0.25rem;
     }
 
-    .practice-card-description {
-        font-size: 0.95rem;
-        color: var(--text-secondary);
-        line-height: 1.6;
+    .bm-section-count {
+        font-size: 0.625rem;
+        color: var(--text-muted);
+        font-family: 'IBM Plex Mono', monospace;
+        margin-left: auto;
     }
 
-    /* Questions List */
-    .questions-section {
-        margin-top: 2rem;
-    }
-
-    .questions-grid {
+    /* ─── Question Item ──────────────────────────── */
+    .bm-question {
         display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-    }
-
-    .question-card {
-        display: flex;
-        justify-content: space-between;
         align-items: flex-start;
-        gap: 1rem;
-        padding: 1.25rem;
-        transition: all 0.2s ease;
+        gap: 0.75rem;
+        padding: 0.75rem 0.875rem;
+        text-decoration: none;
+        transition: background 150ms ease;
+        border-radius: 0.375rem;
     }
 
-    .question-card:hover {
-        transform: translateY(-2px);
+    .bm-question:hover {
+        background: rgba(255,255,255,0.03);
     }
 
-    .question-info {
+    html.light-mode .bm-question:hover {
+        background: rgba(0,0,0,0.03);
+    }
+
+    .bm-question + .bm-question {
+        border-top: 1px solid rgba(255,255,255,0.04);
+    }
+
+    html.light-mode .bm-question + .bm-question {
+        border-top-color: rgba(0,0,0,0.06);
+    }
+
+    .bm-question__body {
         flex: 1;
         min-width: 0;
     }
 
-    .question-section {
-        font-size: 0.7rem;
-        font-weight: 700;
-        color: var(--gold-start);
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        margin-bottom: 0.5rem;
-    }
-
-    .question-text {
-        font-size: 0.9rem;
-        color: var(--text-primary);
+    .bm-question__text {
+        font-size: 0.8125rem;
         font-weight: 500;
-        margin-bottom: 0.5rem;
+        color: var(--text-primary);
         line-height: 1.5;
+        margin-bottom: 0.25rem;
     }
 
-    .question-answer {
-        font-size: 0.8rem;
-        color: var(--text-secondary);
-    }
-
-    .question-answer-label {
+    .bm-question__answer {
+        font-size: 0.6875rem;
         color: var(--text-muted);
+        line-height: 1.4;
+    }
+
+    .bm-question__answer strong {
+        color: var(--text-secondary);
         font-weight: 600;
     }
 
-    .question-actions {
+    /* ─── Remove Button ──────────────────────────── */
+    .bm-remove {
         flex-shrink: 0;
-    }
-
-    .remove-button {
+        width: 2rem;
+        height: 2rem;
+        border-radius: 0.375rem;
+        background: rgba(239, 68, 68, 0.08);
+        border: 1px solid rgba(239, 68, 68, 0.15);
+        color: #ef4444;
+        cursor: pointer;
         display: flex;
         align-items: center;
         justify-content: center;
-        width: 36px;
-        height: 36px;
-        background: rgba(239, 68, 68, 0.1);
-        border: 1px solid rgba(239, 68, 68, 0.2);
-        border-radius: 0.5rem;
-        color: #ef4444;
-        cursor: pointer;
-        transition: all 0.2s ease;
+        transition: all 150ms ease;
         padding: 0;
     }
 
-    .remove-button:hover {
-        background: rgba(239, 68, 68, 0.2);
-        border-color: rgba(239, 68, 68, 0.4);
-        transform: scale(1.05);
+    .bm-remove:hover {
+        background: rgba(239, 68, 68, 0.15);
+        border-color: rgba(239, 68, 68, 0.3);
     }
 
-    .remove-button svg {
-        width: 18px;
-        height: 18px;
+    .bm-remove svg {
+        width: 14px;
+        height: 14px;
     }
 
-    /* Empty State */
-    .empty-state {
+    /* ─── Empty State ────────────────────────────── */
+    .bm-empty {
         text-align: center;
         padding: 3rem 1.5rem;
     }
 
-    .empty-state-icon {
-        font-size: 3rem;
-        color: var(--text-muted);
-        margin-bottom: 1rem;
-        opacity: 0.5;
-    }
-
-    .empty-state-title {
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: var(--text-primary);
-        margin-bottom: 0.5rem;
-    }
-
-    .empty-state-desc {
-        font-size: 0.9rem;
-        color: var(--text-secondary);
-        margin-bottom: 1.5rem;
-        line-height: 1.6;
-    }
-
-    /* Section Header */
-    .section-header {
+    .bm-empty__icon {
+        width: 3rem;
+        height: 3rem;
+        margin: 0 auto 1rem;
+        border-radius: 0.75rem;
+        background: rgba(0,85,204,0.08);
         display: flex;
         align-items: center;
-        gap: 1rem;
-        margin-bottom: 1rem;
-        padding-left: 1rem;
-        border-left: 3px solid var(--gold-start);
+        justify-content: center;
+        color: #5b9aff;
+        font-size: 1.25rem;
     }
 
-    .section-title {
-        font-size: 1.1rem;
+    html.light-mode .bm-empty__icon {
+        background: rgba(0,51,127,0.06);
+        color: #00337F;
+    }
+
+    .bm-empty__title {
+        font-size: 1rem;
         font-weight: 700;
         color: var(--text-primary);
-        letter-spacing: -0.02em;
+        margin-bottom: 0.35rem;
     }
 
-    /* Navigation */
-    .nav-footer {
-        display: flex;
-        justify-content: center;
-        margin-top: 2rem;
+    .bm-empty__desc {
+        font-size: 0.8125rem;
+        color: var(--text-muted);
+        margin-bottom: 1.25rem;
+        line-height: 1.5;
     }
 
-    @media (max-width: 640px) {
-        .question-card {
-            flex-direction: column;
-        }
-        .question-actions {
-            width: 100%;
-        }
-        .remove-button {
-            width: 100%;
-        }
+    /* ─── Stagger Animation ──────────────────────── */
+    @keyframes dash-rise {
+        from { opacity: 0; transform: translateY(10px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .dash-container > .space-y-4 > * {
+        animation: dash-rise 0.45s cubic-bezier(0.22,1,0.36,1) both;
+    }
+
+    .dash-container > .space-y-4 > *:nth-child(1) { animation-delay: 0.03s; }
+    .dash-container > .space-y-4 > *:nth-child(2) { animation-delay: 0.07s; }
+    .dash-container > .space-y-4 > *:nth-child(3) { animation-delay: 0.11s; }
+    .dash-container > .space-y-4 > *:nth-child(4) { animation-delay: 0.15s; }
+    .dash-container > .space-y-4 > *:nth-child(5) { animation-delay: 0.19s; }
+    .dash-container > .space-y-4 > *:nth-child(6) { animation-delay: 0.23s; }
+    .dash-container > .space-y-4 > *:nth-child(7) { animation-delay: 0.27s; }
+    .dash-container > .space-y-4 > *:nth-child(8) { animation-delay: 0.31s; }
+    .dash-container > .space-y-4 > *:nth-child(9) { animation-delay: 0.35s; }
+    .dash-container > .space-y-4 > *:nth-child(10) { animation-delay: 0.39s; }
+    .dash-container > .space-y-4 > *:nth-child(11) { animation-delay: 0.43s; }
+    .dash-container > .space-y-4 > *:nth-child(12) { animation-delay: 0.47s; }
+    .dash-container > .space-y-4 > *:nth-child(13) { animation-delay: 0.51s; }
+
+    @media (prefers-reduced-motion: reduce) {
+        .dash-container > .space-y-4 > * { animation: none; }
     }
 </style>
 @endpush
 
 @section('content')
-<div class="dashboard-container">
-    <!-- Header -->
-    <header class="dashboard-header">
-        <h1 class="page-title">Gespeicherte <span>Fragen</span></h1>
-        <p class="page-subtitle">Deine Favoriten zum gezielten Wiederholen</p>
-    </header>
+<div class="dash-container">
 
-    <!-- Alerts -->
+    {{-- ── Header ── --}}
+    <div class="mb-6">
+        <p style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);font-weight:600;margin-bottom:0.25rem;">Sammlung</p>
+        <h1 style="font-size:1.5rem;font-weight:800;line-height:1.2;font-family:'Barlow Condensed',sans-serif;background:linear-gradient(135deg,#fbbf24,#f59e0b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Lesezeichen</h1>
+        <p class="text-sm" style="color: var(--text-muted);">Deine Favoriten zum gezielten Wiederholen</p>
+    </div>
+
+    {{-- ── Alerts ── --}}
     @if(session('success'))
     <div class="alert-compact glass-success" style="margin-bottom: 1rem;">
         <i class="bi bi-check-circle alert-compact-icon"></i>
         <div class="alert-compact-content">
             <div class="alert-compact-title">{{ session('success') }}</div>
         </div>
-        <button class="text-dark-secondary hover:text-dark-primary" onclick="this.parentElement.remove()" style="background: none; border: none; cursor: pointer; font-size: 1.25rem;">&times;</button>
+        <button style="background:none;border:none;cursor:pointer;font-size:1.25rem;color:var(--text-secondary);" onclick="this.parentElement.remove()">&times;</button>
     </div>
     @endif
 
@@ -236,102 +220,94 @@
         <div class="alert-compact-content">
             <div class="alert-compact-title">{{ session('error') }}</div>
         </div>
-        <button class="text-dark-secondary hover:text-dark-primary" onclick="this.parentElement.remove()" style="background: none; border: none; cursor: pointer; font-size: 1.25rem;">&times;</button>
+        <button style="background:none;border:none;cursor:pointer;font-size:1.25rem;color:var(--text-secondary);" onclick="this.parentElement.remove()">&times;</button>
     </div>
     @endif
 
     @if($questions->count() > 0)
-        <!-- Stats Row -->
-        <div class="stats-row">
-            <div class="stat-pill">
-                <span class="stat-pill-icon text-gold"><i class="bi bi-bookmark-fill"></i></span>
-                <div>
-                    <div class="stat-pill-value">{{ $questions->count() }}</div>
-                    <div class="stat-pill-label">Gespeichert</div>
-                </div>
+        {{-- ── Stat Pills ── --}}
+        <div class="flex gap-3 mb-6" style="flex-wrap: wrap;">
+            <div class="gami-pill">
+                <div class="gami-pill__value gami-pill__value--gold">{{ $questions->count() }}</div>
+                <div class="gami-pill__label">Gespeichert</div>
+            </div>
+            <div class="gami-pill">
+                <div class="gami-pill__value gami-pill__value--blue">{{ $grouped->count() }}</div>
+                <div class="gami-pill__label">Abschnitte</div>
             </div>
         </div>
 
-        <!-- Practice Card -->
-        <div class="bento-grid">
-            <a href="{{ route('bookmarks.practice') }}" class="glass-gold bento-wide hover-lift" style="text-decoration: none;">
-                <div class="practice-card-content">
-                    <div>
-                        <span class="badge-gold" style="margin-bottom: 0.75rem; display: inline-block;">Übungsmodus</span>
-                        <h2 class="practice-card-title">Alle gespeicherten Fragen üben</h2>
-                        <p class="practice-card-description">
-                            Starte eine Übungssession mit allen {{ $questions->count() }} gespeicherten Fragen.
-                        </p>
-                    </div>
-                    <span class="btn-primary" style="align-self: flex-start;">
-                        Jetzt üben
-                    </span>
-                </div>
+        <div class="space-y-4">
+
+            {{-- ── Smart Action Card: Alle üben ── --}}
+            <a href="{{ route('bookmarks.practice') }}" class="smart-action" style="display:block;text-decoration:none;background:linear-gradient(135deg, #92600a, #b47a0d);">
+                <div class="smart-action__label">Übungsmodus</div>
+                <div class="smart-action__title">Alle {{ $questions->count() }} Lesezeichen üben</div>
+                <div class="smart-action__desc">Starte eine gezielte Wiederholungs-Session mit deinen gespeicherten Fragen</div>
+                <span class="smart-action__btn" style="background:linear-gradient(135deg, #fbbf24, #d97706);">
+                    Jetzt üben
+                    <i class="bi bi-arrow-right"></i>
+                </span>
             </a>
-        </div>
 
-        <!-- Questions List -->
-        <div class="questions-section">
-            <div class="section-header">
-                <h2 class="section-title">Deine Lesezeichen</h2>
-            </div>
+            {{-- ── Grouped Questions by Lernabschnitt ── --}}
+            @foreach($grouped as $section => $sectionQuestions)
+            <div class="glass p-4" style="border-radius:0.75rem;">
+                <div class="bm-section-header">
+                    @php
+                        $sectionNum = preg_match('/^(\d+)/', $section, $m) ? $m[1] : '?';
+                    @endphp
+                    <div class="bm-section-num">{{ $sectionNum }}</div>
+                    <div class="bm-section-name">{{ $section }}</div>
+                    <div class="bm-section-count">{{ $sectionQuestions->count() }}</div>
+                </div>
 
-            <div class="questions-grid">
-                @foreach($questions as $question)
-                    <div class="glass question-card">
-                        <div class="question-info">
-                            <div class="question-section">
-                                {{ $question->lernabschnitt }}
-                            </div>
-                            <div class="question-text">
-                                {{ Str::limit($question->frage, 200) }}
-                            </div>
-                            <div class="question-answer">
-                                <span class="question-answer-label">Antwort ({{ $question->loesung }}):</span>
-                                @if($question->loesung === 'A')
-                                    {{ $question->antwort_a }}
-                                @elseif($question->loesung === 'B')
-                                    {{ $question->antwort_b }}
-                                @else
-                                    {{ $question->antwort_c }}
-                                @endif
-                            </div>
-                        </div>
-
-                        <div class="question-actions">
-                            <form action="{{ route('bookmarks.toggle') }}" method="POST">
-                                @csrf
-                                <input type="hidden" name="question_id" value="{{ $question->id }}">
-                                <button type="submit" class="remove-button" title="Aus Lesezeichen entfernen">
-                                    <svg fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                    </svg>
-                                </button>
-                            </form>
+                @foreach($sectionQuestions as $question)
+                <div class="bm-question">
+                    <div class="bm-question__body">
+                        <div class="bm-question__text">{{ Str::limit($question->frage, 180) }}</div>
+                        <div class="bm-question__answer">
+                            <strong>{{ $question->loesung }}:</strong>
+                            @if($question->loesung === 'A')
+                                {{ $question->antwort_a }}
+                            @elseif($question->loesung === 'B')
+                                {{ $question->antwort_b }}
+                            @else
+                                {{ $question->antwort_c }}
+                            @endif
                         </div>
                     </div>
+                    <form action="{{ route('bookmarks.toggle') }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="question_id" value="{{ $question->id }}">
+                        <button type="submit" class="bm-remove" title="Entfernen">
+                            <svg fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                            </svg>
+                        </button>
+                    </form>
+                </div>
                 @endforeach
             </div>
+            @endforeach
+
         </div>
     @else
-        <!-- Empty State -->
-        <div class="glass-slash empty-state">
-            <div class="empty-state-icon"><i class="bi bi-bookmark"></i></div>
-            <h2 class="empty-state-title">Noch keine Fragen gespeichert</h2>
-            <p class="empty-state-desc">
-                Du kannst Fragen während des Übens speichern, um sie später gezielt nochmal zu üben.
+        {{-- ── Empty State ── --}}
+        <div class="glass p-4 bm-empty" style="border-radius:0.75rem;">
+            <div class="bm-empty__icon">
+                <i class="bi bi-bookmark"></i>
+            </div>
+            <h2 class="bm-empty__title">Noch keine Lesezeichen</h2>
+            <p class="bm-empty__desc">
+                Speichere Fragen während des Übens, um sie<br>später gezielt zu wiederholen.
             </p>
-            <a href="{{ route('practice.menu') }}" class="btn-primary">
+            <a href="{{ route('practice.menu') }}" class="smart-action__btn" style="display:inline-flex;text-decoration:none;background:linear-gradient(135deg, #0055cc, #5b9aff);padding:0.5rem 1rem;border-radius:0.5rem;">
                 Zum Übungsmenü
+                <i class="bi bi-arrow-right"></i>
             </a>
         </div>
     @endif
 
-    <!-- Navigation -->
-    <div class="nav-footer">
-        <a href="{{ route('dashboard') }}" class="btn-ghost">
-            <i class="bi bi-arrow-left"></i> Zurück zum Dashboard
-        </a>
-    </div>
 </div>
 @endsection
