@@ -117,10 +117,12 @@ class PracticeSessionService
 
 **Session-Handling:** Der Service nutzt durchgehend persistente Session-Keys (nicht `flash()`). Keys werden nach Verarbeitung explizit via `session()->forget()` entfernt. Dies entspricht dem Verhalten des bestehenden `PracticeController`.
 
-**Session-Keys** werden kontextspezifisch generiert:
-- Global: `practice_ids`, `practice_mode`, etc. (bestehende Keys beibehalten)
-- Lehrgang: `practice_lehrgang_{id}_ids`, `practice_lehrgang_{id}_mode`, etc.
-- Lernpool: `practice_lernpool_{id}_ids`, `practice_lernpool_{id}_mode`, etc.
+**Session-Keys** werden kontextspezifisch generiert (inkl. `answer_result`):
+- Global: `practice_ids`, `practice_mode`, `practice_answer_result`, etc. (bestehende Keys beibehalten)
+- Lehrgang: `practice_lehrgang_{id}_ids`, `practice_lehrgang_{id}_mode`, `practice_lehrgang_{id}_answer_result`, etc.
+- Lernpool: `practice_lernpool_{id}_ids`, `practice_lernpool_{id}_mode`, `practice_lernpool_{id}_answer_result`, etc.
+
+Damit keine Session-Daten zwischen gleichzeitigen Kontexten (z.B. zwei Tabs) kollidieren.
 
 **Answer-Shuffling:** Bleibt in der View/Alpine.js-Schicht. Die View erzeugt `answer_mapping`, der Controller mappt die Position zurück auf Buchstaben und übergibt `['A', 'B']` an den Service.
 
@@ -153,16 +155,26 @@ interface ProgressResolverInterface
 {
     public function getProgress(int $userId, int $questionId): ?object;
     public function updateProgress(int $userId, int $questionId, bool $correct): void;
+    public function isMastered(int $userId, int $questionId): bool;
     public function getQuestionById(int $id): object;
     public function getQuestionsByIds(array $ids): Collection;
     public function createStatistic(int $userId, int $questionId, bool $correct): void;
 }
 ```
 
+**`isMastered()`** abstrahiert die unterschiedlichen Mastery-Checks:
+- `GlobalProgressResolver`: `$progress->isMastered()` (Methode auf Model)
+- `LehrgangProgressResolver`: `$progress->solved === true`
+- `LernpoolProgressResolver`: `$progress->solved === true`
+
 Drei Implementierungen:
 - `GlobalProgressResolver` — nutzt `UserQuestionProgress` + `Question` + `QuestionStatistic`
 - `LehrgangProgressResolver` — nutzt `UserLehrgangProgress` + `LehrgangQuestion` + `LehrgangQuestionStatistic`
 - `LernpoolProgressResolver` — nutzt `OrtsverbandLernpoolProgress` + `OrtsverbandLernpoolQuestion` + `OrtsverbandLernpoolQuestionStatistic`
+
+**Implementierungs-Gotchas:**
+- FK-Spaltenname unterschiedlich: `UserLehrgangProgress` nutzt `lehrgang_question_id`, `OrtsverbandLernpoolProgress` nutzt `question_id` — jeder Resolver kapselt seinen FK intern
+- `OrtsverbandLernpoolProgress` hat Extra-Spalten (`total_attempts`, `correct_attempts`) die in `updateProgress()` des `LernpoolProgressResolver` mitgepflegt werden müssen
 
 ### Controller-Änderungen
 
@@ -172,7 +184,8 @@ Drei Implementierungen:
 - `show()` ruft `getCurrentQuestion()` auf, ergänzt global-only Extras (`difficultyInfo`, `isSpacedRepetition`, `bookmarked`) und gibt `view('practice', $data)` zurück
 - `submit()` mappt Antwort, ruft `submitAnswer()` auf, ruft zusätzlich `LernsessionService::recordAnswer()` auf (global-only)
 - `reportIssue()` bleibt unverändert im Controller
-- Globale Modi (`bookmarked`, `failed`, `search`, `spaced_repetition`) bleiben global-only, fließen aber durch denselben Service
+- Globale Modi (`bookmarked`, `failed`, `search`, `spaced_repetition`) bleiben global-only, fließen aber durch denselben Service. Bestehende globale Routes bleiben unverändert.
+- Skip-Feature (`practice_skipped`) bleibt global-only — der Service hat keine `skip()`-Methode, `PracticeController` verwaltet Skips weiterhin selbst
 
 **LehrgangController**:
 - Bestehende `practice()` und `submitAnswer()` werden refactored
@@ -187,6 +200,8 @@ Drei Implementierungen:
 - Bestehende `show()` und `answer()` werden refactored
 - Neue Methoden: `unsolved()`, `section()`
 - Alle nutzen `PracticeSessionService` mit `LernpoolProgressResolver`
+- `issueUrl` = `null` (Lernpools haben kein Issue-Reporting)
+- **Session-Ende:** Session endet wenn alle Fragen in der Queue beantwortet/gemeistert sind (wie Lehrgang). Aktuell loopt der Lernpool endlos — mit der Unified View bekommt er ein definiertes Session-Ende + Summary.
 - Return: `view('practice', $data)` — gleiche View
 
 ### Neue Routes
