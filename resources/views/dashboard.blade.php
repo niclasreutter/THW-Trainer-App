@@ -735,8 +735,8 @@
                             @php
                                 $lgTotal = $lehrgang->questions()->count();
                                 $lgSolved = $lgTotal > 0
-                                    ? \App\Models\UserQuestionProgress::where('user_id', $user->id)
-                                        ->whereIn('question_id', $lehrgang->questions()->pluck('question_id'))
+                                    ? \App\Models\UserLehrgangProgress::where('user_id', $user->id)
+                                        ->whereIn('lehrgang_question_id', $lehrgang->questions()->pluck('id'))
                                         ->where('consecutive_correct', '>=', 3)->count()
                                     : 0;
                                 $lgPct = $lgTotal > 0 ? round(($lgSolved / $lgTotal) * 100) : 0;
