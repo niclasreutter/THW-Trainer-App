@@ -500,7 +500,7 @@
             $rest = $leaderboard->slice(3);
 
             // Helper: get avatar frame inline styles
-            function getAvatarFrameStyle($user) {
+            $getAvatarFrameStyle = function($user) {
                 $hasFrame = $user->profile_frame_until && \Carbon\Carbon::parse($user->profile_frame_until)->isFuture();
                 if (!$hasFrame) return 'border:2px solid rgba(255,255,255,0.1);';
                 $type = $user->profile_frame_type ?? 'gold';
@@ -508,10 +508,10 @@
                     return 'border:2px solid rgba(147,197,253,0.7);box-shadow:0 0 10px rgba(147,197,253,0.35),0 0 20px rgba(167,139,250,0.2);';
                 }
                 return 'border:2px solid rgba(251,191,36,0.6);box-shadow:0 0 8px rgba(251,191,36,0.25);';
-            }
+            };
 
             // Helper: get name CSS classes
-            function getNameClasses($user) {
+            $getNameClasses = function($user) {
                 $classes = '';
                 $hasGlow = $user->glowing_name_until && \Carbon\Carbon::parse($user->glowing_name_until)->isFuture();
                 $hasRankColor = $user->rank_color_until && \Carbon\Carbon::parse($user->rank_color_until)->isFuture() && $user->rank_color;
@@ -522,12 +522,12 @@
                     $classes .= ' rank-color-' . $user->rank_color;
                 }
                 return $classes;
-            }
+            };
 
             // Helper: has active title
-            function hasActiveTitle($user) {
+            $hasActiveTitle = function($user) {
                 return $user->active_title_until && \Carbon\Carbon::parse($user->active_title_until)->isFuture() && $user->active_title;
-            }
+            };
         @endphp
 
         <div class="lb-podium">
@@ -550,11 +550,11 @@
                         @if(isset($top3[$pi]))
                             @php $user = $top3[$pi]; @endphp
                             <div class="lb-podium__avatar-wrap">
-                                <img src="{{ $user->avatar_url }}" class="lb-podium__avatar" style="width:{{ $podiumSizes[$pi] }}px;height:{{ $podiumSizes[$pi] }}px;{{ getAvatarFrameStyle($user) }}" alt="" />
+                                <img src="{{ $user->avatar_url }}" class="lb-podium__avatar" style="width:{{ $podiumSizes[$pi] }}px;height:{{ $podiumSizes[$pi] }}px;{{ $getAvatarFrameStyle($user) }}" alt="" />
                                 <div class="lb-podium__badge" style="width:{{ $badgeSizes[$pi] }}px;height:{{ $badgeSizes[$pi] }}px;font-size:{{ $badgeFontSizes[$pi] }};background:{{ $badgeColors[$pi] }};{{ $pi === 0 ? 'box-shadow:0 0 8px rgba(251,191,36,0.3);color:#1a1a2e;' : '' }}">{{ $pi + 1 }}</div>
                             </div>
-                            <div class="lb-podium__name{{ getNameClasses($user) }}" style="font-size:{{ $nameFirst[$pi] }};">{{ $user->name }}</div>
-                            @if(hasActiveTitle($user))
+                            <div class="lb-podium__name{{ $getNameClasses($user) }}" style="font-size:{{ $nameFirst[$pi] }};">{{ $user->name }}</div>
+                            @if($hasActiveTitle($user))
                                 <div class="lb-podium__title">{{ $user->active_title }}</div>
                             @endif
                             <div class="lb-podium__points" style="color:{{ $pointColors[$pi] }};">{{ number_format($tab === 'liga' ? $user->weekly_points : ($user->total_points_earned ?? $user->points)) }}</div>
@@ -608,8 +608,8 @@
 
                     <div class="{{ $rowClass }}">
                         <span class="lb-row__rank">{{ $rank }}</span>
-                        <img src="{{ $user->avatar_url }}" class="lb-row__avatar" style="{{ getAvatarFrameStyle($user) }}" alt="" />
-                        <span class="lb-row__name{{ getNameClasses($user) }}">{{ $isCurrentUser ? 'Du' : $user->name }}</span>
+                        <img src="{{ $user->avatar_url }}" class="lb-row__avatar" style="{{ $getAvatarFrameStyle($user) }}" alt="" />
+                        <span class="lb-row__name{{ $getNameClasses($user) }}">{{ $isCurrentUser ? 'Du' : $user->name }}</span>
                         <span class="lb-row__points">{{ number_format($tab === 'liga' ? $user->weekly_points : ($user->total_points_earned ?? $user->points)) }}</span>
                     </div>
                 @endforeach
