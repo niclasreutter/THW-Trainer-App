@@ -61,21 +61,6 @@
     /* ─── Header ────────────────────────────────────── */
     .dash-header {
         margin-bottom: 1.25rem;
-        display: flex;
-        align-items: flex-start;
-        gap: 1rem;
-    }
-
-    .dash-header-text { flex: 1; min-width: 0; }
-
-    .dash-avatar {
-        width: 56px;
-        height: 56px;
-        border-radius: 50%;
-        flex-shrink: 0;
-        background: var(--glass-bg);
-        border: 2px solid rgba(251,191,36,0.3);
-        box-shadow: 0 0 20px rgba(251,191,36,0.08);
     }
 
     .dash-greeting {
@@ -525,24 +510,21 @@
 
     {{-- ── Header ──────────────────────────────────────── --}}
     <div class="dash-header">
-        <div class="dash-header-text">
-            <div class="dash-greeting">{{ $greeting }}</div>
-            <div style="display:flex;align-items:center;gap:0.5rem;">
-                <div class="dash-username">{{ $user->name }}</div>
-                <span class="league-badge" style="--league-color:{{ $leagueInfo['color'] }};">
-                    <i class="{{ $leagueInfo['icon'] }}" style="font-size:0.55rem;"></i>
-                    {{ $leagueInfo['name'] }}
-                </span>
-            </div>
-            <div class="dash-level-line">Level {{ $user->level ?? 1 }} &middot; {{ number_format($user->points ?? 0) }} Punkte</div>
-            @if($nextLevelPoints > 0)
-            <div class="xp-bar">
-                <div class="xp-bar__fill" style="width:{{ $levelProgress }}%;"></div>
-            </div>
-            <div class="xp-bar__hint">noch {{ number_format($nextLevelPoints) }} XP bis Level {{ ($user->level ?? 1) + 1 }}</div>
-            @endif
+        <div class="dash-greeting">{{ $greeting }}</div>
+        <div style="display:flex;align-items:center;gap:0.5rem;">
+            <div class="dash-username">{{ $user->name }}</div>
+            <span class="league-badge" style="--league-color:{{ $leagueInfo['color'] }};">
+                <i class="{{ $leagueInfo['icon'] }}" style="font-size:0.55rem;"></i>
+                {{ $leagueInfo['name'] }}
+            </span>
         </div>
-        <img src="{{ $user->avatar_url }}" alt="Avatar" class="dash-avatar">
+        <div class="dash-level-line">Level {{ $user->level ?? 1 }} &middot; {{ number_format($user->points ?? 0) }} Punkte</div>
+        @if($nextLevelPoints > 0)
+        <div class="xp-bar">
+            <div class="xp-bar__fill" style="width:{{ $levelProgress }}%;"></div>
+        </div>
+        <div class="xp-bar__hint">noch {{ number_format($nextLevelPoints) }} XP bis Level {{ ($user->level ?? 1) + 1 }}</div>
+        @endif
     </div>
 
     {{-- ── Main grid (desktop: 2 cols) ───────────────── --}}
