@@ -102,9 +102,37 @@
 
     .lb-podium__row {
         display: flex;
-        align-items: center;
+        align-items: flex-end;
         justify-content: center;
         gap: 1.5rem;
+    }
+
+    .lb-podium__step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .lb-podium__step--1 .lb-podium__pedestal { height: 64px; }
+    .lb-podium__step--2 .lb-podium__pedestal { height: 40px; }
+    .lb-podium__step--3 .lb-podium__pedestal { height: 20px; }
+
+    .lb-podium__pedestal {
+        width: 100%;
+        border-radius: 0.5rem 0.5rem 0 0;
+        margin-top: 0.5rem;
+    }
+
+    .lb-podium__step--1 .lb-podium__pedestal {
+        background: linear-gradient(180deg, rgba(251, 191, 36, 0.2), rgba(251, 191, 36, 0.05));
+    }
+
+    .lb-podium__step--2 .lb-podium__pedestal {
+        background: linear-gradient(180deg, rgba(148, 163, 184, 0.15), rgba(148, 163, 184, 0.03));
+    }
+
+    .lb-podium__step--3 .lb-podium__pedestal {
+        background: linear-gradient(180deg, rgba(180, 83, 9, 0.15), rgba(180, 83, 9, 0.03));
     }
 
     .lb-podium__user {
@@ -532,34 +560,39 @@
             <p class="lb-podium__label">Top 3</p>
             <div class="lb-podium__row">
                 @php
-                    // Order: 2nd, 1st, 3rd
+                    // Render order: 2nd, 1st, 3rd (visual left-center-right)
                     $podiumOrder = [1, 0, 2];
-                    $podiumSizes = [44, 58, 44];
-                    $badgeSizes = [16, 18, 16];
-                    $badgeFontSizes = ['0.5rem', '0.5625rem', '0.5rem'];
-                    $badgeColors = ['#94a3b8', 'linear-gradient(135deg,#fbbf24,#f59e0b)', '#b45309'];
-                    $nameFirst = ['0.6875rem', '0.75rem', '0.6875rem'];
-                    $pointColors = ['#94a3b8', '#f59e0b', '#b45309'];
+                    // Arrays indexed by RANK: 0=1st, 1=2nd, 2=3rd
+                    $podiumSizes = [64, 50, 50];
+                    $badgeSizes = [20, 18, 18];
+                    $badgeFontSizes = ['0.625rem', '0.5rem', '0.5rem'];
+                    $badgeColors = ['linear-gradient(135deg,#fbbf24,#f59e0b)', '#94a3b8', '#b45309'];
+                    $badgeFontColors = ['#1a1a2e', '#fff', '#fff'];
+                    $badgeShadows = ['box-shadow:0 0 8px rgba(251,191,36,0.3);', '', ''];
+                    $nameSizes = ['0.8125rem', '0.75rem', '0.75rem'];
+                    $pointColors = ['#f59e0b', '#94a3b8', '#b45309'];
                 @endphp
 
                 @foreach($podiumOrder as $pi)
-                    <div class="lb-podium__user">
-                        @if(isset($top3[$pi]))
-                            @php $user = $top3[$pi]; @endphp
-                            <div class="lb-podium__avatar-wrap">
-                                <img src="{{ $user->avatar_url }}" class="lb-podium__avatar" style="width:{{ $podiumSizes[$pi] }}px;height:{{ $podiumSizes[$pi] }}px;{{ $getAvatarFrameStyle($user) }}" alt="" />
-                                <div class="lb-podium__badge" style="width:{{ $badgeSizes[$pi] }}px;height:{{ $badgeSizes[$pi] }}px;font-size:{{ $badgeFontSizes[$pi] }};background:{{ $badgeColors[$pi] }};{{ $pi === 0 ? 'box-shadow:0 0 8px rgba(251,191,36,0.3);color:#1a1a2e;' : '' }}">{{ $pi + 1 }}</div>
-                            </div>
-                            <div class="lb-podium__name{{ $getNameClasses($user) }}" style="font-size:{{ $nameFirst[$pi] }};">{{ $user->name }}</div>
-                            @if($hasActiveTitle($user))
-                                <div class="lb-podium__title">{{ $user->active_title }}</div>
+                    <div class="lb-podium__step lb-podium__step--{{ $pi + 1 }}">
+                        <div class="lb-podium__user">
+                            @if(isset($top3[$pi]))
+                                @php $user = $top3[$pi]; @endphp
+                                <div class="lb-podium__avatar-wrap">
+                                    <img src="{{ $user->avatar_url }}" class="lb-podium__avatar" style="width:{{ $podiumSizes[$pi] }}px;height:{{ $podiumSizes[$pi] }}px;{{ $getAvatarFrameStyle($user) }}" alt="" />
+                                    <div class="lb-podium__badge" style="width:{{ $badgeSizes[$pi] }}px;height:{{ $badgeSizes[$pi] }}px;font-size:{{ $badgeFontSizes[$pi] }};background:{{ $badgeColors[$pi] }};color:{{ $badgeFontColors[$pi] }};{{ $badgeShadows[$pi] }}">{{ $pi + 1 }}</div>
+                                </div>
+                                <div class="lb-podium__name{{ $getNameClasses($user) }}" style="font-size:{{ $nameSizes[$pi] }};">{{ $user->name }}</div>
+                                @if($hasActiveTitle($user))
+                                    <div class="lb-podium__title">{{ $user->active_title }}</div>
+                                @endif
+                                <div class="lb-podium__points" style="color:{{ $pointColors[$pi] }};">{{ number_format($tab === 'liga' ? $user->weekly_points : ($user->total_points_earned ?? $user->points)) }}</div>
+                            @else
+                                <div class="lb-podium__placeholder" style="width:{{ $podiumSizes[$pi] }}px;height:{{ $podiumSizes[$pi] }}px;font-size:0.75rem;">?</div>
+                                <div class="lb-podium__name" style="font-size:{{ $nameSizes[$pi] }};color:var(--text-muted);">–</div>
                             @endif
-                            <div class="lb-podium__points" style="color:{{ $pointColors[$pi] }};">{{ number_format($tab === 'liga' ? $user->weekly_points : ($user->total_points_earned ?? $user->points)) }}</div>
-                        @else
-                            {{-- Placeholder for missing user --}}
-                            <div class="lb-podium__placeholder" style="width:{{ $podiumSizes[$pi] }}px;height:{{ $podiumSizes[$pi] }}px;font-size:0.75rem;">?</div>
-                            <div class="lb-podium__name" style="font-size:{{ $nameFirst[$pi] }};color:var(--text-muted);">–</div>
-                        @endif
+                        </div>
+                        <div class="lb-podium__pedestal"></div>
                     </div>
                 @endforeach
             </div>
