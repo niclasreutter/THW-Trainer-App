@@ -326,7 +326,7 @@
 
             {{-- ── Smart-Action Card ── --}}
             @if(!empty($weakSections))
-            <a href="{{ route('practice.section', $weakSections[0]) }}" class="smart-action">
+            <a href="{{ route('practice.section', $weakSections[0]) }}" class="smart-action" style="display:block;text-decoration:none;">
                 <div class="smart-action__label">Empfehlung</div>
                 <div class="smart-action__title">Lernabschnitt {{ $weakSections[0] }} wiederholen</div>
                 <div class="smart-action__desc">Dein schwächster Bereich — mit gezieltem Üben schnell verbessern</div>
