@@ -406,11 +406,6 @@
                     </div>
                 </header>
 
-                @unless(app()->environment('production'))
-                <div style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #92400e; text-align: center; padding: 0.75rem 1rem; font-size: 0.95rem; font-weight: 700; letter-spacing: 0.5px; border-radius: 0.5rem; margin: 0 1rem 0 1rem;">
-                    Testumgebung ({{ app()->environment() }}) – Dies ist nicht die produktive Version von THW-Trainer!
-                </div>
-                @endunless
 
                 <!-- Page Content -->
                 <main class="flex-1 px-4 lg:px-8 py-6 lg:py-8 @auth pb-28 lg:pb-8 @endauth" id="main-content" style="min-width:0;overflow-x:hidden;">
