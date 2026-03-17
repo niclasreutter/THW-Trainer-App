@@ -199,7 +199,7 @@
     {{-- ── Header ── --}}
     <div class="mb-6">
         <p style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);font-weight:600;margin-bottom:0.25rem;">Sammlung</p>
-        <h1 style="font-size:1.5rem;font-weight:800;line-height:1.2;font-family:'Barlow Condensed',sans-serif;background:linear-gradient(135deg,#fbbf24,#f59e0b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Lesezeichen</h1>
+        <h1 style="font-size:1.5rem;font-weight:800;line-height:1.2;font-family:'Barlow Condensed',sans-serif;background:linear-gradient(135deg,#5b9aff,#0055cc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Lesezeichen</h1>
         <p class="text-sm" style="color: var(--text-muted);">Deine Favoriten zum gezielten Wiederholen</p>
     </div>
 
@@ -240,11 +240,11 @@
         <div class="space-y-4">
 
             {{-- ── Smart Action Card: Alle üben ── --}}
-            <a href="{{ route('bookmarks.practice') }}" class="smart-action" style="display:block;text-decoration:none;background:linear-gradient(135deg, #92600a, #b47a0d);">
+            <a href="{{ route('bookmarks.practice') }}" class="smart-action" style="display:block;text-decoration:none;">
                 <div class="smart-action__label">Übungsmodus</div>
                 <div class="smart-action__title">Alle {{ $questions->count() }} Lesezeichen üben</div>
                 <div class="smart-action__desc">Starte eine gezielte Wiederholungs-Session mit deinen gespeicherten Fragen</div>
-                <span class="smart-action__btn" style="background:linear-gradient(135deg, #fbbf24, #d97706);">
+                <span class="smart-action__btn">
                     Jetzt üben
                     <i class="bi bi-arrow-right"></i>
                 </span>
