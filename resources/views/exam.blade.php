@@ -392,6 +392,26 @@ html.light-mode .exam-question-text {
     color: #333;
 }
 
+@media (max-width: 640px) {
+    .exam-question-card {
+        border-radius: 0;
+        border: none;
+        background: transparent;
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+        box-shadow: none;
+        padding: 0 0 0.75rem 0;
+        margin-bottom: 0.5rem;
+        overflow: visible;
+    }
+    .exam-question-card::before { display: none; }
+    html.light-mode .exam-question-card {
+        background: transparent;
+        border: none;
+        box-shadow: none;
+    }
+}
+
 @media (min-width: 641px) {
     .exam-question-card {
         padding: 1.75rem;
