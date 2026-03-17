@@ -1429,7 +1429,10 @@ updateTimer();
     {{-- ── Result Topbar (Mobile — via CSS class statt inline style) --}}
     <div class="exam-topbar exam-topbar--result">
         <a href="{{ route('exam.history') }}" class="exam-topbar-close">Schliessen</a>
-        <div class="exam-topbar-label">ERGEBNIS</div>
+        <div class="exam-topbar-center">
+            <div class="exam-topbar-label">ERGEBNIS</div>
+            <div class="exam-topbar-title" style="display: none;"></div>
+        </div>
         <div style="width: 3.5rem;"></div>
     </div>
 
@@ -1641,6 +1644,10 @@ function startReview(mode) {
     if (topbarLabel) {
         topbarLabel.textContent = 'ERGEBNIS \u2014 {{ round(($correctCount / $total) * 100) }}%';
     }
+    var topbarTitle = document.querySelector('.exam-topbar-title');
+    if (topbarTitle) {
+        topbarTitle.style.display = '';
+    }
 
     showReviewQuestion(0);
 }
@@ -1679,6 +1686,13 @@ function nextReview() {
         reviewContainer.style.display = 'none';
         reviewBottomBar.style.display = 'none';
         summaryContainer.style.display = 'block';
+
+        // Restore topbar
+        var topbarTitle = document.querySelector('.exam-topbar-title');
+        if (topbarTitle) topbarTitle.style.display = 'none';
+        var topbarLabel = document.querySelector('.exam-topbar-label');
+        if (topbarLabel) topbarLabel.textContent = 'ERGEBNIS';
+
         return;
     }
     showReviewQuestion(reviewCurrent + 1);
