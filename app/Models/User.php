@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Notifications\Notifiable;
@@ -22,6 +23,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'name',
         'email',
         'password',
+        'avatar_seed',
         'last_activity_at',
         'email_consent',
         'email_consent_at',
@@ -86,6 +88,18 @@ class User extends Authenticatable implements MustVerifyEmail
         ];
     }
     
+    /**
+     * Avatar-URL basierend auf dem DiceBear-Seed
+     */
+    protected function avatarUrl(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => 'https://dicebear.niclas-reutter.de/9.x/avataaars-neutral/svg?radius=50&seed='
+                . urlencode($this->avatar_seed ?? $this->id . $this->name)
+                . '&eyes=default,happy',
+        );
+    }
+
     /**
      * User hat viele Fragen-Fortschritte
      */

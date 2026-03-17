@@ -335,11 +335,7 @@
                 <!-- User Menu -->
                 <div class="px-4 py-4 border-t border-glass-subtle">
                     <div class="flex items-center gap-3 px-3 py-2">
-                        <div class="w-9 h-9 rounded-full bg-thw-blue/20 flex items-center justify-center">
-                            <span class="text-sm font-semibold text-gold">
-                                {{ substr(auth()->user()->name, 0, 1) }}
-                            </span>
-                        </div>
+                        <img src="{{ auth()->user()->avatar_url }}" alt="Avatar" class="w-9 h-9 rounded-full bg-thw-blue/20">
                         <div class="flex-1 min-w-0">
                             <p class="text-sm font-medium text-dark-primary truncate">{{ auth()->user()->name }}</p>
                             <p class="text-xs text-dark-muted truncate">Level {{ auth()->user()->level ?? 1 }}</p>
@@ -637,11 +633,7 @@
 
                 <!-- User Section -->
                 <a href="{{ route('profile') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-glass-subtle transition-colors">
-                    <div class="w-9 h-9 rounded-full bg-thw-blue/20 flex items-center justify-center">
-                        <span class="text-sm font-semibold text-gold">
-                            {{ substr(auth()->user()->name, 0, 1) }}
-                        </span>
-                    </div>
+                    <img src="{{ auth()->user()->avatar_url }}" alt="Avatar" class="w-9 h-9 rounded-full bg-thw-blue/20">
                     <div class="flex-1 min-w-0">
                         <p class="text-sm font-medium text-dark-primary truncate">{{ auth()->user()->name }}</p>
                         <p class="text-xs text-dark-muted">Level {{ auth()->user()->level ?? 1 }}</p>

@@ -50,6 +50,8 @@ class RegisteredUserController extends Controller
             'leaderboard_consent_at' => $request->has('leaderboard_consent') ? now() : null,
         ]);
 
+        $user->update(['avatar_seed' => $user->id . $user->name]);
+
         event(new Registered($user));
 
         Auth::login($user);
