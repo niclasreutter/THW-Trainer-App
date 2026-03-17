@@ -1187,7 +1187,6 @@ html.light-mode .exam-answer.result-missed {
 
 const TOTAL_QUESTIONS = {{ count($fragen) }};
 const VISIBLE_BUBBLES = 9;
-const CENTER_INDEX = 4; // 0-based middle of 9
 
 // State
 let currentQuestion = 0;
@@ -1333,6 +1332,8 @@ function toggleMark() {
 // ============================================
 
 function getSlidingWindow(current, total, windowSize) {
+    if (total <= windowSize) return { start: 0, end: total };
+
     const center = Math.floor(windowSize / 2);
 
     let start;
