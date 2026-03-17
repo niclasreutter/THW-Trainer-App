@@ -661,9 +661,15 @@
         {{-- ── Info Line ── --}}
         @if($tab === 'liga' && ($hasNextLeague || $hasPrevLeague))
             <div class="lb-info">
-                @if($hasNextLeague)Top {{ $promotionSlots }} steigen auf@endif
-                @if($hasNextLeague && $hasPrevLeague) · @endif
-                @if($hasPrevLeague)Letzte {{ $relegationSlots }} steigen ab@endif
+                @if($hasNextLeague)
+                    Top {{ $promotionSlots }} steigen auf
+                @endif
+                @if($hasNextLeague && $hasPrevLeague)
+                    ·
+                @endif
+                @if($hasPrevLeague)
+                    Letzte {{ $relegationSlots }} steigen ab
+                @endif
             </div>
         @endif
     @endif
