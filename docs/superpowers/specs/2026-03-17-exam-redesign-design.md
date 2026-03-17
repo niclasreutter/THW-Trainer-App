@@ -24,7 +24,7 @@ Die aktuelle `/exam` Seite verwendet ein eigenständiges Layout mit eigenen CSS-
 **Topbar:**
 - Close-Button (✕) links
 - Zentriert: "PRÜFUNG" Label (monospace, uppercase) + "Frage **12** / 40" (Frage-Nummer in THW-Blau Gradient `#00337F → #3b82f6`)
-- Timer rechts in Rot (`#ef4444`), Monospace, warnt bei <10 Min
+- Timer rechts in Gold (`#fbbf24`) Monospace, wechselt zu Rot (`#ef4444`) bei <10 Min, Puls-Animation bei <5 Min
 
 **Progress-Bar:**
 - 3px Höhe direkt unter Topbar
@@ -58,7 +58,13 @@ Die aktuelle `/exam` Seite verwendet ein eigenständiges Layout mit eigenen CSS-
 **Action-Buttons (3 gleichbreit im Fixed Bar):**
 - "Zurück" — Ghost-Style
 - "Markieren" — Gold-Outline
-- "Weiter" — btn-primary (Blau-Gradient)
+- "Weiter" — Custom Blau-Gradient (nicht `btn-primary`, da dieses Gold ist im Design-System). Eigene Klasse `.exam-btn-next`
+- Bei **Frage 40**: "Weiter" wird zu "Abgeben" (Grün-Gradient) mit Bestätigungs-Dialog vor Submit
+
+**Markieren-Feature:**
+- Rein client-seitig (Alpine/JS State), nicht persistiert
+- Wird im `<form>` nicht mitgesendet — dient nur der Navigation während der Prüfung
+- Geht bei Seiten-Reload verloren (akzeptabel für 30-Min Prüfung)
 
 **Mobile Fullscreen:**
 - `100dvh`, Nav/Footer/Header hidden
@@ -88,7 +94,8 @@ Die aktuelle `/exam` Seite verwendet ein eigenständiges Layout mit eigenen CSS-
 ### 3. Ergebnis-Modus — Summary Screen
 
 **Topbar:**
-- "Schliessen" links, "ERGEBNIS" Label zentriert
+- "Schliessen" links → navigiert zu `/exam-history`
+- "ERGEBNIS" Label zentriert
 
 **Ergebnis-Ring:**
 - SVG-Ring, 100px
@@ -107,9 +114,14 @@ Die aktuelle `/exam` Seite verwendet ein eigenständiges Layout mit eigenen CSS-
 - Zeigt nur LAs mit Schwächen (nicht alle 10)
 
 **Action-Buttons:**
-- "Alle Fragen durchgehen" — btn-primary, volle Breite
+- "Alle Fragen durchgehen" — Blau-Gradient (`.exam-btn-next`), volle Breite
 - "Nur falsche Fragen (X)" — Rot-Outline, volle Breite
 - Beide führen in den Frage-für-Frage Review-Modus
+
+**XP / Gamification:**
+- XP-Anzeige aus bestehender `gamification_result` Session beibehalten
+- Kompakt unter dem Ergebnis-Ring anzeigen (z.B. "+50 XP" Badge)
+- Bestehende GamificationService-Integration im Controller bleibt unverändert
 
 ### 4. Ergebnis-Modus — Frage-für-Frage Review
 
@@ -120,7 +132,8 @@ Die aktuelle `/exam` Seite verwendet ein eigenständiges Layout mit eigenen CSS-
 - Antworten: Korrekte Antwort grün markiert, falsche Auswahl rot markiert
 - Sliding Bubbles: Grün = richtig, Rot = falsch (statt beantwortet/offen)
 - Kein "Markieren" Button, nur "Zurück" + "Weiter"
-- Bei "Nur falsche Fragen": Nur 6 (o.ä.) Bubbles, nur falsche Fragen navigierbar
+- Bei "Nur falsche Fragen": Bubble-Anzahl = Anzahl falscher Antworten, Sliding nur wenn > 9 falsche
+- Bei ≤ 9 falschen: alle Bubbles sichtbar ohne Sliding
 
 ### 5. Dark & Light Mode
 
@@ -154,13 +167,25 @@ Die aktuelle `/exam` Seite verwendet ein eigenständiges Layout mit eigenen CSS-
 
 - Controller-Logik (Prüfungsregeln, Session-Management, Scoring) — bleibt unverändert
 - Exam-History Seite — bereits redesigned
-- Gamification/XP — nicht Teil der Prüfung
 - Swipe-Gesten — nicht vorgesehen (Bubbles + Buttons reichen)
+- Keyboard-Shortcuts — nicht in V1, kann später ergänzt werden
 
 ## Technische Hinweise
 
+### Architektur
+- **Single-Form, Show/Hide-via-JS Architektur bleibt bestehen.** Alle 40 Fragen werden in einem `<form>` gerendert und per JS ein-/ausgeblendet. Kein AJAX, keine Server-Roundtrips pro Frage.
+- Vanilla JavaScript für interaktive Logik (Timer, Bubble-Navigation, Fragen-Wechsel) — konsistent mit bestehendem Exam und Practice Pattern. Kein Alpine.js Migration nötig.
+- Fullscreen-Modus via `exam-active-mode` Body-Class (bestehendes Pattern beibehalten). Result-Modus entfernt diese Klasse → Navbar wird wieder sichtbar.
+
+### Timer-Ablauf
+- Bei Timer = 0: Automatische Client-seitige Abgabe (Form-Submit), kein Server-Redirect
+- Bestätigungs-Dialog entfällt bei Auto-Submit
+
+### CSS
 - CSS-Klassen mit `exam-` Prefix (z.B. `.exam-shell`, `.exam-topbar`, `.exam-bubble`)
-- Alpine.js für interaktive Logik (Timer, Bubble-Navigation, Fragen-Wechsel)
-- Bestehende Session-Logik und Form-Submit beibehalten
-- `exam_result.blade.php` kann entfernt werden wenn nicht mehr referenziert
+- Custom `.exam-btn-next` für Blau-Gradient Button (da `btn-primary` = Gold im Design-System)
+
+### Aufräumen
+- `exam_result.blade.php` entfernen (Legacy, wird durch integrierten Ergebnis-Modus ersetzt)
+- Tote Controller-Methoden prüfen und ggf. entfernen
 - Nach Änderung: `npm run build && php artisan view:clear && php artisan cache:clear`
