@@ -4,20 +4,23 @@
 
 @section('content')
 @php
-    // Hole Antwort-Details aus Session (falls vorhanden)
-    $answerResult = session('answer_result');
+    // Hole Antwort-Details aus View-Variable oder Session (Backward-Compat)
+    $answerResultFromView = isset($answerResult);
+    $answerResult = $answerResult ?? session('answer_result');
     $hasAnswerResult = $answerResult && isset($answerResult['question_id']) && $answerResult['question_id'] == $question->id;
 
-    // Hole Gamification Result aus Session
-    $gamificationResult = session('gamification_result');
+    // Hole Gamification Result aus View-Variable oder Session (Backward-Compat)
+    $gamificationResult = $gamificationResult ?? session('gamification_result');
 
     if ($hasAnswerResult) {
         $isCorrect = $answerResult['is_correct'];
         $userAnswer = collect($answerResult['user_answer']);
         $questionProgress = (object)['consecutive_correct' => $answerResult['question_progress']];
 
-        // Lösche BEIDE Sessions nach dem Auslesen (sie gehören zusammen)
-        session()->forget(['answer_result', 'gamification_result']);
+        // Lösche Sessions nur wenn alte Session-basierte Approach genutzt wird
+        if (!$answerResultFromView) {
+            session()->forget(['answer_result', 'gamification_result']);
+        }
     } else {
         $isCorrect = null;
         $userAnswer = null;
@@ -1040,17 +1043,21 @@
 <!-- Practice Shell -->
 <div class="practice-shell" id="practiceContainer">
     @if($question)
-        @php
-            $user = Auth::user();
-            $bookmarked = is_array($user->bookmarked_questions ?? null)
-                ? $user->bookmarked_questions
-                : json_decode($user->bookmarked_questions ?? '[]', true);
-            $isBookmarked = in_array($question->id, $bookmarked);
-        @endphp
+        @if(($context ?? 'global') === 'global')
+            @php
+                $user = Auth::user();
+                $bookmarked = is_array($user->bookmarked_questions ?? null)
+                    ? $user->bookmarked_questions
+                    : json_decode($user->bookmarked_questions ?? '[]', true);
+                $isBookmarked = in_array($question->id, $bookmarked);
+            @endphp
+        @else
+            @php $isBookmarked = false; @endphp
+        @endif
 
         <!-- Mobile Top Bar -->
         <div class="practice-topbar">
-            <a href="{{ route('practice.menu') }}" class="topbar-back">
+            <a href="{{ $menuUrl ?? route('practice.menu') }}" class="topbar-back">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                 </svg>
@@ -1077,6 +1084,7 @@
                 <button type="button" onclick="openReportModal()" class="report-btn" title="Fehler melden">
                     <i class="bi bi-exclamation-triangle-fill"></i>
                 </button>
+                @if(($context ?? 'global') === 'global')
                 <button type="button" class="bookmark-btn {{ $isBookmarked ? 'active' : '' }}" id="bookmarkBtnMobile"
                         data-bookmarked="{{ $isBookmarked ? 'true' : 'false' }}"
                         onclick="toggleBookmark({{ $question->id }}, {{ $isBookmarked ? 'true' : 'false' }})">
@@ -1086,6 +1094,7 @@
                               style="stroke: {{ $isBookmarked ? '#fbbf24' : 'rgba(255,255,255,0.4)' }}; fill: {{ $isBookmarked ? '#fbbf24' : 'none' }};"></path>
                     </svg>
                 </button>
+                @endif
             </div>
         </div>
 
@@ -1094,19 +1103,23 @@
             <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;">
                 <div style="flex:1;">
                     <div class="practice-greeting">
-                        @if(isset($mode))
-                            @switch($mode)
-                                @case('unsolved') Ungelöste Fragen @break
-                                @case('failed') Fehlerwiederholung @break
-                                @case('section') Lernabschnitt {{ session('practice_parameter') }} @break
-                                @case('search') Suche: "{{ session('practice_parameter') }}" @break
-                                @case('bookmarked') Gespeicherte Fragen @break
-                                @case('spaced_repetition') Wiederholung @break
-                                @default Alle Fragen
-                            @endswitch
+                        @if(($context ?? 'global') === 'global')
+                            @if(isset($mode))
+                                @switch($mode)
+                                    @case('unsolved') Ungelöste Fragen @break
+                                    @case('failed') Fehlerwiederholung @break
+                                    @case('section') Lernabschnitt {{ session('practice_parameter') }} @break
+                                    @case('search') Suche: "{{ session('practice_parameter') }}" @break
+                                    @case('bookmarked') Gespeicherte Fragen @break
+                                    @case('spaced_repetition') Wiederholung @break
+                                    @default Alle Fragen
+                                @endswitch
+                            @endif
+                        @else
+                            {{ $contextLabel ?? 'Übungsmodus' }}
                         @endif
                     </div>
-                    <div class="practice-title">Theorie üben</div>
+                    <div class="practice-title">{{ $contextLabel ?? 'Theorie üben' }}</div>
                     <div class="practice-level-line">
                         <span>{{ $progress }}/{{ $total }} gemeistert &middot; {{ $progressPercent ?? 0 }}%</span>
                         <div class="practice-xp-bar">
@@ -1119,6 +1132,7 @@
                     <button type="button" onclick="openReportModal()" class="report-btn bookmark-btn-lg" title="Fehler melden">
                         <i class="bi bi-exclamation-triangle-fill"></i>
                     </button>
+                    @if(($context ?? 'global') === 'global')
                     <button type="button"
                             class="bookmark-btn bookmark-btn-lg {{ $isBookmarked ? 'active' : '' }}"
                             title="{{ $isBookmarked ? 'Aus Lesezeichen entfernen' : 'Zu Lesezeichen hinzufügen' }}"
@@ -1131,6 +1145,7 @@
                                   style="stroke: {{ $isBookmarked ? '#fbbf24' : 'rgba(255,255,255,0.4)' }}; fill: {{ $isBookmarked ? '#fbbf24' : 'none' }};"></path>
                         </svg>
                     </button>
+                    @endif
                 </div>
             </div>
         </div>
@@ -1164,7 +1179,7 @@
 
         <!-- Question Card -->
         <div class="practice-card" id="questionContent">
-            <form method="POST" action="{{ route('practice.submit') }}" id="practiceForm">
+            <form method="POST" action="{{ $submitUrl ?? route('practice.submit') }}" id="practiceForm">
                 @csrf
                 <input type="hidden" name="question_id" value="{{ $question->id }}">
                 <input type="hidden" name="answer_time_ms" id="answerTimeMs" value="0">
@@ -1339,11 +1354,11 @@
                             Antwort absenden
                         </button>
                     @else
-                        <a href="{{ route('practice.index') }}" class="action-submit action-submit--primary">
+                        <a href="{{ $showUrl ?? route('practice.index') }}" class="action-submit action-submit--primary">
                             Nächste Frage
                         </a>
                     @endif
-                    <a href="{{ route('practice.summary') }}" class="action-end">Lernen beenden</a>
+                    <a href="{{ $summaryUrl ?? route('practice.summary') }}" class="action-end">Lernen beenden</a>
                 </div>
             </form>
         </div>
@@ -1474,6 +1489,7 @@
                 });
             }
 
+            @if(($context ?? 'global') === 'global')
             // Bookmark toggle
             function toggleBookmark(questionId, currentlyBookmarked) {
                 var btnMobile = document.getElementById('bookmarkBtnMobile');
@@ -1521,6 +1537,7 @@
                     btn.disabled = false;
                 });
             }
+            @endif
         </script>
     @else
         <!-- No more questions -->
@@ -1530,7 +1547,7 @@
                 <h2 style="font-size:1.5rem;font-weight:800;color:var(--text-primary);margin-bottom:0.25rem;font-family:'Barlow Condensed',sans-serif;">Geschafft!</h2>
                 <p style="font-size:0.875rem;color:var(--text-secondary);margin-bottom:1.5rem;">Du hast alle Fragen in diesem Modus bearbeitet</p>
                 <div style="display:flex;flex-direction:column;gap:0.75rem;max-width:300px;margin:0 auto;">
-                    <a href="{{ route('practice.menu') }}" class="action-submit action-submit--primary">Zurück zum Menü</a>
+                    <a href="{{ $menuUrl ?? route('practice.menu') }}" class="action-submit action-submit--primary">Zurück zum Menü</a>
                     <a href="{{ route('dashboard') }}" class="action-submit action-submit--gold">Dashboard</a>
                 </div>
             </div>
