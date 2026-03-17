@@ -116,6 +116,8 @@ html.light-mode .exam-topbar-label {
     background: linear-gradient(135deg, #00337F, #3b82f6);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
 }
 
 .exam-topbar-title .exam-qtotal {
@@ -125,6 +127,16 @@ html.light-mode .exam-topbar-label {
 
 html.light-mode .exam-topbar-title .exam-qtotal {
     color: rgba(0, 0, 0, 0.3);
+}
+
+.exam-topbar-close {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.6875rem;
+    text-decoration: none;
+}
+
+html.light-mode .exam-topbar-close {
+    color: rgba(0, 0, 0, 0.5);
 }
 
 .exam-timer {
@@ -200,6 +212,8 @@ html.light-mode .exam-greeting {
     background: linear-gradient(135deg, #00337F, #3b82f6);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
 }
 
 .exam-title .exam-qtotal {
@@ -760,12 +774,16 @@ html.light-mode .exam-result-ring .ring-track {
     background: linear-gradient(135deg, #22c55e, #4ade80);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
 }
 
 .exam-result-percent.failed {
     background: linear-gradient(135deg, #ef4444, #f87171);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
 }
 
 .exam-result-count {
@@ -1170,7 +1188,7 @@ html.light-mode .exam-answer.result-missed {
 <div class="exam-shell exam-rise" id="exam-result-container">
     {{-- ── Result Topbar (Mobile — via CSS class statt inline style) --}}
     <div class="exam-topbar exam-topbar--result">
-        <a href="{{ route('exam.history') }}" style="color: rgba(255,255,255,0.5); font-size: 0.6875rem; text-decoration: none;">Schliessen</a>
+        <a href="{{ route('exam.history') }}" class="exam-topbar-close">Schliessen</a>
         <div class="exam-topbar-label">ERGEBNIS</div>
         <div style="width: 3.5rem;"></div>
     </div>
