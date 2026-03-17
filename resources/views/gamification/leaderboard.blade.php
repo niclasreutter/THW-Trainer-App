@@ -7,9 +7,7 @@
 <style>
     /* ─── Layout ──────────────────────────────────── */
     .lb-container {
-        max-width: 520px;
-        margin: 0 auto;
-        padding: 1.25rem 1rem;
+        padding: 0;
     }
 
     /* ─── Header ──────────────────────────────────── */
@@ -104,9 +102,9 @@
 
     .lb-podium__row {
         display: flex;
-        align-items: flex-end;
+        align-items: center;
         justify-content: center;
-        gap: 0.75rem;
+        gap: 1.5rem;
     }
 
     .lb-podium__user {
@@ -542,11 +540,10 @@
                     $badgeColors = ['#94a3b8', 'linear-gradient(135deg,#fbbf24,#f59e0b)', '#b45309'];
                     $nameFirst = ['0.6875rem', '0.75rem', '0.6875rem'];
                     $pointColors = ['#94a3b8', '#f59e0b', '#b45309'];
-                    $marginBottom = ['0', '0.75rem', '0'];
                 @endphp
 
                 @foreach($podiumOrder as $pi)
-                    <div class="lb-podium__user" style="margin-bottom:{{ $marginBottom[$pi] }};">
+                    <div class="lb-podium__user">
                         @if(isset($top3[$pi]))
                             @php $user = $top3[$pi]; @endphp
                             <div class="lb-podium__avatar-wrap">
