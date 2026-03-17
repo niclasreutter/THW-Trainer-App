@@ -1179,7 +1179,247 @@ html.light-mode .exam-answer.result-missed {
     </div>
 </div>
 
-{{-- JavaScript wird in Task 4-6 implementiert --}}
+@push('scripts')
+<script>
+// ============================================
+// EXAM - State Management & Core Logic
+// ============================================
+
+const TOTAL_QUESTIONS = {{ count($fragen) }};
+const VISIBLE_BUBBLES = 9;
+const CENTER_INDEX = 4; // 0-based middle of 9
+
+// State
+let currentQuestion = 0;
+let answers = new Array(TOTAL_QUESTIONS).fill(false);
+let marked = new Array(TOTAL_QUESTIONS).fill(false);
+let timeLeft = {{ $timeLeft }};
+let examSubmitting = false;
+
+// DOM refs
+const examForm = document.getElementById('exam-form');
+const timerMobile = document.getElementById('exam-timer-mobile');
+const timerDesktop = document.getElementById('exam-timer-desktop');
+const progressBar = document.getElementById('exam-progress');
+const topbarQnum = document.getElementById('topbar-qnum');
+const desktopQnum = document.getElementById('desktop-qnum');
+const bubblesTrack = document.getElementById('exam-bubbles');
+const btnBack = document.getElementById('btn-back');
+const btnMark = document.getElementById('btn-mark');
+const btnNext = document.getElementById('btn-next');
+const statAnswered = document.getElementById('stat-answered');
+const statOpen = document.getElementById('stat-open');
+const statMarked = document.getElementById('stat-marked');
+const statTimerPill = document.getElementById('stat-timer-pill');
+
+// ── Timer ─────────────────────────────────
+function formatTime(seconds) {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return m.toString().padStart(2, '0') + ':' + s.toString().padStart(2, '0');
+}
+
+function updateTimer() {
+    if (timeLeft <= 0) {
+        submitExam();
+        return;
+    }
+    timeLeft--;
+    const display = formatTime(timeLeft);
+
+    if (timerMobile) timerMobile.textContent = display;
+    if (timerDesktop) timerDesktop.textContent = display;
+
+    // Warning states
+    const timerEls = document.querySelectorAll('.exam-timer');
+    timerEls.forEach(el => {
+        el.classList.toggle('warning', timeLeft < 600 && timeLeft >= 300);
+        el.classList.toggle('critical', timeLeft < 300);
+    });
+
+    if (statTimerPill) {
+        statTimerPill.classList.toggle('warning', timeLeft < 600);
+    }
+}
+
+const timerInterval = setInterval(updateTimer, 1000);
+
+// ── Question Navigation ──────────────────
+function showQuestion(index) {
+    if (index < 0 || index >= TOTAL_QUESTIONS) return;
+    currentQuestion = index;
+
+    // Hide all slides, show current
+    document.querySelectorAll('.exam-slide').forEach(s => s.style.display = 'none');
+    const slide = document.querySelector('.exam-slide[data-question="' + index + '"]');
+    if (slide) slide.style.display = 'block';
+
+    // Update question numbers
+    const qNum = index + 1;
+    if (topbarQnum) topbarQnum.textContent = qNum;
+    if (desktopQnum) desktopQnum.textContent = qNum;
+
+    // Update progress
+    const pct = ((index + 1) / TOTAL_QUESTIONS * 100).toFixed(1);
+    if (progressBar) progressBar.style.width = pct + '%';
+
+    // Update buttons
+    if (btnBack) btnBack.style.visibility = index === 0 ? 'hidden' : 'visible';
+    if (btnMark) btnMark.classList.toggle('active', marked[index]);
+
+    // Update next/submit button
+    if (btnNext) {
+        if (index === TOTAL_QUESTIONS - 1) {
+            btnNext.textContent = 'Abgeben';
+            btnNext.classList.remove('exam-btn--next');
+            btnNext.classList.add('exam-btn--submit');
+        } else {
+            btnNext.textContent = 'Weiter';
+            btnNext.classList.remove('exam-btn--submit');
+            btnNext.classList.add('exam-btn--next');
+        }
+    }
+
+    updateBubbles();
+    updateStats();
+
+    // Scroll content to top
+    const content = document.querySelector('.exam-content');
+    if (content) content.scrollTop = 0;
+}
+
+function nextQuestion() {
+    if (currentQuestion === TOTAL_QUESTIONS - 1) {
+        // Last question — confirm submit
+        if (confirm('Prüfung abgeben? Du hast ' + answers.filter(Boolean).length + ' von ' + TOTAL_QUESTIONS + ' Fragen beantwortet.')) {
+            submitExam();
+        }
+        return;
+    }
+    showQuestion(currentQuestion + 1);
+}
+
+function prevQuestion() {
+    showQuestion(currentQuestion - 1);
+}
+
+// ── Answer Handling ──────────────────────
+function toggleAnswer(questionIndex, position) {
+    const slide = document.querySelector('.exam-slide[data-question="' + questionIndex + '"]');
+    const label = slide.querySelector('.exam-answer[data-position="' + position + '"]');
+    const checkbox = label.querySelector('input[type="checkbox"]');
+
+    checkbox.checked = !checkbox.checked;
+    label.classList.toggle('selected', checkbox.checked);
+
+    // Update answered state
+    const anyChecked = slide.querySelectorAll('input[type="checkbox"]:checked').length > 0;
+    answers[questionIndex] = anyChecked;
+
+    updateBubbles();
+    updateStats();
+}
+
+// ── Mark Handling ──────────────────────
+function toggleMark() {
+    marked[currentQuestion] = !marked[currentQuestion];
+    if (btnMark) btnMark.classList.toggle('active', marked[currentQuestion]);
+    updateBubbles();
+    updateStats();
+}
+
+// ============================================
+// SLIDING BUBBLES — 9 visible, active centered
+// ============================================
+
+function getSlidingWindow(current, total, windowSize) {
+    const center = Math.floor(windowSize / 2);
+
+    let start;
+    if (current <= center) {
+        start = 0;
+    } else if (current >= total - windowSize + center) {
+        start = total - windowSize;
+    } else {
+        start = current - center;
+    }
+
+    return { start, end: start + windowSize };
+}
+
+function updateBubbles() {
+    if (!bubblesTrack) return;
+
+    const { start, end } = getSlidingWindow(currentQuestion, TOTAL_QUESTIONS, VISIBLE_BUBBLES);
+
+    bubblesTrack.innerHTML = '';
+    for (let i = start; i < end; i++) {
+        const bubble = document.createElement('button');
+        bubble.className = 'exam-bubble';
+        bubble.textContent = i + 1;
+        bubble.setAttribute('type', 'button');
+        bubble.onclick = (function(idx) { return function() { showQuestion(idx); }; })(i);
+
+        if (i === currentQuestion) {
+            bubble.classList.add('exam-bubble--active');
+        } else if (marked[i]) {
+            bubble.classList.add('exam-bubble--marked');
+        } else if (answers[i]) {
+            bubble.classList.add('exam-bubble--answered');
+        } else {
+            bubble.classList.add('exam-bubble--open');
+        }
+
+        bubblesTrack.appendChild(bubble);
+    }
+}
+
+// ── Stats Update ──────────────────────
+function updateStats() {
+    const answeredCount = answers.filter(Boolean).length;
+    const markedCount = marked.filter(Boolean).length;
+    const openCount = TOTAL_QUESTIONS - answeredCount;
+
+    if (statAnswered) statAnswered.textContent = answeredCount;
+    if (statOpen) statOpen.textContent = openCount;
+    if (statMarked) statMarked.textContent = markedCount;
+}
+
+// ── Submit ──────────────────────────
+function submitExam() {
+    if (examSubmitting) return;
+    examSubmitting = true;
+    clearInterval(timerInterval);
+    examForm.submit();
+}
+
+// ── Exit Protection ──────────────────
+function handleExamExit(e) {
+    e.preventDefault();
+    if (confirm('Prüfung wirklich abbrechen? Dein Fortschritt geht verloren.')) {
+        window.location.href = '/';
+    }
+}
+
+// Prevent accidental navigation
+window.addEventListener('beforeunload', function(e) {
+    if (!examSubmitting) {
+        e.preventDefault();
+        e.returnValue = '';
+    }
+});
+
+// Prevent back button
+history.pushState(null, '', location.href);
+window.addEventListener('popstate', function() {
+    history.pushState(null, '', location.href);
+});
+
+// ── Initialize ──────────────────────
+showQuestion(0);
+updateTimer();
+</script>
+@endpush
 
 @else
 {{-- ============================================
@@ -1367,7 +1607,139 @@ html.light-mode .exam-answer.result-missed {
     </div>
 </div>
 
-{{-- JavaScript wird in Task 4-6 implementiert --}}
+@push('scripts')
+<script>
+// ============================================
+// RESULT REVIEW MODE
+// ============================================
+
+const reviewResults = @json(collect($results)->map(fn($r, $i) => ['index' => $i, 'isCorrect' => $r['isCorrect']])->values());
+let reviewMode = null; // 'all' or 'wrong'
+let reviewQuestions = []; // indices to show
+let reviewCurrent = 0;
+
+const reviewContainer = document.getElementById('result-review');
+const summaryContainer = document.getElementById('result-summary');
+const reviewBottomBar = document.getElementById('review-bottom-bar');
+const reviewBubbles = document.getElementById('review-bubbles');
+
+function startReview(mode) {
+    reviewMode = mode;
+    if (mode === 'all') {
+        reviewQuestions = reviewResults.map(function(_, i) { return i; });
+    } else {
+        reviewQuestions = reviewResults.filter(function(r) { return !r.isCorrect; }).map(function(r) { return r.index; });
+    }
+    reviewCurrent = 0;
+
+    summaryContainer.style.display = 'none';
+    reviewContainer.style.display = 'block';
+    reviewBottomBar.style.display = 'block';
+
+    // Update topbar for review mode
+    var topbarLabel = document.querySelector('.exam-topbar-label');
+    if (topbarLabel) {
+        topbarLabel.textContent = 'ERGEBNIS \u2014 {{ round(($correctCount / $total) * 100) }}%';
+    }
+
+    showReviewQuestion(0);
+}
+
+function showReviewQuestion(idx) {
+    if (idx < 0 || idx >= reviewQuestions.length) return;
+    reviewCurrent = idx;
+
+    // Hide all, show current
+    document.querySelectorAll('[data-review]').forEach(function(s) { s.style.display = 'none'; });
+    var slide = document.querySelector('[data-review="' + reviewQuestions[idx] + '"]');
+    if (slide) slide.style.display = 'block';
+
+    // Update topbar title
+    var topbarTitle = document.querySelector('.exam-topbar-title');
+    if (topbarTitle) {
+        topbarTitle.innerHTML = 'Frage <span class="exam-qnum">' + (idx + 1) + '</span> <span class="exam-qtotal">/ ' + reviewQuestions.length + '</span>';
+    }
+
+    // Update buttons
+    var btnBack = document.getElementById('review-btn-back');
+    var btnNext = document.getElementById('review-btn-next');
+    if (btnBack) btnBack.style.visibility = idx === 0 ? 'hidden' : 'visible';
+    if (btnNext) btnNext.textContent = idx === reviewQuestions.length - 1 ? 'Fertig' : 'Weiter';
+
+    updateReviewBubbles();
+
+    // Scroll content to top
+    var content = document.querySelector('.exam-content');
+    if (content) content.scrollTop = 0;
+}
+
+function nextReview() {
+    if (reviewCurrent === reviewQuestions.length - 1) {
+        // Back to summary
+        reviewContainer.style.display = 'none';
+        reviewBottomBar.style.display = 'none';
+        summaryContainer.style.display = 'block';
+        return;
+    }
+    showReviewQuestion(reviewCurrent + 1);
+}
+
+function prevReview() {
+    showReviewQuestion(reviewCurrent - 1);
+}
+
+function updateReviewBubbles() {
+    if (!reviewBubbles) return;
+
+    var total = reviewQuestions.length;
+    var windowSize = Math.min(total, 9);
+    var center = Math.floor(windowSize / 2);
+
+    var start;
+    if (total <= 9) {
+        start = 0;
+    } else if (reviewCurrent <= center) {
+        start = 0;
+    } else if (reviewCurrent >= total - windowSize + center) {
+        start = total - windowSize;
+    } else {
+        start = reviewCurrent - center;
+    }
+    var end = Math.min(start + windowSize, total);
+
+    reviewBubbles.innerHTML = '';
+    for (var i = start; i < end; i++) {
+        var bubble = document.createElement('button');
+        bubble.className = 'exam-bubble';
+        bubble.textContent = i + 1;
+        bubble.setAttribute('type', 'button');
+        bubble.onclick = (function(idx) { return function() { showReviewQuestion(idx); }; })(i);
+
+        var originalIndex = reviewQuestions[i];
+        if (i === reviewCurrent) {
+            bubble.classList.add('exam-bubble--active');
+        } else if (reviewResults[originalIndex].isCorrect) {
+            bubble.classList.add('exam-bubble--correct');
+        } else {
+            bubble.classList.add('exam-bubble--wrong');
+        }
+
+        reviewBubbles.appendChild(bubble);
+    }
+}
+
+// ── Result Ring Animation ──────────────
+document.addEventListener('DOMContentLoaded', function() {
+    var ringFill = document.querySelector('.ring-fill');
+    if (ringFill) {
+        var targetOffset = ringFill.getAttribute('data-target-offset');
+        setTimeout(function() {
+            ringFill.style.strokeDashoffset = targetOffset;
+        }, 100);
+    }
+});
+</script>
+@endpush
 
 @endif
 
