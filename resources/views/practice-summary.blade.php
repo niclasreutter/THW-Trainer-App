@@ -11,10 +11,11 @@
         max-width: 480px;
         margin: 0 auto;
         padding: 1.25rem 1rem;
-        min-height: 70vh;
+        min-height: 0;
         display: flex;
         flex-direction: column;
         justify-content: center;
+        flex: 1;
     }
 
     /* ─── Header ──────────────────────────────────── */
@@ -233,6 +234,7 @@
     .summary-container > *:nth-child(3) { animation-delay: 0.11s; }
     .summary-container > *:nth-child(4) { animation-delay: 0.15s; }
     .summary-container > *:nth-child(5) { animation-delay: 0.19s; }
+    .summary-container > *:nth-child(6) { animation-delay: 0.23s; }
 
     @media (prefers-reduced-motion: reduce) {
         .summary-container > * { animation: none !important; }
@@ -242,6 +244,11 @@
 @endpush
 
 @section('content')
+<style>
+    /* Override layout bottom padding for summary page */
+    #main-content { padding-bottom: 1rem !important; display: flex; flex-direction: column; }
+    @media (min-width: 1024px) { #main-content { padding-bottom: 1rem !important; } }
+</style>
 <div class="summary-container">
     {{-- ── Header ── --}}
     <div class="summary-header">
@@ -266,7 +273,7 @@
         <div class="summary-icon {{ $iconClass }}">
             <i class="bi {{ $iconName }}"></i>
         </div>
-        <div class="summary-label">Session abgeschlossen</div>
+        <div class="summary-label">{{ $contextLabel ?? 'Session abgeschlossen' }}</div>
         <h1 class="summary-title">{{ $titleText }}</h1>
         <div class="summary-meta">
             <span>{{ $modeName }}</span>
@@ -310,9 +317,17 @@
         </div>
     </div>
 
+    {{-- ── Lehrgang completed ── --}}
+    @if($completed ?? false)
+        <div class="glass-gold p-6 rounded-2xl text-center" style="margin-bottom: 1rem;">
+            <h2 class="text-2xl font-bold text-[var(--gold)]">Lehrgang abgeschlossen!</h2>
+            <p class="text-white/70 mt-2">Alle Fragen gemeistert</p>
+        </div>
+    @endif
+
     {{-- ── Actions ── --}}
     <div class="summary-actions">
-        <a href="{{ route('practice.menu') }}" class="btn-primary">Weiter lernen</a>
+        <a href="{{ $backUrl ?? route('practice.menu') }}" class="btn-primary">Weiter lernen</a>
         <a href="{{ route('dashboard') }}" class="btn-secondary">Dashboard</a>
     </div>
 </div>
