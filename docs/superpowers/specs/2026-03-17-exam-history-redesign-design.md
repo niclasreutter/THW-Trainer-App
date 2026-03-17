@@ -14,7 +14,7 @@ Die `/exam-history`-Seite visuell an das Design von `/dashboard`, `/bookmarks` u
 
 | Alt (aktuell) | Neu |
 |---|---|
-| `dashboard-container` (max-width 1200px) | `dash-container` (max-width 600px, wie andere Seiten) |
+| `dashboard-container` (max-width 1200px) | `dash-container` (max-width 1100px, wie Dashboard/Bookmarks/Practice-Menu) |
 | `page-title` mit Gold-Gradient `<span>` | Blauer Gradient-Titel mit `Barlow Condensed`, Uppercase-Label darüber |
 | `stat-pill` mit Icons | `gami-pill` (farbcodiert, ohne Icons, wie Practice-Menu) |
 | Bento Grid (3-Spalten, asymmetrisch) | Gestapeltes Layout (`space-y-4`) — alle Karten volle Breite |
@@ -38,7 +38,7 @@ Die `/exam-history`-Seite visuell an das Design von `/dashboard`, `/bookmarks` u
 
 ### Neues Feature: Verbesserungs-Trend
 
-Der Trend-Chart zeigt jetzt die **prozentuale Punktzahl** pro Prüfung statt nur bestanden/durchgefallen. Dadurch sieht man Verbesserung auch bei aufeinanderfolgenden Fehlversuchen (z.B. 40% → 55% → 65%).
+Der Trend-Chart zeigte bisher schon %-Werte, aber die Balken-Farben kommunizierten nur bestanden/durchgefallen. Der Trend-Chart wird beibehalten und im neuen Stil dargestellt. Die 80%-Schwellenlinie wird beibehalten. Der Fokus liegt auf dem **Verbesserungs-Trend** — die visuelle Darstellung betont die Progression über Zeit.
 
 - Balken-Höhe proportional zur Prozentzahl
 - Farbe weiterhin grün (bestanden) / rot (durchgefallen)
@@ -57,7 +57,7 @@ Filterung client-seitig via Alpine.js (keine Server-Requests).
 
 ### Neues Feature: Smart-Action Card
 
-Wenn `weakSections` vorhanden: Smart-Action Card (blauer THW-Gradient) mit dem schwächsten Sachgebiet als CTA, Link zu `practice.section`.
+Wenn `weakSections` vorhanden: Smart-Action Card (blauer THW-Gradient) mit dem **ersten (schwächsten) Eintrag** aus `$weakSections` als CTA. Titel: "Lernabschnitt {$weakSections[0]} wiederholen". Link zu `route('practice.section', $weakSections[0])`.
 
 ## Seitenstruktur (von oben nach unten)
 
@@ -68,7 +68,7 @@ Wenn `weakSections` vorhanden: Smart-Action Card (blauer THW-Gradient) mit dem s
    - Subtitle: "Analysiere deine Ergebnisse und finde Schwachstellen"
 
 2. Gami-Pills (flex, wrap)
-   - Prüfungen (blau) | Bestanden (grün) | Schnitt (gold) | Bestes (lila)
+   - Prüfungen (blau) | Bestanden (grün) | Schnitt (gold) | Bestes (lila) | Quote (success/error je nach Wert)
 
 3. Smart-Action Card (nur wenn weakSections vorhanden)
    - Label: "Empfehlung"
@@ -85,28 +85,40 @@ Wenn `weakSections` vorhanden: Smart-Action Card (blauer THW-Gradient) mit dem s
 5. Sachgebiet-Analyse (glass card)
    - Label: "Stärken & Schwächen"
    - Section-Items (wie Practice-Menu)
-   - Farbcodiert: grün ≥80%, blau 50-79%, rot <50%
+   - Farbcodiert: grün ≥80%, blau 50-79%, rot <50% (bewusst blau statt amber, wie Practice-Menu)
 
-6. Empfehlungen (glass card, nur wenn weakSections)
+6. Empfehlungen (glass card, nur wenn weakSections UND mehr als 1 schwache Sektion)
    - Label: "Empfehlung"
-   - Klickbare rec-items mit Chevron
+   - Klickbare rec-items mit Chevron (zeigt alle weakSections außer dem ersten, der bereits in Smart-Action ist)
+   - Hinweis: Bei nur 1 weakSection entfällt diese Sektion (bereits in Smart-Action abgedeckt)
 
 7. Prüfungsliste (glass card)
    - Label: "Alle Prüfungen"
    - Filter-Pills: Alle | Bestanden | Durchgefallen
-   - Exam-Items mit Badge, Score, Datum, Status-Pill
+     - Aktiv: Solid-Background (blau), Inaktiv: Transparent/Ghost
+   - Exam-Items (nicht klickbar, reine Anzeige) mit Badge, Score, Datum, Status-Pill
 
 8. Empty State (bei 0 Prüfungen)
    - Glass card, zentriert
-   - Icon, Titel, Beschreibung, CTA-Button
+   - Icon: `bi bi-clipboard` (wie aktuell)
+   - Titel: "Noch keine Prüfungen"
+   - Desc: "Lerne zuerst alle Fragen und starte dann deine erste Prüfung."
+   - CTA: `smart-action__btn` → `route('exam.index')`
 ```
 
 ## CSS-Strategie
 
+- **Font-Import erforderlich:** `@push('styles')` muss Bunny Fonts Link enthalten (wie Practice-Menu/Bookmarks):
+  ```html
+  <link rel="preconnect" href="https://fonts.bunny.net">
+  <link href="https://fonts.bunny.net/css2?family=Barlow+Condensed:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  ```
 - **Keine neuen globalen CSS-Klassen** — Wiederverwendung von `gami-pill`, `smart-action`, `section-item`, `section-num`, `section-bar`, `section-pct`, `dash-container`, `dash-rise`
 - **Seiten-spezifische Styles** in `@push('styles')` innerhalb der Blade-View (wie bei allen anderen Seiten)
 - **Neue Klassen nur für diese Seite:** Filter-Pills (`eh-filter-pill`), Exam-Items (`eh-exam-item`), Trend-Chart (`eh-trend-*`), Recommendations (`eh-rec-*`)
 - Prefix `eh-` für exam-history-spezifische Klassen
+- **Inhalt muss in `<div class="space-y-4">` gewrappt werden** damit die `dash-rise` Stagger-Animation greift
+- **`@media (prefers-reduced-motion: reduce)`** Regel hinzufügen um Animationen zu deaktivieren (Barrierefreiheit)
 
 ## Light-Mode
 
@@ -118,7 +130,7 @@ Alle Komponenten nutzen die bestehenden Light-Mode-Variablen. Seiten-spezifische
 
 ## Responsive (Mobile-First)
 
-- Container: `dash-container` (max-width 600px, padding 1rem)
+- Container: `dash-container` (max-width 1100px, padding 1rem auf Mobile)
 - Alle Karten volle Breite — kein Grid nötig
 - `gami-pills` wrappen automatisch
 - Trend-Chart: Kleinere Balken-Mindestbreite auf <480px
