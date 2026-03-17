@@ -326,14 +326,14 @@
 
             {{-- ── Smart-Action Card ── --}}
             @if(!empty($weakSections))
-            <a href="{{ route('practice.section', $weakSections[0]) }}" class="smart-action" style="display:block;text-decoration:none;background:linear-gradient(135deg,#00337F,#0055cc);border-radius:1rem;padding:1.25rem;position:relative;overflow:hidden;color:#fff;">
-                <div class="smart-action__label">Empfehlung</div>
-                <div class="smart-action__title">Lernabschnitt {{ $weakSections[0] }} wiederholen</div>
-                <div class="smart-action__desc">Dein schwächster Bereich — mit gezieltem Üben schnell verbessern</div>
-                <span class="smart-action__btn">
+            <div style="display:block;background:linear-gradient(135deg,#00337F,#0055cc);border-radius:0.75rem;padding:1.25rem;position:relative;overflow:hidden;color:#fff;">
+                <div style="font-size:0.625rem;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.7);margin-bottom:0.375rem;">Empfehlung</div>
+                <div style="font-size:1.125rem;font-weight:700;margin-bottom:0.25rem;">Lernabschnitt {{ $weakSections[0] }} wiederholen</div>
+                <div style="font-size:0.8125rem;color:rgba(255,255,255,0.6);margin-bottom:0.75rem;">Dein schwächster Bereich — mit gezieltem Üben schnell verbessern</div>
+                <a href="{{ route('practice.section', $weakSections[0]) }}" style="display:inline-flex;align-items:center;gap:0.5rem;background:rgba(255,255,255,0.2);color:#fff;border-radius:0.5rem;padding:0.375rem 0.75rem;font-size:0.75rem;font-weight:600;text-decoration:none;">
                     Jetzt üben <i class="bi bi-arrow-right"></i>
-                </span>
-            </a>
+                </a>
+            </div>
             @endif
 
             {{-- ── Trend Chart ── --}}
