@@ -3857,11 +3857,18 @@ html.light-mode .skeleton::after {
 
 /* Smart Action Card */
 .smart-action {
+    display: block;
+    text-decoration: none;
     background: linear-gradient(135deg, #00337F, #0055cc);
     border-radius: 1rem;
     padding: 1.25rem;
     position: relative;
     overflow: hidden;
+    color: #fff;
+}
+
+.smart-action:hover {
+    text-decoration: none;
     color: #fff;
 }
 
