@@ -710,7 +710,7 @@ class LehrgangController extends Controller
         $sectionNr = $request->input('section_nr');
         
         if ($sectionNr) {
-            return redirect()->route('lehrgaenge.practice-section', ['slug' => $slug, 'sectionNr' => $sectionNr]);
+            return redirect()->route('lehrgaenge.practice.section', ['slug' => $slug, 'nr' => $sectionNr]);
         }
         
         return redirect()->route('lehrgaenge.practice', $slug);

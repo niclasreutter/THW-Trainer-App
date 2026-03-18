@@ -344,9 +344,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/lehrgaenge/{slug}/practice/show', [\App\Http\Controllers\LehrgangController::class, 'practiceShow'])->name('lehrgaenge.practice.show');
     Route::post('/lehrgaenge/{slug}/practice/submit', [\App\Http\Controllers\LehrgangController::class, 'practiceSubmit'])->name('lehrgaenge.practice.submit');
     Route::get('/lehrgaenge/{slug}/practice/summary', [\App\Http\Controllers\LehrgangController::class, 'practiceSummary'])->name('lehrgaenge.practice.summary');
-    // Legacy routes (backward compat)
-    Route::get('/lehrgaenge/{slug}/practice-section/{sectionNr}', [\App\Http\Controllers\LehrgangController::class, 'practiceSection'])->name('lehrgaenge.practice-section');
-    Route::post('/lehrgaenge/{slug}/submit', [\App\Http\Controllers\LehrgangController::class, 'submitAnswer'])->name('lehrgaenge.submit');
     Route::post('/lehrgaenge/{slug}/unenroll', [\App\Http\Controllers\LehrgangController::class, 'unenroll'])->name('lehrgaenge.unenroll');
     Route::post('/lehrgaenge/question/{questionId}/report-issue', [\App\Http\Controllers\LehrgangController::class, 'reportIssue'])->name('lehrgaenge.report-issue');
     Route::post('/practice/question/{questionId}/report-issue', [\App\Http\Controllers\PracticeController::class, 'reportIssue'])->name('practice.report-issue');
@@ -392,9 +389,6 @@ Route::middleware('auth')->group(function () {
         Route::get('/{ortsverband}/lernpools/{lernpool}/practice/show', [\App\Http\Controllers\OrtsverbandLernpoolPracticeController::class, 'practiceShow'])->name('lernpools.practice.show');
         Route::post('/{ortsverband}/lernpools/{lernpool}/practice/submit', [\App\Http\Controllers\OrtsverbandLernpoolPracticeController::class, 'practiceSubmit'])->name('lernpools.practice.submit');
         Route::get('/{ortsverband}/lernpools/{lernpool}/practice/summary', [\App\Http\Controllers\OrtsverbandLernpoolPracticeController::class, 'practiceSummary'])->name('lernpools.practice.summary');
-
-        // Legacy routes (backward compat)
-        Route::post('/{ortsverband}/lernpools/{lernpool}/answer', [\App\Http\Controllers\OrtsverbandLernpoolPracticeController::class, 'practiceSubmit'])->name('lernpools.answer');
 
         // Nur für Ausbildungsbeauftragte
         Route::middleware(['ortsverband.ausbildungsbeauftragter'])->group(function () {
