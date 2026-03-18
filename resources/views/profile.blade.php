@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.bunny.net">
 <link href="https://fonts.bunny.net/css2?family=Barlow+Condensed:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-    /* ─── Avatar Card ─── */
+    /* ─── Avatar ─── */
     .pf-avatar-card {
         display: flex;
         align-items: center;
@@ -20,9 +20,9 @@
     }
 
     .pf-avatar {
-        width: 80px;
-        height: 80px;
-        border-radius: 0.75rem;
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
         border: 2px solid rgba(255, 255, 255, 0.1);
         object-fit: cover;
         background: rgba(255, 255, 255, 0.05);
@@ -35,15 +35,15 @@
 
     .pf-avatar-regen {
         position: absolute;
-        bottom: -4px;
-        right: -4px;
-        width: 28px;
-        height: 28px;
-        border-radius: 0.375rem;
+        bottom: -2px;
+        right: -2px;
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
         background: linear-gradient(135deg, #00337F, #0055cc);
         border: 2px solid var(--bg-base);
         color: #fff;
-        font-size: 0.75rem;
+        font-size: 0.7rem;
         cursor: pointer;
         display: flex;
         align-items: center;
@@ -53,8 +53,8 @@
     }
 
     .pf-avatar-regen:hover {
-        transform: scale(1.1);
-        box-shadow: 0 4px 12px rgba(0, 51, 127, 0.3);
+        transform: scale(1.15);
+        box-shadow: 0 4px 12px rgba(0, 51, 127, 0.35);
     }
 
     .pf-avatar-regen.is-spinning i {
@@ -73,18 +73,18 @@
     .pf-avatar-info { flex: 1; min-width: 0; }
 
     .pf-avatar-name {
-        font-size: 1.25rem;
+        font-size: 1.125rem;
         font-weight: 800;
         color: var(--text-primary);
         font-family: 'Barlow Condensed', sans-serif;
         line-height: 1.2;
-        margin-bottom: 0.2rem;
+        margin-bottom: 0.15rem;
     }
 
     .pf-avatar-email {
         font-size: 0.8125rem;
         color: var(--text-secondary);
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.4rem;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -92,7 +92,7 @@
 
     .pf-avatar-tags {
         display: flex;
-        gap: 0.5rem;
+        gap: 0.4rem;
         flex-wrap: wrap;
     }
 
@@ -111,27 +111,14 @@
     .pf-tag--info { background: rgba(91, 154, 255, 0.1); color: #5b9aff; }
     html.light-mode .pf-tag--info { background: rgba(0, 51, 127, 0.08); color: #00337F; }
 
-    /* ─── Form Styles ─── */
-    .pf-form-row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1rem;
-        margin-bottom: 1rem;
-    }
-
-    .pf-form-group { margin-bottom: 1rem; }
+    /* ─── Form ─── */
+    .pf-form-group { margin-bottom: 0.875rem; }
+    .pf-form-hint { color: var(--text-muted); font-size: 0.6875rem; margin-top: 0.25rem; }
 
     .pf-form-error {
         color: #ef4444;
         font-size: 0.75rem;
         margin-top: 0.3rem;
-    }
-
-    .pf-form-hint {
-        color: var(--text-muted);
-        font-size: 0.6875rem;
-        margin-top: 0.3rem;
-        margin-bottom: 0;
     }
 
     .pf-input-error {
@@ -141,15 +128,15 @@
 
     /* ─── Consent Items ─── */
     .pf-consent {
-        padding: 0.875rem;
+        padding: 0.75rem;
         border-radius: 0.5rem;
         background: rgba(255, 255, 255, 0.03);
         border: 1px solid rgba(255, 255, 255, 0.06);
-        margin-bottom: 0.75rem;
+        margin-bottom: 0.625rem;
     }
 
     html.light-mode .pf-consent {
-        background: rgba(0, 51, 127, 0.03);
+        background: rgba(0, 51, 127, 0.02);
         border-color: rgba(0, 51, 127, 0.06);
     }
 
@@ -160,14 +147,14 @@
         cursor: pointer;
     }
 
-    .pf-consent-label input { margin-top: 0.15rem; flex-shrink: 0; }
+    .pf-consent-label input { margin-top: 0.2rem; flex-shrink: 0; }
     .pf-consent-body { flex: 1; }
 
     .pf-consent-title {
         font-weight: 600;
         color: var(--text-primary);
         display: block;
-        margin-bottom: 0.2rem;
+        margin-bottom: 0.15rem;
         font-size: 0.8125rem;
     }
 
@@ -184,71 +171,39 @@
         display: flex;
         align-items: center;
         gap: 0.3rem;
-        margin-top: 0.35rem;
+        margin-top: 0.3rem;
     }
 
-    /* ─── Info Items ─── */
-    .pf-info-item {
-        padding: 0.625rem;
-        background: rgba(255, 255, 255, 0.03);
-        border-radius: 0.375rem;
+    /* ─── Info Rows ─── */
+    .pf-info-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 0;
     }
 
-    html.light-mode .pf-info-item {
-        background: rgba(0, 51, 127, 0.03);
+    .pf-info-row + .pf-info-row {
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
     }
 
-    .pf-info-item + .pf-info-item { margin-top: 0.5rem; }
-
-    .pf-info-label {
-        font-size: 0.5625rem;
-        font-weight: 700;
-        color: var(--text-muted);
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-        margin-bottom: 0.15rem;
-        font-family: 'IBM Plex Mono', monospace;
+    html.light-mode .pf-info-row + .pf-info-row {
+        border-top-color: rgba(0, 51, 127, 0.08);
     }
+
+    .pf-info-label { font-size: 0.75rem; color: var(--text-secondary); }
 
     .pf-info-value {
-        font-size: 0.875rem;
-        font-weight: 700;
+        font-size: 0.8125rem;
+        font-weight: 600;
         color: var(--text-primary);
+        text-align: right;
     }
 
-    .pf-info-meta {
+    .pf-info-sub {
+        display: block;
         font-size: 0.625rem;
         color: var(--text-muted);
-        margin-top: 0.1rem;
-    }
-
-    /* ─── Freeze Slots ─── */
-    .pf-freeze-row {
-        display: flex;
-        gap: 0.5rem;
-        margin-bottom: 1rem;
-    }
-
-    .pf-freeze-slot {
-        flex: 1;
-        text-align: center;
-        padding: 0.625rem 0.25rem;
-        border-radius: 0.375rem;
-    }
-
-    .pf-freeze-slot--on {
-        background: rgba(147, 197, 253, 0.15);
-        border: 1px solid rgba(147, 197, 253, 0.3);
-    }
-
-    .pf-freeze-slot--off {
-        background: rgba(255, 255, 255, 0.04);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-    }
-
-    html.light-mode .pf-freeze-slot--off {
-        background: rgba(0, 0, 0, 0.03);
-        border-color: rgba(0, 0, 0, 0.08);
+        font-weight: 400;
     }
 
     /* ─── Password Match ─── */
@@ -258,13 +213,6 @@
         display: none;
         align-items: center;
         gap: 0.3rem;
-    }
-
-    /* ─── Two Col Grid (Profile + Password side by side on desktop) ─── */
-    .pf-two-col {
-        display: grid;
-        grid-template-columns: 1.5fr 1fr;
-        gap: 1rem;
     }
 
     /* ─── Stagger Animation ─── */
@@ -282,31 +230,18 @@
     .dash-container > .space-y-4 > *:nth-child(3) { animation-delay: 0.11s; }
     .dash-container > .space-y-4 > *:nth-child(4) { animation-delay: 0.15s; }
     .dash-container > .space-y-4 > *:nth-child(5) { animation-delay: 0.19s; }
-    .dash-container > .space-y-4 > *:nth-child(6) { animation-delay: 0.23s; }
-    .dash-container > .space-y-4 > *:nth-child(7) { animation-delay: 0.27s; }
 
     @media (prefers-reduced-motion: reduce) {
         .dash-container > .space-y-4 > * { animation: none; }
     }
 
     /* ─── Responsive ─── */
-    @media (max-width: 900px) {
-        .pf-two-col {
-            grid-template-columns: 1fr;
-        }
-    }
-
     @media (max-width: 500px) {
         .pf-avatar-card {
             flex-direction: column;
             text-align: center;
         }
-
         .pf-avatar-tags { justify-content: center; }
-
-        .pf-form-row {
-            grid-template-columns: 1fr;
-        }
     }
 </style>
 @endpush
@@ -391,217 +326,175 @@
             </div>
         </div>
 
-        {{-- ── Profildaten + Passwort (Two Col) ── --}}
-        <div class="pf-two-col">
-
-            {{-- Profildaten --}}
-            <div class="glass p-4" style="border-radius:0.75rem;">
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;">
-                    <span class="text-xs uppercase tracking-wider" style="color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:0.5625rem;font-weight:700;">Persönliche Daten</span>
-                </div>
-
-                <form method="POST" action="{{ route('profile.update') }}">
-                    @csrf
-                    @method('PATCH')
-
-                    <div class="pf-form-row">
-                        <div class="pf-form-group">
-                            <label for="name" class="label-glass">Name</label>
-                            <input type="text" name="name" id="name" value="{{ old('name', $user->name) }}"
-                                   class="input-glass @error('name') pf-input-error @enderror" required maxlength="255">
-                            @error('name')
-                                <div class="pf-form-error">{{ $message }}</div>
-                            @else
-                                <p class="pf-form-hint">Dieser Name erscheint im Leaderboard</p>
-                            @enderror
-                        </div>
-
-                        <div class="pf-form-group">
-                            <label for="email" class="label-glass">E-Mail-Adresse</label>
-                            <input type="email" name="email" id="email" value="{{ old('email', $user->email) }}"
-                                   class="input-glass @error('email') pf-input-error @enderror" required>
-                            @error('email')
-                                <div class="pf-form-error">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-
-                    {{-- E-Mail Consent --}}
-                    <div class="pf-consent">
-                        <label class="pf-consent-label">
-                            <input type="checkbox" name="email_consent" value="1"
-                                   {{ old('email_consent', $user->email_consent) ? 'checked' : '' }}
-                                   class="checkbox-glass">
-                            <div class="pf-consent-body">
-                                <span class="pf-consent-title">E-Mail-Benachrichtigungen</span>
-                                <span class="pf-consent-desc">Erhalte E-Mails zu Lernfortschritt, neuen Features und Systeminformationen.</span>
-                                @if($user->email_consent_at)
-                                    <span class="pf-consent-ok">
-                                        <i class="bi bi-check-circle"></i> Zustimmung am {{ $user->email_consent_at->format('d.m.Y \u\m H:i') }} Uhr
-                                    </span>
-                                @endif
-                            </div>
-                        </label>
-                    </div>
-
-                    {{-- Leaderboard Consent --}}
-                    <div class="pf-consent">
-                        <label class="pf-consent-label">
-                            <input type="checkbox" name="leaderboard_consent" value="1"
-                                   {{ $user->leaderboard_consent ? 'checked' : '' }}
-                                   class="checkbox-glass">
-                            <div class="pf-consent-body">
-                                <span class="pf-consent-title">Leaderboard-Teilnahme</span>
-                                <span class="pf-consent-desc">Dein Name erscheint im öffentlichen Leaderboard und andere Nutzer können deine Punkte sehen.</span>
-                                @if($user->leaderboard_consent)
-                                    <span class="pf-consent-ok">
-                                        <i class="bi bi-check-circle"></i> Zustimmung am {{ $user->leaderboard_consent_at->format('d.m.Y \u\m H:i') }} Uhr
-                                    </span>
-                                @endif
-                            </div>
-                        </label>
-                    </div>
-
-                    {{-- Prüfungsdatum --}}
-                    <div class="pf-consent">
-                        <div class="pf-consent-body" style="width:100%;">
-                            <span class="pf-consent-title">Prüfungsdatum (optional)</span>
-                            <span class="pf-consent-desc" style="margin-bottom:0.5rem;display:block;">Für eine personalisierte Lernempfehlung auf dem Dashboard.</span>
-                            <div style="display:flex;gap:0.5rem;align-items:center;">
-                                <input type="date" name="exam_date" id="exam_date"
-                                       value="{{ old('exam_date', $user->exam_date?->format('Y-m-d')) }}"
-                                       min="{{ date('Y-m-d', strtotime('+1 day')) }}"
-                                       class="input-glass" style="flex:1;">
-                                @if($user->exam_date)
-                                <button type="button" onclick="document.getElementById('exam_date').value=''"
-                                        class="btn-ghost btn-sm" style="flex-shrink:0;">Zurücksetzen</button>
-                                @endif
-                            </div>
-                            @error('exam_date')
-                                <div class="pf-form-error">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-
-                    <button type="submit" class="btn-primary" style="width:100%;">Profil speichern</button>
-                </form>
+        {{-- ── Persönliche Daten ── --}}
+        <div class="glass p-4" style="border-radius:0.75rem;">
+            <div style="margin-bottom:0.75rem;">
+                <span class="text-xs uppercase tracking-wider" style="color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:0.5625rem;font-weight:700;">Persönliche Daten</span>
             </div>
 
-            {{-- Passwort ändern --}}
-            <div class="glass p-4" style="border-radius:0.75rem;">
-                <div style="margin-bottom:0.75rem;">
-                    <span class="text-xs uppercase tracking-wider" style="color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:0.5625rem;font-weight:700;">Sicherheit</span>
+            <form method="POST" action="{{ route('profile.update') }}">
+                @csrf
+                @method('PATCH')
+
+                <div class="pf-form-group">
+                    <label for="name" class="label-glass">Name</label>
+                    <input type="text" name="name" id="name" value="{{ old('name', $user->name) }}"
+                           class="input-glass @error('name') pf-input-error @enderror" required maxlength="255">
+                    @error('name')
+                        <div class="pf-form-error">{{ $message }}</div>
+                    @else
+                        <p class="pf-form-hint">Dieser Name erscheint im Leaderboard</p>
+                    @enderror
                 </div>
 
-                <form method="POST" action="{{ route('profile.password.update') }}">
-                    @csrf
-                    @method('PATCH')
+                <div class="pf-form-group">
+                    <label for="email" class="label-glass">E-Mail-Adresse</label>
+                    <input type="email" name="email" id="email" value="{{ old('email', $user->email) }}"
+                           class="input-glass @error('email') pf-input-error @enderror" required>
+                    @error('email')
+                        <div class="pf-form-error">{{ $message }}</div>
+                    @enderror
+                </div>
 
-                    <div class="pf-form-group">
-                        <label for="current_password" class="label-glass">Aktuelles Passwort</label>
-                        <input type="password" name="current_password" id="current_password"
-                               class="input-glass @error('current_password') pf-input-error @enderror"
-                               placeholder="Aktuelles Passwort">
-                        @error('current_password')
-                            <div class="pf-form-error">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    <div class="pf-form-group">
-                        <label for="password" class="label-glass">Neues Passwort</label>
-                        <input type="password" name="password" id="password"
-                               class="input-glass @error('password') pf-input-error @enderror"
-                               placeholder="Mindestens 8 Zeichen"
-                               oninput="checkPasswordMatch()">
-                        @error('password')
-                            <div class="pf-form-error">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    <div class="pf-form-group">
-                        <label for="password_confirmation" class="label-glass">Passwort bestätigen</label>
-                        <input type="password" name="password_confirmation" id="password_confirmation"
-                               class="input-glass"
-                               placeholder="Passwort wiederholen"
-                               oninput="checkPasswordMatch()">
-                        <div id="password-match-message" class="pf-pw-msg"></div>
-                    </div>
-
-                    <button type="submit" class="btn-secondary" style="width:100%;">Passwort ändern</button>
-                </form>
-
-                {{-- Konto-Details direkt darunter --}}
-                <div style="margin-top:1.25rem;padding-top:1rem;border-top:1px solid rgba(255,255,255,0.06);">
-                    <div style="margin-bottom:0.5rem;">
-                        <span class="text-xs uppercase tracking-wider" style="color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:0.5625rem;font-weight:700;">Konto-Details</span>
-                    </div>
-
-                    <div class="pf-info-item">
-                        <div class="pf-info-label">Beitrittsdatum</div>
-                        <div class="pf-info-value">{{ $user->created_at->format('d.m.Y') }}</div>
-                        <div class="pf-info-meta">vor {{ $user->created_at->diffInDays(now()) }} Tagen</div>
-                    </div>
-                    <div class="pf-info-item">
-                        <div class="pf-info-label">Konto-Status</div>
-                        <div class="pf-info-value">
-                            @if($user->hasVerifiedEmail())
-                                <span style="color:#22c55e;">Bestätigt</span>
-                            @else
-                                <span style="color:#f59e0b;">Ausstehend</span>
+                {{-- E-Mail Consent --}}
+                <div class="pf-consent">
+                    <label class="pf-consent-label">
+                        <input type="checkbox" name="email_consent" value="1"
+                               {{ old('email_consent', $user->email_consent) ? 'checked' : '' }}
+                               class="checkbox-glass">
+                        <div class="pf-consent-body">
+                            <span class="pf-consent-title">E-Mail-Benachrichtigungen</span>
+                            <span class="pf-consent-desc">Erhalte E-Mails zu Lernfortschritt, neuen Features und Systeminformationen.</span>
+                            @if($user->email_consent_at)
+                                <span class="pf-consent-ok">
+                                    <i class="bi bi-check-circle"></i> Zustimmung am {{ $user->email_consent_at->format('d.m.Y \u\m H:i') }} Uhr
+                                </span>
                             @endif
                         </div>
-                        <div class="pf-info-meta">E-Mail {{ $user->hasVerifiedEmail() ? 'verifiziert' : 'nicht verifiziert' }}</div>
-                    </div>
-                    <div class="pf-info-item">
-                        <div class="pf-info-label">Zuletzt angemeldet</div>
-                        <div class="pf-info-value">{{ $user->last_login_at ? $user->last_login_at->format('d.m.Y H:i') : 'Gerade eben' }}</div>
-                        <div class="pf-info-meta">{{ $user->last_login_at ? $user->last_login_at->diffForHumans() : 'Erste Anmeldung' }}</div>
+                    </label>
+                </div>
+
+                {{-- Leaderboard Consent --}}
+                <div class="pf-consent">
+                    <label class="pf-consent-label">
+                        <input type="checkbox" name="leaderboard_consent" value="1"
+                               {{ $user->leaderboard_consent ? 'checked' : '' }}
+                               class="checkbox-glass">
+                        <div class="pf-consent-body">
+                            <span class="pf-consent-title">Leaderboard-Teilnahme</span>
+                            <span class="pf-consent-desc">Dein Name erscheint im öffentlichen Leaderboard und andere Nutzer können deine Punkte sehen.</span>
+                            @if($user->leaderboard_consent)
+                                <span class="pf-consent-ok">
+                                    <i class="bi bi-check-circle"></i> Zustimmung am {{ $user->leaderboard_consent_at->format('d.m.Y \u\m H:i') }} Uhr
+                                </span>
+                            @endif
+                        </div>
+                    </label>
+                </div>
+
+                {{-- Prüfungsdatum --}}
+                <div class="pf-consent">
+                    <div class="pf-consent-body" style="width:100%;">
+                        <span class="pf-consent-title">Prüfungsdatum (optional)</span>
+                        <span class="pf-consent-desc" style="margin-bottom:0.5rem;display:block;">Für eine personalisierte Lernempfehlung auf dem Dashboard.</span>
+                        <div style="display:flex;gap:0.5rem;align-items:center;">
+                            <input type="date" name="exam_date" id="exam_date"
+                                   value="{{ old('exam_date', $user->exam_date?->format('Y-m-d')) }}"
+                                   min="{{ date('Y-m-d', strtotime('+1 day')) }}"
+                                   class="input-glass" style="flex:1;">
+                            @if($user->exam_date)
+                            <button type="button" onclick="document.getElementById('exam_date').value=''"
+                                    class="btn-ghost btn-sm" style="flex-shrink:0;">Zurücksetzen</button>
+                            @endif
+                        </div>
+                        @error('exam_date')
+                            <div class="pf-form-error">{{ $message }}</div>
+                        @enderror
                     </div>
                 </div>
-            </div>
 
+                <button type="submit" class="btn-primary" style="width:100%;">Profil speichern</button>
+            </form>
         </div>
 
-        {{-- ── Streak Freeze ── --}}
-        @php
-            $gamificationService = new \App\Services\GamificationService();
-            $freezeStatus = $gamificationService->getStreakFreezeStatus($user);
-        @endphp
+        {{-- ── Sicherheit + Konto-Details ── --}}
         <div class="glass p-4" style="border-radius:0.75rem;">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;">
-                <span class="text-xs uppercase tracking-wider" style="color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:0.5625rem;font-weight:700;">Streak Freeze</span>
-                <span style="font-size:0.6875rem;color:var(--text-muted);">{{ $freezeStatus['remaining'] }}/{{ $freezeStatus['available'] }} verfügbar</span>
+            <div style="margin-bottom:0.75rem;">
+                <span class="text-xs uppercase tracking-wider" style="color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:0.5625rem;font-weight:700;">Sicherheit</span>
             </div>
 
-            <p style="font-size:0.75rem;color:var(--text-secondary);margin-bottom:0.75rem;line-height:1.5;">
-                Streak Freezes schützen deinen Streak automatisch, wenn du einen Tag verpasst.
-            </p>
+            <form method="POST" action="{{ route('profile.password.update') }}">
+                @csrf
+                @method('PATCH')
 
-            <div class="pf-freeze-row">
-                @for($i = 0; $i < $freezeStatus['available']; $i++)
-                    <div class="pf-freeze-slot {{ $i < $freezeStatus['remaining'] ? 'pf-freeze-slot--on' : 'pf-freeze-slot--off' }}">
-                        <i class="bi bi-snow" style="font-size:1.125rem;color:{{ $i < $freezeStatus['remaining'] ? '#93c5fd' : 'var(--text-muted)' }};"></i>
-                        <div style="font-size:0.5625rem;font-weight:600;margin-top:0.2rem;color:{{ $i < $freezeStatus['remaining'] ? '#93c5fd' : 'var(--text-muted)' }};">
-                            {{ $i < $freezeStatus['remaining'] ? 'Verfügbar' : 'Verbraucht' }}
-                        </div>
-                    </div>
-                @endfor
+                <div class="pf-form-group">
+                    <label for="current_password" class="label-glass">Aktuelles Passwort</label>
+                    <input type="password" name="current_password" id="current_password"
+                           class="input-glass @error('current_password') pf-input-error @enderror"
+                           placeholder="Aktuelles Passwort">
+                    @error('current_password')
+                        <div class="pf-form-error">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="pf-form-group">
+                    <label for="password" class="label-glass">Neues Passwort</label>
+                    <input type="password" name="password" id="password"
+                           class="input-glass @error('password') pf-input-error @enderror"
+                           placeholder="Mindestens 8 Zeichen"
+                           oninput="checkPasswordMatch()">
+                    @error('password')
+                        <div class="pf-form-error">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="pf-form-group">
+                    <label for="password_confirmation" class="label-glass">Passwort bestätigen</label>
+                    <input type="password" name="password_confirmation" id="password_confirmation"
+                           class="input-glass"
+                           placeholder="Passwort wiederholen"
+                           oninput="checkPasswordMatch()">
+                    <div id="password-match-message" class="pf-pw-msg"></div>
+                </div>
+
+                <button type="submit" class="btn-secondary" style="width:100%;margin-bottom:1.25rem;">Passwort ändern</button>
+            </form>
+
+            {{-- Konto-Details (integriert) --}}
+            <div style="padding-top:1rem;border-top:1px solid rgba(255,255,255,0.06);">
+                <div style="margin-bottom:0.5rem;">
+                    <span class="text-xs uppercase tracking-wider" style="color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:0.5625rem;font-weight:700;">Konto-Details</span>
+                </div>
+
+                <div class="pf-info-row">
+                    <span class="pf-info-label">Beitrittsdatum</span>
+                    <span class="pf-info-value">
+                        {{ $user->created_at->format('d.m.Y') }}
+                        <span class="pf-info-sub">vor {{ $user->created_at->diffInDays(now()) }} Tagen</span>
+                    </span>
+                </div>
+                <div class="pf-info-row">
+                    <span class="pf-info-label">Konto-Status</span>
+                    <span class="pf-info-value">
+                        @if($user->hasVerifiedEmail())
+                            <span style="color:#22c55e;">Bestätigt</span>
+                        @else
+                            <span style="color:#f59e0b;">Ausstehend</span>
+                        @endif
+                        <span class="pf-info-sub">E-Mail {{ $user->hasVerifiedEmail() ? 'verifiziert' : 'nicht verifiziert' }}</span>
+                    </span>
+                </div>
+                <div class="pf-info-row">
+                    <span class="pf-info-label">Zuletzt angemeldet</span>
+                    <span class="pf-info-value">
+                        {{ $user->last_login_at ? $user->last_login_at->format('d.m.Y H:i') : 'Gerade eben' }}
+                        <span class="pf-info-sub">{{ $user->last_login_at ? $user->last_login_at->diffForHumans() : 'Erste Anmeldung' }}</span>
+                    </span>
+                </div>
             </div>
-
-            @if(count($freezeStatus['recent_log']) > 0)
-                <div style="font-size:0.5625rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:0.35rem;font-family:'IBM Plex Mono',monospace;font-weight:700;">Zuletzt verwendet</div>
-                @foreach(array_slice(array_reverse($freezeStatus['recent_log']), 0, 3) as $entry)
-                    <div style="font-size:0.6875rem;color:var(--text-secondary);padding:0.2rem 0;display:flex;align-items:center;gap:0.35rem;">
-                        <i class="bi bi-snow" style="color:#93c5fd;font-size:0.625rem;"></i>
-                        {{ \Carbon\Carbon::parse($entry['date'])->format('d.m.Y') }}
-                    </div>
-                @endforeach
-            @else
-                <div style="font-size:0.75rem;color:var(--text-muted);text-align:center;padding:0.25rem 0;">Noch keine Freezes verwendet</div>
-            @endif
         </div>
 
-        {{-- ── Danger Zone ── --}}
+        {{-- ── Gefahrenzone ── --}}
         <div class="glass p-4" style="border-radius:0.75rem;border:1px solid rgba(239,68,68,0.15);">
             <div style="margin-bottom:0.75rem;">
                 <span class="text-xs uppercase tracking-wider" style="color:rgba(239,68,68,0.6);font-family:'IBM Plex Mono',monospace;font-size:0.5625rem;font-weight:700;">Gefahrenzone</span>
@@ -637,12 +530,12 @@
 
 <script>
     function checkPasswordMatch() {
-        const pw = document.getElementById('password').value;
-        const confirm = document.getElementById('password_confirmation').value;
-        const msg = document.getElementById('password-match-message');
+        var pw = document.getElementById('password').value;
+        var confirm = document.getElementById('password_confirmation').value;
+        var msg = document.getElementById('password-match-message');
 
         if (pw && confirm) {
-            const match = pw === confirm;
+            var match = pw === confirm;
             document.getElementById('password').classList.toggle('pf-input-error', !match);
             document.getElementById('password_confirmation').classList.toggle('pf-input-error', !match);
             msg.style.display = 'flex';
