@@ -383,9 +383,18 @@ Route::middleware('auth')->group(function () {
 
         // Lernpools für Mitglieder (Einschreiben & Lernen) - für alle Mitglieder
         Route::post('/{ortsverband}/lernpools/{lernpool}/enroll', [\App\Http\Controllers\OrtsverbandLernpoolController::class, 'enroll'])->name('lernpools.enroll');
-        Route::get('/{ortsverband}/lernpools/{lernpool}/practice', [\App\Http\Controllers\OrtsverbandLernpoolPracticeController::class, 'show'])->name('lernpools.practice');
-        Route::post('/{ortsverband}/lernpools/{lernpool}/answer', [\App\Http\Controllers\OrtsverbandLernpoolPracticeController::class, 'answer'])->name('lernpools.answer');
         Route::post('/{ortsverband}/lernpools/{lernpool}/unenroll', [\App\Http\Controllers\OrtsverbandLernpoolPracticeController::class, 'unenroll'])->name('lernpools.unenroll');
+
+        // Unified Practice Routes für Lernpools
+        Route::get('/{ortsverband}/lernpools/{lernpool}/practice', [\App\Http\Controllers\OrtsverbandLernpoolPracticeController::class, 'practice'])->name('lernpools.practice');
+        Route::get('/{ortsverband}/lernpools/{lernpool}/practice/unsolved', [\App\Http\Controllers\OrtsverbandLernpoolPracticeController::class, 'practiceUnsolved'])->name('lernpools.practice.unsolved');
+        Route::get('/{ortsverband}/lernpools/{lernpool}/practice/section/{nr}', [\App\Http\Controllers\OrtsverbandLernpoolPracticeController::class, 'practiceSection'])->name('lernpools.practice.section');
+        Route::get('/{ortsverband}/lernpools/{lernpool}/practice/show', [\App\Http\Controllers\OrtsverbandLernpoolPracticeController::class, 'practiceShow'])->name('lernpools.practice.show');
+        Route::post('/{ortsverband}/lernpools/{lernpool}/practice/submit', [\App\Http\Controllers\OrtsverbandLernpoolPracticeController::class, 'practiceSubmit'])->name('lernpools.practice.submit');
+        Route::get('/{ortsverband}/lernpools/{lernpool}/practice/summary', [\App\Http\Controllers\OrtsverbandLernpoolPracticeController::class, 'practiceSummary'])->name('lernpools.practice.summary');
+
+        // Legacy routes (backward compat)
+        Route::post('/{ortsverband}/lernpools/{lernpool}/answer', [\App\Http\Controllers\OrtsverbandLernpoolPracticeController::class, 'practiceSubmit'])->name('lernpools.answer');
 
         // Nur für Ausbildungsbeauftragte
         Route::middleware(['ortsverband.ausbildungsbeauftragter'])->group(function () {

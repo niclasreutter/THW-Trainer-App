@@ -7,277 +7,289 @@ use App\Models\OrtsverbandLernpool;
 use App\Models\OrtsverbandLernpoolQuestion;
 use App\Models\OrtsverbandLernpoolProgress;
 use App\Models\OrtsverbandLernpoolQuestionStatistic;
+use App\Services\PracticeSessionService;
+use App\Services\ProgressResolvers\LernpoolProgressResolver;
 use App\Services\GamificationService;
 use Illuminate\Http\Request;
 
 class OrtsverbandLernpoolPracticeController extends Controller
 {
-    protected $gamificationService;
+    private PracticeSessionService $practiceService;
 
-    public function __construct(GamificationService $gamificationService)
+    public function __construct()
     {
-        $this->gamificationService = $gamificationService;
+        $this->practiceService = new PracticeSessionService(
+            new LernpoolProgressResolver(),
+            new GamificationService()
+        );
     }
 
     /**
-     * Zeige Lernansicht für Lernpool (wie practice.blade.php - eine Frage nach der anderen)
+     * Enrollment-Check Helper
      */
-    public function show(Ortsverband $ortsverband, OrtsverbandLernpool $lernpool)
+    private function checkEnrollment($user, OrtsverbandLernpool $lernpool)
+    {
+        return $user->lernpoolEnrollments()
+            ->where('lernpool_id', $lernpool->id)
+            ->first();
+    }
+
+    /**
+     * Practice starten: Alle Fragen
+     */
+    public function practice(Ortsverband $ortsverband, OrtsverbandLernpool $lernpool)
     {
         $user = auth()->user();
 
-        // Prüfe ob User eingeschrieben ist
-        $enrollment = $user->lernpoolEnrollments()
-            ->where('lernpool_id', $lernpool->id)
-            ->first();
-
-        if (!$enrollment) {
+        if (!$this->checkEnrollment($user, $lernpool)) {
             return redirect()
                 ->route('ortsverband.show', $ortsverband)
                 ->with('error', 'Du bist nicht in diesem Lernpool eingeschrieben.');
         }
 
-        // Hole alle Fragen für diesen Lernpool
-        $allQuestions = $lernpool->questions()
-            ->orderBy('lernabschnitt')
-            ->orderBy('nummer')
-            ->get();
+        $ids = OrtsverbandLernpoolQuestion::where('lernpool_id', $lernpool->id)
+            ->pluck('id')
+            ->toArray();
 
-        if ($allQuestions->isEmpty()) {
-            return view('ortsverband.lernpools.practice', [
-                'ortsverband' => $ortsverband,
-                'lernpool' => $lernpool,
-                'enrollment' => $enrollment,
-                'question' => null,
-                'total' => 0,
-                'progress' => 0,
-                'progressPercent' => 0,
-            ]);
+        if (empty($ids)) {
+            return redirect()
+                ->route('ortsverband.lernpools.show', [$ortsverband, $lernpool])
+                ->with('error', 'Keine Fragen in diesem Lernpool.');
         }
 
-        // Hole Fortschritt für User (alle Fragen dieses Lernpools)
+        shuffle($ids);
+        $this->practiceService->startSession('lernpool', $lernpool->id, $ids, 'all', 'requeue');
+
+        return redirect()->route('ortsverband.lernpools.practice.show', [$ortsverband, $lernpool]);
+    }
+
+    /**
+     * Practice starten: Nur ungelöste Fragen
+     */
+    public function practiceUnsolved(Ortsverband $ortsverband, OrtsverbandLernpool $lernpool)
+    {
+        $user = auth()->user();
+
+        if (!$this->checkEnrollment($user, $lernpool)) {
+            return redirect()
+                ->route('ortsverband.show', $ortsverband)
+                ->with('error', 'Du bist nicht in diesem Lernpool eingeschrieben.');
+        }
+
+        $ids = OrtsverbandLernpoolQuestion::where('lernpool_id', $lernpool->id)
+            ->whereNotExists(function($query) use ($user) {
+                $query->select('id')
+                    ->from('ortsverband_lernpool_progress')
+                    ->whereColumn('question_id', 'ortsverband_lernpool_questions.id')
+                    ->where('user_id', $user->id)
+                    ->where('solved', true);
+            })
+            ->pluck('id')
+            ->toArray();
+
+        if (empty($ids)) {
+            return redirect()
+                ->route('ortsverband.lernpools.show', [$ortsverband, $lernpool])
+                ->with('info', 'Alle Fragen bereits gelöst!');
+        }
+
+        shuffle($ids);
+        $this->practiceService->startSession('lernpool', $lernpool->id, $ids, 'unsolved', 'requeue');
+
+        return redirect()->route('ortsverband.lernpools.practice.show', [$ortsverband, $lernpool]);
+    }
+
+    /**
+     * Practice starten: Nach Lernabschnitt
+     */
+    public function practiceSection(Ortsverband $ortsverband, OrtsverbandLernpool $lernpool, $nr)
+    {
+        $user = auth()->user();
+
+        if (!$this->checkEnrollment($user, $lernpool)) {
+            return redirect()
+                ->route('ortsverband.show', $ortsverband)
+                ->with('error', 'Du bist nicht in diesem Lernpool eingeschrieben.');
+        }
+
+        $ids = OrtsverbandLernpoolQuestion::where('lernpool_id', $lernpool->id)
+            ->where('lernabschnitt', $nr)
+            ->pluck('id')
+            ->toArray();
+
+        if (empty($ids)) {
+            return redirect()
+                ->route('ortsverband.lernpools.show', [$ortsverband, $lernpool])
+                ->with('error', 'Keine Fragen in diesem Lernabschnitt.');
+        }
+
+        shuffle($ids);
+        $this->practiceService->startSession('lernpool', $lernpool->id, $ids, 'section', 'requeue');
+
+        // Store section nr in session for context display
+        session(["practice_lernpool_{$lernpool->id}_section_nr" => $nr]);
+
+        return redirect()->route('ortsverband.lernpools.practice.show', [$ortsverband, $lernpool]);
+    }
+
+    /**
+     * Unified Practice View: Aktuelle Frage anzeigen
+     */
+    public function practiceShow(Ortsverband $ortsverband, OrtsverbandLernpool $lernpool)
+    {
+        $user = auth()->user();
+
+        // Check if session has questions
+        if (!$this->practiceService->hasQuestionsRemaining('lernpool', $lernpool->id)) {
+            return redirect()->route('ortsverband.lernpools.practice.summary', [$ortsverband, $lernpool]);
+        }
+
+        // Get answer/gamification results from service
+        $answerResult = $this->practiceService->getAndClearAnswerResult('lernpool', $lernpool->id);
+        $gamificationResult = $this->practiceService->getAndClearGamificationResult('lernpool', $lernpool->id);
+
+        // If showing answered question feedback, use that question ID
+        $showAnsweredQuestion = $answerResult && isset($answerResult['question_id']);
+
+        if ($showAnsweredQuestion) {
+            $questionId = $answerResult['question_id'];
+        } else {
+            $questionId = $this->practiceService->getCurrentQuestionId('lernpool', $lernpool->id);
+        }
+
+        if (!$questionId) {
+            return redirect()->route('ortsverband.lernpools.practice.summary', [$ortsverband, $lernpool]);
+        }
+
+        $resolver = new LernpoolProgressResolver();
+        $question = $resolver->getQuestionById($questionId);
+
+        // Get progress from service
+        $serviceProgress = $this->practiceService->getProgress('lernpool', $lernpool->id);
+        $mode = $this->practiceService->getMode('lernpool', $lernpool->id);
+
+        // Section name if mode is 'section'
+        $sectionName = null;
+        if ($mode === 'section') {
+            $sectionNr = session("practice_lernpool_{$lernpool->id}_section_nr");
+            if ($sectionNr) {
+                $sectionName = "Lernabschnitt {$sectionNr}";
+            }
+        }
+
+        // Overall lernpool progress for the progress bar
+        $allQuestions = $lernpool->questions()->get();
+        $totalCount = $allQuestions->count();
+        $threshold = \App\Models\UserQuestionProgress::MASTERY_THRESHOLD;
+
         $userProgress = $user->lernpoolProgress()
             ->whereIn('question_id', $allQuestions->pluck('id'))
-            ->get()
-            ->keyBy('question_id');
+            ->get();
 
-        // Berechne Gesamt-Fortschritt
-        $threshold = \App\Models\UserQuestionProgress::MASTERY_THRESHOLD;
         $totalProgressPoints = 0;
         foreach ($userProgress as $prog) {
             $totalProgressPoints += min($prog->consecutive_correct ?? 0, $threshold);
         }
-        $maxProgressPoints = $allQuestions->count() * $threshold;
+        $maxProgressPoints = $totalCount * $threshold;
         $progressPercent = $maxProgressPoints > 0 ? round(($totalProgressPoints / $maxProgressPoints) * 100) : 0;
 
-        // Zähle gemeisterte Fragen
         $solvedCount = $userProgress->where('solved', true)->count();
-        $totalCount = $allQuestions->count();
 
-        // WICHTIG: Prüfe ob wir gerade eine Frage beantwortet haben
-        // Falls ja, zeige dieselbe Frage nochmal (für Lösungsanzeige)
-        $answerResult = session('answer_result');
-        if ($answerResult && isset($answerResult['question_id'])) {
-            $answeredQuestion = OrtsverbandLernpoolQuestion::find($answerResult['question_id']);
-
-            // Prüfe ob Frage zu diesem Lernpool gehört
-            if ($answeredQuestion && $answeredQuestion->lernpool_id === $lernpool->id) {
-                return view('ortsverband.lernpools.practice', [
-                    'ortsverband' => $ortsverband,
-                    'lernpool' => $lernpool,
-                    'enrollment' => $enrollment,
-                    'question' => $answeredQuestion,
-                    'total' => $totalCount,
-                    'progress' => $solvedCount,
-                    'progressPercent' => $progressPercent,
-                ]);
-            }
-        }
-
-        // Intelligente Priorisierung für nächste Frage:
-        // 1. Ungelöste Fragen (noch nicht 2x richtig)
-        // 2. Wenn alle gelöst: alle Fragen zufällig
-        // WICHTIG: Tracke bereits gestellte Fragen in Session, um Duplikate zu vermeiden
-
-        // Session Key für bereits gestellte Fragen (pro Lernpool)
-        $sessionKey = 'lernpool_asked_' . $lernpool->id;
-        $askedQuestionIds = session($sessionKey, []);
-
-        // 1. Ungelöste Fragen (nach Lernabschnitt sortiert)
-        $unsolvedQuestions = $allQuestions->filter(function($q) use ($userProgress) {
-            $p = $userProgress->get($q->id);
-            return !$p || !$p->solved;
-        });
-
-        // Bestimme Pool von verfügbaren Fragen
-        $questionPool = $unsolvedQuestions->isNotEmpty() ? $unsolvedQuestions : $allQuestions;
-
-        // Filtere bereits gestellte Fragen aus
-        $availableQuestions = $questionPool->filter(function($q) use ($askedQuestionIds) {
-            return !in_array($q->id, $askedQuestionIds);
-        });
-
-        // Wenn keine Fragen mehr verfügbar -> Session zurücksetzen (neuer Durchgang)
-        if ($availableQuestions->isEmpty() && $questionPool->isNotEmpty()) {
-            session()->forget($sessionKey);
-            $askedQuestionIds = [];
-            $availableQuestions = $questionPool;
-        }
-
-        // Shuffle verfügbare Fragen und erste nehmen
-        $idsToShow = $availableQuestions->pluck('id')->toArray();
-        shuffle($idsToShow);
-
-        // Erste Frage aus der Liste holen
-        $questionId = $idsToShow[0] ?? null;
-        $question = $questionId ? OrtsverbandLernpoolQuestion::find($questionId) : null;
-
-        // Speichere gezeigte Frage in Session, um Duplikate zu vermeiden
-        if ($questionId) {
-            $askedQuestionIds[] = $questionId;
-            session([$sessionKey => $askedQuestionIds]);
-        }
-
-        if (!$question) {
-            return view('ortsverband.lernpools.practice', [
-                'ortsverband' => $ortsverband,
-                'lernpool' => $lernpool,
-                'enrollment' => $enrollment,
-                'question' => null,
-                'total' => $totalCount,
-                'progress' => $solvedCount,
-                'progressPercent' => $progressPercent,
-            ]);
-        }
-
-        return view('ortsverband.lernpools.practice', [
-            'ortsverband' => $ortsverband,
-            'lernpool' => $lernpool,
-            'enrollment' => $enrollment,
+        return view('practice', [
             'question' => $question,
-            'total' => $totalCount,
             'progress' => $solvedCount,
+            'total' => $totalCount,
             'progressPercent' => $progressPercent,
+            'user' => $user,
+            'mode' => $mode,
+            'totalInMode' => $serviceProgress['total'],
+            'currentInMode' => $serviceProgress['current'],
+            'answerResult' => $answerResult,
+            'gamificationResult' => $gamificationResult,
+            'context' => 'lernpool',
+            'contextLabel' => $lernpool->name,
+            'backUrl' => route('ortsverband.lernpools.show', [$ortsverband, $lernpool]),
+            'submitUrl' => route('ortsverband.lernpools.practice.submit', [$ortsverband, $lernpool]),
+            'showUrl' => route('ortsverband.lernpools.practice.show', [$ortsverband, $lernpool]),
+            'summaryUrl' => route('ortsverband.lernpools.practice.summary', [$ortsverband, $lernpool]),
+            'issueUrl' => null,
+            'difficultyInfo' => null,
+            'isSpacedRepetition' => false,
+            'bookmarked' => false,
+            'sectionName' => $sectionName,
         ]);
     }
 
     /**
-     * Verarbeite Antwort (wie PracticeController submit)
+     * Unified Practice Submit: Antwort verarbeiten
      */
-    public function answer(Request $request, Ortsverband $ortsverband, OrtsverbandLernpool $lernpool)
+    public function practiceSubmit(Request $request, Ortsverband $ortsverband, OrtsverbandLernpool $lernpool)
     {
-        $user = auth()->user();
-        
-        // Prüfe ob User eingeschrieben ist
-        $enrollment = $user->lernpoolEnrollments()
-            ->where('lernpool_id', $lernpool->id)
-            ->first();
-
-        if (!$enrollment) {
-            return redirect()
-                ->back()
-                ->with('error', 'Du bist nicht in diesem Lernpool eingeschrieben.');
-        }
-
         $validated = $request->validate([
             'question_id' => 'required|exists:ortsverband_lernpool_questions,id',
             'answer' => 'nullable|array',
-            'answer.*' => 'integer',
             'answer_mapping' => 'required|json',
         ]);
 
-        $question = OrtsverbandLernpoolQuestion::findOrFail($validated['question_id']);
+        $questionId = $validated['question_id'];
 
-        // Prüfe ob Frage zu diesem Lernpool gehört
-        if ($question->lernpool_id !== $lernpool->id) {
-            return redirect()
-                ->back()
-                ->with('error', 'Ungültige Frage.');
+        // Hole das Mapping aus dem Hidden Field
+        $mappingJson = $request->input('answer_mapping');
+        $mapping = json_decode($mappingJson, true);
+
+        // User-Antworten (Positionen 0, 1, 2)
+        $userAnswerPositions = $request->input('answer', []);
+
+        // Mappe Positionen zurück auf Original-Buchstaben
+        $userAnswer = collect($userAnswerPositions)->map(function($position) use ($mapping) {
+            return $mapping[$position] ?? null;
+        })->filter()->sort()->values()->toArray();
+
+        // Delegate to service
+        $this->practiceService->submitAnswer('lernpool', $lernpool->id, $questionId, $userAnswer, $mapping);
+
+        return redirect()->route('ortsverband.lernpools.practice.show', [$ortsverband, $lernpool]);
+    }
+
+    /**
+     * Unified Practice Summary: Session-Zusammenfassung
+     */
+    public function practiceSummary(Ortsverband $ortsverband, OrtsverbandLernpool $lernpool)
+    {
+        $user = auth()->user();
+
+        // End session and get summary data
+        $summary = $this->practiceService->endSession('lernpool', $lernpool->id);
+
+        // Clean up section nr session key
+        session()->forget("practice_lernpool_{$lernpool->id}_section_nr");
+
+        // Fallback if no stats
+        if ($summary['totalAnswered'] === 0 && $summary['correct'] === 0) {
+            return redirect()->route('ortsverband.lernpools.show', [$ortsverband, $lernpool]);
         }
 
-        // Parse answer_mapping
-        $mapping = json_decode($validated['answer_mapping'], true);
-        
-        // Hole ausgewählte Antworten
-        $selectedPositions = $validated['answer'] ?? [];
-        $userAnswerLetters = [];
-        
-        foreach ($selectedPositions as $position) {
-            if (isset($mapping[$position])) {
-                $userAnswerLetters[] = strtoupper($mapping[$position]);
-            }
-        }
-        sort($userAnswerLetters);
-        
-        // Richtige Antworten aus loesung (kann mehrere sein, z.B. "A,B")
-        $correctAnswers = collect(explode(',', $question->loesung))
-            ->map(fn($a) => strtoupper(trim($a)))
-            ->sort()
-            ->values()
-            ->toArray();
-        
-        // Prüfe ob korrekt
-        $isCorrect = $userAnswerLetters === $correctAnswers;
+        $stats = [
+            'correct' => $summary['correct'],
+            'incorrect' => $summary['incorrect'],
+            'points' => $summary['points'],
+            'mastered' => $summary['mastered'],
+        ];
 
-        // Speichere Statistik in separater Tabelle (wichtig für Auswertungen!)
-        OrtsverbandLernpoolQuestionStatistic::create([
-            'user_id' => $user->id,
-            'lernpool_question_id' => $question->id,
-            'is_correct' => $isCorrect,
+        $streak = $user->streak_days ?? 0;
+
+        return view('practice-summary', [
+            'stats' => $stats,
+            'totalAnswered' => $summary['totalAnswered'],
+            'accuracy' => $summary['accuracy'],
+            'durationMinutes' => $summary['durationMinutes'],
+            'modeName' => $summary['modeName'],
+            'streak' => $streak,
+            'context' => 'lernpool',
+            'contextLabel' => $lernpool->name,
+            'backUrl' => route('ortsverband.lernpools.show', [$ortsverband, $lernpool]),
+            'completed' => false,
         ]);
-
-        // Aktualisiere Fortschritt
-        $progress = OrtsverbandLernpoolProgress::firstOrCreate(
-            ['user_id' => $user->id, 'question_id' => $question->id],
-            ['consecutive_correct' => 0, 'total_attempts' => 0, 'correct_attempts' => 0, 'solved' => false]
-        );
-
-        $progress->total_attempts++;
-        
-        if ($isCorrect) {
-            $progress->correct_attempts++;
-            $progress->consecutive_correct++;
-            
-            // Gemeistert wenn Threshold erreicht
-            if ($progress->consecutive_correct >= \App\Models\UserQuestionProgress::MASTERY_THRESHOLD) {
-                $progress->solved = true;
-            }
-        } else {
-            $progress->consecutive_correct = 0;
-        }
-        
-        $progress->save();
-
-        // Gamification: Punkte & XP über awardQuestionPoints
-        $gamificationResult = $this->gamificationService->awardQuestionPoints($user, $isCorrect, $question->id);
-        $pointsAwarded = $gamificationResult['points'] ?? 10;
-        $reason = $gamificationResult['reason'] ?? 'Frage beantwortet';
-        
-        // Zusatzbonus bei Meisterung
-        if ($isCorrect && $progress->solved && $progress->consecutive_correct == \App\Models\UserQuestionProgress::MASTERY_THRESHOLD) {
-            $pointsAwarded += 15;
-            $reason = 'Frage gemeistert!';
-        }
-        
-        // Streak wird bereits über awardQuestionPoints() aktualisiert (Min. 10 Fragen/Tag oder 1 Prüfung)
-
-        // Session-Daten für Anzeige (wie in PracticeController)
-        session()->flash('answer_result', [
-            'question_id' => $question->id,
-            'is_correct' => $isCorrect,
-            'user_answer' => $userAnswerLetters,
-            'answer_mapping' => $mapping,
-            'question_progress' => $progress->consecutive_correct,
-        ]);
-        
-        if ($isCorrect && $pointsAwarded > 0) {
-            session()->flash('gamification_result', [
-                'points_awarded' => $pointsAwarded,
-                'reason' => $reason,
-            ]);
-        }
-
-        return redirect()->route('ortsverband.lernpools.practice', [$ortsverband, $lernpool]);
     }
 
     /**
@@ -286,7 +298,7 @@ class OrtsverbandLernpoolPracticeController extends Controller
     public function unenroll(Request $request, Ortsverband $ortsverband, OrtsverbandLernpool $lernpool)
     {
         $user = auth()->user();
-        
+
         $enrollment = $user->lernpoolEnrollments()
             ->where('lernpool_id', $lernpool->id)
             ->first();
