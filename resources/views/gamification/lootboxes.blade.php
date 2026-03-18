@@ -215,17 +215,17 @@
         height: 3rem;
         margin: 0 auto 1rem;
         border-radius: 0.75rem;
-        background: rgba(251, 191, 36, 0.08);
+        background: rgba(0,85,204,0.08);
         display: flex;
         align-items: center;
         justify-content: center;
-        color: #fbbf24;
+        color: #5b9aff;
         font-size: 1.25rem;
     }
 
     html.light-mode .lb-empty__icon {
-        background: rgba(217, 119, 6, 0.06);
-        color: #d97706;
+        background: rgba(0,51,127,0.06);
+        color: #00337F;
     }
 
     .lb-empty__title {
@@ -317,7 +317,7 @@
         font-size: 1.5rem;
         font-weight: 800;
         font-family: 'Barlow Condensed', sans-serif;
-        background: var(--gradient-gold);
+        background: linear-gradient(135deg, #5b9aff, #0055cc);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
@@ -344,15 +344,15 @@
         font-weight: 700;
         font-size: 0.8125rem;
         border: none;
-        background: linear-gradient(135deg, #fbbf24, #f59e0b);
-        color: #000;
+        background: linear-gradient(135deg, #0055cc, #00337F);
+        color: #fff;
         cursor: pointer;
         transition: transform 150ms ease, box-shadow 150ms ease;
     }
 
     .lb-reward__close:hover {
         transform: scale(1.04);
-        box-shadow: 0 4px 20px rgba(251, 191, 36, 0.3);
+        box-shadow: 0 4px 20px rgba(0, 85, 204, 0.3);
     }
 
     /* Particles */
@@ -428,7 +428,7 @@
     {{-- ── Gami Pills ── --}}
     <div class="flex gap-3 mb-6" style="flex-wrap: wrap;">
         <div class="gami-pill">
-            <div class="gami-pill__value" style="color:#fbbf24;-webkit-text-fill-color:#fbbf24;">{{ $unopenedCount }}</div>
+            <div class="gami-pill__value" style="color:#5b9aff;-webkit-text-fill-color:#5b9aff;">{{ $unopenedCount }}</div>
             <div class="gami-pill__label">Ungeöffnet</div>
         </div>
         <div class="gami-pill">
