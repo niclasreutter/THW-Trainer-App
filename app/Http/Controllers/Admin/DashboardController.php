@@ -10,6 +10,7 @@ use App\Models\ExamStatistic;
 use App\Models\ContactMessage;
 use App\Models\LehrgangQuestionIssue;
 use App\Models\QuestionIssue;
+use App\Models\UserQuestionProgress;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Cache;
@@ -57,6 +58,8 @@ class DashboardController extends Controller
                     + QuestionIssue::where('status', 'open')->count();
         $unreadMessages = ContactMessage::where('is_read', false)->count();
 
+        $srStats = $this->getSpacedRepetitionStats();
+
         return view('admin.dashboard', compact(
             'systemStatus',
             'totalUsers',
@@ -75,7 +78,8 @@ class DashboardController extends Controller
             'chartData',
             'activityFeed',
             'openIssues',
-            'unreadMessages'
+            'unreadMessages',
+            'srStats'
         ));
     }
     
@@ -192,7 +196,7 @@ class DashboardController extends Controller
     private function getLeaderboard()
     {
         // Hole Top-10 Benutzer nach Punkten und gelösten Fragen
-        $users = User::select('id', 'name', 'email', 'solved_questions', 'exam_passed_count', 'points', 'level', 'streak_days')
+        $users = User::select('id', 'name', 'email', 'avatar_path', 'solved_questions', 'exam_passed_count', 'points', 'level', 'streak_days')
             ->whereNotNull('solved_questions')
             ->get()
             ->map(function ($user) {
@@ -210,6 +214,7 @@ class DashboardController extends Controller
                     'id' => $user->id,
                     'name' => $user->name,
                     'email' => $user->email,
+                    'avatar_url' => $user->avatar_url,
                     'points' => $user->points ?? 0,
                     'solved_questions' => $solvedCount,
                     'exam_passed' => $user->exam_passed_count ?? 0,
@@ -412,5 +417,45 @@ class DashboardController extends Controller
 
         // Nach Zeit sortieren und limitieren
         return $activities->sortByDesc('time')->take(15)->values();
+    }
+
+    private function getSpacedRepetitionStats()
+    {
+        $totalInSr = UserQuestionProgress::where('review_interval', '>', 0)->count();
+
+        $mastered = UserQuestionProgress::whereNull('next_review_at')
+            ->where('consecutive_correct', '>=', 3)
+            ->count();
+
+        return [
+            'active_users' => UserQuestionProgress::whereNotNull('next_review_at')
+                ->distinct('user_id')
+                ->count('user_id'),
+            'total_in_sr' => $totalInSr,
+            'mastered' => $mastered,
+            'mastery_rate' => $totalInSr > 0 ? round(($mastered / ($totalInSr + $mastered)) * 100, 1) : 0,
+            'due_today' => UserQuestionProgress::whereNotNull('next_review_at')
+                ->where('next_review_at', '<=', now())
+                ->count(),
+            'due_tomorrow' => UserQuestionProgress::whereNotNull('next_review_at')
+                ->whereBetween('next_review_at', [now()->endOfDay(), now()->addDay()->endOfDay()])
+                ->count(),
+            'due_this_week' => UserQuestionProgress::whereNotNull('next_review_at')
+                ->whereBetween('next_review_at', [now(), now()->endOfWeek()])
+                ->count(),
+            'overdue' => UserQuestionProgress::whereNotNull('next_review_at')
+                ->where('next_review_at', '<', now()->startOfDay())
+                ->count(),
+            'avg_interval' => round(UserQuestionProgress::where('review_interval', '>', 0)
+                ->avg('review_interval') ?? 0, 1),
+            'avg_easiness' => round(UserQuestionProgress::where('review_interval', '>', 0)
+                ->avg('easiness_factor') ?? 0, 2),
+            'interval_distribution' => [
+                '1_3' => UserQuestionProgress::whereBetween('review_interval', [1, 3])->count(),
+                '4_7' => UserQuestionProgress::whereBetween('review_interval', [4, 7])->count(),
+                '8_14' => UserQuestionProgress::whereBetween('review_interval', [8, 14])->count(),
+                '15_plus' => UserQuestionProgress::where('review_interval', '>', 14)->count(),
+            ],
+        ];
     }
 }
