@@ -202,9 +202,14 @@
 
                     <div class="nav-section">Ortsverband</div>
 
-                    <a href="{{ route('ortsverband.index') }}" class="sidebar-link {{ request()->routeIs('ortsverband.*') ? 'active' : '' }}">
+                    <a href="{{ $userOV ? route('ortsverband.show', $userOV) : route('ortsverband.index') }}" class="sidebar-link {{ request()->routeIs('ortsverband.show') ? 'active' : '' }}">
                         <i class="bi bi-building"></i> {{ $userOV ? $userOV->name : 'Ortsverband' }}
                     </a>
+                    @if($userOV && $userOV->isAusbildungsbeauftragter(auth()->user()))
+                        <a href="{{ route('ortsverband.dashboard', $userOV) }}" class="sidebar-link {{ request()->routeIs('ortsverband.dashboard') ? 'active' : '' }}">
+                            <i class="bi bi-gear"></i> Verwalten
+                        </a>
+                    @endif
 
                     @if(auth()->user()->useroll === 'admin')
                     <div class="nav-section nav-section-admin">Admin</div>
@@ -441,9 +446,14 @@
                         <span class="badge-error text-xs ml-auto">{{ $unopenedLootboxCount }}</span>
                     @endif
                 </a>
-                <a href="{{ route('ortsverband.index') }}" class="sidebar-link {{ request()->routeIs('ortsverband.*') ? 'active' : '' }}">
+                <a href="{{ $userOV ? route('ortsverband.show', $userOV) : route('ortsverband.index') }}" class="sidebar-link {{ request()->routeIs('ortsverband.show') ? 'active' : '' }}">
                     <i class="bi bi-building"></i> {{ $userOV ? $userOV->name : 'Ortsverband' }}
                 </a>
+                @if($userOV && $userOV->isAusbildungsbeauftragter(auth()->user()))
+                    <a href="{{ route('ortsverband.dashboard', $userOV) }}" class="sidebar-link {{ request()->routeIs('ortsverband.dashboard') ? 'active' : '' }}">
+                        <i class="bi bi-gear"></i> Verwalten
+                    </a>
+                @endif
 
                 @if(auth()->user()->useroll === 'admin')
                 <div class="nav-section nav-section-admin">Admin</div>
