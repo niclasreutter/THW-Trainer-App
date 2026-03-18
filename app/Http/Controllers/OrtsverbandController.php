@@ -20,10 +20,6 @@ class OrtsverbandController extends Controller
         $ortsverband = $user->ortsverbande()->first();
         
         if ($ortsverband) {
-            // Prüfe ob User Ausbildungsbeauftragter ist
-            if ($ortsverband->isAusbildungsbeauftragter($user)) {
-                return redirect()->route('ortsverband.dashboard', $ortsverband);
-            }
             return redirect()->route('ortsverband.show', $ortsverband);
         }
         
