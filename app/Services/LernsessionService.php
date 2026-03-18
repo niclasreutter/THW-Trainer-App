@@ -416,11 +416,16 @@ class LernsessionService
         foreach ($participants as $participant) {
             $isCurrentUser = $participant->user_id === $currentUser->id;
 
+            $anonymAvatarUrl = 'https://dicebear.niclas-reutter.de/9.x/avataaars-neutral/svg?radius=50&seed=AnonymTHW-Trainer&eyes=default,happy';
+
             $ranking[] = [
                 'rank' => $rank,
                 'user_name' => $participant->ranking_consent
                     ? $participant->user->name
                     : ($isCurrentUser ? $participant->user->name : 'Anonymer Teilnehmer'),
+                'avatar_url' => $participant->ranking_consent || $isCurrentUser
+                    ? $participant->user->avatar_url
+                    : $anonymAvatarUrl,
                 'correct' => $participant->questions_correct,
                 'accuracy' => (float) $participant->accuracy_percent,
                 'questions' => $participant->questions_answered,
