@@ -1,30 +1,51 @@
-<!-- THW-Trainer E-Mail Vorlage -->
-
-<div style="background:#f8fafc;padding:32px 0;">
-    <div style="max-width:480px;margin:40px auto;background:#fff;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.08);padding:32px 24px;">
-        <div style="color:#1a202c;font-family:sans-serif;">
-            <div style="text-align:center;margin-bottom:18px;">
-                <img src="{{ asset('logo-thwtrainer.png') }}" alt="THW-Trainer Logo" style="max-width:50%;height:auto;display:block;margin:auto;" />
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Mail bestätigen - THW Trainer</title>
+</head>
+<body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:#f0f2f5;">
+    <div style="background:#f0f2f5;padding:32px 16px;">
+        <div style="max-width:600px;margin:0 auto;">
+            <div style="background:linear-gradient(135deg,#00337F,#0055cc);padding:20px 24px 16px;border-radius:1.5rem 0.5rem 0 0;">
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <div style="width:32px;height:32px;background:rgba(255,255,255,0.15);border-radius:8px;display:flex;align-items:center;justify-content:center;">
+                        <img src="https://thw-trainer.de/logo-thwtrainer_w.png" alt="THW" style="width:18px;height:18px;">
+                    </div>
+                    <span style="color:#fff;font-weight:700;font-size:14px;letter-spacing:0.5px;">THW-TRAINER</span>
+                </div>
             </div>
-            <h2 style="font-size:1.5rem;font-weight:bold;margin-bottom:18px;color:#003399;">E-Mail-Adresse bestätigen</h2>
-            <p style="margin-bottom:18px;font-size:1rem;">Hallo <strong>{{ $user->name }}</strong>,</p>
-            <p style="margin-bottom:18px;font-size:1rem;">du hast deine E-Mail-Adresse in deinem THW-Trainer Profil geändert. Um die Änderung zu bestätigen, klicke bitte auf den Button unten.</p>
-            
-            <div style="background:#fef3c7;border:2px solid #f59e0b;border-radius:8px;padding:18px;margin:18px 0;text-align:center;">
-                <p style="margin:0;font-size:1rem;font-weight:bold;color:#92400e;">
-                    <strong>Wichtig:</strong> Dieser Link ist nur für 5 Minuten gültig.
-                </p>
-            </div>
+            <div style="background:#ffffff;padding:28px 24px;border-left:3px solid #00337F;box-shadow:0 4px 20px rgba(0,0,0,0.08);">
 
-            <div style="text-align:center; margin:32px 0;">
-                <a href="{{ $verificationUrl }}" style="background:#FFD700;color:#003399;padding:12px 32px;border-radius:6px;text-decoration:none;font-weight:bold;display:inline-block;">
-                    E-Mail-Adresse bestätigen
-                </a>
-            </div>
+                <div style="font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#64748b;margin-bottom:6px;">E-Mail Änderung</div>
+                <div style="font-size:20px;font-weight:800;color:#0f172a;margin-bottom:16px;">E-Mail-Adresse bestätigen</div>
 
-            <p style="margin-bottom:0.5rem;color:#555;">Falls du diese Änderung nicht vorgenommen hast, ignoriere diese E-Mail einfach.</p>
-            <p style="font-size:0.8rem;color:#888;margin-top:24px;text-align:center;">Falls der Button nicht funktioniert, kopiere diesen Link in deinen Browser:<br>{{ $verificationUrl }}</p>
-            <p style="font-size:0.9rem;color:#888;margin-top:12px;text-align:center;">Viele Grüße,<br>Dein THW-Trainer Team</p>
+                <p style="margin:0 0 16px 0;font-size:13px;color:#475569;line-height:1.6;">Hallo <strong>{{ $user->name }}</strong>,</p>
+                <p style="margin:0 0 16px 0;font-size:13px;color:#475569;line-height:1.6;">du hast deine E-Mail-Adresse in deinem THW-Trainer Profil geändert. Um die Änderung zu bestätigen, klicke bitte auf den Button unten.</p>
+
+                <!-- Gültigkeit -->
+                <div style="background:#fffbeb;border-radius:8px;padding:14px 16px;margin-bottom:16px;border-left:3px solid #f59e0b;">
+                    <p style="margin:0;font-size:13px;color:#92400e;line-height:1.6;"><strong>Wichtig:</strong> Dieser Link ist nur für <strong>5 Minuten gültig</strong>.</p>
+                </div>
+
+                <!-- CTA -->
+                <div style="text-align:center;margin:24px 0;">
+                    <a href="{{ $verificationUrl }}" style="background:linear-gradient(135deg,#00337F,#0055cc);color:#fff;padding:12px 32px;border-radius:0.5rem;text-decoration:none;font-weight:700;font-size:13px;display:inline-block;box-shadow:0 4px 15px rgba(0,51,127,0.3);">E-Mail-Adresse bestätigen</a>
+                </div>
+
+                <p style="margin:0 0 12px 0;font-size:12px;color:#94a3b8;line-height:1.6;">Falls du diese Änderung nicht vorgenommen hast, ignoriere diese E-Mail einfach.</p>
+                <p style="margin:0;font-size:12px;color:#94a3b8;line-height:1.6;">Falls der Button nicht funktioniert, kopiere diesen Link in deinen Browser:<br><span style="color:#64748b;word-break:break-all;">{{ $verificationUrl }}</span></p>
+
+            </div>
+            <div style="background:#f8fafc;padding:16px 24px;border-radius:0 0 0.5rem 1.5rem;border-top:1px solid #e2e8f0;">
+                <div style="text-align:center;">
+                    <p style="margin:0 0 8px 0;font-size:11px;color:#94a3b8;line-height:1.6;"><strong style="color:#64748b;">THW-Trainer</strong> &middot; Dein Lernbegleiter für die THW-Grundausbildung</p>
+                    <p style="margin:0 0 6px 0;font-size:11px;color:#94a3b8;"><a href="https://thw-trainer.de/impressum" style="color:#94a3b8;text-decoration:none;">Impressum</a> &middot; <a href="https://thw-trainer.de/datenschutz" style="color:#94a3b8;text-decoration:none;">Datenschutz</a></p>
+                    <p style="margin:0;font-size:11px;color:#cbd5e1;"><a href="https://thw-trainer.de/profile" style="color:#64748b;text-decoration:none;">E-Mail-Einstellungen ändern</a></p>
+                </div>
+            </div>
         </div>
     </div>
-</div>
+</body>
+</html>
