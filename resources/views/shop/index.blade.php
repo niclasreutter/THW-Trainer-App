@@ -5,6 +5,50 @@
 <link rel="preconnect" href="https://fonts.bunny.net">
 <link href="https://fonts.bunny.net/css2?family=Barlow+Condensed:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
+    /* ─── Lootbox Nudge ─── */
+    .lootbox-nudge {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.75rem 1rem;
+        border-radius: 0.75rem;
+        border: 1px solid rgba(251, 191, 36, 0.2);
+        background: rgba(251, 191, 36, 0.06);
+        text-decoration: none;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .lootbox-nudge:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(251, 191, 36, 0.12);
+        text-decoration: none;
+    }
+    .lootbox-nudge__icon {
+        width: 2rem;
+        height: 2rem;
+        border-radius: 0.5rem;
+        background: linear-gradient(135deg, #fbbf24, #f59e0b);
+        color: #1a1a2e;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        animation: lootbox-shimmer 3s ease-in-out infinite;
+    }
+    @keyframes lootbox-shimmer {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0); }
+        50% { box-shadow: 0 0 12px 2px rgba(251, 191, 36, 0.3); }
+    }
+    .lootbox-nudge__title {
+        font-size: 0.8125rem;
+        font-weight: 600;
+        color: #fbbf24;
+    }
+    html.light-mode .lootbox-nudge__title { color: #d97706; }
+    .lootbox-nudge__desc {
+        font-size: 0.625rem;
+        color: var(--text-muted);
+        margin-top: 0.1rem;
+    }
+
     /* ─── Header (Dashboard-pattern) ─── */
     .shop-greeting {
         font-size: 0.75rem;
