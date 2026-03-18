@@ -5,154 +5,131 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Du fehlst uns - THW Trainer</title>
 </head>
-<body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
-    <div style="background:#f8fafc;padding:32px 16px;">
-        <div style="max-width:600px;margin:0 auto;background:#ffffff;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.08);padding:40px 32px;">
+<body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:#f0f2f5;">
+    <div style="background:#f0f2f5;padding:32px 16px;">
+        <div style="max-width:600px;margin:0 auto;">
 
-            <!-- Logo -->
-            <div style="text-align:center;margin-bottom:24px;">
-                <img src="https://thw-trainer.de/logo-thwtrainer.png" alt="THW-Trainer Logo" style="max-width:200px;height:auto;" />
+            <!-- Header -->
+            <div style="background:linear-gradient(135deg,#00337F,#0055cc);padding:20px 24px 16px;border-radius:1.5rem 0.5rem 0 0;">
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <div style="width:32px;height:32px;background:rgba(255,255,255,0.15);border-radius:8px;display:flex;align-items:center;justify-content:center;">
+                        <img src="https://thw-trainer.de/logo-thwtrainer_w.png" alt="THW" style="width:18px;height:18px;">
+                    </div>
+                    <span style="color:#fff;font-weight:700;font-size:14px;letter-spacing:0.5px;">THW-TRAINER</span>
+                </div>
             </div>
 
-            <!-- Überschrift -->
-            <h1 style="font-size:24px;font-weight:600;margin:0 0 24px 0;color:#003399;text-align:center;">
-                Hey {{ $user->name }}, du fehlst uns!
-            </h1>
+            <!-- Body -->
+            <div style="background:#ffffff;padding:28px 24px;border-left:3px solid #00337F;box-shadow:0 4px 20px rgba(0,0,0,0.08);">
 
-            <!-- Anrede -->
-            <p style="margin:0 0 16px 0;font-size:16px;line-height:1.6;color:#1a202c;">
-                Hallo <strong>{{ $user->name }}</strong>,
-            </p>
+                <!-- Label + Title -->
+                <div style="font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#64748b;margin-bottom:6px;">Wir vermissen dich</div>
+                <div style="font-size:20px;font-weight:800;color:#0f172a;margin-bottom:16px;">Du fehlst uns!</div>
 
-            <!-- Motivation -->
-            <p style="margin:0 0 24px 0;font-size:18px;line-height:1.6;color:#1a202c;">
-                Wir haben bemerkt, dass du seit {{ $daysInactive }} Tagen nicht mehr bei uns warst.
-                Dein Wissen und dein Fortschritt warten auf dich!
-            </p>
-
-            @if($remainingQuestions > 0)
-            <!-- Fortschritts-Box -->
-            <div style="background:#eff6ff;border:2px solid #003399;border-radius:8px;padding:20px;margin:20px 0;text-align:center;">
-                <p style="margin:0;font-size:16px;font-weight:600;color:#003399;">
-                    Dein Fortschritt
+                <!-- Greeting -->
+                <p style="margin:0 0 16px 0;font-size:13px;color:#475569;line-height:1.6;">
+                    Hallo <strong style="color:#0f172a;">{{ $user->name }}</strong>, wir haben bemerkt, dass du seit <strong style="color:#0f172a;">{{ $daysInactive }} Tagen</strong> nicht mehr bei uns warst. Dein Wissen und dein Fortschritt warten auf dich!
                 </p>
-                <p style="margin:10px 0;font-size:18px;color:#1a202c;">
-                    Du hast bereits <strong>{{ $masteredQuestions }} von {{ $totalQuestions }} Fragen</strong> gemeistert!
-                </p>
-                <!-- Progress Bar -->
-                <div style="background:#e5e7eb;border-radius:10px;height:30px;margin:15px 0;overflow:hidden;">
-                    <div style="background:linear-gradient(to right, #22c55e, #16a34a);height:100%;width:{{ $progressPercentage }}%;border-radius:10px;display:flex;align-items:center;justify-content:center;color:white;font-weight:bold;font-size:14px;">
-                        {{ $progressPercentage }}%
+
+                @if($remainingQuestions > 0)
+
+                <!-- Progress Stat Pill -->
+                <div style="background:#f0f4ff;border-radius:2rem;padding:14px 18px;border:1px solid rgba(0,51,127,0.12);margin-bottom:16px;">
+                    <div style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#64748b;margin-bottom:4px;">Dein Fortschritt</div>
+                    <div style="font-size:14px;font-weight:800;color:#00337F;margin-bottom:10px;">{{ $masteredQuestions }}/{{ $totalQuestions }} Fragen gemeistert</div>
+                    <!-- Progress Bar -->
+                    <div style="background:#dbeafe;border-radius:6px;height:6px;overflow:hidden;">
+                        <div style="background:linear-gradient(90deg,#00337F,#3b82f6);height:6px;width:{{ $progressPercentage }}%;border-radius:6px;"></div>
+                    </div>
+                    <div style="font-size:11px;color:#64748b;margin-top:6px;">{{ $progressPercentage }}% abgeschlossen</div>
+                </div>
+
+                <!-- Stats: two stat pills side by side via table -->
+                <table style="width:100%;border-collapse:separate;border-spacing:12px 0;margin-bottom:16px;">
+                    <tr>
+                        <td style="width:50%;background:#f0f4ff;border-radius:2rem;padding:14px 18px;border:1px solid rgba(0,51,127,0.12);vertical-align:top;">
+                            <div style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#64748b;margin-bottom:4px;">Gemeistert</div>
+                            <div style="font-size:14px;font-weight:800;color:#00337F;">{{ $masteredQuestions }}</div>
+                        </td>
+                        <td style="width:50%;background:#f0f4ff;border-radius:2rem;padding:14px 18px;border:1px solid rgba(0,51,127,0.12);vertical-align:top;">
+                            <div style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#64748b;margin-bottom:4px;">Noch offen</div>
+                            <div style="font-size:14px;font-weight:800;color:#00337F;">{{ $remainingQuestions }}</div>
+                        </td>
+                    </tr>
+                </table>
+
+                <!-- Motivation Info Box (conditional) -->
+                @if($remainingQuestions <= 10)
+                <div style="background:#f0fdf4;border-radius:8px;padding:14px 16px;margin-bottom:16px;border-left:3px solid #22c55e;">
+                    <div style="font-size:12px;font-weight:700;color:#166534;margin-bottom:4px;">Fast geschafft!</div>
+                    <p style="margin:0;font-size:13px;color:#475569;line-height:1.6;">Nur noch {{ $remainingQuestions }} Frage{{ $remainingQuestions == 1 ? '' : 'n' }}! Das schaffst du locker in ein paar Minuten.</p>
+                </div>
+                @elseif($remainingQuestions <= 50)
+                <div style="background:#f0f4ff;border-radius:8px;padding:14px 16px;margin-bottom:16px;border-left:3px solid #3b82f6;">
+                    <div style="font-size:12px;font-weight:700;color:#1e3a5f;margin-bottom:4px;">Du bist so nah dran!</div>
+                    <p style="margin:0;font-size:13px;color:#475569;line-height:1.6;">Mit nur 10 Fragen pro Tag bist du in wenigen Tagen durch! Du packst das!</p>
+                </div>
+                @else
+                <div style="background:#f0f4ff;border-radius:8px;padding:14px 16px;margin-bottom:16px;border-left:3px solid #3b82f6;">
+                    <div style="font-size:12px;font-weight:700;color:#1e3a5f;margin-bottom:4px;">Schritt für Schritt</div>
+                    <p style="margin:0;font-size:13px;color:#475569;line-height:1.6;">Jede Frage bringt dich weiter. Fang einfach an – der Rest folgt von selbst!</p>
+                </div>
+                @endif
+
+                @else
+
+                <!-- 100% complete -->
+                <div style="background:#f0fdf4;border-radius:8px;padding:14px 16px;margin-bottom:16px;border-left:3px solid #22c55e;">
+                    <div style="font-size:12px;font-weight:700;color:#166834;margin-bottom:4px;">Alle Fragen gemeistert!</div>
+                    <p style="margin:0;font-size:13px;color:#475569;line-height:1.6;">Du hast bereits alle <strong>{{ $totalQuestions }} Fragen</strong> gemeistert!</p>
+                    <!-- Progress Bar 100% -->
+                    <div style="background:#dbeafe;border-radius:6px;height:6px;overflow:hidden;margin-top:10px;">
+                        <div style="background:linear-gradient(90deg,#00337F,#3b82f6);height:6px;width:100%;border-radius:6px;"></div>
                     </div>
                 </div>
-                <p style="margin:15px 0 0 0;font-size:20px;font-weight:600;color:#16a34a;">
-                    Nur noch <strong>{{ $remainingQuestions }} Frage{{ $remainingQuestions == 1 ? '' : 'n' }}</strong> bis zum Ziel!
-                </p>
-                <p style="margin:10px 0 0 0;font-size:12px;color:#6b7280;">
-                    <em>Der Balken zeigt deinen Gesamt-Fortschritt inkl. teilweise gelöster Fragen</em>
-                </p>
-            </div>
 
-            <!-- Stats Grid -->
-            <table style="width:100%;margin:20px 0;border-collapse:separate;border-spacing:15px 0;">
-                <tr>
-                    <td style="background:#f3f4f6;padding:15px;border-radius:8px;text-align:center;width:50%;">
-                        <div style="font-size:12px;color:#6b7280;">Gemeistert</div>
-                        <div style="font-size:32px;font-weight:bold;color:#003399;margin:10px 0;">{{ $masteredQuestions }}</div>
-                        <div style="font-size:12px;color:#6b7280;">von {{ $totalQuestions }} Fragen</div>
-                    </td>
-                    <td style="background:#f3f4f6;padding:15px;border-radius:8px;text-align:center;width:50%;">
-                        <div style="font-size:12px;color:#6b7280;">Noch offen</div>
-                        <div style="font-size:32px;font-weight:bold;color:#003399;margin:10px 0;">{{ $remainingQuestions }}</div>
-                        <div style="font-size:12px;color:#6b7280;">Fragen</div>
-                    </td>
-                </tr>
-            </table>
+                <div style="background:#f0fdf4;border-radius:8px;padding:14px 16px;margin-bottom:16px;border-left:3px solid #22c55e;">
+                    <div style="font-size:12px;font-weight:700;color:#166834;margin-bottom:4px;">Bleib dran!</div>
+                    <p style="margin:0;font-size:13px;color:#475569;line-height:1.6;">Wiederhole deine Fragen regelmäßig, um dein Wissen frisch zu halten. Übung macht den Meister!</p>
+                </div>
 
-            <!-- Motivation Box -->
-            <div style="background:#fef3c7;border:2px solid #f59e0b;border-radius:8px;padding:18px;margin:20px 0;">
-                <p style="margin:0;font-size:16px;font-weight:600;color:#92400e;">
-                    Du bist so nah dran!
+                @endif
+
+                @if($user->points > 0)
+                <p style="margin:0 0 16px 0;font-size:13px;color:#475569;line-height:1.6;">
+                    Du hast bereits <strong style="color:#0f172a;">{{ $user->points }} Punkte</strong> gesammelt und bist auf Level <strong style="color:#0f172a;">{{ $user->level }}</strong>. Lass uns zusammen weiter an deinem Erfolg arbeiten!
                 </p>
-                <p style="margin:8px 0 0 0;font-size:15px;color:#1a202c;">
-                    @if($remainingQuestions <= 10)
-                        Nur noch {{ $remainingQuestions }} Frage{{ $remainingQuestions == 1 ? '' : 'n' }}! Das schaffst du locker in ein paar Minuten.
-                    @elseif($remainingQuestions <= 50)
-                        Mit nur 10 Fragen pro Tag bist du in wenigen Tagen durch! Du packst das!
+                @endif
+
+                <!-- CTA Button -->
+                <div style="text-align:center;margin:24px 0 8px 0;">
+                    <a href="https://thw-trainer.de/practice-menu" style="background:linear-gradient(135deg,#00337F,#0055cc);color:#fff;padding:12px 32px;border-radius:0.5rem;text-decoration:none;font-weight:700;font-size:13px;display:inline-block;box-shadow:0 4px 15px rgba(0,51,127,0.3);">
+                        @if($remainingQuestions > 0)
+                            Jetzt weiterlernen
+                        @else
+                            Wissen auffrischen
+                        @endif
+                    </a>
+                </div>
+
+                <p style="margin:16px 0 0 0;font-size:13px;color:#475569;line-height:1.6;text-align:center;">
+                    @if($remainingQuestions > 0)
+                        Komm zurück und beende, was du begonnen hast. Wir glauben an dich!
                     @else
-                        Schritt für Schritt kommst du ans Ziel. Jede Frage bringt dich weiter!
+                        Bleib am Ball und halte dein Wissen frisch. Du bist großartig!
                     @endif
                 </p>
-            </div>
-            @else
-            <!-- 100% geschafft -->
-            <div style="background:#f0fdf4;border:2px solid #22c55e;border-radius:8px;padding:20px;margin:20px 0;text-align:center;">
-                <p style="margin:0;font-size:16px;font-weight:600;color:#16a34a;">
-                    Alle Fragen gemeistert!
-                </p>
-                <p style="margin:10px 0;font-size:18px;color:#1a202c;">
-                    Du hast bereits <strong>alle {{ $totalQuestions }} Fragen</strong> gemeistert!
-                </p>
-                <!-- Progress Bar 100% -->
-                <div style="background:#e5e7eb;border-radius:10px;height:30px;margin:15px 0;overflow:hidden;">
-                    <div style="background:linear-gradient(to right, #22c55e, #16a34a);height:100%;width:100%;border-radius:10px;display:flex;align-items:center;justify-content:center;color:white;font-weight:bold;font-size:14px;">
-                        100%
-                    </div>
-                </div>
-            </div>
 
-            <div style="background:#f0fdf4;border:2px solid #22c55e;border-radius:8px;padding:18px;margin:20px 0;">
-                <p style="margin:0;font-size:16px;font-weight:600;color:#16a34a;">
-                    Bleib dran!
-                </p>
-                <p style="margin:8px 0 0 0;font-size:15px;color:#1a202c;">
-                    Wiederhole deine Fragen regelmäßig, um dein Wissen frisch zu halten.
-                    Übung macht den Meister!
-                </p>
             </div>
-            @endif
-
-            @if($user->points > 0)
-            <p style="margin:20px 0;font-size:16px;color:#1a202c;line-height:1.6;">
-                Du hast bereits <strong>{{ $user->points }} Punkte</strong> gesammelt und bist auf Level <strong>{{ $user->level }}</strong>.
-                Lass uns zusammen weiter an deinem Erfolg arbeiten!
-            </p>
-            @endif
-
-            <!-- Call-to-Action Button -->
-            <div style="text-align:center;margin:32px 0;">
-                <a href="https://thw-trainer.de/practice-menu" style="background:#FFD700;color:#003399;padding:14px 40px;border-radius:8px;text-decoration:none;font-weight:600;font-size:16px;display:inline-block;">
-                    Jetzt weiterlernen
-                </a>
-            </div>
-
-            <p style="margin:20px 0;font-size:16px;color:#1a202c;line-height:1.6;text-align:center;">
-                @if($remainingQuestions > 0)
-                    Komm zurück und beende, was du begonnen hast. Wir glauben an dich!
-                @else
-                    Bleib am Ball und halte dein Wissen frisch. Du bist großartig!
-                @endif
-            </p>
 
             <!-- Footer -->
-            <div style="margin-top:32px;padding-top:24px;border-top:1px solid #e5e7eb;">
-                <p style="margin:0 0 8px 0;font-size:14px;color:#666;text-align:center;">
-                    <strong>THW-Trainer</strong><br>
-                    Dein persönlicher Lernbegleiter für die THW-Grundausbildung
-                </p>
-                <p style="margin:16px 0 0 0;font-size:13px;color:#888;text-align:center;">
-                    Diese E-Mail wurde automatisch gesendet, weil du {{ $daysInactive }} Tage inaktiv warst und E-Mail-Benachrichtigungen aktiviert hast.<br>
-                    Du kannst diese Einstellung in deinem <a href="https://thw-trainer.de/profile" style="color:#003399;">Profil</a> ändern.
-                </p>
-            </div>
-
-            <!-- Impressum/Kontakt -->
-            <div style="margin-top:24px;padding-top:16px;border-top:1px solid #e5e7eb;text-align:center;">
-                <p style="margin:0;font-size:12px;color:#999;line-height:1.5;">
-                    © {{ date('Y') }} THW-Trainer.de |
-                    <a href="https://thw-trainer.de/impressum" style="color:#999;text-decoration:none;">Impressum</a> |
-                    <a href="https://thw-trainer.de/datenschutz" style="color:#999;text-decoration:none;">Datenschutz</a>
-                </p>
+            <div style="background:#f8fafc;padding:16px 24px;border-radius:0 0 0.5rem 1.5rem;border-top:1px solid #e2e8f0;">
+                <div style="text-align:center;">
+                    <p style="margin:0 0 8px 0;font-size:11px;color:#94a3b8;line-height:1.6;"><strong style="color:#64748b;">THW-Trainer</strong> &middot; Dein Lernbegleiter für die THW-Grundausbildung</p>
+                    <p style="margin:0 0 4px 0;font-size:11px;color:#94a3b8;">Diese E-Mail wurde automatisch gesendet, weil du {{ $daysInactive }} Tage inaktiv warst und E-Mail-Benachrichtigungen aktiviert hast.</p>
+                    <p style="margin:0 0 6px 0;font-size:11px;color:#94a3b8;"><a href="https://thw-trainer.de/impressum" style="color:#94a3b8;text-decoration:none;">Impressum</a> &middot; <a href="https://thw-trainer.de/datenschutz" style="color:#94a3b8;text-decoration:none;">Datenschutz</a></p>
+                    <p style="margin:0;font-size:11px;color:#cbd5e1;"><a href="https://thw-trainer.de/profile" style="color:#64748b;text-decoration:none;">E-Mail-Einstellungen ändern</a></p>
+                </div>
             </div>
 
         </div>
