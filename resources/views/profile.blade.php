@@ -377,10 +377,13 @@
         <div class="glass p-4" style="border-radius:0.75rem;">
             <div class="pf-avatar-card">
                 <div class="pf-avatar-wrap">
-                    <img src="{{ $user->avatar_url }}" alt="Avatar" class="pf-avatar" id="pf-avatar-img">
-                    <button type="button" class="pf-avatar-regen" id="pf-regen-btn" title="Avatar neu generieren">
-                        <i class="bi bi-arrow-repeat"></i>
-                    </button>
+                    <img src="{{ $user->avatar_url }}" alt="Avatar" class="pf-avatar">
+                    <form method="POST" action="{{ route('profile.avatar.regenerate') }}" style="margin:0;">
+                        @csrf
+                        <button type="submit" class="pf-avatar-regen" title="Avatar neu generieren">
+                            <i class="bi bi-arrow-repeat"></i>
+                        </button>
+                    </form>
                 </div>
                 <div class="pf-avatar-info">
                     <div class="pf-avatar-name">{{ $user->name }}</div>
@@ -661,36 +664,5 @@
         }
     }
 
-    document.getElementById('pf-regen-btn').addEventListener('click', function() {
-        const btn = this;
-        const img = document.getElementById('pf-avatar-img');
-
-        if (btn.disabled) return;
-        btn.classList.add('is-spinning');
-        btn.disabled = true;
-
-        const url = '{{ route("profile.avatar.regenerate") }}' + '?_t=' + Date.now();
-        fetch(url, {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                'Accept': 'application/json',
-            },
-            cache: 'no-store',
-        })
-        .then(function(r) { return r.json(); })
-        .then(function(data) {
-            if (data.avatar_url) {
-                img.src = data.avatar_url + (data.avatar_url.indexOf('?') !== -1 ? '&' : '?') + '_t=' + Date.now();
-            }
-        })
-        .catch(function(err) { console.error('Avatar regeneration failed:', err); })
-        .finally(function() {
-            setTimeout(function() {
-                btn.classList.remove('is-spinning');
-                btn.disabled = false;
-            }, 700);
-        });
-    });
 </script>
 @endsection

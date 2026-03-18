@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -150,7 +149,7 @@ class ProfileController extends Controller
     /**
      * Regenerate the user's avatar with a new random seed.
      */
-    public function regenerateAvatar(Request $request): JsonResponse
+    public function regenerateAvatar(Request $request): RedirectResponse
     {
         $user = $request->user();
         $seed = Str::random(16);
@@ -164,9 +163,7 @@ class ProfileController extends Controller
             . '&top=bob,bun,curly,curvy,dreads,frida,fro,froBand,longButNotTooLong,miaWallace,shavedSides,straight01,straight02,straightAndStrand,dreads01,dreads02,frizzle,shaggy,shaggyMullet,shortCurly,shortFlat,shortRound,shortWaved,sides,theCaesar,theCaesarAndSidePart,bigHair';
         $user->save();
 
-        return response()->json([
-            'avatar_url' => $user->avatar_url,
-        ]);
+        return Redirect::route('profile')->with('status', 'avatar-updated');
     }
 
     /**
