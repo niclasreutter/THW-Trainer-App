@@ -15,6 +15,12 @@
       "app.css"
     ]
   },
+  "resources/js/admin.js": {
+    "file": "assets/admin-D4P1vv6u.js",
+    "name": "admin",
+    "src": "resources/js/admin.js",
+    "isEntry": true
+  },
   "resources/js/app.js": {
     "file": "assets/app-CEk8zgGE.js",
     "name": "app",

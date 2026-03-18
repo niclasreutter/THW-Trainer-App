@@ -344,7 +344,7 @@
 @endsection
 
 @push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+@vite('resources/js/admin.js')
 <script>
     Chart.defaults.font.family = "'Figtree', system-ui, sans-serif";
     Chart.defaults.color = '#a1a1aa';

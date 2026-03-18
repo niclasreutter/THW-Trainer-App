@@ -30,14 +30,12 @@
     </div>
 
     <!-- Action Buttons -->
-    <div class="flex flex-col gap-3" x-data="{ loading: false }">
+    <div class="flex flex-col gap-3">
         <button
-            @click="loading = true; setTimeout(() => window.location.reload(), 3000)"
-            :disabled="loading"
-            class="btn-primary"
-            :class="{ 'opacity-60 cursor-not-allowed': loading }">
-            <span x-show="!loading">Automatisch neu laden</span>
-            <span x-show="loading">Lädt in 3 Sekunden...</span>
+            id="reloadBtn"
+            onclick="startReload()"
+            class="btn-primary">
+            Automatisch neu laden
         </button>
 
         <a href="{{ url('/') }}" class="btn-secondary">
@@ -46,5 +44,13 @@
     </div>
 </div>
 
-<script src="//unpkg.com/alpinejs" defer></script>
+<script>
+function startReload() {
+    var btn = document.getElementById('reloadBtn');
+    btn.disabled = true;
+    btn.classList.add('opacity-60', 'cursor-not-allowed');
+    btn.textContent = 'Lädt in 3 Sekunden...';
+    setTimeout(function() { window.location.reload(); }, 3000);
+}
+</script>
 @endsection
