@@ -3,237 +3,144 @@
 @section('title', $ortsverband->name . ' · Neuer Lernpool')
 
 @push('styles')
+<link rel="preconnect" href="https://fonts.bunny.net">
+<link href="https://fonts.bunny.net/css2?family=Barlow+Condensed:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-    * {
-        box-sizing: border-box;
+    @keyframes dash-rise {
+        from { opacity: 0; transform: translateY(10px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+    .dash-container > .space-y-4 > * {
+        animation: dash-rise 0.45s cubic-bezier(0.22,1,0.36,1) both;
+    }
+    .dash-container > .space-y-4 > *:nth-child(1) { animation-delay: 0.03s; }
+    .dash-container > .space-y-4 > *:nth-child(2) { animation-delay: 0.07s; }
+    .dash-container > .space-y-4 > *:nth-child(3) { animation-delay: 0.11s; }
+    @media (prefers-reduced-motion: reduce) {
+        .dash-container > .space-y-4 > * { animation: none; }
     }
 
-    .dashboard-wrapper {
-        min-height: 100vh;
-        background: #f3f4f6;
-        position: relative;
-        overflow-x: hidden;
-    }
-
-    .dashboard-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 2rem;
-        position: relative;
-        z-index: 1;
-    }
-
-    .dashboard-header {
-        margin-bottom: 2.5rem;
-        padding-top: 1rem;
-        max-width: 600px;
-    }
-
-    .dashboard-greeting {
-        font-size: 2.25rem;
-        font-weight: 800;
-        color: #00337F;
-        margin-bottom: 0.5rem;
-        line-height: 1.2;
-    }
-
-    .dashboard-subtitle {
-        font-size: 1.1rem;
-        color: #4b5563;
-        margin-bottom: 0;
-    }
-
-    .info-card {
-        background: white;
-        padding: 2rem;
-        border-radius: 1.25rem;
-        margin-bottom: 1.5rem;
-        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
-        border: 1px solid #e2e8f0;
-    }
-
-    .btn {
-        padding: 0.75rem 1.5rem;
-        border-radius: 0.75rem;
+    .tag-pill-suggestion {
+        background: rgba(91,154,255,0.1);
+        color: #5b9aff;
+        padding: 0.3rem 0.75rem;
+        border-radius: 2rem;
+        font-size: 0.7rem;
         font-weight: 600;
-        font-size: 0.95rem;
-        text-decoration: none;
-        border: none;
+        border: 1px solid rgba(91,154,255,0.2);
         cursor: pointer;
-        transition: all 0.2s;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
+        transition: all 150ms;
+        font-family: 'IBM Plex Mono', monospace;
     }
-
-    .btn-primary {
-        background: linear-gradient(135deg, #2563eb, #1e40af);
-        color: white;
+    .tag-pill-suggestion:hover {
+        background: rgba(91,154,255,0.2);
+        border-color: rgba(91,154,255,0.4);
+        transform: translateY(-1px);
     }
-
-    .btn-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 25px rgba(37, 99, 235, 0.3);
-    }
-
-    .btn-secondary {
-        background: #f3f4f6;
+    html.light-mode .tag-pill-suggestion {
+        background: rgba(0,51,127,0.06);
         color: #00337F;
-        border: 1px solid #e5e7eb;
+        border-color: rgba(0,51,127,0.15);
+    }
+    html.light-mode .tag-pill-suggestion:hover {
+        background: rgba(0,51,127,0.12);
+        border-color: rgba(0,51,127,0.3);
     }
 
-    .btn-secondary:hover {
-        background: #e5e7eb;
-    }
-
-    .form-group {
-        margin-bottom: 1.5rem;
-    }
-
-    .form-label {
-        display: block;
-        font-size: 0.95rem;
-        font-weight: 600;
-        color: #00337F;
-        margin-bottom: 0.5rem;
-    }
-
-    .form-label .required {
-        color: #dc2626;
-    }
-
-    .form-input, .form-textarea {
-        width: 100%;
-        padding: 0.75rem;
-        border: 2px solid #e5e7eb;
-        border-radius: 0.75rem;
-        font-size: 0.95rem;
-        transition: border-color 0.2s;
-    }
-
-    .form-input:focus, .form-textarea:focus {
-        outline: none;
-        border-color: #2563eb;
-        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-    }
-
-    .form-input.error, .form-textarea.error {
-        border-color: #dc2626;
-    }
-
-    .form-textarea {
-        resize: vertical;
-    }
-
-    .form-checkbox {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-    }
-
-    .form-checkbox input {
-        width: 1.25rem;
-        height: 1.25rem;
-        cursor: pointer;
-    }
-
-    .form-checkbox label {
-        font-size: 0.95rem;
-        font-weight: 600;
-        color: #00337F;
-        cursor: pointer;
-        margin: 0;
-    }
-
-    .form-error {
-        color: #dc2626;
-        font-size: 0.85rem;
+    .form-error-glass {
+        color: #ef4444;
+        font-size: 0.75rem;
         margin-top: 0.25rem;
     }
 
-    .form-actions {
+    .form-hint-glass {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        margin-top: 0.25rem;
+    }
+
+    .form-label-glass {
+        display: block;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+        font-size: 0.85rem;
+    }
+
+    .form-label-glass .required-mark {
+        color: #ef4444;
+    }
+
+    .form-checkbox-glass {
         display: flex;
-        gap: 1rem;
-        flex-wrap: wrap;
-        margin-top: 2rem;
-    }
-
-    .back-link {
-        color: #2563eb;
-        text-decoration: none;
-        font-weight: 500;
-        font-size: 0.95rem;
-        display: inline-flex;
         align-items: center;
-        gap: 0.5rem;
-        margin-bottom: 1rem;
-        transition: color 0.2s;
+        gap: 0.75rem;
+        cursor: pointer;
+        font-weight: 600;
+        color: var(--text-primary);
+        font-size: 0.85rem;
     }
 
-    .back-link:hover {
-        color: #1e40af;
+    .form-checkbox-glass input {
+        width: 1.25rem;
+        height: 1.25rem;
+        accent-color: #5b9aff;
     }
 
-    @media (max-width: 768px) {
-        .dashboard-container {
-            padding: 1rem;
-        }
-    }
 </style>
 @endpush
 
 @section('content')
-<div class="dashboard-wrapper">
-    <div class="dashboard-container">
-        <a href="{{ route('ortsverband.lernpools.index', $ortsverband) }}" class="back-link">
-            ← Zurück zu Lernpools
-        </a>
+<div class="dash-container">
+    <!-- Header -->
+    <div class="mb-6">
+        <p style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);font-weight:600;margin-bottom:0.25rem;">LERNPOOL</p>
+        <h1 style="font-size:1.5rem;font-weight:800;line-height:1.2;font-family:'Barlow Condensed',sans-serif;background:linear-gradient(135deg,#5b9aff,#0055cc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Neuer Lernpool</h1>
+        <p class="text-sm" style="color: var(--text-muted);">{{ $ortsverband->name }}</p>
+    </div>
 
-        <div class="dashboard-header">
-            <h1 class="dashboard-greeting">Neuer Lernpool</h1>
-            <p class="dashboard-subtitle">{{ $ortsverband->name }}</p>
-        </div>
-
-        <div class="info-card">
+    <!-- Content -->
+    <div class="space-y-4">
+        <div class="glass p-4" style="border-radius:0.75rem;">
             <form action="{{ route('ortsverband.lernpools.store', $ortsverband) }}" method="POST">
                 @csrf
 
-                <div class="form-group">
-                    <label for="name" class="form-label">
-                        Name <span class="required">*</span>
+                <div style="margin-bottom: 1.25rem;">
+                    <label for="name" class="form-label-glass">
+                        Name <span class="required-mark">*</span>
                     </label>
-                    <input type="text" name="name" id="name" value="{{ old('name') }}" 
-                           class="form-input @error('name') error @enderror" 
+                    <input type="text" name="name" id="name" value="{{ old('name') }}"
+                           class="input-glass @error('name') border-red-500 @enderror"
                            placeholder="z.B. Grundlagen Erste Hilfe" required>
                     @error('name')
-                        <p class="form-error">{{ $message }}</p>
+                        <p class="form-error-glass">{{ $message }}</p>
                     @enderror
                 </div>
 
-                <div class="form-group">
-                    <label for="description" class="form-label">
-                        Beschreibung <span class="required">*</span>
+                <div style="margin-bottom: 1.25rem;">
+                    <label for="description" class="form-label-glass">
+                        Beschreibung <span class="required-mark">*</span>
                     </label>
                     <textarea name="description" id="description" rows="5"
-                              class="form-textarea @error('description') error @enderror"
+                              class="textarea-glass @error('description') border-red-500 @enderror"
                               placeholder="Beschreibung des Lernpools..." required>{{ old('description') }}</textarea>
                     @error('description')
-                        <p class="form-error">{{ $message }}</p>
+                        <p class="form-error-glass">{{ $message }}</p>
                     @enderror
                 </div>
 
-                <div class="form-group">
-                    <label for="tags" class="form-label">
+                <div style="margin-bottom: 1.25rem;">
+                    <label for="tags" class="form-label-glass">
                         Schlagwörter / Tags
                     </label>
                     @if($existingTags->isNotEmpty())
                         <div style="margin-bottom: 0.75rem;">
-                            <p style="font-size: 0.85rem; color: #6b7280; margin-bottom: 0.5rem;">
+                            <p class="form-hint-glass" style="margin-bottom: 0.5rem;">
                                 Vorhandene Tags (zum Hinzufügen anklicken):
                             </p>
                             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
                                 @foreach($existingTags as $tag)
-                                    <button type="button" onclick="addTag('{{ $tag }}')" class="tag-suggestion" style="background: #e0f2fe; color: #0c4a6e; padding: 0.35rem 0.75rem; border-radius: 999px; font-size: 0.8rem; font-weight: 600; border: 1px solid #7dd3fc; cursor: pointer; transition: all 0.2s;">
+                                    <button type="button" onclick="addTag('{{ $tag }}')" class="tag-pill-suggestion">
                                         + {{ $tag }}
                                     </button>
                                 @endforeach
@@ -241,66 +148,59 @@
                         </div>
                     @endif
                     <input type="text" name="tags" id="tags" value="{{ old('tags') }}"
-                           class="form-input @error('tags') error @enderror"
+                           class="input-glass @error('tags') border-red-500 @enderror"
                            placeholder="z.B. ZTR, B FGr, N FGr (mit Komma trennen)">
-                    <p style="font-size: 0.85rem; color: #6b7280; margin-top: 0.25rem;">
+                    <p class="form-hint-glass">
                         Mehrere Tags mit Komma trennen (z.B. "ZTR, B FGr, N FGr")
                     </p>
                     @error('tags')
-                        <p class="form-error">{{ $message }}</p>
+                        <p class="form-error-glass">{{ $message }}</p>
                     @enderror
                 </div>
-
-                <style>
-                    .tag-suggestion:hover {
-                        background: #0ea5e9 !important;
-                        color: white !important;
-                        transform: translateY(-2px);
-                        box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
-                    }
-                </style>
 
                 <script>
                     function addTag(tag) {
                         const input = document.getElementById('tags');
                         const currentValue = input.value.trim();
 
-                        // Prüfe ob Tag bereits vorhanden ist
                         const existingTags = currentValue.split(',').map(t => t.trim());
                         if (existingTags.includes(tag)) {
-                            return; // Tag bereits vorhanden
+                            return;
                         }
 
-                        // Füge Tag hinzu
                         if (currentValue === '') {
                             input.value = tag;
                         } else {
                             input.value = currentValue + ', ' + tag;
                         }
 
-                        // Fokussiere Input
                         input.focus();
                     }
                 </script>
 
-                <div class="form-group">
-                    <div class="form-checkbox">
+                <div style="margin-bottom: 1.5rem;">
+                    <label class="form-checkbox-glass">
                         <input type="checkbox" name="is_active" id="is_active" value="1"
                                {{ old('is_active', true) ? 'checked' : '' }}>
-                        <label for="is_active">Sofort aktivieren</label>
-                    </div>
+                        <span>Sofort aktivieren</span>
+                    </label>
                 </div>
 
-                <div class="form-actions">
-                    <button type="submit" class="btn btn-primary">
-                        ✓ Lernpool erstellen
+                <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                    <button type="submit" class="btn-primary btn-sm">
+                        Lernpool erstellen
                     </button>
-                    <a href="{{ route('ortsverband.lernpools.index', $ortsverband) }}" 
-                       class="btn btn-secondary">
+                    <a href="{{ route('ortsverband.lernpools.index', $ortsverband) }}"
+                       class="btn-ghost btn-sm">
                         Abbrechen
                     </a>
                 </div>
             </form>
+        </div>
+
+        <!-- Back Link -->
+        <div style="text-align:center;margin-top:2rem;">
+            <a href="{{ route('ortsverband.lernpools.index', $ortsverband) }}" style="font-size:0.8125rem;color:var(--text-muted);text-decoration:none;font-weight:600;transition:color 150ms;">Zurück zu Lernpools</a>
         </div>
     </div>
 </div>

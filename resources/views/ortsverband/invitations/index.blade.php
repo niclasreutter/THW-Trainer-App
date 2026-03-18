@@ -2,46 +2,121 @@
 
 @section('title', $ortsverband->name . ' - Einladungen')
 
+@push('styles')
+<link rel="preconnect" href="https://fonts.bunny.net">
+<link href="https://fonts.bunny.net/css2?family=Barlow+Condensed:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+@keyframes dash-rise {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.dash-container > .space-y-4 > * {
+    animation: dash-rise 0.45s cubic-bezier(0.22,1,0.36,1) both;
+}
+.dash-container > .space-y-4 > *:nth-child(1) { animation-delay: 0.03s; }
+.dash-container > .space-y-4 > *:nth-child(2) { animation-delay: 0.07s; }
+.dash-container > .space-y-4 > *:nth-child(3) { animation-delay: 0.11s; }
+.dash-container > .space-y-4 > *:nth-child(4) { animation-delay: 0.15s; }
+.dash-container > .space-y-4 > *:nth-child(5) { animation-delay: 0.19s; }
+@media (prefers-reduced-motion: reduce) {
+    .dash-container > .space-y-4 > * { animation: none; }
+}
+
+.ov-item {
+    display: flex; align-items: center; gap: 0.625rem;
+    padding: 0.5rem 0.25rem; transition: background 150ms ease; border-radius: 0.375rem;
+}
+.ov-item:hover { background: rgba(255,255,255,0.03); }
+html.light-mode .ov-item:hover { background: rgba(0,0,0,0.03); }
+.ov-item + .ov-item { border-top: 1px solid rgba(255,255,255,0.04); }
+html.light-mode .ov-item + .ov-item { border-top-color: rgba(0,0,0,0.06); }
+
+.inv-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.modal-close-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: var(--text-secondary);
+    width: 32px;
+    height: 32px;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font-size: 1.25rem;
+    transition: all 0.2s;
+}
+.modal-close-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: var(--text-primary);
+}
+html.light-mode .modal-close-btn {
+    background: rgba(0, 0, 0, 0.06);
+}
+html.light-mode .modal-close-btn:hover {
+    background: rgba(0, 0, 0, 0.12);
+}
+
+@media (max-width: 480px) {
+    .inv-header-row {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+}
+</style>
+@endpush
+
 @section('content')
-<div class="dashboard-container">
-    <header class="dashboard-header">
-        <h1 class="page-title">Einladungen <span>verwalten</span></h1>
-        <p class="page-subtitle">{{ $ortsverband->name }}</p>
-    </header>
+<div class="dash-container">
+
+    <div class="mb-6">
+        <p style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);font-weight:600;margin-bottom:0.25rem;">Verwaltung</p>
+        <h1 style="font-size:1.5rem;font-weight:800;line-height:1.2;font-family:'Barlow Condensed',sans-serif;background:linear-gradient(135deg,#5b9aff,#0055cc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Einladungen verwalten</h1>
+        <p class="text-sm" style="color: var(--text-muted);">{{ $ortsverband->name }}</p>
+    </div>
 
     @if(session('success'))
-    <div class="alert-compact glass-success" style="margin-bottom: 1.5rem;">
-        <i class="bi bi-check-circle alert-compact-icon"></i>
-        <div class="alert-compact-content">
-            <div class="alert-compact-title">{{ session('success') }}</div>
-        </div>
-        <button onclick="this.parentElement.remove()" style="background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 1.25rem;">&times;</button>
+    <div class="glass p-4" style="border-radius:0.75rem;margin-bottom:1rem;display:flex;align-items:center;gap:0.75rem;border-left:3px solid #22c55e;">
+        <i class="bi bi-check-circle" style="color:#22c55e;font-size:1.1rem;flex-shrink:0;"></i>
+        <span style="font-size:0.875rem;color:var(--text-primary);flex:1;">{{ session('success') }}</span>
+        <button onclick="this.parentElement.remove()" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1.25rem;">&times;</button>
     </div>
     @endif
 
     @if(session('error'))
-    <div class="alert-compact glass-error" style="margin-bottom: 1.5rem;">
-        <i class="bi bi-exclamation-triangle alert-compact-icon"></i>
-        <div class="alert-compact-content">
-            <div class="alert-compact-title">{{ session('error') }}</div>
-        </div>
-        <button onclick="this.parentElement.remove()" style="background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 1.25rem;">&times;</button>
+    <div class="glass p-4" style="border-radius:0.75rem;margin-bottom:1rem;display:flex;align-items:center;gap:0.75rem;border-left:3px solid #ef4444;">
+        <i class="bi bi-exclamation-triangle" style="color:#ef4444;font-size:1.1rem;flex-shrink:0;"></i>
+        <span style="font-size:0.875rem;color:var(--text-primary);flex:1;">{{ session('error') }}</span>
+        <button onclick="this.parentElement.remove()" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1.25rem;">&times;</button>
     </div>
     @endif
 
-    <!-- Bento Grid -->
-    <div class="bento-grid-inv">
-        <!-- Neue Einladung erstellen -->
-        <div class="glass-gold bento-create-inv">
-            <div class="section-header" style="margin-bottom: 1.25rem; padding-left: 0; border-left: none;">
-                <h2 class="section-title" style="font-size: 1.25rem;">Neue Einladung erstellen</h2>
-            </div>
+    <div class="flex gap-3 mb-6" style="flex-wrap: wrap;">
+        <div class="gami-pill">
+            <div class="gami-pill__value" style="color:#5b9aff;-webkit-text-fill-color:#5b9aff;">{{ $invitations->count() }}</div>
+            <div class="gami-pill__label">Gesamt</div>
+        </div>
+        <div class="gami-pill">
+            <div class="gami-pill__value" style="color:#5b9aff;-webkit-text-fill-color:#5b9aff;">{{ $invitations->where('is_active', true)->where('is_expired', false)->count() }}</div>
+            <div class="gami-pill__label">Aktiv</div>
+        </div>
+    </div>
 
-            <form action="{{ route('ortsverband.invitations.store', $ortsverband) }}" method="POST">
+    <div class="space-y-4">
+
+        {{-- Create new invitation --}}
+        <div class="glass p-4" style="border-radius:0.75rem;">
+            <span class="text-xs uppercase tracking-wider" style="color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:0.5625rem;font-weight:700;">NEUE EINLADUNG ERSTELLEN</span>
+
+            <form action="{{ route('ortsverband.invitations.store', $ortsverband) }}" method="POST" style="margin-top: 1rem;">
                 @csrf
 
                 <div style="margin-bottom: 1.25rem;">
-                    <label for="name" style="display: block; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem; font-size: 0.9rem;">
+                    <label for="name" style="display: block; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem; font-size: 0.875rem;">
                         Bezeichnung <span style="color: #ef4444;">*</span>
                     </label>
                     <input type="text"
@@ -54,7 +129,7 @@
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
                     <div>
-                        <label for="max_uses" style="display: block; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem; font-size: 0.9rem;">
+                        <label for="max_uses" style="display: block; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem; font-size: 0.875rem;">
                             Max. Nutzungen <span style="color: var(--text-muted); font-weight: normal;">(optional)</span>
                         </label>
                         <input type="number"
@@ -66,7 +141,7 @@
                     </div>
 
                     <div>
-                        <label for="expires_at" style="display: block; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem; font-size: 0.9rem;">
+                        <label for="expires_at" style="display: block; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem; font-size: 0.875rem;">
                             Gültig bis <span style="color: var(--text-muted); font-weight: normal;">(optional)</span>
                         </label>
                         <input type="date"
@@ -84,35 +159,35 @@
             </form>
         </div>
 
-        <!-- Bestehende Einladungen -->
-        <div class="glass-tl bento-list-inv">
-            <div class="section-header" style="margin-bottom: 1rem; padding-left: 0.75rem;">
-                <h2 class="section-title" style="font-size: 1.1rem;">Bestehende Einladungen</h2>
-            </div>
+        {{-- Existing invitations --}}
+        <div class="glass p-4" style="border-radius:0.75rem;">
+            <span class="text-xs uppercase tracking-wider" style="color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:0.5625rem;font-weight:700;">BESTEHENDE EINLADUNGEN</span>
 
-            <div class="invitations-list">
+            <div class="inv-list" style="margin-top: 0.75rem;">
                 @forelse($invitations as $invitation)
                 @php
-                    $statusClass = $invitation->is_expired ? 'glass-error' : ($invitation->is_active ? 'glass-success' : 'glass-warning');
-                    $statusText = $invitation->is_expired ? 'Abgelaufen' : ($invitation->is_active ? 'Aktiv' : 'Pausiert');
-                    $badgeClass = $invitation->is_expired ? 'badge-error' : ($invitation->is_active ? 'badge-success' : 'badge-gold');
+                    $isExpired = $invitation->is_expired;
+                    $isActive = $invitation->is_active;
+                    $statusText = $isExpired ? 'Abgelaufen' : ($isActive ? 'Aktiv' : 'Pausiert');
+                    $statusColor = $isExpired ? '#ef4444' : ($isActive ? '#22c55e' : '#eab308');
+                    $statusBg = $isExpired ? 'rgba(239,68,68,0.12)' : ($isActive ? 'rgba(34,197,94,0.12)' : 'rgba(234,179,8,0.12)');
                 @endphp
 
-                <div class="{{ $statusClass }} invitation-card-item">
-                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.75rem;">
+                <div class="glass p-4" style="border-radius:0.75rem;">
+                    <div class="inv-header-row" style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.75rem;">
                         <div>
-                            <div style="font-weight: 700; color: var(--text-primary); margin-bottom: 0.25rem;">{{ $invitation->name }}</div>
+                            <div style="font-weight: 700; color: var(--text-primary); font-size: 0.875rem; margin-bottom: 0.25rem;">{{ $invitation->name }}</div>
                             <div style="font-size: 0.75rem; color: var(--text-muted);">
                                 Erstellt: {{ $invitation->created_at->format('d.m.Y H:i') }}
                                 @if($invitation->expires_at)
-                                    | Gültig bis: {{ $invitation->expires_at->format('d.m.Y') }}
+                                    &middot; Gültig bis: {{ $invitation->expires_at->format('d.m.Y') }}
                                 @endif
                             </div>
                         </div>
-                        <span class="{{ $badgeClass }}" style="font-size: 0.65rem;">{{ $statusText }}</span>
+                        <span style="font-size:0.6rem;padding:0.125rem 0.4rem;border-radius:9999px;background:{{ $statusBg }};color:{{ $statusColor }};font-weight:700;text-transform:uppercase;letter-spacing:0.04em;flex-shrink:0;">{{ $statusText }}</span>
                     </div>
 
-                    <!-- Link Copy -->
+                    {{-- Link Copy --}}
                     <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
                         <input type="text"
                                class="input-glass"
@@ -125,7 +200,7 @@
                         </button>
                     </div>
 
-                    <!-- Code Copy & QR -->
+                    {{-- Code Copy & QR --}}
                     <div style="display: flex; gap: 0.5rem; margin-bottom: 0.75rem;">
                         <input type="text"
                                class="input-glass"
@@ -141,7 +216,7 @@
                         </button>
                     </div>
 
-                    <!-- Stats -->
+                    {{-- Stats --}}
                     <div style="display: flex; gap: 1rem; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.75rem;">
                         <span><i class="bi bi-people"></i> {{ $invitation->current_uses }} Nutzungen</span>
                         <span><i class="bi bi-graph-up"></i> {{ $invitation->max_uses ? 'Max: ' . $invitation->max_uses : 'Unbegrenzt' }}</span>
@@ -169,21 +244,21 @@
                     @endif
                 </div>
                 @empty
-                <div class="empty-state" style="padding: 2rem;">
-                    <div class="empty-state-icon"><i class="bi bi-link-45deg"></i></div>
-                    <h3 class="empty-state-title">Keine Einladungen</h3>
-                    <p class="empty-state-desc">Erstelle deine erste Einladung, um Mitglieder einzuladen.</p>
+                <div style="text-align: center; padding: 2rem;">
+                    <p style="font-size: 0.875rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.25rem;">Keine Einladungen</p>
+                    <p style="font-size: 0.8rem; color: var(--text-secondary);">Erstelle deine erste Einladung, um Mitglieder einzuladen.</p>
                 </div>
                 @endforelse
             </div>
         </div>
-    </div>
 
-    <!-- Back Link -->
-    <div style="text-align: center; margin-top: 2rem;">
-        <a href="{{ route('ortsverband.dashboard', $ortsverband) }}" class="btn-ghost btn-sm">
-            <i class="bi bi-arrow-left"></i> Zurück zum Dashboard
-        </a>
+        {{-- Back Link --}}
+        <div style="text-align: center; padding-top: 0.5rem;">
+            <a href="{{ route('ortsverband.dashboard', $ortsverband) }}" class="btn-ghost btn-sm">
+                Zurück zum Dashboard
+            </a>
+        </div>
+
     </div>
 </div>
 
@@ -208,121 +283,6 @@
         </div>
     </div>
 </div>
-
-@push('styles')
-<style>
-    .dashboard-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 2rem;
-    }
-
-    .dashboard-header {
-        margin-bottom: 2.5rem;
-        padding-top: 1rem;
-        max-width: 600px;
-    }
-
-    .bento-grid-inv {
-        display: grid;
-        grid-template-columns: 1fr 1.5fr;
-        gap: 1rem;
-    }
-
-    .bento-create-inv {
-        padding: 1.5rem;
-        height: fit-content;
-    }
-
-    .bento-list-inv {
-        padding: 1.5rem;
-    }
-
-    .invitations-list {
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-        max-height: 500px;
-        overflow-y: auto;
-    }
-
-    .invitation-card-item {
-        padding: 1rem;
-        border-radius: 0.75rem;
-    }
-
-    .modal-close-btn {
-        background: rgba(255, 255, 255, 0.1);
-        border: none;
-        color: var(--text-secondary);
-        width: 32px;
-        height: 32px;
-        border-radius: 0.5rem;
-        cursor: pointer;
-        font-size: 1.25rem;
-        transition: all 0.2s;
-    }
-
-    .modal-close-btn:hover {
-        background: rgba(255, 255, 255, 0.2);
-        color: var(--text-primary);
-    }
-
-    .alert-compact {
-        padding: 0.875rem 1rem;
-        border-radius: 0.75rem;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-    }
-
-    .alert-compact-icon { font-size: 1.25rem; }
-    .alert-compact-content { flex: 1; }
-    .alert-compact-title { font-size: 0.9rem; font-weight: 600; color: var(--text-primary); }
-
-    .empty-state {
-        text-align: center;
-    }
-
-    .empty-state-icon {
-        font-size: 2rem;
-        color: var(--text-muted);
-        margin-bottom: 0.75rem;
-        opacity: 0.6;
-    }
-
-    .empty-state-title {
-        font-size: 1rem;
-        font-weight: 700;
-        color: var(--text-primary);
-        margin-bottom: 0.25rem;
-    }
-
-    .empty-state-desc {
-        font-size: 0.85rem;
-        color: var(--text-secondary);
-    }
-
-    @media (max-width: 900px) {
-        .bento-grid-inv {
-            grid-template-columns: 1fr;
-        }
-    }
-
-    @media (max-width: 768px) {
-        .dashboard-container {
-            padding: 1rem;
-        }
-    }
-
-    @media (max-width: 480px) {
-        .invitation-card-item > div:first-child {
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-    }
-</style>
-@endpush
 
 <script>
 let currentQRCodeUrl = '';
