@@ -531,7 +531,7 @@
                 $ovMemberProgress = $userOV->getMemberProgress();
                 $ovSorted = collect($ovMemberProgress)->sortByDesc('points')->values();
                 $ovRanking = $ovSorted->take(3);
-                $ovUserRank = $ovSorted->search(fn($m) => $m['user_id'] === $user->id);
+                $ovUserRank = $ovSorted->search(fn($m) => $m['user']->id === $user->id);
                 $ovUserRank = $ovUserRank !== false ? $ovUserRank + 1 : null;
             }
 
@@ -879,11 +879,11 @@
                                     @php
                                         $rankColors = ['#fbbf24', '#94a3b8', '#cd7f32'];
                                         $rankColor = $rankColors[$idx] ?? 'var(--text-muted)';
-                                        $isCurrentUser = $member['user_id'] === $user->id;
+                                        $isCurrentUser = $member['user']->id === $user->id;
                                     @endphp
                                     <div style="display:flex;align-items:center;gap:0.25rem;">
                                         <span style="color:{{ $rankColor }};font-weight:700;">{{ $idx + 1 }}.</span>
-                                        <span style="color:{{ $isCurrentUser ? '#3b82f6' : 'var(--text-secondary)' }};font-weight:{{ $isCurrentUser ? '700' : '400' }};">{{ $isCurrentUser ? 'Du' : Str::limit($member['name'], 10) }}</span>
+                                        <span style="color:{{ $isCurrentUser ? '#3b82f6' : 'var(--text-secondary)' }};font-weight:{{ $isCurrentUser ? '700' : '400' }};">{{ $isCurrentUser ? 'Du' : Str::limit($member['user']->name, 10) }}</span>
                                         <span style="font-size:0.5625rem;color:var(--text-muted);">{{ number_format($member['points'] ?? 0) }} Pkt</span>
                                     </div>
                                 @endforeach
