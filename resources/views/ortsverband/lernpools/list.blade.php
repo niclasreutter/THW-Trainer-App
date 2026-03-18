@@ -60,7 +60,9 @@
 
     .lernpool-actions {
         display: flex;
+        flex-wrap: wrap;
         gap: 0.75rem;
+        align-items: center;
     }
 
     .btn-small {
@@ -217,14 +219,38 @@
 
                     <div class="lernpool-actions">
                         @if(in_array($lernpool->id, $enrolledIds))
+                            @php
+                                $lpSections = \App\Models\OrtsverbandLernpoolQuestion::where('lernpool_id', $lernpool->id)
+                                    ->select('lernabschnitt')
+                                    ->distinct()
+                                    ->orderBy('lernabschnitt')
+                                    ->pluck('lernabschnitt');
+                            @endphp
                             <a href="{{ route('ortsverband.lernpools.practice', [$ortsverband, $lernpool]) }}" class="btn-small btn-primary">
-                                📖 Weitermachen
+                                Alle üben
                             </a>
+                            <a href="{{ route('ortsverband.lernpools.practice.unsolved', [$ortsverband, $lernpool]) }}" class="btn-small" style="background: linear-gradient(135deg, #00337F 0%, #004aad 100%); color: white;">
+                                Ungelöste üben
+                            </a>
+                            @if($lpSections->count() > 1)
+                                <div x-data="{ open: false }" class="relative">
+                                    <button @click="open = !open" class="btn-small btn-outline">Nach Abschnitt</button>
+                                    <div x-show="open" @click.away="open = false" x-transition
+                                         class="absolute right-0 z-10 mt-2 bg-white border border-gray-200 rounded-lg p-2 min-w-[200px] shadow-lg">
+                                        @foreach($lpSections as $lpSection)
+                                            <a href="{{ route('ortsverband.lernpools.practice.section', [$ortsverband, $lernpool, $lpSection]) }}"
+                                               class="block px-4 py-2 rounded hover:bg-gray-100 transition text-gray-700 hover:text-gray-900 text-sm">
+                                                Lernabschnitt {{ $lpSection }}
+                                            </a>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @endif
                         @else
                             <form action="{{ route('ortsverband.lernpools.enroll', [$ortsverband, $lernpool]) }}" method="POST" style="display: inline;">
                                 @csrf
                                 <button type="submit" class="btn-small btn-primary">
-                                    ✍️ Einschreiben
+                                    Einschreiben
                                 </button>
                             </form>
                         @endif

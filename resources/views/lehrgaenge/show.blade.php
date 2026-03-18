@@ -395,6 +395,7 @@
         }
         
         .hero-actions .btn-primary,
+        .hero-actions .btn-secondary,
         .hero-actions .btn-ghost {
             width: 100%;
             text-align: center;
@@ -524,7 +525,26 @@
                     @if($isCompleted)
                         <span class="btn-ghost btn-sm" style="background: rgba(34, 197, 94, 0.15); color: #22c55e; border-color: rgba(34, 197, 94, 0.25);">Lehrgang abgeschlossen</span>
                     @else
-                        <a href="{{ route('lehrgaenge.practice', $lehrgang->slug) }}" class="btn-primary">Jetzt lernen</a>
+                        <a href="{{ route('lehrgaenge.practice', $lehrgang->slug) }}" class="btn-primary">Alle üben</a>
+                        <a href="{{ route('lehrgaenge.practice.unsolved', $lehrgang->slug) }}" class="btn-secondary">Ungelöste üben</a>
+                        @if($sections->count() > 1)
+                            <div x-data="{ open: false }" class="relative">
+                                <button @click="open = !open" class="btn-ghost">Nach Abschnitt</button>
+                                <div x-show="open" @click.away="open = false" x-transition
+                                     class="absolute z-10 mt-2 glass rounded-lg p-2 min-w-[200px]">
+                                    @foreach($sections as $section)
+                                        @php
+                                            $dropdownNr = $section->lernabschnitt_nr ?? $section->lernabschnitt ?? null;
+                                            $dropdownName = $lernabschnittNamen[(int)$dropdownNr] ?? $lernabschnittNamen[$dropdownNr] ?? "Abschnitt {$dropdownNr}";
+                                        @endphp
+                                        <a href="{{ route('lehrgaenge.practice.section', [$lehrgang->slug, $dropdownNr]) }}"
+                                           class="block px-4 py-2 rounded hover:bg-white/10 transition text-white/80 hover:text-white">
+                                            {{ $dropdownName }}
+                                        </a>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
                     @endif
                     <a href="{{ route('lehrgaenge.index') }}" class="btn-ghost btn-sm">Alle Lehrgänge</a>
                 </div>
