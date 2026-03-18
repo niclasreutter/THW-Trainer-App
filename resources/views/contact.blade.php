@@ -4,492 +4,531 @@
 @section('description', 'Kontaktiere mich bei Fragen, Feedback oder Problemen. Ich helfe dir gerne weiter!')
 
 @push('styles')
+<link rel="preconnect" href="https://fonts.bunny.net">
+<link href="https://fonts.bunny.net/css2?family=Barlow+Condensed:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-    .contact-form-wrapper {
-        max-width: 800px;
-    }
-
-    /* Radio Options Grid */
-    .radio-grid {
+    /* ─── Contact Info Cards ──────────────────── */
+    .ct-info-row {
         display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 0.75rem;
-        margin-bottom: 1.5rem;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
     }
 
-    @media (max-width: 640px) {
-        .radio-grid {
-            grid-template-columns: 1fr;
-        }
-        .dashboard-container {
-            padding: 1rem;
-        }
+    @media (max-width: 400px) {
+        .ct-info-row { grid-template-columns: 1fr; }
     }
 
-    .radio-option {
+    .ct-info-card {
+        border-radius: 0.75rem;
+        padding: 0.875rem 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.625rem;
+    }
+
+    .ct-info-icon {
+        width: 2rem;
+        height: 2rem;
+        border-radius: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.875rem;
+        flex-shrink: 0;
+        background: rgba(0, 85, 204, 0.12);
+        color: #5b9aff;
+    }
+
+    html.light-mode .ct-info-icon {
+        background: rgba(0, 51, 127, 0.08);
+        color: #00337F;
+    }
+
+    .ct-info-label {
+        font-size: 0.5625rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--text-muted);
+        font-weight: 700;
+        font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .ct-info-value {
+        font-size: 0.8125rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-top: 0.1rem;
+    }
+
+    /* ─── Category Selection ──────────────────── */
+    .ct-categories {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.5rem;
+        margin-bottom: 1.25rem;
+    }
+
+    @media (max-width: 400px) {
+        .ct-categories { grid-template-columns: 1fr; }
+    }
+
+    .ct-category {
         background: rgba(255, 255, 255, 0.03);
         border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 0.75rem;
-        padding: 1rem;
+        border-radius: 0.625rem;
+        padding: 0.75rem 0.875rem;
         cursor: pointer;
-        transition: all var(--transition-normal);
+        transition: all 200ms ease;
+        display: flex;
+        align-items: center;
+        gap: 0.625rem;
     }
 
-    .radio-option:hover {
+    .ct-category:hover {
         border-color: rgba(255, 255, 255, 0.15);
         background: rgba(255, 255, 255, 0.05);
     }
 
-    .radio-option:has(input[type="radio"]:checked) {
-        background: rgba(251, 191, 36, 0.08);
-        border-color: rgba(251, 191, 36, 0.3);
+    .ct-category:has(input:checked) {
+        background: rgba(0, 51, 127, 0.12);
+        border-color: rgba(91, 154, 255, 0.35);
     }
 
-    .radio-label {
-        display: flex;
-        align-items: flex-start;
-        gap: 0.75rem;
-        cursor: pointer;
-    }
-
-    .radio-label-icon {
-        font-size: 1.25rem;
-        color: var(--text-muted);
-        flex-shrink: 0;
-        margin-top: 0.1rem;
-    }
-
-    .radio-option:has(input[type="radio"]:checked) .radio-label-icon {
-        color: var(--gold-start);
-    }
-
-    .radio-label-content {
-        flex: 1;
-    }
-
-    .radio-label-title {
-        font-weight: 600;
-        color: var(--text-primary);
-        display: block;
-        font-size: 0.9rem;
-        margin-bottom: 0.25rem;
-    }
-
-    .radio-label-desc {
-        font-size: 0.8rem;
-        color: var(--text-muted);
-    }
-
-    .radio-label input[type="radio"] {
-        display: none;
-    }
-
-    /* Form Groups */
-    .form-group {
-        margin-bottom: 1.5rem;
-    }
-
-    .form-label {
-        display: block;
-        font-weight: 600;
-        color: var(--text-primary);
-        margin-bottom: 0.5rem;
-        font-size: 0.9rem;
-    }
-
-    .required {
-        color: var(--error);
-    }
-
-    .help-text {
-        color: var(--text-muted);
-        font-size: 0.8rem;
-        margin-top: 0.4rem;
-    }
-
-    /* Checkbox Group */
-    .checkbox-group {
-        display: flex;
-        align-items: flex-start;
-        gap: 0.75rem;
-        padding: 1rem;
-        background: rgba(0, 51, 127, 0.08);
-        border: 1px solid rgba(0, 51, 127, 0.2);
-        border-radius: 0.75rem;
-        margin-bottom: 1.5rem;
-    }
-
-    .checkbox-input {
-        width: 1.25rem;
-        height: 1.25rem;
-        margin-top: 0.15rem;
-        accent-color: var(--gold-start);
-        cursor: pointer;
-        flex-shrink: 0;
-    }
-
-    .checkbox-label {
-        cursor: pointer;
-        flex: 1;
-    }
-
-    .checkbox-label-text {
-        font-weight: 600;
-        color: var(--text-primary);
-        margin-bottom: 0.25rem;
-        display: block;
-        font-size: 0.9rem;
-    }
-
-    .checkbox-description {
-        color: var(--text-secondary);
-        font-size: 0.85rem;
-    }
-
-    /* Conditional Fields */
-    .conditional-field {
-        animation: slideDown 0.3s ease-out;
-    }
-
-    @keyframes slideDown {
-        from {
-            opacity: 0;
-            max-height: 0;
-            transform: translateY(-10px);
-        }
-        to {
-            opacity: 1;
-            max-height: 500px;
-            transform: translateY(0);
-        }
-    }
-
-    /* Hermine Fields Box */
-    .hermine-fields-box {
-        background: rgba(0, 51, 127, 0.06);
-        border: 1px solid rgba(0, 51, 127, 0.15);
-        border-radius: 0.75rem;
-        padding: 1.25rem;
-        margin-bottom: 1.5rem;
-    }
-
-    .hermine-fields-box h3 {
-        font-weight: 600;
-        color: var(--thw-blue-light);
-        margin: 0 0 1rem 0;
-        font-size: 0.95rem;
-    }
-
-    .hermine-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 1rem;
-        margin-bottom: 1rem;
-    }
-
-    @media (max-width: 500px) {
-        .hermine-grid {
-            grid-template-columns: 1fr;
-        }
-    }
-
-    /* Character Counter */
-    .char-count {
-        font-size: 0.8rem;
-        color: var(--text-muted);
-    }
-
-    /* Privacy Text */
-    .privacy-text {
-        font-size: 0.8rem;
-        text-align: center;
-        color: var(--text-muted);
-        margin-top: 1.5rem;
-    }
-
-    /* Alert Styling */
-    .alert-compact {
-        padding: 1rem 1.25rem;
-        border-radius: 0.75rem;
-        margin-bottom: 1.5rem;
-        display: flex;
-        align-items: flex-start;
-        gap: 0.75rem;
-    }
-
-    .alert-compact-icon {
-        font-size: 1.25rem;
-        flex-shrink: 0;
-    }
-
-    .alert-compact-content {
-        flex: 1;
-    }
-
-    .alert-compact-title {
-        font-size: 0.95rem;
-        font-weight: 600;
-        color: var(--text-primary);
-        margin-bottom: 0.25rem;
-    }
-
-    .alert-compact-desc {
-        font-size: 0.85rem;
-        color: var(--text-secondary);
-    }
-
-    .alert-compact ul {
-        list-style: disc;
-        margin-left: 1.25rem;
-        margin-top: 0.5rem;
-    }
-
-    .alert-compact li {
-        font-size: 0.85rem;
-        color: var(--text-secondary);
-        margin-bottom: 0.25rem;
-    }
-
-    /* Light Mode Overrides */
-    html.light-mode .radio-option {
+    html.light-mode .ct-category {
         background: #ffffff;
-        border-color: rgba(0, 51, 127, 0.15);
+        border-color: rgba(0, 51, 127, 0.12);
     }
 
-    html.light-mode .radio-option:hover {
+    html.light-mode .ct-category:hover {
         background: rgba(0, 51, 127, 0.03);
         border-color: rgba(0, 51, 127, 0.25);
     }
 
-    html.light-mode .radio-option:has(input[type="radio"]:checked) {
-        background: rgba(217, 119, 6, 0.08);
-        border-color: rgba(217, 119, 6, 0.4);
+    html.light-mode .ct-category:has(input:checked) {
+        background: rgba(0, 51, 127, 0.08);
+        border-color: rgba(0, 51, 127, 0.35);
     }
 
-    html.light-mode .radio-option:has(input[type="radio"]:checked) .radio-label-icon {
-        color: #d97706;
+    .ct-category input { display: none; }
+
+    .ct-cat-icon {
+        width: 1.75rem;
+        height: 1.75rem;
+        border-radius: 0.375rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8125rem;
+        flex-shrink: 0;
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--text-muted);
+        transition: all 200ms ease;
     }
 
-    html.light-mode .checkbox-group {
-        background: linear-gradient(135deg, rgba(0, 51, 127, 0.06) 0%, rgba(0, 77, 179, 0.04) 100%);
-        border-color: rgba(0, 51, 127, 0.2);
+    html.light-mode .ct-cat-icon {
+        background: rgba(0, 51, 127, 0.06);
     }
 
-    html.light-mode .hermine-fields-box {
-        background: linear-gradient(135deg, rgba(0, 51, 127, 0.05) 0%, rgba(0, 77, 179, 0.03) 100%);
+    .ct-category:has(input:checked) .ct-cat-icon {
+        background: linear-gradient(135deg, #0055cc, #5b9aff);
+        color: #fff;
+    }
+
+    .ct-cat-title {
+        font-size: 0.8125rem;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    .ct-cat-desc {
+        font-size: 0.6875rem;
+        color: var(--text-muted);
+        margin-top: 0.1rem;
+    }
+
+    /* ─── Form Elements ───────────────────────── */
+    .ct-form-section {
+        margin-bottom: 1.25rem;
+    }
+
+    .ct-label {
+        display: block;
+        font-size: 0.8125rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0.375rem;
+    }
+
+    .ct-label .required {
+        color: var(--error);
+        margin-left: 0.125rem;
+    }
+
+    .ct-help {
+        font-size: 0.6875rem;
+        color: var(--text-muted);
+        margin-top: 0.35rem;
+    }
+
+    .ct-char-row {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 0.35rem;
+    }
+
+    .ct-char-count {
+        font-size: 0.6875rem;
+        color: var(--text-muted);
+        font-family: 'IBM Plex Mono', monospace;
+    }
+
+    /* ─── Hermine Checkbox ────────────────────── */
+    .ct-hermine-toggle {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        padding: 0.875rem 1rem;
+        background: rgba(0, 51, 127, 0.08);
+        border: 1px solid rgba(0, 51, 127, 0.18);
+        border-radius: 0.625rem;
+        margin-bottom: 1.25rem;
+        cursor: pointer;
+    }
+
+    html.light-mode .ct-hermine-toggle {
+        background: rgba(0, 51, 127, 0.04);
         border-color: rgba(0, 51, 127, 0.15);
     }
 
-    html.light-mode .hermine-fields-box h3 {
-        color: var(--thw-blue);
+    .ct-hermine-toggle input[type="checkbox"] {
+        width: 1.125rem;
+        height: 1.125rem;
+        margin-top: 0.1rem;
+        accent-color: #0055cc;
+        cursor: pointer;
+        flex-shrink: 0;
     }
 
-    /* Light Mode: Textarea mit sichtbarem Rahmen */
-    html.light-mode .textarea-glass {
-        background: #ffffff !important;
-        border: 1px solid rgba(0, 51, 127, 0.2) !important;
-        color: #1e293b !important;
+    .ct-hermine-title {
+        font-size: 0.8125rem;
+        font-weight: 600;
+        color: var(--text-primary);
     }
 
-    html.light-mode .textarea-glass:focus {
-        border-color: var(--thw-blue) !important;
-        box-shadow: 0 0 0 3px rgba(0, 51, 127, 0.1) !important;
+    .ct-hermine-desc {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        margin-top: 0.15rem;
     }
 
-    html.light-mode .textarea-glass::placeholder {
-        color: #94a3b8 !important;
+    /* ─── Hermine Fields ──────────────────────── */
+    .ct-hermine-fields {
+        background: rgba(0, 51, 127, 0.05);
+        border: 1px solid rgba(0, 51, 127, 0.12);
+        border-radius: 0.625rem;
+        padding: 1rem;
+        margin-bottom: 1.25rem;
+        animation: ct-slide-in 0.25s ease-out;
+    }
+
+    html.light-mode .ct-hermine-fields {
+        background: rgba(0, 51, 127, 0.03);
+        border-color: rgba(0, 51, 127, 0.1);
+    }
+
+    @keyframes ct-slide-in {
+        from { opacity: 0; transform: translateY(-6px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .ct-hermine-fields__title {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #5b9aff;
+        margin-bottom: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-family: 'IBM Plex Mono', monospace;
+    }
+
+    html.light-mode .ct-hermine-fields__title { color: var(--thw-blue); }
+
+    .ct-hermine-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+    }
+
+    @media (max-width: 400px) {
+        .ct-hermine-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ─── Bug Location ────────────────────────── */
+    .ct-bug-section {
+        animation: ct-slide-in 0.25s ease-out;
+    }
+
+    /* ─── Submit Button ───────────────────────── */
+    .ct-submit {
+        width: 100%;
+        padding: 0.75rem;
+        border: none;
+        border-radius: 0.5rem;
+        font-size: 0.875rem;
+        font-weight: 700;
+        font-family: inherit;
+        cursor: pointer;
+        background: linear-gradient(135deg, #00337F, #0055cc);
+        color: #fff;
+        transition: transform 200ms ease, box-shadow 200ms ease;
+    }
+
+    .ct-submit:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 16px rgba(0, 51, 127, 0.3);
+    }
+
+    .ct-submit:active { transform: translateY(0); }
+
+    .ct-submit:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    /* ─── Privacy ─────────────────────────────── */
+    .ct-privacy {
+        text-align: center;
+        font-size: 0.6875rem;
+        color: var(--text-muted);
+        margin-top: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.35rem;
+    }
+
+    /* ─── Stagger Animation ───────────────────── */
+    @keyframes dash-rise {
+        from { opacity: 0; transform: translateY(10px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .dash-container > .ct-content > * {
+        animation: dash-rise 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .dash-container > .ct-content > *:nth-child(1) { animation-delay: 0.03s; }
+    .dash-container > .ct-content > *:nth-child(2) { animation-delay: 0.07s; }
+    .dash-container > .ct-content > *:nth-child(3) { animation-delay: 0.11s; }
+    .dash-container > .ct-content > *:nth-child(4) { animation-delay: 0.15s; }
+    .dash-container > .ct-content > *:nth-child(5) { animation-delay: 0.19s; }
+
+    @media (prefers-reduced-motion: reduce) {
+        .dash-container > .ct-content > * { animation: none; }
     }
 </style>
 @endpush
 
 @section('content')
-<div class="dashboard-container">
+<div class="dash-container">
+
     <!-- Header -->
-    <header class="dashboard-header">
-        <h1 class="page-title">Kontakt & <span>Feedback</span></h1>
-        <p class="page-subtitle">Dein Feedback ist mir wichtig! Schreib mir bei Fragen, Ideen oder Problemen.</p>
-    </header>
+    <div class="mb-6">
+        <p style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);font-weight:600;margin-bottom:0.25rem;">Support</p>
+        <h1 style="font-size:1.5rem;font-weight:800;line-height:1.2;font-family:'Barlow Condensed',sans-serif;background:linear-gradient(135deg,#5b9aff,#0055cc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Kontakt & Feedback</h1>
+        <p class="text-sm" style="color: var(--text-muted);">Dein Feedback ist mir wichtig! Schreib mir bei Fragen, Ideen oder Problemen.</p>
+    </div>
 
-    <!-- Success Message -->
-    @if(session('success'))
-        <div class="alert-compact glass-success">
-            <i class="bi bi-check-circle-fill alert-compact-icon text-success"></i>
-            <div class="alert-compact-content">
-                <div class="alert-compact-title">Nachricht gesendet!</div>
-                <div class="alert-compact-desc">{{ session('success') }}</div>
+    <div class="ct-content">
+
+        <!-- Info Cards -->
+        <div class="ct-info-row">
+            <div class="glass ct-info-card">
+                <div class="ct-info-icon"><i class="bi bi-clock"></i></div>
+                <div>
+                    <div class="ct-info-label">Antwortzeit</div>
+                    <div class="ct-info-value">24 - 48h</div>
+                </div>
+            </div>
+            <div class="glass ct-info-card">
+                <div class="ct-info-icon"><i class="bi bi-envelope"></i></div>
+                <div>
+                    <div class="ct-info-label">E-Mail</div>
+                    <div class="ct-info-value">kontakt@thw-trainer.de</div>
+                </div>
             </div>
         </div>
-    @endif
 
-    <!-- Error Messages -->
-    @if($errors->any())
-        <div class="alert-compact glass-error">
-            <i class="bi bi-x-circle-fill alert-compact-icon text-error"></i>
-            <div class="alert-compact-content">
-                <div class="alert-compact-title">Bitte überprüfe deine Eingaben:</div>
-                <ul>
-                    @foreach($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
+        <!-- Success Message -->
+        @if(session('success'))
+            <div class="alert-compact glass-success">
+                <i class="bi bi-check-circle-fill alert-compact-icon text-success"></i>
+                <div class="alert-compact-content">
+                    <div class="alert-compact-title">Nachricht gesendet!</div>
+                    <div class="alert-compact-desc">{{ session('success') }}</div>
+                </div>
             </div>
-        </div>
-    @endif
+        @endif
 
-    <!-- Contact Form -->
-    <div class="contact-form-wrapper">
-    <div class="glass-tl" style="padding: 1.5rem;">
-        <form method="POST" action="{{ route('contact.submit') }}" id="contactForm">
-            @csrf
+        <!-- Error Messages -->
+        @if($errors->any())
+            <div class="alert-compact glass-error">
+                <i class="bi bi-x-circle-fill alert-compact-icon text-error"></i>
+                <div class="alert-compact-content">
+                    <div class="alert-compact-title">Bitte überprüfe deine Eingaben:</div>
+                    <ul>
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+        @endif
 
-            <!-- Honeypot -->
-            <input type="text" name="website" style="display:none !important;" tabindex="-1" autocomplete="off">
+        <!-- Form Card -->
+        <div class="glass-tl" style="padding: 1.25rem;">
+            <form method="POST" action="{{ route('contact.submit') }}" id="contactForm">
+                @csrf
 
-            <!-- Category Selection -->
-            <div class="form-group">
-                <label class="form-label">Was möchtest du mir mitteilen? <span class="required">*</span></label>
-                <div class="radio-grid">
-                    <div class="radio-option">
-                        <label class="radio-label">
+                <!-- Honeypot -->
+                <input type="text" name="website" style="display:none !important;" tabindex="-1" autocomplete="off">
+
+                <!-- Category Selection -->
+                <div class="ct-form-section">
+                    <label class="ct-label">Was möchtest du mir mitteilen? <span class="required">*</span></label>
+                    <div class="ct-categories">
+                        <label class="ct-category">
                             <input type="radio" name="type" value="feedback"
                                    onchange="updateFormType(this.value)"
                                    {{ old('type') == 'feedback' ? 'checked' : '' }} required>
-                            <span class="radio-label-icon"><i class="bi bi-chat-dots"></i></span>
-                            <div class="radio-label-content">
-                                <span class="radio-label-title">Feedback</span>
-                                <span class="radio-label-desc">Lob, Kritik, Verbesserungsvorschläge</span>
+                            <div class="ct-cat-icon"><i class="bi bi-chat-dots"></i></div>
+                            <div>
+                                <div class="ct-cat-title">Feedback</div>
+                                <div class="ct-cat-desc">Lob, Kritik, Vorschläge</div>
                             </div>
                         </label>
-                    </div>
-
-                    <div class="radio-option">
-                        <label class="radio-label">
+                        <label class="ct-category">
                             <input type="radio" name="type" value="feature"
                                    onchange="updateFormType(this.value)"
                                    {{ old('type') == 'feature' ? 'checked' : '' }} required>
-                            <span class="radio-label-icon"><i class="bi bi-lightbulb"></i></span>
-                            <div class="radio-label-content">
-                                <span class="radio-label-title">Feature-Wunsch</span>
-                                <span class="radio-label-desc">Neue Funktionen vorschlagen</span>
+                            <div class="ct-cat-icon"><i class="bi bi-lightbulb"></i></div>
+                            <div>
+                                <div class="ct-cat-title">Feature-Wunsch</div>
+                                <div class="ct-cat-desc">Neue Funktionen</div>
                             </div>
                         </label>
-                    </div>
-
-                    <div class="radio-option">
-                        <label class="radio-label">
+                        <label class="ct-category">
                             <input type="radio" name="type" value="bug"
                                    onchange="updateFormType(this.value)"
                                    {{ old('type') == 'bug' ? 'checked' : '' }} required>
-                            <span class="radio-label-icon"><i class="bi bi-bug"></i></span>
-                            <div class="radio-label-content">
-                                <span class="radio-label-title">Fehler melden</span>
-                                <span class="radio-label-desc">Etwas funktioniert nicht?</span>
+                            <div class="ct-cat-icon"><i class="bi bi-bug"></i></div>
+                            <div>
+                                <div class="ct-cat-title">Fehler melden</div>
+                                <div class="ct-cat-desc">Etwas kaputt?</div>
                             </div>
                         </label>
-                    </div>
-
-                    <div class="radio-option">
-                        <label class="radio-label">
+                        <label class="ct-category">
                             <input type="radio" name="type" value="other"
                                    onchange="updateFormType(this.value)"
                                    {{ old('type') == 'other' ? 'checked' : '' }} required>
-                            <span class="radio-label-icon"><i class="bi bi-envelope"></i></span>
-                            <div class="radio-label-content">
-                                <span class="radio-label-title">Sonstiges</span>
-                                <span class="radio-label-desc">Allgemeine Anfrage</span>
+                            <div class="ct-cat-icon"><i class="bi bi-envelope"></i></div>
+                            <div>
+                                <div class="ct-cat-title">Sonstiges</div>
+                                <div class="ct-cat-desc">Allgemeine Anfrage</div>
                             </div>
                         </label>
                     </div>
                 </div>
-            </div>
 
-            <!-- Email -->
-            <div class="form-group">
-                <label for="email" class="form-label">Deine E-Mail-Adresse <span class="required">*</span></label>
-                <input type="email" id="email" name="email"
-                       value="{{ old('email', auth()->user()->email ?? '') }}"
-                       class="input-glass @error('email') border-red-500 @enderror"
-                       placeholder="deine@email.de"
-                       required>
-                <p class="help-text">Du erhältst eine Kopie deiner Anfrage an diese Adresse</p>
-            </div>
+                <!-- Email -->
+                <div class="ct-form-section">
+                    <label for="email" class="ct-label">Deine E-Mail-Adresse <span class="required">*</span></label>
+                    <input type="email" id="email" name="email"
+                           value="{{ old('email', auth()->user()->email ?? '') }}"
+                           class="input-glass @error('email') border-red-500 @enderror"
+                           placeholder="deine@email.de"
+                           required>
+                    <p class="ct-help">Du erhältst eine Kopie deiner Anfrage an diese Adresse</p>
+                </div>
 
-            <!-- Hermine Contact -->
-            <div class="checkbox-group">
-                <input type="checkbox" id="hermine_contact" name="hermine_contact" value="1"
-                       onchange="toggleHermineFields()"
-                       {{ old('hermine_contact') ? 'checked' : '' }} class="checkbox-input">
-                <label for="hermine_contact" class="checkbox-label">
-                    <span class="checkbox-label-text"><i class="bi bi-phone"></i> Kontakt über Hermine</span>
-                    <span class="checkbox-description">
-                        Ich bin einverstanden, dass ich über die THW-Messenger-App Hermine kontaktiert werde
-                    </span>
-                </label>
-            </div>
-
-            <!-- Hermine Fields (conditional) -->
-            <div id="hermineFields" class="hermine-fields-box conditional-field" style="display: none;">
-                <h3><i class="bi bi-person"></i> Deine Hermine-Daten</h3>
-
-                <div class="hermine-grid">
+                <!-- Hermine Contact -->
+                <label class="ct-hermine-toggle">
+                    <input type="checkbox" id="hermine_contact" name="hermine_contact" value="1"
+                           onchange="toggleHermineFields()"
+                           {{ old('hermine_contact') ? 'checked' : '' }}>
                     <div>
-                        <label for="vorname" class="form-label">Vorname <span class="required">*</span></label>
-                        <input type="text" id="vorname" name="vorname" value="{{ old('vorname') }}"
-                               class="input-glass" placeholder="Max">
+                        <div class="ct-hermine-title">Kontakt über Hermine</div>
+                        <div class="ct-hermine-desc">Ich bin einverstanden, über die THW-Messenger-App kontaktiert zu werden</div>
+                    </div>
+                </label>
+
+                <!-- Hermine Fields (conditional) -->
+                <div id="hermineFields" class="ct-hermine-fields" style="display: none;">
+                    <div class="ct-hermine-fields__title">Deine Hermine-Daten</div>
+                    <div class="ct-hermine-grid" style="margin-bottom: 0.75rem;">
+                        <div>
+                            <label for="vorname" class="ct-label">Vorname <span class="required">*</span></label>
+                            <input type="text" id="vorname" name="vorname" value="{{ old('vorname') }}"
+                                   class="input-glass" placeholder="Max">
+                        </div>
+                        <div>
+                            <label for="nachname" class="ct-label">Nachname <span class="required">*</span></label>
+                            <input type="text" id="nachname" name="nachname" value="{{ old('nachname') }}"
+                                   class="input-glass" placeholder="Mustermann">
+                        </div>
                     </div>
                     <div>
-                        <label for="nachname" class="form-label">Nachname <span class="required">*</span></label>
-                        <input type="text" id="nachname" name="nachname" value="{{ old('nachname') }}"
-                               class="input-glass" placeholder="Mustermann">
+                        <label for="ortsverband" class="ct-label">Ortsverband <span class="required">*</span></label>
+                        <input type="text" id="ortsverband" name="ortsverband" value="{{ old('ortsverband') }}"
+                               class="input-glass" placeholder="z.B. OV Musterstadt">
                     </div>
                 </div>
 
-                <div>
-                    <label for="ortsverband" class="form-label">Ortsverband <span class="required">*</span></label>
-                    <input type="text" id="ortsverband" name="ortsverband" value="{{ old('ortsverband') }}"
-                           class="input-glass" placeholder="z.B. OV Musterstadt">
+                <!-- Bug Location (conditional) -->
+                <div id="bugFields" class="ct-form-section ct-bug-section" style="display: none;">
+                    <label for="error_location" class="ct-label">Wo ist der Fehler aufgetreten? <span class="required">*</span></label>
+                    <select id="error_location" name="error_location" class="select-glass">
+                        <option value="">Bitte auswählen...</option>
+                        <option value="dashboard" {{ old('error_location') == 'dashboard' ? 'selected' : '' }}>Dashboard</option>
+                        <option value="questions" {{ old('error_location') == 'questions' ? 'selected' : '' }}>Fragen üben</option>
+                        <option value="failed_questions" {{ old('error_location') == 'failed_questions' ? 'selected' : '' }}>Fehler wiederholen</option>
+                        <option value="statistics" {{ old('error_location') == 'statistics' ? 'selected' : '' }}>Statistiken</option>
+                        <option value="achievements" {{ old('error_location') == 'achievements' ? 'selected' : '' }}>Achievements</option>
+                        <option value="profile" {{ old('error_location') == 'profile' ? 'selected' : '' }}>Profil</option>
+                        <option value="login" {{ old('error_location') == 'login' ? 'selected' : '' }}>Login/Registrierung</option>
+                        <option value="other" {{ old('error_location') == 'other' ? 'selected' : '' }}>Sonstiges</option>
+                    </select>
                 </div>
-            </div>
 
-            <!-- Bug Location (conditional) -->
-            <div id="bugFields" class="conditional-field form-group" style="display: none;">
-                <label for="error_location" class="form-label"><i class="bi bi-bug"></i> Wo ist der Fehler aufgetreten? <span class="required">*</span></label>
-                <select id="error_location" name="error_location" class="select-glass">
-                    <option value="">Bitte auswählen...</option>
-                    <option value="dashboard" {{ old('error_location') == 'dashboard' ? 'selected' : '' }}>Dashboard</option>
-                    <option value="questions" {{ old('error_location') == 'questions' ? 'selected' : '' }}>Fragen üben</option>
-                    <option value="failed_questions" {{ old('error_location') == 'failed_questions' ? 'selected' : '' }}>Fehler wiederholen</option>
-                    <option value="statistics" {{ old('error_location') == 'statistics' ? 'selected' : '' }}>Statistiken</option>
-                    <option value="achievements" {{ old('error_location') == 'achievements' ? 'selected' : '' }}>Achievements</option>
-                    <option value="profile" {{ old('error_location') == 'profile' ? 'selected' : '' }}>Profil</option>
-                    <option value="login" {{ old('error_location') == 'login' ? 'selected' : '' }}>Login/Registrierung</option>
-                    <option value="other" {{ old('error_location') == 'other' ? 'selected' : '' }}>Sonstiges</option>
-                </select>
-            </div>
-
-            <!-- Message -->
-            <div class="form-group">
-                <label for="message" class="form-label">
-                    <span id="messageLabel">Deine Nachricht</span> <span class="required">*</span>
-                </label>
-                <textarea id="message" name="message" required minlength="10" maxlength="5000"
-                          class="textarea-glass @error('message') border-red-500 @enderror"
-                          placeholder="Schreib mir dein Anliegen..."
-                          style="min-height: 150px;">{{ old('message') }}</textarea>
-                <div style="display: flex; justify-content: space-between; margin-top: 0.5rem;">
-                    <p class="help-text">Mindestens 10 Zeichen</p>
-                    <p class="char-count"><span id="charCount">0</span> / 5000</p>
+                <!-- Message -->
+                <div class="ct-form-section">
+                    <label for="message" class="ct-label">
+                        <span id="messageLabel">Deine Nachricht</span> <span class="required">*</span>
+                    </label>
+                    <textarea id="message" name="message" required minlength="10" maxlength="5000"
+                              class="textarea-glass @error('message') border-red-500 @enderror"
+                              placeholder="Schreib mir dein Anliegen..."
+                              style="min-height: 140px;">{{ old('message') }}</textarea>
+                    <div class="ct-char-row">
+                        <span class="ct-help">Mindestens 10 Zeichen</span>
+                        <span class="ct-char-count"><span id="charCount">0</span> / 5000</span>
+                    </div>
                 </div>
-            </div>
 
-            <!-- Submit Button -->
-            <button type="submit" id="submitBtn" class="btn-primary" style="width: 100%;">
-                Nachricht absenden
-            </button>
+                <!-- Submit -->
+                <button type="submit" id="submitBtn" class="ct-submit">
+                    Nachricht absenden
+                </button>
 
-            <p class="privacy-text"><i class="bi bi-lock"></i> Deine Daten werden vertraulich behandelt und nicht an Dritte weitergegeben.</p>
-        </form>
-    </div>
+                <p class="ct-privacy">
+                    <i class="bi bi-lock"></i>
+                    Deine Daten werden vertraulich behandelt und nicht an Dritte weitergegeben.
+                </p>
+            </form>
+        </div>
+
     </div>
 </div>
 
@@ -544,23 +583,20 @@
     document.getElementById('contactForm').addEventListener('submit', function(e) {
         const submitBtn = document.getElementById('submitBtn');
         submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Wird gesendet...';
+        submitBtn.innerHTML = 'Wird gesendet...';
     });
 
     // Initialize on page load
     document.addEventListener('DOMContentLoaded', function() {
-        // Initialize character count
         const message = document.getElementById('message');
         if (message.value) {
             document.getElementById('charCount').textContent = message.value.length;
         }
 
-        // Initialize hermine fields if checked
         if (document.getElementById('hermine_contact').checked) {
             toggleHermineFields();
         }
 
-        // Initialize form type
         const selectedType = document.querySelector('input[name="type"]:checked');
         if (selectedType) {
             updateFormType(selectedType.value);
