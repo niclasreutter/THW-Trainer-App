@@ -155,10 +155,24 @@ class ProfileController extends Controller
         $user = $request->user();
         $seed = Str::random(16);
 
-        $user->avatar_path = 'avataaars/svg?radius=50&seed=' . $seed
-            . '&accessoriesProbability=0'
-            . '&facialHairProbability=0'
-            . '&top=bigHair,bob,bun,curly,curvy,dreads,dreads01,dreads02,frida,fro,froAndBand,longButNotTooLong,miaWallace,noHair,shavedSides,shortHairDreads01,shortHairDreads02,shortHairFrizzle,shortHairShaggy,shortHairShaggyMullet,shortHairShortCurly,shortHairShortFlat,shortHairShortRound,shortHairShortWaved,shortHairSides,shortHairTheCaesar,shortHairTheCaesarAndSidePart,straight,straight2,straightAndStrand';
+        // avataaars (nicht neutral) ohne Brille, Bart, Hüte — die werden später per XP-Shop freigeschaltet
+        $allowedTops = implode(',', [
+            'bigHair', 'bob', 'bun', 'curly', 'curvy', 'dreads', 'dreads01', 'dreads02',
+            'frida', 'fro', 'froAndBand', 'longButNotTooLong', 'miaWallace', 'noHair',
+            'shavedSides', 'shortHairDreads01', 'shortHairDreads02', 'shortHairFrizzle',
+            'shortHairShaggy', 'shortHairShaggyMullet', 'shortHairShortCurly',
+            'shortHairShortFlat', 'shortHairShortRound', 'shortHairShortWaved',
+            'shortHairSides', 'shortHairTheCaesar', 'shortHairTheCaesarAndSidePart',
+            'straight', 'straight2', 'straightAndStrand',
+        ]);
+
+        $user->avatar_path = 'avataaars/svg?' . http_build_query([
+            'radius' => 50,
+            'seed' => $seed,
+            'accessoriesProbability' => 0,
+            'facialHairProbability' => 0,
+            'top' => $allowedTops,
+        ]);
         $user->save();
 
         return response()->json([
