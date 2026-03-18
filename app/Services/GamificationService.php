@@ -641,7 +641,7 @@ class GamificationService
     public function getLeaderboard(int $limit = 10)
     {
         return User::where('leaderboard_consent', true)
-                   ->select(['id', 'name', 'avatar_seed', 'points', 'level', 'streak_days', 'leaderboard_consent',
+                   ->select(['id', 'name', 'avatar_path', 'points', 'level', 'streak_days', 'leaderboard_consent',
                           'glowing_name_until', 'glowing_name_type', 'profile_frame_until', 'profile_frame_type',
                           'rank_color', 'rank_color_until', 'active_title', 'active_title_until',
                           'total_points_spent',

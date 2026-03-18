@@ -23,7 +23,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'name',
         'email',
         'password',
-        'avatar_seed',
+        'avatar_path',
         'last_activity_at',
         'email_consent',
         'email_consent_at',
@@ -89,14 +89,22 @@ class User extends Authenticatable implements MustVerifyEmail
     }
     
     /**
-     * Avatar-URL basierend auf dem DiceBear-Seed
+     * Avatar-URL basierend auf dem gespeicherten Pfad
      */
     protected function avatarUrl(): Attribute
     {
         return Attribute::make(
-            get: fn () => 'https://dicebear.niclas-reutter.de/9.x/avataaars-neutral/svg?radius=50&seed='
-                . urlencode($this->avatar_seed ?? $this->id . $this->name)
-                . '&eyes=default,happy',
+            get: function () {
+                $base = 'https://dicebear.niclas-reutter.de/9.x/';
+
+                if ($this->avatar_path) {
+                    return $base . $this->avatar_path;
+                }
+
+                // Fallback for users without avatar_path
+                $seed = urlencode($this->id . str_replace(' ', '', $this->name));
+                return $base . 'avataaars-neutral/svg?radius=50&seed=' . $seed . '&eyes=default,happy&mouth=default,smile';
+            },
         );
     }
 

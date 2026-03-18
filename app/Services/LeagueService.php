@@ -133,7 +133,7 @@ class LeagueService
             ->orderBy('weekly_points', 'desc')
             ->orderBy('points', 'desc')
             ->get([
-                'id', 'name', 'avatar_seed', 'weekly_points', 'points', 'level', 'streak_days',
+                'id', 'name', 'avatar_path', 'weekly_points', 'points', 'level', 'streak_days',
                 'leaderboard_consent', 'league',
                 'glowing_name_until', 'glowing_name_type',
                 'profile_frame_until', 'profile_frame_type',
