@@ -108,7 +108,7 @@ class PracticeSessionService
         $question = $this->resolver->getQuestionById($questionId);
 
         // Compare answers
-        $correctAnswer = array_map('trim', explode(',', $question->loesung));
+        $correctAnswer = array_map(fn($s) => strtoupper(trim($s)), explode(',', $question->loesung));
         sort($correctAnswer);
         sort($userAnswer);
         $isCorrect = $userAnswer === $correctAnswer;

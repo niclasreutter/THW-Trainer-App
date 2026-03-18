@@ -1213,7 +1213,7 @@
                     }
 
                     $mappingJson = json_encode($mappingArray);
-                    $solution = collect(explode(',', $question->loesung))->map(fn($s) => trim($s));
+                    $solution = collect(explode(',', $question->loesung))->map(fn($s) => strtoupper(trim($s)));
                 @endphp
 
                 <input type="hidden" name="answer_mapping" value="{{ $mappingJson }}">
