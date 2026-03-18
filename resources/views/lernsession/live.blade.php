@@ -5,119 +5,159 @@
 <link rel="preconnect" href="https://fonts.bunny.net">
 <link href="https://fonts.bunny.net/css2?family=Barlow+Condensed:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-    /* ─── Container ────────────────────────────────── */
-    .ls-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 2rem;
+    /* ─── Smart Action Card ──────────────────────── */
+    .smart-action {
+        display: block;
+        text-decoration: none;
+        background: linear-gradient(135deg, #00337F, #004db3);
+        border-radius: 0.75rem;
+        padding: 1.125rem 1.25rem;
+        position: relative;
+        overflow: hidden;
+        transition: transform 250ms ease, box-shadow 250ms ease;
     }
 
-    /* ─── Header (Dashboard-Stil) ──────────────────── */
-    .ls-header { margin-bottom: 1.5rem; }
+    .smart-action:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0,51,127,0.25);
+        text-decoration: none;
+    }
 
-    .ls-greeting {
-        font-family: 'IBM Plex Mono', monospace;
-        font-size: 0.75rem;
-        font-weight: 600;
+    .smart-action::after {
+        content: '';
+        position: absolute;
+        top: -40%;
+        right: -20%;
+        width: 200px;
+        height: 200px;
+        background: radial-gradient(circle, rgba(91,154,255,0.1) 0%, transparent 70%);
+        pointer-events: none;
+    }
+
+    .smart-action__label {
+        font-size: 0.625rem;
         text-transform: uppercase;
         letter-spacing: 0.08em;
-        color: var(--text-muted);
-        margin-bottom: 0.25rem;
+        color: rgba(255,255,255,0.5);
+        font-weight: 700;
+        margin-bottom: 0.35rem;
+        font-family: 'IBM Plex Mono', monospace;
     }
 
-    .ls-title {
-        font-family: 'Barlow Condensed', sans-serif;
-        font-size: 1.5rem;
-        font-weight: 800;
-        letter-spacing: -0.02em;
-        line-height: 1.2;
-        background: linear-gradient(135deg, #5b9aff, #0055cc);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
+    .smart-action__title {
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: #fff;
+        margin-bottom: 0.2rem;
     }
 
-    .ls-subtitle {
-        font-size: 0.8125rem;
-        color: var(--text-muted);
-        margin-top: 0.15rem;
+    .smart-action__desc {
+        font-size: 0.75rem;
+        color: rgba(255,255,255,0.55);
+        margin-bottom: 0.75rem;
     }
 
-    /* ─── Stat Pills Row ───────────────────────────── */
-    .ls-pills {
-        display: flex;
-        gap: 0.5rem;
-        flex-wrap: wrap;
-        margin-bottom: 1.5rem;
-    }
-
-    .ls-pill {
+    .smart-action__btn {
         display: inline-flex;
         align-items: center;
-        gap: 0.5rem;
-        padding: 0.5rem 0.875rem;
-        border-radius: 2rem;
-        background: var(--glass-bg);
-        border: 1px solid var(--glass-border);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-    }
-
-    .ls-pill__value {
-        font-family: 'Barlow Condensed', sans-serif;
-        font-size: 1.125rem;
-        font-weight: 800;
-        line-height: 1;
-    }
-
-    .ls-pill__value--blue { color: #5b9aff; }
-    .ls-pill__value--gold { color: var(--gold); }
-
-    html.light-mode .ls-pill__value--blue { color: #00337F; }
-    html.light-mode .ls-pill__value--gold { color: #b8860b; }
-
-    .ls-pill__label {
-        font-family: 'IBM Plex Mono', monospace;
-        font-size: 0.5625rem;
+        gap: 0.375rem;
+        background: linear-gradient(135deg, #5b9aff, #0055cc);
+        color: #fff;
+        font-size: 0.75rem;
         font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        color: var(--text-muted);
+        padding: 0.4rem 0.875rem;
+        border-radius: 0.375rem;
     }
 
-    /* ─── Bento Grid ───────────────────────────────── */
-    .ls-bento {
+    /* ─── Timer + Stats Grid ─────────────────────── */
+    .ls-info-grid {
         display: grid;
-        grid-template-columns: 1fr 1fr 1fr 1fr;
-        gap: 1rem;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
     }
 
-    .ls-bento-main { grid-column: span 3; grid-row: span 2; }
-    .ls-bento-side { grid-column: span 1; }
-    .ls-bento-wide { grid-column: span 4; }
-
-    .ls-card {
+    .ls-info-card {
         padding: 1.25rem;
         display: flex;
         flex-direction: column;
     }
 
-    .ls-card-label {
+    .timer-display {
+        font-family: 'Barlow Condensed', sans-serif;
+        font-size: 2rem;
+        font-weight: 800;
+        color: #5b9aff;
+        font-variant-numeric: tabular-nums;
+        letter-spacing: -0.02em;
+        line-height: 1.2;
+        text-align: center;
+    }
+
+    html.light-mode .timer-display { color: #00337F; }
+
+    .timer-label {
         font-family: 'IBM Plex Mono', monospace;
-        font-size: 0.5625rem;
-        font-weight: 700;
+        font-size: 0.5rem;
         text-transform: uppercase;
         letter-spacing: 0.1em;
         color: var(--text-muted);
-        margin-bottom: 0.75rem;
+        text-align: center;
+        margin-top: 0.125rem;
     }
 
-    /* ─── Leaderboard ──────────────────────────────── */
-    .lb-list {
-        flex: 1;
-        overflow-y: auto;
+    .timer-meta {
+        font-size: 0.6875rem;
+        color: var(--text-muted);
+        text-align: center;
+        margin-top: 0.5rem;
     }
 
+    .timer-warning {
+        color: var(--gold) !important;
+        animation: pulse-warn 2s ease-in-out infinite;
+    }
+
+    html.light-mode .timer-warning { color: #b8860b !important; }
+
+    @keyframes pulse-warn {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
+
+    /* ─── My Stats ───────────────────────────────── */
+    .ms-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.375rem 0;
+    }
+
+    .ms-row + .ms-row {
+        border-top: 1px solid rgba(255,255,255,0.05);
+    }
+
+    html.light-mode .ms-row + .ms-row { border-top-color: rgba(0,0,0,0.05); }
+
+    .ms-label { font-size: 0.75rem; color: var(--text-muted); }
+
+    .ms-value {
+        font-family: 'Barlow Condensed', sans-serif;
+        font-size: 0.9375rem;
+        font-weight: 700;
+        color: var(--text-primary);
+    }
+
+    .ms-value--blue { color: #5b9aff; }
+
+    html.light-mode .ms-value--blue { color: #0055cc; }
+
+    .ms-empty {
+        color: var(--text-muted);
+        font-size: 0.8125rem;
+        padding: 0.5rem 0;
+    }
+
+    /* ─── Leaderboard Rows ───────────────────────── */
     .lb-row {
         display: flex;
         align-items: center;
@@ -131,9 +171,7 @@
         border-top: 1px solid rgba(255,255,255,0.04);
     }
 
-    html.light-mode .lb-row + .lb-row {
-        border-top-color: rgba(0,0,0,0.05);
-    }
+    html.light-mode .lb-row + .lb-row { border-top-color: rgba(0,0,0,0.05); }
 
     .lb-row.is-me {
         background: rgba(0, 85, 204, 0.06);
@@ -142,9 +180,7 @@
 
     .lb-row.is-me + .lb-row { border-top-color: transparent; }
 
-    html.light-mode .lb-row.is-me {
-        background: rgba(0, 51, 127, 0.05);
-    }
+    html.light-mode .lb-row.is-me { background: rgba(0, 51, 127, 0.05); }
 
     .lb-row__rank {
         font-family: 'Barlow Condensed', sans-serif;
@@ -200,20 +236,10 @@
         flex-shrink: 0;
     }
 
-    .lb-row__stat--correct {
-        color: #5b9aff;
-        min-width: 2rem;
-    }
-
+    .lb-row__stat--correct { color: #5b9aff; min-width: 2rem; }
     html.light-mode .lb-row__stat--correct { color: #0055cc; }
-
-    .lb-row__stat--acc {
-        min-width: 2.5rem;
-    }
-
-    .lb-row__stat--q {
-        min-width: 1.5rem;
-    }
+    .lb-row__stat--acc { min-width: 2.5rem; }
+    .lb-row__stat--q { min-width: 1.5rem; }
 
     .lb-header {
         display: flex;
@@ -260,111 +286,7 @@
 
     html.light-mode .lb-count { border-top-color: rgba(0,0,0,0.04); }
 
-    /* ─── Timer ────────────────────────────────────── */
-    .timer-wrap {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        flex: 1;
-        gap: 0.25rem;
-    }
-
-    .timer-display {
-        font-family: 'Barlow Condensed', sans-serif;
-        font-size: 2.25rem;
-        font-weight: 800;
-        color: #5b9aff;
-        font-variant-numeric: tabular-nums;
-        letter-spacing: -0.02em;
-        line-height: 1.2;
-    }
-
-    html.light-mode .timer-display { color: #00337F; }
-
-    .timer-label {
-        font-family: 'IBM Plex Mono', monospace;
-        font-size: 0.5rem;
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        color: var(--text-muted);
-    }
-
-    .timer-meta {
-        font-size: 0.75rem;
-        color: var(--text-muted);
-        margin-top: 0.75rem;
-    }
-
-    .timer-warning {
-        color: var(--gold) !important;
-        animation: pulse-warn 2s ease-in-out infinite;
-    }
-
-    html.light-mode .timer-warning { color: #b8860b !important; }
-
-    @keyframes pulse-warn {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.5; }
-    }
-
-    /* ─── My Stats ─────────────────────────────────── */
-    .ms-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0.4375rem 0;
-    }
-
-    .ms-row + .ms-row {
-        border-top: 1px solid rgba(255,255,255,0.05);
-    }
-
-    html.light-mode .ms-row + .ms-row { border-top-color: rgba(0,0,0,0.05); }
-
-    .ms-label {
-        font-size: 0.75rem;
-        color: var(--text-muted);
-    }
-
-    .ms-value {
-        font-family: 'Barlow Condensed', sans-serif;
-        font-size: 0.9375rem;
-        font-weight: 700;
-        color: var(--text-primary);
-    }
-
-    .ms-value--blue { color: #5b9aff; }
-
-    html.light-mode .ms-value--blue { color: #0055cc; }
-
-    .ms-empty {
-        color: var(--text-muted);
-        font-size: 0.8125rem;
-        padding: 0.5rem 0;
-    }
-
-    /* ─── Action Bar ───────────────────────────────── */
-    .ls-action {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        justify-content: space-between;
-    }
-
-    .ls-action__text {
-        font-size: 0.8125rem;
-        color: var(--text-secondary);
-        flex: 1;
-    }
-
-    .ls-action__buttons {
-        display: flex;
-        gap: 0.5rem;
-        flex-shrink: 0;
-    }
-
-    /* ─── Boost Badge ──────────────────────────────── */
+    /* ─── Boost Badge ────────────────────────────── */
     .ls-boost {
         display: inline-flex;
         align-items: center;
@@ -385,7 +307,21 @@
         border-color: rgba(0, 51, 127, 0.18);
     }
 
-    /* ─── Join Modal ───────────────────────────────── */
+    /* ─── Leave Footer ───────────────────────────── */
+    .ls-leave {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem;
+    }
+
+    .ls-leave__text {
+        flex: 1;
+        font-size: 0.8125rem;
+        color: var(--text-secondary);
+    }
+
+    /* ─── Join Modal ─────────────────────────────── */
     .join-overlay {
         position: fixed;
         inset: 0;
@@ -436,9 +372,7 @@
         background: linear-gradient(90deg, #00337F, #0055cc, #5b9aff);
     }
 
-    .join-header {
-        padding: 1.5rem 1.75rem 0;
-    }
+    .join-header { padding: 1.5rem 1.75rem 0; }
 
     .join-label {
         font-family: 'IBM Plex Mono', monospace;
@@ -477,9 +411,7 @@
         border: 1px solid var(--glass-border);
     }
 
-    .join-body {
-        padding: 1.25rem 1.75rem 1.75rem;
-    }
+    .join-body { padding: 1.25rem 1.75rem 1.75rem; }
 
     .join-highlight {
         display: flex;
@@ -572,60 +504,34 @@
         height: 1rem;
     }
 
-    .join-actions {
-        display: flex;
-        gap: 0.75rem;
-    }
-
+    .join-actions { display: flex; gap: 0.75rem; }
     .join-actions .btn-primary { flex: 1; text-align: center; }
+    .join-btn-loading { opacity: 0.7; pointer-events: none; }
 
-    .join-btn-loading {
-        opacity: 0.7;
-        pointer-events: none;
-    }
-
-    /* ─── Stagger Animation ────────────────────────── */
-    @keyframes ls-rise {
+    /* ─── Stagger Animation (wie Bookmarks/Exam-History) ─── */
+    @keyframes dash-rise {
         from { opacity: 0; transform: translateY(10px); }
         to   { opacity: 1; transform: translateY(0); }
     }
 
-    .ls-container > *:not(.join-overlay) {
-        animation: ls-rise 0.45s cubic-bezier(0.22,1,0.36,1) both;
+    .dash-container > .space-y-4 > * {
+        animation: dash-rise 0.45s cubic-bezier(0.22,1,0.36,1) both;
     }
 
-    .ls-container > *:nth-child(1) { animation-delay: 0.03s; }
-    .ls-container > *:nth-child(2) { animation-delay: 0.07s; }
-    .ls-container > *:nth-child(3) { animation-delay: 0.11s; }
-    .ls-container > *:nth-child(4) { animation-delay: 0.15s; }
+    .dash-container > .space-y-4 > *:nth-child(1) { animation-delay: 0.03s; }
+    .dash-container > .space-y-4 > *:nth-child(2) { animation-delay: 0.07s; }
+    .dash-container > .space-y-4 > *:nth-child(3) { animation-delay: 0.11s; }
+    .dash-container > .space-y-4 > *:nth-child(4) { animation-delay: 0.15s; }
+    .dash-container > .space-y-4 > *:nth-child(5) { animation-delay: 0.19s; }
 
     @media (prefers-reduced-motion: reduce) {
-        .ls-container > * { animation: none !important; }
+        .dash-container > .space-y-4 > * { animation: none; }
     }
 
-    /* ─── Responsive ───────────────────────────────── */
-    @media (max-width: 900px) {
-        .ls-bento {
-            grid-template-columns: 1fr 1fr;
-        }
-        .ls-bento-main { grid-column: span 2; grid-row: span 1; }
-        .ls-bento-side { grid-column: span 1; }
-        .ls-bento-wide { grid-column: span 2; }
-        .ls-container { padding: 1.25rem; }
-    }
-
+    /* ─── Responsive ─────────────────────────────── */
     @media (max-width: 600px) {
-        .ls-bento {
-            grid-template-columns: 1fr;
-        }
-        .ls-bento-main,
-        .ls-bento-side,
-        .ls-bento-wide { grid-column: span 1; }
-        .ls-container { padding: 1rem; }
-        .ls-title { font-size: 1.25rem; }
+        .ls-info-grid { grid-template-columns: 1fr; }
         .timer-display { font-size: 1.75rem; }
-        .ls-action { flex-direction: column; align-items: stretch; gap: 0.75rem; }
-        .ls-action__buttons { justify-content: center; }
         .lb-header__stat--acc,
         .lb-row__stat--acc { display: none; }
     }
@@ -634,15 +540,13 @@
         .join-header { padding: 1.25rem 1.25rem 0; }
         .join-body { padding: 1rem 1.25rem 1.25rem; }
         .join-actions { flex-direction: column; }
-        .ls-pills { gap: 0.375rem; }
-        .ls-pill { padding: 0.375rem 0.625rem; }
-        .ls-pill__value { font-size: 1rem; }
+        .ls-leave { flex-direction: column; text-align: center; }
     }
 </style>
 @endpush
 
 @section('content')
-<div class="ls-container" x-data="lernsessionLive()">
+<div class="dash-container" x-data="lernsessionLive()">
 
     {{-- ── Join-Modal ──────────────────────────────────── --}}
     @if(!empty($showJoinModal))
@@ -705,38 +609,96 @@
     </div>
     @endif
 
-    {{-- ── Page Header ─────────────────────────────────── --}}
-    <header class="ls-header">
-        <div class="ls-greeting">Lernsession · Live</div>
-        <h1 class="ls-title">{{ $session->title }}</h1>
-        <div class="ls-subtitle">
+    {{-- ── Header (exakt wie Bookmarks/Exam-History) ───── --}}
+    <div class="mb-6">
+        <p style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);font-weight:600;margin-bottom:0.25rem;">Lernsession · Live</p>
+        <h1 style="font-size:1.5rem;font-weight:800;line-height:1.2;font-family:'Barlow Condensed',sans-serif;background:linear-gradient(135deg,#5b9aff,#0055cc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">{{ $session->title }}</h1>
+        <p class="text-sm" style="color:var(--text-muted);">
             {{ $instance->starts_at->format('d.m.Y') }} · {{ $instance->starts_at->format('H:i') }} – {{ $instance->ends_at->format('H:i') }} Uhr
             <span class="ls-boost" style="margin-left:0.375rem;">+50% XP</span>
-        </div>
-    </header>
+        </p>
+    </div>
 
-    {{-- ── Stat Pills ──────────────────────────────────── --}}
-    <div class="ls-pills">
-        <div class="ls-pill">
-            <span class="ls-pill__value ls-pill__value--blue" x-text="participantCount"></span>
-            <span class="ls-pill__label">Teilnehmer</span>
+    {{-- ── Gami Pills (wie Bookmarks/Exam-History) ─────── --}}
+    <div class="flex gap-3 mb-6" style="flex-wrap:wrap;">
+        <div class="gami-pill">
+            <div class="gami-pill__value gami-pill__value--blue" x-text="participantCount"></div>
+            <div class="gami-pill__label">Teilnehmer</div>
         </div>
-        <div class="ls-pill">
-            <span class="ls-pill__value ls-pill__value--blue" x-text="ranking.length"></span>
-            <span class="ls-pill__label">Im Ranking</span>
+        <div class="gami-pill" x-show="myStats">
+            <div class="gami-pill__value gami-pill__value--gold" x-text="myStats ? '#' + myStats.rank : ''"></div>
+            <div class="gami-pill__label">Dein Platz</div>
         </div>
-        <div class="ls-pill" x-show="myStats">
-            <span class="ls-pill__value ls-pill__value--gold" x-text="myStats ? '#' + myStats.rank : ''"></span>
-            <span class="ls-pill__label">Dein Platz</span>
+        <div class="gami-pill">
+            <div class="gami-pill__value gami-pill__value--blue" x-text="formatTime(timeRemaining)"></div>
+            <div class="gami-pill__label">Verbleibend</div>
+        </div>
+        <div class="gami-pill" x-show="myStats">
+            <div class="gami-pill__value" x-text="myStats ? myStats.accuracy.toFixed(0) + '%' : ''" style="color:var(--success);-webkit-text-fill-color:var(--success);"></div>
+            <div class="gami-pill__label">Genauigkeit</div>
         </div>
     </div>
 
-    {{-- ── Bento Grid ──────────────────────────────────── --}}
-    <div class="ls-bento">
+    <div class="space-y-4">
 
-        {{-- Live Leaderboard (Hauptcard) --}}
-        <div class="glass ls-bento-main ls-card">
-            <div class="ls-card-label">Live-Ranking</div>
+        {{-- ── Smart Action Card (CTA) ─────────────────── --}}
+        <a href="{{ route('practice.all') }}" class="smart-action">
+            <div class="smart-action__label">Jetzt mitmachen</div>
+            <div class="smart-action__title">Fragen beantworten & XP sammeln</div>
+            <div class="smart-action__desc">Beantworte Fragen um im Ranking aufzusteigen. +50% XP Boost aktiv!</div>
+            <span class="smart-action__btn">
+                Fragen beantworten
+                <i class="bi bi-arrow-right"></i>
+            </span>
+        </a>
+
+        {{-- ── Timer + Meine Stats nebeneinander ──────── --}}
+        <div class="ls-info-grid">
+            <div class="glass-tl ls-info-card" style="align-items:center;justify-content:center;">
+                <div class="text-xs uppercase tracking-wider" style="color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:0.5625rem;font-weight:700;text-align:center;margin-bottom:0.75rem;">Verbleibend</div>
+                <div class="timer-display"
+                     :class="timeRemaining < 300 ? 'timer-warning' : ''"
+                     x-text="formatTime(timeRemaining)"></div>
+                <div class="timer-label">Verbleibende Zeit</div>
+                <div class="timer-meta">{{ $instance->starts_at->format('H:i') }} – {{ $instance->ends_at->format('H:i') }} Uhr</div>
+            </div>
+
+            <div class="glass ls-info-card" style="border-radius:0.75rem;">
+                <div class="text-xs uppercase tracking-wider" style="color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:0.5625rem;font-weight:700;margin-bottom:0.75rem;">Meine Stats</div>
+
+                <template x-if="myStats">
+                    <div>
+                        <div class="ms-row">
+                            <span class="ms-label">Position</span>
+                            <span class="ms-value" x-text="myStats.rank ? '#' + myStats.rank : '-'"></span>
+                        </div>
+                        <div class="ms-row">
+                            <span class="ms-label">XP verdient</span>
+                            <span class="ms-value ms-value--blue" x-text="myStats.xp_earned"></span>
+                        </div>
+                        <div class="ms-row">
+                            <span class="ms-label">Genauigkeit</span>
+                            <span class="ms-value" x-text="myStats.accuracy.toFixed(0) + '%'"></span>
+                        </div>
+                        <div class="ms-row">
+                            <span class="ms-label">Fragen</span>
+                            <span class="ms-value" x-text="myStats.questions"></span>
+                        </div>
+                    </div>
+                </template>
+
+                <template x-if="!myStats">
+                    <p class="ms-empty">Beantworte Fragen um deine Stats zu sehen.</p>
+                </template>
+            </div>
+        </div>
+
+        {{-- ── Live Ranking ────────────────────────────── --}}
+        <div class="glass p-4" style="border-radius:0.75rem;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem;">
+                <span class="text-xs uppercase tracking-wider" style="color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:0.5625rem;font-weight:700;">Live-Ranking</span>
+                <span style="font-size:0.6875rem;color:var(--text-muted);" x-text="participantCount + ' Teilnehmer'"></span>
+            </div>
 
             <div class="lb-header">
                 <span class="lb-header__col lb-header__rank">#</span>
@@ -747,99 +709,51 @@
                 <span class="lb-header__col lb-header__stat lb-header__stat--q">Fr.</span>
             </div>
 
-            <div class="lb-list">
-                <template x-for="(entry, index) in ranking" :key="index">
-                    <div class="lb-row" :class="entry.is_current_user ? 'is-me' : ''">
-                        <span class="lb-row__rank"
-                              :class="{
-                                  'lb-row__rank--1': entry.rank === 1,
-                                  'lb-row__rank--2': entry.rank === 2,
-                                  'lb-row__rank--3': entry.rank === 3,
-                              }"
-                              x-text="entry.rank"></span>
-                        <img class="lb-row__avatar"
-                             :class="{
-                                 'lb-row__avatar--1': entry.rank === 1,
-                                 'lb-row__avatar--2': entry.rank === 2,
-                                 'lb-row__avatar--3': entry.rank === 3,
-                             }"
-                             :src="entry.avatar_url"
-                             :alt="entry.user_name"
-                             loading="lazy">
-                        <span class="lb-row__name" x-text="entry.user_name"></span>
-                        <span class="lb-row__stat lb-row__stat--correct" x-text="entry.correct"></span>
-                        <span class="lb-row__stat lb-row__stat--acc" x-text="entry.accuracy.toFixed(0) + '%'"></span>
-                        <span class="lb-row__stat lb-row__stat--q" x-text="entry.questions"></span>
-                    </div>
-                </template>
+            <template x-for="(entry, index) in ranking" :key="index">
+                <div class="lb-row" :class="entry.is_current_user ? 'is-me' : ''">
+                    <span class="lb-row__rank"
+                          :class="{
+                              'lb-row__rank--1': entry.rank === 1,
+                              'lb-row__rank--2': entry.rank === 2,
+                              'lb-row__rank--3': entry.rank === 3,
+                          }"
+                          x-text="entry.rank"></span>
+                    <img class="lb-row__avatar"
+                         :class="{
+                             'lb-row__avatar--1': entry.rank === 1,
+                             'lb-row__avatar--2': entry.rank === 2,
+                             'lb-row__avatar--3': entry.rank === 3,
+                         }"
+                         :src="entry.avatar_url"
+                         :alt="entry.user_name"
+                         loading="lazy">
+                    <span class="lb-row__name" x-text="entry.user_name"></span>
+                    <span class="lb-row__stat lb-row__stat--correct" x-text="entry.correct"></span>
+                    <span class="lb-row__stat lb-row__stat--acc" x-text="entry.accuracy.toFixed(0) + '%'"></span>
+                    <span class="lb-row__stat lb-row__stat--q" x-text="entry.questions"></span>
+                </div>
+            </template>
 
-                <template x-if="ranking.length === 0">
-                    <div class="lb-empty">
-                        Noch keine Teilnehmer. Beantworte Fragen um das Ranking zu starten!
-                    </div>
-                </template>
-            </div>
+            <template x-if="ranking.length === 0">
+                <div class="lb-empty">
+                    Noch keine Teilnehmer. Beantworte Fragen um das Ranking zu starten!
+                </div>
+            </template>
 
             <div class="lb-count" x-text="participantCount + ' Teilnehmer aktiv'"></div>
         </div>
 
-        {{-- Timer --}}
-        <div class="glass-tl ls-bento-side ls-card">
-            <div class="ls-card-label" style="text-align:center;">Verbleibend</div>
-            <div class="timer-wrap">
-                <div class="timer-display"
-                     :class="timeRemaining < 300 ? 'timer-warning' : ''"
-                     x-text="formatTime(timeRemaining)"></div>
-                <div class="timer-label">Verbleibende Zeit</div>
-                <div class="timer-meta">
-                    {{ $instance->starts_at->format('H:i') }} – {{ $instance->ends_at->format('H:i') }} Uhr
-                </div>
+        {{-- ── Session verlassen ───────────────────────── --}}
+        <div class="glass p-4" style="border-radius:0.75rem;">
+            <div class="ls-leave">
+                <span class="ls-leave__text">Session verlassen und zurück zur Übersicht?</span>
+                <form action="{{ route('lernsession.leave', $instance) }}" method="POST" style="display:inline;">
+                    @csrf
+                    <button type="submit" class="btn-ghost" onclick="return confirm('Session wirklich verlassen?')">Verlassen</button>
+                </form>
             </div>
         </div>
 
-        {{-- Meine Stats --}}
-        <div class="glass-br ls-bento-side ls-card">
-            <div class="ls-card-label">Meine Stats</div>
-
-            <template x-if="myStats">
-                <div>
-                    <div class="ms-row">
-                        <span class="ms-label">Position</span>
-                        <span class="ms-value" x-text="myStats.rank ? '#' + myStats.rank : '-'"></span>
-                    </div>
-                    <div class="ms-row">
-                        <span class="ms-label">XP verdient</span>
-                        <span class="ms-value ms-value--blue" x-text="myStats.xp_earned"></span>
-                    </div>
-                    <div class="ms-row">
-                        <span class="ms-label">Genauigkeit</span>
-                        <span class="ms-value" x-text="myStats.accuracy.toFixed(0) + '%'"></span>
-                    </div>
-                    <div class="ms-row">
-                        <span class="ms-label">Fragen</span>
-                        <span class="ms-value" x-text="myStats.questions"></span>
-                    </div>
-                </div>
-            </template>
-
-            <template x-if="!myStats">
-                <p class="ms-empty">Beantworte Fragen um deine Stats zu sehen.</p>
-            </template>
-        </div>
-
-        {{-- Action Bar --}}
-        <div class="glass ls-bento-wide ls-card">
-            <div class="ls-action">
-                <span class="ls-action__text">Beantworte Fragen um XP zu sammeln und im Ranking aufzusteigen.</span>
-                <div class="ls-action__buttons">
-                    <a href="{{ route('practice.all') }}" class="btn-primary">Fragen beantworten</a>
-                    <form action="{{ route('lernsession.leave', $instance) }}" method="POST" style="display:inline;">
-                        @csrf
-                        <button type="submit" class="btn-ghost" onclick="return confirm('Session wirklich verlassen?')">Verlassen</button>
-                    </form>
-                </div>
-            </div>
-        </div>
     </div>
 </div>
 
