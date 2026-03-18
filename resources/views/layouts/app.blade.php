@@ -217,6 +217,9 @@
                     <a href="{{ route('admin.dashboard') }}" class="sidebar-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
                         <i class="bi bi-speedometer2"></i> Dashboard
                     </a>
+                    <a href="{{ route('admin.statistics') }}" class="sidebar-link {{ request()->routeIs('admin.statistics') ? 'active' : '' }}">
+                        <i class="bi bi-graph-up"></i> Statistiken
+                    </a>
                     <a href="{{ route('admin.users.index') }}" class="sidebar-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
                         <i class="bi bi-people"></i> Nutzer
                     </a>
@@ -228,6 +231,15 @@
                     </a>
                     <a href="{{ route('admin.ortsverband.index') }}" class="sidebar-link {{ request()->routeIs('admin.ortsverband.*') ? 'active' : '' }}">
                         <i class="bi bi-building"></i> Ortsverbände
+                    </a>
+                    <a href="{{ route('admin.leagues.index') }}" class="sidebar-link {{ request()->routeIs('admin.leagues.*') ? 'active' : '' }}">
+                        <i class="bi bi-trophy"></i> Ligen
+                    </a>
+                    <a href="{{ route('admin.shop-analytics') }}" class="sidebar-link {{ request()->routeIs('admin.shop-analytics') ? 'active' : '' }}">
+                        <i class="bi bi-cart3"></i> Shop Analytics
+                    </a>
+                    <a href="{{ route('admin.newsletter.index') }}" class="sidebar-link {{ request()->routeIs('admin.newsletter.*') ? 'active' : '' }}">
+                        <i class="bi bi-megaphone"></i> Newsletter
                     </a>
                     <a href="{{ route('admin.issues.index') }}" class="sidebar-link {{ request()->routeIs('admin.issues.*') ? 'active' : '' }}">
                         <i class="bi bi-exclamation-triangle"></i> Fehlermeldungen
@@ -419,8 +431,14 @@
 
             <!-- Scrollable Navigation -->
             <nav class="sidebar-nav">
+                <a href="{{ route('statistics') }}" class="sidebar-link {{ request()->routeIs('statistics') ? 'active' : '' }}">
+                    <i class="bi bi-bar-chart"></i> Statistiken
+                </a>
                 <a href="{{ route('bookmarks.index') }}" class="sidebar-link {{ request()->routeIs('bookmarks.*') ? 'active' : '' }}">
                     <i class="bi bi-bookmark"></i> Gespeicherte Fragen
+                </a>
+                <a href="{{ route('exam.history') }}" class="sidebar-link {{ request()->routeIs('exam.history*') ? 'active' : '' }}">
+                    <i class="bi bi-bar-chart-line"></i> Prüfungshistorie
                 </a>
                 <a href="{{ route('lehrgaenge.index') }}" class="sidebar-link {{ request()->routeIs('lehrgaenge.*') ? 'active' : '' }}">
                     <i class="bi bi-mortarboard"></i> Lehrgänge
@@ -461,6 +479,9 @@
                 <a href="{{ route('admin.dashboard') }}" class="sidebar-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
                     <i class="bi bi-speedometer2"></i> Dashboard
                 </a>
+                <a href="{{ route('admin.statistics') }}" class="sidebar-link {{ request()->routeIs('admin.statistics') ? 'active' : '' }}">
+                    <i class="bi bi-graph-up"></i> Statistiken
+                </a>
                 <a href="{{ route('admin.users.index') }}" class="sidebar-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
                     <i class="bi bi-people"></i> Nutzer
                 </a>
@@ -472,6 +493,15 @@
                 </a>
                 <a href="{{ route('admin.ortsverband.index') }}" class="sidebar-link {{ request()->routeIs('admin.ortsverband.*') ? 'active' : '' }}">
                     <i class="bi bi-building"></i> Ortsverbände
+                </a>
+                <a href="{{ route('admin.leagues.index') }}" class="sidebar-link {{ request()->routeIs('admin.leagues.*') ? 'active' : '' }}">
+                    <i class="bi bi-trophy"></i> Ligen
+                </a>
+                <a href="{{ route('admin.shop-analytics') }}" class="sidebar-link {{ request()->routeIs('admin.shop-analytics') ? 'active' : '' }}">
+                    <i class="bi bi-cart3"></i> Shop Analytics
+                </a>
+                <a href="{{ route('admin.newsletter.index') }}" class="sidebar-link {{ request()->routeIs('admin.newsletter.*') ? 'active' : '' }}">
+                    <i class="bi bi-megaphone"></i> Newsletter
                 </a>
                 <a href="{{ route('admin.issues.index') }}" class="sidebar-link {{ request()->routeIs('admin.issues.*') ? 'active' : '' }}">
                     <i class="bi bi-exclamation-triangle"></i> Fehlermeldungen
@@ -507,6 +537,7 @@
                 <div class="mobile-footer-links">
                     <a href="{{ route('landing.impressum') }}">Impressum</a>
                     <a href="{{ route('landing.datenschutz') }}">Datenschutz</a>
+                    <a href="{{ route('landing.statistics') }}">Statistik</a>
                 </div>
 
                 <a href="{{ route('profile') }}" class="sidebar-user-card">
