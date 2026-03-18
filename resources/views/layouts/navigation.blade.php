@@ -80,32 +80,10 @@
                         </div>
 
                         <!-- Ortsverband -->
-                        @php
-                            $navOrtsverband = Auth::user()->ortsverbande()->first();
-                            $navIsAusbildungsbeauftragter = $navOrtsverband && $navOrtsverband->isAusbildungsbeauftragter(Auth::user());
-                        @endphp
-                        @if($navIsAusbildungsbeauftragter)
-                            <div class="relative">
-                                <button onclick="document.getElementById('ortsverbandDropdown').classList.toggle('hidden')"
-                                        class="nav-link-glass flex items-center gap-1 {{ request()->routeIs('ortsverband.*') ? 'active' : '' }}">
-                                    <span>Ortsverband</span>
-                                    <svg class="h-4 w-4 transition-transform duration-200" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
-                                </button>
-                                <div id="ortsverbandDropdown" class="absolute left-0 mt-2 w-56 dropdown-glass hidden z-50">
-                                    <a href="{{ route('ortsverband.show', $navOrtsverband) }}" class="dropdown-item-glass">
-                                        {{ $navOrtsverband->name }}
-                                    </a>
-                                    <a href="{{ route('ortsverband.dashboard', $navOrtsverband) }}" class="dropdown-item-glass">
-                                        Verwalten
-                                    </a>
-                                </div>
-                            </div>
-                        @else
-                            <a href="{{ route('ortsverband.index') }}"
-                               class="nav-link-glass {{ request()->routeIs('ortsverband.*') ? 'active' : '' }}">
-                                Ortsverband
-                            </a>
-                        @endif
+                        <a href="{{ route('ortsverband.index') }}"
+                           class="nav-link-glass {{ request()->routeIs('ortsverband.*') ? 'active' : '' }}">
+                            Ortsverband
+                        </a>
                     @endauth
 
                     @auth
@@ -344,28 +322,10 @@
                 </div>
 
                 <!-- Ortsverband -->
-                @php
-                    $navOrtsverbandMobile = Auth::user()->ortsverbande()->first();
-                    $navIsAusbildungsbeauftragterMobile = $navOrtsverbandMobile && $navOrtsverbandMobile->isAusbildungsbeauftragter(Auth::user());
-                @endphp
-                @if($navIsAusbildungsbeauftragterMobile)
-                    <div class="px-3 py-2 text-xs font-semibold text-dark-muted uppercase tracking-wide">
-                        Ortsverband
-                    </div>
-                    <div class="ml-4 space-y-1">
-                        <a href="{{ route('ortsverband.show', $navOrtsverbandMobile) }}" class="block px-3 py-2 text-sm text-dark-secondary hover:text-gold hover:bg-glass-white-5 rounded-md transition-colors duration-200 {{ request()->routeIs('ortsverband.show') ? 'text-gold bg-glass-white-5' : '' }}">
-                            {{ $navOrtsverbandMobile->name }}
-                        </a>
-                        <a href="{{ route('ortsverband.dashboard', $navOrtsverbandMobile) }}" class="block px-3 py-2 text-sm text-dark-secondary hover:text-gold hover:bg-glass-white-5 rounded-md transition-colors duration-200 {{ request()->routeIs('ortsverband.dashboard') ? 'text-gold bg-glass-white-5' : '' }}">
-                            Verwalten
-                        </a>
-                    </div>
-                @else
-                    <a href="{{ route('ortsverband.index') }}"
-                       class="block px-3 py-2 text-base font-medium text-dark-primary hover:text-gold hover:bg-glass-white-5 rounded-md transition-colors duration-200 {{ request()->routeIs('ortsverband.*') ? 'text-gold bg-glass-white-5' : '' }}">
-                        Ortsverband
-                    </a>
-                @endif
+                <a href="{{ route('ortsverband.index') }}"
+                   class="block px-3 py-2 text-base font-medium text-dark-primary hover:text-gold hover:bg-glass-white-5 rounded-md transition-colors duration-200 {{ request()->routeIs('ortsverband.*') ? 'text-gold bg-glass-white-5' : '' }}">
+                    Ortsverband
+                </a>
 
                 @if(Auth::user()->useroll === 'admin')
                     <div class="px-3 py-2 text-xs font-semibold text-dark-muted uppercase tracking-wide">
@@ -500,7 +460,7 @@
 <script>
     // Close all dropdowns when clicking outside
     document.addEventListener('click', function(event) {
-        const dropdowns = ['adminDropdown', 'userDropdown', 'learningDropdown', 'gamificationDropdown', 'ortsverbandDropdown'];
+        const dropdowns = ['adminDropdown', 'userDropdown', 'learningDropdown', 'gamificationDropdown'];
 
         dropdowns.forEach(function(dropdownId) {
             const dropdown = document.getElementById(dropdownId);
