@@ -500,6 +500,51 @@
         $isAusbilder = $memberPivot && $memberPivot->pivot->role === 'ausbildungsbeauftragter';
     }
 
+    /* ── OV Card Data ───────────────────────────── */
+    $ovCardData = null;
+    if ($userOV) {
+        if ($isAusbilder) {
+            $ovCardData = [
+                'type' => 'ausbilder',
+                'stats' => $userOV->getAverageStats(),
+            ];
+        } else {
+            $ovEnrolledLernpools = $user->enrolledLernpools()
+                ->where('ortsverband_id', $userOV->id)
+                ->take(3)
+                ->get()
+                ->map(fn($lp) => [
+                    'id' => $lp->id,
+                    'name' => $lp->name,
+                    'progress' => $lp->enrollments()
+                        ->where('user_id', $user->id)
+                        ->first()?->getProgress() ?? 0,
+                ]);
+
+            $ovTotalEnrolled = $user->enrolledLernpools()
+                ->where('ortsverband_id', $userOV->id)
+                ->count();
+
+            $ovRanking = null;
+            $ovUserRank = null;
+            if ($userOV->ranking_visible) {
+                $ovMemberProgress = $userOV->getMemberProgress();
+                $ovSorted = collect($ovMemberProgress)->sortByDesc('points')->values();
+                $ovRanking = $ovSorted->take(3);
+                $ovUserRank = $ovSorted->search(fn($m) => $m['user_id'] === $user->id);
+                $ovUserRank = $ovUserRank !== false ? $ovUserRank + 1 : null;
+            }
+
+            $ovCardData = [
+                'type' => 'member',
+                'lernpools' => $ovEnrolledLernpools,
+                'totalEnrolled' => $ovTotalEnrolled,
+                'ranking' => $ovRanking,
+                'userRank' => $ovUserRank,
+            ];
+        }
+    }
+
     /* ── Weekly activity data ────────────────────── */
     $weekStart = \Carbon\Carbon::now()->startOfWeek();
     $days = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
@@ -757,16 +802,95 @@
                 @endif
             </div>
 
-            {{-- 5. Ausbilder-Karte (konditionell) --}}
-            @if($isAusbilder && $userOV)
-            <div class="glass-blue" style="padding:1rem;border-radius:0.75rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
-                <div style="flex:1;min-width:0;">
-                    <span class="badge-thw" style="display:inline-block;margin-bottom:0.35rem;">Ausbilder</span>
-                    <div style="font-size:1rem;font-weight:700;color:var(--text-primary);">{{ $userOV->name }}</div>
-                </div>
-                <div style="margin-left:auto;">
-                    <a href="{{ route('ortsverband.index') }}" class="btn-secondary btn-sm">Verwalten</a>
-                </div>
+            {{-- 5. Ortsverband-Karte (alle Mitglieder) --}}
+            @if($userOV && $ovCardData)
+            <div class="glass-blue" style="padding:1rem;border-radius:0.75rem;">
+                @if($ovCardData['type'] === 'ausbilder')
+                    {{-- ── Ausbilder View ── --}}
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;">
+                        <div style="min-width:0;">
+                            <span class="badge-thw" style="display:inline-block;margin-bottom:0.35rem;">Ausbilder</span>
+                            <div style="font-size:1rem;font-weight:700;color:var(--text-primary);">{{ $userOV->name }}</div>
+                        </div>
+                        <a href="{{ route('ortsverband.index') }}" class="btn-secondary btn-sm" style="flex-shrink:0;">Verwalten</a>
+                    </div>
+                    <div style="display:flex;gap:0.375rem;">
+                        <div style="flex:1;background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:0.5rem;padding:0.4rem 0.25rem;text-align:center;">
+                            <div style="font-size:1.125rem;font-weight:800;color:var(--text-primary);font-family:'Barlow Condensed',sans-serif;line-height:1;">{{ $ovCardData['stats']['total_members'] ?? 0 }}</div>
+                            <div style="font-size:0.4375rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-top:0.15rem;">Mitglieder</div>
+                        </div>
+                        <div style="flex:1;background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:0.5rem;padding:0.4rem 0.25rem;text-align:center;">
+                            <div style="font-size:1.125rem;font-weight:800;color:#22c55e;font-family:'Barlow Condensed',sans-serif;line-height:1;">{{ $ovCardData['stats']['active_members_7days'] ?? 0 }}</div>
+                            <div style="font-size:0.4375rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-top:0.15rem;">Aktiv (7d)</div>
+                        </div>
+                        <div style="flex:1;background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:0.5rem;padding:0.4rem 0.25rem;text-align:center;">
+                            <div style="font-size:1.125rem;font-weight:800;color:#fbbf24;font-family:'Barlow Condensed',sans-serif;line-height:1;">{{ $ovCardData['stats']['avg_theory'] ?? 0 }}%</div>
+                            <div style="font-size:0.4375rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-top:0.15rem;">Ø Fortschritt</div>
+                        </div>
+                    </div>
+                @else
+                    {{-- ── Mitglied View ── --}}
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;">
+                        <div style="min-width:0;">
+                            <span style="font-size:0.5625rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);font-weight:600;">Ortsverband</span>
+                            <div style="font-size:1rem;font-weight:700;color:var(--text-primary);">{{ $userOV->name }}</div>
+                        </div>
+                        @if($ovCardData['totalEnrolled'] > 3)
+                            <a href="{{ route('ortsverband.show', $userOV) }}" style="font-size:0.6875rem;color:var(--thw-blue-light, #60a5fa);text-decoration:none;flex-shrink:0;">Alle anzeigen</a>
+                        @endif
+                    </div>
+
+                    {{-- Lernpools --}}
+                    @if($ovCardData['lernpools']->isNotEmpty())
+                        <div style="display:flex;flex-direction:column;gap:0.5rem;{{ $ovCardData['ranking'] && $ovCardData['ranking']->isNotEmpty() ? 'margin-bottom:0.75rem;' : '' }}">
+                            @foreach($ovCardData['lernpools'] as $lp)
+                                @php
+                                    $lpProgress = $lp['progress'];
+                                    if ($lpProgress >= 60) {
+                                        $lpColor = '#22c55e';
+                                        $lpGradient = 'linear-gradient(90deg,#22c55e,#16a34a)';
+                                    } elseif ($lpProgress >= 30) {
+                                        $lpColor = '#fbbf24';
+                                        $lpGradient = 'linear-gradient(90deg,#fbbf24,#f59e0b)';
+                                    } else {
+                                        $lpColor = '#ef4444';
+                                        $lpGradient = 'linear-gradient(90deg,#ef4444,#dc2626)';
+                                    }
+                                @endphp
+                                <a href="{{ route('ortsverband.lernpools.show', [$userOV, $lp['id']]) }}" style="display:block;background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:0.5rem;padding:0.5rem 0.65rem;text-decoration:none;transition:border-color 0.15s;">
+                                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.25rem;">
+                                        <span style="font-size:0.75rem;font-weight:600;color:var(--text-primary);">{{ $lp['name'] }}</span>
+                                        <span style="font-size:0.65rem;font-weight:700;color:{{ $lpColor }};">{{ $lpProgress }}%</span>
+                                    </div>
+                                    <div style="height:3px;background:rgba(255,255,255,0.08);border-radius:2px;overflow:hidden;">
+                                        <div style="width:{{ $lpProgress }}%;height:100%;background:{{ $lpGradient }};border-radius:2px;"></div>
+                                    </div>
+                                </a>
+                            @endforeach
+                        </div>
+                    @endif
+
+                    {{-- Mini Ranking --}}
+                    @if($ovCardData['ranking'] && $ovCardData['ranking']->isNotEmpty())
+                        <div style="border-top:1px solid var(--glass-border);padding-top:0.6rem;">
+                            <div style="font-size:0.5625rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);font-weight:600;margin-bottom:0.4rem;">Ranking</div>
+                            <div style="display:flex;gap:0.5rem;font-size:0.6875rem;flex-wrap:wrap;">
+                                @foreach($ovCardData['ranking'] as $idx => $member)
+                                    @php
+                                        $rankColors = ['#fbbf24', '#94a3b8', '#cd7f32'];
+                                        $rankColor = $rankColors[$idx] ?? 'var(--text-muted)';
+                                        $isCurrentUser = $member['user_id'] === $user->id;
+                                    @endphp
+                                    <div style="display:flex;align-items:center;gap:0.25rem;">
+                                        <span style="color:{{ $rankColor }};font-weight:700;">{{ $idx + 1 }}.</span>
+                                        <span style="color:{{ $isCurrentUser ? '#3b82f6' : 'var(--text-secondary)' }};font-weight:{{ $isCurrentUser ? '700' : '400' }};">{{ $isCurrentUser ? 'Du' : Str::limit($member['name'], 10) }}</span>
+                                        <span style="font-size:0.5625rem;color:var(--text-muted);">{{ number_format($member['points'] ?? 0) }} Pkt</span>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+                @endif
             </div>
             @endif
 
