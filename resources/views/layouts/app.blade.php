@@ -355,7 +355,7 @@
                                 &copy; {{ date('Y') }} THW-Trainer &ndash;
                                 <a href="{{ route('landing.impressum') }}" class="text-gold hover:text-gold-light transition-colors">Impressum</a> &middot;
                                 <a href="{{ route('landing.datenschutz') }}" class="text-gold hover:text-gold-light transition-colors">Datenschutz</a> &middot;
-                                <a href="{{ route('landing.statistics') }}" class="text-gold hover:text-gold-light transition-colors">Statistik</a> &middot;
+                                <a href="https://thw-trainer.de/statistik" class="text-gold hover:text-gold-light transition-colors" target="_blank">Statistik</a> &middot;
                                 <a href="{{ route('contact.index') }}" class="text-gold hover:text-gold-light transition-colors">Kontakt</a>
                             </div>
                             <div>
@@ -537,7 +537,7 @@
                 <div class="mobile-footer-links">
                     <a href="{{ route('landing.impressum') }}">Impressum</a>
                     <a href="{{ route('landing.datenschutz') }}">Datenschutz</a>
-                    <a href="{{ route('landing.statistics') }}">Statistik</a>
+                    <a href="https://thw-trainer.de/statistik" target="_blank">Statistik</a>
                 </div>
 
                 <a href="{{ route('profile') }}" class="sidebar-user-card">
