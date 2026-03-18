@@ -6,46 +6,51 @@
 <link rel="preconnect" href="https://fonts.bunny.net">
 <link href="https://fonts.bunny.net/css2?family=Barlow+Condensed:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-    /* ─── Container & Header (Dashboard-Stil) ─── */
+    /* ─── Container (Dashboard-Stil) ──────────────── */
     .ls-container {
-        max-width: 1200px;
+        max-width: 1100px;
         margin: 0 auto;
         padding: 2rem;
     }
 
-    .dashboard-header {
-        margin-bottom: 2rem;
-        padding-top: 1rem;
-        max-width: 600px;
+    /* ─── Page Header (gleich wie Dashboard) ──────── */
+    .ls-header {
+        margin-bottom: 1.25rem;
     }
 
-    .dashboard-greeting {
+    .ls-greeting {
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 0.6875rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--text-muted);
+        margin-bottom: 0.15rem;
+    }
+
+    .ls-title {
         font-family: 'Barlow Condensed', sans-serif;
-        font-size: 1.75rem;
+        font-size: 1.5rem;
         font-weight: 800;
         letter-spacing: -0.02em;
         color: var(--text-primary);
         line-height: 1.2;
     }
 
-    .dashboard-greeting span {
-        background: linear-gradient(90deg, #fbbf24, #f59e0b);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+    .ls-level-line {
+        font-size: 0.8125rem;
+        color: #5b9aff;
+        margin-top: 0.15rem;
     }
 
-    .dashboard-subtitle {
-        font-size: 0.85rem;
-        color: var(--text-muted);
-        margin-top: 0.25rem;
-    }
+    html.light-mode .ls-level-line { color: #00337F; }
 
     .section-label {
         font-family: 'IBM Plex Mono', monospace;
-        font-size: 0.625rem;
+        font-size: 0.5625rem;
         font-weight: 700;
         text-transform: uppercase;
-        letter-spacing: 0.08em;
+        letter-spacing: 0.1em;
         color: var(--text-muted);
         margin-bottom: 0.75rem;
     }
@@ -86,18 +91,14 @@
 
     .lb-table th {
         font-family: 'IBM Plex Mono', monospace;
-        font-size: 0.6875rem;
+        font-size: 0.5625rem;
         text-transform: uppercase;
-        letter-spacing: 0.05em;
+        letter-spacing: 0.1em;
         color: var(--text-muted);
-        font-weight: 600;
+        font-weight: 700;
         padding: 0.5rem 0.75rem;
         text-align: left;
-        border-bottom: 1px solid rgba(255,255,255,0.08);
-    }
-
-    html.light-mode .lb-table th {
-        border-bottom-color: rgba(0,0,0,0.08);
+        border-bottom: 1px solid var(--glass-border);
     }
 
     .lb-table td {
@@ -114,7 +115,11 @@
     .lb-table tr.is-me td {
         color: var(--text-primary);
         font-weight: 600;
-        background: rgba(251, 191, 36, 0.05);
+        background: rgba(0, 85, 204, 0.06);
+    }
+
+    html.light-mode .lb-table tr.is-me td {
+        background: rgba(0, 51, 127, 0.05);
     }
 
     .lb-rank {
@@ -129,32 +134,37 @@
 
     .lb-xp {
         font-weight: 600;
-        color: var(--gold);
+        color: #5b9aff;
     }
+
+    html.light-mode .lb-xp { color: #0055cc; }
 
     /* ─── Timer ──────────────────────────────────── */
     .timer-display {
         font-family: 'Barlow Condensed', sans-serif;
         font-size: 2.5rem;
         font-weight: 800;
-        color: var(--gold);
+        color: #5b9aff;
         font-variant-numeric: tabular-nums;
         text-align: center;
         line-height: 1.2;
         letter-spacing: -0.02em;
     }
 
+    html.light-mode .timer-display { color: #00337F; }
+
     .timer-label {
         font-family: 'IBM Plex Mono', monospace;
         text-align: center;
-        font-size: 0.6875rem;
+        font-size: 0.5625rem;
         text-transform: uppercase;
-        letter-spacing: 0.05em;
+        letter-spacing: 0.1em;
         color: var(--text-muted);
         margin-top: 0.25rem;
     }
 
     .timer-warning {
+        color: var(--gold) !important;
         animation: pulse-warning 2s ease-in-out infinite;
     }
 
@@ -194,15 +204,22 @@
         padding: 0.25rem 0.6rem;
         border-radius: 1rem;
         font-family: 'IBM Plex Mono', monospace;
-        font-size: 0.6875rem;
+        font-size: 0.625rem;
         font-weight: 700;
-        background: rgba(251, 191, 36, 0.15);
-        color: var(--gold);
-        border: 1px solid rgba(251, 191, 36, 0.3);
+        background: rgba(0, 85, 204, 0.12);
+        color: #5b9aff;
+        border: 1px solid rgba(91, 154, 255, 0.25);
+    }
+
+    html.light-mode .boost-badge {
+        background: rgba(0, 51, 127, 0.08);
+        color: #00337F;
+        border-color: rgba(0, 51, 127, 0.18);
     }
 
     .participant-count {
-        font-size: 0.85rem;
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 0.6875rem;
         color: var(--text-muted);
         text-align: center;
         margin-top: 0.5rem;
@@ -217,13 +234,13 @@
         align-items: center;
         justify-content: center;
         padding: 1rem;
-        background: rgba(0, 0, 0, 0.65);
-        backdrop-filter: blur(6px);
-        -webkit-backdrop-filter: blur(6px);
-        animation: join-overlay-in 0.3s ease-out;
+        background: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        animation: fadeInModal 0.3s ease-out;
     }
 
-    @keyframes join-overlay-in {
+    @keyframes fadeInModal {
         from { opacity: 0; }
         to   { opacity: 1; }
     }
@@ -231,86 +248,115 @@
     .join-modal {
         width: 100%;
         max-width: 480px;
-        border-radius: 1.25rem;
+        background: var(--bg-surface);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid var(--glass-border);
+        border-radius: 1.5rem 0.5rem 1.5rem 1.5rem;
+        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5), 0 0 80px rgba(0, 51, 127, 0.1);
         overflow: hidden;
-        animation: join-modal-in 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        animation: slideUpModal 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    @keyframes join-modal-in {
+    html.light-mode .join-modal {
+        background: #ffffff;
+        border-color: rgba(0, 51, 127, 0.10);
+        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.12);
+    }
+
+    @keyframes slideUpModal {
         from { opacity: 0; transform: translateY(24px) scale(0.96); }
         to   { opacity: 1; transform: translateY(0) scale(1); }
     }
 
-    .join-modal-header {
-        padding: 1.75rem 1.75rem 0;
+    /* Modal Top-Stripe (wie glass-featured) */
+    .join-modal::before {
+        content: '';
+        display: block;
+        height: 3px;
+        background: linear-gradient(90deg, #00337F, #0055cc, #5b9aff);
     }
 
-    .join-modal-emoji {
-        font-size: 2rem;
-        margin-bottom: 0.5rem;
+    .join-modal-header {
+        padding: 1.5rem 1.75rem 0;
+    }
+
+    .join-modal-greeting {
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 0.5625rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--text-muted);
+        margin-bottom: 0.25rem;
     }
 
     .join-modal-title {
         font-family: 'Barlow Condensed', sans-serif;
-        font-size: 1.5rem;
+        font-size: 1.4rem;
         font-weight: 800;
         letter-spacing: -0.02em;
         color: var(--text-primary);
         line-height: 1.2;
     }
 
-    .join-modal-title span {
-        background: linear-gradient(90deg, #fbbf24, #f59e0b);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-    }
-
     .join-modal-meta {
         display: flex;
         flex-wrap: wrap;
-        gap: 0.5rem;
-        margin-top: 0.5rem;
+        gap: 0.375rem;
+        margin-top: 0.625rem;
     }
 
     .join-modal-meta-item {
         font-family: 'IBM Plex Mono', monospace;
-        font-size: 0.6875rem;
+        font-size: 0.625rem;
         font-weight: 600;
         padding: 0.2rem 0.5rem;
         border-radius: 2rem;
-        background: rgba(255,255,255,0.06);
+        background: var(--glass-bg);
         color: var(--text-muted);
-        border: 1px solid rgba(255,255,255,0.08);
-    }
-
-    html.light-mode .join-modal-meta-item {
-        background: rgba(0,0,0,0.04);
-        border-color: rgba(0,0,0,0.08);
+        border: 1px solid var(--glass-border);
     }
 
     .join-modal-body {
         padding: 1.25rem 1.75rem 1.75rem;
     }
 
-    /* Boost-Highlight */
+    /* Boost-Highlight (Blau-Akzent wie Smart Action) */
     .join-boost {
         display: flex;
         align-items: center;
         gap: 0.75rem;
         padding: 0.875rem 1rem;
-        background: rgba(251, 191, 36, 0.08);
-        border: 1px solid rgba(251, 191, 36, 0.2);
+        background: rgba(0, 85, 204, 0.08);
+        border: 1px solid rgba(91, 154, 255, 0.2);
         border-radius: 0.75rem;
         margin-bottom: 1.25rem;
     }
 
+    html.light-mode .join-boost {
+        background: rgba(0, 51, 127, 0.05);
+        border-color: rgba(0, 51, 127, 0.12);
+    }
+
     .join-boost-icon {
-        font-size: 1.5rem;
+        width: 2rem;
+        height: 2rem;
+        border-radius: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
         flex-shrink: 0;
+        background: rgba(0, 85, 204, 0.15);
+    }
+
+    html.light-mode .join-boost-icon {
+        background: rgba(0, 51, 127, 0.1);
     }
 
     .join-boost-text {
-        font-size: 0.85rem;
+        font-size: 0.82rem;
         color: var(--text-secondary);
         line-height: 1.5;
     }
@@ -318,29 +364,26 @@
     .join-boost-value {
         font-family: 'Barlow Condensed', sans-serif;
         font-weight: 800;
-        color: var(--gold);
+        color: #5b9aff;
     }
+
+    html.light-mode .join-boost-value { color: #0055cc; }
 
     /* Consent Box */
     .join-consent {
         padding: 1rem;
-        background: rgba(255,255,255,0.03);
-        border: 1px solid rgba(255,255,255,0.08);
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
         border-radius: 0.75rem;
         margin-bottom: 1.25rem;
     }
 
-    html.light-mode .join-consent {
-        background: rgba(0,0,0,0.02);
-        border-color: rgba(0,0,0,0.08);
-    }
-
     .join-consent-title {
         font-family: 'IBM Plex Mono', monospace;
-        font-size: 0.625rem;
+        font-size: 0.5625rem;
         font-weight: 700;
         text-transform: uppercase;
-        letter-spacing: 0.08em;
+        letter-spacing: 0.1em;
         color: var(--text-muted);
         margin-bottom: 0.5rem;
     }
@@ -363,7 +406,7 @@
     }
 
     .join-consent-label input[type="checkbox"] {
-        accent-color: var(--gold);
+        accent-color: #0055cc;
         margin-top: 0.2rem;
         flex-shrink: 0;
         width: 1rem;
@@ -379,16 +422,6 @@
     .join-actions .btn-primary {
         flex: 1;
         text-align: center;
-        font-family: 'IBM Plex Mono', monospace;
-        font-weight: 700;
-        font-size: 0.8rem;
-        letter-spacing: 0.02em;
-    }
-
-    .join-actions .btn-ghost {
-        font-family: 'IBM Plex Mono', monospace;
-        font-weight: 600;
-        font-size: 0.8rem;
     }
 
     /* Loading State */
@@ -402,7 +435,7 @@
         .bento-main, .bento-wide { grid-column: span 1; grid-row: span 1; min-height: auto; }
         .ls-container { padding: 1rem; }
         .timer-display { font-size: 1.8rem; }
-        .dashboard-greeting { font-size: 1.4rem; }
+        .ls-title { font-size: 1.25rem; }
     }
 
     @media (max-width: 480px) {
@@ -426,10 +459,10 @@
          x-transition:leave-end="opacity-0"
          @keydown.escape.window="cancelJoin()">
 
-        <div class="glass-gold join-modal" @click.outside="cancelJoin()">
+        <div class="join-modal" @click.outside="cancelJoin()">
             <div class="join-modal-header">
-                <div class="join-modal-emoji">🎓</div>
-                <h2 class="join-modal-title">{{ $session->title }} <span>beitreten</span></h2>
+                <div class="join-modal-greeting">Lernsession</div>
+                <h2 class="join-modal-title">{{ $session->title }}</h2>
                 <div class="join-modal-meta">
                     <span class="join-modal-meta-item">
                         🕐 {{ $instance->starts_at->format('H:i') }} – {{ $instance->ends_at->format('H:i') }} Uhr
@@ -453,7 +486,7 @@
                 </div>
 
                 <div class="join-consent">
-                    <div class="join-consent-title">🔒 Datenschutz-Einwilligung</div>
+                    <div class="join-consent-title">Datenschutz-Einwilligung</div>
                     <div class="join-consent-text">
                         Wenn du am Ranking teilnimmst, werden dein Name und deine Punktzahl für andere
                         Teilnehmer dieser Session sichtbar. Diese Einwilligung gilt nur für diese
@@ -469,10 +502,10 @@
                 <div class="join-actions">
                     <button class="btn-primary" :class="submitting && 'join-btn-loading'"
                             @click="submitJoin()" :disabled="submitting">
-                        <span x-show="!submitting">🚀 Session beitreten</span>
+                        <span x-show="!submitting">Session beitreten</span>
                         <span x-show="submitting" x-cloak>Beitritt läuft…</span>
                     </button>
-                    <a href="{{ route('lernsession.index') }}" class="btn-ghost">Abbrechen</a>
+                    <a href="{{ route('lernsession.index') }}" class="btn-ghost">Zurück</a>
                 </div>
 
                 <template x-if="error">
@@ -484,20 +517,19 @@
     @endif
 
     {{-- ── Page Header (Dashboard-Stil) ───────────────────── --}}
-    <header class="dashboard-header">
-        <h1 class="dashboard-greeting">🏆 <span>{{ $session->title }}</span> Live</h1>
-        <p class="dashboard-subtitle">
+    <header class="ls-header">
+        <div class="ls-greeting">Lernsession · Live</div>
+        <div class="ls-title">{{ $session->title }}</div>
+        <div class="ls-level-line">
             {{ $instance->starts_at->format('d.m.Y') }} · {{ $instance->starts_at->format('H:i') }} – {{ $instance->ends_at->format('H:i') }} Uhr
-        </p>
-        <div style="display: flex; gap: 0.5rem; align-items: center; margin-top: 0.5rem;">
-            <span class="boost-badge">⚡ +50% XP Boost aktiv</span>
+            <span class="boost-badge" style="margin-left: 0.5rem;">+50% XP</span>
         </div>
     </header>
 
     {{-- ── Bento Grid ─────────────────────────────────────── --}}
     <div class="bento-grid">
         {{-- Live Leaderboard (Hauptcard) --}}
-        <div class="glass-gold bento-main">
+        <div class="glass bento-main">
             <div class="section-label">Live-Ranking</div>
 
             <div style="flex: 1; overflow-y: auto;">
@@ -559,7 +591,7 @@
                     </div>
                     <div class="my-stat">
                         <span class="my-stat-label">XP verdient</span>
-                        <span class="my-stat-value" style="color: var(--gold);" x-text="myStats.xp_earned"></span>
+                        <span class="my-stat-value" style="color: #5b9aff;" x-text="myStats.xp_earned"></span>
                     </div>
                     <div class="my-stat">
                         <span class="my-stat-label">Genauigkeit</span>
