@@ -127,6 +127,51 @@
         margin-top: auto;
     }
 
+    /* ─── CTA Button ────────────────────────────── */
+    .lg-cta {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.375rem;
+        background: linear-gradient(135deg, #0055cc, #5b9aff);
+        color: #fff;
+        font-size: 0.8125rem;
+        font-weight: 700;
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        text-decoration: none;
+        transition: transform 150ms ease, box-shadow 150ms ease;
+    }
+
+    .lg-cta:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0,85,204,0.25);
+        text-decoration: none;
+        color: #fff;
+    }
+
+    .lg-detail-link {
+        display: block;
+        text-align: center;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+        text-decoration: none;
+        padding: 0.375rem;
+        border-radius: 0.375rem;
+        transition: color 150ms, background 150ms;
+    }
+
+    .lg-detail-link:hover {
+        color: var(--text-primary);
+        background: rgba(255,255,255,0.04);
+        text-decoration: none;
+    }
+
+    html.light-mode .lg-detail-link:hover {
+        background: rgba(0,0,0,0.04);
+    }
+
     /* ─── Card Grid ─────────────────────────────── */
     .lg-grid {
         display: grid;
@@ -347,16 +392,16 @@
                         <div class="lg-card__actions">
                             @if($isEnrolled)
                                 @if($isCompleted)
-                                    <a href="{{ route('lehrgaenge.show', $lehrgang->slug) }}" class="btn-ghost btn-sm" style="text-align:center;">Details anzeigen</a>
+                                    <a href="{{ route('lehrgaenge.show', $lehrgang->slug) }}" class="lg-cta">Details anzeigen</a>
                                 @else
-                                    <a href="{{ route('lehrgaenge.practice', $lehrgang->slug) }}" class="smart-action__btn" style="display:flex;justify-content:center;text-decoration:none;border-radius:0.5rem;padding:0.5rem 1rem;">
+                                    <a href="{{ route('lehrgaenge.practice', $lehrgang->slug) }}" class="lg-cta">
                                         Weiterlernen
                                         <i class="bi bi-arrow-right"></i>
                                     </a>
-                                    <a href="{{ route('lehrgaenge.show', $lehrgang->slug) }}" class="btn-ghost btn-sm" style="text-align:center;">Details</a>
+                                    <a href="{{ route('lehrgaenge.show', $lehrgang->slug) }}" class="lg-detail-link">Details</a>
                                 @endif
                             @else
-                                <a href="{{ route('lehrgaenge.show', $lehrgang->slug) }}" class="smart-action__btn" style="display:flex;justify-content:center;text-decoration:none;border-radius:0.5rem;padding:0.5rem 1rem;">
+                                <a href="{{ route('lehrgaenge.show', $lehrgang->slug) }}" class="lg-cta">
                                     Details anzeigen
                                     <i class="bi bi-arrow-right"></i>
                                 </a>
