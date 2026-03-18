@@ -126,51 +126,10 @@
         font-family: 'IBM Plex Mono', monospace;
     }
 
-    /* Open buttons per type */
-    .lb-card__btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.375rem;
-        padding: 0.4rem 1rem;
-        border-radius: 0.375rem;
-        font-weight: 700;
+    /* Open button sizing override */
+    .lb-card .btn-primary {
         font-size: 0.75rem;
-        border: none;
-        cursor: pointer;
-        transition: transform 150ms ease, box-shadow 150ms ease;
-    }
-
-    .lb-card__btn:hover {
-        transform: scale(1.04);
-    }
-
-    .lb-card--gold .lb-card__btn {
-        background: linear-gradient(135deg, #fbbf24, #f59e0b);
-        color: #000;
-    }
-    .lb-card--gold .lb-card__btn:hover {
-        box-shadow: 0 4px 16px rgba(251, 191, 36, 0.3);
-    }
-
-    .lb-card--silber .lb-card__btn {
-        background: linear-gradient(135deg, #94a3b8, #64748b);
-        color: #fff;
-    }
-    .lb-card--silber .lb-card__btn:hover {
-        box-shadow: 0 4px 16px rgba(148, 163, 184, 0.3);
-    }
-
-    .lb-card--bronze .lb-card__btn {
-        background: linear-gradient(135deg, #cd7f32, #a0522d);
-        color: #fff;
-    }
-    .lb-card--bronze .lb-card__btn:hover {
-        box-shadow: 0 4px 16px rgba(205, 127, 50, 0.3);
-    }
-
-    html.light-mode .lb-card--gold .lb-card__btn {
-        background: linear-gradient(135deg, #d97706, #b45309);
-        color: #fff;
+        padding: 0.4rem 1rem;
     }
 
     .lb-card.opened { display: none; }
@@ -444,7 +403,7 @@
 
         .lb-card__icon { font-size: 2rem; }
         .lb-card__type { font-size: 0.8125rem; }
-        .lb-card__btn { font-size: 0.6875rem; padding: 0.35rem 0.75rem; }
+        .lb-card .btn-primary { font-size: 0.6875rem; padding: 0.35rem 0.75rem; }
     }
 </style>
 @endpush
@@ -462,7 +421,7 @@
     {{-- ── Header ── --}}
     <div class="mb-6">
         <p style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);font-weight:600;margin-bottom:0.25rem;">Belohnungen</p>
-        <h1 style="font-size:1.5rem;font-weight:800;line-height:1.2;font-family:'Barlow Condensed',sans-serif;background:linear-gradient(135deg,#fbbf24,#f59e0b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Wochenbelohnungen</h1>
+        <h1 style="font-size:1.5rem;font-weight:800;line-height:1.2;font-family:'Barlow Condensed',sans-serif;background:linear-gradient(135deg,#5b9aff,#0055cc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Wochenbelohnungen</h1>
         <p class="text-sm" style="color: var(--text-muted);">Belohnungen aus deinen Liga-Platzierungen</p>
     </div>
 
@@ -495,7 +454,7 @@
                         <div class="lb-card__icon"><i class="bi bi-gift-fill"></i></div>
                         <div class="lb-card__type">{{ ucfirst($lootbox->type) }}-Belohnung</div>
                         <div class="lb-card__desc">Liga-Platzierung</div>
-                        <button class="lb-card__btn" onclick="event.stopPropagation(); openLootbox({{ $lootbox->id }}, '{{ $lootbox->type }}')">Öffnen</button>
+                        <button class="btn-primary" onclick="event.stopPropagation(); openLootbox({{ $lootbox->id }}, '{{ $lootbox->type }}')">Öffnen</button>
                     </div>
                 @endforeach
             </div>
