@@ -103,7 +103,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
                 // Fallback for users without avatar_path
                 $seed = urlencode($this->id . str_replace(' ', '', $this->name));
-                return $base . 'avataaars-neutral/svg?radius=50&seed=' . $seed . '&eyes=default,happy&mouth=default,smile';
+                return $base . 'avataaars/svg?radius=50&seed=' . $seed . '&backgroundType=gradientLinear&backgroundColor=00337f,0055cc&backgroundRotation=135&eyes=default,happy&mouth=default,smile';
             },
         );
     }

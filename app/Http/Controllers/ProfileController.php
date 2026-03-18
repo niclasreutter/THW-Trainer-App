@@ -159,6 +159,9 @@ class ProfileController extends Controller
         // Nur positive Gesichtsausdrücke erlaubt
         $user->avatar_path = 'avataaars/svg?radius=50'
             . '&seed=' . $seed
+            . '&backgroundType=gradientLinear'
+            . '&backgroundColor=00337f,0055cc'
+            . '&backgroundRotation=135'
             . '&accessoriesProbability=0'
             . '&facialHairProbability=0'
             . '&top=bob,bun,curly,curvy,dreads,frida,fro,froBand,longButNotTooLong,miaWallace,shavedSides,straight01,straight02,straightAndStrand,dreads01,dreads02,frizzle,shaggy,shaggyMullet,shortCurly,shortFlat,shortRound,shortWaved,sides,theCaesar,theCaesarAndSidePart,bigHair'

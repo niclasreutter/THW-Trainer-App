@@ -287,7 +287,7 @@
     {{-- ── Gami Pills ── --}}
     <div class="flex gap-3 mb-6" style="flex-wrap: wrap;">
         <div class="gami-pill">
-            <div class="gami-pill__value" style="color:var(--text-primary);">{{ $user->created_at->diffInDays(now()) }}</div>
+            <div class="gami-pill__value" style="color:var(--text-primary);">{{ floor($user->created_at->diffInDays(now())) }}</div>
             <div class="gami-pill__label">Tage dabei</div>
         </div>
         <div class="gami-pill">
@@ -470,7 +470,7 @@
                     <span class="pf-info-label">Beitrittsdatum</span>
                     <span class="pf-info-value">
                         {{ $user->created_at->format('d.m.Y') }}
-                        <span class="pf-info-sub">vor {{ $user->created_at->diffInDays(now()) }} Tagen</span>
+                        <span class="pf-info-sub">vor {{ floor($user->created_at->diffInDays(now())) }} Tagen</span>
                     </span>
                 </div>
                 <div class="pf-info-row">
