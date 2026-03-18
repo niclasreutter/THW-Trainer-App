@@ -234,8 +234,8 @@
     .lb-row {
         display: flex;
         align-items: center;
-        gap: 0.4rem;
-        padding: 0.4rem 0.375rem;
+        gap: 0.625rem;
+        padding: 0.5rem 0.375rem;
         border-bottom: 1px solid rgba(255, 255, 255, 0.04);
     }
 
@@ -266,11 +266,12 @@
     }
 
     .lb-row__rank {
-        font-size: 0.6875rem;
+        font-family: 'Barlow Condensed', sans-serif;
+        font-size: 0.9375rem;
         font-weight: 800;
         color: var(--text-muted);
-        font-family: 'IBM Plex Mono', monospace;
-        min-width: 1.25rem;
+        min-width: 1.75rem;
+        text-align: center;
     }
 
     .lb-row--current .lb-row__rank {
@@ -282,14 +283,14 @@
     }
 
     .lb-row__avatar {
-        width: 22px;
-        height: 22px;
+        width: 2rem;
+        height: 2rem;
         border-radius: 50%;
         flex-shrink: 0;
     }
 
     .lb-row__name {
-        font-size: 0.75rem;
+        font-size: 0.8125rem;
         font-weight: 600;
         color: var(--text-secondary);
         flex: 1;
