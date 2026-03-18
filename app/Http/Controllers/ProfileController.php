@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
 
@@ -143,6 +145,25 @@ class ProfileController extends Controller
         $user->save();
 
         return Redirect::route('dashboard')->with('status', 'leaderboard-banner-dismissed');
+    }
+
+    /**
+     * Regenerate the user's avatar with a new random seed.
+     */
+    public function regenerateAvatar(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        $seed = Str::random(16);
+
+        $user->avatar_path = 'avataaars/svg?radius=50&seed=' . $seed
+            . '&accessoriesProbability=0'
+            . '&facialHairProbability=0'
+            . '&top=bigHair,bob,bun,curly,curvy,dreads,dreads01,dreads02,frida,fro,froAndBand,longButNotTooLong,miaWallace,noHair,shavedSides,shortHairDreads01,shortHairDreads02,shortHairFrizzle,shortHairShaggy,shortHairShaggyMullet,shortHairShortCurly,shortHairShortFlat,shortHairShortRound,shortHairShortWaved,shortHairSides,shortHairTheCaesar,shortHairTheCaesarAndSidePart,straight,straight2,straightAndStrand';
+        $user->save();
+
+        return response()->json([
+            'avatar_url' => $user->avatar_url,
+        ]);
     }
 
     /**

@@ -272,6 +272,7 @@ Route::middleware('auth')->group(function () {
         \Log::info('Password update route reached via PATCH');
         return app(ProfileController::class)->updatePassword($request);
     })->name('profile.password.update');
+    Route::post('/profile/avatar/regenerate', [ProfileController::class, 'regenerateAvatar'])->name('profile.avatar.regenerate');
     Route::post('/profile/dismiss-leaderboard-banner', [ProfileController::class, 'dismissLeaderboardBanner'])->name('profile.dismiss.leaderboard.banner');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
