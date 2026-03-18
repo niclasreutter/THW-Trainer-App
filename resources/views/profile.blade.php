@@ -322,18 +322,12 @@
     </div>
 
     {{-- ── Status Messages ── --}}
-    @if (session('status') == 'profile-updated' || session('status') == 'password-updated' || session('status') == 'avatar-updated')
+    @if (session('status') == 'profile-updated' || session('status') == 'password-updated')
     <div class="alert-compact glass-success" style="margin-bottom: 1rem;">
         <i class="bi bi-check-circle alert-compact-icon"></i>
         <div class="alert-compact-content">
             <div class="alert-compact-title">
-                @if (session('status') == 'profile-updated')
-                    Profil erfolgreich aktualisiert.
-                @elseif (session('status') == 'avatar-updated')
-                    Avatar wurde neu generiert.
-                @else
-                    Passwort erfolgreich geändert.
-                @endif
+                {{ session('status') == 'profile-updated' ? 'Profil erfolgreich aktualisiert.' : 'Passwort erfolgreich geändert.' }}
             </div>
         </div>
         <button style="background:none;border:none;cursor:pointer;font-size:1.25rem;color:var(--text-secondary);" onclick="this.parentElement.remove()">&times;</button>
@@ -377,13 +371,10 @@
         <div class="glass p-4" style="border-radius:0.75rem;">
             <div class="pf-avatar-card">
                 <div class="pf-avatar-wrap">
-                    <img src="{{ $user->avatar_url }}" alt="Avatar" class="pf-avatar">
-                    <form method="POST" action="{{ route('profile.avatar.regenerate') }}" style="margin:0;">
-                        @csrf
-                        <button type="submit" class="pf-avatar-regen" title="Avatar neu generieren">
-                            <i class="bi bi-arrow-repeat"></i>
-                        </button>
-                    </form>
+                    <img src="{{ $user->avatar_url }}" alt="Avatar" class="pf-avatar" id="pf-avatar-img">
+                    <button type="button" class="pf-avatar-regen" id="pf-regen-btn" title="Avatar neu generieren">
+                        <i class="bi bi-arrow-repeat"></i>
+                    </button>
                 </div>
                 <div class="pf-avatar-info">
                     <div class="pf-avatar-name">{{ $user->name }}</div>
@@ -664,5 +655,37 @@
         }
     }
 
+    // Avatar regeneration
+    var regenBtn = document.getElementById('pf-regen-btn');
+    if (regenBtn) {
+        regenBtn.addEventListener('click', function() {
+            var btn = this;
+            var img = document.getElementById('pf-avatar-img');
+            if (btn.disabled) return;
+            btn.classList.add('is-spinning');
+            btn.disabled = true;
+
+            fetch('{{ route("profile.avatar.regenerate") }}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json'
+                }
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.avatar_url) {
+                    img.src = data.avatar_url + '&_t=' + Date.now();
+                }
+            })
+            .catch(function(e) { console.error('Avatar error:', e); })
+            .finally(function() {
+                setTimeout(function() {
+                    btn.classList.remove('is-spinning');
+                    btn.disabled = false;
+                }, 600);
+            });
+        });
+    }
 </script>
 @endsection
