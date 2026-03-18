@@ -245,9 +245,17 @@
 
 @section('content')
 <style>
-    /* Override layout bottom padding for summary page */
-    #main-content { padding-bottom: 1rem !important; display: flex; flex-direction: column; }
-    @media (min-width: 1024px) { #main-content { padding-bottom: 1rem !important; } }
+    /* Override layout padding for summary — fill viewport exactly, no scroll */
+    #main-content {
+        padding-top: 0.5rem !important;
+        padding-bottom: 0.5rem !important;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+    @media (min-width: 1024px) {
+        #main-content { padding-top: 1rem !important; padding-bottom: 1rem !important; }
+    }
 </style>
 <div class="summary-container">
     {{-- ── Header ── --}}
