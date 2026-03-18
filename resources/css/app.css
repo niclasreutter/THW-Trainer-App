@@ -89,6 +89,11 @@
         scroll-behavior: smooth;
     }
 
+    /* Desktop: Basis-Schriftgröße etwas größer für bessere Lesbarkeit */
+    @media (min-width: 768px) {
+        html { font-size: 17px; }
+    }
+
     body {
         background-color: var(--bg-base);
         color: var(--text-primary);
