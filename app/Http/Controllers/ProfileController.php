@@ -156,23 +156,12 @@ class ProfileController extends Controller
         $seed = Str::random(16);
 
         // avataaars (nicht neutral) ohne Brille, Bart, Hüte — die werden später per XP-Shop freigeschaltet
-        $allowedTops = implode(',', [
-            'bigHair', 'bob', 'bun', 'curly', 'curvy', 'dreads', 'dreads01', 'dreads02',
-            'frida', 'fro', 'froAndBand', 'longButNotTooLong', 'miaWallace', 'noHair',
-            'shavedSides', 'shortHairDreads01', 'shortHairDreads02', 'shortHairFrizzle',
-            'shortHairShaggy', 'shortHairShaggyMullet', 'shortHairShortCurly',
-            'shortHairShortFlat', 'shortHairShortRound', 'shortHairShortWaved',
-            'shortHairSides', 'shortHairTheCaesar', 'shortHairTheCaesarAndSidePart',
-            'straight', 'straight2', 'straightAndStrand',
-        ]);
-
-        $user->avatar_path = 'avataaars/svg?' . http_build_query([
-            'radius' => 50,
-            'seed' => $seed,
-            'accessoriesProbability' => 0,
-            'facialHairProbability' => 0,
-            'top' => $allowedTops,
-        ]);
+        // top-Werte laut DiceBear 9.x Schema (ohne hat, hijab, turban, winterHat*)
+        $user->avatar_path = 'avataaars/svg?radius=50'
+            . '&seed=' . $seed
+            . '&accessoriesProbability=0'
+            . '&facialHairProbability=0'
+            . '&top=bob,bun,curly,curvy,dreads,frida,fro,froBand,longButNotTooLong,miaWallace,shavedSides,straight01,straight02,straightAndStrand,dreads01,dreads02,frizzle,shaggy,shaggyMullet,shortCurly,shortFlat,shortRound,shortWaved,sides,theCaesar,theCaesarAndSidePart,bigHair';
         $user->save();
 
         return response()->json([
