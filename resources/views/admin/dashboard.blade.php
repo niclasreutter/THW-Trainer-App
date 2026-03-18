@@ -4,59 +4,56 @@
 @section('description', 'Übersicht über System-Status, Benutzerstatistiken und Lernfortschritt')
 
 @push('styles')
+<link rel="preconnect" href="https://fonts.bunny.net">
+<link href="https://fonts.bunny.net/css2?family=Barlow+Condensed:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-    .dashboard-container {
-        width: 100%;
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 2rem;
-        box-sizing: border-box;
+    /* ── System Pills ── */
+    .sys-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        padding: 0.3rem 0.625rem;
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 2rem;
+        font-size: 0.6875rem;
+        font-family: 'IBM Plex Mono', monospace;
+        color: var(--text-secondary);
+        text-decoration: none;
+        transition: all var(--transition-fast);
     }
+    .sys-pill:hover { border-color: rgba(91, 154, 255, 0.3); }
 
-    /* KPI Cards */
+    .status-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        display: inline-block;
+    }
+    .status-dot.ok { background: #22c55e; box-shadow: 0 0 4px rgba(34, 197, 94, 0.4); }
+    .status-dot.err { background: #ef4444; box-shadow: 0 0 4px rgba(239, 68, 68, 0.4); }
+
+    /* ── KPI Bar ── */
     .kpi-value {
-        font-size: 2.25rem;
+        font-size: 1.75rem;
         font-weight: 800;
-        color: var(--text-primary);
-        line-height: 1.1;
+        font-family: 'Barlow Condensed', sans-serif;
     }
-
     .kpi-label {
-        font-size: 0.75rem;
+        font-size: 0.5625rem;
         color: var(--text-muted);
         text-transform: uppercase;
-        letter-spacing: 0.5px;
-        margin-bottom: 0.25rem;
+        letter-spacing: 0.06em;
+        font-family: 'IBM Plex Mono', monospace;
+        margin-top: 0.125rem;
+    }
+    .kpi-divider {
+        width: 1px;
+        height: 2.5rem;
+        background: rgba(91, 154, 255, 0.15);
     }
 
-    .kpi-sub {
-        font-size: 0.8rem;
-        margin-top: 0.25rem;
-    }
-
-    /* Stat rows */
-    .stat-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0.625rem 0;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-    }
-
-    .stat-row:last-child { border-bottom: none; }
-
-    .stat-row-label {
-        font-size: 0.85rem;
-        color: var(--text-secondary);
-    }
-
-    .stat-row-value {
-        font-size: 0.9rem;
-        font-weight: 700;
-        color: var(--text-primary);
-    }
-
-    /* Card header */
+    /* ── Card Headers ── */
     .card-header {
         font-size: 0.7rem;
         text-transform: uppercase;
@@ -66,356 +63,425 @@
         display: flex;
         align-items: center;
         gap: 0.5rem;
+        font-family: 'IBM Plex Mono', monospace;
+    }
+    .card-header .bi { color: #5b9aff; }
+
+    /* ── Section Header (Admin-style with line) ── */
+    .admin-section-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    .admin-section-title {
+        font-size: 1rem;
+        font-weight: 700;
+        font-family: 'Barlow Condensed', sans-serif;
+        color: var(--text-primary);
+        white-space: nowrap;
+    }
+    .section-line {
+        flex: 1;
+        height: 1px;
+        background: var(--glass-border);
     }
 
-    /* Activity Feed */
+    /* ── Activity Feed ── */
     .activity-item {
         display: flex;
         align-items: flex-start;
         gap: 0.75rem;
-        padding: 0.75rem;
+        padding: 0.625rem;
         border-radius: 0.5rem;
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.375rem;
         background: rgba(255, 255, 255, 0.02);
         border: 1px solid rgba(255, 255, 255, 0.04);
-        transition: all 0.2s;
+        transition: all var(--transition-fast);
+        text-decoration: none;
+        color: inherit;
     }
-
     .activity-item:hover {
-        background: rgba(255, 255, 255, 0.05);
+        background: rgba(255, 255, 255, 0.04);
         border-color: rgba(255, 255, 255, 0.08);
     }
-
-    .activity-item.clickable {
-        cursor: pointer;
-    }
-
     .activity-icon {
-        width: 32px;
-        height: 32px;
-        border-radius: 0.5rem;
+        width: 30px;
+        height: 30px;
+        border-radius: 0.375rem;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 0.9rem;
+        font-size: 0.8rem;
         flex-shrink: 0;
     }
-
-    .activity-icon.success { background: rgba(34, 197, 94, 0.15); color: #22c55e; }
-    .activity-icon.error { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
-    .activity-icon.warning { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
-    .activity-icon.info { background: rgba(59, 130, 246, 0.15); color: #3b82f6; }
-    .activity-icon.gold { background: rgba(251, 191, 36, 0.15); color: #fbbf24; }
-
-    .activity-content {
-        flex: 1;
-        min-width: 0;
-    }
-
+    .activity-icon.success { background: rgba(34, 197, 94, 0.12); color: #22c55e; }
+    .activity-icon.error { background: rgba(239, 68, 68, 0.12); color: #ef4444; }
+    .activity-icon.warning { background: rgba(245, 158, 11, 0.12); color: #f59e0b; }
+    .activity-icon.info { background: rgba(59, 130, 246, 0.12); color: #3b82f6; }
+    .activity-icon.gold { background: rgba(251, 191, 36, 0.12); color: #fbbf24; }
+    .activity-icon.purple { background: rgba(139, 92, 246, 0.12); color: #8b5cf6; }
+    .activity-content { flex: 1; min-width: 0; }
     .activity-title {
-        font-size: 0.8rem;
+        font-size: 0.775rem;
         font-weight: 600;
         color: var(--text-primary);
-        margin-bottom: 0.125rem;
+        margin-bottom: 0.1rem;
     }
-
     .activity-desc {
-        font-size: 0.75rem;
+        font-size: 0.7rem;
         color: var(--text-secondary);
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
     }
-
     .activity-time {
-        font-size: 0.65rem;
+        font-size: 0.6rem;
         color: var(--text-muted);
+        font-family: 'IBM Plex Mono', monospace;
         white-space: nowrap;
+        margin-left: auto;
+        flex-shrink: 0;
     }
 
-    /* Quick Actions */
-    .quick-action {
+    /* ── Stat Rows ── */
+    .stat-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+    .stat-row:last-child { border-bottom: none; }
+    .stat-row-label { font-size: 0.8125rem; color: var(--text-secondary); }
+    .stat-row-value {
+        font-size: 0.875rem;
+        font-weight: 700;
+        font-family: 'Barlow Condensed', sans-serif;
+    }
+
+    /* ── Leaderboard ── */
+    .lb-item {
         display: flex;
         align-items: center;
-        gap: 0.75rem;
-        padding: 0.875rem 1rem;
-        border-radius: 0.75rem;
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.06);
-        text-decoration: none;
-        color: var(--text-primary);
-        transition: all 0.2s;
-    }
-
-    .quick-action:hover {
-        background: rgba(255, 255, 255, 0.06);
-        border-color: rgba(255, 255, 255, 0.1);
-        transform: translateX(4px);
-    }
-
-    .quick-action-icon {
-        width: 36px;
-        height: 36px;
+        gap: 0.625rem;
+        padding: 0.5rem 0.625rem;
         border-radius: 0.5rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1rem;
-    }
-
-    .quick-action-text {
-        flex: 1;
-    }
-
-    .quick-action-title {
-        font-size: 0.85rem;
-        font-weight: 600;
-    }
-
-    .quick-action-desc {
-        font-size: 0.7rem;
-        color: var(--text-muted);
-    }
-
-    /* Leaderboard */
-    .leaderboard-item {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        padding: 0.625rem 0.75rem;
-        border-radius: 0.5rem;
-        margin-bottom: 0.375rem;
+        margin-bottom: 0.3rem;
         background: rgba(255, 255, 255, 0.02);
         border: 1px solid rgba(255, 255, 255, 0.04);
-        transition: all 0.2s;
+        transition: all var(--transition-fast);
     }
-
-    .leaderboard-item:hover {
-        background: rgba(255, 255, 255, 0.05);
+    .lb-item:hover { background: rgba(255, 255, 255, 0.04); }
+    .lb-item.top-1 {
+        background: linear-gradient(135deg, rgba(251, 191, 36, 0.08), rgba(245, 158, 11, 0.03));
+        border-color: rgba(251, 191, 36, 0.15);
     }
-
-    .leaderboard-item.top-rank {
-        background: linear-gradient(135deg, rgba(251, 191, 36, 0.08) 0%, rgba(245, 158, 11, 0.04) 100%);
-        border: 1px solid rgba(251, 191, 36, 0.15);
+    .lb-item.top-2 {
+        background: linear-gradient(135deg, rgba(156, 163, 175, 0.06), rgba(107, 114, 128, 0.03));
+        border-color: rgba(156, 163, 175, 0.12);
     }
-
-    .leaderboard-rank {
-        width: 28px;
-        height: 28px;
+    .lb-item.top-3 {
+        background: linear-gradient(135deg, rgba(217, 119, 6, 0.06), rgba(180, 83, 9, 0.03));
+        border-color: rgba(217, 119, 6, 0.1);
+    }
+    .lb-rank {
+        width: 24px;
+        height: 24px;
+        border-radius: 0.375rem;
         display: flex;
         align-items: center;
         justify-content: center;
-        border-radius: 0.375rem;
         font-weight: 700;
-        font-size: 0.75rem;
+        font-size: 0.7rem;
+        flex-shrink: 0;
+        font-family: 'IBM Plex Mono', monospace;
     }
-
-    .leaderboard-info {
-        flex: 1;
-        min-width: 0;
+    .lb-rank.gold-r { background: rgba(251, 191, 36, 0.15); color: #fbbf24; }
+    .lb-rank.silver-r { background: rgba(156, 163, 175, 0.15); color: #9ca3af; }
+    .lb-rank.bronze-r { background: rgba(217, 119, 6, 0.15); color: #d97706; }
+    .lb-rank.default-r { background: rgba(255, 255, 255, 0.05); color: var(--text-muted); }
+    .lb-avatar {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        border: 1.5px solid rgba(255, 255, 255, 0.1);
+        flex-shrink: 0;
+        object-fit: cover;
+        background: rgba(255, 255, 255, 0.05);
     }
-
-    .leaderboard-name {
+    .lb-info { flex: 1; min-width: 0; }
+    .lb-name {
+        font-size: 0.775rem;
         font-weight: 600;
-        color: var(--text-primary);
-        font-size: 0.8rem;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
     }
-
-    .leaderboard-level {
-        font-size: 0.65rem;
-        color: var(--text-muted);
-    }
-
-    .leaderboard-score {
-        text-align: right;
-    }
-
-    .leaderboard-points {
-        font-weight: 700;
-        font-size: 0.8rem;
-    }
-
-    .leaderboard-details {
+    .lb-level {
         font-size: 0.6rem;
         color: var(--text-muted);
+        font-family: 'IBM Plex Mono', monospace;
+    }
+    .lb-score { text-align: right; flex-shrink: 0; }
+    .lb-points {
+        font-size: 0.8rem;
+        font-weight: 700;
+        font-family: 'Barlow Condensed', sans-serif;
+    }
+    .lb-details {
+        font-size: 0.575rem;
+        color: var(--text-muted);
+        font-family: 'IBM Plex Mono', monospace;
     }
 
-    /* Charts */
+    /* ── Badges ── */
+    .badge-sm {
+        font-size: 0.5rem;
+        font-weight: 700;
+        padding: 0.1rem 0.3rem;
+        border-radius: 0.25rem;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        font-family: 'IBM Plex Mono', monospace;
+        vertical-align: middle;
+        margin-left: 0.2rem;
+    }
+    .badge-error { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+    .badge-warning { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+
+    /* ── Chart ── */
     .chart-container {
         height: 200px;
         position: relative;
     }
-
-    /* Alert badge */
-    .alert-badge {
-        position: absolute;
-        top: -4px;
-        right: -4px;
-        min-width: 18px;
-        height: 18px;
-        border-radius: 9px;
-        background: #ef4444;
-        color: white;
-        font-size: 0.65rem;
-        font-weight: 700;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 0 4px;
-    }
-
-    /* Responsive */
-    @media (max-width: 600px) {
-        .dashboard-container {
-            padding: 1rem;
-            width: 100%;
-            max-width: 100%;
-        }
-        .kpi-value {
-            font-size: 1.75rem;
-        }
-        .chart-container {
-            height: 180px;
-            width: 100%;
-        }
-        .bento-grid {
-            grid-template-columns: 1fr;
-        }
-        .bento-wide, .bento-half, .bento-third, .bento-side {
-            grid-column: span 1;
-        }
-    }
-
-    /* Ensure all elements stay within bounds */
-    .bento-grid,
-    .stats-row,
-    .glass,
-    .glass-gold,
-    .glass-tl,
-    .glass-br,
-    .glass-slash {
-        max-width: 100%;
-        box-sizing: border-box;
-    }
-
     .chart-container canvas {
         max-width: 100% !important;
         height: auto !important;
+    }
+
+    /* ── Colors ── */
+    .text-blue { color: #5b9aff; }
+    .text-thw { color: #00337F; }
+    .text-gold { color: #fbbf24; }
+    .text-success { color: #22c55e; }
+    .text-error { color: #ef4444; }
+    .text-warning { color: #f59e0b; }
+    .text-purple { color: #8b5cf6; }
+
+    /* ── Header ── */
+    .header-prefix {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--text-muted);
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+    }
+    .header-title {
+        font-size: 1.5rem;
+        font-weight: 800;
+        line-height: 1.2;
+        font-family: 'Barlow Condensed', sans-serif;
+        background: linear-gradient(135deg, #5b9aff, #0055cc);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    .header-subtitle {
+        font-size: 0.875rem;
+        color: var(--text-muted);
+        margin-top: 0.125rem;
+    }
+
+    /* ── SR Mini Bar ── */
+    .sr-bar {
+        height: 4px;
+        background: rgba(255, 255, 255, 0.06);
+        border-radius: 2px;
+        overflow: hidden;
+        margin-top: 0.375rem;
+    }
+    .sr-bar__fill {
+        height: 100%;
+        border-radius: 2px;
+        transition: width 0.6s ease-out;
+    }
+
+    /* ── Stagger Animation ── */
+    @keyframes dash-rise {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .space-y-4 > * {
+        opacity: 0;
+        animation: dash-rise 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+    .space-y-4 > *:nth-child(1) { animation-delay: 0.03s; }
+    .space-y-4 > *:nth-child(2) { animation-delay: 0.07s; }
+    .space-y-4 > *:nth-child(3) { animation-delay: 0.11s; }
+    .space-y-4 > *:nth-child(4) { animation-delay: 0.15s; }
+    .space-y-4 > *:nth-child(5) { animation-delay: 0.19s; }
+    .space-y-4 > *:nth-child(6) { animation-delay: 0.23s; }
+    .space-y-4 > *:nth-child(7) { animation-delay: 0.27s; }
+    .space-y-4 > *:nth-child(8) { animation-delay: 0.31s; }
+    .space-y-4 > *:nth-child(9) { animation-delay: 0.35s; }
+    .space-y-4 > * + * { margin-top: 1rem; }
+
+    /* ── Reduced Motion ── */
+    @media (prefers-reduced-motion: reduce) {
+        .space-y-4 > * {
+            opacity: 1;
+            animation: none;
+        }
+        .hover-lift:hover { transform: none; }
+        .activity-item,
+        .lb-item,
+        .sys-pill { transition: none; }
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+        .dash-container { padding: 1rem; }
+        .header-title { font-size: 1.25rem; }
+        .kpi-divider { display: none; }
+        .kpi-value { font-size: 1.25rem; }
+        .lb-2col,
+        .feed-2col { grid-template-columns: 1fr !important; }
+        .kpi-bar-inner { gap: 0.75rem !important; }
+    }
+
+    /* ── Light Mode ── */
+    html.light-mode .sys-pill {
+        background: #ffffff;
+        border-color: rgba(0, 51, 127, 0.1);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+    html.light-mode .header-title {
+        background: linear-gradient(135deg, #00337F, #0055cc);
+        -webkit-background-clip: text;
+        background-clip: text;
+    }
+    html.light-mode .activity-item {
+        background: rgba(0, 51, 127, 0.02);
+        border-color: rgba(0, 51, 127, 0.06);
+    }
+    html.light-mode .activity-item:hover {
+        background: rgba(0, 51, 127, 0.04);
+    }
+    html.light-mode .lb-item {
+        background: rgba(0, 51, 127, 0.02);
+        border-color: rgba(0, 51, 127, 0.06);
+    }
+    html.light-mode .lb-item:hover {
+        background: rgba(0, 51, 127, 0.04);
+    }
+    html.light-mode .lb-item.top-1 {
+        background: linear-gradient(135deg, rgba(251, 191, 36, 0.06), rgba(245, 158, 11, 0.02));
+        border-color: rgba(251, 191, 36, 0.12);
+    }
+    html.light-mode .lb-avatar {
+        border-color: rgba(0, 51, 127, 0.12);
+    }
+    html.light-mode .stat-row {
+        border-bottom-color: rgba(0, 0, 0, 0.06);
+    }
+    html.light-mode .text-blue {
+        color: #00337F;
+    }
+    html.light-mode .card-header .bi {
+        color: #00337F;
+    }
+    html.light-mode .section-line {
+        background: rgba(0, 51, 127, 0.1);
+    }
+    html.light-mode .sr-bar {
+        background: rgba(0, 0, 0, 0.06);
+    }
+    html.light-mode .kpi-divider {
+        background: rgba(0, 51, 127, 0.12);
     }
 </style>
 @endpush
 
 @section('content')
-<div class="dashboard-container">
-    <!-- Header -->
-    <header class="dashboard-header">
-        <h1 class="page-title">Admin <span>Dashboard</span></h1>
-        <p class="page-subtitle">System-Status, Benutzer und Aktivitäten</p>
-    </header>
+<div class="dash-container">
+<div class="space-y-4">
 
-    <!-- System Status + Alerts -->
-    <div class="stats-row" style="margin-bottom: 1.5rem;">
-        <div class="stat-pill">
-            <span class="stat-pill-icon {{ $systemStatus['database']['status'] === 'ok' ? 'text-success' : 'text-error' }}">
-                <i class="bi bi-database{{ $systemStatus['database']['status'] === 'ok' ? '-check' : '-x' }}"></i>
+    {{-- ── 1. Header + System Status ── --}}
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;">
+        <div>
+            <p class="header-prefix">Administration</p>
+            <h1 class="header-title">System Dashboard</h1>
+            <p class="header-subtitle">Benutzer, Aktivitäten und Systemstatus</p>
+        </div>
+        <div style="display:flex;gap:0.375rem;flex-wrap:wrap;">
+            <span class="sys-pill">
+                <span class="status-dot {{ $systemStatus['database']['status'] === 'ok' ? 'ok' : 'err' }}"></span> DB
             </span>
-            <div>
-                <div class="stat-pill-value" style="font-size: 1rem;">{{ ucfirst($systemStatus['database']['status']) }}</div>
-                <div class="stat-pill-label">Datenbank</div>
-            </div>
-        </div>
-
-        <div class="stat-pill">
-            <span class="stat-pill-icon {{ $systemStatus['cache']['status'] === 'ok' ? 'text-success' : 'text-error' }}">
-                <i class="bi bi-lightning{{ $systemStatus['cache']['status'] === 'ok' ? '-charge' : '' }}"></i>
+            <span class="sys-pill">
+                <span class="status-dot {{ $systemStatus['cache']['status'] === 'ok' ? 'ok' : 'err' }}"></span> Cache
             </span>
-            <div>
-                <div class="stat-pill-value" style="font-size: 1rem;">{{ ucfirst($systemStatus['cache']['status']) }}</div>
-                <div class="stat-pill-label">Cache</div>
-            </div>
-        </div>
-
-        <div class="stat-pill">
-            <span class="stat-pill-icon text-gold">
-                <i class="bi bi-person-check"></i>
+            <span class="sys-pill" style="border-color:rgba(91,154,255,0.2);">
+                <span class="text-blue" style="font-weight:700;">{{ $systemStatus['online_users']['count'] }}</span>&nbsp;Online
             </span>
-            <div>
-                <div class="stat-pill-value" style="font-size: 1rem;">{{ $systemStatus['online_users']['count'] }}</div>
-                <div class="stat-pill-label">Online</div>
-            </div>
-        </div>
-
-        @if($openIssues > 0)
-        <a href="{{ route('admin.issues.index') }}" class="stat-pill" style="text-decoration: none; position: relative;">
-            <span class="stat-pill-icon text-warning">
-                <i class="bi bi-exclamation-triangle"></i>
-            </span>
-            <div>
-                <div class="stat-pill-value" style="font-size: 1rem;">{{ $openIssues }}</div>
-                <div class="stat-pill-label">Offen</div>
-            </div>
-            <span class="alert-badge">!</span>
-        </a>
-        @endif
-
-        @if($unreadMessages > 0)
-        <a href="{{ route('admin.contact-messages.index') }}" class="stat-pill" style="text-decoration: none; position: relative;">
-            <span class="stat-pill-icon text-info">
-                <i class="bi bi-envelope"></i>
-            </span>
-            <div>
-                <div class="stat-pill-value" style="font-size: 1rem;">{{ $unreadMessages }}</div>
-                <div class="stat-pill-label">Ungelesen</div>
-            </div>
-            <span class="alert-badge">!</span>
-        </a>
-        @endif
-    </div>
-
-    <!-- KPI Grid -->
-    <div class="bento-grid" style="margin-bottom: 1.5rem;">
-        <div class="glass-gold bento-third hover-lift">
-            <div class="kpi-label">Gesamt Benutzer</div>
-            <div class="kpi-value">{{ number_format($totalUsers) }}</div>
-            <div class="kpi-sub text-success">+{{ $newUsersToday }} heute</div>
-        </div>
-
-        <div class="glass-tl bento-third hover-lift">
-            <div class="kpi-label">E-Mail bestätigt</div>
-            <div class="kpi-value">{{ number_format($verifiedUsers) }}</div>
-            <div class="kpi-sub text-dark-secondary">{{ $verificationRate }}%</div>
-        </div>
-
-        <div class="glass-br bento-third hover-lift">
-            <div class="kpi-label">Fragen</div>
-            <div class="kpi-value">{{ number_format($totalQuestions) }}</div>
-            <div class="kpi-sub text-dark-secondary">{{ $learningSections }} Abschnitte</div>
-        </div>
-
-        <div class="glass-slash bento-third hover-lift">
-            <div class="kpi-label">Beantwortet</div>
-            <div class="kpi-value">{{ number_format($totalAnsweredQuestions) }}</div>
-            <div class="kpi-sub text-success">{{ number_format($totalCorrectAnswers) }} richtig</div>
+            @if($openIssues > 0)
+                <a href="{{ route('admin.issues.index') }}" class="sys-pill" style="border-color:rgba(245,158,11,0.2);">
+                    <span class="text-warning" style="font-weight:700;">{{ $openIssues }}</span>&nbsp;Issues
+                </a>
+            @endif
+            @if($unreadMessages > 0)
+                <a href="{{ route('admin.contact-messages.index') }}" class="sys-pill" style="border-color:rgba(59,130,246,0.2);">
+                    <span class="text-blue" style="font-weight:700;">{{ $unreadMessages }}</span>&nbsp;Ungelesen
+                </a>
+            @endif
         </div>
     </div>
 
-    <!-- Main Content: Activity Feed + Quick Actions + Leaderboard -->
-    <div class="bento-grid" style="margin-bottom: 1.5rem;">
-        <!-- Activity Feed -->
-        <div class="glass bento-half">
-            <div class="card-header">
-                <i class="bi bi-activity text-gold"></i>
-                Aktivitäts-Feed (24h)
+    {{-- ── 2. KPI Bar ── --}}
+    @php
+        $successRate = $totalAnsweredQuestions > 0
+            ? round(($totalCorrectAnswers / $totalAnsweredQuestions) * 100, 1)
+            : 0;
+    @endphp
+    <div class="glass-thw" style="border-radius:2rem 0.75rem 2rem 0.75rem;padding:1rem 1.5rem;">
+        <div class="kpi-bar-inner" style="display:flex;justify-content:space-around;align-items:center;flex-wrap:wrap;gap:1rem;">
+            <div style="text-align:center;">
+                <div class="kpi-value" style="color:#5b9aff;">{{ number_format($totalUsers, 0, ',', '.') }}</div>
+                <div class="kpi-label">Benutzer</div>
             </div>
-            <div style="max-height: 380px; overflow-y: auto;">
+            <div class="kpi-divider"></div>
+            <div style="text-align:center;">
+                <div class="kpi-value" style="color:#5b9aff;">{{ $verificationRate }}%</div>
+                <div class="kpi-label">Verifiziert</div>
+            </div>
+            <div class="kpi-divider"></div>
+            <div style="text-align:center;">
+                <div class="kpi-value" style="color:var(--text-primary);">{{ number_format($totalAnsweredQuestions, 0, ',', '.') }}</div>
+                <div class="kpi-label">Beantwortet</div>
+            </div>
+            <div class="kpi-divider"></div>
+            <div style="text-align:center;">
+                <div class="kpi-value" style="color:#22c55e;">{{ $successRate }}%</div>
+                <div class="kpi-label">Erfolgsrate</div>
+            </div>
+            <div class="kpi-divider"></div>
+            <div style="text-align:center;">
+                <div class="kpi-value" style="color:#22c55e;">+{{ $newUsersToday }}</div>
+                <div class="kpi-label">Heute neu</div>
+            </div>
+        </div>
+    </div>
+
+    {{-- ── 3. Activity (3/4) + Stats (1/4) ── --}}
+    <div class="bento-grid">
+        <div class="glass-blue bento-2of3">
+            <div class="card-header"><i class="bi bi-activity"></i> Aktivitäts-Feed (24h)</div>
+            <div class="feed-2col" style="display:grid;grid-template-columns:1fr 1fr;gap:0.375rem;">
                 @forelse($activityFeed as $activity)
                     @if($activity['link'])
-                    <a href="{{ $activity['link'] }}" class="activity-item clickable" style="text-decoration: none;">
+                        <a href="{{ $activity['link'] }}" class="activity-item" style="cursor:pointer;">
                     @else
-                    <div class="activity-item">
+                        <div class="activity-item">
                     @endif
                         <div class="activity-icon {{ $activity['color'] }}">
                             <i class="bi bi-{{ $activity['icon'] }}"></i>
@@ -424,231 +490,224 @@
                             <div class="activity-title">
                                 {{ $activity['title'] }}
                                 @if(!empty($activity['unread']))
-                                    <span class="badge-error" style="font-size: 0.55rem; padding: 0.1rem 0.3rem; margin-left: 0.25rem;">NEU</span>
+                                    <span class="badge-sm badge-error">NEU</span>
                                 @endif
                                 @if(!empty($activity['open']))
-                                    <span class="badge-warning" style="font-size: 0.55rem; padding: 0.1rem 0.3rem; margin-left: 0.25rem;">OFFEN</span>
+                                    <span class="badge-sm badge-warning">OFFEN</span>
                                 @endif
                             </div>
                             <div class="activity-desc">{{ $activity['description'] }}</div>
                         </div>
-                        <div class="activity-time">{{ $activity['time']->diffForHumans(null, true, true) }}</div>
+                        <span class="activity-time">{{ $activity['time']->diffForHumans(null, true, true) }}</span>
                     @if($activity['link'])
-                    </a>
+                        </a>
                     @else
-                    </div>
+                        </div>
                     @endif
                 @empty
-                    <div style="text-align: center; padding: 2rem; color: var(--text-muted);">
-                        <i class="bi bi-inbox" style="font-size: 2rem; display: block; margin-bottom: 0.5rem; opacity: 0.5;"></i>
-                        Keine Aktivitäten
+                    <div style="grid-column:span 2;text-align:center;padding:2rem;color:var(--text-muted);">
+                        Keine Aktivitäten in den letzten 24h
                     </div>
                 @endforelse
             </div>
         </div>
 
-        <!-- Quick Actions + Stats -->
-        <div class="glass-tl bento-half">
-            <div class="card-header">
-                <i class="bi bi-lightning-charge text-gold"></i>
-                Quick Actions
-            </div>
-
-            <a href="{{ route('admin.users.index') }}" class="quick-action" style="margin-bottom: 0.5rem;">
-                <div class="quick-action-icon" style="background: rgba(0, 51, 127, 0.15); color: var(--thw-blue);">
-                    <i class="bi bi-people"></i>
-                </div>
-                <div class="quick-action-text">
-                    <div class="quick-action-title">Nutzer verwalten</div>
-                    <div class="quick-action-desc">{{ number_format($totalUsers) }} Benutzer</div>
-                </div>
-                <i class="bi bi-chevron-right text-dark-muted"></i>
-            </a>
-
-            <a href="{{ route('admin.questions.index') }}" class="quick-action" style="margin-bottom: 0.5rem;">
-                <div class="quick-action-icon" style="background: rgba(251, 191, 36, 0.15); color: #fbbf24;">
-                    <i class="bi bi-question-circle"></i>
-                </div>
-                <div class="quick-action-text">
-                    <div class="quick-action-title">Fragen bearbeiten</div>
-                    <div class="quick-action-desc">{{ number_format($totalQuestions) }} Fragen</div>
-                </div>
-                <i class="bi bi-chevron-right text-dark-muted"></i>
-            </a>
-
-            <a href="{{ route('admin.lehrgaenge.index') }}" class="quick-action" style="margin-bottom: 0.5rem;">
-                <div class="quick-action-icon" style="background: rgba(139, 92, 246, 0.15); color: #8b5cf6;">
-                    <i class="bi bi-mortarboard"></i>
-                </div>
-                <div class="quick-action-text">
-                    <div class="quick-action-title">Lehrgänge</div>
-                    <div class="quick-action-desc">Verwalten & erstellen</div>
-                </div>
-                <i class="bi bi-chevron-right text-dark-muted"></i>
-            </a>
-
-            <a href="{{ route('admin.newsletter.create') }}" class="quick-action" style="margin-bottom: 0.5rem;">
-                <div class="quick-action-icon" style="background: rgba(34, 197, 94, 0.15); color: #22c55e;">
-                    <i class="bi bi-megaphone"></i>
-                </div>
-                <div class="quick-action-text">
-                    <div class="quick-action-title">Newsletter senden</div>
-                    <div class="quick-action-desc">An alle Benutzer</div>
-                </div>
-                <i class="bi bi-chevron-right text-dark-muted"></i>
-            </a>
-
-            <a href="{{ route('admin.shop-analytics') }}" class="quick-action" style="margin-bottom: 0.5rem;">
-                <div class="quick-action-icon" style="background: rgba(251, 191, 36, 0.15); color: #fbbf24;">
-                    <i class="bi bi-bag-check"></i>
-                </div>
-                <div class="quick-action-text">
-                    <div class="quick-action-title">Shop Analyse</div>
-                    <div class="quick-action-desc">Käufe & Preise</div>
-                </div>
-                <i class="bi bi-chevron-right text-dark-muted"></i>
-            </a>
-
-            <!-- Mini Stats -->
-            <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.06);">
-                <div class="stat-row">
-                    <span class="stat-row-label">Aktiv heute</span>
-                    <span class="stat-row-value">{{ $userActivity['today'] }}</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-row-label">Aktiv diese Woche</span>
-                    <span class="stat-row-value">{{ $userActivity['this_week'] }}</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-row-label">Erfolgsrate</span>
-                    <span class="stat-row-value text-success">{{ $totalAnsweredQuestions > 0 ? round((($totalCorrectAnswers / $totalAnsweredQuestions) * 100), 1) : 0 }}%</span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Stats Row: Details + Leaderboard -->
-    <div class="bento-grid" style="margin-bottom: 1.5rem;">
-        <!-- Fragen-Statistik -->
-        <div class="glass-br bento-third">
-            <div class="card-header">
-                <i class="bi bi-bar-chart text-gold"></i>
-                Fragen-Statistik
+        <div class="glass-tl bento-third">
+            <div class="card-header"><i class="bi bi-bar-chart"></i> Übersicht</div>
+            <div class="stat-row">
+                <span class="stat-row-label">Aktiv heute</span>
+                <span class="stat-row-value text-blue">{{ $userActivity['today'] }}</span>
             </div>
             <div class="stat-row">
-                <span class="stat-row-label">Gesamt beantwortet</span>
-                <span class="stat-row-value">{{ number_format($totalAnsweredQuestions) }}</span>
+                <span class="stat-row-label">Aktiv Woche</span>
+                <span class="stat-row-value">{{ $userActivity['this_week'] }}</span>
             </div>
             <div class="stat-row">
-                <span class="stat-row-label">Richtig</span>
-                <span class="stat-row-value text-success">{{ number_format($totalCorrectAnswers) }}</span>
-            </div>
-            <div class="stat-row">
-                <span class="stat-row-label">Falsch</span>
-                <span class="stat-row-value text-error">{{ number_format($totalWrongAnswers) }}</span>
-            </div>
-            <div style="margin-top: 0.75rem; padding: 0.625rem; background: rgba(255, 255, 255, 0.04); border-radius: 0.5rem; display: flex; justify-content: space-between; align-items: center;">
-                <span style="font-weight: 600; font-size: 0.8rem; color: var(--text-primary);">Fehlerrate</span>
-                <span class="text-warning" style="font-size: 1.1rem; font-weight: 800;">{{ $wrongAnswerRate }}%</span>
-            </div>
-        </div>
-
-        <!-- Lernfortschritt -->
-        <div class="glass-slash bento-third">
-            <div class="card-header">
-                <i class="bi bi-graph-up text-gold"></i>
-                Lernfortschritt
-            </div>
-            <div class="stat-row">
-                <span class="stat-row-label">Ø Fortschritt</span>
-                <span class="stat-row-value" style="color: var(--thw-blue);">{{ $learningProgress['average_progress'] }}%</span>
-            </div>
-            <div class="stat-row">
-                <span class="stat-row-label">Mit Erfolgen</span>
-                <span class="stat-row-value">{{ $learningProgress['users_with_achievements'] }}</span>
-            </div>
-            <div class="stat-row">
-                <span class="stat-row-label">Aktiv (Monat)</span>
+                <span class="stat-row-label">Aktiv Monat</span>
                 <span class="stat-row-value">{{ $userActivity['this_month'] }}</span>
             </div>
-        </div>
-
-        <!-- Leaderboard -->
-        <div class="glass bento-half">
-            <div class="card-header">
-                <i class="bi bi-trophy text-gold"></i>
-                Top 10 Leaderboard
-            </div>
-            <div style="max-height: 240px; overflow-y: auto;">
-                @forelse($leaderboard as $index => $user)
-                    @php
-                        $position = $index + 1;
-                        $isTopRank = $position <= 3;
-                        $medalColors = [1 => '#fbbf24', 2 => '#9ca3af', 3 => '#d97706'];
-                    @endphp
-                    <div class="leaderboard-item {{ $isTopRank ? 'top-rank' : '' }}">
-                        <div class="leaderboard-rank" style="background: {{ $isTopRank ? 'rgba(251, 191, 36, 0.15)' : 'rgba(255, 255, 255, 0.05)' }}; color: {{ $medalColors[$position] ?? 'var(--text-muted)' }};">
-                            @if($position <= 3)
-                                <i class="bi bi-trophy-fill"></i>
-                            @else
-                                {{ $position }}
-                            @endif
-                        </div>
-                        <div class="leaderboard-info">
-                            <div class="leaderboard-name">{{ $user['name'] }}</div>
-                            <div class="leaderboard-level">Level {{ $user['level'] }}</div>
-                        </div>
-                        <div class="leaderboard-score">
-                            <div class="leaderboard-points {{ $isTopRank ? 'text-gradient-gold' : '' }}">{{ number_format($user['score']) }}</div>
-                            <div class="leaderboard-details">{{ $user['solved_questions'] }} Fragen</div>
-                        </div>
-                    </div>
-                @empty
-                    <div style="text-align: center; padding: 1.5rem; color: var(--text-muted);">
-                        <i class="bi bi-people" style="font-size: 1.5rem; display: block; margin-bottom: 0.5rem; opacity: 0.5;"></i>
-                        Keine Daten
-                    </div>
-                @endforelse
+            <div style="border-top:1px solid rgba(255,255,255,0.06);margin-top:0.375rem;padding-top:0.375rem;">
+                <div class="stat-row">
+                    <span class="stat-row-label">Ø Fortschritt</span>
+                    <span class="stat-row-value text-blue">{{ $learningProgress['average_progress'] }}%</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-row-label">Mit Erfolgen</span>
+                    <span class="stat-row-value">{{ $learningProgress['users_with_achievements'] }}</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-row-label">Richtig</span>
+                    <span class="stat-row-value text-success">{{ number_format($totalCorrectAnswers, 0, ',', '.') }}</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-row-label">Falsch</span>
+                    <span class="stat-row-value text-error">{{ number_format($totalWrongAnswers, 0, ',', '.') }}</span>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Charts Section -->
-    <div class="section-header" style="margin-bottom: 1rem;">
-        <h2 class="section-title">Statistiken (30 Tage)</h2>
+    {{-- ── 4. Spaced Repetition Section ── --}}
+    <div>
+        <div class="admin-section-header">
+            <h2 class="admin-section-title">Spaced Repetition</h2>
+            <div class="section-line"></div>
+        </div>
+    </div>
+
+    <div class="bento-grid">
+        {{-- SR Overview --}}
+        <div class="glass-purple bento-half">
+            <div class="card-header"><i class="bi bi-arrow-repeat" style="color:#8b5cf6;"></i> SR Übersicht</div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.75rem;margin-bottom:1rem;">
+                <div class="gami-pill">
+                    <div class="gami-pill__value text-purple">{{ number_format($srStats['active_users'], 0, ',', '.') }}</div>
+                    <div class="gami-pill__label">User aktiv</div>
+                </div>
+                <div class="gami-pill">
+                    <div class="gami-pill__value text-blue">{{ number_format($srStats['total_in_sr'], 0, ',', '.') }}</div>
+                    <div class="gami-pill__label">Fragen im SR</div>
+                </div>
+                <div class="gami-pill">
+                    <div class="gami-pill__value text-success">{{ number_format($srStats['mastered'], 0, ',', '.') }}</div>
+                    <div class="gami-pill__label">Gemeistert</div>
+                </div>
+            </div>
+            <div class="stat-row">
+                <span class="stat-row-label">Ø Intervall</span>
+                <span class="stat-row-value text-blue">{{ $srStats['avg_interval'] }} Tage</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-row-label">Ø Easiness Factor</span>
+                <span class="stat-row-value">{{ $srStats['avg_easiness'] }}</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-row-label">Mastery-Rate</span>
+                <span class="stat-row-value text-success">{{ $srStats['mastery_rate'] }}%</span>
+            </div>
+        </div>
+
+        {{-- SR Due Reviews --}}
+        <div class="glass-slash bento-half">
+            <div class="card-header"><i class="bi bi-clock-history" style="color:#8b5cf6;"></i> Fällige Reviews</div>
+
+            {{-- Due Today - prominent --}}
+            <div style="text-align:center;padding:0.75rem 0;margin-bottom:0.75rem;background:rgba(139,92,246,0.06);border-radius:0.75rem;border:1px solid rgba(139,92,246,0.1);">
+                <div style="font-size:2rem;font-weight:800;color:#8b5cf6;font-family:'Barlow Condensed',sans-serif;">{{ number_format($srStats['due_today'], 0, ',', '.') }}</div>
+                <div style="font-size:0.5625rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;font-family:'IBM Plex Mono',monospace;">Reviews fällig heute</div>
+            </div>
+
+            <div class="stat-row">
+                <span class="stat-row-label">Fällig morgen</span>
+                <span class="stat-row-value">{{ number_format($srStats['due_tomorrow'], 0, ',', '.') }}</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-row-label">Fällig diese Woche</span>
+                <span class="stat-row-value">{{ number_format($srStats['due_this_week'], 0, ',', '.') }}</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-row-label">Überfällig (verpasst)</span>
+                <span class="stat-row-value text-warning">{{ number_format($srStats['overdue'], 0, ',', '.') }}</span>
+            </div>
+
+            {{-- Interval distribution bar --}}
+            @php
+                $dist = $srStats['interval_distribution'];
+                $distTotal = max(array_sum($dist), 1);
+            @endphp
+            <div style="margin-top:0.75rem;">
+                <div style="font-size:0.5625rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;font-family:'IBM Plex Mono',monospace;margin-bottom:0.375rem;">Intervall-Verteilung</div>
+                <div style="display:flex;gap:2px;height:24px;border-radius:0.25rem;overflow:hidden;">
+                    <div style="flex:{{ max($dist['1_3'], 1) }};background:rgba(139,92,246,0.4);display:flex;align-items:center;justify-content:center;font-size:0.5rem;font-weight:600;color:white;">1-3d</div>
+                    <div style="flex:{{ max($dist['4_7'], 1) }};background:rgba(91,154,255,0.4);display:flex;align-items:center;justify-content:center;font-size:0.5rem;font-weight:600;color:white;">4-7d</div>
+                    <div style="flex:{{ max($dist['8_14'], 1) }};background:rgba(34,197,94,0.4);display:flex;align-items:center;justify-content:center;font-size:0.5rem;font-weight:600;color:white;">8-14d</div>
+                    <div style="flex:{{ max($dist['15_plus'], 1) }};background:rgba(251,191,36,0.4);display:flex;align-items:center;justify-content:center;font-size:0.5rem;font-weight:600;color:white;">15d+</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- ── 5. Leaderboard ── --}}
+    <div class="glass-br">
+        <div class="card-header"><i class="bi bi-trophy"></i> Top 10 Leaderboard</div>
+        <div class="lb-2col" style="display:grid;grid-template-columns:1fr 1fr;gap:0.375rem;">
+            @forelse($leaderboard as $index => $user)
+                @php
+                    $position = $index + 1;
+                    $rankClass = match($position) {
+                        1 => 'top-1',
+                        2 => 'top-2',
+                        3 => 'top-3',
+                        default => '',
+                    };
+                    $badgeClass = match($position) {
+                        1 => 'gold-r',
+                        2 => 'silver-r',
+                        3 => 'bronze-r',
+                        default => 'default-r',
+                    };
+                @endphp
+                <div class="lb-item {{ $rankClass }}">
+                    <div class="lb-rank {{ $badgeClass }}">
+                        @if($position <= 3)
+                            <i class="bi bi-trophy-fill"></i>
+                        @else
+                            {{ $position }}
+                        @endif
+                    </div>
+                    <img class="lb-avatar"
+                         src="{{ $user['avatar_url'] ?? 'https://api.dicebear.com/9.x/avataaars/svg?seed=' . urlencode($user['name']) . '&radius=50&backgroundColor=00337f' }}"
+                         alt=""
+                         loading="lazy">
+                    <div class="lb-info">
+                        <div class="lb-name">{{ $user['name'] }}</div>
+                        <div class="lb-level">Level {{ $user['level'] }}</div>
+                    </div>
+                    <div class="lb-score">
+                        <div class="lb-points {{ $position === 1 ? 'text-gradient-gold' : '' }}">{{ number_format($user['score'], 0, ',', '.') }}</div>
+                        <div class="lb-details">{{ number_format($user['solved_questions'], 0, ',', '.') }} Fragen</div>
+                    </div>
+                </div>
+            @empty
+                <div style="grid-column:span 2;text-align:center;padding:1.5rem;color:var(--text-muted);">
+                    Keine Daten vorhanden
+                </div>
+            @endforelse
+        </div>
+    </div>
+
+    {{-- ── 6. Charts ── --}}
+    <div>
+        <div class="admin-section-header">
+            <h2 class="admin-section-title">Statistiken (30 Tage)</h2>
+            <div class="section-line"></div>
+        </div>
     </div>
 
     <div class="bento-grid">
         <div class="glass bento-half">
-            <div class="card-header">
-                <i class="bi bi-people text-gold"></i>
-                Benutzeraktivität
-            </div>
+            <div class="card-header"><i class="bi bi-people"></i> Benutzeraktivität</div>
             <div class="chart-container">
                 <canvas id="userActivityChart"></canvas>
             </div>
         </div>
 
         <div class="glass bento-half">
-            <div class="card-header">
-                <i class="bi bi-question-circle text-gold"></i>
-                Beantwortete Fragen
-            </div>
+            <div class="card-header"><i class="bi bi-question-circle"></i> Beantwortete Fragen</div>
             <div class="chart-container">
                 <canvas id="questionsChart"></canvas>
             </div>
         </div>
 
-        <div class="glass bento-wide">
-            <div class="card-header">
-                <i class="bi bi-graph-up-arrow text-gold"></i>
-                Benutzer-Wachstum
-            </div>
+        <div class="glass-slash bento-wide">
+            <div class="card-header"><i class="bi bi-graph-up-arrow"></i> Benutzer-Wachstum</div>
             <div class="chart-container">
                 <canvas id="userGrowthChart"></canvas>
             </div>
         </div>
     </div>
+
+</div>
 </div>
 @endsection
 
@@ -703,8 +762,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 {
                     label: 'Aktive Benutzer',
                     data: {!! json_encode($chartData['active']) !!},
-                    borderColor: '#fbbf24',
-                    backgroundColor: 'rgba(251, 191, 36, 0.1)',
+                    borderColor: '#0055cc',
+                    backgroundColor: 'rgba(0, 85, 204, 0.1)',
                     borderWidth: 2,
                     fill: true,
                     tension: 0.4,
@@ -751,8 +810,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 {
                     label: 'Gesamt',
                     data: questionsTotal,
-                    borderColor: '#6b7280',
-                    backgroundColor: 'rgba(107, 114, 128, 0.1)',
+                    borderColor: '#5b9aff',
+                    backgroundColor: 'rgba(91, 154, 255, 0.1)',
                     borderWidth: 2,
                     fill: true,
                     tension: 0.4,
