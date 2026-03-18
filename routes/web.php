@@ -339,6 +339,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/lehrgaenge/{slug}', [\App\Http\Controllers\LehrgangController::class, 'show'])->name('lehrgaenge.show');
     Route::post('/lehrgaenge/{slug}/enroll', [\App\Http\Controllers\LehrgangController::class, 'enroll'])->name('lehrgaenge.enroll');
     Route::get('/lehrgaenge/{slug}/practice', [\App\Http\Controllers\LehrgangController::class, 'practice'])->name('lehrgaenge.practice');
+    Route::get('/lehrgaenge/{slug}/practice/unsolved', [\App\Http\Controllers\LehrgangController::class, 'practiceUnsolved'])->name('lehrgaenge.practice.unsolved');
+    Route::get('/lehrgaenge/{slug}/practice/section/{nr}', [\App\Http\Controllers\LehrgangController::class, 'practiceSection'])->name('lehrgaenge.practice.section');
+    Route::get('/lehrgaenge/{slug}/practice/show', [\App\Http\Controllers\LehrgangController::class, 'practiceShow'])->name('lehrgaenge.practice.show');
+    Route::post('/lehrgaenge/{slug}/practice/submit', [\App\Http\Controllers\LehrgangController::class, 'practiceSubmit'])->name('lehrgaenge.practice.submit');
+    Route::get('/lehrgaenge/{slug}/practice/summary', [\App\Http\Controllers\LehrgangController::class, 'practiceSummary'])->name('lehrgaenge.practice.summary');
+    // Legacy routes (backward compat)
     Route::get('/lehrgaenge/{slug}/practice-section/{sectionNr}', [\App\Http\Controllers\LehrgangController::class, 'practiceSection'])->name('lehrgaenge.practice-section');
     Route::post('/lehrgaenge/{slug}/submit', [\App\Http\Controllers\LehrgangController::class, 'submitAnswer'])->name('lehrgaenge.submit');
     Route::post('/lehrgaenge/{slug}/unenroll', [\App\Http\Controllers\LehrgangController::class, 'unenroll'])->name('lehrgaenge.unenroll');

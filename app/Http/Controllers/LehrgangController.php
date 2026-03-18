@@ -10,11 +10,23 @@ use App\Models\LehrgangQuestionStatistic;
 use App\Models\LehrgangQuestionIssue;
 use App\Models\UserQuestionProgress;
 use App\Services\GamificationService;
+use App\Services\PracticeSessionService;
+use App\Services\ProgressResolvers\LehrgangProgressResolver;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 class LehrgangController extends Controller
 {
+    private PracticeSessionService $practiceService;
+
+    public function __construct()
+    {
+        $this->practiceService = new PracticeSessionService(
+            new LehrgangProgressResolver(),
+            new GamificationService()
+        );
+    }
+
     /**
      * Zeige Liste aller Lehrgänge
      */
@@ -175,153 +187,25 @@ class LehrgangController extends Controller
     }
 
     /**
-     * Practice-Seite: Zeige nächste Frage
+     * Practice starten: Alle Fragen (ungelöste zuerst, dann alle falls keine ungelösten)
      */
     public function practice($slug)
     {
         $user = auth()->user();
         $lehrgang = Lehrgang::where('slug', $slug)->firstOrFail();
-        
+
         // Check Enrollment
         $enrollment = $user->enrolledLehrgaenge()
             ->where('lehrgaenge.id', $lehrgang->id)
             ->first();
-        
+
         if (!$enrollment) {
             return redirect()->route('lehrgaenge.show', $slug)
                 ->with('error', 'Du musst dich erst einschreiben.');
         }
-        
-        // Hole offene Fragen (nicht 2x in Folge gelöst)
-        $allQuestions = LehrgangQuestion::where('lehrgang_id', $lehrgang->id)
-            ->whereNotExists(function($query) use ($user) {
-                $query->select('id')
-                    ->from('user_lehrgang_progress')
-                    ->where('user_id', $user->id)
-                    ->where('lehrgang_question_id', 'lehrgaenge_questions.id')
-                    ->where('solved', true);
-            })
-            ->pluck('id')
-            ->toArray();
-        
-        // Initialisiere Session mit offenen Fragen wenn leer
-        $practiceIds = session("lehrgaenge_{$lehrgang->id}_practice_ids", []);
-        
-        if (empty($practiceIds)) {
-            if (empty($allQuestions)) {
-                // Alle Fragen gelöst!
-                return view('lehrgaenge.complete', [
-                    'lehrgang' => $lehrgang,
-                    'points' => $enrollment->pivot->punkte ?? 0,
-                ]);
-            }
-            
-            // Initialisiere mit allen offenen Fragen (geshuffelt)
-            $practiceIds = $allQuestions;
-            shuffle($practiceIds);
-            session(["lehrgaenge_{$lehrgang->id}_practice_ids" => $practiceIds]);
-        }
-        
-        // WICHTIG: Wenn gerade eine Frage beantwortet wurde (answer_result in Session),
-        // zeige diese Frage nochmal (damit die Antwort angezeigt werden kann)
-        $answerResult = session('answer_result');
-        $showAnsweredQuestion = $answerResult && isset($answerResult['question_id']);
-        
-        if ($showAnsweredQuestion) {
-            // Zeige die gerade beantwortete Frage nochmal
-            $questionId = $answerResult['question_id'];
-        } else {
-            // Normale Anzeige: nächste Frage aus Session
-            if (empty($practiceIds)) {
-                // Alle Fragen in dieser Session bearbeitet
-                session()->forget("lehrgaenge_{$lehrgang->id}_practice_ids");
-                return redirect()->route('lehrgaenge.practice', $slug)
-                    ->with('success', 'Alle Fragen in dieser Runde bearbeitet! 🎉');
-            }
-            
-            $questionId = reset($practiceIds);
-        }
-        
-        $question = LehrgangQuestion::findOrFail($questionId);
-        
-        // Lade/erstelle Fortschritt
-        $progress = UserLehrgangProgress::firstOrCreate(
-            [
-                'user_id' => $user->id,
-                'lehrgang_question_id' => $question->id,
-            ],
-            [
-                'consecutive_correct' => 0,
-                'solved' => false,
-                'failed' => false,
-            ]
-        );
-        
-        // Berechne Gesamt-Fortschritt (mit consecutive_correct)
-        $solvedCount = UserLehrgangProgress::where('user_id', $user->id)
-            ->whereHas('lehrgangQuestion', fn($q) => $q->where('lehrgang_id', $lehrgang->id))
-            ->where('solved', true)
-            ->count();
-        
-        $totalCount = LehrgangQuestion::where('lehrgang_id', $lehrgang->id)->count();
-        
-        // Neue Fortschrittsbalken-Logik: Berücksichtigt auch 1x richtige Antworten
-        $threshold = UserQuestionProgress::MASTERY_THRESHOLD;
-        $progressData = UserLehrgangProgress::where('user_id', $user->id)
-            ->whereHas('lehrgangQuestion', fn($q) => $q->where('lehrgang_id', $lehrgang->id))
-            ->get();
 
-        $totalProgressPoints = 0;
-        foreach ($progressData as $prog) {
-            $totalProgressPoints += min($prog->consecutive_correct, $threshold);
-        }
-        $maxProgressPoints = $totalCount * $threshold;
-        $progressPercent = $maxProgressPoints > 0 ? round(($totalProgressPoints / $maxProgressPoints) * 100) : 0;
-
-        // Hole den Lernabschnittsnamen
-        $lernabschnittName = LehrgangLernabschnitt::where('lehrgang_id', $lehrgang->id)
-            ->where(function($q) use ($question) {
-                $q->where('lernabschnitt_nr', $question->lernabschnitt)
-                  ->orWhere('lernabschnitt_nr', (string)$question->lernabschnitt);
-            })
-            ->value('lernabschnitt');
-        
-        // Markiere die Frage
-        $question->lehrgang = $lehrgang->lehrgang;
-        $question->lehrgang_slug = $slug;
-        $question->is_lehrgang = true;
-        $question->lernabschnitt_name = $lernabschnittName ?? ("Lernabschnitt " . $question->lernabschnitt);
-        
-        return view('lehrgaenge.practice', [
-            'question' => $question,
-            'progress' => $solvedCount,
-            'total' => $totalCount,
-            'progressPercent' => $progressPercent,
-            'user' => $user,
-        ]);
-    }
-
-    /**
-     * Practice für einen bestimmten Lernabschnitt
-     */
-    public function practiceSection($slug, $sectionNr)
-    {
-        $user = auth()->user();
-        $lehrgang = Lehrgang::where('slug', $slug)->firstOrFail();
-        
-        // Check Enrollment
-        $enrollment = $user->enrolledLehrgaenge()
-            ->where('lehrgaenge.id', $lehrgang->id)
-            ->first();
-        
-        if (!$enrollment) {
-            return redirect()->route('lehrgaenge.show', $slug)
-                ->with('error', 'Du musst dich erst einschreiben.');
-        }
-        
-        // Hole offene Fragen aus diesem Lernabschnitt
-        $allQuestions = LehrgangQuestion::where('lehrgang_id', $lehrgang->id)
-            ->where('lernabschnitt', $sectionNr)
+        // Hole ungelöste Fragen zuerst
+        $ids = LehrgangQuestion::where('lehrgang_id', $lehrgang->id)
             ->whereNotExists(function($query) use ($user) {
                 $query->select('id')
                     ->from('user_lehrgang_progress')
@@ -331,72 +215,154 @@ class LehrgangController extends Controller
             })
             ->pluck('id')
             ->toArray();
-        
-        // Initialisiere Session mit offenen Fragen wenn leer
-        $practiceIds = session("lehrgaenge_{$lehrgang->id}_section_{$sectionNr}_practice_ids", []);
-        
-        if (empty($practiceIds)) {
-            if (empty($allQuestions)) {
-                // Alle Fragen in diesem Abschnitt gelöst!
-                return view('lehrgaenge.complete', [
-                    'lehrgang' => $lehrgang,
-                    'points' => $enrollment->pivot->punkte ?? 0,
-                    'sectionCompleted' => true,
-                    'sectionNr' => $sectionNr,
-                ]);
-            }
-            
-            // Initialisiere mit allen offenen Fragen (geshuffelt)
-            $practiceIds = $allQuestions;
-            shuffle($practiceIds);
-            session(["lehrgaenge_{$lehrgang->id}_section_{$sectionNr}_practice_ids" => $practiceIds]);
+
+        // Falls keine ungelösten: alle Fragen
+        if (empty($ids)) {
+            $ids = LehrgangQuestion::where('lehrgang_id', $lehrgang->id)
+                ->pluck('id')
+                ->toArray();
         }
-        
-        // WICHTIG: Wenn gerade eine Frage beantwortet wurde
-        $answerResult = session('answer_result');
+
+        shuffle($ids);
+        $this->practiceService->startSession('lehrgang', $lehrgang->id, $ids, 'all', 'requeue');
+
+        return redirect()->route('lehrgaenge.practice.show', $slug);
+    }
+
+    /**
+     * Practice starten: Nur ungelöste Fragen
+     */
+    public function practiceUnsolved($slug)
+    {
+        $user = auth()->user();
+        $lehrgang = Lehrgang::where('slug', $slug)->firstOrFail();
+
+        // Check Enrollment
+        $enrollment = $user->enrolledLehrgaenge()
+            ->where('lehrgaenge.id', $lehrgang->id)
+            ->first();
+
+        if (!$enrollment) {
+            return redirect()->route('lehrgaenge.show', $slug)
+                ->with('error', 'Du musst dich erst einschreiben.');
+        }
+
+        $ids = LehrgangQuestion::where('lehrgang_id', $lehrgang->id)
+            ->whereNotExists(function($query) use ($user) {
+                $query->select('id')
+                    ->from('user_lehrgang_progress')
+                    ->whereColumn('lehrgang_question_id', 'lehrgaenge_questions.id')
+                    ->where('user_id', $user->id)
+                    ->where('solved', true);
+            })
+            ->pluck('id')
+            ->toArray();
+
+        if (empty($ids)) {
+            return redirect()->route('lehrgaenge.show', $slug)
+                ->with('info', 'Alle Fragen bereits gelöst!');
+        }
+
+        shuffle($ids);
+        $this->practiceService->startSession('lehrgang', $lehrgang->id, $ids, 'unsolved', 'requeue');
+
+        return redirect()->route('lehrgaenge.practice.show', $slug);
+    }
+
+    /**
+     * Practice starten: Nach Lernabschnitt
+     */
+    public function practiceSection($slug, $nr)
+    {
+        $user = auth()->user();
+        $lehrgang = Lehrgang::where('slug', $slug)->firstOrFail();
+
+        // Check Enrollment
+        $enrollment = $user->enrolledLehrgaenge()
+            ->where('lehrgaenge.id', $lehrgang->id)
+            ->first();
+
+        if (!$enrollment) {
+            return redirect()->route('lehrgaenge.show', $slug)
+                ->with('error', 'Du musst dich erst einschreiben.');
+        }
+
+        $ids = LehrgangQuestion::where('lehrgang_id', $lehrgang->id)
+            ->where('lernabschnitt', $nr)
+            ->pluck('id')
+            ->toArray();
+
+        if (empty($ids)) {
+            return redirect()->route('lehrgaenge.show', $slug)
+                ->with('error', 'Keine Fragen in diesem Lernabschnitt.');
+        }
+
+        shuffle($ids);
+        $this->practiceService->startSession('lehrgang', $lehrgang->id, $ids, 'section', 'requeue');
+
+        // Store section nr in session for context display
+        session(["practice_lehrgang_{$lehrgang->id}_section_nr" => $nr]);
+
+        return redirect()->route('lehrgaenge.practice.show', $slug);
+    }
+
+    /**
+     * Unified Practice View: Aktuelle Frage anzeigen
+     */
+    public function practiceShow($slug)
+    {
+        $user = auth()->user();
+        $lehrgang = Lehrgang::where('slug', $slug)->firstOrFail();
+
+        // Check if session has questions
+        if (!$this->practiceService->hasQuestionsRemaining('lehrgang', $lehrgang->id)) {
+            return redirect()->route('lehrgaenge.practice.summary', $slug);
+        }
+
+        // Get answer/gamification results from service
+        $answerResult = $this->practiceService->getAndClearAnswerResult('lehrgang', $lehrgang->id);
+        $gamificationResult = $this->practiceService->getAndClearGamificationResult('lehrgang', $lehrgang->id);
+
+        // If showing answered question feedback, use that question ID
         $showAnsweredQuestion = $answerResult && isset($answerResult['question_id']);
-        
+
         if ($showAnsweredQuestion) {
             $questionId = $answerResult['question_id'];
         } else {
-            if (empty($practiceIds)) {
-                session()->forget("lehrgaenge_{$lehrgang->id}_section_{$sectionNr}_practice_ids");
-                return redirect()->route('lehrgaenge.practice-section', ['slug' => $slug, 'sectionNr' => $sectionNr])
-                    ->with('success', 'Alle Fragen in diesem Abschnitt bearbeitet! 🎉');
-            }
-            
-            $questionId = reset($practiceIds);
+            $questionId = $this->practiceService->getCurrentQuestionId('lehrgang', $lehrgang->id);
         }
-        
-        $question = LehrgangQuestion::findOrFail($questionId);
-        
-        // Lade/erstelle Fortschritt
-        $progress = UserLehrgangProgress::firstOrCreate(
-            [
-                'user_id' => $user->id,
-                'lehrgang_question_id' => $question->id,
-            ],
-            [
-                'consecutive_correct' => 0,
-                'solved' => false,
-                'failed' => false,
-            ]
-        );
-        
-        // Berechne Gesamt-Fortschritt für diesen Abschnitt
-        $solvedCount = UserLehrgangProgress::where('user_id', $user->id)
-            ->whereHas('lehrgangQuestion', fn($q) => $q->where('lehrgang_id', $lehrgang->id)->where('lernabschnitt', $sectionNr))
-            ->where('solved', true)
-            ->count();
-        
-        $totalCount = LehrgangQuestion::where('lehrgang_id', $lehrgang->id)->where('lernabschnitt', $sectionNr)->count();
-        
-        // Neue Fortschrittsbalken-Logik
-        $progressData = UserLehrgangProgress::where('user_id', $user->id)
-            ->whereHas('lehrgangQuestion', fn($q) => $q->where('lehrgang_id', $lehrgang->id)->where('lernabschnitt', $sectionNr))
-            ->get();
-        
+
+        if (!$questionId) {
+            return redirect()->route('lehrgaenge.practice.summary', $slug);
+        }
+
+        $resolver = new LehrgangProgressResolver();
+        $question = $resolver->getQuestionById($questionId);
+
+        // Get progress from service
+        $serviceProgress = $this->practiceService->getProgress('lehrgang', $lehrgang->id);
+        $mode = $this->practiceService->getMode('lehrgang', $lehrgang->id);
+
+        // Section name if mode is 'section'
+        $sectionName = null;
+        if ($mode === 'section') {
+            $sectionNr = session("practice_lehrgang_{$lehrgang->id}_section_nr");
+            if ($sectionNr) {
+                $sectionName = LehrgangLernabschnitt::where('lehrgang_id', $lehrgang->id)
+                    ->where(function($q) use ($sectionNr) {
+                        $q->where('lernabschnitt_nr', $sectionNr)
+                          ->orWhere('lernabschnitt_nr', (string)$sectionNr);
+                    })
+                    ->value('lernabschnitt') ?? "Lernabschnitt {$sectionNr}";
+            }
+        }
+
+        // Overall lehrgang progress for the progress bar
+        $totalCount = LehrgangQuestion::where('lehrgang_id', $lehrgang->id)->count();
         $threshold = UserQuestionProgress::MASTERY_THRESHOLD;
+        $progressData = UserLehrgangProgress::where('user_id', $user->id)
+            ->whereHas('lehrgangQuestion', fn($q) => $q->where('lehrgang_id', $lehrgang->id))
+            ->get();
         $totalProgressPoints = 0;
         foreach ($progressData as $prog) {
             $totalProgressPoints += min($prog->consecutive_correct, $threshold);
@@ -404,31 +370,150 @@ class LehrgangController extends Controller
         $maxProgressPoints = $totalCount * $threshold;
         $progressPercent = $maxProgressPoints > 0 ? round(($totalProgressPoints / $maxProgressPoints) * 100) : 0;
 
-        // Hole den Lernabschnitt Namen
-        $sectionNr = (int)$sectionNr; // Stelle sicher, dass es eine Integer ist
-        $lernabschnitt = LehrgangLernabschnitt::where('lehrgang_id', $lehrgang->id)
-            ->where(function($q) use ($sectionNr) {
-                $q->where('lernabschnitt_nr', $sectionNr)
-                  ->orWhere('lernabschnitt_nr', (string)$sectionNr);
-            })
-            ->first();
-        
-        $lernabschnittName = $lernabschnitt?->lernabschnitt ?? "Lernabschnitt $sectionNr";
-        
-        // Markiere die Frage
-        $question->lehrgang = $lehrgang->lehrgang . " - $lernabschnittName";
-        $question->lehrgang_slug = $slug;
-        $question->is_lehrgang = true;
-        $question->section_nr = $sectionNr;
-        $question->lernabschnitt_name = $lernabschnittName;
-        
-        return view('lehrgaenge.practice', [
+        $solvedCount = UserLehrgangProgress::where('user_id', $user->id)
+            ->whereHas('lehrgangQuestion', fn($q) => $q->where('lehrgang_id', $lehrgang->id))
+            ->where('solved', true)
+            ->count();
+
+        return view('practice', [
             'question' => $question,
             'progress' => $solvedCount,
             'total' => $totalCount,
             'progressPercent' => $progressPercent,
-            'currentSectionNr' => $sectionNr,
             'user' => $user,
+            'mode' => $mode,
+            'totalInMode' => $serviceProgress['total'],
+            'currentInMode' => $serviceProgress['current'],
+            'answerResult' => $answerResult,
+            'gamificationResult' => $gamificationResult,
+            'context' => 'lehrgang',
+            'contextLabel' => $lehrgang->lehrgang,
+            'backUrl' => route('lehrgaenge.show', $slug),
+            'submitUrl' => route('lehrgaenge.practice.submit', $slug),
+            'showUrl' => route('lehrgaenge.practice.show', $slug),
+            'summaryUrl' => route('lehrgaenge.practice.summary', $slug),
+            'issueUrl' => null,
+            'difficultyInfo' => null,
+            'isSpacedRepetition' => false,
+            'bookmarked' => false,
+            'sectionName' => $sectionName,
+        ]);
+    }
+
+    /**
+     * Unified Practice Submit: Antwort verarbeiten
+     */
+    public function practiceSubmit(Request $request, $slug)
+    {
+        $user = auth()->user();
+        $lehrgang = Lehrgang::where('slug', $slug)->firstOrFail();
+        $gamification = new GamificationService();
+
+        $validated = $request->validate([
+            'question_id' => 'required|exists:lehrgaenge_questions,id',
+            'answer' => 'nullable|array',
+            'answer_mapping' => 'required|json',
+        ]);
+
+        $questionId = $validated['question_id'];
+
+        // Hole das Mapping aus dem Hidden Field
+        $mappingJson = $request->input('answer_mapping');
+        $mapping = json_decode($mappingJson, true);
+
+        // User-Antworten (Positionen 0, 1, 2)
+        $userAnswerPositions = $request->input('answer', []);
+
+        // Mappe Positionen zurück auf Original-Buchstaben
+        $userAnswer = collect($userAnswerPositions)->map(function($position) use ($mapping) {
+            return $mapping[$position] ?? null;
+        })->filter()->sort()->values()->toArray();
+
+        // Delegate to service
+        $result = $this->practiceService->submitAnswer('lehrgang', $lehrgang->id, $questionId, $userAnswer, $mapping);
+        $isCorrect = $result['is_correct'];
+        $mastered = $result['mastered'];
+
+        // Check for Lehrgang completion and award enrollment points on mastery
+        if ($mastered) {
+            $enrollment = $user->enrolledLehrgaenge()
+                ->where('lehrgaenge.id', $lehrgang->id)
+                ->first();
+
+            if ($enrollment) {
+                // Award enrollment pivot points (+10 per mastery)
+                $currentPoints = $enrollment->pivot->punkte ?? 0;
+                $newPoints = $currentPoints + 10;
+                $user->enrolledLehrgaenge()->updateExistingPivot($lehrgang->id, ['punkte' => $newPoints]);
+
+                // Award gamification points for mastery
+                $gamification->awardPoints($user, 10, "Lehrgang: {$lehrgang->lehrgang}", 'lehrgang', $lehrgang->id);
+
+                // Check if entire Lehrgang is now completed
+                $totalSolved = UserLehrgangProgress::where('user_id', $user->id)
+                    ->whereHas('lehrgangQuestion', fn($q) => $q->where('lehrgang_id', $lehrgang->id))
+                    ->where('solved', true)
+                    ->count();
+
+                $totalQuestions = LehrgangQuestion::where('lehrgang_id', $lehrgang->id)->count();
+
+                if ($totalSolved === $totalQuestions && $totalQuestions > 0) {
+                    $user->enrolledLehrgaenge()->updateExistingPivot($lehrgang->id, [
+                        'completed' => true,
+                        'completed_at' => now(),
+                    ]);
+                }
+            }
+        }
+
+        return redirect()->route('lehrgaenge.practice.show', $slug);
+    }
+
+    /**
+     * Unified Practice Summary: Session-Zusammenfassung
+     */
+    public function practiceSummary($slug)
+    {
+        $user = auth()->user();
+        $lehrgang = Lehrgang::where('slug', $slug)->firstOrFail();
+
+        // End session and get summary data
+        $summary = $this->practiceService->endSession('lehrgang', $lehrgang->id);
+
+        // Clean up section nr session key
+        session()->forget("practice_lehrgang_{$lehrgang->id}_section_nr");
+
+        // Fallback if no stats
+        if ($summary['totalAnswered'] === 0 && $summary['correct'] === 0) {
+            return redirect()->route('lehrgaenge.show', $slug);
+        }
+
+        $stats = [
+            'correct' => $summary['correct'],
+            'incorrect' => $summary['incorrect'],
+            'points' => $summary['points'],
+            'mastered' => $summary['mastered'],
+        ];
+
+        // Check if lehrgang is completed
+        $enrollment = $user->enrolledLehrgaenge()
+            ->where('lehrgaenge.id', $lehrgang->id)
+            ->first();
+        $isCompleted = $enrollment && ($enrollment->pivot->completed ?? false);
+
+        $streak = $user->streak_days ?? 0;
+
+        return view('practice-summary', [
+            'stats' => $stats,
+            'totalAnswered' => $summary['totalAnswered'],
+            'accuracy' => $summary['accuracy'],
+            'durationMinutes' => $summary['durationMinutes'],
+            'modeName' => $summary['modeName'],
+            'streak' => $streak,
+            'context' => 'lehrgang',
+            'contextLabel' => $lehrgang->lehrgang,
+            'backUrl' => route('lehrgaenge.show', $slug),
+            'completed' => $isCompleted,
         ]);
     }
 
