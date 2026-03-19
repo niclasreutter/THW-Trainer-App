@@ -183,9 +183,21 @@ class ShopService
             'accessory_value' => 'kurt',
             'colors' => ['000000', '4a312c', '5b9aff', 'fbbf24', 'ef4444'],
         ],
+        'acc_eyepatch' => [
+            'name' => 'Augenklappe',
+            'description' => 'Eine verwegene Augenklappe.',
+            'price' => 3500,
+            'icon' => 'bi-eyeglasses',
+            'type' => 'permanent',
+            'duration_days' => null,
+            'max_per_week' => null,
+            'category' => 'accessory',
+            'accessory_type' => 'accessories',
+            'accessory_value' => 'eyepatch',
+        ],
 
         // ── Avatar-Accessoires: Hüte/Mützen ──
-        'hat_winterHat01' => [
+        'hat_winterHat1' => [
             'name' => 'Wintermütze',
             'description' => 'Eine warme Wintermütze mit Bommel.',
             'price' => 3000,
@@ -195,7 +207,7 @@ class ShopService
             'max_per_week' => null,
             'category' => 'accessory',
             'accessory_type' => 'top',
-            'accessory_value' => 'winterHat01',
+            'accessory_value' => 'winterHat1',
         ],
         'hat_winterHat02' => [
             'name' => 'Pudelmütze',
