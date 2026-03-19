@@ -243,7 +243,7 @@ Route::get('/dashboard', function () {
     ));
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::get('/statistics', [\App\Http\Controllers\StatisticsController::class, 'index'])
+Route::get('/user-statistik', [\App\Http\Controllers\StatisticsController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('statistics');
 
