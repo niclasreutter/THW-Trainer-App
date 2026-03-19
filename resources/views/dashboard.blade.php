@@ -558,10 +558,12 @@
         <div class="dash-greeting">{{ $greeting }}</div>
         <div style="display:flex;align-items:center;gap:0.5rem;">
             <div class="dash-username">{{ $user->name }}</div>
+            @if($user->leaderboard_consent)
             <span class="league-badge" style="--league-color:{{ $leagueInfo['color'] }};">
                 <i class="{{ $leagueInfo['icon'] }}" style="font-size:0.55rem;"></i>
                 {{ $leagueInfo['name'] }}
             </span>
+            @endif
         </div>
         <div class="dash-level-line">Level {{ $user->level ?? 1 }} &middot; {{ number_format($user->points ?? 0) }} Punkte</div>
         @if($nextLevelPoints > 0)
