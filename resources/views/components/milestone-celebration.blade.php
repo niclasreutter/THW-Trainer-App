@@ -46,27 +46,35 @@
                 100% Gemeistert
             </div>
 
-        @elseif($milestoneData['type'] === 'streak')
-            <span class="milestone-icon">
-                <i class="bi bi-fire" style="color: #f59e0b;"></i>
-            </span>
-            <div class="milestone-title">{{ $milestoneData['days'] ?? '?' }} Tage Streak!</div>
-            <div class="milestone-subtitle">Du lernst {{ $milestoneData['days'] ?? '?' }} Tage in Folge</div>
-            <div class="milestone-badge milestone-streak-glow" style="background: rgba(245, 158, 11, 0.2); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3);">
+        @elseif(in_array($milestoneData['type'], ['streak', 'streak_extended']))
+            <div class="streak-flame">
                 <i class="bi bi-fire"></i>
-                {{ $milestoneData['days'] ?? '?' }} Tage
             </div>
 
-        @elseif($milestoneData['type'] === 'streak_extended')
-            <span class="milestone-icon">
-                <i class="bi bi-fire" style="color: #f59e0b;"></i>
-            </span>
-            <div class="milestone-title">Streak gesichert!</div>
-            <div class="milestone-subtitle">Du hast heute {{ \App\Services\GamificationService::STREAK_MIN_QUESTIONS }} Fragen beantwortet</div>
-            <div class="milestone-badge milestone-streak-glow" style="background: rgba(245, 158, 11, 0.2); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3);">
-                <i class="bi bi-fire"></i>
-                {{ $milestoneData['days'] ?? '?' }} {{ ($milestoneData['days'] ?? 0) == 1 ? 'Tag' : 'Tage' }} Streak
+            <div class="streak-number">{{ $milestoneData['days'] ?? '?' }}</div>
+
+            <div class="streak-label">
+                {{ ($milestoneData['days'] ?? 0) == 1 ? 'Tag' : 'Tage' }} Streak!
             </div>
+
+            @if(!empty($milestoneData['week_calendar']))
+            <div class="streak-calendar">
+                @foreach($milestoneData['week_calendar'] as $day)
+                <div class="streak-day">
+                    <span class="streak-day-label {{ $day['is_today'] ? 'streak-day-label--today' : '' }}">
+                        {{ $day['label'] }}
+                    </span>
+                    <div class="streak-day-circle streak-day-circle--{{ $day['status'] }}">
+                        @if($day['status'] === 'active')
+                            <i class="bi bi-check-lg"></i>
+                        @elseif($day['status'] === 'frozen')
+                            <i class="bi bi-snow"></i>
+                        @endif
+                    </div>
+                </div>
+                @endforeach
+            </div>
+            @endif
 
         @elseif($milestoneData['type'] === 'theory_complete')
             <span class="milestone-icon">
