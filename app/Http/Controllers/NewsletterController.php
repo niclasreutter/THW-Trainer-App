@@ -146,11 +146,7 @@ class NewsletterController extends Controller
      */
     public function index()
     {
-        $newsletters = Newsletter::with('sender')
-            ->orderBy('sent_at', 'desc')
-            ->paginate(20);
-
-        return view('admin.newsletter.index', compact('newsletters'));
+        return redirect()->route('admin.newsletter.create');
     }
 
     /**
