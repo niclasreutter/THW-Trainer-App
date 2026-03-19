@@ -32,8 +32,8 @@ Route::get('/datenschutz', function () {
     return view('landing.datenschutz');
 })->name('landing.datenschutz');
 
-// Öffentliche Statistik
-Route::get('/statistik', [\App\Http\Controllers\StatisticsController::class, 'index'])
+// Öffentliche Statistik (anonym, aggregiert)
+Route::get('/statistik', [\App\Http\Controllers\PublicStatisticsController::class, 'index'])
     ->name('landing.statistics');
 
 // PWA Offline-Seite
