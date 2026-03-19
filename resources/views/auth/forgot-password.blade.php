@@ -336,35 +336,6 @@
         }
 
         .auth-left {
-            padding: 2rem;
-            min-height: auto;
-            text-align: center;
-        }
-
-        .auth-left h1 {
-            font-size: 2rem;
-        }
-
-        .auth-left p {
-            font-size: 1rem;
-        }
-
-        .auth-right {
-            padding: 2rem;
-            min-height: auto;
-        }
-
-        .auth-form-container {
-            max-width: 100%;
-        }
-    }
-
-    @media (max-width: 768px) {
-        .auth-container {
-            flex-direction: column;
-        }
-
-        .auth-left {
             display: none;
         }
 
@@ -461,19 +432,19 @@
     <!-- Right Panel: Reset Form -->
     <div class="auth-right">
         <div class="auth-form-container">
-            <h2>🔑 Passwort zurücksetzen</h2>
+            <h2>Passwort zurücksetzen</h2>
             <p>Gib deine E-Mail-Adresse ein</p>
 
             @if (session('status'))
                 <div class="success-box">
-                    <h3>✅ E-Mail gesendet</h3>
+                    <h3>E-Mail gesendet</h3>
                     <p>{{ session('status') }}</p>
                 </div>
             @endif
 
             @if ($errors->any())
                 <div class="error-box">
-                    <h3>❌ Fehler beim Senden</h3>
+                    <h3>Fehler beim Senden</h3>
                     <ul>
                         @foreach ($errors->all() as $error)
                             <li>{{ $error }}</li>
