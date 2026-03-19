@@ -53,61 +53,77 @@
     </section>
 
     {{-- ============================================
-         AKTIVITÄTS-CHART — Aktive Nutzer
+         CHARTS SECTION — Aktivität & Trends
          ============================================ --}}
-    @if(!empty($stats['chart']))
-    <section class="py-16 lg:py-24 bg-white" aria-labelledby="activity-heading">
+    <section class="py-16 lg:py-24 bg-white" aria-labelledby="charts-heading">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <header class="landing-section-header center">
-                <h2 id="activity-heading">Aktive Nutzer</h2>
-                <p>Tägliche Aktivität der letzten 15 Tage</p>
+                <h2 id="charts-heading">Aktivität & Trends</h2>
+                <p>30-Tage Überblick der Plattform-Nutzung</p>
             </header>
 
-            <div class="max-w-4xl mx-auto landing-fade-in">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 landing-fade-in">
+                {{-- Chart 1: Aktive Nutzer (Bar) --}}
                 <div class="bg-white rounded-2xl shadow-lg border border-slate-100 p-6 lg:p-8">
-                    <div class="flex justify-between items-center mb-6">
-                        <div>
-                            <div class="text-sm font-semibold text-slate-500 uppercase tracking-wider">Aktive Nutzer pro Tag</div>
-                        </div>
-                        @php
-                            $lastDay = end($stats['chart']);
-                        @endphp
+                    <div class="flex justify-between items-center mb-4">
+                        <div class="text-sm font-semibold text-slate-500 uppercase tracking-wider">Aktive Nutzer pro Tag</div>
+                        @php $lastDay = end($stats['chart']); @endphp
                         <div class="text-right">
-                            <div class="text-2xl font-bold text-slate-900">{{ $lastDay['value'] }}</div>
-                            <div class="text-xs text-slate-500">heute aktiv</div>
+                            <span class="text-2xl font-bold text-slate-900">{{ $lastDay['value'] }}</span>
+                            <span class="text-xs text-slate-500 ml-1">heute</span>
                         </div>
                     </div>
+                    <div style="position: relative; height: 280px;">
+                        <canvas id="activeUsersChart"></canvas>
+                    </div>
+                </div>
 
-                    @php
-                        $chartValues = collect($stats['chart'])->pluck('value')->toArray();
-                        $chartLabels = collect($stats['chart'])->pluck('label')->toArray();
-                        $maxVal = max($chartValues) ?: 1;
-                    @endphp
+                {{-- Chart 2: Beantwortete Fragen (Line) --}}
+                <div class="bg-white rounded-2xl shadow-lg border border-slate-100 p-6 lg:p-8">
+                    <div class="flex justify-between items-center mb-4">
+                        <div class="text-sm font-semibold text-slate-500 uppercase tracking-wider">Beantwortete Fragen pro Tag</div>
+                        @php $lastQ = end($stats['questions_per_day']['values']); @endphp
+                        <div class="text-right">
+                            <span class="text-2xl font-bold text-slate-900">{{ number_format($lastQ, 0, ',', '.') }}</span>
+                            <span class="text-xs text-slate-500 ml-1">heute</span>
+                        </div>
+                    </div>
+                    <div style="position: relative; height: 280px;">
+                        <canvas id="questionsChart"></canvas>
+                    </div>
+                </div>
 
-                    {{-- Bar Chart --}}
-                    <div class="flex items-end gap-1 sm:gap-2" style="height: 200px;">
-                        @foreach($chartValues as $i => $val)
-                            @php
-                                $heightPct = $maxVal > 0 ? max(($val / $maxVal) * 100, 4) : 4;
-                                $isToday = $i === count($chartValues) - 1;
-                            @endphp
-                            <div class="flex-1 flex flex-col items-center justify-end h-full">
-                                <span class="text-xs font-semibold mb-1 {{ $val > 0 ? 'text-slate-700' : 'text-slate-300' }}">
-                                    {{ $val > 0 ? $val : '' }}
-                                </span>
-                                <div class="w-full rounded-t-md transition-all duration-500 {{ $isToday ? 'bg-gradient-to-t from-amber-500 to-yellow-400' : 'bg-gradient-to-t from-blue-800 to-blue-600' }}"
-                                     style="height: {{ $heightPct }}%; min-height: 4px;"></div>
-                                <span class="text-xs text-slate-400 mt-2 {{ $i % 2 === 0 ? '' : 'hidden sm:block' }}">
-                                    {{ $chartLabels[$i] }}
-                                </span>
-                            </div>
-                        @endforeach
+                {{-- Chart 3: Erfolgsquote (Line) --}}
+                <div class="bg-white rounded-2xl shadow-lg border border-slate-100 p-6 lg:p-8">
+                    <div class="flex justify-between items-center mb-4">
+                        <div class="text-sm font-semibold text-slate-500 uppercase tracking-wider">Erfolgsquote im Zeitverlauf</div>
+                        <div class="text-right">
+                            <span class="text-2xl font-bold text-slate-900">{{ $stats['avg_hit_rate'] }}%</span>
+                            <span class="text-xs text-slate-500 ml-1">gesamt</span>
+                        </div>
+                    </div>
+                    <div style="position: relative; height: 280px;">
+                        <canvas id="successRateChart"></canvas>
+                    </div>
+                </div>
+
+                {{-- Chart 4: Nutzer-Wachstum (Area) --}}
+                <div class="bg-white rounded-2xl shadow-lg border border-slate-100 p-6 lg:p-8">
+                    <div class="flex justify-between items-center mb-4">
+                        <div class="text-sm font-semibold text-slate-500 uppercase tracking-wider">Nutzer-Wachstum</div>
+                        @php $lastU = end($stats['user_growth']['values']); @endphp
+                        <div class="text-right">
+                            <span class="text-2xl font-bold text-slate-900">{{ number_format($lastU, 0, ',', '.') }}</span>
+                            <span class="text-xs text-slate-500 ml-1">gesamt</span>
+                        </div>
+                    </div>
+                    <div style="position: relative; height: 280px;">
+                        <canvas id="userGrowthChart"></canvas>
                     </div>
                 </div>
             </div>
         </div>
     </section>
-    @endif
 
     {{-- ============================================
          DETAILS — Bento Grid
@@ -154,18 +170,12 @@
                     </p>
                 </article>
 
-                {{-- Breite Karte: Lernabschnitte --}}
+                {{-- Breite Karte: Lernabschnitte als Horizontal Bar Chart --}}
                 <article class="landing-bento-card landing-bento-wide landing-fade-in">
                     <div class="w-full">
                         <h3 class="landing-bento-title mb-4">Fragen pro Lernabschnitt</h3>
-                        <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
-                            @foreach($stats['section_counts'] as $section => $count)
-                                <div class="text-center p-3 rounded-xl bg-white/60 border border-slate-200">
-                                    <div class="text-xs text-slate-500 uppercase tracking-wider">Abschnitt {{ $section }}</div>
-                                    <div class="text-xl font-bold text-slate-900 mt-1">{{ $count }}</div>
-                                    <div class="text-xs text-slate-400">Fragen</div>
-                                </div>
-                            @endforeach
+                        <div style="position: relative; height: 260px;">
+                            <canvas id="sectionChart"></canvas>
                         </div>
                     </div>
                 </article>
@@ -276,3 +286,208 @@ function animateStatCounter(el) {
 }
 </script>
 @endsection
+
+@push('scripts')
+@vite('resources/js/landing-charts.js')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof Chart === 'undefined') return;
+
+    // Light mode defaults
+    Chart.defaults.font.family = "'Figtree', system-ui, sans-serif";
+    Chart.defaults.color = '#64748b';
+
+    var lightScales = {
+        y: {
+            beginAtZero: true,
+            grid: { color: 'rgba(0, 0, 0, 0.06)', drawBorder: false },
+            ticks: { font: { size: 11 }, color: '#94a3b8' }
+        },
+        x: {
+            grid: { display: false },
+            ticks: { font: { size: 10 }, color: '#94a3b8', maxRotation: 45, minRotation: 45 }
+        }
+    };
+
+    var tooltipStyle = {
+        backgroundColor: '#1e293b',
+        padding: 12,
+        cornerRadius: 8,
+        titleFont: { size: 13, weight: 'bold' },
+        bodyFont: { size: 12 }
+    };
+
+    // Chart data from server
+    var activeLabels = @json(collect($stats['chart'])->pluck('label'));
+    var activeValues = @json(collect($stats['chart'])->pluck('value'));
+    var qLabels = @json($stats['questions_per_day']['labels']);
+    var qValues = @json($stats['questions_per_day']['values']);
+    var srLabels = @json($stats['success_rate_per_day']['labels']);
+    var srValues = @json($stats['success_rate_per_day']['values']);
+    var ugLabels = @json($stats['user_growth']['labels']);
+    var ugValues = @json($stats['user_growth']['values']);
+    var sectionLabels = @json(array_map(function($s) { return 'Abschnitt ' . $s; }, array_keys($stats['section_counts'])));
+    var sectionValues = @json(array_values($stats['section_counts']));
+
+    // 1. Active Users (Bar Chart)
+    new Chart(document.getElementById('activeUsersChart'), {
+        type: 'bar',
+        data: {
+            labels: activeLabels,
+            datasets: [{
+                data: activeValues,
+                backgroundColor: function(ctx) {
+                    return ctx.dataIndex === activeValues.length - 1
+                        ? 'rgba(245, 158, 11, 0.85)'
+                        : 'rgba(0, 51, 127, 0.7)';
+                },
+                borderRadius: 4,
+                borderSkipped: false,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false }, tooltip: tooltipStyle },
+            scales: lightScales
+        }
+    });
+
+    // 2. Questions per Day (Line Chart)
+    new Chart(document.getElementById('questionsChart'), {
+        type: 'line',
+        data: {
+            labels: qLabels,
+            datasets: [{
+                data: qValues,
+                borderColor: '#f59e0b',
+                backgroundColor: 'rgba(245, 158, 11, 0.08)',
+                borderWidth: 2.5,
+                fill: true,
+                tension: 0.35,
+                pointRadius: 0,
+                pointHoverRadius: 5,
+                pointHoverBackgroundColor: '#f59e0b',
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false }, tooltip: tooltipStyle },
+            scales: lightScales
+        }
+    });
+
+    // 3. Success Rate (Line Chart)
+    new Chart(document.getElementById('successRateChart'), {
+        type: 'line',
+        data: {
+            labels: srLabels,
+            datasets: [{
+                data: srValues,
+                borderColor: '#16a34a',
+                backgroundColor: 'rgba(22, 163, 74, 0.08)',
+                borderWidth: 2.5,
+                fill: true,
+                tension: 0.35,
+                pointRadius: 0,
+                pointHoverRadius: 5,
+                pointHoverBackgroundColor: '#16a34a',
+                spanGaps: true,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false }, tooltip: tooltipStyle },
+            scales: {
+                y: {
+                    beginAtZero: false,
+                    min: 0,
+                    max: 100,
+                    grid: { color: 'rgba(0, 0, 0, 0.06)', drawBorder: false },
+                    ticks: {
+                        font: { size: 11 },
+                        color: '#94a3b8',
+                        callback: function(v) { return v + '%'; }
+                    }
+                },
+                x: lightScales.x
+            }
+        }
+    });
+
+    // 4. User Growth (Area Chart)
+    new Chart(document.getElementById('userGrowthChart'), {
+        type: 'line',
+        data: {
+            labels: ugLabels,
+            datasets: [{
+                data: ugValues,
+                borderColor: '#3b82f6',
+                backgroundColor: 'rgba(59, 130, 246, 0.08)',
+                borderWidth: 2.5,
+                fill: true,
+                tension: 0.35,
+                pointRadius: 0,
+                pointHoverRadius: 5,
+                pointHoverBackgroundColor: '#3b82f6',
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false }, tooltip: tooltipStyle },
+            scales: {
+                y: {
+                    beginAtZero: false,
+                    grid: { color: 'rgba(0, 0, 0, 0.06)', drawBorder: false },
+                    ticks: { font: { size: 11 }, color: '#94a3b8' }
+                },
+                x: lightScales.x
+            }
+        }
+    });
+
+    // 5. Section Breakdown (Horizontal Bar)
+    var sectionColors = [
+        '#00337F', '#0055cc', '#3b82f6', '#60a5fa', '#93c5fd',
+        '#1e40af', '#1d4ed8', '#2563eb', '#3b82f6', '#60a5fa'
+    ];
+    new Chart(document.getElementById('sectionChart'), {
+        type: 'bar',
+        data: {
+            labels: sectionLabels,
+            datasets: [{
+                data: sectionValues,
+                backgroundColor: sectionLabels.map(function(_, i) {
+                    return sectionColors[i % sectionColors.length];
+                }),
+                borderRadius: 4,
+                borderSkipped: false,
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: tooltipStyle
+            },
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    grid: { color: 'rgba(0, 0, 0, 0.06)', drawBorder: false },
+                    ticks: { font: { size: 11 }, color: '#94a3b8' }
+                },
+                y: {
+                    grid: { display: false },
+                    ticks: { font: { size: 12, weight: '500' }, color: '#334155' }
+                }
+            }
+        }
+    });
+});
+</script>
+@endpush
