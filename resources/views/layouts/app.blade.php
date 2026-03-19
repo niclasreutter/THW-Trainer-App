@@ -5,11 +5,9 @@
         <script>
             (function() {
                 var theme = localStorage.getItem('theme');
-                if (theme === 'light') {
-                    document.documentElement.classList.add('light-mode');
-                } else if (!theme && window.matchMedia('(prefers-color-scheme: light)').matches) {
-                    document.documentElement.classList.add('light-mode');
-                }
+                var isLight = theme === 'light' || (!theme && window.matchMedia('(prefers-color-scheme: light)').matches);
+                if (isLight) document.documentElement.classList.add('light-mode');
+                document.documentElement.setAttribute('data-theme-mode', theme || 'auto');
             })();
         </script>
         <meta charset="utf-8">
@@ -295,9 +293,10 @@
                                 <span class="sidebar-notif-dot"></span>
                             @endif
                         </a>
-                        <button type="button" onclick="toggleTheme()" class="sidebar-action-btn" title="Farbschema">
+                        <button type="button" onclick="toggleTheme()" class="sidebar-action-btn theme-toggle" title="Farbschema">
                             <i class="bi bi-moon-fill icon-moon"></i>
                             <i class="bi bi-sun-fill icon-sun"></i>
+                            <i class="bi bi-circle-half icon-auto"></i>
                         </button>
                         <a href="{{ route('profile') }}" class="sidebar-action-btn" title="Profil">
                             <i class="bi bi-person"></i>
@@ -329,6 +328,7 @@
                             <button type="button" onclick="toggleTheme()" class="theme-toggle-sm" title="Farbschema">
                                 <i class="bi bi-moon-fill icon-moon"></i>
                                 <i class="bi bi-sun-fill icon-sun"></i>
+                                <i class="bi bi-circle-half icon-auto"></i>
                             </button>
                             @auth
                             <button @click="sidebarOpen = true" class="p-2 text-dark-muted hover:text-dark-primary" data-tour-step="mobile-menu">
@@ -584,25 +584,31 @@
 
         <!-- Theme Toggle Script -->
         <script>
-            // Theme Management
+            // Theme Management (Dark / Light / Auto)
             (function() {
-                const savedTheme = localStorage.getItem('theme');
+                var savedTheme = localStorage.getItem('theme');
 
                 function applyTheme(light) {
                     document.documentElement.classList.toggle('light-mode', light);
                     document.body.classList.toggle('light-mode', light);
                 }
 
-                if (savedTheme === 'light') {
-                    applyTheme(true);
-                } else if (savedTheme === 'dark') {
-                    applyTheme(false);
-                } else {
-                    // Kein gespeichertes Theme → Systemeinstellung verwenden
-                    applyTheme(window.matchMedia('(prefers-color-scheme: light)').matches);
+                function setMode(mode) {
+                    document.documentElement.setAttribute('data-theme-mode', mode);
                 }
 
-                // Live auf Systemänderungen reagieren (nur wenn kein manuelles Theme gesetzt)
+                if (savedTheme === 'light') {
+                    applyTheme(true);
+                    setMode('light');
+                } else if (savedTheme === 'dark') {
+                    applyTheme(false);
+                    setMode('dark');
+                } else {
+                    applyTheme(window.matchMedia('(prefers-color-scheme: light)').matches);
+                    setMode('auto');
+                }
+
+                // Live auf Systemänderungen reagieren (nur im Auto-Modus)
                 window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', function(e) {
                     if (!localStorage.getItem('theme')) {
                         applyTheme(e.matches);
@@ -610,13 +616,31 @@
                 });
             })();
 
+            // Zyklus: dark → light → auto → dark
             function toggleTheme() {
-                const isLightMode = document.documentElement.classList.contains('light-mode');
-                const newLight = !isLightMode;
+                var current = localStorage.getItem('theme');
+                var next, isLight;
 
-                document.documentElement.classList.toggle('light-mode', newLight);
-                document.body.classList.toggle('light-mode', newLight);
-                localStorage.setItem('theme', newLight ? 'light' : 'dark');
+                if (current === 'dark') {
+                    next = 'light';
+                    isLight = true;
+                } else if (current === 'light') {
+                    next = null; // auto
+                    isLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+                } else {
+                    next = 'dark';
+                    isLight = false;
+                }
+
+                if (next) {
+                    localStorage.setItem('theme', next);
+                } else {
+                    localStorage.removeItem('theme');
+                }
+
+                document.documentElement.classList.toggle('light-mode', isLight);
+                document.body.classList.toggle('light-mode', isLight);
+                document.documentElement.setAttribute('data-theme-mode', next || 'auto');
             }
         </script>
 
