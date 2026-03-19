@@ -16,7 +16,7 @@ class PublicStatisticsController extends Controller
 {
     public function index()
     {
-        $stats = Cache::remember('public_statistics_v2', 300, function () {
+        $stats = Cache::remember('public_statistics_v3', 300, function () {
             $totalExams = ExamStatistic::count();
             $passedExams = ExamStatistic::where('is_passed', true)->count();
             $users = User::count();
@@ -69,20 +69,23 @@ class PublicStatisticsController extends Controller
                 ->groupBy('date')
                 ->pluck('correct', 'date');
 
-            // --- 30-day trend: User growth (cumulative) ---
-            $newUsersByDay = User::where('created_at', '>=', $thirtyDaysAgo)
-                ->selectRaw('DATE(created_at) as date, COUNT(*) as count')
+            // --- 30-day trend: Exams per day ---
+            $examsByDay = ExamStatistic::where('created_at', '>=', $thirtyDaysAgo)
+                ->selectRaw('DATE(created_at) as date, COUNT(*) as total')
                 ->groupBy('date')
-                ->pluck('count', 'date');
+                ->pluck('total', 'date');
 
-            $usersBeforeRange = User::where('created_at', '<', $thirtyDaysAgo)->count();
+            $examsPassedByDay = ExamStatistic::where('created_at', '>=', $thirtyDaysAgo)
+                ->where('is_passed', true)
+                ->selectRaw('DATE(created_at) as date, COUNT(*) as passed')
+                ->groupBy('date')
+                ->pluck('passed', 'date');
 
             // Build 30-day arrays
             $chartData = [];
             $questionsPerDay = ['labels' => [], 'values' => []];
             $successRatePerDay = ['labels' => [], 'values' => []];
-            $userGrowth = ['labels' => [], 'values' => []];
-            $cumulativeUsers = $usersBeforeRange;
+            $examsPerDay = ['labels' => [], 'total' => [], 'passed' => []];
 
             for ($i = 29; $i >= 0; $i--) {
                 $date = Carbon::today()->subDays($i);
@@ -110,10 +113,10 @@ class PublicStatisticsController extends Controller
                     ? round(($dayCorrect / $dayTotal) * 100, 1)
                     : null;
 
-                // User growth (cumulative)
-                $cumulativeUsers += (int) ($newUsersByDay[$dateStr] ?? 0);
-                $userGrowth['labels'][] = $label;
-                $userGrowth['values'][] = $cumulativeUsers;
+                // Exams per day
+                $examsPerDay['labels'][] = $label;
+                $examsPerDay['total'][] = (int) ($examsByDay[$dateStr] ?? 0);
+                $examsPerDay['passed'][] = (int) ($examsPassedByDay[$dateStr] ?? 0);
             }
 
             return [
@@ -127,7 +130,7 @@ class PublicStatisticsController extends Controller
                 'chart' => $chartData,
                 'questions_per_day' => $questionsPerDay,
                 'success_rate_per_day' => $successRatePerDay,
-                'user_growth' => $userGrowth,
+                'exams_per_day' => $examsPerDay,
             ];
         });
 
