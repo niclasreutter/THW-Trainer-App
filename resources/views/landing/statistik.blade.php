@@ -107,18 +107,18 @@
                     </div>
                 </div>
 
-                {{-- Chart 4: Nutzer-Wachstum (Area) --}}
+                {{-- Chart 4: Prüfungen pro Tag (Bar) --}}
                 <div class="bg-white rounded-2xl shadow-lg border border-slate-100 p-6 lg:p-8">
                     <div class="flex justify-between items-center mb-4">
-                        <div class="text-sm font-semibold text-slate-500 uppercase tracking-wider">Nutzer-Wachstum</div>
-                        @php $lastU = end($stats['user_growth']['values']); @endphp
+                        <div class="text-sm font-semibold text-slate-500 uppercase tracking-wider">Prüfungen pro Tag</div>
+                        @php $lastExam = end($stats['exams_per_day']['total']); @endphp
                         <div class="text-right">
-                            <span class="text-2xl font-bold text-slate-900">{{ number_format($lastU, 0, ',', '.') }}</span>
-                            <span class="text-xs text-slate-500 ml-1">gesamt</span>
+                            <span class="text-2xl font-bold text-slate-900">{{ $lastExam }}</span>
+                            <span class="text-xs text-slate-500 ml-1">heute</span>
                         </div>
                     </div>
                     <div style="position: relative; height: 280px;">
-                        <canvas id="userGrowthChart"></canvas>
+                        <canvas id="examsChart"></canvas>
                     </div>
                 </div>
             </div>
@@ -324,8 +324,9 @@ document.addEventListener('DOMContentLoaded', function() {
     var qValues = @json($stats['questions_per_day']['values']);
     var srLabels = @json($stats['success_rate_per_day']['labels']);
     var srValues = @json($stats['success_rate_per_day']['values']);
-    var ugLabels = @json($stats['user_growth']['labels']);
-    var ugValues = @json($stats['user_growth']['values']);
+    var exLabels = @json($stats['exams_per_day']['labels']);
+    var exTotal = @json($stats['exams_per_day']['total']);
+    var exPassed = @json($stats['exams_per_day']['passed']);
     var sectionLabels = @json(array_map(function($s) { return 'Abschnitt ' . $s; }, array_keys($stats['section_counts'])));
     var sectionValues = @json(array_values($stats['section_counts']));
 
@@ -417,34 +418,51 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // 4. User Growth (Area Chart)
-    new Chart(document.getElementById('userGrowthChart'), {
-        type: 'line',
+    // 4. Exams per Day (Stacked Bar Chart)
+    new Chart(document.getElementById('examsChart'), {
+        type: 'bar',
         data: {
-            labels: ugLabels,
-            datasets: [{
-                data: ugValues,
-                borderColor: '#3b82f6',
-                backgroundColor: 'rgba(59, 130, 246, 0.08)',
-                borderWidth: 2.5,
-                fill: true,
-                tension: 0.35,
-                pointRadius: 0,
-                pointHoverRadius: 5,
-                pointHoverBackgroundColor: '#3b82f6',
-            }]
+            labels: exLabels,
+            datasets: [
+                {
+                    label: 'Bestanden',
+                    data: exPassed,
+                    backgroundColor: 'rgba(22, 163, 74, 0.7)',
+                    borderRadius: 4,
+                    borderSkipped: false,
+                },
+                {
+                    label: 'Nicht bestanden',
+                    data: exTotal.map(function(t, i) { return t - exPassed[i]; }),
+                    backgroundColor: 'rgba(239, 68, 68, 0.5)',
+                    borderRadius: 4,
+                    borderSkipped: false,
+                }
+            ]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: { legend: { display: false }, tooltip: tooltipStyle },
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'bottom',
+                    labels: { font: { size: 11 }, color: '#64748b', usePointStyle: true, pointStyle: 'rectRounded', padding: 16 }
+                },
+                tooltip: tooltipStyle
+            },
             scales: {
                 y: {
-                    beginAtZero: false,
+                    beginAtZero: true,
+                    stacked: true,
                     grid: { color: 'rgba(0, 0, 0, 0.06)', drawBorder: false },
                     ticks: { font: { size: 11 }, color: '#94a3b8' }
                 },
-                x: lightScales.x
+                x: {
+                    stacked: true,
+                    grid: { display: false },
+                    ticks: { font: { size: 10 }, color: '#94a3b8', maxRotation: 45, minRotation: 45 }
+                }
             }
         }
     });
