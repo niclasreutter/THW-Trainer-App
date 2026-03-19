@@ -107,24 +107,31 @@ class User extends Authenticatable implements MustVerifyEmail
                     $url = $base . 'avataaars/svg?radius=50&seed=' . $seed . '&backgroundType=gradientLinear&backgroundColor=00337f,0055cc&backgroundRotation=135&eyes=default,happy&mouth=default,smile';
                 }
 
-                // Aktive Accessoires anhängen (DiceBear nutzt den letzten Wert bei doppelten Params)
+                // Aktive Accessoires: URL parsen und Parameter überschreiben (nicht duplizieren!)
                 $active = $this->active_accessories;
                 if (!empty($active)) {
+                    $parts = parse_url($url);
+                    parse_str($parts['query'] ?? '', $params);
+
                     if (!empty($active['accessories'])) {
-                        $url .= '&accessories=' . $active['accessories'] . '&accessoriesProbability=100';
+                        $params['accessories'] = $active['accessories'];
+                        $params['accessoriesProbability'] = '100';
                         if (!empty($active['accessoriesColor'])) {
-                            $url .= '&accessoriesColor=' . $active['accessoriesColor'];
+                            $params['accessoriesColor'] = $active['accessoriesColor'];
                         }
                     }
                     if (!empty($active['top'])) {
-                        $url .= '&top=' . $active['top'];
+                        $params['top'] = $active['top'];
                     }
                     if (!empty($active['facialHair'])) {
-                        $url .= '&facialHair=' . $active['facialHair'] . '&facialHairProbability=100';
+                        $params['facialHair'] = $active['facialHair'];
+                        $params['facialHairProbability'] = '100';
                         if (!empty($active['facialHairColor'])) {
-                            $url .= '&facialHairColor=' . $active['facialHairColor'];
+                            $params['facialHairColor'] = $active['facialHairColor'];
                         }
                     }
+
+                    $url = $parts['scheme'] . '://' . $parts['host'] . $parts['path'] . '?' . http_build_query($params);
                 }
 
                 return $url;
