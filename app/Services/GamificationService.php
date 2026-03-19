@@ -469,6 +469,55 @@ class GamificationService
     }
 
     /**
+     * Baut die 7-Tage-Kalender-Daten für die Streak-Celebration (Duolingo-Style).
+     */
+    private function buildWeekCalendarData(User $user): array
+    {
+        $today = Carbon::today();
+        $sevenDaysAgo = $today->copy()->subDays(6);
+
+        $dayLabels = ['Mo' => 1, 'Di' => 2, 'Mi' => 3, 'Do' => 4, 'Fr' => 5, 'Sa' => 6, 'So' => 7];
+        $carbonToLabel = [1 => 'Mo', 2 => 'Di', 3 => 'Mi', 4 => 'Do', 5 => 'Fr', 6 => 'Sa', 0 => 'So'];
+
+        // Aktive Tage aus XP-History (letzte 7 Tage)
+        $activeDates = XpHistory::where('user_id', $user->id)
+            ->where('created_at', '>=', $sevenDaysAgo->startOfDay())
+            ->selectRaw('DATE(created_at) as activity_date')
+            ->distinct()
+            ->pluck('activity_date')
+            ->map(fn($d) => Carbon::parse($d)->toDateString())
+            ->toArray();
+
+        // Freeze-Daten aus dem Log
+        $freezeLog = $this->ensureArray($user->streak_freeze_log);
+        $freezeDates = array_column($freezeLog, 'date');
+
+        $calendar = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $date = $today->copy()->subDays($i);
+            $dateStr = $date->toDateString();
+            $isToday = $i === 0;
+
+            if ($isToday || in_array($dateStr, $activeDates)) {
+                $status = 'active';
+            } elseif (in_array($dateStr, $freezeDates)) {
+                $status = 'frozen';
+            } else {
+                $status = 'missed';
+            }
+
+            $calendar[] = [
+                'date' => $dateStr,
+                'label' => $carbonToLabel[$date->dayOfWeek] ?? '?',
+                'status' => $status,
+                'is_today' => $isToday,
+            ];
+        }
+
+        return $calendar;
+    }
+
+    /**
      * Zeigt eine Fullscreen-Celebration wenn der Streak verlängert wurde.
      * Wird VOR checkStreakAchievements aufgerufen, damit Meilensteine (7, 30, 100) diese überschreiben.
      */
@@ -477,6 +526,7 @@ class GamificationService
         session(['milestone_celebration' => [
             'type' => 'streak_extended',
             'days' => $user->streak_days,
+            'week_calendar' => $this->buildWeekCalendarData($user),
         ]]);
         session()->save();
     }
@@ -501,6 +551,7 @@ class GamificationService
             session(['milestone_celebration' => [
                 'type' => 'streak',
                 'days' => $user->streak_days,
+                'week_calendar' => $this->buildWeekCalendarData($user),
             ]]);
             session()->save();
         }
