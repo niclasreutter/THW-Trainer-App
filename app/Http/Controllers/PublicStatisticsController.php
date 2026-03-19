@@ -10,12 +10,13 @@ use App\Models\QuestionStatistic;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class PublicStatisticsController extends Controller
 {
     public function index()
     {
-        $stats = Cache::remember('public_statistics_v1', 300, function () {
+        $stats = Cache::remember('public_statistics_v2', 300, function () {
             $totalExams = ExamStatistic::count();
             $passedExams = ExamStatistic::where('is_passed', true)->count();
             $users = User::count();
@@ -35,30 +36,84 @@ class PublicStatisticsController extends Controller
                 ->pluck('total', 'lernabschnitt')
                 ->toArray();
 
-            // Active users per day (last 15 days)
+            $thirtyDaysAgo = Carbon::today()->subDays(29);
+
+            // --- 30-day trend: Active users per day ---
+            $activeByDay = $this->getActiveUsersByDay($thirtyDaysAgo);
+
+            // --- 30-day trend: Questions answered per day ---
+            $qsByDay = QuestionStatistic::where('created_at', '>=', $thirtyDaysAgo)
+                ->selectRaw('DATE(created_at) as date, COUNT(*) as count')
+                ->groupBy('date')
+                ->pluck('count', 'date');
+
+            $lehrgangByDay = LehrgangQuestionStatistic::where('created_at', '>=', $thirtyDaysAgo)
+                ->selectRaw('DATE(created_at) as date, COUNT(*) as count')
+                ->groupBy('date')
+                ->pluck('count', 'date');
+
+            $lernpoolByDay = OrtsverbandLernpoolQuestionStatistic::where('created_at', '>=', $thirtyDaysAgo)
+                ->selectRaw('DATE(created_at) as date, COUNT(*) as count')
+                ->groupBy('date')
+                ->pluck('count', 'date');
+
+            // --- 30-day trend: Success rate per day ---
+            $totalByDay = QuestionStatistic::where('created_at', '>=', $thirtyDaysAgo)
+                ->selectRaw('DATE(created_at) as date, COUNT(*) as total')
+                ->groupBy('date')
+                ->pluck('total', 'date');
+
+            $correctByDay = QuestionStatistic::where('created_at', '>=', $thirtyDaysAgo)
+                ->where('is_correct', true)
+                ->selectRaw('DATE(created_at) as date, COUNT(*) as correct')
+                ->groupBy('date')
+                ->pluck('correct', 'date');
+
+            // --- 30-day trend: User growth (cumulative) ---
+            $newUsersByDay = User::where('created_at', '>=', $thirtyDaysAgo)
+                ->selectRaw('DATE(created_at) as date, COUNT(*) as count')
+                ->groupBy('date')
+                ->pluck('count', 'date');
+
+            $usersBeforeRange = User::where('created_at', '<', $thirtyDaysAgo)->count();
+
+            // Build 30-day arrays
             $chartData = [];
-            for ($i = 14; $i >= 0; $i--) {
+            $questionsPerDay = ['labels' => [], 'values' => []];
+            $successRatePerDay = ['labels' => [], 'values' => []];
+            $userGrowth = ['labels' => [], 'values' => []];
+            $cumulativeUsers = $usersBeforeRange;
+
+            for ($i = 29; $i >= 0; $i--) {
                 $date = Carbon::today()->subDays($i);
                 $dateStr = $date->format('Y-m-d');
+                $label = $date->format('d.m.');
 
-                $activeUserIds = collect();
-                $activeUserIds = $activeUserIds->merge(
-                    QuestionStatistic::whereDate('created_at', $dateStr)
-                        ->distinct()->pluck('user_id')
-                );
-                $activeUserIds = $activeUserIds->merge(
-                    LehrgangQuestionStatistic::whereDate('created_at', $dateStr)
-                        ->distinct()->pluck('user_id')
-                );
-                $activeUserIds = $activeUserIds->merge(
-                    OrtsverbandLernpoolQuestionStatistic::whereDate('created_at', $dateStr)
-                        ->distinct()->pluck('user_id')
-                );
-
+                // Active users
                 $chartData[] = [
-                    'label' => $date->format('d.m.'),
-                    'value' => (int) $activeUserIds->unique()->count(),
+                    'label' => $label,
+                    'value' => (int) ($activeByDay[$dateStr] ?? 0),
                 ];
+
+                // Questions answered
+                $dayQuestions = (int) ($qsByDay[$dateStr] ?? 0)
+                    + (int) ($lehrgangByDay[$dateStr] ?? 0)
+                    + (int) ($lernpoolByDay[$dateStr] ?? 0);
+                $questionsPerDay['labels'][] = $label;
+                $questionsPerDay['values'][] = $dayQuestions;
+
+                // Success rate
+                $dayTotal = (int) ($totalByDay[$dateStr] ?? 0);
+                $dayCorrect = (int) ($correctByDay[$dateStr] ?? 0);
+                $successRatePerDay['labels'][] = $label;
+                $successRatePerDay['values'][] = $dayTotal > 0
+                    ? round(($dayCorrect / $dayTotal) * 100, 1)
+                    : null;
+
+                // User growth (cumulative)
+                $cumulativeUsers += (int) ($newUsersByDay[$dateStr] ?? 0);
+                $userGrowth['labels'][] = $label;
+                $userGrowth['values'][] = $cumulativeUsers;
             }
 
             return [
@@ -70,9 +125,37 @@ class PublicStatisticsController extends Controller
                 'total_questions' => Question::count(),
                 'section_counts' => $sectionCounts,
                 'chart' => $chartData,
+                'questions_per_day' => $questionsPerDay,
+                'success_rate_per_day' => $successRatePerDay,
+                'user_growth' => $userGrowth,
             ];
         });
 
         return view('landing.statistik', compact('stats'));
+    }
+
+    /**
+     * Get unique active users per day using UNION query for efficiency.
+     */
+    private function getActiveUsersByDay(Carbon $since): array
+    {
+        $results = DB::select("
+            SELECT date, COUNT(DISTINCT user_id) as active_users
+            FROM (
+                SELECT DATE(created_at) as date, user_id FROM question_statistics WHERE created_at >= ?
+                UNION ALL
+                SELECT DATE(created_at) as date, user_id FROM lehrgang_question_statistics WHERE created_at >= ?
+                UNION ALL
+                SELECT DATE(created_at) as date, user_id FROM ortsverband_lernpool_question_statistics WHERE created_at >= ?
+            ) combined
+            GROUP BY date
+        ", [$since, $since, $since]);
+
+        $map = [];
+        foreach ($results as $row) {
+            $map[$row->date] = (int) $row->active_users;
+        }
+
+        return $map;
     }
 }
