@@ -98,11 +98,154 @@ Route::get('/dashboard', function () {
     $gamificationService = new \App\Services\GamificationService();
     $streakFreezeStatus = $gamificationService->getStreakFreezeStatus($user);
 
+    // Smart Action Card Logic
+    $activeLernsession = app(\App\Services\LernsessionService::class)
+        ->getActiveSessionsForUser($user)->first();
+
+    $failedArr = is_string($user->exam_failed_questions)
+        ? json_decode($user->exam_failed_questions, true)
+        : ($user->exam_failed_questions ?? []);
+    $hasFailedQuestions = !empty($failedArr);
+
+    $progress = \App\Models\UserQuestionProgress::where('user_id', $user->id)
+        ->where('consecutive_correct', '>=', 3)->count();
+    $canStartExam = ($progress >= $totalQuestions && !$hasFailedQuestions);
+    $progressPercent = $totalQuestions > 0 ? round(($progress / $totalQuestions) * 100) : 0;
+
+    $exams = \App\Models\ExamStatistic::where('user_id', $user->id)
+        ->where('is_passed', true)->count();
+
+    // Smart Action priority
+    $smartAction = null;
+    if ($activeLernsession) {
+        $smartAction = [
+            'type' => 'live', 'label' => 'Live',
+            'title' => 'Aktive Session läuft',
+            'desc' => $activeLernsession->learningSession->title ?? 'Lernsession',
+            'route' => route('lernsession.live', $activeLernsession),
+            'btn' => 'Beitreten',
+        ];
+    } elseif ($hasFailedQuestions) {
+        $smartAction = [
+            'type' => 'urgent', 'label' => 'Dringend',
+            'title' => count($failedArr) . ' Fehlerfragen wiederholen',
+            'desc' => 'Korrigiere deine Fehler aus der letzten Prüfung',
+            'route' => route('failed.index'),
+            'btn' => 'Wiederholen',
+        ];
+    } elseif ($spacedRepetitionDue > 0) {
+        $smartAction = [
+            'type' => 'recommended', 'label' => 'Empfohlen',
+            'title' => $spacedRepetitionDue . ' Fragen zur Wiederholung fällig',
+            'desc' => 'Spaced Repetition — halte dein Wissen frisch',
+            'route' => route('practice.spaced-repetition'),
+            'btn' => 'Wiederholen',
+        ];
+    } elseif ($canStartExam) {
+        $smartAction = [
+            'type' => 'ready', 'label' => 'Bereit',
+            'title' => 'Alle Fragen gemeistert — Prüfung ablegen!',
+            'desc' => $exams . '/5 Prüfungen bestanden',
+            'route' => route('exam.index'),
+            'btn' => 'Prüfung starten',
+        ];
+    } else {
+        $solvedCount = \App\Models\UserQuestionProgress::where('user_id', $user->id)->count();
+        if ($solvedCount > 0) {
+            $bestSection = \App\Models\UserQuestionProgress::where('user_id', $user->id)
+                ->join('questions', 'user_question_progress.question_id', '=', 'questions.id')
+                ->selectRaw('questions.lernabschnitt, COUNT(*) as cnt')
+                ->groupBy('questions.lernabschnitt')
+                ->orderByDesc('cnt')
+                ->first();
+            $sectionNum = $bestSection?->lernabschnitt ?? 1;
+            $smartAction = [
+                'type' => 'continue', 'label' => 'Weitermachen',
+                'title' => 'Weiter mit Lernabschnitt ' . $sectionNum,
+                'desc' => 'Du bist auf einem guten Weg',
+                'route' => route('practice.section', $sectionNum),
+                'btn' => 'Starten',
+            ];
+        } else {
+            $smartAction = [
+                'type' => 'start', 'label' => "Los geht's",
+                'title' => 'Starte mit deiner ersten Frage',
+                'desc' => 'Beginne deine Reise zur Grundausbildungsprüfung',
+                'route' => route('practice.all'),
+                'btn' => 'Erste Frage',
+            ];
+        }
+    }
+
+    // Exam countdown
+    $examCountdown = null;
+    if ($user->exam_date && $user->exam_date->isFuture()) {
+        $daysLeft = (int) now()->startOfDay()->diffInDays($user->exam_date, false);
+        $remaining = $totalQuestions - $progress;
+        $effectiveDays = max($daysLeft - 1, 1);
+        $dailyTarget = $remaining > 0 ? (int) ceil($remaining / $effectiveDays) : 0;
+        $todayAnswered = \App\Models\QuestionStatistic::where('user_id', $user->id)
+            ->whereDate('created_at', today())->count();
+        $examCountdown = compact('daysLeft', 'dailyTarget', 'todayAnswered');
+    }
+
+    // Enrolled Lehrgänge
+    $enrolledLehrgaenge = $user->enrolledLehrgaenge()->get();
+
+    // Streak at risk
+    $streakAtRisk = $user->streak_days > 0
+        && (!$user->last_activity_date || \Carbon\Carbon::parse($user->last_activity_date)->lt(\Carbon\Carbon::today()));
+
+    // Liga-Position (innerhalb der aktuellen Liga)
+    $leagueRank = null;
+    $leagueSize = null;
+    if ($user->leaderboard_consent) {
+        $userLeague = $user->league ?? 'bronze';
+        $leagueRank = \App\Models\User::where('leaderboard_consent', true)
+            ->where('league', $userLeague)
+            ->where('weekly_points', '>', $user->weekly_points ?? 0)->count() + 1;
+        $leagueSize = \App\Models\User::where('leaderboard_consent', true)
+            ->where('league', $userLeague)
+            ->where('weekly_points', '>', 0)->count();
+    }
+
+    // Mastery percent (for journey stepper) — reuse $progress from above
+    $masteryPercent = $progressPercent;
+
+    // Solved questions total
+    $solvedTotal = \App\Models\UserQuestionProgress::where('user_id', $user->id)->count();
+    $solvedPercent = $totalQuestions > 0 ? round(($solvedTotal / $totalQuestions) * 100) : 0;
+
+    // XP level progress
+    $gamificationService = app(\App\Services\GamificationService::class);
+    $levelProgress = $gamificationService->getLevelProgress($user);
+    $nextLevelPoints = $gamificationService->getNextLevelPoints($user);
+
+    // Unopened lootboxes
+    $unopenedLootboxes = \App\Models\Lootbox::where('user_id', $user->id)
+        ->where('opened', false)->count();
+
+    // Today stats (for weekly summary)
+    $todayAnswered = \App\Models\QuestionStatistic::where('user_id', $user->id)
+        ->whereDate('created_at', today())->count();
+    $todayCorrect = \App\Models\QuestionStatistic::where('user_id', $user->id)
+        ->whereDate('created_at', today())->where('is_correct', true)->count();
+
     return view('dashboard', compact(
         'user', 'recentExams', 'totalQuestions', 'spacedRepetitionDue',
-        'weeklyActivity', 'sectionStats', 'streakFreezeStatus'
+        'weeklyActivity', 'sectionStats', 'streakFreezeStatus',
+        'smartAction', 'examCountdown', 'enrolledLehrgaenge',
+        'streakAtRisk', 'leagueRank', 'leagueSize', 'progressPercent',
+        'masteryPercent', 'solvedPercent', 'solvedTotal',
+        'canStartExam', 'exams', 'hasFailedQuestions',
+        'levelProgress', 'nextLevelPoints', 'unopenedLootboxes',
+        'todayAnswered', 'todayCorrect'
     ));
 })->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::get('/statistics', [\App\Http\Controllers\StatisticsController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('statistics');
 
 Route::post('/dashboard/dismiss-email-consent-banner', function () {
     session(['email_consent_banner_dismissed' => true]);
@@ -129,6 +272,7 @@ Route::middleware('auth')->group(function () {
         \Log::info('Password update route reached via PATCH');
         return app(ProfileController::class)->updatePassword($request);
     })->name('profile.password.update');
+    Route::post('/profile/avatar/regenerate', [ProfileController::class, 'regenerateAvatar'])->name('profile.avatar.regenerate');
     Route::post('/profile/dismiss-leaderboard-banner', [ProfileController::class, 'dismissLeaderboardBanner'])->name('profile.dismiss.leaderboard.banner');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
@@ -196,8 +340,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/lehrgaenge/{slug}', [\App\Http\Controllers\LehrgangController::class, 'show'])->name('lehrgaenge.show');
     Route::post('/lehrgaenge/{slug}/enroll', [\App\Http\Controllers\LehrgangController::class, 'enroll'])->name('lehrgaenge.enroll');
     Route::get('/lehrgaenge/{slug}/practice', [\App\Http\Controllers\LehrgangController::class, 'practice'])->name('lehrgaenge.practice');
-    Route::get('/lehrgaenge/{slug}/practice-section/{sectionNr}', [\App\Http\Controllers\LehrgangController::class, 'practiceSection'])->name('lehrgaenge.practice-section');
-    Route::post('/lehrgaenge/{slug}/submit', [\App\Http\Controllers\LehrgangController::class, 'submitAnswer'])->name('lehrgaenge.submit');
+    Route::get('/lehrgaenge/{slug}/practice/unsolved', [\App\Http\Controllers\LehrgangController::class, 'practiceUnsolved'])->name('lehrgaenge.practice.unsolved');
+    Route::get('/lehrgaenge/{slug}/practice/section/{nr}', [\App\Http\Controllers\LehrgangController::class, 'practiceSection'])->name('lehrgaenge.practice.section');
+    Route::get('/lehrgaenge/{slug}/practice/show', [\App\Http\Controllers\LehrgangController::class, 'practiceShow'])->name('lehrgaenge.practice.show');
+    Route::post('/lehrgaenge/{slug}/practice/submit', [\App\Http\Controllers\LehrgangController::class, 'practiceSubmit'])->name('lehrgaenge.practice.submit');
+    Route::get('/lehrgaenge/{slug}/practice/summary', [\App\Http\Controllers\LehrgangController::class, 'practiceSummary'])->name('lehrgaenge.practice.summary');
     Route::post('/lehrgaenge/{slug}/unenroll', [\App\Http\Controllers\LehrgangController::class, 'unenroll'])->name('lehrgaenge.unenroll');
     Route::post('/lehrgaenge/question/{questionId}/report-issue', [\App\Http\Controllers\LehrgangController::class, 'reportIssue'])->name('lehrgaenge.report-issue');
     Route::post('/practice/question/{questionId}/report-issue', [\App\Http\Controllers\PracticeController::class, 'reportIssue'])->name('practice.report-issue');
@@ -234,9 +381,15 @@ Route::middleware('auth')->group(function () {
 
         // Lernpools für Mitglieder (Einschreiben & Lernen) - für alle Mitglieder
         Route::post('/{ortsverband}/lernpools/{lernpool}/enroll', [\App\Http\Controllers\OrtsverbandLernpoolController::class, 'enroll'])->name('lernpools.enroll');
-        Route::get('/{ortsverband}/lernpools/{lernpool}/practice', [\App\Http\Controllers\OrtsverbandLernpoolPracticeController::class, 'show'])->name('lernpools.practice');
-        Route::post('/{ortsverband}/lernpools/{lernpool}/answer', [\App\Http\Controllers\OrtsverbandLernpoolPracticeController::class, 'answer'])->name('lernpools.answer');
         Route::post('/{ortsverband}/lernpools/{lernpool}/unenroll', [\App\Http\Controllers\OrtsverbandLernpoolPracticeController::class, 'unenroll'])->name('lernpools.unenroll');
+
+        // Unified Practice Routes für Lernpools
+        Route::get('/{ortsverband}/lernpools/{lernpool}/practice', [\App\Http\Controllers\OrtsverbandLernpoolPracticeController::class, 'practice'])->name('lernpools.practice');
+        Route::get('/{ortsverband}/lernpools/{lernpool}/practice/unsolved', [\App\Http\Controllers\OrtsverbandLernpoolPracticeController::class, 'practiceUnsolved'])->name('lernpools.practice.unsolved');
+        Route::get('/{ortsverband}/lernpools/{lernpool}/practice/section/{nr}', [\App\Http\Controllers\OrtsverbandLernpoolPracticeController::class, 'practiceSection'])->name('lernpools.practice.section');
+        Route::get('/{ortsverband}/lernpools/{lernpool}/practice/show', [\App\Http\Controllers\OrtsverbandLernpoolPracticeController::class, 'practiceShow'])->name('lernpools.practice.show');
+        Route::post('/{ortsverband}/lernpools/{lernpool}/practice/submit', [\App\Http\Controllers\OrtsverbandLernpoolPracticeController::class, 'practiceSubmit'])->name('lernpools.practice.submit');
+        Route::get('/{ortsverband}/lernpools/{lernpool}/practice/summary', [\App\Http\Controllers\OrtsverbandLernpoolPracticeController::class, 'practiceSummary'])->name('lernpools.practice.summary');
 
         // Nur für Ausbildungsbeauftragte
         Route::middleware(['ortsverband.ausbildungsbeauftragter'])->group(function () {

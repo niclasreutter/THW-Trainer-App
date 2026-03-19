@@ -191,6 +191,9 @@ class LernsessionController extends Controller
         $this->authorize('join', [LearningSession::class, $instance]);
 
         if (!$instance->isActive()) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'Diese Session ist nicht aktiv.'], 422);
+            }
             return back()->with('error', 'Diese Session ist nicht aktiv.');
         }
 
@@ -198,6 +201,10 @@ class LernsessionController extends Controller
         $rankingConsent = $request->boolean('ranking_consent');
 
         $this->service->joinSession($instance, $user, $rankingConsent);
+
+        if ($request->expectsJson()) {
+            return response()->json(['success' => true, 'message' => 'Du bist der Lernsession beigetreten!']);
+        }
 
         return redirect()->route('lernsession.live', $instance)
             ->with('success', 'Du bist der Lernsession beigetreten!');
@@ -227,14 +234,19 @@ class LernsessionController extends Controller
         $user = auth()->user();
         $participant = $instance->participants()->where('user_id', $user->id)->first();
 
-        // Wenn User noch nicht beigetreten ist, Join-Dialog zeigen
-        if (!$participant) {
-            return view('lernsession.join', compact('instance', 'session'));
-        }
+        $showJoinModal = !$participant;
 
-        $ranking = $this->service->getLiveRankingData($instance, $user);
+        // Default-Ranking-Daten wenn noch nicht beigetreten
+        $ranking = $participant
+            ? $this->service->getLiveRankingData($instance, $user)
+            : [
+                'ranking' => [],
+                'myStats' => null,
+                'timeRemaining' => $instance->ends_at->diffInSeconds(now()),
+                'participantCount' => $instance->getParticipantCount(),
+            ];
 
-        return view('lernsession.live', compact('instance', 'session', 'participant', 'ranking'));
+        return view('lernsession.live', compact('instance', 'session', 'participant', 'ranking', 'showJoinModal'));
     }
 
     // API: Live-Ranking-Daten (JSON für Polling)

@@ -2,91 +2,187 @@
 
 @section('title', $ortsverband->name . ' - Dashboard')
 
+@push('styles')
+<link rel="preconnect" href="https://fonts.bunny.net">
+<link href="https://fonts.bunny.net/css2?family=Barlow+Condensed:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+    @keyframes dash-rise {
+        from { opacity: 0; transform: translateY(10px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .dash-container > .space-y-4 > * {
+        animation: dash-rise 0.45s cubic-bezier(0.22,1,0.36,1) both;
+    }
+
+    .dash-container > .space-y-4 > *:nth-child(1) { animation-delay: 0.03s; }
+    .dash-container > .space-y-4 > *:nth-child(2) { animation-delay: 0.07s; }
+    .dash-container > .space-y-4 > *:nth-child(3) { animation-delay: 0.11s; }
+    .dash-container > .space-y-4 > *:nth-child(4) { animation-delay: 0.15s; }
+    .dash-container > .space-y-4 > *:nth-child(5) { animation-delay: 0.19s; }
+    .dash-container > .space-y-4 > *:nth-child(6) { animation-delay: 0.23s; }
+    .dash-container > .space-y-4 > *:nth-child(7) { animation-delay: 0.27s; }
+
+    @media (prefers-reduced-motion: reduce) {
+        .dash-container > .space-y-4 > * { animation: none; }
+    }
+
+    /* ─── Ranking Items ─── */
+    .ov-rank-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.625rem 0.375rem;
+        transition: background 150ms ease;
+        border-radius: 0.5rem;
+    }
+    .ov-rank-item:hover { background: rgba(255,255,255,0.03); }
+    html.light-mode .ov-rank-item:hover { background: rgba(0,0,0,0.03); }
+    .ov-rank-item + .ov-rank-item { border-top: 1px solid rgba(255,255,255,0.04); }
+    html.light-mode .ov-rank-item + .ov-rank-item { border-top-color: rgba(0,0,0,0.06); }
+
+    /* ─── Weakness Items ─── */
+    .ov-weak-item {
+        padding: 0.625rem;
+        border-radius: 0.5rem;
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.06);
+    }
+    .ov-weak-item + .ov-weak-item { margin-top: 0.5rem; }
+    html.light-mode .ov-weak-item {
+        background: rgba(0,0,0,0.02);
+        border-color: rgba(0,0,0,0.06);
+    }
+
+    /* ─── Toggle Pills ─── */
+    .ov-toggle-wrap {
+        display: flex;
+        gap: 0.25rem;
+        background: rgba(255,255,255,0.06);
+        padding: 0.2rem;
+        border-radius: 0.375rem;
+    }
+    html.light-mode .ov-toggle-wrap { background: rgba(0,0,0,0.04); }
+
+    /* ─── Quick Access Tiles ─── */
+    .ov-quick-tile {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.375rem;
+        padding: 1rem 0.75rem;
+        border-radius: 0.625rem;
+        text-decoration: none;
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.06);
+        transition: background 150ms, border-color 150ms, transform 200ms;
+    }
+    .ov-quick-tile:hover {
+        background: rgba(255,255,255,0.06);
+        border-color: rgba(255,255,255,0.1);
+        transform: translateY(-1px);
+        text-decoration: none;
+    }
+    html.light-mode .ov-quick-tile {
+        background: rgba(0,51,127,0.02);
+        border-color: rgba(0,51,127,0.06);
+    }
+    html.light-mode .ov-quick-tile:hover {
+        background: rgba(0,51,127,0.05);
+    }
+
+    /* ─── Progress Track ─── */
+    .ov-progress-track {
+        height: 3px;
+        background: rgba(255,255,255,0.06);
+        border-radius: 2px;
+        overflow: hidden;
+    }
+    html.light-mode .ov-progress-track {
+        background: rgba(0,0,0,0.08);
+    }
+
+    /* ─── Alert ─── */
+    .ov-alert {
+        padding: 0.75rem 1rem;
+        border-radius: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 0.625rem;
+        margin-bottom: 0.75rem;
+    }
+</style>
+@endpush
+
 @section('content')
-<div class="dashboard-container">
-    <header class="dashboard-header">
-        <h1 class="page-title">Ausbilder <span>{{ $ortsverband->name }}</span></h1>
-        <p class="page-subtitle">Überblick über den Lernfortschritt deiner Mitglieder</p>
-    </header>
+<div class="dash-container">
+
+    {{-- ── Header ── --}}
+    <div class="mb-6">
+        <p style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);font-weight:600;margin-bottom:0.25rem;">Ausbilder</p>
+        <h1 style="font-size:1.5rem;font-weight:800;line-height:1.2;font-family:'Barlow Condensed',sans-serif;background:linear-gradient(135deg,#5b9aff,#0055cc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">{{ $ortsverband->name }}</h1>
+        <p class="text-sm" style="color: var(--text-muted);">Überblick über den Lernfortschritt deiner Mitglieder</p>
+    </div>
+
+    {{-- ── Stat Pills ── --}}
+    <div class="flex gap-3 mb-6" style="flex-wrap: wrap;">
+        <div class="gami-pill">
+            <div class="gami-pill__value" style="color:#5b9aff;-webkit-text-fill-color:#5b9aff;">{{ $stats['total_members'] ?? 0 }}</div>
+            <div class="gami-pill__label">Mitglieder</div>
+        </div>
+        <div class="gami-pill">
+            <div class="gami-pill__value" style="color:var(--success);-webkit-text-fill-color:var(--success);">{{ $stats['active_members'] ?? 0 }}</div>
+            <div class="gami-pill__label">Aktiv (7 Tage)</div>
+        </div>
+        <div class="gami-pill">
+            <div class="gami-pill__value" style="color:#a855f7;-webkit-text-fill-color:#a855f7;">{{ $stats['avg_theory'] ?? 0 }}%</div>
+            <div class="gami-pill__label">Theorie</div>
+        </div>
+        <div class="gami-pill">
+            <div class="gami-pill__value" style="color:var(--warning);-webkit-text-fill-color:var(--warning);">{{ $stats['avg_exams'] ?? 0 }}</div>
+            <div class="gami-pill__label">Prüfungen</div>
+        </div>
+        <div class="gami-pill">
+            <div class="gami-pill__value" style="color:var(--error);-webkit-text-fill-color:var(--error);">{{ $stats['avg_streak'] ?? 0 }}</div>
+            <div class="gami-pill__label">Streak</div>
+        </div>
+    </div>
 
     @if(session('success'))
-    <div class="alert-compact glass-success" style="margin-bottom: 1.5rem;">
-        <i class="bi bi-check-circle alert-compact-icon"></i>
-        <div class="alert-compact-content">
-            <div class="alert-compact-title">{{ session('success') }}</div>
-        </div>
-        <button onclick="this.parentElement.remove()" style="background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 1.25rem;">&times;</button>
+    <div class="ov-alert glass-success">
+        <i class="bi bi-check-circle" style="font-size:1rem;flex-shrink:0;"></i>
+        <span style="font-size:0.8125rem;font-weight:600;color:var(--text-primary);flex:1;">{{ session('success') }}</span>
+        <button onclick="this.parentElement.remove()" style="background:none;border:none;color:var(--text-secondary);cursor:pointer;font-size:1.125rem;line-height:1;">&times;</button>
     </div>
     @endif
 
-    <!-- Stats Row -->
-    <div class="stats-row">
-        <div class="stat-pill">
-            <span class="stat-pill-icon"><i class="bi bi-people-fill"></i></span>
-            <div>
-                <div class="stat-pill-value">{{ $stats['total_members'] ?? 0 }}</div>
-                <div class="stat-pill-label">Mitglieder</div>
-            </div>
-        </div>
-        <div class="stat-pill">
-            <span class="stat-pill-icon text-success"><i class="bi bi-activity"></i></span>
-            <div>
-                <div class="stat-pill-value">{{ $stats['active_members'] ?? 0 }}</div>
-                <div class="stat-pill-label">Aktiv (7 Tage)</div>
-            </div>
-        </div>
-        <div class="stat-pill">
-            <span class="stat-pill-icon text-info"><i class="bi bi-book"></i></span>
-            <div>
-                <div class="stat-pill-value">{{ $stats['avg_theory'] ?? 0 }}%</div>
-                <div class="stat-pill-label">Theorie</div>
-            </div>
-        </div>
-        <div class="stat-pill">
-            <span class="stat-pill-icon text-gold"><i class="bi bi-bullseye"></i></span>
-            <div>
-                <div class="stat-pill-value">{{ $stats['avg_exams'] ?? 0 }}</div>
-                <div class="stat-pill-label">Prüfungen</div>
-            </div>
-        </div>
-        <div class="stat-pill">
-            <span class="stat-pill-icon text-warning"><i class="bi bi-fire"></i></span>
-            <div>
-                <div class="stat-pill-value">{{ $stats['avg_streak'] ?? 0 }}</div>
-                <div class="stat-pill-label">Streak</div>
-            </div>
-        </div>
-    </div>
+    <div class="space-y-4">
 
-    <!-- Bento Grid Layout -->
-    <div class="bento-grid">
-        <!-- Rangliste (Main) -->
-        <div class="glass-gold bento-main">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem;">
-                <div class="section-header" style="margin-bottom: 0; padding-left: 0; border-left: none;">
-                    <h2 class="section-title" style="font-size: 1.25rem;">Rangliste</h2>
-                </div>
-                <div style="display: flex; gap: 0.5rem; background: rgba(255, 255, 255, 0.1); padding: 0.25rem; border-radius: 0.5rem;">
-                    <form action="{{ route('ortsverband.toggle-ranking', $ortsverband) }}" method="POST" style="margin: 0; display: inline;">
+        {{-- ── Rangliste ── --}}
+        <div class="glass p-4" style="border-radius:0.75rem;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;flex-wrap:wrap;gap:0.5rem;">
+                <span class="text-xs uppercase tracking-wider" style="color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:0.5625rem;font-weight:700;">Rangliste</span>
+                <div class="ov-toggle-wrap">
+                    <form action="{{ route('ortsverband.toggle-ranking', $ortsverband) }}" method="POST" style="margin:0;display:inline;">
                         @csrf
                         @if(!$ortsverband->ranking_visible)
-                            <button type="submit" class="btn-ghost btn-sm" style="padding: 0.4rem 0.75rem;">Alle</button>
+                            <button type="submit" class="btn-ghost btn-sm" style="padding:0.3rem 0.625rem;font-size:0.6875rem;">Alle</button>
                         @else
-                            <span class="btn-primary btn-sm" style="padding: 0.4rem 0.75rem;">Alle</span>
+                            <span class="btn-primary btn-sm" style="padding:0.3rem 0.625rem;font-size:0.6875rem;">Alle</span>
                         @endif
                     </form>
-                    <form action="{{ route('ortsverband.toggle-ranking', $ortsverband) }}" method="POST" style="margin: 0; display: inline;">
+                    <form action="{{ route('ortsverband.toggle-ranking', $ortsverband) }}" method="POST" style="margin:0;display:inline;">
                         @csrf
                         @if($ortsverband->ranking_visible)
-                            <button type="submit" class="btn-ghost btn-sm" style="padding: 0.4rem 0.75rem;">Nur Ausbilder</button>
+                            <button type="submit" class="btn-ghost btn-sm" style="padding:0.3rem 0.625rem;font-size:0.6875rem;">Nur Ausbilder</button>
                         @else
-                            <span class="btn-primary btn-sm" style="padding: 0.4rem 0.75rem;">Nur Ausbilder</span>
+                            <span class="btn-primary btn-sm" style="padding:0.3rem 0.625rem;font-size:0.6875rem;">Nur Ausbilder</span>
                         @endif
                     </form>
                 </div>
             </div>
 
-            <div style="flex: 1; overflow-y: auto; max-height: 400px;">
+            <div style="max-height:450px;overflow-y:auto;">
                 @forelse($memberProgress->take(10) as $index => $member)
                 @php
                     $mUser = $member['user'];
@@ -99,61 +195,52 @@
                     if ($mHasRankColor) $mNameClasses .= ' rank-color-' . $mUser->rank_color;
                     $mFrameClass = '';
                     if ($mHasFrame) $mFrameClass = ($mUser->profile_frame_type ?? 'gold') === 'diamond' ? 'profile-frame-diamond' : 'profile-frame-gold';
+                    $rankColor = $index === 0 ? '#fbbf24' : ($index === 1 ? '#94a3b8' : ($index === 2 ? '#cd7f32' : 'var(--text-muted)'));
                 @endphp
-                <div class="glass-subtle {{ $mFrameClass }}" style="display: flex; align-items: center; gap: 1rem; padding: 0.875rem 1rem; margin-bottom: 0.5rem; border-radius: 0.75rem;">
-                    <div style="font-size: 1.25rem; min-width: 36px; text-align: center; font-weight: 700;">
-                        @if($index === 0)
-                            <span style="color: #fbbf24;">1</span>
-                        @elseif($index === 1)
-                            <span style="color: #94a3b8;">2</span>
-                        @elseif($index === 2)
-                            <span style="color: #cd7f32;">3</span>
-                        @else
-                            <span style="color: var(--text-muted);">{{ $index + 1 }}</span>
-                        @endif
-                    </div>
-                    <div style="flex: 1; min-width: 0;">
-                        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
-                            <span class="{{ trim($mNameClasses) }}" style="font-weight: 700; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                <div class="ov-rank-item {{ $mFrameClass }}">
+                    <div style="font-size:1.125rem;min-width:1.75rem;text-align:center;font-weight:800;color:{{ $rankColor }};font-family:'Barlow Condensed',sans-serif;">{{ $index + 1 }}</div>
+                    <img src="{{ $mUser->avatar_url }}" alt="" style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0;">
+                    <div style="flex:1;min-width:0;">
+                        <div style="display:flex;align-items:center;gap:0.375rem;margin-bottom:0.15rem;">
+                            <span class="{{ trim($mNameClasses) }}" style="font-weight:700;font-size:0.8125rem;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
                                 {{ $mUser->name }}
                             </span>
                             @if($member['role'] === 'ausbildungsbeauftragter')
-                                <span class="badge-thw" style="font-size: 0.6rem; padding: 0.15rem 0.4rem;">Ausbilder</span>
+                                <span style="font-size:0.5rem;padding:0.1rem 0.35rem;border-radius:2rem;background:rgba(91,154,255,0.12);color:#5b9aff;font-weight:700;font-family:'IBM Plex Mono',monospace;white-space:nowrap;">Ausbilder</span>
                             @endif
                         </div>
                         @if($mHasTitle)
-                            <div class="user-title" style="font-size: 0.7rem; margin-bottom: 0.25rem;">{{ $mUser->active_title }}</div>
+                            <div class="user-title" style="font-size:0.625rem;margin-bottom:0.15rem;">{{ $mUser->active_title }}</div>
                         @endif
-                        <div style="display: flex; gap: 1rem; font-size: 0.75rem; color: var(--text-secondary);">
-                            <span><i class="bi bi-book"></i> {{ $member['theory_progress_percent'] }}%</span>
-                            <span><i class="bi bi-bullseye"></i> {{ $member['exams_passed'] }}/5</span>
-                            <span><i class="bi bi-fire text-warning"></i> {{ $member['streak'] }}d</span>
-                            <span><i class="bi bi-lightning-charge"></i> Lvl {{ $member['level'] }}</span>
+                        <div style="display:flex;gap:0.75rem;font-size:0.6875rem;color:var(--text-muted);">
+                            <span>Theorie {{ $member['theory_progress_percent'] }}%</span>
+                            <span>{{ $member['exams_passed'] }}/5 Prüf.</span>
+                            <span>{{ $member['streak'] }}d Streak</span>
+                            <span>Lvl {{ $member['level'] }}</span>
                         </div>
-                        <div style="height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; margin-top: 0.5rem; overflow: hidden;">
-                            <div style="height: 100%; background: var(--gradient-gold); width: {{ $member['theory_progress_percent'] }}%; border-radius: 2px;"></div>
+                        <div class="ov-progress-track" style="margin-top:0.375rem;">
+                            <div style="height:100%;border-radius:2px;background:linear-gradient(90deg,#0055cc,#5b9aff);width:{{ $member['theory_progress_percent'] }}%;transition:width 0.6s ease-out;"></div>
                         </div>
                     </div>
                 </div>
                 @empty
-                <div class="empty-state">
-                    <div class="empty-state-icon"><i class="bi bi-people"></i></div>
-                    <h3 class="empty-state-title">Keine Mitglieder</h3>
-                    <p class="empty-state-desc">Lade Mitglieder ein, um ihre Fortschritte zu verfolgen</p>
+                <div style="text-align:center;padding:2rem 1rem;">
+                    <div style="font-size:0.875rem;font-weight:600;color:var(--text-primary);margin-bottom:0.25rem;">Keine Mitglieder</div>
+                    <p style="font-size:0.75rem;color:var(--text-muted);">Lade Mitglieder ein, um ihre Fortschritte zu verfolgen</p>
                 </div>
                 @endforelse
             </div>
         </div>
 
-        <!-- Schwachstellen-Analyse (Side) -->
-        <div class="glass-tl bento-side" style="grid-row: span 2;">
-            <div class="section-header" style="margin-bottom: 1rem; padding-left: 0.75rem;">
-                <h3 class="section-title" style="font-size: 1rem;">Schwachstellen</h3>
+        {{-- ── Schwachstellen ── --}}
+        <div class="glass p-4" style="border-radius:0.75rem;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;">
+                <span class="text-xs uppercase tracking-wider" style="color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:0.5625rem;font-weight:700;">Schwachstellen</span>
             </div>
 
             @if($weaknesses['weak_sections']->isNotEmpty())
-                <div style="margin-bottom: 1rem;">
-                    <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 0.5rem;">Schwierigste Abschnitte</div>
+                <div style="margin-bottom:1rem;">
+                    <div style="font-size:0.5625rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);font-weight:600;margin-bottom:0.5rem;font-family:'IBM Plex Mono',monospace;">Schwierigste Abschnitte</div>
                     @php
                         $sectionNames = [
                             1 => 'THW im Gefüge',
@@ -169,13 +256,13 @@
                         ];
                     @endphp
                     @foreach($weaknesses['weak_sections']->take(3) as $section)
-                    <div class="glass-warning" style="padding: 0.75rem; margin-bottom: 0.5rem; border-radius: 0.5rem;">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div class="ov-weak-item">
+                        <div style="display:flex;justify-content:space-between;align-items:center;">
                             <div>
-                                <div style="font-weight: 600; font-size: 0.85rem; color: var(--text-primary);">LA {{ $section['section'] }}</div>
-                                <div style="font-size: 0.7rem; color: var(--text-secondary);">{{ $section['total_attempts'] }} Versuche</div>
+                                <div style="font-weight:600;font-size:0.8125rem;color:var(--text-primary);">LA {{ $section['section'] }}</div>
+                                <div style="font-size:0.625rem;color:var(--text-muted);">{{ $section['total_attempts'] }} Versuche</div>
                             </div>
-                            <div style="font-size: 1rem; font-weight: 800; color: #f59e0b;">{{ $section['success_rate'] }}%</div>
+                            <div style="font-size:1rem;font-weight:800;color:#f59e0b;font-family:'Barlow Condensed',sans-serif;">{{ $section['success_rate'] }}%</div>
                         </div>
                     </div>
                     @endforeach
@@ -184,15 +271,15 @@
 
             @if($weaknesses['common_errors']->isNotEmpty())
                 <div>
-                    <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 0.5rem;">Häufigste Fehler</div>
+                    <div style="font-size:0.5625rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);font-weight:600;margin-bottom:0.5rem;font-family:'IBM Plex Mono',monospace;">Häufigste Fehler</div>
                     @foreach($weaknesses['common_errors']->take(3) as $error)
                         @if($error['question'])
-                        <div class="glass-error" style="padding: 0.75rem; margin-bottom: 0.5rem; border-radius: 0.5rem;">
-                            <div style="display: flex; justify-content: space-between; align-items: start; gap: 0.5rem;">
-                                <div style="font-size: 0.8rem; color: var(--text-primary); flex: 1; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                        <div class="ov-weak-item" style="border-left:2px solid #ef4444;">
+                            <div style="display:flex;justify-content:space-between;align-items:start;gap:0.5rem;">
+                                <div style="font-size:0.75rem;color:var(--text-primary);flex:1;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">
                                     {{ Str::limit($error['question']->frage, 60) }}
                                 </div>
-                                <div style="font-size: 0.9rem; font-weight: 800; color: #ef4444; white-space: nowrap;">{{ $error['error_count'] }}x</div>
+                                <div style="font-size:0.875rem;font-weight:800;color:#ef4444;white-space:nowrap;font-family:'Barlow Condensed',sans-serif;">{{ $error['error_count'] }}x</div>
                             </div>
                         </div>
                         @endif
@@ -201,129 +288,42 @@
             @endif
 
             @if($weaknesses['weak_sections']->isEmpty() && $weaknesses['common_errors']->isEmpty())
-            <div class="empty-state" style="padding: 1.5rem;">
-                <div class="empty-state-icon"><i class="bi bi-graph-up"></i></div>
-                <p class="empty-state-desc" style="margin-bottom: 0;">Noch keine Daten verfügbar</p>
+            <div style="text-align:center;padding:1.5rem 1rem;">
+                <div style="font-size:0.875rem;font-weight:600;color:var(--text-primary);margin-bottom:0.25rem;">Noch keine Daten</div>
+                <p style="font-size:0.75rem;color:var(--text-muted);">Noch keine Daten verfügbar</p>
             </div>
             @endif
         </div>
 
-        <!-- Schnellzugriff -->
-        <div class="glass-slash bento-wide">
-            <div class="section-header" style="margin-bottom: 1rem; padding-left: 0.75rem;">
-                <h3 class="section-title" style="font-size: 1rem;">Schnellzugriff</h3>
+        {{-- ── Schnellzugriff ── --}}
+        <div class="glass p-4" style="border-radius:0.75rem;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;">
+                <span class="text-xs uppercase tracking-wider" style="color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:0.5625rem;font-weight:700;">Schnellzugriff</span>
             </div>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.75rem;">
-                <a href="{{ route('ortsverband.members', $ortsverband) }}" class="glass-subtle hover-lift" style="padding: 1.25rem; text-decoration: none; text-align: center; border-radius: 1rem 0.5rem 0.75rem 0.75rem;">
-                    <i class="bi bi-people" style="font-size: 1.5rem; color: var(--gold-start); display: block; margin-bottom: 0.5rem;"></i>
-                    <span style="font-weight: 600; color: var(--text-primary); font-size: 0.85rem;">Mitglieder</span>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(120px, 1fr));gap:0.5rem;">
+                <a href="{{ route('ortsverband.members', $ortsverband) }}" class="ov-quick-tile">
+                    <i class="bi bi-people" style="font-size:1.25rem;color:#5b9aff;"></i>
+                    <span style="font-weight:600;color:var(--text-primary);font-size:0.75rem;">Mitglieder</span>
                 </a>
-                <a href="{{ route('ortsverband.lernpools.index', $ortsverband) }}" class="glass-subtle hover-lift" style="padding: 1.25rem; text-decoration: none; text-align: center; border-radius: 0.5rem 1rem 0.75rem 0.75rem;">
-                    <i class="bi bi-collection" style="font-size: 1.5rem; color: var(--gold-start); display: block; margin-bottom: 0.5rem;"></i>
-                    <span style="font-weight: 600; color: var(--text-primary); font-size: 0.85rem;">Lernpools</span>
+                <a href="{{ route('ortsverband.lernpools.index', $ortsverband) }}" class="ov-quick-tile">
+                    <i class="bi bi-collection" style="font-size:1.25rem;color:#5b9aff;"></i>
+                    <span style="font-weight:600;color:var(--text-primary);font-size:0.75rem;">Lernpools</span>
                 </a>
-                <a href="{{ route('ortsverband.invitations.index', $ortsverband) }}" class="glass-subtle hover-lift" style="padding: 1.25rem; text-decoration: none; text-align: center; border-radius: 0.75rem;">
-                    <i class="bi bi-link-45deg" style="font-size: 1.5rem; color: var(--gold-start); display: block; margin-bottom: 0.5rem;"></i>
-                    <span style="font-weight: 600; color: var(--text-primary); font-size: 0.85rem;">Einladungen</span>
+                <a href="{{ route('ortsverband.invitations.index', $ortsverband) }}" class="ov-quick-tile">
+                    <i class="bi bi-link-45deg" style="font-size:1.25rem;color:#5b9aff;"></i>
+                    <span style="font-weight:600;color:var(--text-primary);font-size:0.75rem;">Einladungen</span>
                 </a>
-                <a href="{{ route('ortsverband.edit', $ortsverband) }}" class="glass-subtle hover-lift" style="padding: 1.25rem; text-decoration: none; text-align: center; border-radius: 0.5rem 0.75rem 1rem 0.75rem;">
-                    <i class="bi bi-gear" style="font-size: 1.5rem; color: var(--gold-start); display: block; margin-bottom: 0.5rem;"></i>
-                    <span style="font-weight: 600; color: var(--text-primary); font-size: 0.85rem;">Einstellungen</span>
+                <a href="{{ route('ortsverband.edit', $ortsverband) }}" class="ov-quick-tile">
+                    <i class="bi bi-gear" style="font-size:1.25rem;color:#5b9aff;"></i>
+                    <span style="font-weight:600;color:var(--text-primary);font-size:0.75rem;">Einstellungen</span>
                 </a>
-                <a href="{{ route('ortsverband.index') }}" class="glass-subtle hover-lift" style="padding: 1.25rem; text-decoration: none; text-align: center; border-radius: 0.75rem 0.5rem 0.75rem 1rem;">
-                    <i class="bi bi-arrow-left" style="font-size: 1.5rem; color: var(--text-secondary); display: block; margin-bottom: 0.5rem;"></i>
-                    <span style="font-weight: 600; color: var(--text-primary); font-size: 0.85rem;">Zurück</span>
+                <a href="{{ route('ortsverband.index') }}" class="ov-quick-tile">
+                    <i class="bi bi-arrow-left" style="font-size:1.25rem;color:var(--text-muted);"></i>
+                    <span style="font-weight:600;color:var(--text-primary);font-size:0.75rem;">Zurück</span>
                 </a>
             </div>
         </div>
+
     </div>
 </div>
-
-@push('styles')
-<style>
-    .dashboard-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 2rem;
-    }
-
-    .dashboard-header {
-        margin-bottom: 2.5rem;
-        padding-top: 1rem;
-        max-width: 600px;
-    }
-
-    .bento-grid {
-        display: grid;
-        grid-template-columns: 2fr 1fr;
-        grid-template-rows: auto;
-        gap: 1rem;
-    }
-
-    .bento-main {
-        padding: 1.5rem;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .bento-side {
-        padding: 1.25rem;
-    }
-
-    .bento-wide {
-        grid-column: span 2;
-        padding: 1.5rem;
-    }
-
-    .alert-compact {
-        padding: 0.875rem 1rem;
-        border-radius: 0.75rem;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-    }
-
-    .alert-compact-icon { font-size: 1.25rem; }
-    .alert-compact-content { flex: 1; }
-    .alert-compact-title { font-size: 0.9rem; font-weight: 600; color: var(--text-primary); }
-
-    .empty-state {
-        text-align: center;
-        padding: 2rem;
-    }
-
-    .empty-state-icon {
-        font-size: 2rem;
-        color: var(--text-muted);
-        margin-bottom: 0.75rem;
-        opacity: 0.6;
-    }
-
-    .empty-state-title {
-        font-size: 1rem;
-        font-weight: 700;
-        color: var(--text-primary);
-        margin-bottom: 0.25rem;
-    }
-
-    .empty-state-desc {
-        font-size: 0.85rem;
-        color: var(--text-secondary);
-    }
-
-    @media (max-width: 900px) {
-        .bento-grid {
-            grid-template-columns: 1fr;
-        }
-        .bento-wide { grid-column: span 1; }
-        .bento-side { grid-row: span 1; }
-    }
-
-    @media (max-width: 768px) {
-        .dashboard-container {
-            padding: 1rem;
-        }
-    }
-</style>
-@endpush
 @endsection

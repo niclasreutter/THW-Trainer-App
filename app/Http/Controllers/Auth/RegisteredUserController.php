@@ -50,6 +50,11 @@ class RegisteredUserController extends Controller
             'leaderboard_consent_at' => $request->has('leaderboard_consent') ? now() : null,
         ]);
 
+        $seed = urlencode($user->id . str_replace(' ', '', $user->name));
+        $user->update([
+            'avatar_path' => 'avataaars-neutral/svg?radius=50&seed=' . $seed . '&eyes=default,happy&mouth=default,smile',
+        ]);
+
         event(new Registered($user));
 
         Auth::login($user);

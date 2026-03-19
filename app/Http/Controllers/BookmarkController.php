@@ -18,9 +18,10 @@ class BookmarkController extends Controller
             ? $user->bookmarked_questions 
             : json_decode($user->bookmarked_questions ?? '[]', true);
         
-        $questions = Question::whereIn('id', $bookmarked)->get();
-        
-        return view('bookmarks.index', compact('questions'));
+        $questions = Question::whereIn('id', $bookmarked)->orderBy('lernabschnitt')->get();
+        $grouped = $questions->groupBy('lernabschnitt');
+
+        return view('bookmarks.index', compact('questions', 'grouped'));
     }
     
     /**

@@ -3,1632 +3,1801 @@
 @section('description', 'THW Prüfungssimulation: Teste dein Wissen mit 40 zufälligen Fragen in 30 Minuten. Realistische Prüfungsbedingungen und sofortige Auswertung. Übe jetzt kostenlos!')
 
 @push('styles')
+<link rel="preconnect" href="https://fonts.bunny.net">
+<link href="https://fonts.bunny.net/css2?family=Barlow+Condensed:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-    /* ==========================================
-       EXAM PAGE - MOBILE OPTIMIERT
-       ========================================== */
+/* ============================================
+   EXAM PAGE — Dashboard-Matched Redesign
+   Mobile-First, Fullscreen, Sliding Bubbles
+   ============================================ */
 
-    /* Mobile: App Navigation & Footer ausblenden - NUR während aktiver Prüfung */
-    @media (max-width: 640px) {
-        .exam-active-mode footer,
-        .exam-active-mode nav,
-        .exam-active-mode header {
-            display: none !important;
-        }
-
-        /* Main Container randlos machen - NUR während aktiver Prüfung */
-        .exam-active-mode main {
-            padding: 0 !important;
-            margin: 0 !important;
-        }
+/* ── Mobile: Fullscreen Takeover ─────────────── */
+@media (max-width: 640px) {
+    html, body {
+        height: 100dvh !important;
+        overflow: hidden !important;
     }
-
-    /* Container - nur für aktive Prüfung begrenzt */
-    .exam-active-mode #examContainer {
-        max-width: 900px;
-        margin: 0 auto;
+    .exam-active-mode footer,
+    .exam-active-mode nav,
+    .exam-active-mode header {
+        display: none !important;
     }
-
-    /* Results Container - volle Breite */
-    #examContainer.exam-results-mode {
-        max-width: 100%;
+    .exam-active-mode main {
         padding: 0 !important;
+        margin: 0 !important;
+        height: 100dvh !important;
+        overflow: hidden !important;
     }
+}
 
-    @media (max-width: 640px) {
-        .exam-active-mode #examContainer {
-            padding: 0 !important;
-            margin: 0 !important;
-            max-width: 100% !important;
-        }
-    }
+/* ── Exam Shell ──────────────────────────── */
+.exam-shell {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 1.5rem;
+}
 
-    /* Exam Card */
-    .exam-card {
-        background: rgba(255, 255, 255, 0.03);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 20px;
-        padding: 1.5rem;
-    }
-
-    @media (max-width: 640px) {
-        .exam-card {
-            border-radius: 0;
-            border: none;
-            min-height: 100dvh;
-            padding-bottom: 160px;
-            margin: 0;
-            background: #0a0a0b;
-            backdrop-filter: none;
-            -webkit-backdrop-filter: none;
-        }
-    }
-
-    @media (min-width: 641px) {
-        .exam-card {
-            padding: 2rem;
-            border-radius: 8px 24px 8px 24px;
-        }
-    }
-
-    /* Mobile Header */
-    .exam-mobile-header {
-        display: none;
-    }
-
-    @media (max-width: 640px) {
-        .exam-mobile-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0.75rem 1rem;
-            padding-top: calc(0.75rem + env(safe-area-inset-top, 0px));
-            background: rgba(255, 255, 255, 0.03);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-            margin: -1.5rem -1.5rem 1rem -1.5rem;
-        }
-
-        .exam-desktop-header {
-            display: none !important;
-        }
-    }
-
-    /* Timer */
-    .exam-timer {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.5rem 1rem;
-        background: linear-gradient(135deg, rgba(251, 191, 36, 0.15), rgba(245, 158, 11, 0.1));
-        border: 1px solid rgba(251, 191, 36, 0.3);
-        border-radius: 12px;
-        font-weight: 700;
-        font-size: 1.125rem;
-        color: var(--gold);
-        font-variant-numeric: tabular-nums;
-    }
-
-    .exam-timer.warning {
-        background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(239, 68, 68, 0.1));
-        border-color: rgba(239, 68, 68, 0.4);
-        color: #f87171;
-        animation: timerPulse 1s infinite;
-    }
-
-    @keyframes timerPulse {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.7; }
-    }
-
-    /* Answer Option */
-    .exam-answer {
+@media (max-width: 640px) {
+    .exam-shell {
+        padding: 0;
+        max-width: 100%;
+        height: 100dvh;
         display: flex;
-        align-items: flex-start;
-        padding: 1rem 1.25rem;
-        background: rgba(255, 255, 255, 0.02);
-        border: 2px solid rgba(255, 255, 255, 0.08);
-        border-radius: 12px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        gap: 0.875rem;
+        flex-direction: column;
+        overflow: hidden;
     }
+}
 
-    .exam-answer:hover {
-        background: rgba(0, 51, 127, 0.1);
-        border-color: rgba(0, 51, 127, 0.4);
-    }
+/* ── Topbar (Mobile) ────────────────────────── */
+.exam-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.625rem 1rem;
+    padding-top: calc(0.625rem + env(safe-area-inset-top, 0px));
+    background: rgba(255, 255, 255, 0.03);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    flex-shrink: 0;
+}
 
-    .exam-answer.selected {
-        background: rgba(0, 51, 127, 0.15);
-        border-color: var(--thw-blue);
-    }
+html.light-mode .exam-topbar {
+    background: rgba(0, 51, 127, 0.03);
+    border-bottom-color: rgba(0, 51, 127, 0.08);
+}
 
-    /* Checkbox */
-    .exam-checkbox {
-        appearance: none;
-        -webkit-appearance: none;
-        width: 24px;
-        height: 24px;
-        min-width: 24px;
-        border: 2px solid rgba(255, 255, 255, 0.3);
-        border-radius: 6px;
-        background: rgba(255, 255, 255, 0.05);
-        cursor: pointer;
-        transition: all 0.2s ease;
-        position: relative;
-        margin-top: 2px;
-    }
+@media (min-width: 641px) {
+    .exam-topbar { display: none; }
+    .exam-topbar--result { display: none; }
+}
 
-    .exam-checkbox:checked {
-        background: var(--thw-blue);
-        border-color: var(--thw-blue);
-    }
+.exam-topbar-back {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 0.5rem;
+    color: var(--text-secondary, rgba(255, 255, 255, 0.5));
+    background: rgba(255, 255, 255, 0.04);
+    transition: all 0.2s;
+    cursor: pointer;
+    border: none;
+}
 
-    .exam-checkbox:checked::after {
-        content: '✓';
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        color: white;
-        font-size: 14px;
-        font-weight: bold;
-    }
+html.light-mode .exam-topbar-back {
+    background: rgba(0, 51, 127, 0.04);
+    color: #999;
+}
 
-    /* Question Bubbles */
-    .bubbles-grid {
-        display: grid;
-        grid-template-columns: repeat(8, 1fr);
-        gap: 0.5rem;
-    }
+.exam-topbar-center {
+    text-align: center;
+}
 
-    @media (max-width: 640px) {
-        .bubbles-grid {
-            grid-template-columns: repeat(5, 1fr);
-        }
-    }
+.exam-topbar-label {
+    font-size: 0.5rem;
+    color: rgba(255, 255, 255, 0.35);
+    font-family: 'IBM Plex Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
 
-    .question-bubble {
-        aspect-ratio: 1;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 10px;
-        font-size: 0.875rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        background: rgba(255, 255, 255, 0.05);
-        border: 2px solid rgba(255, 255, 255, 0.1);
-        color: var(--text-secondary);
-    }
+html.light-mode .exam-topbar-label {
+    color: rgba(0, 51, 127, 0.45);
+}
 
-    .question-bubble:hover {
-        transform: scale(1.1);
-        border-color: rgba(251, 191, 36, 0.5);
-    }
+.exam-topbar-title {
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: var(--text-primary, white);
+}
 
-    .question-bubble.answered {
-        background: rgba(34, 197, 94, 0.2);
-        border-color: rgba(34, 197, 94, 0.5);
-        color: #4ade80;
-    }
+.exam-topbar-title .exam-qnum {
+    background: linear-gradient(135deg, #00337F, #3b82f6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+}
 
-    .question-bubble.marked {
-        background: rgba(251, 191, 36, 0.2);
-        border-color: rgba(251, 191, 36, 0.5);
-        color: var(--gold);
-    }
+.exam-topbar-title .exam-qtotal {
+    color: rgba(255, 255, 255, 0.3);
+    font-weight: 400;
+}
 
-    .question-bubble.current {
-        border-color: var(--gold);
-        box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.3);
-    }
+html.light-mode .exam-topbar-title .exam-qtotal {
+    color: rgba(0, 0, 0, 0.3);
+}
 
-    /* Mark Button */
-    .mark-btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.375rem;
-        padding: 0.375rem 0.75rem;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 8px;
-        font-size: 0.75rem;
-        color: var(--text-secondary);
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
+.exam-topbar-close {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.6875rem;
+    text-decoration: none;
+}
 
-    .mark-btn:hover {
-        background: rgba(251, 191, 36, 0.1);
-        border-color: rgba(251, 191, 36, 0.3);
-    }
+html.light-mode .exam-topbar-close {
+    color: rgba(0, 0, 0, 0.5);
+}
 
-    .mark-btn.active {
-        background: rgba(251, 191, 36, 0.2);
-        border-color: var(--gold);
-        color: var(--gold);
-    }
+.exam-timer {
+    font-weight: 700;
+    font-size: 0.75rem;
+    font-family: 'IBM Plex Mono', monospace;
+    color: #fbbf24;
+    transition: color 0.3s;
+}
 
-    /* Result States */
-    .result-correct {
-        background: rgba(34, 197, 94, 0.15) !important;
-        border-color: rgba(34, 197, 94, 0.5) !important;
-    }
+.exam-timer.warning {
+    color: #ef4444;
+}
 
-    .result-correct-missed {
-        background: rgba(34, 197, 94, 0.08) !important;
-        border-color: rgba(34, 197, 94, 0.3) !important;
-    }
+.exam-timer.critical {
+    color: #ef4444;
+    animation: exam-timer-pulse 1s ease-in-out infinite;
+}
 
-    .result-wrong {
-        background: rgba(239, 68, 68, 0.15) !important;
-        border-color: rgba(239, 68, 68, 0.5) !important;
-    }
+@keyframes exam-timer-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
 
-    .result-neutral {
-        background: rgba(255, 255, 255, 0.02) !important;
-        border-color: rgba(255, 255, 255, 0.06) !important;
-        opacity: 0.6;
-    }
+/* ── Progress Bar ──────────────────────────── */
+.exam-progress-bar {
+    height: 3px;
+    background: rgba(255, 255, 255, 0.06);
+    flex-shrink: 0;
+}
 
-    /* Result Bar */
-    .result-bar {
-        position: relative;
-        height: 1.25rem;
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 10px;
+html.light-mode .exam-progress-bar {
+    background: rgba(0, 51, 127, 0.08);
+}
+
+.exam-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #00337F, #3b82f6);
+    border-radius: 0 2px 2px 0;
+    transition: width 0.3s ease;
+}
+
+/* ── Desktop Header ──────────────────────────── */
+.exam-header {
+    margin-bottom: 1rem;
+}
+
+@media (max-width: 640px) {
+    .exam-header { display: none; }
+}
+
+.exam-greeting {
+    font-size: 0.625rem;
+    color: rgba(255, 255, 255, 0.35);
+    font-family: 'IBM Plex Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+html.light-mode .exam-greeting {
+    color: rgba(0, 51, 127, 0.45);
+}
+
+.exam-title {
+    font-size: 1.375rem;
+    font-weight: 800;
+    color: var(--text-primary, white);
+    font-family: 'Barlow Condensed', sans-serif;
+    margin: 0.2rem 0;
+}
+
+.exam-title .exam-qnum {
+    background: linear-gradient(135deg, #00337F, #3b82f6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+}
+
+.exam-title .exam-qtotal {
+    color: rgba(255, 255, 255, 0.25);
+    font-weight: 400;
+    font-size: 1rem;
+}
+
+html.light-mode .exam-title .exam-qtotal {
+    color: rgba(0, 0, 0, 0.25);
+}
+
+.exam-subtitle {
+    font-size: 0.625rem;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+html.light-mode .exam-subtitle {
+    color: #666;
+}
+
+/* ── Stat Pills ──────────────────────────── */
+.exam-stats-row {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 640px) {
+    .exam-stats-row { display: none; }
+}
+
+.exam-stat-pill {
+    border-radius: 0.5rem;
+    padding: 0.3rem 0.7rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.exam-stat-pill .exam-stat-value {
+    font-size: 0.875rem;
+    font-weight: 700;
+    font-family: 'IBM Plex Mono', monospace;
+}
+
+.exam-stat-pill .exam-stat-label {
+    font-size: 0.5rem;
+    color: rgba(255, 255, 255, 0.4);
+    text-transform: uppercase;
+}
+
+html.light-mode .exam-stat-pill .exam-stat-label {
+    color: #888;
+}
+
+.exam-stat-pill--timer {
+    background: rgba(251, 191, 36, 0.08);
+    border: 1px solid rgba(251, 191, 36, 0.2);
+}
+
+.exam-stat-pill--timer .exam-stat-value {
+    color: #fbbf24;
+}
+
+.exam-stat-pill--timer.warning {
+    background: rgba(239, 68, 68, 0.08);
+    border-color: rgba(239, 68, 68, 0.2);
+}
+
+.exam-stat-pill--timer.warning .exam-stat-value {
+    color: #ef4444;
+}
+
+.exam-stat-pill--answered {
+    background: rgba(34, 197, 94, 0.08);
+    border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.exam-stat-pill--answered .exam-stat-value {
+    color: #22c55e;
+}
+
+.exam-stat-pill--open {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+html.light-mode .exam-stat-pill--open {
+    background: rgba(0, 51, 127, 0.04);
+    border-color: rgba(0, 51, 127, 0.08);
+}
+
+.exam-stat-pill--open .exam-stat-value {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+html.light-mode .exam-stat-pill--open .exam-stat-value {
+    color: #666;
+}
+
+.exam-stat-pill--marked {
+    background: rgba(251, 191, 36, 0.08);
+    border: 1px solid rgba(251, 191, 36, 0.2);
+}
+
+.exam-stat-pill--marked .exam-stat-value {
+    color: #fbbf24;
+}
+
+/* ── Content Area ──────────────────────────── */
+.exam-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0.85rem;
+    -webkit-overflow-scrolling: touch;
+}
+
+@media (min-width: 641px) {
+    .exam-content {
+        padding: 0;
         overflow: visible;
     }
+}
 
-    .result-bar-fill {
-        height: 100%;
-        border-radius: 10px;
-        background: linear-gradient(90deg, var(--gold), var(--gold-dark));
-        transition: width 0.5s ease;
+/* ── Question Card ──────────────────────────── */
+.exam-question-card {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 1.5rem 0.5rem 1.5rem 1.5rem;
+    padding: 1.5rem;
+    margin-bottom: 0.75rem;
+    position: relative;
+    overflow: hidden;
+}
+
+html.light-mode .exam-question-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-color: rgba(0, 51, 127, 0.12);
+    box-shadow: 0 4px 24px rgba(0, 51, 127, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.exam-question-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, #00337F, #0055cc, #5b9aff);
+}
+
+.exam-question-la {
+    font-size: 0.6rem;
+    color: #60a5fa;
+    font-family: 'IBM Plex Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin-bottom: 0.5rem;
+}
+
+html.light-mode .exam-question-la {
+    color: #00337F;
+}
+
+.exam-question-text {
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.85);
+}
+
+html.light-mode .exam-question-text {
+    color: #333;
+}
+
+@media (max-width: 640px) {
+    .exam-question-card {
+        border-radius: 0;
+        border: none;
+        background: transparent;
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+        box-shadow: none;
+        padding: 0 0 0.75rem 0;
+        margin-bottom: 0.5rem;
+        overflow: visible;
     }
-
-    .result-bar-marker {
-        position: absolute;
-        top: 0;
-        left: 80%;
-        height: 100%;
-        width: 3px;
-        background: var(--error);
-        border-radius: 2px;
+    .exam-question-card::before { display: none; }
+    html.light-mode .exam-question-card {
+        background: transparent;
+        border: none;
+        box-shadow: none;
     }
+}
 
-    .result-bar-label {
-        position: absolute;
-        top: -1.5rem;
-        left: 80%;
-        transform: translateX(-50%);
+@media (min-width: 641px) {
+    .exam-question-card {
+        padding: 1.75rem;
+    }
+    .exam-question-la {
+        font-size: 0.6875rem;
+    }
+    .exam-question-text {
+        font-size: 1rem;
+    }
+}
+
+/* ── Answer Options ──────────────────────────── */
+.exam-answers {
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+}
+
+.exam-answer {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 2px solid rgba(255, 255, 255, 0.08);
+    border-radius: 0.75rem;
+    padding: 0.875rem 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 0.9375rem;
+    position: relative;
+}
+
+html.light-mode .exam-answer {
+    background: #f8fafc;
+    border-color: rgba(0, 51, 127, 0.12);
+    color: #333;
+}
+
+.exam-answer:hover {
+    background: rgba(0, 77, 179, 0.06);
+    border-color: rgba(0, 77, 179, 0.25);
+    transform: translateX(3px);
+}
+
+html.light-mode .exam-answer:hover {
+    background: rgba(0, 51, 127, 0.04);
+    border-color: rgba(0, 51, 127, 0.3);
+}
+
+.exam-answer:active {
+    transform: scale(0.98);
+}
+
+.exam-answer.selected {
+    background: rgba(0, 77, 179, 0.1);
+    border-color: #0055cc;
+    box-shadow: 0 0 0 1px rgba(0, 85, 204, 0.3);
+    color: rgba(255, 255, 255, 0.95);
+}
+
+html.light-mode .exam-answer.selected {
+    background: rgba(0, 51, 127, 0.08);
+    border-color: #00337F;
+    color: #1a1a2e;
+}
+
+.exam-checkbox {
+    width: 22px;
+    height: 22px;
+    min-width: 22px;
+    border-radius: 0.375rem;
+    border: 2px solid rgba(255, 255, 255, 0.25);
+    background: rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+    position: relative;
+    margin-top: 1px;
+}
+
+html.light-mode .exam-checkbox {
+    border-color: rgba(0, 51, 127, 0.25);
+    background: #fff;
+}
+
+.exam-answer.selected .exam-checkbox {
+    background: linear-gradient(135deg, #0055cc, #5b9aff);
+    border-color: #0055cc;
+}
+
+.exam-answer.selected .exam-checkbox::after {
+    content: '\2713';
+    color: #fff;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+html.light-mode .exam-answer.selected .exam-checkbox {
+    background: linear-gradient(135deg, #00337F, #0055cc);
+    border-color: #00337F;
+}
+
+@media (min-width: 641px) {
+    .exam-answer {
+        padding: 1rem 1.125rem;
+        font-size: 1rem;
+    }
+}
+
+/* ── Fixed Bottom Bar (Mobile) ──────────────── */
+.exam-bottom-bar {
+    background: rgba(10, 10, 11, 0.6);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    backdrop-filter: blur(20px) saturate(180%);
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    padding: 0.75rem 1rem;
+    padding-bottom: calc(0.875rem + env(safe-area-inset-bottom, 0px));
+    flex-shrink: 0;
+}
+
+html.light-mode .exam-bottom-bar {
+    background: rgba(243, 244, 246, 0.6);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    backdrop-filter: blur(20px) saturate(180%);
+    border-top-color: rgba(0, 51, 127, 0.08);
+}
+
+@media (min-width: 641px) {
+    .exam-bottom-bar {
+        background: transparent;
+        border-top: none;
+        padding: 0;
+        margin-top: 1rem;
+    }
+    html.light-mode .exam-bottom-bar {
+        background: transparent;
+        border-top: none;
+        backdrop-filter: none;
+    }
+}
+
+/* ── Sliding Bubbles ──────────────────────────── */
+.exam-bubbles-track {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    margin-bottom: 0.5rem;
+    transition: transform 0.3s ease;
+}
+
+@media (min-width: 641px) {
+    .exam-bubbles-track {
+        gap: 6px;
+        margin-bottom: 0.75rem;
+    }
+}
+
+.exam-bubble {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    font-size: 0.5rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+    padding: 0;
+}
+
+@media (min-width: 641px) {
+    .exam-bubble {
+        width: 24px;
+        height: 24px;
+        font-size: 0.5625rem;
+    }
+}
+
+.exam-bubble--open {
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.25);
+}
+
+html.light-mode .exam-bubble--open {
+    background: rgba(0, 0, 0, 0.05);
+    color: rgba(0, 0, 0, 0.25);
+}
+
+.exam-bubble--answered {
+    background: #22c55e;
+    color: white;
+}
+
+.exam-bubble--marked {
+    background: #fbbf24;
+    color: white;
+}
+
+.exam-bubble--active {
+    background: rgba(0, 51, 127, 0.5);
+    border: 2px solid #3b82f6;
+    color: #93c5fd;
+    font-weight: 700;
+    box-shadow: 0 0 8px rgba(59, 130, 246, 0.4);
+}
+
+html.light-mode .exam-bubble--active {
+    background: rgba(0, 51, 127, 0.15);
+    border-color: #00337F;
+    color: #00337F;
+    box-shadow: 0 0 6px rgba(0, 51, 127, 0.25);
+}
+
+@media (min-width: 641px) {
+    .exam-bubble--active {
+        width: 28px;
+        height: 28px;
         font-size: 0.625rem;
-        font-weight: 700;
-        color: var(--error);
-        background: rgba(239, 68, 68, 0.2);
-        padding: 0.125rem 0.375rem;
-        border-radius: 4px;
     }
+}
 
-    /* ==========================================
-       FIXIERTE NAVIGATION UNTEN (Glassmorphism)
-       ========================================== */
+/* ── Action Buttons ──────────────────────────── */
+.exam-actions {
+    display: flex;
+    gap: 0.5rem;
+}
 
-    .exam-nav-fixed {
-        display: none;
+.exam-btn {
+    flex: 1;
+    border-radius: 0.75rem;
+    padding: 0.875rem;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+    text-align: center;
+    font-family: inherit;
+}
+
+@media (min-width: 641px) {
+    .exam-btn {
+        padding: 0.875rem;
+        font-size: 0.9375rem;
     }
+}
 
-    @media (max-width: 640px) {
-        .exam-nav-fixed {
-            display: block;
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            z-index: 9999;
-            padding: 0.75rem 1rem;
-            padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
-            background: rgba(10, 10, 11, 0.5) !important;
-            -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
-            backdrop-filter: blur(20px) saturate(180%) !important;
-            border-top: 1px solid rgba(255, 255, 255, 0.08);
-        }
+.exam-btn--back {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.5);
+}
 
-        /* Desktop Navigation verstecken auf Mobile */
-        .exam-nav-desktop {
-            display: none !important;
-        }
+html.light-mode .exam-btn--back {
+    background: rgba(0, 51, 127, 0.04);
+    border: 1px solid rgba(0, 51, 127, 0.12);
+    color: #666;
+}
+
+.exam-btn--mark {
+    background: rgba(251, 191, 36, 0.08);
+    border: 1px solid rgba(251, 191, 36, 0.25);
+    color: #fbbf24;
+}
+
+html.light-mode .exam-btn--mark {
+    color: #b88a00;
+    border-color: rgba(251, 191, 36, 0.3);
+}
+
+.exam-btn--mark.active {
+    background: rgba(251, 191, 36, 0.2);
+    border-color: rgba(251, 191, 36, 0.5);
+}
+
+.exam-btn--next {
+    background: linear-gradient(135deg, #00337F, #0055cc);
+    color: white;
+    font-weight: 600;
+}
+
+.exam-btn--next:hover {
+    filter: brightness(1.1);
+}
+
+.exam-btn--submit {
+    background: linear-gradient(135deg, #16a34a, #22c55e);
+    color: white;
+    font-weight: 600;
+}
+
+/* ── Question Slide ──────────────────────────── */
+.exam-slide {
+    display: none;
+}
+
+.exam-slide.active {
+    display: block;
+}
+
+/* ── Animations ──────────────────────────── */
+.exam-rise {
+    opacity: 0;
+    transform: translateY(12px);
+    animation: examRise 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes examRise {
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
+}
 
-    @media (min-width: 641px) {
-        .exam-nav-desktop {
-            display: flex;
-        }
+@media (prefers-reduced-motion: reduce) {
+    .exam-rise {
+        animation: none;
+        opacity: 1;
+        transform: none;
     }
+}
 
-    /* Mobile Stats */
-    .exam-mobile-stats {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 1.5rem;
-        padding-bottom: 0.5rem;
-        margin-bottom: 0.5rem;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-        font-size: 0.8rem;
-    }
+/* ============================================
+   RESULT MODE
+   ============================================ */
 
-    .exam-mobile-stats .stat-item {
-        display: flex;
-        align-items: center;
-        gap: 0.375rem;
-    }
+/* ── Result Summary ──────────────────────────── */
+.exam-result-summary {
+    text-align: center;
+    padding: 1.5rem 1rem;
+    max-width: 400px;
+    margin: 0 auto;
+}
 
-    .exam-mobile-stats .stat-answered { color: #4ade80; }
-    .exam-mobile-stats .stat-open { color: var(--text-secondary); }
-    .exam-mobile-stats .stat-marked { color: var(--gold); }
-
-    /* ==========================================
-       LIGHT MODE
-       ========================================== */
-
-    html.light-mode .exam-card {
-        background: #ffffff !important;
-        border: 1px solid rgba(0, 51, 127, 0.12) !important;
-        box-shadow: 0 4px 20px rgba(0, 51, 127, 0.08) !important;
-    }
-
-    @media (max-width: 640px) {
-        html.light-mode .exam-card {
-            background: #f8fafc !important;
-            border: none !important;
-            box-shadow: none !important;
-        }
-    }
-
-    html.light-mode .exam-mobile-header {
-        background: rgba(0, 51, 127, 0.03) !important;
-        border-bottom: 1px solid rgba(0, 51, 127, 0.08) !important;
-    }
-
-    html.light-mode .exam-timer {
-        background: linear-gradient(135deg, rgba(217, 119, 6, 0.12), rgba(180, 83, 9, 0.08)) !important;
-        border: 1px solid rgba(217, 119, 6, 0.25) !important;
-        color: #b45309 !important;
-    }
-
-    html.light-mode .exam-timer.warning {
-        background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(239, 68, 68, 0.08)) !important;
-        border-color: rgba(239, 68, 68, 0.3) !important;
-        color: #dc2626 !important;
-    }
-
-    html.light-mode .exam-answer {
-        background: #f8fafc !important;
-        border: 2px solid rgba(0, 51, 127, 0.12) !important;
-    }
-
-    html.light-mode .exam-answer:hover {
-        background: rgba(0, 51, 127, 0.06) !important;
-        border-color: rgba(0, 51, 127, 0.3) !important;
-    }
-
-    html.light-mode .exam-answer.selected {
-        background: rgba(0, 51, 127, 0.1) !important;
-        border-color: var(--thw-blue) !important;
-    }
-
-    html.light-mode .exam-checkbox {
-        border: 2px solid rgba(0, 51, 127, 0.25) !important;
-        background: #ffffff !important;
-    }
-
-    html.light-mode .exam-checkbox:checked {
-        background: var(--thw-blue) !important;
-        border-color: var(--thw-blue) !important;
-    }
-
-    html.light-mode .question-bubble {
-        background: #f1f5f9 !important;
-        border: 2px solid rgba(0, 51, 127, 0.12) !important;
-        color: #475569 !important;
-    }
-
-    html.light-mode .question-bubble:hover {
-        border-color: rgba(217, 119, 6, 0.4) !important;
-    }
-
-    html.light-mode .question-bubble.answered {
-        background: rgba(34, 197, 94, 0.15) !important;
-        border-color: rgba(34, 197, 94, 0.4) !important;
-        color: #16a34a !important;
-    }
-
-    html.light-mode .question-bubble.marked {
-        background: rgba(217, 119, 6, 0.12) !important;
-        border-color: rgba(217, 119, 6, 0.4) !important;
-        color: #b45309 !important;
-    }
-
-    html.light-mode .question-bubble.current {
-        border-color: #d97706 !important;
-        box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.2) !important;
-    }
-
-    html.light-mode .mark-btn {
-        background: rgba(0, 51, 127, 0.04) !important;
-        border: 1px solid rgba(0, 51, 127, 0.1) !important;
-        color: #475569 !important;
-    }
-
-    html.light-mode .mark-btn:hover {
-        background: rgba(217, 119, 6, 0.08) !important;
-        border-color: rgba(217, 119, 6, 0.25) !important;
-    }
-
-    html.light-mode .mark-btn.active {
-        background: rgba(217, 119, 6, 0.15) !important;
-        border-color: #d97706 !important;
-        color: #b45309 !important;
-    }
-
-    html.light-mode .exam-nav-fixed {
-        background: rgba(243, 244, 246, 0.5) !important;
-        -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
-        backdrop-filter: blur(20px) saturate(180%) !important;
-        border-top: 1px solid rgba(0, 51, 127, 0.08) !important;
-    }
-
-    html.light-mode .exam-mobile-stats {
-        border-bottom-color: rgba(0, 51, 127, 0.08) !important;
-    }
-
-    html.light-mode .exam-mobile-stats .stat-open {
-        color: #64748b !important;
-    }
-
-    html.light-mode .result-correct {
-        background: rgba(34, 197, 94, 0.12) !important;
-        border-color: rgba(34, 197, 94, 0.4) !important;
-    }
-
-    html.light-mode .result-correct-missed {
-        background: rgba(34, 197, 94, 0.06) !important;
-        border-color: rgba(34, 197, 94, 0.25) !important;
-    }
-
-    html.light-mode .result-wrong {
-        background: rgba(239, 68, 68, 0.12) !important;
-        border-color: rgba(239, 68, 68, 0.4) !important;
-    }
-
-    html.light-mode .result-neutral {
-        background: #f1f5f9 !important;
-        border-color: rgba(0, 51, 127, 0.08) !important;
-    }
-
-    html.light-mode .progress-glass {
-        background: rgba(0, 51, 127, 0.08) !important;
-    }
-
-    html.light-mode .progress-fill-gold {
-        background: linear-gradient(90deg, #d97706, #b45309) !important;
-    }
-
-    html.light-mode .text-dark-primary { color: #1e293b !important; }
-    html.light-mode .text-dark-secondary { color: #475569 !important; }
-    html.light-mode .text-dark-muted { color: #64748b !important; }
-    html.light-mode .text-gold { color: #d97706 !important; }
-
-    html.light-mode .glass-subtle {
-        background: #f8fafc !important;
-        border: 1px solid rgba(0, 51, 127, 0.08) !important;
-    }
-
-    html.light-mode .border-glass-subtle {
-        border-color: rgba(0, 51, 127, 0.08) !important;
-    }
-
-    html.light-mode #overview-container .bg-success\/30 { background: rgba(34, 197, 94, 0.15) !important; }
-    html.light-mode #overview-container .border-success\/50 { border-color: rgba(34, 197, 94, 0.35) !important; }
-    html.light-mode #overview-container .bg-white\/5 { background: #f1f5f9 !important; }
-    html.light-mode #overview-container .border-white\/10 { border-color: rgba(0, 51, 127, 0.1) !important; }
-    html.light-mode #overview-container .bg-gold\/30 { background: rgba(217, 119, 6, 0.15) !important; }
-    html.light-mode #overview-container .border-gold\/50 { border-color: rgba(217, 119, 6, 0.35) !important; }
-
-    /* ==========================================
-       RESULTS PAGE - DASHBOARD LAYOUT
-       ========================================== */
-
-    /* Dashboard Container for Results */
-    .dashboard-container {
-        max-width: 1200px;
-        margin: 0 auto;
+@media (min-width: 641px) {
+    .exam-result-summary {
         padding: 2rem;
-        width: 100%;
-        box-sizing: border-box;
     }
+}
 
-    @media (max-width: 600px) {
-        .dashboard-container {
-            padding: 1rem;
-        }
-    }
+.exam-result-ring {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 1rem;
+}
 
-    /* Prevent horizontal scroll on results */
-    #examContainer.exam-results-mode .dashboard-container * {
-        max-width: 100%;
-        box-sizing: border-box;
-    }
+.exam-result-ring svg {
+    width: 100%;
+    height: 100%;
+}
 
-    /* Question details - reduce margin on mobile */
-    @media (max-width: 600px) {
-        #examContainer.exam-results-mode .ml-11 {
-            margin-left: 0 !important;
-        }
-    }
+.exam-result-ring .ring-track {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.06);
+    stroke-width: 6;
+}
 
-    /* Dashboard Header */
-    .dashboard-header {
-        margin-bottom: 2rem;
-        padding-top: 1rem;
-        max-width: 600px;
-    }
+html.light-mode .exam-result-ring .ring-track {
+    stroke: rgba(0, 51, 127, 0.08);
+}
 
-    .page-title {
-        font-size: 1.75rem;
-        font-weight: 800;
-        color: var(--text-primary);
-        margin-bottom: 0.5rem;
-        line-height: 1.2;
-    }
+.exam-result-ring .ring-fill {
+    fill: none;
+    stroke-width: 6;
+    stroke-linecap: round;
+    transform: rotate(-90deg);
+    transform-origin: 50% 50%;
+    transition: stroke-dashoffset 1s ease;
+}
 
-    .page-title span {
-        background: var(--gradient-gold);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-    }
+.exam-result-ring .ring-fill.passed {
+    stroke: #22c55e;
+}
 
-    .page-subtitle {
-        font-size: 0.95rem;
-        color: var(--text-secondary);
-    }
+.exam-result-ring .ring-fill.failed {
+    stroke: #ef4444;
+}
 
-    /* Stats Row */
-    .stats-row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.75rem;
-        margin-bottom: 2rem;
-        max-width: 100%;
-    }
+.exam-result-center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
 
-    .stat-pill {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        padding: 0.75rem 1rem;
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.06);
-        border-radius: 12px;
-    }
+.exam-result-percent {
+    font-size: 1.75rem;
+    font-weight: 800;
+}
 
-    .stat-pill-icon {
-        font-size: 1.25rem;
-    }
+.exam-result-percent.passed {
+    background: linear-gradient(135deg, #22c55e, #4ade80);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+}
 
-    .stat-pill-value {
-        font-size: 1.1rem;
-        font-weight: 800;
-        color: var(--text-primary);
-    }
+.exam-result-percent.failed {
+    background: linear-gradient(135deg, #ef4444, #f87171);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+}
 
-    .stat-pill-label {
-        font-size: 0.7rem;
-        color: var(--text-muted);
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
+.exam-result-count {
+    font-size: 0.5rem;
+    color: rgba(255, 255, 255, 0.4);
+    text-transform: uppercase;
+    font-family: 'IBM Plex Mono', monospace;
+}
 
-    /* Bento Grid */
-    .bento-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
-        gap: 1rem;
-        margin-bottom: 2rem;
-        max-width: 100%;
-    }
+html.light-mode .exam-result-count {
+    color: #888;
+}
 
-    .bento-main {
-        grid-column: span 2;
-        grid-row: span 2;
-        min-height: 280px;
-        padding: 2rem;
-        position: relative;
-    }
+.exam-result-status {
+    font-size: 0.9375rem;
+    font-weight: 700;
+    margin-bottom: 0.2rem;
+}
 
-    .bento-side {
-        padding: 1.25rem;
-    }
+.exam-result-status.passed { color: #22c55e; }
+.exam-result-status.failed { color: #ef4444; }
 
-    .bento-wide {
-        grid-column: span 3;
-        padding: 1.5rem;
-    }
+.exam-result-meta {
+    font-size: 0.5625rem;
+    color: rgba(255, 255, 255, 0.4);
+    margin-bottom: 1rem;
+}
 
-    @media (max-width: 900px) {
-        .bento-grid {
-            grid-template-columns: 1fr 1fr;
-        }
-        .bento-main { grid-column: span 2; grid-row: span 1; min-height: auto; }
-        .bento-wide { grid-column: span 2; }
-    }
+html.light-mode .exam-result-meta {
+    color: #888;
+}
 
-    @media (max-width: 600px) {
-        .bento-grid {
-            grid-template-columns: 1fr;
-        }
-        .bento-main, .bento-wide, .bento-side {
-            grid-column: span 1;
-        }
-    }
+/* ── XP Badge ──────────────────────────── */
+.exam-xp-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    background: rgba(251, 191, 36, 0.1);
+    border: 1px solid rgba(251, 191, 36, 0.25);
+    border-radius: 2rem;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    color: #fbbf24;
+    margin-bottom: 1rem;
+}
 
-    /* Section Header */
-    .section-header {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        margin-bottom: 1rem;
-        padding-left: 1rem;
-        border-left: 3px solid var(--gold-start);
-    }
+/* ── Result Stats Pills ──────────────────────── */
+.exam-result-stats {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
 
-    .section-title {
-        font-size: 1.1rem;
-        font-weight: 700;
-        color: var(--text-primary);
-        letter-spacing: -0.02em;
-    }
+.exam-result-stat {
+    border-radius: 0.5rem;
+    padding: 0.4rem 0.75rem;
+    text-align: center;
+}
 
-    /* Alert Compact */
-    .alert-compact {
-        padding: 0.875rem 1rem;
-        border-radius: 0.75rem 0.75rem 0.75rem 0;
-        margin-bottom: 1rem;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-    }
+.exam-result-stat--correct {
+    background: rgba(34, 197, 94, 0.08);
+    border: 1px solid rgba(34, 197, 94, 0.2);
+}
 
-    .alert-compact-icon { font-size: 1.25rem; }
-    .alert-compact-content { flex: 1; }
-    .alert-compact-title { font-size: 0.9rem; font-weight: 600; color: var(--text-primary); }
-    .alert-compact-desc { font-size: 0.8rem; color: var(--text-secondary); }
+.exam-result-stat--wrong {
+    background: rgba(239, 68, 68, 0.08);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
 
-    /* Progress Ring */
-    .progress-ring {
-        position: relative;
-    }
+.exam-result-stat .stat-value {
+    font-size: 0.9375rem;
+    font-weight: 700;
+}
 
-    /* Glass Cards for Results */
-    .glass-green {
-        background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(34, 197, 94, 0.05));
-        border: 1px solid rgba(34, 197, 94, 0.2);
-        border-radius: 1.5rem 0.5rem 1.5rem 0.5rem;
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-    }
+.exam-result-stat--correct .stat-value { color: #22c55e; }
+.exam-result-stat--wrong .stat-value { color: #ef4444; }
 
-    .glass-error {
-        background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(239, 68, 68, 0.05));
-        border: 1px solid rgba(239, 68, 68, 0.2);
-        border-radius: 1.5rem 0.5rem 1.5rem 0.5rem;
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-    }
+.exam-result-stat .stat-label {
+    font-size: 0.4375rem;
+    color: rgba(255, 255, 255, 0.4);
+    text-transform: uppercase;
+}
 
-    .glass-tl {
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.06);
-        border-radius: 1.5rem 0.5rem 0.75rem 0.75rem;
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-    }
+html.light-mode .exam-result-stat .stat-label {
+    color: #888;
+}
 
-    .glass-br {
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.06);
-        border-radius: 0.5rem 0.75rem 1.5rem 0.75rem;
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-    }
+/* ── Weakness Analysis ──────────────────────── */
+.exam-weakness-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 0.75rem;
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+    text-align: left;
+}
 
-    .glass-slash {
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.06);
-        border-radius: 0.5rem 1.5rem 0.5rem 1.5rem;
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-    }
+html.light-mode .exam-weakness-card {
+    background: rgba(255, 255, 255, 0.85);
+    border-color: rgba(0, 51, 127, 0.1);
+}
 
-    .glass {
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.06);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-    }
+.exam-weakness-title {
+    font-size: 0.5rem;
+    color: rgba(255, 255, 255, 0.4);
+    text-transform: uppercase;
+    font-family: 'IBM Plex Mono', monospace;
+    margin-bottom: 0.5rem;
+}
 
-    /* Badge Styles */
-    .badge-success {
-        display: inline-block;
-        padding: 0.25rem 0.75rem;
-        background: rgba(34, 197, 94, 0.15);
-        border: 1px solid rgba(34, 197, 94, 0.3);
-        border-radius: 6px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        color: #22c55e;
-    }
+html.light-mode .exam-weakness-title {
+    color: #888;
+}
 
-    .badge-error {
-        display: inline-block;
-        padding: 0.25rem 0.75rem;
-        background: rgba(239, 68, 68, 0.15);
-        border: 1px solid rgba(239, 68, 68, 0.3);
-        border-radius: 6px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        color: #ef4444;
-    }
+.exam-weakness-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.35rem;
+}
 
-    .badge-gold {
-        display: inline-block;
-        padding: 0.25rem 0.75rem;
-        background: rgba(251, 191, 36, 0.15);
-        border: 1px solid rgba(251, 191, 36, 0.3);
-        border-radius: 6px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        color: var(--gold);
-    }
+.exam-weakness-la {
+    font-size: 0.5rem;
+    width: 2rem;
+    flex-shrink: 0;
+}
 
-    /* Text Colors */
-    .text-success { color: #22c55e !important; }
-    .text-error { color: #ef4444 !important; }
-    .text-gold { color: var(--gold) !important; }
+.exam-weakness-bar {
+    flex: 1;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 2px;
+}
 
-    /* Backgrounds */
-    .bg-success\/20 { background: rgba(34, 197, 94, 0.2); }
-    .bg-error\/20 { background: rgba(239, 68, 68, 0.2); }
+html.light-mode .exam-weakness-bar {
+    background: rgba(0, 51, 127, 0.08);
+}
 
-    /* Border */
-    .border-l-error { border-left-color: #ef4444 !important; }
-    .border-l-success { border-left-color: #22c55e !important; }
+.exam-weakness-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.5s ease;
+}
 
-    /* Light Mode Adjustments for Results */
-    html.light-mode .dashboard-container .stat-pill {
-        background: #f8fafc !important;
-        border: 1px solid rgba(0, 51, 127, 0.08) !important;
-    }
+.exam-weakness-fill.bad { background: #ef4444; }
+.exam-weakness-fill.medium { background: #f59e0b; }
 
-    html.light-mode .dashboard-container .glass,
-    html.light-mode .dashboard-container .glass-tl,
-    html.light-mode .dashboard-container .glass-br,
-    html.light-mode .dashboard-container .glass-slash {
-        background: #ffffff !important;
-        border: 1px solid rgba(0, 51, 127, 0.1) !important;
-    }
+.exam-weakness-score {
+    font-size: 0.5rem;
+    color: rgba(255, 255, 255, 0.4);
+    width: 2rem;
+    text-align: right;
+}
 
-    html.light-mode .dashboard-container .glass-green {
-        background: linear-gradient(135deg, rgba(34, 197, 94, 0.08), rgba(34, 197, 94, 0.04)) !important;
-        border: 1px solid rgba(34, 197, 94, 0.2) !important;
-    }
+html.light-mode .exam-weakness-score {
+    color: #888;
+}
 
-    html.light-mode .dashboard-container .glass-error {
-        background: linear-gradient(135deg, rgba(239, 68, 68, 0.08), rgba(239, 68, 68, 0.04)) !important;
-        border: 1px solid rgba(239, 68, 68, 0.2) !important;
-    }
+/* ── Result Action Buttons ──────────────────── */
+.exam-result-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
 
-    html.light-mode .page-title {
-        color: #1e293b !important;
-    }
+.exam-result-btn {
+    width: 100%;
+    border-radius: 0.75rem;
+    padding: 0.875rem;
+    font-size: 0.9375rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+    text-align: center;
+    text-decoration: none;
+    display: block;
+    font-family: inherit;
+}
 
-    html.light-mode .page-title span {
-        background: linear-gradient(90deg, #d97706, #b45309) !important;
-        -webkit-background-clip: text !important;
-        -webkit-text-fill-color: transparent !important;
-        background-clip: text !important;
-    }
+.exam-result-btn--primary {
+    background: linear-gradient(135deg, #00337F, #0055cc);
+    color: white;
+}
 
-    html.light-mode .section-header {
-        border-left-color: #d97706 !important;
-    }
+.exam-result-btn--wrong {
+    background: rgba(239, 68, 68, 0.08);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+}
 
-    html.light-mode .alert-compact.glass-success {
-        background: rgba(34, 197, 94, 0.1) !important;
-        border: 1px solid rgba(34, 197, 94, 0.2) !important;
-    }
+.exam-result-btn--close {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.5);
+}
 
-    html.light-mode .result-bar {
-        background: rgba(0, 51, 127, 0.1) !important;
-    }
+html.light-mode .exam-result-btn--close {
+    background: rgba(0, 51, 127, 0.04);
+    border-color: rgba(0, 51, 127, 0.12);
+    color: #666;
+}
+
+/* ── Review Mode (Question-by-Question) ─────── */
+.exam-question-card.result-correct::before {
+    background: #22c55e;
+}
+
+.exam-question-card.result-wrong::before {
+    background: #ef4444;
+}
+
+.exam-result-badge {
+    font-size: 0.5rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-family: 'IBM Plex Mono', monospace;
+}
+
+.exam-result-badge.correct { color: #22c55e; }
+.exam-result-badge.wrong { color: #ef4444; }
+
+.exam-answer.result-correct {
+    background: rgba(34, 197, 94, 0.12);
+    border-color: rgba(34, 197, 94, 0.3);
+    color: #86efac;
+}
+
+html.light-mode .exam-answer.result-correct {
+    background: rgba(34, 197, 94, 0.08);
+    border-color: rgba(34, 197, 94, 0.2);
+    color: #166534;
+}
+
+.exam-answer.result-correct .exam-checkbox {
+    background: rgba(34, 197, 94, 0.3);
+    border-color: #22c55e;
+    color: #22c55e;
+}
+
+.exam-answer.result-wrong {
+    background: rgba(239, 68, 68, 0.12);
+    border-color: rgba(239, 68, 68, 0.3);
+    color: #fca5a5;
+}
+
+html.light-mode .exam-answer.result-wrong {
+    background: rgba(239, 68, 68, 0.08);
+    border-color: rgba(239, 68, 68, 0.2);
+    color: #991b1b;
+}
+
+.exam-answer.result-wrong .exam-checkbox {
+    background: rgba(239, 68, 68, 0.3);
+    border-color: #ef4444;
+    color: #ef4444;
+}
+
+.exam-answer.result-missed {
+    background: rgba(34, 197, 94, 0.06);
+    border-color: rgba(34, 197, 94, 0.15);
+    color: rgba(134, 239, 172, 0.5);
+}
+
+html.light-mode .exam-answer.result-missed {
+    color: rgba(22, 101, 52, 0.5);
+}
+
+/* Review bubbles */
+.exam-bubble--correct {
+    background: #22c55e;
+    color: white;
+}
+
+.exam-bubble--wrong {
+    background: #ef4444;
+    color: white;
+}
 </style>
 @endpush
 
 @section('content')
+
 @if(!isset($submitted))
+{{-- Sofort exam-active-mode setzen (vor dem DOM, kein FOUC) --}}
 <script>document.body.classList.add('exam-active-mode');</script>
-@endif
-<div class="{{ isset($submitted) ? 'exam-results-mode' : 'sm:p-6 sm:py-8' }}" id="examContainer">
-    @if(!isset($submitted))
-        <div class="exam-card">
-            <!-- Mobile Header -->
-            <div class="exam-mobile-header">
-                <a href="#" onclick="handleExamExit(event)" class="p-2 -ml-2 text-dark-secondary hover:text-gold transition-colors">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                    </svg>
-                </a>
 
-                <div class="exam-timer" id="exam-timer-mobile">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                    <span id="timer-display-mobile">30:00</span>
-                </div>
-
-                <span class="text-dark-muted text-sm font-medium" id="current-question-mobile">1/40</span>
-            </div>
-
-            <!-- Desktop Header -->
-            <div class="exam-desktop-header flex items-center justify-between mb-6">
-                <div>
-                    <h1 class="text-xl font-bold text-dark-primary">THW Prüfung</h1>
-                    <p class="text-dark-muted text-sm">40 Fragen in 30 Minuten</p>
-                </div>
-                <div class="exam-timer" id="exam-timer">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                    <span id="timer-display">30:00</span>
-                </div>
-            </div>
-
-            <!-- Progress Bar -->
-            <div class="mb-6">
-                <div class="flex items-center justify-between mb-2 text-sm">
-                    <span class="text-dark-secondary">Fortschritt</span>
-                    <span class="text-dark-muted" id="progress-text">0/40 beantwortet</span>
-                </div>
-                <div class="progress-glass h-2">
-                    <div class="progress-fill-gold" id="progress-bar" style="width: 0%;"></div>
-                </div>
-            </div>
-
-            <!-- Question Form -->
-            <form id="exam-form" method="POST" action="{{ route('exam.submit') }}">
-                @csrf
-                <input type="hidden" name="exam_token" value="{{ $examToken }}">
-
-                @foreach($fragen as $index => $frage)
-                    <input type="hidden" name="fragen_ids[]" value="{{ $frage->id }}">
-
-                    @php
-                        $answersOriginal = [
-                            ['letter' => 'A', 'text' => $frage->antwort_a],
-                            ['letter' => 'B', 'text' => $frage->antwort_b],
-                            ['letter' => 'C', 'text' => $frage->antwort_c],
-                        ];
-
-                        // Mapping vom Server verwenden (stabil bei Reload)
-                        $mappingArray = $answerMappings[$index] ?? null;
-                        if ($mappingArray) {
-                            $answers = [];
-                            foreach ($mappingArray as $pos => $letter) {
-                                foreach ($answersOriginal as $ans) {
-                                    if ($ans['letter'] === $letter) {
-                                        $answers[$pos] = $ans;
-                                        break;
-                                    }
-                                }
-                            }
-                            ksort($answers);
-                        } else {
-                            $answers = $answersOriginal;
-                            shuffle($answers);
-                            $mappingArray = [];
-                            foreach ($answers as $ansIndex => $answer) {
-                                $mappingArray[$ansIndex] = $answer['letter'];
-                            }
-                        }
-
-                        $mappingJson = json_encode($mappingArray);
-                    @endphp
-
-                    <input type="hidden" name="answer_mappings[{{ $index }}]" value="{{ $mappingJson }}">
-
-                    <div class="question-slide" data-question="{{ $index }}" style="display: {{ $index === 0 ? 'block' : 'none' }};">
-                        <!-- Question Header -->
-                        <div class="flex items-start justify-between mb-4">
-                            <div>
-                                <div class="text-xs text-dark-muted mb-2">
-                                    Frage {{ $index + 1 }} von 40
-                                    <span class="mx-1 opacity-50">|</span>
-                                    LA {{ $frage->lernabschnitt ?? '-' }}.{{ $frage->nummer ?? '-' }}
-                                </div>
-                                <p class="text-dark-primary text-base sm:text-lg leading-relaxed">
-                                    {{ $frage->frage }}
-                                </p>
-                            </div>
-                        </div>
-
-                        <!-- Mark Button -->
-                        <button type="button"
-                                onclick="toggleMark({{ $index }})"
-                                id="mark-btn-{{ $index }}"
-                                class="mark-btn mb-4">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
-                            </svg>
-                            <span id="mark-text-{{ $index }}">Markieren</span>
-                        </button>
-
-                        <!-- Answer Options -->
-                        <div class="flex flex-col gap-3 mb-6">
-                            @foreach($answers as $ansIndex => $answer)
-                                <label class="exam-answer" onclick="updateAnswerStyle(this, {{ $index }})">
-                                    <input type="checkbox"
-                                           name="answer[{{ $index }}][]"
-                                           value="{{ $ansIndex }}"
-                                           onchange="updateAnswerStatus({{ $index }})"
-                                           class="exam-checkbox">
-                                    <span class="text-dark-primary text-sm sm:text-base flex-1">
-                                        {{ $answer['text'] }}
-                                    </span>
-                                </label>
-                            @endforeach
-                        </div>
-                    </div>
-                @endforeach
-
-                <!-- Desktop Navigation -->
-                <div class="exam-nav-desktop flex items-center justify-between gap-3 pt-4 border-t border-glass-subtle">
-                    <button type="button"
-                            onclick="previousQuestion()"
-                            id="prev-btn"
-                            class="btn-ghost px-4 py-2"
-                            disabled>
-                        Zurück
-                    </button>
-
-                    <span class="text-dark-muted text-sm font-medium" id="current-question">1/40</span>
-
-                    <button type="button"
-                            onclick="nextQuestion()"
-                            id="next-btn"
-                            class="btn-secondary px-4 py-2">
-                        Weiter
-                    </button>
-                </div>
-
-                <!-- Question Overview Toggle -->
-                <div class="mt-6 pt-4 border-t border-glass-subtle">
-                    <button type="button"
-                            onclick="toggleOverview()"
-                            class="w-full flex items-center justify-between text-sm text-dark-secondary hover:text-gold transition-colors p-2 rounded-lg hover:bg-white/5">
-                        <span>Fragenübersicht</span>
-                        <svg id="overview-icon" class="w-4 h-4 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                        </svg>
-                    </button>
-
-                    <div id="overview-container" class="hidden mt-4">
-                        <!-- Legend -->
-                        <div class="flex flex-wrap gap-4 text-xs mb-4">
-                            <div class="flex items-center gap-1.5">
-                                <div class="w-3 h-3 rounded bg-success/30 border border-success/50"></div>
-                                <span class="text-dark-muted">Beantwortet</span>
-                            </div>
-                            <div class="flex items-center gap-1.5">
-                                <div class="w-3 h-3 rounded bg-white/5 border border-white/10"></div>
-                                <span class="text-dark-muted">Offen</span>
-                            </div>
-                            <div class="flex items-center gap-1.5">
-                                <div class="w-3 h-3 rounded bg-gold/30 border border-gold/50"></div>
-                                <span class="text-dark-muted">Markiert</span>
-                            </div>
-                        </div>
-
-                        <!-- Bubbles Grid -->
-                        <div class="bubbles-grid">
-                            @for($i = 0; $i < 40; $i++)
-                                <button type="button"
-                                        onclick="goToQuestion({{ $i }})"
-                                        id="bubble-{{ $i }}"
-                                        class="question-bubble {{ $i === 0 ? 'current' : '' }}">
-                                    {{ $i + 1 }}
-                                </button>
-                            @endfor
-                        </div>
-                    </div>
-                </div>
-            </form>
-        </div>
-
-        <!-- FIXIERTE MOBILE NAVIGATION (Glassmorphism) -->
-        <div class="exam-nav-fixed">
-            <!-- Stats -->
-            <div class="exam-mobile-stats">
-                <div class="stat-item stat-answered">
-                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                    </svg>
-                    <span id="mobile-answered-count">0</span>
-                </div>
-                <div class="stat-item stat-open">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                    <span id="mobile-open-count">40</span>
-                </div>
-                <div class="stat-item stat-marked">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
-                    </svg>
-                    <span id="mobile-marked-count">0</span>
-                </div>
-            </div>
-
-            <!-- Buttons -->
-            <div class="flex items-center justify-between gap-3">
-                <button type="button"
-                        onclick="previousQuestion()"
-                        id="prev-btn-mobile"
-                        class="btn-ghost px-4 py-2.5 flex-1"
-                        disabled>
-                    Zurück
-                </button>
-
-                <button type="button"
-                        onclick="nextQuestion()"
-                        id="next-btn-mobile"
-                        class="btn-secondary px-4 py-2.5 flex-1">
-                    Weiter
-                </button>
+<div class="exam-shell exam-rise">
+    {{-- ── Mobile Topbar ─────────────────────────── --}}
+    <div class="exam-topbar">
+        <button class="exam-topbar-back" onclick="handleExamExit(event)" aria-label="Prüfung verlassen">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/></svg>
+        </button>
+        <div class="exam-topbar-center">
+            <div class="exam-topbar-label">PRÜFUNG</div>
+            <div class="exam-topbar-title">
+                Frage <span class="exam-qnum" id="topbar-qnum">1</span> <span class="exam-qtotal">/ {{ count($fragen) }}</span>
             </div>
         </div>
+        <div class="exam-timer" id="exam-timer-mobile">30:00</div>
+    </div>
 
-        <script>
-            // State
-            let currentQuestion = 0;
-            const totalQuestions = {{ count($fragen) }};
-            let answers = new Array(totalQuestions).fill(false);
-            let marked = new Array(totalQuestions).fill(false);
-            let timeLeft = {{ $timeLeft ?? 30 * 60 }};
-            let examSubmitting = false;
+    {{-- ── Progress Bar ─────────────────────────── --}}
+    <div class="exam-progress-bar">
+        <div class="exam-progress-fill" id="exam-progress" style="width: 0%"></div>
+    </div>
 
-            // Navigation Protection: Back-Button abfangen
-            history.pushState(null, '', window.location.href);
-            window.addEventListener('popstate', function(e) {
-                history.pushState(null, '', window.location.href);
-                handleExamExit(e);
-            });
+    {{-- ── Desktop Header ─────────────────────────── --}}
+    <div class="exam-header">
+        <p class="exam-greeting">PRÜFUNGSSIMULATION</p>
+        <h1 class="exam-title">
+            Frage <span class="exam-qnum" id="desktop-qnum">1</span> <span class="exam-qtotal">/ {{ count($fragen) }}</span>
+        </h1>
+        <p class="exam-subtitle">40 Fragen — 30 Minuten — 80% zum Bestehen</p>
+    </div>
 
-            // Reload-Warnung
-            window.addEventListener('beforeunload', function(e) {
-                if (!examSubmitting) {
-                    e.preventDefault();
-                    e.returnValue = '';
-                }
-            });
+    {{-- ── Stat Pills (Desktop) ─────────────────── --}}
+    <div class="exam-stats-row">
+        <div class="exam-stat-pill exam-stat-pill--timer" id="stat-timer-pill">
+            <span class="exam-stat-value exam-timer" id="exam-timer-desktop">30:00</span>
+            <span class="exam-stat-label">Restzeit</span>
+        </div>
+        <div class="exam-stat-pill exam-stat-pill--answered">
+            <span class="exam-stat-value" id="stat-answered">0</span>
+            <span class="exam-stat-label">Beantwortet</span>
+        </div>
+        <div class="exam-stat-pill exam-stat-pill--open">
+            <span class="exam-stat-value" id="stat-open">{{ count($fragen) }}</span>
+            <span class="exam-stat-label">Offen</span>
+        </div>
+        <div class="exam-stat-pill exam-stat-pill--marked">
+            <span class="exam-stat-value" id="stat-marked">0</span>
+            <span class="exam-stat-label">Markiert</span>
+        </div>
+    </div>
 
-            // Prüfung abbrechen: Bestätigung + automatisches Abgeben
-            function handleExamExit(e) {
-                if (e) e.preventDefault();
-                if (examSubmitting) return;
-                if (confirm('Prüfung abbrechen? Alle bisherigen Antworten werden ausgewertet.')) {
-                    submitExam();
-                }
-            }
+    {{-- ── Content Area ─────────────────────────── --}}
+    <div class="exam-content">
+        <form id="exam-form" method="POST" action="{{ route('exam.submit') }}">
+            @csrf
+            <input type="hidden" name="exam_token" value="{{ $examToken }}">
 
-            // Prüfung abgeben
-            function submitExam() {
-                if (examSubmitting) return;
-                examSubmitting = true;
-                document.getElementById('exam-form').submit();
-            }
+            @foreach($fragen as $index => $frage)
+                <input type="hidden" name="fragen_ids[]" value="{{ $frage->id }}">
+                <input type="hidden" name="answer_mappings[{{ $index }}]" value="{{ json_encode($answerMappings[$index] ?? []) }}">
 
-            // Timer
-            const timerEl = document.getElementById('exam-timer');
-            const timerElMobile = document.getElementById('exam-timer-mobile');
-            const timerDisplay = document.getElementById('timer-display');
-            const timerDisplayMobile = document.getElementById('timer-display-mobile');
-
-            function updateTimer() {
-                const min = Math.floor(timeLeft / 60).toString().padStart(2, '0');
-                const sec = (timeLeft % 60).toString().padStart(2, '0');
-                const timeString = `${min}:${sec}`;
-
-                if (timerDisplay) timerDisplay.textContent = timeString;
-                if (timerDisplayMobile) timerDisplayMobile.textContent = timeString;
-
-                if (timeLeft <= 300) {
-                    if (timerEl) timerEl.classList.add('warning');
-                    if (timerElMobile) timerElMobile.classList.add('warning');
-                }
-
-                if (timeLeft <= 0) {
-                    if (timerDisplay) timerDisplay.textContent = '00:00';
-                    if (timerDisplayMobile) timerDisplayMobile.textContent = '00:00';
-                    submitExam();
-                } else {
-                    timeLeft--;
-                    setTimeout(updateTimer, 1000);
-                }
-            }
-            updateTimer();
-
-            // Mobile Stats
-            function updateMobileStats() {
-                const answeredCount = answers.filter(a => a).length;
-                const openCount = totalQuestions - answeredCount;
-                const markedCount = marked.filter(m => m).length;
-
-                const answeredEl = document.getElementById('mobile-answered-count');
-                const openEl = document.getElementById('mobile-open-count');
-                const markedEl = document.getElementById('mobile-marked-count');
-
-                if (answeredEl) answeredEl.textContent = answeredCount;
-                if (openEl) openEl.textContent = openCount;
-                if (markedEl) markedEl.textContent = markedCount;
-            }
-
-            // Navigation
-            function showQuestion(index) {
-                document.querySelectorAll('.question-slide').forEach(slide => {
-                    slide.style.display = 'none';
-                });
-                document.querySelector(`[data-question="${index}"]`).style.display = 'block';
-                currentQuestion = index;
-
-                // Update UI
-                const questionText = `${index + 1}/40`;
-                document.getElementById('current-question').textContent = questionText;
-                document.getElementById('current-question-mobile').textContent = questionText;
-
-                document.getElementById('prev-btn').disabled = index === 0;
-                document.getElementById('prev-btn-mobile').disabled = index === 0;
-
-                // Update next button text
-                const isLast = index === totalQuestions - 1;
-                document.getElementById('next-btn').textContent = isLast ? 'Abschließen' : 'Weiter';
-                document.getElementById('next-btn-mobile').textContent = isLast ? 'Abschließen' : 'Weiter';
-
-                // Update bubbles
-                document.querySelectorAll('.question-bubble').forEach((bubble, i) => {
-                    bubble.classList.remove('current');
-                    if (i === index) bubble.classList.add('current');
-                });
-
-                window.scrollTo(0, 0);
-            }
-
-            function nextQuestion() {
-                if (currentQuestion < totalQuestions - 1) {
-                    showQuestion(currentQuestion + 1);
-                } else {
-                    showSubmitOverview();
-                }
-            }
-
-            function previousQuestion() {
-                if (currentQuestion > 0) {
-                    showQuestion(currentQuestion - 1);
-                }
-            }
-
-            function goToQuestion(index) {
-                showQuestion(index);
-            }
-
-            // Answer handling
-            function updateAnswerStyle(label, questionIndex) {
-                const checkbox = label.querySelector('input[type="checkbox"]');
-                setTimeout(() => {
-                    label.classList.toggle('selected', checkbox.checked);
-                }, 0);
-            }
-
-            function updateAnswerStatus(index) {
-                const checkboxes = document.querySelectorAll(`input[name="answer[${index}][]"]`);
-                const isAnswered = Array.from(checkboxes).some(cb => cb.checked);
-                answers[index] = isAnswered;
-
-                const bubble = document.getElementById(`bubble-${index}`);
-                if (isAnswered && !marked[index]) {
-                    bubble.classList.add('answered');
-                    bubble.classList.remove('marked');
-                } else if (!isAnswered && !marked[index]) {
-                    bubble.classList.remove('answered');
-                }
-
-                checkboxes.forEach(cb => {
-                    cb.closest('.exam-answer').classList.toggle('selected', cb.checked);
-                });
-
-                updateProgress();
-            }
-
-            // Marking
-            function toggleMark(index) {
-                marked[index] = !marked[index];
-                const bubble = document.getElementById(`bubble-${index}`);
-                const btn = document.getElementById(`mark-btn-${index}`);
-                const text = document.getElementById(`mark-text-${index}`);
-
-                if (marked[index]) {
-                    bubble.classList.add('marked');
-                    bubble.classList.remove('answered');
-                    btn.classList.add('active');
-                    text.textContent = 'Markiert';
-                } else {
-                    bubble.classList.remove('marked');
-                    btn.classList.remove('active');
-                    text.textContent = 'Markieren';
-                    if (answers[index]) bubble.classList.add('answered');
-                }
-
-                updateMobileStats();
-            }
-
-            // Progress
-            function updateProgress() {
-                const answeredCount = answers.filter(a => a).length;
-                const percent = (answeredCount / totalQuestions) * 100;
-
-                document.getElementById('progress-text').textContent = `${answeredCount}/40 beantwortet`;
-                document.getElementById('progress-bar').style.width = `${percent}%`;
-
-                updateMobileStats();
-            }
-
-            // Overview toggle
-            function toggleOverview() {
-                const container = document.getElementById('overview-container');
-                const icon = document.getElementById('overview-icon');
-
-                if (container.classList.contains('hidden')) {
-                    container.classList.remove('hidden');
-                    icon.style.transform = 'rotate(180deg)';
-                } else {
-                    container.classList.add('hidden');
-                    icon.style.transform = 'rotate(0deg)';
-                }
-            }
-
-            // Submit overview
-            function showSubmitOverview() {
-                const unanswered = answers.reduce((acc, answered, index) => {
-                    if (!answered) acc.push(index + 1);
-                    return acc;
-                }, []);
-
-                const markedCount = marked.filter(m => m).length;
-                const answeredCount = answers.filter(a => a).length;
-
-                document.querySelectorAll('.question-slide').forEach(slide => {
-                    slide.style.display = 'none';
-                });
-
-                let message = `<div class="question-slide" id="submit-overview" style="display: block;">`;
-                message += `<div class="text-center py-8">`;
-                message += `<h2 class="text-2xl font-bold text-dark-primary mb-4">Prüfung abschließen?</h2>`;
-                message += `<div class="glass-subtle p-6 rounded-xl mb-6 text-left max-w-md mx-auto">`;
-                message += `<p class="text-dark-primary text-lg mb-2"><span class="text-gold font-bold">${answeredCount}</span> von 40 Fragen beantwortet</p>`;
-
-                if (unanswered.length > 0) {
-                    message += `<p class="text-error font-medium mb-2">${unanswered.length} Fragen noch offen</p>`;
-                    message += `<p class="text-dark-muted text-xs">Fragen: ${unanswered.join(', ')}</p>`;
-                }
-
-                if (markedCount > 0) {
-                    message += `<p class="text-gold font-medium mt-3">${markedCount} Fragen markiert</p>`;
-                }
-
-                message += `</div>`;
-                message += `<div class="flex flex-col gap-3 max-w-sm mx-auto">`;
-                message += `<button type="button" onclick="backToPrüfung()" class="btn-ghost py-3">Zurück zur Prüfung</button>`;
-                message += `<button type="button" onclick="confirmSubmit()" class="btn-primary py-3">Prüfung abgeben</button>`;
-                message += `</div>`;
-                message += `</div></div>`;
-
-                const form = document.getElementById('exam-form');
-                const existingOverview = document.getElementById('submit-overview');
-                if (existingOverview) existingOverview.remove();
-                form.insertAdjacentHTML('beforeend', message);
-
-                document.querySelector('.exam-nav-desktop').style.display = 'none';
-            }
-
-            function backToPrüfung() {
-                const overview = document.getElementById('submit-overview');
-                if (overview) overview.remove();
-                document.querySelector('.exam-nav-desktop').style.display = 'flex';
-                showQuestion(currentQuestion);
-            }
-
-            function confirmSubmit() {
-                submitExam();
-            }
-
-            // Initial
-            updateProgress();
-            updateMobileStats();
-        </script>
-
-    @else
-        <!-- Results View - Bento Grid Design -->
-        @php
-            $percent = $total > 0 ? round($correctCount / $total * 100) : 0;
-            $wrongCount = $total - $correctCount;
-            $circumference = 2 * 3.14159 * 26;
-            $resultOffset = $circumference - ($percent / 100) * $circumference;
-        @endphp
-
-        <!-- SVG Gradient Definition -->
-        <svg width="0" height="0" style="position: absolute;">
-            <defs>
-                <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" style="stop-color:#fbbf24"/>
-                    <stop offset="100%" style="stop-color:#f59e0b"/>
-                </linearGradient>
-                <linearGradient id="successGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" style="stop-color:#22c55e"/>
-                    <stop offset="100%" style="stop-color:#16a34a"/>
-                </linearGradient>
-                <linearGradient id="errorGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" style="stop-color:#ef4444"/>
-                    <stop offset="100%" style="stop-color:#dc2626"/>
-                </linearGradient>
-            </defs>
-        </svg>
-
-        <div class="dashboard-container">
-            <!-- Header -->
-            <header class="dashboard-header">
-                <h1 class="page-title">Prüfung <span>{{ $passed ? 'Bestanden' : 'Nicht bestanden' }}</span></h1>
-                <p class="page-subtitle">{{ $correctCount }} von {{ $total }} Fragen richtig beantwortet</p>
-            </header>
-
-            <!-- Gamification Alert -->
-            @if(isset($gamification_result) && $gamification_result)
-                <div class="alert-compact glass-success" style="margin-bottom: 1.5rem;">
-                    <i class="bi bi-star-fill alert-compact-icon text-gold"></i>
-                    <div class="alert-compact-content">
-                        <div class="alert-compact-title">
-                            +{{ $gamification_result['points_awarded'] }} Punkte!
-                            @if($gamification_result['level_up'])
-                                <span class="badge-gold" style="margin-left: 0.5rem;">Level UP</span>
+                <div class="exam-slide" data-question="{{ $index }}" @if($index === 0) style="display: block;" @endif>
+                    {{-- Question Card --}}
+                    <div class="exam-question-card">
+                        <div class="exam-question-la">LA {{ $frage->lernabschnitt ?? '-' }}.{{ $frage->nummer ?? '-' }}</div>
+                        <div class="exam-question-text">
+                            {{ $frage->frage }}
+                            @if(substr_count($frage->loesung, ',') > 0)
+                                <span style="opacity: 0.5; font-size: 0.75em;">({{ substr_count($frage->loesung, ',') + 1 }} richtige Antworten)</span>
                             @endif
                         </div>
-                        <div class="alert-compact-desc">{{ $gamification_result['reason'] }}</div>
-                    </div>
-                </div>
-            @endif
-
-            <!-- Stats Row -->
-            <div class="stats-row">
-                <div class="stat-pill">
-                    <span class="stat-pill-icon {{ $passed ? 'text-success' : 'text-error' }}">
-                        <i class="bi bi-{{ $passed ? 'check-circle-fill' : 'x-circle-fill' }}"></i>
-                    </span>
-                    <div>
-                        <div class="stat-pill-value">{{ $percent }}%</div>
-                        <div class="stat-pill-label">Ergebnis</div>
-                    </div>
-                </div>
-                <div class="stat-pill">
-                    <span class="stat-pill-icon text-success"><i class="bi bi-check-lg"></i></span>
-                    <div>
-                        <div class="stat-pill-value">{{ $correctCount }}</div>
-                        <div class="stat-pill-label">Richtig</div>
-                    </div>
-                </div>
-                <div class="stat-pill">
-                    <span class="stat-pill-icon text-error"><i class="bi bi-x-lg"></i></span>
-                    <div>
-                        <div class="stat-pill-value">{{ $wrongCount }}</div>
-                        <div class="stat-pill-label">Falsch</div>
-                    </div>
-                </div>
-                <div class="stat-pill">
-                    <span class="stat-pill-icon text-gold"><i class="bi bi-bullseye"></i></span>
-                    <div>
-                        <div class="stat-pill-value">80%</div>
-                        <div class="stat-pill-label">Bestehensgrenze</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Bento Grid -->
-            <div class="bento-grid">
-                <!-- Main Result Card -->
-                <div class="{{ $passed ? 'glass-green' : 'glass-error' }} bento-main" style="display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
-                    <div class="progress-ring" style="width: 120px; height: 120px; margin-bottom: 1.5rem;">
-                        <svg width="120" height="120" viewBox="0 0 64 64">
-                            <circle style="fill: none; stroke: rgba(255, 255, 255, 0.1); stroke-width: 4;" cx="32" cy="32" r="26"/>
-                            <circle style="fill: none; stroke: url(#{{ $passed ? 'successGradient' : 'errorGradient' }}); stroke-width: 4; stroke-linecap: round; transform: rotate(-90deg); transform-origin: center; transition: stroke-dashoffset 1s ease-out;"
-                                    cx="32" cy="32" r="26"
-                                    stroke-dasharray="{{ $circumference }}"
-                                    stroke-dashoffset="{{ $resultOffset }}"/>
-                        </svg>
-                        <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;">
-                            <span style="font-size: 2rem; font-weight: 800;" class="{{ $passed ? 'text-success' : 'text-error' }}">{{ $percent }}%</span>
-                        </div>
                     </div>
 
-                    <span class="{{ $passed ? 'badge-success' : 'badge-error' }}" style="font-size: 0.9rem; padding: 0.5rem 1rem; margin-bottom: 1rem;">
-                        {{ $passed ? 'Bestanden' : 'Nicht bestanden' }}
-                    </span>
+                    {{-- Answers --}}
+                    <div class="exam-answers">
+                        @php
+                            $mapping = $answerMappings[$index] ?? [0 => 'A', 1 => 'B', 2 => 'C'];
+                            $reverseMapping = array_flip($mapping);
+                        @endphp
+                        @foreach($mapping as $position => $letter)
+                            @php
+                                $answerField = 'antwort_' . strtolower($letter);
+                                $answerText = $frage->$answerField;
+                            @endphp
+                            <label class="exam-answer" data-index="{{ $index }}" data-position="{{ $position }}" onclick="toggleAnswer({{ $index }}, {{ $position }})">
+                                <div class="exam-checkbox"></div>
+                                <input type="checkbox" name="answer[{{ $index }}][]" value="{{ $position }}" style="display:none;">
+                                <span>{{ $answerText }}</span>
+                            </label>
+                        @endforeach
+                    </div>
+                </div>
+            @endforeach
+        </form>
+    </div>
 
-                    <p class="text-dark-secondary" style="max-width: 280px;">
-                        @if($passed)
-                            Du hast die Prüfung erfolgreich bestanden. Weiter so!
-                        @else
-                            Du benötigst mindestens 80% (32 von 40 Fragen) um zu bestehen.
+    {{-- ── Bottom Bar (Bubbles + Actions) ─────── --}}
+    <div class="exam-bottom-bar">
+        <div class="exam-bubbles-track" id="exam-bubbles">
+            {{-- Bubbles werden per JS generiert --}}
+        </div>
+        <div class="exam-actions">
+            <button class="exam-btn exam-btn--back" onclick="prevQuestion()" id="btn-back">Zurück</button>
+            <button class="exam-btn exam-btn--mark" onclick="toggleMark()" id="btn-mark">Markieren</button>
+            <button class="exam-btn exam-btn--next" onclick="nextQuestion()" id="btn-next">Weiter</button>
+        </div>
+    </div>
+</div>
+
+@push('scripts')
+<script>
+// ============================================
+// EXAM - State Management & Core Logic
+// ============================================
+
+const TOTAL_QUESTIONS = {{ count($fragen) }};
+const VISIBLE_BUBBLES = 9;
+
+// State
+let currentQuestion = 0;
+let answers = new Array(TOTAL_QUESTIONS).fill(false);
+let marked = new Array(TOTAL_QUESTIONS).fill(false);
+let timeLeft = {{ $timeLeft }};
+let examSubmitting = false;
+
+// DOM refs
+const examForm = document.getElementById('exam-form');
+const timerMobile = document.getElementById('exam-timer-mobile');
+const timerDesktop = document.getElementById('exam-timer-desktop');
+const progressBar = document.getElementById('exam-progress');
+const topbarQnum = document.getElementById('topbar-qnum');
+const desktopQnum = document.getElementById('desktop-qnum');
+const bubblesTrack = document.getElementById('exam-bubbles');
+const btnBack = document.getElementById('btn-back');
+const btnMark = document.getElementById('btn-mark');
+const btnNext = document.getElementById('btn-next');
+const statAnswered = document.getElementById('stat-answered');
+const statOpen = document.getElementById('stat-open');
+const statMarked = document.getElementById('stat-marked');
+const statTimerPill = document.getElementById('stat-timer-pill');
+
+// ── Timer ─────────────────────────────────
+function formatTime(seconds) {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return m.toString().padStart(2, '0') + ':' + s.toString().padStart(2, '0');
+}
+
+function updateTimer() {
+    if (timeLeft <= 0) {
+        submitExam();
+        return;
+    }
+    timeLeft--;
+    const display = formatTime(timeLeft);
+
+    if (timerMobile) timerMobile.textContent = display;
+    if (timerDesktop) timerDesktop.textContent = display;
+
+    // Warning states
+    const timerEls = document.querySelectorAll('.exam-timer');
+    timerEls.forEach(el => {
+        el.classList.toggle('warning', timeLeft < 600 && timeLeft >= 300);
+        el.classList.toggle('critical', timeLeft < 300);
+    });
+
+    if (statTimerPill) {
+        statTimerPill.classList.toggle('warning', timeLeft < 600);
+    }
+}
+
+const timerInterval = setInterval(updateTimer, 1000);
+
+// ── Question Navigation ──────────────────
+function showQuestion(index) {
+    if (index < 0 || index >= TOTAL_QUESTIONS) return;
+    currentQuestion = index;
+
+    // Hide all slides, show current
+    document.querySelectorAll('.exam-slide').forEach(s => s.style.display = 'none');
+    const slide = document.querySelector('.exam-slide[data-question="' + index + '"]');
+    if (slide) slide.style.display = 'block';
+
+    // Update question numbers
+    const qNum = index + 1;
+    if (topbarQnum) topbarQnum.textContent = qNum;
+    if (desktopQnum) desktopQnum.textContent = qNum;
+
+    // Update progress
+    const pct = ((index + 1) / TOTAL_QUESTIONS * 100).toFixed(1);
+    if (progressBar) progressBar.style.width = pct + '%';
+
+    // Update buttons
+    if (btnBack) btnBack.style.visibility = index === 0 ? 'hidden' : 'visible';
+    if (btnMark) btnMark.classList.toggle('active', marked[index]);
+
+    // Update next/submit button
+    if (btnNext) {
+        if (index === TOTAL_QUESTIONS - 1) {
+            btnNext.textContent = 'Abgeben';
+            btnNext.classList.remove('exam-btn--next');
+            btnNext.classList.add('exam-btn--submit');
+        } else {
+            btnNext.textContent = 'Weiter';
+            btnNext.classList.remove('exam-btn--submit');
+            btnNext.classList.add('exam-btn--next');
+        }
+    }
+
+    updateBubbles();
+    updateStats();
+
+    // Scroll content to top
+    const content = document.querySelector('.exam-content');
+    if (content) content.scrollTop = 0;
+}
+
+function nextQuestion() {
+    if (currentQuestion === TOTAL_QUESTIONS - 1) {
+        // Last question — confirm submit
+        if (confirm('Prüfung abgeben? Du hast ' + answers.filter(Boolean).length + ' von ' + TOTAL_QUESTIONS + ' Fragen beantwortet.')) {
+            submitExam();
+        }
+        return;
+    }
+    showQuestion(currentQuestion + 1);
+}
+
+function prevQuestion() {
+    showQuestion(currentQuestion - 1);
+}
+
+// ── Answer Handling ──────────────────────
+function toggleAnswer(questionIndex, position) {
+    const slide = document.querySelector('.exam-slide[data-question="' + questionIndex + '"]');
+    const label = slide.querySelector('.exam-answer[data-position="' + position + '"]');
+    const checkbox = label.querySelector('input[type="checkbox"]');
+
+    checkbox.checked = !checkbox.checked;
+    label.classList.toggle('selected', checkbox.checked);
+
+    // Update answered state
+    const anyChecked = slide.querySelectorAll('input[type="checkbox"]:checked').length > 0;
+    answers[questionIndex] = anyChecked;
+
+    updateBubbles();
+    updateStats();
+}
+
+// ── Mark Handling ──────────────────────
+function toggleMark() {
+    marked[currentQuestion] = !marked[currentQuestion];
+    if (btnMark) btnMark.classList.toggle('active', marked[currentQuestion]);
+    updateBubbles();
+    updateStats();
+}
+
+// ============================================
+// SLIDING BUBBLES — 9 visible, active centered
+// ============================================
+
+function getSlidingWindow(current, total, windowSize) {
+    if (total <= windowSize) return { start: 0, end: total };
+
+    const center = Math.floor(windowSize / 2);
+
+    let start;
+    if (current <= center) {
+        start = 0;
+    } else if (current >= total - windowSize + center) {
+        start = total - windowSize;
+    } else {
+        start = current - center;
+    }
+
+    return { start, end: start + windowSize };
+}
+
+function updateBubbles() {
+    if (!bubblesTrack) return;
+
+    const { start, end } = getSlidingWindow(currentQuestion, TOTAL_QUESTIONS, VISIBLE_BUBBLES);
+
+    bubblesTrack.innerHTML = '';
+    for (let i = start; i < end; i++) {
+        const bubble = document.createElement('button');
+        bubble.className = 'exam-bubble';
+        bubble.textContent = i + 1;
+        bubble.setAttribute('type', 'button');
+        bubble.onclick = (function(idx) { return function() { showQuestion(idx); }; })(i);
+
+        if (i === currentQuestion) {
+            bubble.classList.add('exam-bubble--active');
+        } else if (marked[i]) {
+            bubble.classList.add('exam-bubble--marked');
+        } else if (answers[i]) {
+            bubble.classList.add('exam-bubble--answered');
+        } else {
+            bubble.classList.add('exam-bubble--open');
+        }
+
+        bubblesTrack.appendChild(bubble);
+    }
+}
+
+// ── Stats Update ──────────────────────
+function updateStats() {
+    const answeredCount = answers.filter(Boolean).length;
+    const markedCount = marked.filter(Boolean).length;
+    const openCount = TOTAL_QUESTIONS - answeredCount;
+
+    if (statAnswered) statAnswered.textContent = answeredCount;
+    if (statOpen) statOpen.textContent = openCount;
+    if (statMarked) statMarked.textContent = markedCount;
+}
+
+// ── Submit ──────────────────────────
+function submitExam() {
+    if (examSubmitting) return;
+    examSubmitting = true;
+    clearInterval(timerInterval);
+    examForm.submit();
+}
+
+// ── Exit Protection ──────────────────
+function handleExamExit(e) {
+    e.preventDefault();
+    if (confirm('Prüfung wirklich abbrechen? Dein Fortschritt geht verloren.')) {
+        window.location.href = '/';
+    }
+}
+
+// Prevent accidental navigation
+window.addEventListener('beforeunload', function(e) {
+    if (!examSubmitting) {
+        e.preventDefault();
+        e.returnValue = '';
+    }
+});
+
+// Prevent back button
+history.pushState(null, '', location.href);
+window.addEventListener('popstate', function() {
+    history.pushState(null, '', location.href);
+});
+
+// ── Initialize ──────────────────────
+showQuestion(0);
+updateTimer();
+</script>
+@endpush
+
+@else
+{{-- ============================================
+     RESULT MODE
+     ============================================ --}}
+<div class="exam-shell exam-rise" id="exam-result-container">
+    {{-- ── Result Topbar (Mobile — via CSS class statt inline style) --}}
+    <div class="exam-topbar exam-topbar--result">
+        <a href="{{ route('exam.history') }}" class="exam-topbar-close">Schliessen</a>
+        <div class="exam-topbar-center">
+            <div class="exam-topbar-label">ERGEBNIS</div>
+            <div class="exam-topbar-title" style="display: none;"></div>
+        </div>
+        <div style="width: 3.5rem;"></div>
+    </div>
+
+    {{-- ── Desktop Header ─────────────────────── --}}
+    <div class="exam-header" style="text-align: center;">
+        <p class="exam-greeting">AUSWERTUNG</p>
+        <h1 class="exam-title" style="justify-content: center;">
+            Prüfung <span style="color: {{ $passed ? '#22c55e' : '#ef4444' }};">{{ $passed ? 'Bestanden' : 'Nicht bestanden' }}</span>
+        </h1>
+    </div>
+
+    <div class="exam-content" style="overflow-y: auto;">
+        {{-- ── Summary View ─────────────────────── --}}
+        <div id="result-summary">
+            <div class="exam-result-summary">
+                {{-- Result Ring --}}
+                @php
+                    $percentage = round(($correctCount / $total) * 100);
+                    $circumference = 2 * M_PI * 50;
+                    $offset = $circumference - ($percentage / 100) * $circumference;
+                    $statusClass = $passed ? 'passed' : 'failed';
+                @endphp
+                <div class="exam-result-ring">
+                    <svg viewBox="0 0 120 120">
+                        <circle class="ring-track" cx="60" cy="60" r="50"/>
+                        <circle class="ring-fill {{ $statusClass }}" cx="60" cy="60" r="50"
+                            stroke-dasharray="{{ $circumference }}"
+                            stroke-dashoffset="{{ $circumference }}"
+                            data-target-offset="{{ $offset }}"/>
+                    </svg>
+                    <div class="exam-result-center">
+                        <div class="exam-result-percent {{ $statusClass }}">{{ $percentage }}%</div>
+                        <div class="exam-result-count">{{ $correctCount }}/{{ $total }}</div>
+                    </div>
+                </div>
+
+                {{-- Status --}}
+                <div class="exam-result-status {{ $statusClass }}">
+                    {{ $passed ? 'Bestanden!' : 'Nicht bestanden' }}
+                </div>
+                <div class="exam-result-meta">
+                    30:00 Min — 80% benötigt
+                </div>
+
+                {{-- XP Badge --}}
+                @if(isset($gamification_result) && $gamification_result && isset($gamification_result['points_awarded']))
+                    <div class="exam-xp-badge">
+                        +{{ $gamification_result['points_awarded'] }} XP
+                        @if(isset($gamification_result['level_up']) && $gamification_result['level_up'])
+                            — Level Up!
                         @endif
-                    </p>
-                </div>
-
-                <!-- Progress Bar Card -->
-                <div class="glass-tl bento-side">
-                    <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 0.75rem;">Ergebnis-Übersicht</div>
-                    <div class="result-bar" style="margin-bottom: 0.75rem;">
-                        <div class="result-bar-fill" style="width: {{ $percent }}%; background: {{ $passed ? 'linear-gradient(90deg, #22c55e, #16a34a)' : 'linear-gradient(90deg, #ef4444, #dc2626)' }};"></div>
-                        <div class="result-bar-marker"></div>
-                        <div class="result-bar-label">80%</div>
                     </div>
-                    <div style="display: flex; justify-content: space-between; font-size: 0.75rem;">
-                        <span class="text-dark-muted">0%</span>
-                        <span class="{{ $passed ? 'text-success' : 'text-error' }} font-bold">{{ $percent }}%</span>
-                        <span class="text-dark-muted">100%</span>
+                @endif
+
+                {{-- Stats --}}
+                <div class="exam-result-stats">
+                    <div class="exam-result-stat exam-result-stat--correct">
+                        <div class="stat-value">{{ $correctCount }}</div>
+                        <div class="stat-label">Richtig</div>
+                    </div>
+                    <div class="exam-result-stat exam-result-stat--wrong">
+                        <div class="stat-value">{{ $total - $correctCount }}</div>
+                        <div class="stat-label">Falsch</div>
                     </div>
                 </div>
 
-                <!-- Action Card -->
-                <div class="glass-br bento-side" style="display: flex; flex-direction: column; justify-content: center;">
-                    @if(!$passed)
-                        <h3 style="font-size: 1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.5rem;">Fehler wiederholen</h3>
-                        <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 1rem;">
-                            {{ $wrongCount }} Fragen müssen wiederholt werden.
-                        </p>
-                        <a href="{{ route('failed.index') }}" class="btn-primary btn-sm">Jetzt üben</a>
-                    @else
-                        <h3 style="font-size: 1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.5rem;">Weiter lernen</h3>
-                        <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 1rem;">
-                            Halte dein Wissen frisch.
-                        </p>
-                        <a href="{{ route('practice.all') }}" class="btn-secondary btn-sm">Üben</a>
-                    @endif
-                </div>
-
-                <!-- Dashboard Link - Wide -->
-                <div class="glass-slash bento-wide" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
-                    <div>
-                        <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.25rem;">Zurück zum Dashboard</h3>
-                        <p style="font-size: 0.85rem; color: var(--text-secondary);">Übersicht deines Lernfortschritts anzeigen</p>
-                    </div>
-                    <a href="{{ route('dashboard') }}" class="btn-secondary">Dashboard</a>
-                </div>
-            </div>
-
-            <!-- Detailed Results Section -->
-            <div class="section-header" style="margin-top: 2rem;">
-                <h2 class="section-title">Detaillierte Auswertung</h2>
-            </div>
-
-            <div class="flex flex-col gap-4">
-                @foreach($results as $index => $result)
-                    @php
-                        $frage = $result['frage'];
-                        $userAnswer = $result['userAnswer'];
-                        $solution = $result['solution'];
-                        $isCorrect = $result['isCorrect'];
-                        $mappingArray = $result['mapping'] ?? [];
-
-                        $answersOriginal = [
-                            ['letter' => 'A', 'text' => $frage->antwort_a],
-                            ['letter' => 'B', 'text' => $frage->antwort_b],
-                            ['letter' => 'C', 'text' => $frage->antwort_c],
-                        ];
-
-                        if ($mappingArray) {
-                            $displayAnswers = [];
-                            foreach ($mappingArray as $position => $letter) {
-                                foreach ($answersOriginal as $ans) {
-                                    if ($ans['letter'] === $letter) {
-                                        $displayAnswers[$position] = $ans;
-                                        break;
-                                    }
-                                }
-                            }
-                            ksort($displayAnswers);
-                        } else {
-                            $displayAnswers = $answersOriginal;
+                {{-- Weakness Analysis --}}
+                @php
+                    $sectionResults = [];
+                    foreach ($results as $r) {
+                        $la = $r['frage']->lernabschnitt;
+                        if (!isset($sectionResults[$la])) {
+                            $sectionResults[$la] = ['correct' => 0, 'total' => 0];
                         }
-                    @endphp
+                        $sectionResults[$la]['total']++;
+                        if ($r['isCorrect']) $sectionResults[$la]['correct']++;
+                    }
+                    $weakSections = collect($sectionResults)
+                        ->map(fn($v, $k) => ['la' => $k, 'correct' => $v['correct'], 'total' => $v['total'], 'pct' => $v['total'] > 0 ? round($v['correct'] / $v['total'] * 100) : 100])
+                        ->filter(fn($v) => $v['pct'] < 75)
+                        ->sortBy('pct');
+                @endphp
 
-                    <div class="glass {{ $isCorrect ? '' : 'border-l-4 border-l-error' }}" style="padding: 1.25rem; border-radius: {{ $index % 2 === 0 ? '1rem 0.5rem 1rem 1rem' : '0.5rem 1rem 1rem 1rem' }};">
-                        <div class="flex items-start gap-3 mb-3">
-                            <span class="flex items-center justify-center w-8 h-8 rounded-lg {{ $isCorrect ? 'bg-success/20 text-success' : 'bg-error/20 text-error' }}" style="flex-shrink: 0;">
-                                <i class="bi bi-{{ $isCorrect ? 'check-lg' : 'x-lg' }}"></i>
-                            </span>
-                            <div class="flex-1">
-                                <div class="flex items-center gap-2 text-xs text-dark-muted mb-1">
-                                    <span>Frage {{ $index + 1 }}</span>
-                                    <span class="opacity-50">|</span>
-                                    <span>LA {{ $frage->lernabschnitt ?? '-' }}.{{ $frage->nummer ?? '-' }}</span>
+                @if($weakSections->isNotEmpty())
+                    <div class="exam-weakness-card">
+                        <div class="exam-weakness-title">Schwachstellen</div>
+                        @foreach($weakSections as $ws)
+                            <div class="exam-weakness-item">
+                                <div class="exam-weakness-la" style="color: {{ $ws['pct'] < 50 ? '#ef4444' : '#f59e0b' }};">LA {{ $ws['la'] }}</div>
+                                <div class="exam-weakness-bar">
+                                    <div class="exam-weakness-fill {{ $ws['pct'] < 50 ? 'bad' : 'medium' }}" style="width: {{ $ws['pct'] }}%"></div>
                                 </div>
-                                <p class="text-dark-primary text-sm font-medium">{{ $frage->frage }}</p>
+                                <div class="exam-weakness-score">{{ $ws['correct'] }}/{{ $ws['total'] }}</div>
                             </div>
-                        </div>
-
-                        <div class="flex flex-col gap-2 ml-11">
-                            @foreach($displayAnswers as $answerIndex => $answer)
-                                @php
-                                    $originalLetter = $answer['letter'];
-                                    $isUserAnswer = $userAnswer->contains($originalLetter);
-                                    $isSolution = $solution->contains($originalLetter);
-
-                                    $stateClass = '';
-
-                                    if ($isSolution && $isUserAnswer) {
-                                        $stateClass = 'result-correct';
-                                    } elseif ($isSolution && !$isUserAnswer) {
-                                        $stateClass = 'result-correct-missed';
-                                    } elseif (!$isSolution && $isUserAnswer) {
-                                        $stateClass = 'result-wrong';
-                                    } else {
-                                        $stateClass = 'result-neutral';
-                                    }
-                                @endphp
-
-                                <div class="flex items-start gap-2 p-2 rounded-lg border {{ $stateClass }}">
-                                    <span class="w-5 h-5 flex items-center justify-center text-sm flex-shrink-0">
-                                        @if($isUserAnswer)
-                                            <i class="bi bi-{{ $isSolution ? 'check-lg text-success' : 'x-lg text-error' }}"></i>
-                                        @endif
-                                    </span>
-                                    <span class="text-dark-primary text-sm flex-1">
-                                        {{ $answer['text'] }}
-                                    </span>
-                                    @if($isSolution && !$isUserAnswer)
-                                        <span class="badge-success" style="font-size: 0.65rem; padding: 0.15rem 0.5rem;">
-                                            Richtig
-                                        </span>
-                                    @endif
-                                </div>
-                            @endforeach
-                        </div>
-
-                        <div class="mt-3 pt-3 border-t border-glass-subtle flex items-center justify-between text-xs ml-11">
-                            <span class="{{ $isCorrect ? 'text-success' : 'text-error' }} font-medium flex items-center gap-1">
-                                <i class="bi bi-{{ $isCorrect ? 'check-circle' : 'x-circle' }}"></i>
-                                {{ $isCorrect ? 'Richtig' : 'Falsch' }}
-                            </span>
-                            <span class="text-dark-muted">
-                                Lösung: {{ $solution->join(', ') }}
-                            </span>
-                        </div>
+                        @endforeach
                     </div>
-                @endforeach
+                @endif
+
+                {{-- Action Buttons --}}
+                <div class="exam-result-actions">
+                    <button class="exam-result-btn exam-result-btn--primary" onclick="startReview('all')">
+                        Alle Fragen durchgehen
+                    </button>
+                    @if($total - $correctCount > 0)
+                        <button class="exam-result-btn exam-result-btn--wrong" onclick="startReview('wrong')">
+                            Nur falsche Fragen ({{ $total - $correctCount }})
+                        </button>
+                    @endif
+                    <a href="{{ route('exam.history') }}" class="exam-result-btn exam-result-btn--close">
+                        Zur Prüfungshistorie
+                    </a>
+                </div>
             </div>
         </div>
-    @endif
+
+        {{-- ── Review View (hidden initially) ───── --}}
+        <div id="result-review" style="display: none;">
+            @foreach($results as $index => $result)
+                <div class="exam-slide" data-review="{{ $index }}">
+                    <div class="exam-question-card {{ $result['isCorrect'] ? 'result-correct' : 'result-wrong' }}">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                            <div class="exam-question-la">LA {{ $result['frage']->lernabschnitt ?? '-' }}.{{ $result['frage']->nummer ?? '-' }}</div>
+                            <div class="exam-result-badge {{ $result['isCorrect'] ? 'correct' : 'wrong' }}">
+                                {{ $result['isCorrect'] ? 'RICHTIG' : 'FALSCH' }}
+                            </div>
+                        </div>
+                        <div class="exam-question-text">{{ $result['frage']->frage }}</div>
+                    </div>
+
+                    <div class="exam-answers">
+                        @php
+                            $mapping = $result['mapping'] ?? [0 => 'A', 1 => 'B', 2 => 'C'];
+                            $solution = $result['solution'];
+                            $userAnswer = $result['userAnswer'];
+                        @endphp
+                        @foreach($mapping as $position => $letter)
+                            @php
+                                $answerField = 'antwort_' . strtolower($letter);
+                                $answerText = $result['frage']->$answerField;
+                                $isCorrectAnswer = $solution->contains($letter);
+                                $wasSelected = $userAnswer && $userAnswer->contains($letter);
+
+                                if ($wasSelected && $isCorrectAnswer) {
+                                    $answerClass = 'result-correct';
+                                    $checkContent = '✓';
+                                } elseif ($wasSelected && !$isCorrectAnswer) {
+                                    $answerClass = 'result-wrong';
+                                    $checkContent = '✕';
+                                } elseif (!$wasSelected && $isCorrectAnswer) {
+                                    $answerClass = 'result-missed';
+                                    $checkContent = '✓';
+                                } else {
+                                    $answerClass = '';
+                                    $checkContent = '';
+                                }
+                            @endphp
+                            <div class="exam-answer {{ $answerClass }}" style="cursor: default;">
+                                <div class="exam-checkbox">{{ $checkContent }}</div>
+                                <span>{{ $answerText }}</span>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    </div>
+
+    {{-- ── Review Bottom Bar (hidden initially) ── --}}
+    <div class="exam-bottom-bar" id="review-bottom-bar" style="display: none;">
+        <div class="exam-bubbles-track" id="review-bubbles"></div>
+        <div class="exam-actions">
+            <button class="exam-btn exam-btn--back" onclick="prevReview()" id="review-btn-back">Zurück</button>
+            <button class="exam-btn exam-btn--next" onclick="nextReview()" id="review-btn-next">Weiter</button>
+        </div>
+    </div>
 </div>
+
+@push('scripts')
+<script>
+// ============================================
+// RESULT REVIEW MODE
+// ============================================
+
+const reviewResults = @json(collect($results)->map(fn($r, $i) => ['index' => $i, 'isCorrect' => $r['isCorrect']])->values());
+let reviewMode = null; // 'all' or 'wrong'
+let reviewQuestions = []; // indices to show
+let reviewCurrent = 0;
+
+const reviewContainer = document.getElementById('result-review');
+const summaryContainer = document.getElementById('result-summary');
+const reviewBottomBar = document.getElementById('review-bottom-bar');
+const reviewBubbles = document.getElementById('review-bubbles');
+
+function startReview(mode) {
+    reviewMode = mode;
+    if (mode === 'all') {
+        reviewQuestions = reviewResults.map(function(_, i) { return i; });
+    } else {
+        reviewQuestions = reviewResults.filter(function(r) { return !r.isCorrect; }).map(function(r) { return r.index; });
+    }
+    reviewCurrent = 0;
+
+    summaryContainer.style.display = 'none';
+    reviewContainer.style.display = 'block';
+    reviewBottomBar.style.display = 'block';
+
+    // Update topbar for review mode
+    var topbarLabel = document.querySelector('.exam-topbar-label');
+    if (topbarLabel) {
+        topbarLabel.textContent = 'ERGEBNIS \u2014 {{ round(($correctCount / $total) * 100) }}%';
+    }
+    var topbarTitle = document.querySelector('.exam-topbar-title');
+    if (topbarTitle) {
+        topbarTitle.style.display = '';
+    }
+
+    showReviewQuestion(0);
+}
+
+function showReviewQuestion(idx) {
+    if (idx < 0 || idx >= reviewQuestions.length) return;
+    reviewCurrent = idx;
+
+    // Hide all, show current
+    document.querySelectorAll('[data-review]').forEach(function(s) { s.style.display = 'none'; });
+    var slide = document.querySelector('[data-review="' + reviewQuestions[idx] + '"]');
+    if (slide) slide.style.display = 'block';
+
+    // Update topbar title
+    var topbarTitle = document.querySelector('.exam-topbar-title');
+    if (topbarTitle) {
+        topbarTitle.innerHTML = 'Frage <span class="exam-qnum">' + (idx + 1) + '</span> <span class="exam-qtotal">/ ' + reviewQuestions.length + '</span>';
+    }
+
+    // Update buttons
+    var btnBack = document.getElementById('review-btn-back');
+    var btnNext = document.getElementById('review-btn-next');
+    if (btnBack) btnBack.style.visibility = idx === 0 ? 'hidden' : 'visible';
+    if (btnNext) btnNext.textContent = idx === reviewQuestions.length - 1 ? 'Fertig' : 'Weiter';
+
+    updateReviewBubbles();
+
+    // Scroll content to top
+    var content = document.querySelector('.exam-content');
+    if (content) content.scrollTop = 0;
+}
+
+function nextReview() {
+    if (reviewCurrent === reviewQuestions.length - 1) {
+        // Back to summary
+        reviewContainer.style.display = 'none';
+        reviewBottomBar.style.display = 'none';
+        summaryContainer.style.display = 'block';
+
+        // Restore topbar
+        var topbarTitle = document.querySelector('.exam-topbar-title');
+        if (topbarTitle) topbarTitle.style.display = 'none';
+        var topbarLabel = document.querySelector('.exam-topbar-label');
+        if (topbarLabel) topbarLabel.textContent = 'ERGEBNIS';
+
+        return;
+    }
+    showReviewQuestion(reviewCurrent + 1);
+}
+
+function prevReview() {
+    showReviewQuestion(reviewCurrent - 1);
+}
+
+function updateReviewBubbles() {
+    if (!reviewBubbles) return;
+
+    var total = reviewQuestions.length;
+    var windowSize = Math.min(total, 9);
+    var center = Math.floor(windowSize / 2);
+
+    var start;
+    if (total <= 9) {
+        start = 0;
+    } else if (reviewCurrent <= center) {
+        start = 0;
+    } else if (reviewCurrent >= total - windowSize + center) {
+        start = total - windowSize;
+    } else {
+        start = reviewCurrent - center;
+    }
+    var end = Math.min(start + windowSize, total);
+
+    reviewBubbles.innerHTML = '';
+    for (var i = start; i < end; i++) {
+        var bubble = document.createElement('button');
+        bubble.className = 'exam-bubble';
+        bubble.textContent = i + 1;
+        bubble.setAttribute('type', 'button');
+        bubble.onclick = (function(idx) { return function() { showReviewQuestion(idx); }; })(i);
+
+        var originalIndex = reviewQuestions[i];
+        if (i === reviewCurrent) {
+            bubble.classList.add('exam-bubble--active');
+        } else if (reviewResults[originalIndex].isCorrect) {
+            bubble.classList.add('exam-bubble--correct');
+        } else {
+            bubble.classList.add('exam-bubble--wrong');
+        }
+
+        reviewBubbles.appendChild(bubble);
+    }
+}
+
+// ── Result Ring Animation ──────────────
+document.addEventListener('DOMContentLoaded', function() {
+    var ringFill = document.querySelector('.ring-fill');
+    if (ringFill) {
+        var targetOffset = ringFill.getAttribute('data-target-offset');
+        setTimeout(function() {
+            ringFill.style.strokeDashoffset = targetOffset;
+        }, 100);
+    }
+});
+</script>
+@endpush
+
+@endif
+
 @endsection

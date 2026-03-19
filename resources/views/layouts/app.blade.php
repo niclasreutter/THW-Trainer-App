@@ -5,11 +5,9 @@
         <script>
             (function() {
                 var theme = localStorage.getItem('theme');
-                if (theme === 'light') {
-                    document.documentElement.classList.add('light-mode');
-                } else if (!theme && window.matchMedia('(prefers-color-scheme: light)').matches) {
-                    document.documentElement.classList.add('light-mode');
-                }
+                var isLight = theme === 'light' || (!theme && window.matchMedia('(prefers-color-scheme: light)').matches);
+                if (isLight) document.documentElement.classList.add('light-mode');
+                document.documentElement.setAttribute('data-theme-mode', theme || 'auto');
             })();
         </script>
         <meta charset="utf-8">
@@ -129,242 +127,184 @@
         <div class="min-h-screen flex">
             <!-- Sidebar (Desktop) -->
             @auth
-            <aside class="hidden lg:flex lg:flex-col lg:w-64 lg:fixed lg:inset-y-0 sidebar-glass">
+            @php
+                $unreadLeagueNotifs = \App\Models\Notification::where('user_id', auth()->id())
+                    ->where('is_read', false)
+                    ->whereIn('type', ['league_promotion', 'league_relegation'])
+                    ->count();
+                $unopenedLootboxCount = \App\Models\Lootbox::where('user_id', auth()->id())->where('opened', false)->count();
+                $userOV = auth()->user()->ortsverbände->first();
+                $sidebarNotificationCount = auth()->user()->unreadNotifications()->count();
+                $sidebarLevelProgress = app(\App\Services\GamificationService::class)->getLevelProgress(auth()->user());
+            @endphp
+            <aside class="hidden lg:flex lg:flex-col lg:fixed lg:inset-y-0 sidebar-glass" style="width: 264px;">
+                <div class="sidebar-border"></div>
+
                 <!-- Logo -->
-                <div class="flex items-center gap-3 px-6 py-5 border-b border-glass-subtle">
-                    <div class="w-10 h-10 rounded-xl bg-gradient-gold flex items-center justify-center">
-                        <img src="{{ asset('logo-thwtrainer_w.png') }}" alt="THW" class="w-7 h-7">
+                <div class="sidebar-header">
+                    <div class="sidebar-logo-mark">
+                        <img src="{{ asset('logo-thwtrainer_w.png') }}" alt="THW" class="w-5 h-5 relative" style="z-index:1;">
                     </div>
-                    <span class="font-bold text-dark-primary tracking-tight">THW-Trainer</span>
+                    <span class="sidebar-brand">THW-Trainer</span>
                 </div>
 
                 <!-- Navigation -->
-                <nav class="flex-1 px-4 py-6 space-y-1 overflow-y-auto" data-tour-step="sidebar">
-                    <a href="{{ route('dashboard') }}"
-                       class="sidebar-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
-                        <i class="bi bi-house-door"></i>
-                        Dashboard
+                <nav class="sidebar-nav" data-tour-step="sidebar">
+                    <div class="nav-section">Navigation</div>
+
+                    <a href="{{ route('dashboard') }}" class="sidebar-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+                        <i class="bi bi-house-door"></i> Dashboard
+                    </a>
+                    <a href="{{ route('statistics') }}" class="sidebar-link {{ request()->routeIs('statistics') ? 'active' : '' }}">
+                        <i class="bi bi-bar-chart"></i> Statistiken
+                    </a>
+                    <a href="{{ route('practice.menu') }}" class="sidebar-link {{ request()->routeIs('practice.*') ? 'active' : '' }}">
+                        <i class="bi bi-book"></i> Theorie Lernen
+                    </a>
+                    <a href="{{ route('bookmarks.index') }}" class="sidebar-link {{ request()->routeIs('bookmarks.*') ? 'active' : '' }}">
+                        <i class="bi bi-bookmark"></i> Gespeicherte Fragen
+                    </a>
+                    <a href="{{ route('exam.index') }}" class="sidebar-link {{ request()->routeIs('exam.index') ? 'active' : '' }}">
+                        <i class="bi bi-clipboard-check"></i> Prüfung
+                    </a>
+                    <a href="{{ route('exam.history') }}" class="sidebar-link {{ request()->routeIs('exam.history*') ? 'active' : '' }}">
+                        <i class="bi bi-bar-chart-line"></i> Prüfungshistorie
+                    </a>
+                    <a href="{{ route('lehrgaenge.index') }}" class="sidebar-link {{ request()->routeIs('lehrgaenge.*') ? 'active' : '' }}">
+                        <i class="bi bi-mortarboard"></i> Lehrgänge
+                    </a>
+                    <a href="{{ route('contact.index') }}" class="sidebar-link {{ request()->routeIs('contact.*') ? 'active' : '' }}">
+                        <i class="bi bi-envelope"></i> Kontakt
                     </a>
 
-                    <a href="{{ route('practice.menu') }}"
-                       class="sidebar-link {{ request()->routeIs('practice.*') ? 'active' : '' }}">
-                        <i class="bi bi-book"></i>
-                        Theorie Lernen
-                    </a>
+                    <div class="nav-section">Community</div>
 
-                    <a href="{{ route('bookmarks.index') }}"
-                       class="sidebar-link {{ request()->routeIs('bookmarks.*') ? 'active' : '' }}">
-                        <i class="bi bi-bookmark"></i>
-                        Gespeicherte Fragen
-                    </a>
-
-                    <a href="{{ route('exam.index') }}"
-                       class="sidebar-link {{ request()->routeIs('exam.index') ? 'active' : '' }}">
-                        <i class="bi bi-clipboard-check"></i>
-                        Prüfung
-                    </a>
-
-                    <a href="{{ route('exam.history') }}"
-                       class="sidebar-link {{ request()->routeIs('exam.history*') ? 'active' : '' }}">
-                        <i class="bi bi-bar-chart-line"></i>
-                        Prüfungshistorie
-                    </a>
-
-                    <a href="{{ route('lehrgaenge.index') }}"
-                       class="sidebar-link {{ request()->routeIs('lehrgaenge.*') ? 'active' : '' }}">
-                        <i class="bi bi-mortarboard"></i>
-                        Lehrgänge
-                    </a>
-
-                    <a href="{{ route('gamification.leaderboard') }}"
-                       class="sidebar-link {{ request()->routeIs('gamification.leaderboard') ? 'active' : '' }}">
-                        <i class="bi bi-trophy"></i>
-                        Liga
-                        @php
-                            $unreadLeagueNotifs = \App\Models\Notification::where('user_id', auth()->id())
-                                ->where('is_read', false)
-                                ->whereIn('type', ['league_promotion', 'league_relegation'])
-                                ->count();
-                        @endphp
+                    <a href="{{ route('gamification.leaderboard') }}" class="sidebar-link {{ request()->routeIs('gamification.leaderboard') ? 'active' : '' }}">
+                        <i class="bi bi-trophy"></i> Liga
                         @if($unreadLeagueNotifs > 0)
                             <span class="badge-error text-xs ml-auto">{{ $unreadLeagueNotifs }}</span>
                         @endif
                     </a>
-
-                    <a href="{{ route('gamification.achievements') }}"
-                       class="sidebar-link {{ request()->routeIs('gamification.achievements') ? 'active' : '' }}">
-                        <i class="bi bi-award"></i>
-                        Achievements
+                    <a href="{{ route('gamification.achievements') }}" class="sidebar-link {{ request()->routeIs('gamification.achievements') ? 'active' : '' }}">
+                        <i class="bi bi-award"></i> Achievements
                     </a>
-
-                    <a href="{{ route('lernsession.index') }}"
-                       class="sidebar-link {{ request()->routeIs('lernsession.*') ? 'active' : '' }}">
-                        <i class="bi bi-people"></i>
-                        Lernsessions
+                    <a href="{{ route('lernsession.index') }}" class="sidebar-link {{ request()->routeIs('lernsession.*') ? 'active' : '' }}">
+                        <i class="bi bi-people"></i> Lernsessions
                     </a>
-
-                    @php
-                        $unopenedLootboxCount = \App\Models\Lootbox::where('user_id', auth()->id())->where('opened', false)->count();
-                    @endphp
-                    <a href="{{ route('shop.index') }}"
-                       class="sidebar-link {{ request()->routeIs('shop.*') ? 'active' : '' }}">
-                        <i class="bi bi-shop"></i>
-                        Shop
+                    <a href="{{ route('shop.index') }}" class="sidebar-link {{ request()->routeIs('shop.*') ? 'active' : '' }}">
+                        <i class="bi bi-shop"></i> Shop
                         @if($unopenedLootboxCount > 0)
                             <span class="badge-error text-xs ml-auto">{{ $unopenedLootboxCount }}</span>
                         @endif
                     </a>
 
-                    <a href="{{ route('contact.index') }}"
-                       class="sidebar-link {{ request()->routeIs('contact.*') ? 'active' : '' }}">
-                        <i class="bi bi-envelope"></i>
-                        Kontakt
+                    <div class="nav-section">Ortsverband</div>
+
+                    <a href="{{ $userOV ? route('ortsverband.show', $userOV) : route('ortsverband.index') }}" class="sidebar-link {{ request()->routeIs('ortsverband.show') ? 'active' : '' }}">
+                        <i class="bi bi-building"></i> {{ $userOV ? $userOV->name : 'Ortsverband' }}
                     </a>
-
-                    @php
-                        $userOV = auth()->user()->ortsverbände->first();
-                    @endphp
-                    <div class="pt-4 mt-4 border-t border-glass-subtle">
-                        <p class="px-3 mb-3 text-xs font-semibold text-dark-muted uppercase tracking-wider">Ortsverband</p>
-
-                        <a href="{{ route('ortsverband.index') }}"
-                           class="sidebar-link {{ request()->routeIs('ortsverband.*') ? 'active' : '' }}">
-                            <i class="bi bi-people"></i>
-                            {{ $userOV ? $userOV->name : 'Ortsverband' }}
+                    @if($userOV && $userOV->isAusbildungsbeauftragter(auth()->user()))
+                        <a href="{{ route('ortsverband.dashboard', $userOV) }}" class="sidebar-link {{ request()->routeIs('ortsverband.dashboard') ? 'active' : '' }}">
+                            <i class="bi bi-gear"></i> Verwalten
                         </a>
-                    </div>
+                    @endif
 
                     @if(auth()->user()->useroll === 'admin')
-                    <div class="pt-4 mt-4 border-t border-glass-subtle">
-                        <p class="px-3 mb-3 text-xs font-semibold text-dark-muted uppercase tracking-wider">Admin</p>
+                    <div class="nav-section nav-section-admin">Admin</div>
 
-                        <a href="{{ route('admin.dashboard') }}"
-                           class="sidebar-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
-                            <i class="bi bi-speedometer2"></i>
-                            Dashboard
-                        </a>
-
-                        <a href="{{ route('admin.users.index') }}"
-                           class="sidebar-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
-                            <i class="bi bi-people"></i>
-                            Nutzer
-                        </a>
-
-                        <a href="{{ route('admin.questions.index') }}"
-                           class="sidebar-link {{ request()->routeIs('admin.questions.*') ? 'active' : '' }}">
-                            <i class="bi bi-question-circle"></i>
-                            Fragen
-                        </a>
-
-                        <a href="{{ route('admin.lehrgaenge.index') }}"
-                           class="sidebar-link {{ request()->routeIs('admin.lehrgaenge.*') ? 'active' : '' }}">
-                            <i class="bi bi-mortarboard"></i>
-                            Lehrgänge
-                        </a>
-
-                        <a href="{{ route('admin.ortsverband.index') }}"
-                           class="sidebar-link {{ request()->routeIs('admin.ortsverband.*') ? 'active' : '' }}">
-                            <i class="bi bi-building"></i>
-                            Ortsverbände
-                        </a>
-
-                        <a href="{{ route('admin.issues.index') }}"
-                           class="sidebar-link {{ request()->routeIs('admin.issues.*') ? 'active' : '' }}">
-                            <i class="bi bi-exclamation-triangle"></i>
-                            Fehlermeldungen
-                            @php
-                                $openIssuesCount = cache()->remember('admin_open_issues_count', 300, function() {
-                                    return \App\Models\LehrgangQuestionIssue::where('status', 'open')->count()
-                                         + \App\Models\QuestionIssue::where('status', 'open')->count();
-                                });
-                            @endphp
-                            @if($openIssuesCount > 0)
-                                <span class="badge-error text-xs ml-auto">{{ $openIssuesCount }}</span>
-                            @endif
-                        </a>
-
-                        <a href="{{ route('admin.contact-messages.index') }}"
-                           class="sidebar-link {{ request()->routeIs('admin.contact-messages.*') ? 'active' : '' }}">
-                            <i class="bi bi-envelope"></i>
-                            Kontaktanfragen
-                            @php
-                                $unreadContactCount = cache()->remember('admin_unread_messages_count', 300, function() {
-                                    return \App\Models\ContactMessage::where('is_read', false)->count();
-                                });
-                            @endphp
-                            @if($unreadContactCount > 0)
-                                <span class="badge-error text-xs ml-auto">{{ $unreadContactCount }}</span>
-                            @endif
-                        </a>
-
-                        <a href="{{ route('admin.exam-feedback.index') }}"
-                           class="sidebar-link {{ request()->routeIs('admin.exam-feedback.*') ? 'active' : '' }}">
-                            <i class="bi bi-mortarboard"></i>
-                            Prüfungs-Feedback
-                        </a>
-
-                        <a href="{{ route('admin.logs.index', 'scheduler') }}"
-                           class="sidebar-link {{ request()->routeIs('admin.logs.*') && request()->route('type') === 'scheduler' ? 'active' : '' }}">
-                            <i class="bi bi-terminal"></i>
-                            Scheduler-Logs
-                        </a>
-
-                        <a href="{{ route('admin.logs.index', 'worker') }}"
-                           class="sidebar-link {{ request()->routeIs('admin.logs.*') && request()->route('type') === 'worker' ? 'active' : '' }}">
-                            <i class="bi bi-gear"></i>
-                            Worker-Logs
-                        </a>
-
-                        @if(!app()->environment('production'))
-                        <a href="{{ route('admin.time-simulator') }}"
-                           class="sidebar-link {{ request()->routeIs('admin.time-simulator*') ? 'active' : '' }}">
-                            <i class="bi bi-clock-history"></i>
-                            Zeitsimulator
-                        </a>
+                    <a href="{{ route('admin.dashboard') }}" class="sidebar-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+                        <i class="bi bi-speedometer2"></i> Dashboard
+                    </a>
+                    <a href="{{ route('admin.statistics') }}" class="sidebar-link {{ request()->routeIs('admin.statistics') ? 'active' : '' }}">
+                        <i class="bi bi-graph-up"></i> Statistiken
+                    </a>
+                    <a href="{{ route('admin.users.index') }}" class="sidebar-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
+                        <i class="bi bi-people"></i> Nutzer
+                    </a>
+                    <a href="{{ route('admin.questions.index') }}" class="sidebar-link {{ request()->routeIs('admin.questions.*') ? 'active' : '' }}">
+                        <i class="bi bi-question-circle"></i> Fragen
+                    </a>
+                    <a href="{{ route('admin.lehrgaenge.index') }}" class="sidebar-link {{ request()->routeIs('admin.lehrgaenge.*') ? 'active' : '' }}">
+                        <i class="bi bi-mortarboard"></i> Lehrgänge
+                    </a>
+                    <a href="{{ route('admin.ortsverband.index') }}" class="sidebar-link {{ request()->routeIs('admin.ortsverband.*') ? 'active' : '' }}">
+                        <i class="bi bi-building"></i> Ortsverbände
+                    </a>
+                    <a href="{{ route('admin.leagues.index') }}" class="sidebar-link {{ request()->routeIs('admin.leagues.*') ? 'active' : '' }}">
+                        <i class="bi bi-trophy"></i> Ligen
+                    </a>
+                    <a href="{{ route('admin.shop-analytics') }}" class="sidebar-link {{ request()->routeIs('admin.shop-analytics') ? 'active' : '' }}">
+                        <i class="bi bi-cart3"></i> Shop Analytics
+                    </a>
+                    <a href="{{ route('admin.newsletter.index') }}" class="sidebar-link {{ request()->routeIs('admin.newsletter.*') ? 'active' : '' }}">
+                        <i class="bi bi-megaphone"></i> Newsletter
+                    </a>
+                    <a href="{{ route('admin.issues.index') }}" class="sidebar-link {{ request()->routeIs('admin.issues.*') ? 'active' : '' }}">
+                        <i class="bi bi-exclamation-triangle"></i> Fehlermeldungen
+                        @php
+                            $openIssuesCount = cache()->remember('admin_open_issues_count', 300, fn() => \App\Models\LehrgangQuestionIssue::where('status', 'open')->count() + \App\Models\QuestionIssue::where('status', 'open')->count());
+                        @endphp
+                        @if($openIssuesCount > 0)
+                            <span class="badge-error text-xs ml-auto">{{ $openIssuesCount }}</span>
                         @endif
-                    </div>
+                    </a>
+                    <a href="{{ route('admin.contact-messages.index') }}" class="sidebar-link {{ request()->routeIs('admin.contact-messages.*') ? 'active' : '' }}">
+                        <i class="bi bi-envelope"></i> Kontaktanfragen
+                        @php
+                            $unreadContactCount = cache()->remember('admin_unread_messages_count', 300, fn() => \App\Models\ContactMessage::where('is_read', false)->count());
+                        @endphp
+                        @if($unreadContactCount > 0)
+                            <span class="badge-error text-xs ml-auto">{{ $unreadContactCount }}</span>
+                        @endif
+                    </a>
+                    <a href="{{ route('admin.exam-feedback.index') }}" class="sidebar-link {{ request()->routeIs('admin.exam-feedback.*') ? 'active' : '' }}">
+                        <i class="bi bi-mortarboard"></i> Prüfungs-Feedback
+                    </a>
+                    <a href="{{ route('admin.logs.index', 'scheduler') }}" class="sidebar-link {{ request()->routeIs('admin.logs.*') && request()->route('type') === 'scheduler' ? 'active' : '' }}">
+                        <i class="bi bi-terminal"></i> Scheduler-Logs
+                    </a>
+                    <a href="{{ route('admin.logs.index', 'worker') }}" class="sidebar-link {{ request()->routeIs('admin.logs.*') && request()->route('type') === 'worker' ? 'active' : '' }}">
+                        <i class="bi bi-gear"></i> Worker-Logs
+                    </a>
+                    @if(!app()->environment('production'))
+                    <a href="{{ route('admin.time-simulator') }}" class="sidebar-link {{ request()->routeIs('admin.time-simulator*') ? 'active' : '' }}">
+                        <i class="bi bi-clock-history"></i> Zeitsimulator
+                    </a>
+                    @endif
                     @endif
                 </nav>
 
-                <!-- User Menu -->
-                <div class="px-4 py-4 border-t border-glass-subtle">
-                    <div class="flex items-center gap-3 px-3 py-2">
-                        <div class="w-9 h-9 rounded-full bg-thw-blue/20 flex items-center justify-center">
-                            <span class="text-sm font-semibold text-gold">
-                                {{ substr(auth()->user()->name, 0, 1) }}
-                            </span>
+                <!-- User Card (bottom) -->
+                <div class="sidebar-user">
+                    <a href="{{ route('profile') }}" class="sidebar-user-card">
+                        <img src="{{ auth()->user()->avatar_url }}" alt="Avatar" class="sidebar-user-avatar">
+                        <div class="sidebar-user-meta">
+                            <p class="sidebar-user-name">{{ auth()->user()->name }}</p>
+                            <div class="sidebar-level-row">
+                                <span class="sidebar-level-text">Lvl {{ auth()->user()->level ?? 1 }}</span>
+                                <div class="sidebar-level-track"><div class="sidebar-level-fill" style="width: {{ $sidebarLevelProgress }}%;"></div></div>
+                            </div>
                         </div>
-                        <div class="flex-1 min-w-0">
-                            <p class="text-sm font-medium text-dark-primary truncate">{{ auth()->user()->name }}</p>
-                            <p class="text-xs text-dark-muted truncate">Level {{ auth()->user()->level ?? 1 }}</p>
-                        </div>
-                        <button type="button" onclick="toggleTheme()" class="theme-toggle-sm" title="Farbschema">
+                    </a>
+                    <div class="sidebar-actions">
+                        <a href="{{ route('notifications.index') }}" class="sidebar-action-btn {{ request()->routeIs('notifications.*') ? 'active' : '' }}" title="Mitteilungen">
+                            <i class="bi bi-bell"></i>
+                            @if($sidebarNotificationCount > 0)
+                                <span class="sidebar-notif-dot"></span>
+                            @endif
+                        </a>
+                        <button type="button" onclick="toggleTheme()" class="sidebar-action-btn theme-toggle" title="Farbschema">
                             <i class="bi bi-moon-fill icon-moon"></i>
                             <i class="bi bi-sun-fill icon-sun"></i>
+                            <i class="bi bi-circle-half icon-auto"></i>
                         </button>
-                    </div>
-
-                    @php
-                        $sidebarNotificationCount = auth()->user()->unreadNotifications()->count();
-                    @endphp
-                    <a href="{{ route('notifications.index') }}" class="sidebar-link mt-3 {{ request()->routeIs('notifications.*') ? 'active' : '' }}">
-                        <i class="bi bi-bell"></i>
-                        Mitteilungen
-                        @if($sidebarNotificationCount > 0)
-                            <span class="badge-error text-xs ml-auto">{{ $sidebarNotificationCount }}</span>
-                        @endif
-                    </a>
-
-                    <div class="flex items-center gap-2 mt-3 px-3">
-                        <a href="{{ route('profile') }}" class="sidebar-link-sm flex-1">
+                        <a href="{{ route('profile') }}" class="sidebar-action-btn" title="Profil">
                             <i class="bi bi-person"></i>
-                            Profil
                         </a>
-                        <form method="POST" action="{{ route('logout') }}" class="flex-1">
+                        <form method="POST" action="{{ route('logout') }}" class="sidebar-action-form">
                             @csrf
-                            <button type="submit" class="sidebar-link-sm w-full text-left">
+                            <button type="submit" class="sidebar-action-btn" title="Abmelden">
                                 <i class="bi bi-box-arrow-right"></i>
-                                Logout
                             </button>
                         </form>
                     </div>
@@ -373,7 +313,7 @@
             @endauth
 
             <!-- Main Content -->
-            <div class="flex-1 @auth lg:pl-64 @endauth flex flex-col min-h-screen">
+            <div class="flex-1 @auth lg:pl-[264px] @endauth flex flex-col min-h-screen" style="min-width:0;">
                 <!-- Mobile Header -->
                 <header class="lg:hidden sticky top-0 z-40 mobile-header-glass">
                     <div class="flex items-center justify-between px-4 py-3">
@@ -388,6 +328,7 @@
                             <button type="button" onclick="toggleTheme()" class="theme-toggle-sm" title="Farbschema">
                                 <i class="bi bi-moon-fill icon-moon"></i>
                                 <i class="bi bi-sun-fill icon-sun"></i>
+                                <i class="bi bi-circle-half icon-auto"></i>
                             </button>
                             @auth
                             <button @click="sidebarOpen = true" class="p-2 text-dark-muted hover:text-dark-primary" data-tour-step="mobile-menu">
@@ -400,14 +341,9 @@
                     </div>
                 </header>
 
-                @unless(app()->environment('production'))
-                <div style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #92400e; text-align: center; padding: 0.75rem 1rem; font-size: 0.95rem; font-weight: 700; letter-spacing: 0.5px; border-radius: 0.5rem; margin: 0 1rem 0 1rem;">
-                    Testumgebung ({{ app()->environment() }}) – Dies ist nicht die produktive Version von THW-Trainer!
-                </div>
-                @endunless
 
                 <!-- Page Content -->
-                <main class="flex-1 px-4 lg:px-8 py-6 lg:py-8 @auth pb-20 lg:pb-8 @endauth">
+                <main class="flex-1 px-4 lg:px-8 py-6 lg:py-8 @auth pb-28 lg:pb-8 @endauth" id="main-content" style="min-width:0;overflow-x:hidden;">
                     @yield('content')
                 </main>
 
@@ -419,7 +355,7 @@
                                 &copy; {{ date('Y') }} THW-Trainer &ndash;
                                 <a href="{{ route('landing.impressum') }}" class="text-gold hover:text-gold-light transition-colors">Impressum</a> &middot;
                                 <a href="{{ route('landing.datenschutz') }}" class="text-gold hover:text-gold-light transition-colors">Datenschutz</a> &middot;
-                                <a href="{{ route('landing.statistics') }}" class="text-gold hover:text-gold-light transition-colors">Statistik</a> &middot;
+                                <a href="https://thw-trainer.de/statistik" class="text-gold hover:text-gold-light transition-colors" target="_blank">Statistik</a> &middot;
                                 <a href="{{ route('contact.index') }}" class="text-gold hover:text-gold-light transition-colors">Kontakt</a>
                             </div>
                             <div>
@@ -434,7 +370,7 @@
 
         <!-- Bottom Navigation (Mobile) - Outside flex container for reliable backdrop-filter -->
         @auth
-        <nav class="lg:hidden bottom-nav-glass bottom-nav-pill z-40" data-tour-step="bottom-nav">
+        <nav class="lg:hidden bottom-nav-glass bottom-nav-pill z-40 bottom-nav-blue" data-tour-step="bottom-nav">
             <div class="flex items-center justify-around py-2">
                 <a href="{{ route('dashboard') }}" class="bottom-nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
                     <i class="bi bi-house-door{{ request()->routeIs('dashboard') ? '-fill' : '' }}"></i>
@@ -481,191 +417,155 @@
                x-transition:leave="transition ease-in duration-150"
                x-transition:leave-start="translate-x-0"
                x-transition:leave-end="translate-x-full"
-               class="lg:hidden fixed inset-y-0 right-0 z-50 w-72 sidebar-glass flex flex-col"
+               class="lg:hidden fixed inset-y-0 right-0 z-50 sidebar-glass mobile-sidebar-panel flex flex-col"
                style="display: none;">
+            <div class="sidebar-border sidebar-border-left"></div>
+
             <!-- Header -->
-            <div class="flex-shrink-0 flex items-center justify-between px-6 py-5 border-b border-glass-subtle">
+            <div class="mobile-sidebar-head">
                 <span class="font-bold text-dark-primary">Menü</span>
-                <button @click="sidebarOpen = false" class="p-2 text-dark-muted hover:text-dark-primary">
+                <button @click="sidebarOpen = false" class="mobile-sidebar-close">
                     <i class="bi bi-x-lg"></i>
                 </button>
             </div>
 
             <!-- Scrollable Navigation -->
-            <nav class="flex-1 overflow-y-auto px-4 py-6 space-y-1">
+            <nav class="sidebar-nav">
+                <a href="{{ route('statistics') }}" class="sidebar-link {{ request()->routeIs('statistics') ? 'active' : '' }}">
+                    <i class="bi bi-bar-chart"></i> Statistiken
+                </a>
                 <a href="{{ route('bookmarks.index') }}" class="sidebar-link {{ request()->routeIs('bookmarks.*') ? 'active' : '' }}">
-                    <i class="bi bi-bookmark"></i>
-                    Gespeicherte Fragen
+                    <i class="bi bi-bookmark"></i> Gespeicherte Fragen
                 </a>
-
+                <a href="{{ route('exam.history') }}" class="sidebar-link {{ request()->routeIs('exam.history*') ? 'active' : '' }}">
+                    <i class="bi bi-bar-chart-line"></i> Prüfungshistorie
+                </a>
                 <a href="{{ route('lehrgaenge.index') }}" class="sidebar-link {{ request()->routeIs('lehrgaenge.*') ? 'active' : '' }}">
-                    <i class="bi bi-mortarboard"></i>
-                    Lehrgänge
+                    <i class="bi bi-mortarboard"></i> Lehrgänge
                 </a>
-
+                <a href="{{ route('contact.index') }}" class="sidebar-link {{ request()->routeIs('contact.*') ? 'active' : '' }}">
+                    <i class="bi bi-envelope"></i> Kontakt
+                </a>
                 <a href="{{ route('gamification.leaderboard') }}" class="sidebar-link {{ request()->routeIs('gamification.leaderboard') ? 'active' : '' }}">
-                    <i class="bi bi-trophy"></i>
-                    Liga
+                    <i class="bi bi-trophy"></i> Liga
                     @if($unreadLeagueNotifs > 0)
                         <span class="badge-error text-xs ml-auto">{{ $unreadLeagueNotifs }}</span>
                     @endif
                 </a>
-
                 <a href="{{ route('gamification.achievements') }}" class="sidebar-link {{ request()->routeIs('gamification.achievements') ? 'active' : '' }}">
-                    <i class="bi bi-award"></i>
-                    Achievements
+                    <i class="bi bi-award"></i> Achievements
                 </a>
-
                 <a href="{{ route('lernsession.index') }}" class="sidebar-link {{ request()->routeIs('lernsession.*') ? 'active' : '' }}">
-                    <i class="bi bi-people"></i>
-                    Lernsessions
+                    <i class="bi bi-people"></i> Lernsessions
                 </a>
-
                 <a href="{{ route('shop.index') }}" class="sidebar-link {{ request()->routeIs('shop.*') ? 'active' : '' }}">
-                    <i class="bi bi-shop"></i>
-                    Shop
+                    <i class="bi bi-shop"></i> Shop
                     @if($unopenedLootboxCount > 0)
                         <span class="badge-error text-xs ml-auto">{{ $unopenedLootboxCount }}</span>
                     @endif
                 </a>
-
-                <a href="{{ route('ortsverband.index') }}" class="sidebar-link {{ request()->routeIs('ortsverband.*') ? 'active' : '' }}">
-                    <i class="bi bi-people"></i>
-                    Ortsverband
+                <a href="{{ $userOV ? route('ortsverband.show', $userOV) : route('ortsverband.index') }}" class="sidebar-link {{ request()->routeIs('ortsverband.show') ? 'active' : '' }}">
+                    <i class="bi bi-building"></i> {{ $userOV ? $userOV->name : 'Ortsverband' }}
                 </a>
+                @if($userOV && $userOV->isAusbildungsbeauftragter(auth()->user()))
+                    <a href="{{ route('ortsverband.dashboard', $userOV) }}" class="sidebar-link {{ request()->routeIs('ortsverband.dashboard') ? 'active' : '' }}">
+                        <i class="bi bi-gear"></i> Verwalten
+                    </a>
+                @endif
 
                 @if(auth()->user()->useroll === 'admin')
-                <div class="pt-4 mt-4 border-t border-glass-subtle">
-                    <p class="px-3 mb-3 text-xs font-semibold text-dark-muted uppercase tracking-wider">Admin</p>
+                <div class="nav-section nav-section-admin">Admin</div>
 
-                    <a href="{{ route('admin.dashboard') }}" class="sidebar-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
-                        <i class="bi bi-speedometer2"></i>
-                        Dashboard
-                    </a>
-
-                    <a href="{{ route('admin.users.index') }}" class="sidebar-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
-                        <i class="bi bi-people"></i>
-                        Nutzer
-                    </a>
-
-                    <a href="{{ route('admin.questions.index') }}" class="sidebar-link {{ request()->routeIs('admin.questions.*') ? 'active' : '' }}">
-                        <i class="bi bi-question-circle"></i>
-                        Fragen
-                    </a>
-
-                    <a href="{{ route('admin.lehrgaenge.index') }}" class="sidebar-link {{ request()->routeIs('admin.lehrgaenge.*') ? 'active' : '' }}">
-                        <i class="bi bi-mortarboard"></i>
-                        Lehrgänge
-                    </a>
-
-                    <a href="{{ route('admin.ortsverband.index') }}" class="sidebar-link {{ request()->routeIs('admin.ortsverband.*') ? 'active' : '' }}">
-                        <i class="bi bi-building"></i>
-                        Ortsverbände
-                    </a>
-
-                    <a href="{{ route('admin.issues.index') }}" class="sidebar-link {{ request()->routeIs('admin.issues.*') ? 'active' : '' }}">
-                        <i class="bi bi-exclamation-triangle"></i>
-                        Fehlermeldungen
-                        @php
-                            $mobileOpenIssuesCount = cache()->remember('admin_open_issues_count', 300, function() {
-                                return \App\Models\LehrgangQuestionIssue::where('status', 'open')->count()
-                                     + \App\Models\QuestionIssue::where('status', 'open')->count();
-                            });
-                        @endphp
-                        @if($mobileOpenIssuesCount > 0)
-                            <span class="badge-error text-xs ml-auto">{{ $mobileOpenIssuesCount }}</span>
-                        @endif
-                    </a>
-
-                    <a href="{{ route('admin.contact-messages.index') }}" class="sidebar-link {{ request()->routeIs('admin.contact-messages.*') ? 'active' : '' }}">
-                        <i class="bi bi-envelope"></i>
-                        Kontaktanfragen
-                        @php
-                            $mobileUnreadContactCount = cache()->remember('admin_unread_messages_count', 300, function() {
-                                return \App\Models\ContactMessage::where('is_read', false)->count();
-                            });
-                        @endphp
-                        @if($mobileUnreadContactCount > 0)
-                            <span class="badge-error text-xs ml-auto">{{ $mobileUnreadContactCount }}</span>
-                        @endif
-                    </a>
-
-                    <a href="{{ route('admin.exam-feedback.index') }}" class="sidebar-link {{ request()->routeIs('admin.exam-feedback.*') ? 'active' : '' }}">
-                        <i class="bi bi-mortarboard"></i>
-                        Prüfungs-Feedback
-                    </a>
-
-                    <a href="{{ route('admin.logs.index', 'scheduler') }}" class="sidebar-link {{ request()->routeIs('admin.logs.*') && request()->route('type') === 'scheduler' ? 'active' : '' }}">
-                        <i class="bi bi-terminal"></i>
-                        Scheduler-Logs
-                    </a>
-
-                    <a href="{{ route('admin.logs.index', 'worker') }}" class="sidebar-link {{ request()->routeIs('admin.logs.*') && request()->route('type') === 'worker' ? 'active' : '' }}">
-                        <i class="bi bi-gear"></i>
-                        Worker-Logs
-                    </a>
-
-                    @if(!app()->environment('production'))
-                    <a href="{{ route('admin.time-simulator') }}" class="sidebar-link {{ request()->routeIs('admin.time-simulator*') ? 'active' : '' }}">
-                        <i class="bi bi-clock-history"></i>
-                        Zeitsimulator
-                    </a>
+                <a href="{{ route('admin.dashboard') }}" class="sidebar-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+                    <i class="bi bi-speedometer2"></i> Dashboard
+                </a>
+                <a href="{{ route('admin.statistics') }}" class="sidebar-link {{ request()->routeIs('admin.statistics') ? 'active' : '' }}">
+                    <i class="bi bi-graph-up"></i> Statistiken
+                </a>
+                <a href="{{ route('admin.users.index') }}" class="sidebar-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
+                    <i class="bi bi-people"></i> Nutzer
+                </a>
+                <a href="{{ route('admin.questions.index') }}" class="sidebar-link {{ request()->routeIs('admin.questions.*') ? 'active' : '' }}">
+                    <i class="bi bi-question-circle"></i> Fragen
+                </a>
+                <a href="{{ route('admin.lehrgaenge.index') }}" class="sidebar-link {{ request()->routeIs('admin.lehrgaenge.*') ? 'active' : '' }}">
+                    <i class="bi bi-mortarboard"></i> Lehrgänge
+                </a>
+                <a href="{{ route('admin.ortsverband.index') }}" class="sidebar-link {{ request()->routeIs('admin.ortsverband.*') ? 'active' : '' }}">
+                    <i class="bi bi-building"></i> Ortsverbände
+                </a>
+                <a href="{{ route('admin.leagues.index') }}" class="sidebar-link {{ request()->routeIs('admin.leagues.*') ? 'active' : '' }}">
+                    <i class="bi bi-trophy"></i> Ligen
+                </a>
+                <a href="{{ route('admin.shop-analytics') }}" class="sidebar-link {{ request()->routeIs('admin.shop-analytics') ? 'active' : '' }}">
+                    <i class="bi bi-cart3"></i> Shop Analytics
+                </a>
+                <a href="{{ route('admin.newsletter.index') }}" class="sidebar-link {{ request()->routeIs('admin.newsletter.*') ? 'active' : '' }}">
+                    <i class="bi bi-megaphone"></i> Newsletter
+                </a>
+                <a href="{{ route('admin.issues.index') }}" class="sidebar-link {{ request()->routeIs('admin.issues.*') ? 'active' : '' }}">
+                    <i class="bi bi-exclamation-triangle"></i> Fehlermeldungen
+                    @if($openIssuesCount > 0)
+                        <span class="badge-error text-xs ml-auto">{{ $openIssuesCount }}</span>
                     @endif
-                </div>
+                </a>
+                <a href="{{ route('admin.contact-messages.index') }}" class="sidebar-link {{ request()->routeIs('admin.contact-messages.*') ? 'active' : '' }}">
+                    <i class="bi bi-envelope"></i> Kontaktanfragen
+                    @if($unreadContactCount > 0)
+                        <span class="badge-error text-xs ml-auto">{{ $unreadContactCount }}</span>
+                    @endif
+                </a>
+                <a href="{{ route('admin.exam-feedback.index') }}" class="sidebar-link {{ request()->routeIs('admin.exam-feedback.*') ? 'active' : '' }}">
+                    <i class="bi bi-mortarboard"></i> Prüfungs-Feedback
+                </a>
+                <a href="{{ route('admin.logs.index', 'scheduler') }}" class="sidebar-link {{ request()->routeIs('admin.logs.*') && request()->route('type') === 'scheduler' ? 'active' : '' }}">
+                    <i class="bi bi-terminal"></i> Scheduler-Logs
+                </a>
+                <a href="{{ route('admin.logs.index', 'worker') }}" class="sidebar-link {{ request()->routeIs('admin.logs.*') && request()->route('type') === 'worker' ? 'active' : '' }}">
+                    <i class="bi bi-gear"></i> Worker-Logs
+                </a>
+                @if(!app()->environment('production'))
+                <a href="{{ route('admin.time-simulator') }}" class="sidebar-link {{ request()->routeIs('admin.time-simulator*') ? 'active' : '' }}">
+                    <i class="bi bi-clock-history"></i> Zeitsimulator
+                </a>
+                @endif
                 @endif
             </nav>
 
-            <!-- Fixed Footer -->
-            <div class="flex-shrink-0 px-4 py-4 border-t border-glass-subtle">
-                <!-- Footer Links -->
-                <div class="mb-4 pb-4 border-b border-glass-subtle">
-                    <div class="flex flex-wrap gap-2 text-xs">
-                        <a href="{{ route('landing.impressum') }}" class="text-gold hover:text-gold-light transition-colors">
-                            Impressum
-                        </a>
-                        <span class="text-dark-muted/50">·</span>
-                        <a href="{{ route('landing.datenschutz') }}" class="text-gold hover:text-gold-light transition-colors">
-                            Datenschutz
-                        </a>
-                        <span class="text-dark-muted/50">·</span>
-                        <a href="{{ route('contact.index') }}" class="text-gold hover:text-gold-light transition-colors">
-                            Kontakt
-                        </a>
-                    </div>
+            <!-- Footer -->
+            <div class="mobile-sidebar-footer">
+                <div class="mobile-footer-links">
+                    <a href="{{ route('landing.impressum') }}">Impressum</a>
+                    <a href="{{ route('landing.datenschutz') }}">Datenschutz</a>
+                    <a href="https://thw-trainer.de/statistik" target="_blank">Statistik</a>
                 </div>
 
-                <!-- User Section -->
-                <a href="{{ route('profile') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-glass-subtle transition-colors">
-                    <div class="w-9 h-9 rounded-full bg-thw-blue/20 flex items-center justify-center">
-                        <span class="text-sm font-semibold text-gold">
-                            {{ substr(auth()->user()->name, 0, 1) }}
-                        </span>
+                <a href="{{ route('profile') }}" class="sidebar-user-card">
+                    <img src="{{ auth()->user()->avatar_url }}" alt="Avatar" class="sidebar-user-avatar">
+                    <div class="sidebar-user-meta">
+                        <p class="sidebar-user-name">{{ auth()->user()->name }}</p>
+                        <div class="sidebar-level-row">
+                            <span class="sidebar-level-text">Lvl {{ auth()->user()->level ?? 1 }}</span>
+                            <div class="sidebar-level-track"><div class="sidebar-level-fill" style="width: {{ $sidebarLevelProgress }}%;"></div></div>
+                        </div>
                     </div>
-                    <div class="flex-1 min-w-0">
-                        <p class="text-sm font-medium text-dark-primary truncate">{{ auth()->user()->name }}</p>
-                        <p class="text-xs text-dark-muted">Level {{ auth()->user()->level ?? 1 }}</p>
-                    </div>
-                    <i class="bi bi-chevron-right text-dark-muted"></i>
+                    <i class="bi bi-chevron-right text-dark-muted" style="font-size: 0.85rem;"></i>
                 </a>
 
-                @php
-                    $mobileSidebarNotificationCount = auth()->user()->unreadNotifications()->count();
-                @endphp
-                <a href="{{ route('notifications.index') }}" class="sidebar-link mt-3 {{ request()->routeIs('notifications.*') ? 'active' : '' }}">
-                    <i class="bi bi-bell"></i>
-                    Mitteilungen
-                    @if($mobileSidebarNotificationCount > 0)
-                        <span class="badge-error text-xs ml-auto">{{ $mobileSidebarNotificationCount }}</span>
-                    @endif
-                </a>
-
-                <form method="POST" action="{{ route('logout') }}" class="mt-3">
-                    @csrf
-                    <button type="submit" class="sidebar-link w-full">
-                        <i class="bi bi-box-arrow-right"></i>
-                        Abmelden
-                    </button>
-                </form>
+                <div class="mobile-action-row">
+                    <a href="{{ route('notifications.index') }}" class="mobile-action-btn">
+                        <i class="bi bi-bell"></i> Mitteilungen
+                        @if($sidebarNotificationCount > 0)
+                            <span class="badge-error text-xs ml-auto">{{ $sidebarNotificationCount }}</span>
+                        @endif
+                    </a>
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit" class="mobile-action-btn w-full">
+                            <i class="bi bi-box-arrow-right"></i> Abmelden
+                        </button>
+                    </form>
+                </div>
             </div>
         </aside>
         @endauth
@@ -684,25 +584,31 @@
 
         <!-- Theme Toggle Script -->
         <script>
-            // Theme Management
+            // Theme Management (Dark / Light / Auto)
             (function() {
-                const savedTheme = localStorage.getItem('theme');
+                var savedTheme = localStorage.getItem('theme');
 
                 function applyTheme(light) {
                     document.documentElement.classList.toggle('light-mode', light);
                     document.body.classList.toggle('light-mode', light);
                 }
 
-                if (savedTheme === 'light') {
-                    applyTheme(true);
-                } else if (savedTheme === 'dark') {
-                    applyTheme(false);
-                } else {
-                    // Kein gespeichertes Theme → Systemeinstellung verwenden
-                    applyTheme(window.matchMedia('(prefers-color-scheme: light)').matches);
+                function setMode(mode) {
+                    document.documentElement.setAttribute('data-theme-mode', mode);
                 }
 
-                // Live auf Systemänderungen reagieren (nur wenn kein manuelles Theme gesetzt)
+                if (savedTheme === 'light') {
+                    applyTheme(true);
+                    setMode('light');
+                } else if (savedTheme === 'dark') {
+                    applyTheme(false);
+                    setMode('dark');
+                } else {
+                    applyTheme(window.matchMedia('(prefers-color-scheme: light)').matches);
+                    setMode('auto');
+                }
+
+                // Live auf Systemänderungen reagieren (nur im Auto-Modus)
                 window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', function(e) {
                     if (!localStorage.getItem('theme')) {
                         applyTheme(e.matches);
@@ -710,13 +616,31 @@
                 });
             })();
 
+            // Zyklus: dark → light → auto → dark
             function toggleTheme() {
-                const isLightMode = document.documentElement.classList.contains('light-mode');
-                const newLight = !isLightMode;
+                var current = localStorage.getItem('theme');
+                var next, isLight;
 
-                document.documentElement.classList.toggle('light-mode', newLight);
-                document.body.classList.toggle('light-mode', newLight);
-                localStorage.setItem('theme', newLight ? 'light' : 'dark');
+                if (current === 'dark') {
+                    next = 'light';
+                    isLight = true;
+                } else if (current === 'light') {
+                    next = null; // auto
+                    isLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+                } else {
+                    next = 'dark';
+                    isLight = false;
+                }
+
+                if (next) {
+                    localStorage.setItem('theme', next);
+                } else {
+                    localStorage.removeItem('theme');
+                }
+
+                document.documentElement.classList.toggle('light-mode', isLight);
+                document.body.classList.toggle('light-mode', isLight);
+                document.documentElement.setAttribute('data-theme-mode', next || 'auto');
             }
         </script>
 

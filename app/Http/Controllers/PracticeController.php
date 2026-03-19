@@ -9,10 +9,22 @@ use App\Models\QuestionIssueReport;
 use App\Models\QuestionStatistic;
 use App\Models\UserQuestionProgress;
 use App\Services\GamificationService;
+use App\Services\PracticeSessionService;
+use App\Services\ProgressResolvers\GlobalProgressResolver;
 use App\Services\SpacedRepetitionService;
 
 class PracticeController extends Controller
 {
+    private PracticeSessionService $practiceService;
+
+    public function __construct()
+    {
+        $this->practiceService = new PracticeSessionService(
+            new GlobalProgressResolver(),
+            new GamificationService()
+        );
+    }
+
     /**
      * THW-Lernabschnittsnamen (offiziell 2022)
      */
@@ -87,7 +99,34 @@ class PracticeController extends Controller
         }
 
         $sectionNames = self::SECTION_NAMES;
-        return view('practice-menu', compact('sectionStats', 'totalQuestions', 'solvedCount', 'failedCount', 'unsolvedCount', 'sectionNames', 'progressPercentage'));
+
+        // Smart Action — kontextabhängige Empfehlung
+        $smartAction = match(true) {
+            $failedCount > 0 => [
+                'label' => 'Empfohlen',
+                'title' => "$failedCount Fehler wiederholen",
+                'desc'  => 'Priorisiere fehlgeschlagene Fragen zuerst',
+                'route' => route('failed.index'),
+            ],
+            $unsolvedCount > 0 => [
+                'label' => 'Weiterlernen',
+                'title' => "$unsolvedCount ungelöste Fragen",
+                'desc'  => 'Lerne neue Fragen und erweitere dein Wissen',
+                'route' => route('practice.unsolved'),
+            ],
+            default => [
+                'label' => 'Wiederholen',
+                'title' => 'Alle Fragen wiederholen',
+                'desc'  => 'Festige dein Wissen durch Wiederholung',
+                'route' => route('practice.all'),
+            ],
+        };
+
+        // Spaced Repetition — fällige Reviews
+        $spacedRepetitionDue = app(SpacedRepetitionService::class)
+            ->getDueCount($user->id);
+
+        return view('practice-menu', compact('sectionStats', 'totalQuestions', 'solvedCount', 'failedCount', 'unsolvedCount', 'sectionNames', 'progressPercentage', 'smartAction', 'spacedRepetitionDue'));
     }
 
     /**
@@ -394,24 +433,14 @@ class PracticeController extends Controller
         $maxProgressPoints = $totalQuestions * $threshold;
         $progressPercent = $maxProgressPoints > 0 ? round(($totalProgressPoints / $maxProgressPoints) * 100) : 0;
 
-        // Session für aktuellen Modus speichern
+        // Session für aktuellen Modus speichern (via Service)
         $totalInMode = count($idsToShow);
-        session([
-            'practice_mode' => $mode,
-            'practice_parameter' => $parameter,
-            'practice_ids' => $idsToShow,
-            'practice_total_in_mode' => $totalInMode,
-        ]);
+        $this->practiceService->startSession('global', null, $idsToShow, $mode, 'remove');
 
-        // Session-Statistiken initialisieren
+        // Controller-managed session keys (not part of the service)
         session([
-            'practice_session_stats' => [
-                'correct' => 0,
-                'incorrect' => 0,
-                'points' => 0,
-                'mastered' => 0,
-                'started_at' => now()->timestamp,
-            ],
+            'practice_parameter' => $parameter,
+            'practice_total_in_mode' => $totalInMode,
         ]);
 
         $currentInMode = 1;
@@ -433,19 +462,22 @@ class PracticeController extends Controller
         $solved = $this->ensureArray($user->solved_questions);
         $skipped = session('practice_skipped', []);
         
+        // Get answer/gamification results from service (peek, don't clear yet for showAnsweredQuestion check)
+        $answerResult = $this->practiceService->getAndClearAnswerResult('global', null);
+        $gamificationResult = $this->practiceService->getAndClearGamificationResult('global', null);
+
         // Check if we're in a specific practice mode
         $practiceIds = session('practice_ids', []);
         $mode = session('practice_mode', 'all');
-        
-        // WICHTIG: Wenn eine Frage gerade beantwortet wurde (answer_result in Session),
+
+        // WICHTIG: Wenn eine Frage gerade beantwortet wurde (answer_result),
         // zeige diese Frage nochmal (damit die Antwort angezeigt werden kann)
-        $answerResult = session('answer_result');
         $showAnsweredQuestion = $answerResult && isset($answerResult['question_id']);
-        
+
         if (!empty($practiceIds)) {
             // Continue with current practice session
             $idsToShow = $practiceIds; // Alle IDs aus der Session
-            
+
             if ($showAnsweredQuestion) {
                 // Zeige die gerade beantwortete Frage nochmal
                 $questionId = $answerResult['question_id'];
@@ -453,11 +485,11 @@ class PracticeController extends Controller
                 $skipId = $request->input('skip_id');
                 // Entferne die geskippte Frage nur temporär von der Anzeige
                 $idsToShow = array_diff($idsToShow, [$skipId]);
-                
+
                 // Füge zur geskippten Liste für diese Runde hinzu
                 $skipped = array_merge($skipped, [$skipId]);
                 session(['practice_skipped' => array_unique($skipped)]);
-                
+
                 if (empty($idsToShow)) {
                     return redirect()->route('practice.summary');
                 }
@@ -470,21 +502,22 @@ class PracticeController extends Controller
                 if (empty($idsToShow)) {
                     return redirect()->route('practice.summary');
                 }
-                
+
                 $questionId = reset($idsToShow);
             }
-            
+
             $question = Question::find($questionId);
-            
+
             // Prüfe ob Frage existiert
             if (!$question) {
-                session()->forget(['practice_mode', 'practice_parameter', 'practice_ids', 'practice_skipped']);
+                $this->practiceService->cleanSession('global', null);
+                session()->forget(['practice_parameter', 'practice_skipped', 'practice_total_in_mode']);
                 return redirect()->route('practice.menu')->with('error', 'Die angeforderte Frage konnte nicht gefunden werden.');
             }
-            
+
             $total = Question::count();
             $progress = UserQuestionProgress::countMastered($user->id);
-            
+
             // Neue Fortschrittsbalken-Logik: Berücksichtigt auch 1x richtige Antworten
             $threshold = UserQuestionProgress::MASTERY_THRESHOLD;
             $progressData = UserQuestionProgress::where('user_id', $user->id)->get();
@@ -499,7 +532,7 @@ class PracticeController extends Controller
             // Legacy mode - redirect to menu
             return redirect()->route('practice.menu');
         }
-        
+
         $totalInMode = session('practice_total_in_mode', count($practiceIds));
         $answered = $totalInMode - count(array_diff($practiceIds, $skipped));
         $currentInMode = max(1, $answered + 1);
@@ -511,7 +544,20 @@ class PracticeController extends Controller
         $srDueIds = $srService->getDueQuestions($user->id);
         $isSpacedRepetition = in_array($question->id, $srDueIds);
 
-        return view('practice', compact('question', 'progress', 'total', 'mode', 'progressPercent', 'totalInMode', 'currentInMode', 'difficultyInfo', 'isSpacedRepetition'));
+        // Service-based progress
+        $serviceProgress = $this->practiceService->getProgress('global', null);
+
+        return view('practice', compact(
+            'question', 'progress', 'total', 'mode', 'progressPercent',
+            'totalInMode', 'currentInMode', 'difficultyInfo', 'isSpacedRepetition',
+            'answerResult', 'gamificationResult'
+        ) + [
+            'context' => 'global',
+            'submitUrl' => route('practice.submit'),
+            'showUrl' => route('practice.index'),
+            'summaryUrl' => route('practice.summary'),
+            'menuUrl' => route('practice.menu'),
+        ]);
     }
 
     /**
@@ -540,47 +586,40 @@ class PracticeController extends Controller
     public function submit(Request $request)
     {
         $question = Question::findOrFail($request->question_id);
-        
+
         // Hole das Mapping aus dem Hidden Field
         $mappingJson = $request->input('answer_mapping');
         $mapping = json_decode($mappingJson, true);
-        
+
         // User-Antworten (Positionen 0, 1, 2)
         $userAnswerPositions = $request->answer ?? [];
-        
+
         // Mappe Positionen zurück auf Original-Buchstaben
         $userAnswer = collect($userAnswerPositions)->map(function($position) use ($mapping) {
             return $mapping[$position] ?? null;
-        })->filter()->sort()->values();
-        
-        $solution = collect(explode(',', $question->loesung))->map(fn($s) => trim($s))->sort()->values();
-        $isCorrect = $userAnswer->all() === $solution->all();
+        })->filter()->sort()->values()->toArray();
 
         $user = Auth::user();
 
-        // Statistik erfassen (mit User ID)
-        QuestionStatistic::create([
-            'question_id' => $question->id,
-            'user_id' => $user->id,
-            'is_correct' => $isCorrect,
-            'source' => 'practice',
-        ]);
-        
-        // NEU: Fortschritt in user_question_progress tracken
-        $progress = UserQuestionProgress::getOrCreate($user->id, $question->id);
-        $wasPreviouslyMastered = $progress->isMastered();
-        $progress->updateProgress($isCorrect);
+        // Check mastery state BEFORE service call (for exam_failed_questions logic)
+        $progressObj = UserQuestionProgress::getOrCreate($user->id, $question->id);
+        $wasPreviouslyMastered = $progressObj->isMastered();
 
-        // Prüfungs-fehlgeschlagene Fragen: 1x richtig reicht für Mastery
-        // (Diese Fragen waren vorher bereits gemeistert, der User hat sie nur in der Prüfung falsch)
+        // Delegate progress update, statistic creation, gamification, session stats + queue management to service
+        $result = $this->practiceService->submitAnswer('global', null, $question->id, $userAnswer, $mapping);
+        $isCorrect = $result['is_correct'];
+
+        // Reload progress after service updated it
+        $progressObj->refresh();
+
+        // Global-only: Prüfungs-fehlgeschlagene Fragen: 1x richtig reicht für Mastery
         $failed = $this->ensureArray($user->exam_failed_questions);
         if ($isCorrect && in_array($question->id, $failed)) {
-            $progress->consecutive_correct = UserQuestionProgress::MASTERY_THRESHOLD;
-            $progress->save();
+            $progressObj->consecutive_correct = UserQuestionProgress::MASTERY_THRESHOLD;
+            $progressObj->save();
         }
 
-        // Bereits gemeisterte Fragen bei falscher Antwort wie Prüfungs-Fehler behandeln:
-        // 1x richtig reicht um wieder als gemeistert zu gelten (auch am gleichen Tag möglich)
+        // Bereits gemeisterte Fragen bei falscher Antwort wie Prüfungs-Fehler behandeln
         if (!$isCorrect && $wasPreviouslyMastered && !in_array($question->id, $failed)) {
             $failed[] = $question->id;
             $user->exam_failed_questions = array_values(array_unique($failed));
@@ -588,23 +627,19 @@ class PracticeController extends Controller
         }
 
         // Spaced Repetition: Nächste Wiederholung berechnen
-        $srService = new SpacedRepetitionService();
-        $srService->processAnswer($progress, $isCorrect);
-        
+        (new SpacedRepetitionService())->processAnswer($progressObj, $isCorrect);
+
         $solved = $this->ensureArray($user->solved_questions);
         $skipped = session('practice_skipped', []);
-        
-        $gamificationResult = null;
-        
-        // Nur wenn Frage gemeistert (3x richtig in Folge, bzw. 1x bei Prüfungs-Fehlern)
-        if ($progress->isMastered()) {
-            // Zu solved_questions hinzufügen (falls noch nicht drin)
+
+        // Global-only: solved_questions + exam_failed_questions management
+        if ($progressObj->isMastered()) {
             if (!in_array($question->id, $solved)) {
                 $solved[] = $question->id;
                 $user->solved_questions = array_unique($solved);
                 $user->save();
             }
-            
+
             // Entferne Frage aus exam_failed_questions falls dort vorhanden
             $failed = $this->ensureArray($user->exam_failed_questions);
             if (in_array($question->id, $failed)) {
@@ -612,53 +647,23 @@ class PracticeController extends Controller
                 $user->exam_failed_questions = array_values($failed);
                 $user->save();
             }
-            
-            // Gamification: Punkte nur wenn gemeistert
-            $gamificationService = new GamificationService();
-            $gamificationResult = $gamificationService->awardQuestionPoints($user, true, $question->id);
-            
+
             // Entferne Frage aus geskippten Liste falls dort
             $skipped = array_diff($skipped, [$question->id]);
             session(['practice_skipped' => $skipped]);
-            
-            // WICHTIG: Entferne gemeisterte Frage auch aus der aktuellen Practice Session
-            $practiceIds = session('practice_ids', []);
-            if (!empty($practiceIds)) {
-                $practiceIds = array_diff($practiceIds, [$question->id]);
-                session(['practice_ids' => array_values($practiceIds)]);
-            }
         } else {
-            // Frage noch nicht gemeistert
-            // KEINE Änderung an exam_failed_questions - das ist nur für Prüfungen!
-
             // Wenn die Frage vorher als gelöst markiert war, aber nicht mehr gemeistert ist,
-            // muss sie aus solved_questions entfernt werden (z.B. bei falscher SR-Wiederholung)
+            // muss sie aus solved_questions entfernt werden
             if (in_array($question->id, $solved)) {
                 $solved = array_diff($solved, [$question->id]);
                 $user->solved_questions = array_values($solved);
                 $user->save();
             }
-
-            // Gamification: Auch beim ersten richtigen Beantworten Punkte vergeben
-            $gamificationService = new GamificationService();
-            $gamificationResult = $gamificationService->awardQuestionPoints($user, $isCorrect, $question->id);
-
-            // Frage aus der aktuellen Session entfernen - Spaced Repetition plant die Wiederholung
-            // WICHTIG: Frage NICHT ans Ende re-queuen, da sonst dieselbe Frage mehrfach in einer
-            // Session beantwortet wird und der SM-2 Algorithmus falsche Intervalle berechnet
-            $practiceIds = session('practice_ids', []);
-            if (!empty($practiceIds)) {
-                $practiceIds = array_diff($practiceIds, [$question->id]);
-                session(['practice_ids' => array_values($practiceIds)]);
-            }
-        }
-        
-        // Immer Gamification Result in Session speichern
-        if ($gamificationResult) {
-            session(['gamification_result' => $gamificationResult]);
         }
 
         // Lernsession-Tracking: Antwort in aktive Session aufzeichnen
+        // Gamification result is stored in session by the service (practice_gamification_result)
+        $gamificationResult = session('practice_gamification_result');
         $lernsessionService = app(\App\Services\LernsessionService::class);
         $sessionParticipant = $lernsessionService->isUserInActiveSession($user);
         if ($sessionParticipant) {
@@ -668,36 +673,8 @@ class PracticeController extends Controller
             $lernsessionService->recordAnswer($sessionParticipant, $isCorrect, $answerTimeMs, $xpAwarded);
         }
 
-        // Session-Statistiken aktualisieren
-        $sessionStats = session('practice_session_stats', [
-            'correct' => 0, 'incorrect' => 0, 'points' => 0, 'mastered' => 0, 'started_at' => now()->timestamp,
-        ]);
-        if ($isCorrect) {
-            $sessionStats['correct']++;
-        } else {
-            $sessionStats['incorrect']++;
-        }
-        if ($gamificationResult && isset($gamificationResult['points_awarded'])) {
-            $sessionStats['points'] += $gamificationResult['points_awarded'];
-        }
-        if ($progress->isMastered() && !in_array($question->id, $solved)) {
-            $sessionStats['mastered']++;
-        }
-        session(['practice_session_stats' => $sessionStats]);
-
-        // WICHTIG: Immer answer_result in Session speichern für Feedback-Anzeige
-        session([
-            'answer_result' => [
-                'question_id' => $question->id,
-                'is_correct' => $isCorrect,
-                'user_answer' => $userAnswer->toArray(),
-                'question_progress' => $progress->consecutive_correct,
-                'answer_mapping' => $mapping // Mapping auch speichern für die Anzeige
-            ]
-        ]);
-
         // Debug: Prüfe Session vor Redirect
-        \Log::info('🔄 Before redirect - Session state', [
+        \Log::info('Before redirect - Session state', [
             'user_id' => $user->id,
             'question_id' => $question->id,
             'has_gamification_notifications' => session()->has('gamification_notifications'),
@@ -706,7 +683,6 @@ class PracticeController extends Controller
         ]);
 
         // WICHTIG: Immer redirect machen (Post/Redirect/Get Pattern)
-        // um zu verhindern, dass bei F5 die Frage doppelt gezählt wird
         return redirect()->route('practice.index');
     }
 
@@ -715,35 +691,54 @@ class PracticeController extends Controller
      */
     public function summary()
     {
-        $stats = session('practice_session_stats');
-        $mode = session('practice_mode', 'all');
         $parameter = session('practice_parameter');
+        $mode = session('practice_mode', 'all');
+
+        // Use service to end session and get summary data (cleans service session keys)
+        $summary = $this->practiceService->endSession('global', null);
 
         // Fallback falls keine Stats vorhanden
+        if ($summary['totalAnswered'] === 0 && $summary['correct'] === 0) {
+            // Check if there was actually a session
+            $stats = null;
+        } else {
+            $stats = [
+                'correct' => $summary['correct'],
+                'incorrect' => $summary['incorrect'],
+                'points' => $summary['points'],
+                'mastered' => $summary['mastered'],
+            ];
+        }
+
         if (!$stats) {
             return redirect()->route('practice.menu');
         }
 
-        $totalAnswered = $stats['correct'] + $stats['incorrect'];
-        $accuracy = $totalAnswered > 0 ? round(($stats['correct'] / $totalAnswered) * 100) : 0;
-        $duration = now()->timestamp - ($stats['started_at'] ?? now()->timestamp);
-        $durationMinutes = max(1, round($duration / 60));
+        $totalAnswered = $summary['totalAnswered'];
+        $accuracy = $summary['accuracy'];
+        $durationMinutes = $summary['durationMinutes'];
 
-        $modeName = match ($mode) {
-            'all' => 'Alle Fragen',
-            'unsolved' => 'Ungelöste Fragen',
-            'failed' => 'Falsche Prüfungsfragen',
-            'section' => 'Lernabschnitt ' . $parameter,
-            'search' => 'Suche: ' . $parameter,
-            'spaced_repetition' => 'Spaced Repetition',
-            'bookmarked' => 'Lesezeichen',
-            default => 'Übung',
-        };
+        // Enhance mode name with parameter for section/search
+        $modeName = $summary['modeName'];
+        if ($parameter) {
+            $modeName = match ($mode) {
+                'section' => 'Lernabschnitt ' . $parameter,
+                'search' => 'Suche: ' . $parameter,
+                'failed' => 'Falsche Prüfungsfragen',
+                default => $modeName,
+            };
+        }
 
-        // Session aufräumen
-        session()->forget(['practice_mode', 'practice_parameter', 'practice_ids', 'practice_skipped', 'practice_total_in_mode', 'practice_session_stats']);
+        $streak = auth()->user()->streak_days ?? 0;
 
-        return view('practice-summary', compact('stats', 'totalAnswered', 'accuracy', 'durationMinutes', 'modeName'));
+        // Clean up controller-managed session keys (service already cleaned its own)
+        session()->forget(['practice_parameter', 'practice_skipped', 'practice_total_in_mode']);
+
+        return view('practice-summary', compact('stats', 'totalAnswered', 'accuracy', 'durationMinutes', 'modeName', 'streak') + [
+            'context' => 'global',
+            'backUrl' => route('practice.menu'),
+            'completed' => false,
+        ]);
     }
 
     /**

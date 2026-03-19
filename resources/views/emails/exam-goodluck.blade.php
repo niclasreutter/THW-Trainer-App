@@ -5,95 +5,68 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Deine Prüfung ist morgen - THW Trainer</title>
 </head>
-<body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
-    <div style="background:#f8fafc;padding:32px 16px;">
-        <div style="max-width:600px;margin:0 auto;background:#ffffff;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.08);padding:40px 32px;">
-
-            <!-- Logo -->
-            <div style="text-align:center;margin-bottom:24px;">
-                <img src="https://thw-trainer.de/logo-thwtrainer.png" alt="THW-Trainer Logo" style="max-width:200px;height:auto;" />
-            </div>
-
-            <!-- Überschrift -->
-            <h1 style="font-size:26px;font-weight:700;margin:0 0 24px 0;color:#003399;text-align:center;">
-                Morgen ist es soweit!
-            </h1>
-
-            <!-- Anrede -->
-            <p style="margin:0 0 16px 0;font-size:16px;line-height:1.6;color:#1a202c;">
-                Hallo <strong>{{ $user->name }}</strong>,
-            </p>
-
-            <!-- Motivationsbox -->
-            <div style="background:linear-gradient(135deg,#eff6ff,#fef9e7);border:2px solid #FFD700;border-radius:12px;padding:28px;margin:20px 0;text-align:center;">
-                <div style="font-size:20px;font-weight:700;color:#003399;margin-bottom:12px;">
-                    Viel Erfolg bei deiner Prüfung!
+<body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:#f0f2f5;">
+    <div style="background:#f0f2f5;padding:32px 16px;">
+        <div style="max-width:600px;margin:0 auto;">
+            <div style="background:linear-gradient(135deg,#00337F,#0055cc);padding:20px 24px 16px;border-radius:1.5rem 0.5rem 0 0;">
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <div style="width:32px;height:32px;background:rgba(255,255,255,0.15);border-radius:8px;display:flex;align-items:center;justify-content:center;">
+                        <img src="https://thw-trainer.de/logo-thwtrainer_w.png" alt="THW" style="width:18px;height:18px;">
+                    </div>
+                    <span style="color:#fff;font-weight:700;font-size:14px;letter-spacing:0.5px;">THW-TRAINER</span>
                 </div>
-                <p style="margin:0;font-size:16px;color:#4b5563;line-height:1.6;">
-                    Du hast dich mit dem THW Trainer intensiv vorbereitet und das Wissen sitzt.
-                    Geh morgen selbstbewusst in die Prüfung - du schaffst das!
-                </p>
             </div>
+            <div style="background:#ffffff;padding:28px 24px;border-left:3px solid #00337F;box-shadow:0 4px 20px rgba(0,0,0,0.08);">
 
-            <!-- Tipps -->
-            <div style="background:#f9fafb;border-radius:8px;padding:20px;margin:20px 0;">
-                <p style="margin:0 0 12px 0;font-size:16px;font-weight:600;color:#1a202c;">
-                    Tipps für morgen
+                <div style="font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#64748b;margin-bottom:6px;">Prüfung morgen</div>
+                <div style="font-size:20px;font-weight:800;color:#0f172a;margin-bottom:16px;">Letzte Tipps für morgen</div>
+
+                <p style="margin:0 0 16px 0;font-size:13px;color:#475569;line-height:1.6;">Hallo <strong>{{ $user->name }}</strong>,</p>
+
+                <!-- Motivations-Info-Box -->
+                <div style="background:#f0f4ff;border-radius:8px;padding:14px 16px;margin-bottom:16px;border-left:3px solid #3b82f6;">
+                    <p style="margin:0;font-size:13px;color:#1e3a5f;line-height:1.6;">
+                        Du hast dich mit dem THW Trainer intensiv vorbereitet und das Wissen sitzt.
+                        Geh morgen selbstbewusst in die Prüfung - du schaffst das!
+                    </p>
+                </div>
+
+                <!-- Tipps -->
+                <p style="margin:0 0 12px 0;font-size:13px;font-weight:700;color:#0f172a;">Tipps für morgen</p>
+
+                <p style="margin:0 0 10px 0;font-size:13px;color:#475569;line-height:1.6;">
+                    <strong style="color:#00337F;">1.</strong>&nbsp; Lies jede Frage sorgfältig und vollständig durch.
                 </p>
-                <table style="width:100%;font-size:15px;color:#4b5563;" cellpadding="0" cellspacing="0">
-                    <tr>
-                        <td style="padding:8px 0;vertical-align:top;width:24px;color:#003399;font-weight:700;">1.</td>
-                        <td style="padding:8px 0;">Lies jede Frage sorgfältig und vollständig durch</td>
-                    </tr>
-                    <tr>
-                        <td style="padding:8px 0;vertical-align:top;width:24px;color:#003399;font-weight:700;">2.</td>
-                        <td style="padding:8px 0;">Achte auf Schlüsselwörter wie "immer", "nie", "ausschließlich"</td>
-                    </tr>
-                    <tr>
-                        <td style="padding:8px 0;vertical-align:top;width:24px;color:#003399;font-weight:700;">3.</td>
-                        <td style="padding:8px 0;">Überspringe schwierige Fragen und komm später darauf zurück</td>
-                    </tr>
-                    <tr>
-                        <td style="padding:8px 0;vertical-align:top;width:24px;color:#003399;font-weight:700;">4.</td>
-                        <td style="padding:8px 0;">Vertrau auf dein Wissen - du bist gut vorbereitet!</td>
-                    </tr>
-                </table>
-            </div>
-
-            <!-- Abschluss -->
-            <p style="margin:24px 0;font-size:16px;color:#1a202c;line-height:1.6;">
-                Das gesamte THW-Trainer-Team drückt dir die Daumen.
-                Wir melden uns nach der Prüfung nochmal bei dir.
-            </p>
-
-            <!-- Call-to-Action Button -->
-            <div style="text-align:center;margin:32px 0;">
-                <a href="https://thw-trainer.de/practice-menu" style="background:#FFD700;color:#003399;padding:14px 40px;border-radius:8px;text-decoration:none;font-weight:600;font-size:16px;display:inline-block;">
-                    Letzte Übungsrunde starten
-                </a>
-            </div>
-
-            <!-- Footer -->
-            <div style="margin-top:32px;padding-top:24px;border-top:1px solid #e5e7eb;">
-                <p style="margin:0 0 8px 0;font-size:14px;color:#666;text-align:center;">
-                    <strong>THW-Trainer</strong><br>
-                    Dein persönlicher Lernbegleiter für die THW-Grundausbildung
+                <p style="margin:0 0 10px 0;font-size:13px;color:#475569;line-height:1.6;">
+                    <strong style="color:#00337F;">2.</strong>&nbsp; Achte auf Schlüsselwörter wie "immer", "nie", "ausschließlich".
                 </p>
-                <p style="margin:16px 0 0 0;font-size:13px;color:#888;text-align:center;">
-                    Diese E-Mail wurde automatisch gesendet, weil du einen Prüfungstermin eingetragen hast.<br>
-                    Du kannst deinen Prüfungstermin in deinem <a href="https://thw-trainer.de/profile" style="color:#003399;">Profil</a> ändern.
+                <p style="margin:0 0 10px 0;font-size:13px;color:#475569;line-height:1.6;">
+                    <strong style="color:#00337F;">3.</strong>&nbsp; Überspringe schwierige Fragen und komm später darauf zurück.
                 </p>
-            </div>
-
-            <!-- Impressum -->
-            <div style="margin-top:24px;padding-top:16px;border-top:1px solid #e5e7eb;text-align:center;">
-                <p style="margin:0;font-size:12px;color:#999;line-height:1.5;">
-                    © {{ date('Y') }} THW-Trainer.de |
-                    <a href="https://thw-trainer.de/impressum" style="color:#999;text-decoration:none;">Impressum</a> |
-                    <a href="https://thw-trainer.de/datenschutz" style="color:#999;text-decoration:none;">Datenschutz</a>
+                <p style="margin:0 0 16px 0;font-size:13px;color:#475569;line-height:1.6;">
+                    <strong style="color:#00337F;">4.</strong>&nbsp; Vertrau auf dein Wissen - du bist gut vorbereitet!
                 </p>
-            </div>
 
+                <!-- CTA -->
+                <div style="text-align:center;margin:24px 0 8px;">
+                    <a href="https://thw-trainer.de/practice-menu" style="background:linear-gradient(135deg,#00337F,#0055cc);color:#fff;padding:12px 32px;border-radius:0.5rem;text-decoration:none;font-weight:700;font-size:13px;display:inline-block;box-shadow:0 4px 15px rgba(0,51,127,0.3);">Letzte Übungsrunde starten</a>
+                </div>
+
+            </div>
+            <div style="background:#f8fafc;padding:16px 24px;border-radius:0 0 0.5rem 1.5rem;border-top:1px solid #e2e8f0;">
+                <div style="text-align:center;">
+                    <p style="margin:0 0 8px 0;font-size:11px;color:#94a3b8;line-height:1.6;">
+                        <strong style="color:#64748b;">THW-Trainer</strong> &middot; Dein Lernbegleiter für die THW-Grundausbildung
+                    </p>
+                    <p style="margin:0 0 6px 0;font-size:11px;color:#94a3b8;">
+                        <a href="https://thw-trainer.de/impressum" style="color:#94a3b8;text-decoration:none;">Impressum</a> &middot;
+                        <a href="https://thw-trainer.de/datenschutz" style="color:#94a3b8;text-decoration:none;">Datenschutz</a>
+                    </p>
+                    <p style="margin:0;font-size:11px;color:#cbd5e1;">
+                        <a href="https://thw-trainer.de/profile" style="color:#64748b;text-decoration:none;">E-Mail-Einstellungen ändern</a>
+                    </p>
+                </div>
+            </div>
         </div>
     </div>
 </body>

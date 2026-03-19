@@ -2,210 +2,101 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ExamStatistic;
 use App\Models\Question;
 use App\Models\QuestionStatistic;
-use App\Models\LehrgangQuestionStatistic;
-use App\Models\OrtsverbandLernpoolQuestionStatistic;
-use App\Models\ExamStatistic;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\DB;
+use App\Models\UserQuestionProgress;
+use Illuminate\Support\Facades\Cache;
 
 class StatisticsController extends Controller
 {
-    /**
-     * Zeige öffentliche Statistiken basierend auf question_statistics, lehrgang_question_statistics und lernpool_question_statistics
-     */
     public function index()
     {
-        // Chart-Daten für die letzten 30 Tage
-        $chartData = $this->getChartData();
-        // Gesamt-Statistiken (Grundausbildung + Lehrgänge + Lernpools kombinieren)
-        $totalAnswered = QuestionStatistic::count() +
-                         LehrgangQuestionStatistic::count() +
-                         OrtsverbandLernpoolQuestionStatistic::count();
-        $totalCorrect = QuestionStatistic::where('is_correct', true)->count() +
-                        LehrgangQuestionStatistic::where('is_correct', true)->count() +
-                        OrtsverbandLernpoolQuestionStatistic::where('is_correct', true)->count();
-        $totalWrong = QuestionStatistic::where('is_correct', false)->count() +
-                      LehrgangQuestionStatistic::where('is_correct', false)->count() +
-                      OrtsverbandLernpoolQuestionStatistic::where('is_correct', false)->count();
-        $successRate = $totalAnswered > 0 ? round(($totalCorrect / $totalAnswered) * 100, 1) : 0;
-        $errorRate = $totalAnswered > 0 ? round(($totalWrong / $totalAnswered) * 100, 1) : 0;
-        
-        // Prüfungsstatistiken
-        $totalExams = ExamStatistic::count();
-        $passedExams = ExamStatistic::where('is_passed', true)->count();
-        $failedExams = ExamStatistic::where('is_passed', false)->count();
-        $examPassRate = $totalExams > 0 ? round(($passedExams / $totalExams) * 100, 1) : 0;
-        
-        // Top 10 der am häufigsten falsch beantworteten Fragen
-        $topWrongQuestions = DB::table('question_statistics')
-            ->select(
-                'question_id',
-                DB::raw('COUNT(*) as total_attempts'),
-                DB::raw('SUM(CASE WHEN is_correct = 0 THEN 1 ELSE 0 END) as wrong_count'),
-                DB::raw('SUM(CASE WHEN is_correct = 1 THEN 1 ELSE 0 END) as correct_count'),
-                DB::raw('ROUND((SUM(CASE WHEN is_correct = 0 THEN 1 ELSE 0 END) * 100.0 / COUNT(*)), 1) as error_rate')
-            )
-            ->groupBy('question_id')
-            ->having('total_attempts', '>=', 5) // Mindestens 5 Versuche für aussagekräftige Statistik
-            ->orderByDesc('error_rate')
-            ->orderByDesc('total_attempts')
-            ->limit(10)
-            ->get();
-        
-        // Hole die Fragen-Details für Top Wrong
-        $topWrongQuestionsWithDetails = $topWrongQuestions->map(function ($stat) {
-            $question = Question::find($stat->question_id);
-            return [
-                'question' => $question,
-                'total_attempts' => $stat->total_attempts,
-                'wrong_count' => $stat->wrong_count,
-                'correct_count' => $stat->correct_count,
-                'error_rate' => $stat->error_rate,
-            ];
-        })->filter(function ($item) {
-            return $item['question'] !== null; // Nur Fragen die noch existieren
-        });
-        
-        // Top 10 der am häufigsten richtig beantworteten Fragen
-        $topCorrectQuestions = DB::table('question_statistics')
-            ->select(
-                'question_id',
-                DB::raw('COUNT(*) as total_attempts'),
-                DB::raw('SUM(CASE WHEN is_correct = 0 THEN 1 ELSE 0 END) as wrong_count'),
-                DB::raw('SUM(CASE WHEN is_correct = 1 THEN 1 ELSE 0 END) as correct_count'),
-                DB::raw('ROUND((SUM(CASE WHEN is_correct = 1 THEN 1 ELSE 0 END) * 100.0 / COUNT(*)), 1) as success_rate')
-            )
-            ->groupBy('question_id')
-            ->having('total_attempts', '>=', 5) // Mindestens 5 Versuche für aussagekräftige Statistik
-            ->orderByDesc('success_rate')
-            ->orderByDesc('total_attempts')
-            ->limit(10)
-            ->get();
-        
-        // Hole die Fragen-Details für Top Correct
-        $topCorrectQuestionsWithDetails = $topCorrectQuestions->map(function ($stat) {
-            $question = Question::find($stat->question_id);
-            return [
-                'question' => $question,
-                'total_attempts' => $stat->total_attempts,
-                'wrong_count' => $stat->wrong_count,
-                'correct_count' => $stat->correct_count,
-                'success_rate' => $stat->success_rate,
-            ];
-        })->filter(function ($item) {
-            return $item['question'] !== null; // Nur Fragen die noch existieren
-        });
-        
-        // Statistik nach Lernabschnitten
-        $sectionStats = DB::table('question_statistics')
+        $user = auth()->user();
+
+        $totalQuestions = Cache::remember('total_questions_count', 3600, fn () => Question::count());
+
+        // Overall progress
+        $solvedTotal = UserQuestionProgress::where('user_id', $user->id)->count();
+        $masteredTotal = UserQuestionProgress::where('user_id', $user->id)
+            ->where('consecutive_correct', '>=', 3)->count();
+        $progressPercent = $totalQuestions > 0 ? round(($solvedTotal / $totalQuestions) * 100) : 0;
+        $masteryPercent = $totalQuestions > 0 ? round(($masteredTotal / $totalQuestions) * 100) : 0;
+
+        // Hit rate
+        $totalAnswered = QuestionStatistic::where('user_id', $user->id)->count();
+        $totalCorrect = QuestionStatistic::where('user_id', $user->id)->where('is_correct', true)->count();
+        $hitRate = $totalAnswered > 0 ? round(($totalCorrect / $totalAnswered) * 100) : 0;
+
+        // Section analysis (batch queries to avoid N+1)
+        $questionsBySection = Question::selectRaw('lernabschnitt, COUNT(*) as total')
+            ->groupBy('lernabschnitt')->pluck('total', 'lernabschnitt');
+
+        $masteredBySection = UserQuestionProgress::where('user_id', $user->id)
+            ->where('consecutive_correct', '>=', 3)
+            ->join('questions', 'user_question_progress.question_id', '=', 'questions.id')
+            ->selectRaw('questions.lernabschnitt, COUNT(*) as cnt')
+            ->groupBy('questions.lernabschnitt')->pluck('cnt', 'lernabschnitt');
+
+        $answeredBySection = QuestionStatistic::where('question_statistics.user_id', $user->id)
             ->join('questions', 'question_statistics.question_id', '=', 'questions.id')
-            ->select(
-                'questions.lernabschnitt',
-                DB::raw('COUNT(*) as total_attempts'),
-                DB::raw('SUM(CASE WHEN is_correct = 1 THEN 1 ELSE 0 END) as correct_count'),
-                DB::raw('SUM(CASE WHEN is_correct = 0 THEN 1 ELSE 0 END) as wrong_count'),
-                DB::raw('ROUND((SUM(CASE WHEN is_correct = 1 THEN 1 ELSE 0 END) * 100.0 / COUNT(*)), 1) as success_rate')
-            )
-            ->groupBy('questions.lernabschnitt')
-            ->orderByRaw('CAST(questions.lernabschnitt AS UNSIGNED)')
+            ->selectRaw('questions.lernabschnitt, COUNT(*) as cnt, SUM(question_statistics.is_correct) as correct_cnt')
+            ->groupBy('questions.lernabschnitt')->get()->keyBy('lernabschnitt');
+
+        $sectionStats = [];
+        for ($s = 1; $s <= 10; $s++) {
+            $total = $questionsBySection[$s] ?? 0;
+            $mastered = $masteredBySection[$s] ?? 0;
+            $answered = $answeredBySection[$s]->cnt ?? 0;
+            $correct = $answeredBySection[$s]->correct_cnt ?? 0;
+
+            $sectionStats[] = [
+                'section' => $s,
+                'total' => $total,
+                'mastered' => $mastered,
+                'percent' => $total > 0 ? round(($mastered / $total) * 100) : 0,
+                'hit_rate' => $answered > 0 ? round(($correct / $answered) * 100) : 0,
+            ];
+        }
+
+        // Activity (last 30 days)
+        $activity = QuestionStatistic::where('user_id', $user->id)
+            ->where('created_at', '>=', now()->subDays(30))
+            ->selectRaw('DATE(created_at) as date, COUNT(*) as count, SUM(is_correct) as correct')
+            ->groupBy('date')
+            ->orderBy('date')
+            ->get()
+            ->keyBy('date');
+
+        // Weekly activity (last 7 days)
+        $weeklyActivity = QuestionStatistic::where('user_id', $user->id)
+            ->where('created_at', '>=', now()->subDays(7))
+            ->selectRaw('DATE(created_at) as date, COUNT(*) as count, SUM(is_correct) as correct')
+            ->groupBy('date')
+            ->orderBy('date')
             ->get();
-        
-        // Top-10 falsch beantwortete Fragen für doppelte Punkte cachen
-        $topWrongQuestionIds = $topWrongQuestions->pluck('question_id')->toArray();
-        \Cache::put('top_wrong_questions', $topWrongQuestionIds, 3600); // 1 Stunde Cache
 
-        // Aktivität pro Wochentag (alle Quellen kombiniert, letzte 30 Tage)
-        $activityGA = QuestionStatistic::select(DB::raw('DAYOFWEEK(created_at) as weekday'), DB::raw('COUNT(*) as count'))
-            ->where('created_at', '>=', now()->subDays(30))->groupBy('weekday')->pluck('count', 'weekday')->toArray();
-        $activityLG = LehrgangQuestionStatistic::select(DB::raw('DAYOFWEEK(created_at) as weekday'), DB::raw('COUNT(*) as count'))
-            ->where('created_at', '>=', now()->subDays(30))->groupBy('weekday')->pluck('count', 'weekday')->toArray();
-        $activityLP = OrtsverbandLernpoolQuestionStatistic::select(DB::raw('DAYOFWEEK(created_at) as weekday'), DB::raw('COUNT(*) as count'))
-            ->where('created_at', '>=', now()->subDays(30))->groupBy('weekday')->pluck('count', 'weekday')->toArray();
+        // Exam history
+        $examHistory = ExamStatistic::where('user_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
 
-        $activityByWeekday = [];
-        for ($d = 1; $d <= 7; $d++) {
-            $activityByWeekday[$d] = ($activityGA[$d] ?? 0) + ($activityLG[$d] ?? 0) + ($activityLP[$d] ?? 0);
-        }
+        // Spaced repetition stats
+        $srStats = app(\App\Services\SpacedRepetitionService::class)->getStats($user->id);
 
-        // Peak-Stunden (alle Quellen kombiniert, letzte 30 Tage)
-        $hoursGA = QuestionStatistic::select(DB::raw('HOUR(created_at) as hour'), DB::raw('COUNT(*) as count'))
-            ->where('created_at', '>=', now()->subDays(30))->groupBy('hour')->pluck('count', 'hour')->toArray();
-        $hoursLG = LehrgangQuestionStatistic::select(DB::raw('HOUR(created_at) as hour'), DB::raw('COUNT(*) as count'))
-            ->where('created_at', '>=', now()->subDays(30))->groupBy('hour')->pluck('count', 'hour')->toArray();
-        $hoursLP = OrtsverbandLernpoolQuestionStatistic::select(DB::raw('HOUR(created_at) as hour'), DB::raw('COUNT(*) as count'))
-            ->where('created_at', '>=', now()->subDays(30))->groupBy('hour')->pluck('count', 'hour')->toArray();
-
-        $peakHours = [];
-        for ($h = 0; $h < 24; $h++) {
-            $peakHours[$h] = ($hoursGA[$h] ?? 0) + ($hoursLG[$h] ?? 0) + ($hoursLP[$h] ?? 0);
-        }
+        // SR interval distribution
+        $intervalDistribution = UserQuestionProgress::where('user_id', $user->id)
+            ->where('review_interval', '>', 0)
+            ->selectRaw('review_interval, COUNT(*) as count')
+            ->groupBy('review_interval')
+            ->orderBy('review_interval')
+            ->get();
 
         return view('statistics', compact(
-            'totalAnswered',
-            'totalCorrect',
-            'totalWrong',
-            'successRate',
-            'errorRate',
-            'totalExams',
-            'passedExams',
-            'failedExams',
-            'examPassRate',
-            'topWrongQuestionsWithDetails',
-            'topCorrectQuestionsWithDetails',
-            'sectionStats',
-            'chartData',
-            'activityByWeekday',
-            'peakHours'
+            'totalQuestions', 'solvedTotal', 'masteredTotal',
+            'progressPercent', 'masteryPercent', 'hitRate',
+            'sectionStats', 'activity', 'weeklyActivity',
+            'examHistory', 'srStats', 'intervalDistribution'
         ));
     }
-
-    /**
-     * Generiere Chart-Daten für die letzten 30 Tage
-     */
-    private function getChartData(): array
-    {
-        $labels = [];
-        $questionsTotal = [];
-        $questionsCorrect = [];
-        $questionsWrong = [];
-        $examsTotal = [];
-        $examsPassed = [];
-
-        // Letzte 30 Tage inkl. heute
-        for ($i = 29; $i >= 0; $i--) {
-            $date = Carbon::now()->subDays($i);
-            $labels[] = $date->format('d.m.');
-
-            // Fragen-Statistiken für diesen Tag (alle Quellen kombiniert)
-            $dayQuestionsGA = QuestionStatistic::whereDate('created_at', $date)->get();
-            $dayQuestionsLG = LehrgangQuestionStatistic::whereDate('created_at', $date)->get();
-            $dayQuestionsLP = OrtsverbandLernpoolQuestionStatistic::whereDate('created_at', $date)->get();
-
-            $totalDay = $dayQuestionsGA->count() + $dayQuestionsLG->count() + $dayQuestionsLP->count();
-            $correctDay = $dayQuestionsGA->where('is_correct', true)->count()
-                        + $dayQuestionsLG->where('is_correct', true)->count()
-                        + $dayQuestionsLP->where('is_correct', true)->count();
-
-            $questionsTotal[] = $totalDay;
-            $questionsCorrect[] = $correctDay;
-            $questionsWrong[] = $totalDay - $correctDay;
-
-            // Prüfungs-Statistiken für diesen Tag
-            $dayExams = ExamStatistic::whereDate('created_at', $date)->get();
-            $examsTotal[] = $dayExams->count();
-            $examsPassed[] = $dayExams->where('is_passed', true)->count();
-        }
-
-        return [
-            'labels' => $labels,
-            'questionsTotal' => $questionsTotal,
-            'questionsCorrect' => $questionsCorrect,
-            'questionsWrong' => $questionsWrong,
-            'examsTotal' => $examsTotal,
-            'examsPassed' => $examsPassed,
-        ];
-    }
 }
-

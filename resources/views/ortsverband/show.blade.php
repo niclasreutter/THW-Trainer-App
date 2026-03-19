@@ -2,23 +2,195 @@
 
 @section('title', $ortsverband->name)
 
-@section('content')
-<div class="dashboard-container">
-    <header class="dashboard-header">
-        <h1 class="page-title">Ortsverband <span>{{ $ortsverband->name }}</span></h1>
-        @if($ortsverband->description)
-            <p class="page-subtitle">{{ $ortsverband->description }}</p>
-        @endif
-    </header>
+@push('styles')
+<link rel="preconnect" href="https://fonts.bunny.net">
+<link href="https://fonts.bunny.net/css2?family=Barlow+Condensed:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+    @keyframes dash-rise {
+        from { opacity: 0; transform: translateY(10px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
 
-    @if($isAdminViewing)
-    <div class="alert-compact glass-thw" style="margin-bottom: 1.5rem;">
-        <i class="bi bi-eye alert-compact-icon"></i>
-        <div class="alert-compact-content">
-            <div class="alert-compact-title">Admin-Ansicht</div>
-            <div class="alert-compact-desc">Du betrachtest diesen Ortsverband als Admin.</div>
+    .dash-container > .space-y-4 > * {
+        animation: dash-rise 0.45s cubic-bezier(0.22,1,0.36,1) both;
+    }
+
+    .dash-container > .space-y-4 > *:nth-child(1) { animation-delay: 0.03s; }
+    .dash-container > .space-y-4 > *:nth-child(2) { animation-delay: 0.07s; }
+    .dash-container > .space-y-4 > *:nth-child(3) { animation-delay: 0.11s; }
+    .dash-container > .space-y-4 > *:nth-child(4) { animation-delay: 0.15s; }
+    .dash-container > .space-y-4 > *:nth-child(5) { animation-delay: 0.19s; }
+    .dash-container > .space-y-4 > *:nth-child(6) { animation-delay: 0.23s; }
+    .dash-container > .space-y-4 > *:nth-child(7) { animation-delay: 0.27s; }
+    .dash-container > .space-y-4 > *:nth-child(8) { animation-delay: 0.31s; }
+    .dash-container > .space-y-4 > *:nth-child(9) { animation-delay: 0.35s; }
+
+    @media (prefers-reduced-motion: reduce) {
+        .dash-container > .space-y-4 > * { animation: none; }
+    }
+
+    /* ─── OV Items ─── */
+    .ov-item {
+        display: flex;
+        align-items: center;
+        gap: 0.625rem;
+        padding: 0.5rem 0.25rem;
+        transition: background 150ms ease;
+        border-radius: 0.375rem;
+    }
+    .ov-item:hover { background: rgba(255,255,255,0.03); }
+    html.light-mode .ov-item:hover { background: rgba(0,0,0,0.03); }
+    .ov-item + .ov-item { border-top: 1px solid rgba(255,255,255,0.04); }
+    html.light-mode .ov-item + .ov-item { border-top-color: rgba(0,0,0,0.06); }
+
+    /* ─── Tag Filter Pills ─── */
+    .ov-tag-pills {
+        display: flex;
+        gap: 0.375rem;
+        flex-wrap: wrap;
+        margin-bottom: 0.75rem;
+    }
+    .ov-tag-pill {
+        font-size: 0.6875rem;
+        font-weight: 600;
+        padding: 0.3rem 0.75rem;
+        border-radius: 2rem;
+        border: 1px solid var(--glass-border);
+        background: transparent;
+        color: var(--text-muted);
+        cursor: pointer;
+        transition: all 150ms;
+        text-decoration: none;
+        font-family: 'IBM Plex Mono', monospace;
+    }
+    .ov-tag-pill:hover {
+        border-color: rgba(91,154,255,0.3);
+        color: var(--text-secondary);
+        text-decoration: none;
+    }
+    .ov-tag-pill.active {
+        background: rgba(91,154,255,0.12);
+        color: #5b9aff;
+        border-color: rgba(91,154,255,0.3);
+    }
+    html.light-mode .ov-tag-pill.active {
+        background: rgba(0,51,127,0.08);
+        color: #00337F;
+        border-color: rgba(0,51,127,0.2);
+    }
+
+    /* ─── Lernpool cards ─── */
+    .ov-pool-card {
+        position: relative;
+        padding: 1rem;
+        border-radius: 0.625rem;
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.06);
+        display: flex;
+        flex-direction: column;
+        transition: background 150ms, border-color 150ms;
+    }
+    .ov-pool-card:hover {
+        background: rgba(255,255,255,0.05);
+        border-color: rgba(255,255,255,0.1);
+    }
+    html.light-mode .ov-pool-card {
+        background: rgba(0,51,127,0.02);
+        border-color: rgba(0,51,127,0.06);
+    }
+    html.light-mode .ov-pool-card:hover {
+        background: rgba(0,51,127,0.05);
+    }
+
+    .ov-pool-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 0.75rem;
+    }
+
+    .ov-btn-leave {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        background: rgba(239,68,68,0.12);
+        border: none;
+        color: #ef4444;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.6875rem;
+        transition: background 150ms;
+    }
+    .ov-btn-leave:hover { background: rgba(239,68,68,0.22); }
+
+    /* ─── Progress Track ─── */
+    .ov-progress-track {
+        height: 3px;
+        background: rgba(255,255,255,0.06);
+        border-radius: 2px;
+        overflow: hidden;
+    }
+    html.light-mode .ov-progress-track {
+        background: rgba(0,0,0,0.08);
+    }
+
+    /* ─── Alert ─── */
+    .ov-alert {
+        padding: 0.75rem 1rem;
+        border-radius: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 0.625rem;
+        margin-bottom: 0.75rem;
+    }
+</style>
+@endpush
+
+@section('content')
+@php
+    $userMember = $ortsverband->members()->where('user_id', auth()->id())->first();
+    $userIsAusbilder = $userMember && $userMember->pivot->role === 'ausbildungsbeauftragter';
+    $ausbilder = $ortsverband->members()->wherePivot('role', 'ausbildungsbeauftragter')->get();
+@endphp
+
+<div class="dash-container">
+
+    {{-- ── Header ── --}}
+    <div class="mb-6">
+        <p style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);font-weight:600;margin-bottom:0.25rem;">Ortsverband</p>
+        <h1 style="font-size:1.5rem;font-weight:800;line-height:1.2;font-family:'Barlow Condensed',sans-serif;background:linear-gradient(135deg,#5b9aff,#0055cc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">{{ $ortsverband->name }}</h1>
+        @if($ortsverband->description)
+            <p class="text-sm" style="color: var(--text-muted);">{{ $ortsverband->description }}</p>
+        @else
+            <p class="text-sm" style="color: var(--text-muted);">Dein Ortsverband auf THW Trainer</p>
+        @endif
+    </div>
+
+    {{-- ── Stat Pills ── --}}
+    <div class="flex gap-3 mb-6" style="flex-wrap: wrap;">
+        <div class="gami-pill">
+            <div class="gami-pill__value" style="color:#5b9aff;-webkit-text-fill-color:#5b9aff;">{{ $ortsverband->members()->count() }}</div>
+            <div class="gami-pill__label">Mitglieder</div>
         </div>
-        <form method="POST" action="{{ route('admin.ortsverband.exit-view') }}" style="margin: 0;">
+        <div class="gami-pill">
+            <div class="gami-pill__value" style="color:#a855f7;-webkit-text-fill-color:#a855f7;">{{ $ortsverband->members()->wherePivot('role', 'ausbildungsbeauftragter')->count() }}</div>
+            <div class="gami-pill__label">Ausbilder</div>
+        </div>
+        <div class="gami-pill">
+            <div class="gami-pill__value">{{ $ortsverband->created_at->format('d.m.Y') }}</div>
+            <div class="gami-pill__label">Gegründet</div>
+        </div>
+    </div>
+
+    {{-- ── Admin Alert ── --}}
+    @if($isAdminViewing)
+    <div class="ov-alert glass" style="border-left:3px solid #5b9aff;">
+        <div style="flex:1;">
+            <div style="font-size:0.8125rem;font-weight:600;color:var(--text-primary);">Admin-Ansicht</div>
+            <div style="font-size:0.6875rem;color:var(--text-muted);">Du betrachtest diesen Ortsverband als Admin.</div>
+        </div>
+        <form method="POST" action="{{ route('admin.ortsverband.exit-view') }}" style="margin:0;">
             @csrf
             <button type="submit" class="btn-ghost btn-sm">Beenden</button>
         </form>
@@ -26,71 +198,32 @@
     @endif
 
     @if(session('success'))
-    <div class="alert-compact glass-success" style="margin-bottom: 1.5rem;">
-        <i class="bi bi-check-circle alert-compact-icon"></i>
-        <div class="alert-compact-content">
-            <div class="alert-compact-title">{{ session('success') }}</div>
-        </div>
-        <button onclick="this.parentElement.remove()" style="background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 1.25rem;">&times;</button>
+    <div class="ov-alert glass-success">
+        <i class="bi bi-check-circle" style="font-size:1rem;flex-shrink:0;"></i>
+        <span style="font-size:0.8125rem;font-weight:600;color:var(--text-primary);flex:1;">{{ session('success') }}</span>
+        <button onclick="this.parentElement.remove()" style="background:none;border:none;color:var(--text-secondary);cursor:pointer;font-size:1.125rem;line-height:1;">&times;</button>
     </div>
     @endif
 
-    <!-- Stats Row -->
-    <div class="stats-row">
-        <div class="stat-pill">
-            <span class="stat-pill-icon"><i class="bi bi-people-fill"></i></span>
-            <div>
-                <div class="stat-pill-value">{{ $ortsverband->members()->count() }}</div>
-                <div class="stat-pill-label">Mitglieder</div>
-            </div>
-        </div>
-        <div class="stat-pill">
-            <span class="stat-pill-icon text-gold"><i class="bi bi-calendar-event"></i></span>
-            <div>
-                <div class="stat-pill-value">{{ $ortsverband->created_at->format('d.m.Y') }}</div>
-                <div class="stat-pill-label">Gegründet</div>
-            </div>
-        </div>
-        <div class="stat-pill">
-            <span class="stat-pill-icon text-info"><i class="bi bi-person-badge"></i></span>
-            <div>
-                <div class="stat-pill-value">{{ $ortsverband->members()->wherePivot('role', 'ausbildungsbeauftragter')->count() }}</div>
-                <div class="stat-pill-label">Ausbilder</div>
-            </div>
-        </div>
-    </div>
+    <div class="space-y-4">
 
-    @php
-        $userMember = $ortsverband->members()->where('user_id', auth()->id())->first();
-        $userIsAusbilder = $userMember && $userMember->pivot->role === 'ausbildungsbeauftragter';
-        $ausbilder = $ortsverband->members()->wherePivot('role', 'ausbildungsbeauftragter')->get();
-    @endphp
-
-    <!-- Bento Grid -->
-    <div class="bento-grid-show">
-        <!-- Lernpools Section (Main) -->
-        <div class="glass-gold bento-lernpools">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem;">
-                <div class="section-header" style="margin-bottom: 0; padding-left: 0; border-left: none;">
-                    <h2 class="section-title" style="font-size: 1.25rem;">Lernpools</h2>
-                </div>
+        {{-- ── Lernpools ── --}}
+        <div class="glass p-4" style="border-radius:0.75rem;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;">
+                <span class="text-xs uppercase tracking-wider" style="color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:0.5625rem;font-weight:700;">Lernpools</span>
                 @if($userIsAusbilder)
-                    <a href="{{ route('ortsverband.lernpools.index', $ortsverband) }}" class="btn-primary btn-sm">Verwalten</a>
+                    <a href="{{ route('ortsverband.lernpools.index', $ortsverband) }}" class="btn-primary btn-sm" style="text-decoration:none;">Verwalten</a>
                 @endif
             </div>
 
-            <!-- Tags Filter -->
+            {{-- Tags Filter --}}
             @if($allTags->isNotEmpty())
-            <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.25rem;">
+            <div class="ov-tag-pills">
                 <a href="{{ route('ortsverband.show', $ortsverband) }}"
-                   class="{{ !$selectedTag ? 'btn-primary' : 'btn-ghost' }} btn-sm">
-                    Alle
-                </a>
+                   class="ov-tag-pill {{ !$selectedTag ? 'active' : '' }}">Alle</a>
                 @foreach($allTags as $tag)
                     <a href="{{ route('ortsverband.show', ['ortsverband' => $ortsverband, 'tag' => $tag]) }}"
-                       class="{{ $selectedTag === $tag ? 'btn-primary' : 'btn-ghost' }} btn-sm">
-                        {{ $tag }}
-                    </a>
+                       class="ov-tag-pill {{ $selectedTag === $tag ? 'active' : '' }}">{{ $tag }}</a>
                 @endforeach
             </div>
             @endif
@@ -106,7 +239,7 @@
             @endphp
 
             @if($activeLernpools->count() > 0)
-            <div class="lernpool-grid">
+            <div class="ov-pool-grid">
                 @foreach($activeLernpools as $pool)
                     @php
                         $isEnrolled = in_array($pool->id, $userEnrollments);
@@ -114,164 +247,145 @@
                         $enrollment = auth()->user()->lernpoolEnrollments()->where('lernpool_id', $pool->id)->first();
                         $progress = $enrollment ? $enrollment->getProgress() : 0;
                     @endphp
-                    <div class="glass-subtle lernpool-card">
+                    <div class="ov-pool-card">
                         @if($isEnrolled)
-                            <form action="{{ route('ortsverband.lernpools.unenroll', [$ortsverband, $pool]) }}" method="POST" style="position: absolute; top: 0.5rem; right: 0.5rem;">
+                            <form action="{{ route('ortsverband.lernpools.unenroll', [$ortsverband, $pool]) }}" method="POST" style="position:absolute;top:0.5rem;right:0.5rem;">
                                 @csrf
-                                <button type="submit" class="btn-icon-leave" title="Verlassen" onclick="return confirm('Möchtest du diesen Lernpool wirklich verlassen?')">
+                                <button type="submit" class="ov-btn-leave" title="Verlassen" onclick="return confirm('Möchtest du diesen Lernpool wirklich verlassen?')">
                                     <i class="bi bi-x-lg"></i>
                                 </button>
                             </form>
                         @endif
 
-                        <h4 style="font-size: 1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.5rem; padding-right: 2rem;">{{ $pool->name }}</h4>
+                        <div style="font-size:0.875rem;font-weight:700;color:var(--text-primary);margin-bottom:0.375rem;padding-right:1.75rem;">{{ $pool->name }}</div>
 
                         @if($pool->tags && count($pool->tags) > 0)
-                        <div style="display: flex; gap: 0.25rem; flex-wrap: wrap; margin-bottom: 0.5rem;">
+                        <div style="display:flex;gap:0.25rem;flex-wrap:wrap;margin-bottom:0.375rem;">
                             @foreach($pool->tags as $tag)
-                                <span class="badge-thw" style="font-size: 0.6rem; padding: 0.15rem 0.4rem;">{{ $tag }}</span>
+                                <span style="font-size:0.5625rem;padding:0.125rem 0.375rem;border-radius:2rem;background:rgba(91,154,255,0.1);color:#5b9aff;font-weight:600;font-family:'IBM Plex Mono',monospace;">{{ $tag }}</span>
                             @endforeach
                         </div>
                         @endif
 
-                        <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.75rem; flex: 1; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                        <p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.5rem;flex:1;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.4;">
                             {{ Str::limit($pool->description, 60) }}
                         </p>
 
-                        <div style="display: flex; gap: 1rem; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.75rem;">
+                        <div style="display:flex;justify-content:space-between;font-size:0.6875rem;color:var(--text-muted);margin-bottom:0.5rem;">
                             <span>{{ $totalQuestions }} Fragen</span>
-                            <span>{{ round($progress) }}%</span>
+                            <span style="font-weight:700;color:#5b9aff;">{{ round($progress) }}%</span>
                         </div>
 
-                        <div style="height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; margin-bottom: 0.75rem; overflow: hidden;">
-                            <div style="height: 100%; background: var(--gradient-gold); width: {{ $progress }}%; border-radius: 2px;"></div>
+                        <div class="ov-progress-track" style="margin-bottom:0.625rem;">
+                            <div style="height:100%;border-radius:2px;background:linear-gradient(90deg,#0055cc,#5b9aff);width:{{ $progress }}%;transition:width 0.6s ease-out;"></div>
                         </div>
 
                         @if($isEnrolled)
-                            <a href="{{ route('ortsverband.lernpools.practice', [$ortsverband, $pool]) }}" class="btn-primary btn-sm" style="width: 100%;">
+                            <a href="{{ route('ortsverband.lernpools.practice', [$ortsverband, $pool]) }}" class="btn-primary btn-sm" style="width:100%;text-align:center;text-decoration:none;">
                                 Weiter
                             </a>
                         @else
                             <form action="{{ route('ortsverband.lernpools.enroll', [$ortsverband, $pool]) }}" method="POST">
                                 @csrf
-                                <button type="submit" class="btn-secondary btn-sm" style="width: 100%;">Beitreten</button>
+                                <button type="submit" class="btn-secondary btn-sm" style="width:100%;">Beitreten</button>
                             </form>
                         @endif
                     </div>
                 @endforeach
             </div>
             @else
-            <div class="empty-state" style="padding: 2rem;">
-                <div class="empty-state-icon"><i class="bi bi-collection"></i></div>
-                <h3 class="empty-state-title">Keine Lernpools</h3>
-                <p class="empty-state-desc">{{ $selectedTag ? 'Keine Lernpools mit diesem Tag gefunden.' : 'Noch keine Lernpools verfügbar.' }}</p>
+            <div style="text-align:center;padding:2rem 1rem;">
+                <div style="font-size:0.875rem;font-weight:600;color:var(--text-primary);margin-bottom:0.25rem;">Keine Lernpools</div>
+                <p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.75rem;">{{ $selectedTag ? 'Keine Lernpools mit diesem Tag gefunden.' : 'Noch keine Lernpools verfügbar.' }}</p>
                 @if($userIsAusbilder && !$selectedTag)
-                    <a href="{{ route('ortsverband.lernpools.create', $ortsverband) }}" class="btn-primary btn-sm">Erstellen</a>
+                    <a href="{{ route('ortsverband.lernpools.create', $ortsverband) }}" class="btn-primary btn-sm" style="text-decoration:none;">Erstellen</a>
                 @endif
             </div>
             @endif
         </div>
 
-        <!-- Side Cards -->
-        <div class="bento-side-stack">
-            <!-- Ausbilder/Mitglieder Card -->
-            <div class="glass-tl">
-                <div class="section-header" style="margin-bottom: 1rem; padding-left: 0.75rem;">
-                    <h3 class="section-title" style="font-size: 1rem;">{{ $userIsAusbilder ? 'Mitglieder' : 'Deine Ausbilder' }}</h3>
-                </div>
-
-                <div style="max-height: 200px; overflow-y: auto;">
-                    @if($userIsAusbilder)
-                        @foreach($ortsverband->members->take(5) as $member)
-                        <div class="member-row">
-                            <div class="member-avatar-sm">{{ strtoupper(substr($member->name, 0, 1)) }}</div>
-                            <div style="flex: 1; min-width: 0;">
-                                <div style="font-weight: 600; font-size: 0.85rem; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                                    {{ $member->name }}
-                                </div>
-                                <div style="font-size: 0.7rem; color: var(--text-muted);">
-                                    {{ $member->pivot->role === 'ausbildungsbeauftragter' ? 'Ausbilder' : 'Mitglied' }}
-                                </div>
-                            </div>
-                        </div>
-                        @endforeach
-                        @if($ortsverband->members->count() > 5)
-                        <a href="{{ route('ortsverband.members', $ortsverband) }}" class="btn-ghost btn-sm" style="width: 100%; margin-top: 0.5rem;">
-                            Alle anzeigen
-                        </a>
-                        @endif
-                    @else
-                        @foreach($ausbilder as $member)
-                        <div class="member-row">
-                            <div class="member-avatar-sm">{{ strtoupper(substr($member->name, 0, 1)) }}</div>
-                            <div style="flex: 1; min-width: 0;">
-                                <div style="font-weight: 600; font-size: 0.85rem; color: var(--text-primary);">{{ $member->name }}</div>
-                                <div style="font-size: 0.7rem; color: var(--text-muted);">Ausbilder</div>
-                            </div>
-                        </div>
-                        @endforeach
-                    @endif
-                </div>
+        {{-- ── Mitglieder / Ausbilder ── --}}
+        <div class="glass p-4" style="border-radius:0.75rem;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;">
+                <span class="text-xs uppercase tracking-wider" style="color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:0.5625rem;font-weight:700;">{{ $userIsAusbilder ? 'Mitglieder' : 'Deine Ausbilder' }}</span>
+                @if($userIsAusbilder && $ortsverband->members->count() > 5)
+                    <a href="{{ route('ortsverband.members', $ortsverband) }}" style="font-size:0.6875rem;color:#5b9aff;text-decoration:none;font-weight:600;">Alle anzeigen</a>
+                @endif
             </div>
 
-            <!-- Rangliste (wenn sichtbar) -->
-            @if($ortsverband->ranking_visible && $memberProgress)
-            <div class="glass-br">
-                <div class="section-header" style="margin-bottom: 1rem; padding-left: 0.75rem;">
-                    <h3 class="section-title" style="font-size: 1rem;">Rangliste</h3>
-                </div>
-
-                <div style="max-height: 180px; overflow-y: auto;">
-                    @foreach($memberProgress->take(5) as $index => $member)
-                    @php
-                        $sUser = $member['user'];
-                        $sHasGlow = $sUser->glowing_name_until && \Carbon\Carbon::parse($sUser->glowing_name_until)->isFuture();
-                        $sHasRankColor = $sUser->rank_color_until && \Carbon\Carbon::parse($sUser->rank_color_until)->isFuture() && $sUser->rank_color;
-                        $sHasFrame = $sUser->profile_frame_until && \Carbon\Carbon::parse($sUser->profile_frame_until)->isFuture();
-                        $sHasTitle = $sUser->active_title_until && \Carbon\Carbon::parse($sUser->active_title_until)->isFuture() && $sUser->active_title;
-                        $sNameClasses = '';
-                        if ($sHasGlow) $sNameClasses .= $sUser->glowing_name_type === 'shimmer' ? ' glowing-name-shimmer' : ' glowing-name-static';
-                        if ($sHasRankColor) $sNameClasses .= ' rank-color-' . $sUser->rank_color;
-                        $sFrameClass = '';
-                        if ($sHasFrame) $sFrameClass = ($sUser->profile_frame_type ?? 'gold') === 'diamond' ? 'profile-frame-diamond' : 'profile-frame-gold';
-                    @endphp
-                    <div class="ranking-row {{ $sFrameClass }}">
-                        <div style="font-size: 1rem; min-width: 28px; font-weight: 700; text-align: center;
-                            {{ $index === 0 ? 'color: #fbbf24;' : ($index === 1 ? 'color: #94a3b8;' : ($index === 2 ? 'color: #cd7f32;' : 'color: var(--text-muted);')) }}">
-                            {{ $index + 1 }}
-                        </div>
-                        <div style="flex: 1; min-width: 0;">
-                            <div class="{{ trim($sNameClasses) }}" style="font-weight: 600; font-size: 0.8rem; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                                {{ $sUser->name }}
-                            </div>
-                            @if($sHasTitle)
-                                <div class="user-title" style="font-size: 0.65rem;">{{ $sUser->active_title }}</div>
-                            @endif
-                            <div style="font-size: 0.7rem; color: var(--text-muted);">{{ number_format($member['points']) }} Punkte</div>
-                        </div>
+            @if($userIsAusbilder)
+                @foreach($ortsverband->members->take(5) as $member)
+                <div class="ov-item">
+                    <img src="{{ $member->avatar_url }}" alt="" style="width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0;">
+                    <div style="flex:1;min-width:0;">
+                        <div style="font-weight:600;font-size:0.8125rem;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ $member->name }}</div>
+                        <div style="font-size:0.625rem;color:var(--text-muted);">{{ $member->pivot->role === 'ausbildungsbeauftragter' ? 'Ausbilder' : 'Mitglied' }}</div>
                     </div>
-                    @endforeach
                 </div>
-            </div>
+                @endforeach
+            @else
+                @foreach($ausbilder as $member)
+                <div class="ov-item">
+                    <img src="{{ $member->avatar_url }}" alt="" style="width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0;">
+                    <div style="flex:1;min-width:0;">
+                        <div style="font-weight:600;font-size:0.8125rem;color:var(--text-primary);">{{ $member->name }}</div>
+                        <div style="font-size:0.625rem;color:var(--text-muted);">Ausbilder</div>
+                    </div>
+                </div>
+                @endforeach
             @endif
         </div>
 
-        <!-- Info Card (Wide) -->
-        <div class="glass-slash bento-info-wide">
-            <div style="display: flex; align-items: start; gap: 1rem;">
-                <div style="width: 40px; height: 40px; background: rgba(0, 51, 127, 0.15); border-radius: 0.5rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                    <i class="bi bi-info-circle" style="font-size: 1.25rem; color: var(--thw-blue);"></i>
-                </div>
-                <div style="flex: 1;">
-                    <h4 style="font-size: 0.9rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">Was sehen Ausbilder?</h4>
-                    <p style="font-size: 0.75rem; color: var(--text-secondary); margin: 0; line-height: 1.5;">
-                        Theorie-Fortschritt, Prüfungs-Streak, Lern-Streak, Level & Punkte, letzte Aktivität und Schwachstellen.
-                    </p>
+        {{-- ── Rangliste ── --}}
+        @if($ortsverband->ranking_visible && $memberProgress)
+        <div class="glass p-4" style="border-radius:0.75rem;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;">
+                <span class="text-xs uppercase tracking-wider" style="color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:0.5625rem;font-weight:700;">Rangliste</span>
+            </div>
+
+            @foreach($memberProgress->take(5) as $index => $member)
+            @php
+                $sUser = $member['user'];
+                $sHasGlow = $sUser->glowing_name_until && \Carbon\Carbon::parse($sUser->glowing_name_until)->isFuture();
+                $sHasRankColor = $sUser->rank_color_until && \Carbon\Carbon::parse($sUser->rank_color_until)->isFuture() && $sUser->rank_color;
+                $sHasFrame = $sUser->profile_frame_until && \Carbon\Carbon::parse($sUser->profile_frame_until)->isFuture();
+                $sHasTitle = $sUser->active_title_until && \Carbon\Carbon::parse($sUser->active_title_until)->isFuture() && $sUser->active_title;
+                $sNameClasses = '';
+                if ($sHasGlow) $sNameClasses .= $sUser->glowing_name_type === 'shimmer' ? ' glowing-name-shimmer' : ' glowing-name-static';
+                if ($sHasRankColor) $sNameClasses .= ' rank-color-' . $sUser->rank_color;
+                $sFrameClass = '';
+                if ($sHasFrame) $sFrameClass = ($sUser->profile_frame_type ?? 'gold') === 'diamond' ? 'profile-frame-diamond' : 'profile-frame-gold';
+                $rankColor = $index === 0 ? '#fbbf24' : ($index === 1 ? '#94a3b8' : ($index === 2 ? '#cd7f32' : 'var(--text-muted)'));
+            @endphp
+            <div class="ov-item {{ $sFrameClass }}">
+                <div style="font-size:0.9375rem;min-width:1.5rem;font-weight:800;text-align:center;color:{{ $rankColor }};font-family:'Barlow Condensed',sans-serif;">{{ $index + 1 }}</div>
+                <img src="{{ $sUser->avatar_url }}" alt="" style="width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0;">
+                <div style="flex:1;min-width:0;">
+                    <div class="{{ trim($sNameClasses) }}" style="font-weight:600;font-size:0.8125rem;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                        {{ $sUser->name }}
+                    </div>
+                    @if($sHasTitle)
+                        <div class="user-title" style="font-size:0.5625rem;">{{ $sUser->active_title }}</div>
+                    @endif
+                    <div style="font-size:0.625rem;color:var(--text-muted);">{{ number_format($member['points']) }} Punkte</div>
                 </div>
             </div>
+            @endforeach
+        </div>
+        @endif
+
+        {{-- ── Info Card ── --}}
+        <div class="glass p-4" style="border-radius:0.75rem;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;">
+                <span class="text-xs uppercase tracking-wider" style="color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:0.5625rem;font-weight:700;">Info</span>
+            </div>
+            <div style="font-size:0.875rem;font-weight:600;color:var(--text-primary);margin-bottom:0.375rem;">Was sehen Ausbilder?</div>
+            <p style="font-size:0.75rem;color:var(--text-muted);margin:0;line-height:1.5;">
+                Theorie-Fortschritt, Prüfungs-Streak, Lern-Streak, Level & Punkte, letzte Aktivität und Schwachstellen.
+            </p>
         </div>
 
-        <!-- Leave Card -->
+        {{-- ── Verlassen ── --}}
         @php
             $currentMember = $ortsverband->members()->where('user_id', auth()->id())->first();
             $isAusbildungsbeauftragter = $currentMember && $currentMember->pivot->role === 'ausbildungsbeauftragter';
@@ -279,7 +393,7 @@
             $canLeave = !$isAusbildungsbeauftragter || $ausbilderCount > 1;
         @endphp
 
-        <div class="glass-subtle bento-leave" style="text-align: center;">
+        <div style="text-align:center;padding-top:0.25rem;">
             @if($canLeave)
             <form action="{{ route('ortsverband.leave', $ortsverband) }}" method="POST"
                   onsubmit="return confirm('Möchtest du diesen Ortsverband wirklich verlassen?')">
@@ -288,186 +402,17 @@
                 <button type="submit" class="btn-danger btn-sm">Ortsverband verlassen</button>
             </form>
             @else
-            <p style="font-size: 0.8rem; color: var(--text-secondary); margin: 0;">
+            <p style="font-size:0.75rem;color:var(--text-muted);margin:0;">
                 Du bist der einzige Ausbilder und kannst nicht verlassen.
             </p>
             @endif
         </div>
-    </div>
 
-    <!-- Back Link -->
-    <div style="text-align: center; margin-top: 2rem;">
-        <a href="{{ route('dashboard') }}" class="btn-ghost btn-sm">
-            <i class="bi bi-arrow-left"></i> Zurück zum Dashboard
-        </a>
+        {{-- ── Zurück ── --}}
+        <div style="text-align:center;">
+            <a href="{{ route('dashboard') }}" class="btn-ghost btn-sm" style="text-decoration:none;">Zurück zum Dashboard</a>
+        </div>
+
     </div>
 </div>
-
-@push('styles')
-<style>
-    .dashboard-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 2rem;
-    }
-
-    .dashboard-header {
-        margin-bottom: 2.5rem;
-        padding-top: 1rem;
-        max-width: 600px;
-    }
-
-    .bento-grid-show {
-        display: grid;
-        grid-template-columns: 2fr 1fr;
-        grid-template-rows: auto auto auto;
-        gap: 1rem;
-    }
-
-    .bento-lernpools {
-        grid-row: span 2;
-        padding: 1.5rem;
-    }
-
-    .bento-side-stack {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-    }
-
-    .bento-side-stack > div {
-        padding: 1.25rem;
-    }
-
-    .bento-info-wide {
-        grid-column: span 2;
-        padding: 1.25rem;
-    }
-
-    .bento-leave {
-        grid-column: span 2;
-        padding: 1rem;
-    }
-
-    .lernpool-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        gap: 0.75rem;
-    }
-
-    .lernpool-card {
-        position: relative;
-        padding: 1rem;
-        border-radius: 0.75rem;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .btn-icon-leave {
-        width: 24px;
-        height: 24px;
-        border-radius: 50%;
-        background: rgba(239, 68, 68, 0.15);
-        border: none;
-        color: #ef4444;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.75rem;
-        transition: all 0.2s;
-    }
-
-    .btn-icon-leave:hover {
-        background: rgba(239, 68, 68, 0.25);
-    }
-
-    .member-row {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        padding: 0.5rem;
-        border-radius: 0.5rem;
-        margin-bottom: 0.25rem;
-    }
-
-    .member-row:hover {
-        background: rgba(255, 255, 255, 0.05);
-    }
-
-    .member-avatar-sm {
-        width: 32px;
-        height: 32px;
-        background: var(--gradient-gold);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #1e3a5f;
-        font-weight: 700;
-        font-size: 0.8rem;
-        flex-shrink: 0;
-    }
-
-    .ranking-row {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        padding: 0.4rem;
-        border-radius: 0.5rem;
-        margin-bottom: 0.25rem;
-    }
-
-    .alert-compact {
-        padding: 0.875rem 1rem;
-        border-radius: 0.75rem;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-    }
-
-    .alert-compact-icon { font-size: 1.25rem; }
-    .alert-compact-content { flex: 1; }
-    .alert-compact-title { font-size: 0.9rem; font-weight: 600; color: var(--text-primary); }
-    .alert-compact-desc { font-size: 0.75rem; color: var(--text-secondary); }
-
-    .empty-state {
-        text-align: center;
-    }
-
-    .empty-state-icon {
-        font-size: 2rem;
-        color: var(--text-muted);
-        margin-bottom: 0.75rem;
-        opacity: 0.6;
-    }
-
-    .empty-state-title {
-        font-size: 1rem;
-        font-weight: 700;
-        color: var(--text-primary);
-        margin-bottom: 0.25rem;
-    }
-
-    .empty-state-desc {
-        font-size: 0.85rem;
-        color: var(--text-secondary);
-        margin-bottom: 1rem;
-    }
-
-    @media (max-width: 900px) {
-        .bento-grid-show {
-            grid-template-columns: 1fr;
-        }
-        .bento-lernpools { grid-row: span 1; }
-        .bento-info-wide, .bento-leave { grid-column: span 1; }
-    }
-
-    @media (max-width: 768px) {
-        .dashboard-container {
-            padding: 1rem;
-        }
-    }
-</style>
-@endpush
 @endsection

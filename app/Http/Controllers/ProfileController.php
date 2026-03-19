@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
 
@@ -143,6 +145,36 @@ class ProfileController extends Controller
         $user->save();
 
         return Redirect::route('dashboard')->with('status', 'leaderboard-banner-dismissed');
+    }
+
+    /**
+     * Regenerate the user's avatar with a new random seed.
+     */
+    public function regenerateAvatar(Request $request): JsonResponse|RedirectResponse
+    {
+        $user = $request->user();
+        $seed = Str::random(16);
+
+        // avataaars ohne Brille, Bart, Hüte — die werden später per XP-Shop freigeschaltet
+        // Nur positive Gesichtsausdrücke erlaubt
+        $user->avatar_path = 'avataaars/svg?radius=50'
+            . '&seed=' . $seed
+            . '&backgroundType=gradientLinear'
+            . '&backgroundColor=00337f,0055cc'
+            . '&backgroundRotation=135'
+            . '&accessoriesProbability=0'
+            . '&facialHairProbability=0'
+            . '&top=bob,bun,curly,curvy,dreads,frida,fro,froBand,longButNotTooLong,miaWallace,shavedSides,straight01,straight02,straightAndStrand,dreads01,dreads02,frizzle,shaggy,shaggyMullet,shortCurly,shortFlat,shortRound,shortWaved,sides,theCaesar,theCaesarAndSidePart,bigHair'
+            . '&mouth=default,smile,tongue,twinkle'
+            . '&eyes=default,happy,hearts,wink'
+            . '&eyebrows=defaultNatural,flatNatural,raisedExcitedNatural,upDownNatural,default,raisedExcited,upDown';
+        $user->save();
+
+        if ($request->expectsJson()) {
+            return response()->json(['avatar_url' => $user->avatar_url]);
+        }
+
+        return Redirect::route('profile')->with('status', 'avatar-updated');
     }
 
     /**

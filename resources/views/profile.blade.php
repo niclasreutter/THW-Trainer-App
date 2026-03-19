@@ -3,34 +3,274 @@
 @section('title', 'Profil bearbeiten - THW Trainer')
 @section('description', 'Bearbeite dein THW-Trainer Profil: Ändere deine persönlichen Daten, Passwort und verwalte deinen Account.')
 
-@section('content')
-<div class="dashboard-container">
-    <header class="dashboard-header">
-        <h1 class="page-title">Profil <span>bearbeiten</span></h1>
-        <p class="page-subtitle">Verwalte deine persönlichen Daten und Einstellungen</p>
-    </header>
+@push('styles')
+<link rel="preconnect" href="https://fonts.bunny.net">
+<link href="https://fonts.bunny.net/css2?family=Barlow+Condensed:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+    /* ─── Avatar ─── */
+    .pf-avatar-card {
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+    }
 
-    <!-- Status Messages -->
+    .pf-avatar-wrap {
+        position: relative;
+        flex-shrink: 0;
+    }
+
+    .pf-avatar {
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        object-fit: cover;
+        background: rgba(255, 255, 255, 0.05);
+        display: block;
+    }
+
+    html.light-mode .pf-avatar {
+        border-color: rgba(0, 51, 127, 0.12);
+    }
+
+    .pf-avatar-regen {
+        position: absolute;
+        bottom: -2px;
+        right: -2px;
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #00337F, #0055cc);
+        border: 2px solid var(--bg-base);
+        color: #fff;
+        font-size: 0.7rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 200ms, box-shadow 200ms;
+        padding: 0;
+    }
+
+    .pf-avatar-regen:hover {
+        transform: scale(1.15);
+        box-shadow: 0 4px 12px rgba(0, 51, 127, 0.35);
+    }
+
+    .pf-avatar-regen.is-spinning i {
+        animation: pf-spin 0.6s ease-in-out;
+    }
+
+    @keyframes pf-spin {
+        from { transform: rotate(0deg); }
+        to   { transform: rotate(360deg); }
+    }
+
+    html.light-mode .pf-avatar-regen {
+        border-color: var(--bg-elevated);
+    }
+
+    .pf-avatar-info { flex: 1; min-width: 0; }
+
+    .pf-avatar-name {
+        font-size: 1.125rem;
+        font-weight: 800;
+        color: var(--text-primary);
+        font-family: 'Barlow Condensed', sans-serif;
+        line-height: 1.2;
+        margin-bottom: 0.15rem;
+    }
+
+    .pf-avatar-email {
+        font-size: 0.8125rem;
+        color: var(--text-secondary);
+        margin-bottom: 0.4rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .pf-avatar-tags {
+        display: flex;
+        gap: 0.4rem;
+        flex-wrap: wrap;
+    }
+
+    .pf-tag {
+        font-size: 0.5625rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        padding: 0.15rem 0.4rem;
+        border-radius: 2rem;
+        font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .pf-tag--ok { background: rgba(34, 197, 94, 0.12); color: #22c55e; }
+    .pf-tag--warn { background: rgba(245, 158, 11, 0.12); color: #f59e0b; }
+    .pf-tag--info { background: rgba(91, 154, 255, 0.1); color: #5b9aff; }
+    html.light-mode .pf-tag--info { background: rgba(0, 51, 127, 0.08); color: #00337F; }
+
+    /* ─── Form ─── */
+    .pf-form-group { margin-bottom: 0.875rem; }
+    .pf-form-hint { color: var(--text-muted); font-size: 0.6875rem; margin-top: 0.25rem; }
+
+    .pf-form-error {
+        color: #ef4444;
+        font-size: 0.75rem;
+        margin-top: 0.3rem;
+    }
+
+    .pf-input-error {
+        border-color: #ef4444 !important;
+        box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.15) !important;
+    }
+
+    /* ─── Consent Items ─── */
+    .pf-consent {
+        padding: 0.75rem;
+        border-radius: 0.5rem;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        margin-bottom: 0.625rem;
+    }
+
+    html.light-mode .pf-consent {
+        background: rgba(0, 51, 127, 0.02);
+        border-color: rgba(0, 51, 127, 0.06);
+    }
+
+    .pf-consent-label {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.625rem;
+        cursor: pointer;
+    }
+
+    .pf-consent-label input { margin-top: 0.2rem; flex-shrink: 0; }
+    .pf-consent-body { flex: 1; }
+
+    .pf-consent-title {
+        font-weight: 600;
+        color: var(--text-primary);
+        display: block;
+        margin-bottom: 0.15rem;
+        font-size: 0.8125rem;
+    }
+
+    .pf-consent-desc {
+        color: var(--text-secondary);
+        font-size: 0.75rem;
+        display: block;
+        line-height: 1.5;
+    }
+
+    .pf-consent-ok {
+        color: #22c55e;
+        font-size: 0.6875rem;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+        margin-top: 0.3rem;
+    }
+
+    /* ─── Info Rows ─── */
+    .pf-info-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 0;
+    }
+
+    .pf-info-row + .pf-info-row {
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    html.light-mode .pf-info-row + .pf-info-row {
+        border-top-color: rgba(0, 51, 127, 0.08);
+    }
+
+    .pf-info-label { font-size: 0.75rem; color: var(--text-secondary); }
+
+    .pf-info-value {
+        font-size: 0.8125rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        text-align: right;
+    }
+
+    .pf-info-sub {
+        display: block;
+        font-size: 0.625rem;
+        color: var(--text-muted);
+        font-weight: 400;
+    }
+
+    /* ─── Password Match ─── */
+    .pf-pw-msg {
+        font-size: 0.75rem;
+        margin-top: 0.3rem;
+        display: none;
+        align-items: center;
+        gap: 0.3rem;
+    }
+
+    /* ─── Stagger Animation ─── */
+    @keyframes dash-rise {
+        from { opacity: 0; transform: translateY(10px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .dash-container > .space-y-4 > * {
+        animation: dash-rise 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .dash-container > .space-y-4 > *:nth-child(1) { animation-delay: 0.03s; }
+    .dash-container > .space-y-4 > *:nth-child(2) { animation-delay: 0.07s; }
+    .dash-container > .space-y-4 > *:nth-child(3) { animation-delay: 0.11s; }
+    .dash-container > .space-y-4 > *:nth-child(4) { animation-delay: 0.15s; }
+    .dash-container > .space-y-4 > *:nth-child(5) { animation-delay: 0.19s; }
+
+    @media (prefers-reduced-motion: reduce) {
+        .dash-container > .space-y-4 > * { animation: none; }
+    }
+
+    /* ─── Responsive ─── */
+    @media (max-width: 500px) {
+        .pf-avatar-card {
+            flex-direction: column;
+            text-align: center;
+        }
+        .pf-avatar-tags { justify-content: center; }
+    }
+</style>
+@endpush
+
+@section('content')
+<div class="dash-container">
+
+    {{-- ── Header ── --}}
+    <div class="mb-6">
+        <p style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);font-weight:600;margin-bottom:0.25rem;">Einstellungen</p>
+        <h1 style="font-size:1.5rem;font-weight:800;line-height:1.2;font-family:'Barlow Condensed',sans-serif;background:linear-gradient(135deg,#5b9aff,#0055cc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Profil bearbeiten</h1>
+        <p class="text-sm" style="color: var(--text-muted);">Verwalte deine persönlichen Daten und Einstellungen</p>
+    </div>
+
+    {{-- ── Status Messages ── --}}
     @if (session('status') == 'profile-updated' || session('status') == 'password-updated')
-    <div class="alert-compact glass-success" style="margin-bottom: 1.5rem;">
+    <div class="alert-compact glass-success" style="margin-bottom: 1rem;">
         <i class="bi bi-check-circle alert-compact-icon"></i>
         <div class="alert-compact-content">
-            <div class="alert-compact-title">Erfolgreich aktualisiert</div>
-            <div class="alert-compact-desc">
-                @if (session('status') == 'profile-updated')
-                    Dein Profil wurde erfolgreich aktualisiert.
-                @else
-                    Dein Passwort wurde erfolgreich geändert.
-                @endif
+            <div class="alert-compact-title">
+                {{ session('status') == 'profile-updated' ? 'Profil erfolgreich aktualisiert.' : 'Passwort erfolgreich geändert.' }}
             </div>
         </div>
-        <button onclick="this.parentElement.remove()" class="alert-close">&times;</button>
+        <button style="background:none;border:none;cursor:pointer;font-size:1.25rem;color:var(--text-secondary);" onclick="this.parentElement.remove()">&times;</button>
     </div>
     @endif
 
-    <!-- E-Mail Verification Warning -->
     @if (!$user->hasVerifiedEmail())
-    <div class="alert-compact glass-warning" style="margin-bottom: 1.5rem;">
+    <div class="alert-compact glass-warning" style="margin-bottom: 1rem;">
         <i class="bi bi-clock-history alert-compact-icon"></i>
         <div class="alert-compact-content">
             <div class="alert-compact-title">E-Mail-Bestätigung erforderlich</div>
@@ -44,278 +284,224 @@
     </div>
     @endif
 
-    <!-- Stats Row -->
-    <div class="stats-row">
-        <div class="stat-pill">
-            <span class="stat-pill-icon"><i class="bi bi-calendar-check"></i></span>
-            <div>
-                <div class="stat-pill-value">{{ $user->created_at->format('d.m.Y') }}</div>
-                <div class="stat-pill-label">Beigetreten</div>
-            </div>
+    {{-- ── Gami Pills ── --}}
+    <div class="flex gap-3 mb-6" style="flex-wrap: wrap;">
+        <div class="gami-pill">
+            <div class="gami-pill__value" style="color:var(--text-primary);">{{ floor($user->created_at->diffInDays(now())) }}</div>
+            <div class="gami-pill__label">Tage dabei</div>
         </div>
-        <div class="stat-pill">
-            <span class="stat-pill-icon {{ $user->hasVerifiedEmail() ? 'text-success' : 'text-warning' }}">
-                <i class="bi bi-{{ $user->hasVerifiedEmail() ? 'patch-check-fill' : 'hourglass-split' }}"></i>
-            </span>
-            <div>
-                <div class="stat-pill-value">{{ $user->hasVerifiedEmail() ? 'Bestätigt' : 'Ausstehend' }}</div>
-                <div class="stat-pill-label">E-Mail Status</div>
-            </div>
+        <div class="gami-pill">
+            <div class="gami-pill__value" style="color:{{ $user->hasVerifiedEmail() ? 'var(--success)' : 'var(--warning)' }};-webkit-text-fill-color:{{ $user->hasVerifiedEmail() ? 'var(--success)' : 'var(--warning)' }};">{{ $user->hasVerifiedEmail() ? 'OK' : '---' }}</div>
+            <div class="gami-pill__label">E-Mail</div>
         </div>
-        <div class="stat-pill">
-            <span class="stat-pill-icon text-info"><i class="bi bi-clock-history"></i></span>
-            <div>
-                <div class="stat-pill-value">{{ $user->last_login_at ? $user->last_login_at->diffForHumans(null, true) : 'Gerade eben' }}</div>
-                <div class="stat-pill-label">Letzte Anmeldung</div>
-            </div>
+        <div class="gami-pill">
+            <div class="gami-pill__value" style="color:#5b9aff;-webkit-text-fill-color:#5b9aff;">{{ $user->last_login_at ? $user->last_login_at->diffForHumans(null, true) : 'Jetzt' }}</div>
+            <div class="gami-pill__label">Letzter Login</div>
         </div>
     </div>
 
-    <!-- Bento Grid -->
-    <div class="bento-grid-profile">
-        <!-- Profile Information (Main) -->
-        <div class="glass-gold bento-profile-main">
-            <div class="section-header" style="margin-bottom: 1.25rem; padding-left: 0.75rem;">
-                <h2 class="section-title">Profildaten</h2>
+    <div class="space-y-4">
+
+        {{-- ── Avatar Card ── --}}
+        <div class="glass p-4" style="border-radius:0.75rem;">
+            <div class="pf-avatar-card">
+                <div class="pf-avatar-wrap">
+                    <img src="{{ $user->avatar_url }}" alt="Avatar" class="pf-avatar" id="pf-avatar-img">
+                    <button type="button" class="pf-avatar-regen" id="pf-regen-btn" title="Avatar neu generieren">
+                        <i class="bi bi-arrow-repeat"></i>
+                    </button>
+                </div>
+                <div class="pf-avatar-info">
+                    <div class="pf-avatar-name">{{ $user->name }}</div>
+                    <div class="pf-avatar-email">{{ $user->email }}</div>
+                    <div class="pf-avatar-tags">
+                        @if($user->hasVerifiedEmail())
+                            <span class="pf-tag pf-tag--ok">Verifiziert</span>
+                        @else
+                            <span class="pf-tag pf-tag--warn">Nicht verifiziert</span>
+                        @endif
+                        <span class="pf-tag pf-tag--info">Seit {{ $user->created_at->format('d.m.Y') }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- ── Persönliche Daten ── --}}
+        <div class="glass p-4" style="border-radius:0.75rem;">
+            <div style="margin-bottom:0.75rem;">
+                <span class="text-xs uppercase tracking-wider" style="color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:0.5625rem;font-weight:700;">Persönliche Daten</span>
             </div>
 
             <form method="POST" action="{{ route('profile.update') }}">
                 @csrf
                 @method('PATCH')
 
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="name" class="label-glass">Name</label>
-                        <input type="text" name="name" id="name" value="{{ old('name', $user->name) }}"
-                               class="input-glass @error('name') input-error @enderror" required maxlength="255">
-                        @error('name')
-                            <div class="form-error">{{ $message }}</div>
-                        @else
-                            <p class="form-hint">Dieser Name erscheint im Leaderboard</p>
-                        @enderror
-                    </div>
-
-                    <div class="form-group">
-                        <label for="email" class="label-glass">E-Mail-Adresse</label>
-                        <input type="email" name="email" id="email" value="{{ old('email', $user->email) }}"
-                               class="input-glass @error('email') input-error @enderror" required>
-                        @error('email')
-                            <div class="form-error">{{ $message }}</div>
-                        @enderror
-                    </div>
+                <div class="pf-form-group">
+                    <label for="name" class="label-glass">Name</label>
+                    <input type="text" name="name" id="name" value="{{ old('name', $user->name) }}"
+                           class="input-glass @error('name') pf-input-error @enderror" required maxlength="255">
+                    @error('name')
+                        <div class="pf-form-error">{{ $message }}</div>
+                    @else
+                        <p class="pf-form-hint">Dieser Name erscheint im Leaderboard</p>
+                    @enderror
                 </div>
 
-                <!-- E-Mail Consent -->
-                <div class="consent-card glass-subtle">
-                    <label class="consent-label">
+                <div class="pf-form-group">
+                    <label for="email" class="label-glass">E-Mail-Adresse</label>
+                    <input type="email" name="email" id="email" value="{{ old('email', $user->email) }}"
+                           class="input-glass @error('email') pf-input-error @enderror" required>
+                    @error('email')
+                        <div class="pf-form-error">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                {{-- E-Mail Consent --}}
+                <div class="pf-consent">
+                    <label class="pf-consent-label">
                         <input type="checkbox" name="email_consent" value="1"
                                {{ old('email_consent', $user->email_consent) ? 'checked' : '' }}
                                class="checkbox-glass">
-                        <div class="consent-content">
-                            <span class="consent-title">E-Mail-Benachrichtigungen</span>
-                            <span class="consent-desc">
-                                Erhalte E-Mails zu deinem Lernfortschritt, neuen Features und wichtigen Systeminformationen.
-                            </span>
+                        <div class="pf-consent-body">
+                            <span class="pf-consent-title">E-Mail-Benachrichtigungen</span>
+                            <span class="pf-consent-desc">Erhalte E-Mails zu Lernfortschritt, neuen Features und Systeminformationen.</span>
                             @if($user->email_consent_at)
-                                <span class="consent-confirm">
-                                    <i class="bi bi-check-circle"></i> Zustimmung erteilt am {{ $user->email_consent_at->format('d.m.Y \u\m H:i') }} Uhr
+                                <span class="pf-consent-ok">
+                                    <i class="bi bi-check-circle"></i> Zustimmung am {{ $user->email_consent_at->format('d.m.Y \u\m H:i') }} Uhr
                                 </span>
                             @endif
                         </div>
                     </label>
                 </div>
 
-                <!-- Leaderboard Consent -->
-                <div class="consent-card glass-subtle">
-                    <label class="consent-label">
+                {{-- Leaderboard Consent --}}
+                <div class="pf-consent">
+                    <label class="pf-consent-label">
                         <input type="checkbox" name="leaderboard_consent" value="1"
                                {{ $user->leaderboard_consent ? 'checked' : '' }}
                                class="checkbox-glass">
-                        <div class="consent-content">
-                            <span class="consent-title">Leaderboard-Teilnahme</span>
-                            <span class="consent-desc">
-                                Wenn aktiviert, erscheint dein Name im öffentlichen Leaderboard und andere Nutzer können deine Punkte sehen.
-                            </span>
+                        <div class="pf-consent-body">
+                            <span class="pf-consent-title">Leaderboard-Teilnahme</span>
+                            <span class="pf-consent-desc">Dein Name erscheint im öffentlichen Leaderboard und andere Nutzer können deine Punkte sehen.</span>
                             @if($user->leaderboard_consent)
-                                <span class="consent-confirm">
-                                    <i class="bi bi-check-circle"></i> Zustimmung erteilt am {{ $user->leaderboard_consent_at->format('d.m.Y \u\m H:i') }} Uhr
+                                <span class="pf-consent-ok">
+                                    <i class="bi bi-check-circle"></i> Zustimmung am {{ $user->leaderboard_consent_at->format('d.m.Y \u\m H:i') }} Uhr
                                 </span>
                             @endif
                         </div>
                     </label>
                 </div>
 
-                <!-- Prüfungsdatum (privat, nur für den eigenen User) -->
-                <div class="consent-card glass-subtle">
-                    <div class="consent-content" style="width: 100%;">
-                        <span class="consent-title">Prüfungsdatum (optional)</span>
-                        <span class="consent-desc" style="margin-bottom: 0.75rem; display: block;">
-                            Setze dein Prüfungsdatum für eine personalisierte Lernempfehlung auf dem Dashboard.
-                        </span>
-                        <div style="display: flex; gap: 0.75rem; align-items: center;">
-                            <input type="date"
-                                   name="exam_date"
-                                   id="exam_date"
+                {{-- Prüfungsdatum --}}
+                <div class="pf-consent">
+                    <div class="pf-consent-body" style="width:100%;">
+                        <span class="pf-consent-title">Prüfungsdatum (optional)</span>
+                        <span class="pf-consent-desc" style="margin-bottom:0.5rem;display:block;">Für eine personalisierte Lernempfehlung auf dem Dashboard.</span>
+                        <div style="display:flex;gap:0.5rem;align-items:center;">
+                            <input type="date" name="exam_date" id="exam_date"
                                    value="{{ old('exam_date', $user->exam_date?->format('Y-m-d')) }}"
                                    min="{{ date('Y-m-d', strtotime('+1 day')) }}"
-                                   class="input-glass"
-                                   style="flex: 1;">
+                                   class="input-glass" style="flex:1;">
                             @if($user->exam_date)
-                            <button type="button"
-                                    onclick="document.getElementById('exam_date').value = ''"
-                                    class="btn-ghost btn-sm"
-                                    style="flex-shrink: 0;">
-                                Zurücksetzen
-                            </button>
+                            <button type="button" onclick="document.getElementById('exam_date').value=''"
+                                    class="btn-ghost btn-sm" style="flex-shrink:0;">Zurücksetzen</button>
                             @endif
                         </div>
                         @error('exam_date')
-                            <div class="form-error">{{ $message }}</div>
+                            <div class="pf-form-error">{{ $message }}</div>
                         @enderror
                     </div>
                 </div>
 
-                <button type="submit" class="btn-primary" style="width: 100%;">Profil speichern</button>
+                <button type="submit" class="btn-primary" style="width:100%;">Profil speichern</button>
             </form>
         </div>
 
-        <!-- Password Change -->
-        <div class="glass-tl bento-password">
-            <div class="section-header" style="margin-bottom: 1.25rem; padding-left: 0.75rem;">
-                <h2 class="section-title">Passwort ändern</h2>
+        {{-- ── Sicherheit + Konto-Details ── --}}
+        <div class="glass p-4" style="border-radius:0.75rem;">
+            <div style="margin-bottom:0.75rem;">
+                <span class="text-xs uppercase tracking-wider" style="color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:0.5625rem;font-weight:700;">Sicherheit</span>
             </div>
 
             <form method="POST" action="{{ route('profile.password.update') }}">
                 @csrf
                 @method('PATCH')
 
-                <div class="form-group">
+                <div class="pf-form-group">
                     <label for="current_password" class="label-glass">Aktuelles Passwort</label>
                     <input type="password" name="current_password" id="current_password"
-                           class="input-glass @error('current_password') input-error @enderror"
+                           class="input-glass @error('current_password') pf-input-error @enderror"
                            placeholder="Aktuelles Passwort">
                     @error('current_password')
-                        <div class="form-error">{{ $message }}</div>
+                        <div class="pf-form-error">{{ $message }}</div>
                     @enderror
                 </div>
 
-                <div class="form-group">
+                <div class="pf-form-group">
                     <label for="password" class="label-glass">Neues Passwort</label>
                     <input type="password" name="password" id="password"
-                           class="input-glass @error('password') input-error @enderror"
+                           class="input-glass @error('password') pf-input-error @enderror"
                            placeholder="Mindestens 8 Zeichen"
                            oninput="checkPasswordMatch()">
                     @error('password')
-                        <div class="form-error">{{ $message }}</div>
+                        <div class="pf-form-error">{{ $message }}</div>
                     @enderror
                 </div>
 
-                <div class="form-group">
+                <div class="pf-form-group">
                     <label for="password_confirmation" class="label-glass">Passwort bestätigen</label>
                     <input type="password" name="password_confirmation" id="password_confirmation"
                            class="input-glass"
                            placeholder="Passwort wiederholen"
                            oninput="checkPasswordMatch()">
-                    <div id="password-match-message" class="password-match-message"></div>
+                    <div id="password-match-message" class="pf-pw-msg"></div>
                 </div>
 
-                <button type="submit" class="btn-secondary" style="width: 100%;">Passwort ändern</button>
+                <button type="submit" class="btn-secondary" style="width:100%;margin-bottom:1.25rem;">Passwort ändern</button>
             </form>
-        </div>
 
-        <!-- Account Info Card -->
-        <div class="glass-br bento-account-info">
-            <div class="section-header" style="margin-bottom: 1rem; padding-left: 0.75rem;">
-                <h2 class="section-title" style="font-size: 1rem;">Konto-Details</h2>
-            </div>
-
-            <div class="account-info-grid">
-                <div class="account-info-item">
-                    <div class="account-info-label">Beitrittsdatum</div>
-                    <div class="account-info-value">{{ $user->created_at->format('d.m.Y') }}</div>
-                    <div class="account-info-meta">vor {{ $user->created_at->diffInDays(now()) }} Tagen</div>
+            {{-- Konto-Details (integriert) --}}
+            <div style="padding-top:1rem;border-top:1px solid rgba(255,255,255,0.06);">
+                <div style="margin-bottom:0.5rem;">
+                    <span class="text-xs uppercase tracking-wider" style="color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:0.5625rem;font-weight:700;">Konto-Details</span>
                 </div>
 
-                <div class="account-info-item">
-                    <div class="account-info-label">Konto-Status</div>
-                    <div class="account-info-value">
+                <div class="pf-info-row">
+                    <span class="pf-info-label">Beitrittsdatum</span>
+                    <span class="pf-info-value">
+                        {{ $user->created_at->format('d.m.Y') }}
+                        <span class="pf-info-sub">vor {{ floor($user->created_at->diffInDays(now())) }} Tagen</span>
+                    </span>
+                </div>
+                <div class="pf-info-row">
+                    <span class="pf-info-label">Konto-Status</span>
+                    <span class="pf-info-value">
                         @if($user->hasVerifiedEmail())
-                            <span class="text-success">Bestätigt</span>
+                            <span style="color:#22c55e;">Bestätigt</span>
                         @else
-                            <span class="text-warning">Ausstehend</span>
+                            <span style="color:#f59e0b;">Ausstehend</span>
                         @endif
-                    </div>
-                    <div class="account-info-meta">E-Mail {{ $user->hasVerifiedEmail() ? 'verifiziert' : 'nicht verifiziert' }}</div>
+                        <span class="pf-info-sub">E-Mail {{ $user->hasVerifiedEmail() ? 'verifiziert' : 'nicht verifiziert' }}</span>
+                    </span>
                 </div>
-
-                <div class="account-info-item">
-                    <div class="account-info-label">Zuletzt angemeldet</div>
-                    <div class="account-info-value">
-                        @if($user->last_login_at)
-                            {{ $user->last_login_at->format('d.m.Y H:i') }}
-                        @else
-                            Gerade eben
-                        @endif
-                    </div>
-                    <div class="account-info-meta">
-                        @if($user->last_login_at)
-                            {{ $user->last_login_at->diffForHumans() }}
-                        @else
-                            Erste Anmeldung
-                        @endif
-                    </div>
+                <div class="pf-info-row">
+                    <span class="pf-info-label">Zuletzt angemeldet</span>
+                    <span class="pf-info-value">
+                        {{ $user->last_login_at ? $user->last_login_at->format('d.m.Y H:i') : 'Gerade eben' }}
+                        <span class="pf-info-sub">{{ $user->last_login_at ? $user->last_login_at->diffForHumans() : 'Erste Anmeldung' }}</span>
+                    </span>
                 </div>
             </div>
         </div>
 
-
-        <!-- Streak Freeze -->
-        <div class="glass bento-streak-freeze">
-            <div class="section-header" style="margin-bottom: 1rem; padding-left: 0.75rem;">
-                <h2 class="section-title" style="font-size: 1rem;">Streak Freeze</h2>
+        {{-- ── Gefahrenzone ── --}}
+        <div class="glass p-4" style="border-radius:0.75rem;border:1px solid rgba(239,68,68,0.15);">
+            <div style="margin-bottom:0.75rem;">
+                <span class="text-xs uppercase tracking-wider" style="color:rgba(239,68,68,0.6);font-family:'IBM Plex Mono',monospace;font-size:0.5625rem;font-weight:700;">Gefahrenzone</span>
             </div>
 
-            @php
-                $gamificationService = new \App\Services\GamificationService();
-                $freezeStatus = $gamificationService->getStreakFreezeStatus($user);
-            @endphp
-
-            <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 1rem; line-height: 1.5;">
-                Streak Freezes schützen deinen Streak automatisch, wenn du einen Tag verpasst. Pro Woche stehen dir {{ $freezeStatus['available'] }} Freezes zur Verfügung.
-            </p>
-
-            <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
-                @for($i = 0; $i < $freezeStatus['available']; $i++)
-                    <div style="flex: 1; text-align: center; padding: 0.75rem; border-radius: 0.5rem; {{ $i < $freezeStatus['remaining'] ? 'background: rgba(147, 197, 253, 0.15); border: 1px solid rgba(147, 197, 253, 0.3);' : 'background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08);' }}">
-                        <i class="bi bi-snow" style="font-size: 1.25rem; color: {{ $i < $freezeStatus['remaining'] ? '#93c5fd' : 'var(--text-muted)' }};"></i>
-                        <div style="font-size: 0.65rem; color: {{ $i < $freezeStatus['remaining'] ? '#93c5fd' : 'var(--text-muted)' }}; margin-top: 0.25rem; font-weight: 600;">
-                            {{ $i < $freezeStatus['remaining'] ? 'Verfügbar' : 'Verbraucht' }}
-                        </div>
-                    </div>
-                @endfor
-            </div>
-
-            @if(count($freezeStatus['recent_log']) > 0)
-                <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 0.5rem;">Zuletzt verwendet</div>
-                @foreach(array_slice(array_reverse($freezeStatus['recent_log']), 0, 3) as $entry)
-                    <div style="font-size: 0.75rem; color: var(--text-secondary); padding: 0.3rem 0; display: flex; align-items: center; gap: 0.4rem;">
-                        <i class="bi bi-snow" style="color: #93c5fd; font-size: 0.7rem;"></i>
-                        {{ \Carbon\Carbon::parse($entry['date'])->format('d.m.Y') }}
-                    </div>
-                @endforeach
-            @else
-                <div style="font-size: 0.8rem; color: var(--text-muted); text-align: center;">Noch keine Freezes verwendet</div>
-            @endif
-        </div>
-
-        <!-- Danger Zone -->
-        <div class="glass-error bento-danger">
-            <div class="section-header" style="margin-bottom: 1rem; padding-left: 0.75rem;">
-                <h2 class="section-title" style="font-size: 1rem; color: #ef4444;">Account löschen</h2>
-            </div>
-
-            <p class="danger-warning">
-                <i class="bi bi-exclamation-triangle"></i>
+            <p style="font-size:0.75rem;color:var(--text-secondary);margin-bottom:0.75rem;display:flex;align-items:flex-start;gap:0.4rem;line-height:1.5;">
+                <i class="bi bi-exclamation-triangle" style="color:#ef4444;flex-shrink:0;margin-top:0.1rem;"></i>
                 Diese Aktion kann nicht rückgängig gemacht werden. Alle deine Daten werden permanent gelöscht.
             </p>
 
@@ -324,332 +510,75 @@
                 @csrf
                 @method('DELETE')
 
-                <div class="form-group" style="margin-bottom: 1rem;">
+                <div class="pf-form-group" style="margin-bottom:0.75rem;">
                     <label for="password_delete" class="label-glass">Passwort zur Bestätigung</label>
                     <input type="password" name="password" id="password_delete"
-                           class="input-glass @error('password', 'userDeletion') input-error @enderror"
+                           class="input-glass @error('password', 'userDeletion') pf-input-error @enderror"
                            placeholder="Passwort eingeben">
                     @error('password', 'userDeletion')
-                        <div class="form-error">{{ $message }}</div>
+                        <div class="pf-form-error">{{ $message }}</div>
                     @enderror
                 </div>
 
-                <button type="submit" class="btn-danger" style="width: 100%;">Account permanent löschen</button>
+                <button type="submit" class="btn-danger" style="width:100%;">Account permanent löschen</button>
             </form>
         </div>
-    </div>
 
-    <!-- Back Link -->
-    <div style="text-align: center; margin-top: 2rem;">
-        <a href="{{ route('dashboard') }}" class="btn-ghost btn-sm">
-            <i class="bi bi-arrow-left"></i> Zurück zum Dashboard
-        </a>
-    </div>
-</div>
+    </div>{{-- /space-y-4 --}}
 
-@push('styles')
-<style>
-    .dashboard-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 2rem;
-    }
-
-    .dashboard-header {
-        margin-bottom: 2.5rem;
-        padding-top: 1rem;
-        max-width: 600px;
-    }
-
-    .bento-grid-profile {
-        display: grid;
-        grid-template-columns: 1.5fr 1fr;
-        gap: 1rem;
-    }
-
-    .bento-profile-main {
-        grid-row: span 2;
-        padding: 1.5rem;
-    }
-
-    .bento-password {
-        padding: 1.5rem;
-    }
-
-    .bento-account-info {
-        padding: 1.25rem;
-    }
-
-    .bento-streak-freeze {
-        padding: 1.25rem;
-    }
-
-    .bento-danger {
-        grid-column: span 2;
-        padding: 1.25rem;
-    }
-
-    /* Form Styles */
-    .form-row {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1rem;
-        margin-bottom: 1.25rem;
-    }
-
-    .form-group {
-        margin-bottom: 1rem;
-    }
-
-    .form-error {
-        color: #ef4444;
-        font-size: 0.8rem;
-        margin-top: 0.35rem;
-    }
-
-    .form-hint {
-        color: var(--text-muted);
-        font-size: 0.75rem;
-        margin-top: 0.35rem;
-        margin-bottom: 0;
-    }
-
-    .input-error {
-        border-color: #ef4444 !important;
-        box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.15) !important;
-    }
-
-    /* Consent Cards */
-    .consent-card {
-        padding: 1rem;
-        border-radius: 0.75rem;
-        margin-bottom: 1rem;
-    }
-
-    .consent-label {
-        display: flex;
-        align-items: flex-start;
-        gap: 0.75rem;
-        cursor: pointer;
-    }
-
-    .consent-label input {
-        margin-top: 0.15rem;
-        flex-shrink: 0;
-    }
-
-    .consent-content {
-        flex: 1;
-    }
-
-    .consent-title {
-        font-weight: 600;
-        color: var(--text-primary);
-        display: block;
-        margin-bottom: 0.25rem;
-        font-size: 0.9rem;
-    }
-
-    .consent-desc {
-        color: var(--text-secondary);
-        font-size: 0.8rem;
-        display: block;
-        line-height: 1.5;
-    }
-
-    .consent-confirm {
-        color: #22c55e;
-        font-size: 0.75rem;
-        display: flex;
-        align-items: center;
-        gap: 0.35rem;
-        margin-top: 0.5rem;
-    }
-
-    /* Account Info */
-    .account-info-grid {
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-    }
-
-    .account-info-item {
-        padding: 0.75rem;
-        background: rgba(255, 255, 255, 0.03);
-        border-radius: 0.5rem;
-    }
-
-    .account-info-label {
-        font-size: 0.7rem;
-        font-weight: 600;
-        color: var(--text-muted);
-        text-transform: uppercase;
-        letter-spacing: 0.025em;
-        margin-bottom: 0.25rem;
-    }
-
-    .account-info-value {
-        font-size: 0.95rem;
-        font-weight: 700;
-        color: var(--text-primary);
-    }
-
-    .account-info-meta {
-        font-size: 0.7rem;
-        color: var(--text-muted);
-        margin-top: 0.15rem;
-    }
-
-    /* Alert Compact */
-    .alert-compact {
-        padding: 0.875rem 1rem;
-        border-radius: 0.75rem;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-    }
-
-    .alert-compact-icon {
-        font-size: 1.25rem;
-    }
-
-    .alert-compact-content {
-        flex: 1;
-    }
-
-    .alert-compact-title {
-        font-size: 0.9rem;
-        font-weight: 600;
-        color: var(--text-primary);
-    }
-
-    .alert-compact-desc {
-        font-size: 0.75rem;
-        color: var(--text-secondary);
-    }
-
-    .alert-close {
-        background: none;
-        border: none;
-        color: var(--text-secondary);
-        cursor: pointer;
-        font-size: 1.25rem;
-        padding: 0;
-        line-height: 1;
-    }
-
-    .alert-close:hover {
-        color: var(--text-primary);
-    }
-
-    /* Danger Zone */
-    .danger-warning {
-        font-size: 0.8rem;
-        color: var(--text-secondary);
-        margin-bottom: 1rem;
-        display: flex;
-        align-items: flex-start;
-        gap: 0.5rem;
-        line-height: 1.5;
-    }
-
-    .danger-warning i {
-        color: #ef4444;
-        flex-shrink: 0;
-        margin-top: 0.1rem;
-    }
-
-    /* Password Match */
-    .password-match-message {
-        font-size: 0.8rem;
-        margin-top: 0.35rem;
-        display: none;
-    }
-
-    .password-match-success {
-        color: #22c55e;
-        display: flex;
-        align-items: center;
-        gap: 0.35rem;
-    }
-
-    .password-match-error {
-        color: #ef4444;
-        display: flex;
-        align-items: center;
-        gap: 0.35rem;
-    }
-
-    /* Text Colors */
-    .text-success { color: #22c55e; }
-    .text-warning { color: #f59e0b; }
-    .text-info { color: #3b82f6; }
-
-    /* Responsive */
-    @media (max-width: 900px) {
-        .bento-grid-profile {
-            grid-template-columns: 1fr;
-        }
-
-        .bento-profile-main {
-            grid-row: span 1;
-        }
-
-        .bento-danger {
-            grid-column: span 1;
-        }
-    }
-
-    @media (max-width: 768px) {
-        .dashboard-container {
-            padding: 1rem;
-        }
-    }
-
-    @media (max-width: 500px) {
-        .form-row {
-            grid-template-columns: 1fr;
-        }
-
-        .stats-row {
-            flex-wrap: wrap;
-        }
-
-        .stat-pill {
-            flex: 1 1 calc(50% - 0.5rem);
-            min-width: 140px;
-        }
-    }
-</style>
-@endpush
+</div>{{-- /dash-container --}}
 
 <script>
     function checkPasswordMatch() {
-        const password = document.getElementById('password').value;
-        const passwordConfirmation = document.getElementById('password_confirmation').value;
-        const messageDiv = document.getElementById('password-match-message');
+        var pw = document.getElementById('password').value;
+        var confirm = document.getElementById('password_confirmation').value;
+        var msg = document.getElementById('password-match-message');
 
-        if (password && passwordConfirmation) {
-            if (password === passwordConfirmation) {
-                document.getElementById('password').classList.remove('input-error');
-                document.getElementById('password_confirmation').classList.remove('input-error');
-
-                messageDiv.className = 'password-match-message password-match-success';
-                messageDiv.innerHTML = '<i class="bi bi-check-circle"></i> Passwörter stimmen überein';
-                messageDiv.style.display = 'flex';
-            } else {
-                document.getElementById('password').classList.add('input-error');
-                document.getElementById('password_confirmation').classList.add('input-error');
-
-                messageDiv.className = 'password-match-message password-match-error';
-                messageDiv.innerHTML = '<i class="bi bi-x-circle"></i> Passwörter stimmen nicht überein';
-                messageDiv.style.display = 'flex';
-            }
+        if (pw && confirm) {
+            var match = pw === confirm;
+            document.getElementById('password').classList.toggle('pf-input-error', !match);
+            document.getElementById('password_confirmation').classList.toggle('pf-input-error', !match);
+            msg.style.display = 'flex';
+            msg.style.color = match ? '#22c55e' : '#ef4444';
+            msg.innerHTML = '<i class="bi bi-' + (match ? 'check' : 'x') + '-circle"></i> Passwörter stimmen ' + (match ? 'überein' : 'nicht überein');
         } else {
-            document.getElementById('password').classList.remove('input-error');
-            document.getElementById('password_confirmation').classList.remove('input-error');
-            messageDiv.style.display = 'none';
+            document.getElementById('password').classList.remove('pf-input-error');
+            document.getElementById('password_confirmation').classList.remove('pf-input-error');
+            msg.style.display = 'none';
         }
+    }
+
+    // Avatar regeneration
+    var regenBtn = document.getElementById('pf-regen-btn');
+    if (regenBtn) {
+        regenBtn.addEventListener('click', function() {
+            var btn = this;
+            var img = document.getElementById('pf-avatar-img');
+            if (btn.disabled) return;
+            btn.classList.add('is-spinning');
+            btn.disabled = true;
+
+            fetch('{{ route("profile.avatar.regenerate") }}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json'
+                }
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.avatar_url) {
+                    img.src = data.avatar_url + '&_t=' + Date.now();
+                }
+            })
+            .catch(function(e) { console.error('Avatar error:', e); })
+            .finally(function() {
+                setTimeout(function() {
+                    btn.classList.remove('is-spinning');
+                    btn.disabled = false;
+                }, 600);
+            });
+        });
     }
 </script>
 @endsection

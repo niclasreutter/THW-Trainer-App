@@ -2,292 +2,40 @@
 
 @section('title', $ortsverband->name . ' · Lernpools')
 
-@section('content')
-<div class="dashboard-container" x-data="lernpoolManager()">
-    <header class="dashboard-header">
-        <h1 class="page-title">Lernpools <span>verwalten</span></h1>
-        <p class="page-subtitle">{{ $ortsverband->name }}</p>
-    </header>
-
-    <!-- Stats Row -->
-    @php
-        $activePools = $lernpools->where('is_active', true)->count();
-        $totalParticipants = $lernpools->sum(fn($pool) => $pool->getEnrollmentCount());
-        $avgProgress = $lernpools->count() ? round($lernpools->avg(fn($pool) => $pool->getAverageProgress())) : 0;
-    @endphp
-
-    <div class="stats-row">
-        <div class="stat-pill">
-            <span class="stat-pill-icon"><i class="bi bi-collection"></i></span>
-            <div>
-                <div class="stat-pill-value">{{ $lernpools->count() }}</div>
-                <div class="stat-pill-label">Lernpools</div>
-            </div>
-        </div>
-        <div class="stat-pill">
-            <span class="stat-pill-icon text-success"><i class="bi bi-check-circle"></i></span>
-            <div>
-                <div class="stat-pill-value">{{ $activePools }}</div>
-                <div class="stat-pill-label">Aktiv</div>
-            </div>
-        </div>
-        <div class="stat-pill">
-            <span class="stat-pill-icon text-info"><i class="bi bi-people"></i></span>
-            <div>
-                <div class="stat-pill-value">{{ $totalParticipants }}</div>
-                <div class="stat-pill-label">Lernende</div>
-            </div>
-        </div>
-        <div class="stat-pill">
-            <span class="stat-pill-icon text-gold"><i class="bi bi-graph-up"></i></span>
-            <div>
-                <div class="stat-pill-value">{{ $avgProgress }}%</div>
-                <div class="stat-pill-label">Fortschritt</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Main Content -->
-    <div class="glass-gold" style="padding: 1.5rem; border-radius: 1rem;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem;">
-            <div class="section-header" style="margin-bottom: 0; padding-left: 0; border-left: none;">
-                <h2 class="section-title" style="font-size: 1.25rem;">Alle Lernpools</h2>
-            </div>
-            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
-                <button @click="openModal('create')" class="btn-primary btn-sm">Neuer Lernpool</button>
-                <a href="{{ route('ortsverband.show', $ortsverband) }}" class="btn-ghost btn-sm">Zurück</a>
-            </div>
-        </div>
-
-        <!-- Tags Filter -->
-        @if($allTags->isNotEmpty())
-        <div class="glass-subtle" style="padding: 0.75rem 1rem; border-radius: 0.75rem; margin-bottom: 1.25rem;">
-            <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
-                <span style="font-weight: 600; color: var(--text-secondary); font-size: 0.85rem;">Filter:</span>
-                <a href="{{ route('ortsverband.lernpools.index', $ortsverband) }}"
-                   class="{{ !$selectedTag ? 'btn-primary' : 'btn-ghost' }} btn-sm">
-                    Alle
-                </a>
-                @foreach($allTags as $tag)
-                    <a href="{{ route('ortsverband.lernpools.index', ['ortsverband' => $ortsverband, 'tag' => $tag]) }}"
-                       class="{{ $selectedTag === $tag ? 'btn-primary' : 'btn-ghost' }} btn-sm">
-                        {{ $tag }}
-                    </a>
-                @endforeach
-            </div>
-        </div>
-        @endif
-
-        <!-- Pool Grid -->
-        @if($lernpools->count() > 0)
-        <div class="pool-grid">
-            @foreach($lernpools as $pool)
-                @php
-                    $progress = round($pool->getAverageProgress());
-                    $enrollments = $pool->getEnrollmentCount();
-                    $questions = $pool->getQuestionCount();
-                @endphp
-                <div class="glass-subtle pool-card">
-                    <div style="display: flex; justify-content: space-between; align-items: start; gap: 0.75rem; margin-bottom: 0.75rem;">
-                        <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin: 0;">{{ $pool->name }}</h3>
-                        @if($pool->is_active)
-                            <span class="badge-success" style="font-size: 0.65rem;">Aktiv</span>
-                        @else
-                            <span class="badge-glass" style="font-size: 0.65rem;">Inaktiv</span>
-                        @endif
-                    </div>
-
-                    @if($pool->tags && count($pool->tags) > 0)
-                    <div style="display: flex; gap: 0.25rem; flex-wrap: wrap; margin-bottom: 0.75rem;">
-                        @foreach($pool->tags as $tag)
-                            <span class="badge-thw" style="font-size: 0.6rem; padding: 0.15rem 0.4rem;">{{ $tag }}</span>
-                        @endforeach
-                    </div>
-                    @endif
-
-                    <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1rem; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
-                        {{ Str::limit($pool->description, 100) }}
-                    </p>
-
-                    <!-- Stats -->
-                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; padding: 0.75rem 0; border-top: 1px solid rgba(255,255,255,0.1); border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 0.75rem;">
-                        <div style="text-align: center;">
-                            <div style="font-size: 1.25rem; font-weight: 800; color: var(--text-primary);">{{ $questions }}</div>
-                            <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase;">Fragen</div>
-                        </div>
-                        <div style="text-align: center;">
-                            <div style="font-size: 1.25rem; font-weight: 800; color: var(--text-primary);">{{ $enrollments }}</div>
-                            <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase;">Teilnehmer</div>
-                        </div>
-                        <div style="text-align: center;">
-                            <div style="font-size: 1.25rem; font-weight: 800; color: var(--gold-start);">{{ $progress }}%</div>
-                            <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase;">Fortschritt</div>
-                        </div>
-                    </div>
-
-                    <!-- Progress Bar -->
-                    <div style="margin-bottom: 1rem;">
-                        <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.25rem;">
-                            <span>Lernfortschritt</span>
-                            <span>{{ $progress }}%</span>
-                        </div>
-                        <div style="height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden;">
-                            <div style="height: 100%; background: var(--gradient-gold); width: {{ $progress }}%; border-radius: 2px;"></div>
-                        </div>
-                    </div>
-
-                    <!-- Actions -->
-                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; padding-top: 0.75rem; border-top: 1px solid rgba(255,255,255,0.1);">
-                        <button @click="loadModal('{{ route('ortsverband.lernpools.show', [$ortsverband, $pool]) }}')" class="action-link">
-                            Details
-                        </button>
-                        <button @click="loadModal('{{ route('ortsverband.lernpools.edit', [$ortsverband, $pool]) }}')" class="action-link">
-                            Bearbeiten
-                        </button>
-                        <button @click="loadModal('{{ route('ortsverband.lernpools.questions.index', [$ortsverband, $pool]) }}')" class="action-link">
-                            Fragen
-                        </button>
-                        <form action="{{ route('ortsverband.lernpools.destroy', [$ortsverband, $pool]) }}" method="POST" style="display: inline;" onsubmit="return confirm('Lernpool wirklich löschen?');">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="action-link action-link-danger">
-                                Löschen
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            @endforeach
-        </div>
-        @else
-        <div class="empty-state" style="padding: 3rem;">
-            <div class="empty-state-icon"><i class="bi bi-collection"></i></div>
-            <h3 class="empty-state-title">Keine Lernpools</h3>
-            <p class="empty-state-desc">Erstelle deinen ersten Lernpool, um loszulegen.</p>
-            <button @click="openModal('create')" class="btn-primary btn-sm">Neuer Lernpool</button>
-        </div>
-        @endif
-    </div>
-
-    <!-- Alpine.js Modal System -->
-    <div x-show="isOpen"
-         x-cloak
-         class="modal-overlay-alpine"
-         x-transition:enter="transition ease-out duration-200"
-         x-transition:enter-start="opacity-0"
-         x-transition:enter-end="opacity-100"
-         x-transition:leave="transition ease-in duration-150"
-         x-transition:leave-start="opacity-100"
-         x-transition:leave-end="opacity-0"
-         @click.self="closeModal()"
-         @keydown.escape.window="closeModal()">
-
-        <div class="modal-container-alpine"
-             x-show="isOpen"
-             x-transition:enter="transition ease-out duration-200"
-             x-transition:enter-start="opacity-0 translate-y-4 scale-95"
-             x-transition:enter-end="opacity-100 translate-y-0 scale-100"
-             x-transition:leave="transition ease-in duration-150"
-             x-transition:leave-start="opacity-100 translate-y-0 scale-100"
-             x-transition:leave-end="opacity-0 translate-y-4 scale-95"
-             @click.stop>
-
-            <!-- Loading State -->
-            <template x-if="isLoading">
-                <div class="modal-loading-alpine">
-                    <div class="spinner-alpine"></div>
-                    <div class="modal-loading-text">Lädt...</div>
-                </div>
-            </template>
-
-            <!-- Create Form (Inline) -->
-            <template x-if="modalType === 'create' && !isLoading">
-                <div>
-                    <div class="modal-header-alpine">
-                        <h2>Neuer Lernpool</h2>
-                        <button @click="closeModal()" class="modal-close-alpine">&times;</button>
-                    </div>
-                    <form action="{{ route('ortsverband.lernpools.store', $ortsverband) }}" method="POST">
-                        @csrf
-                        <div class="modal-body-alpine">
-                            <div class="form-group-alpine">
-                                <label class="form-label-alpine">
-                                    Name <span class="required-alpine">*</span>
-                                </label>
-                                <input type="text" name="name" class="input-alpine" placeholder="z.B. Grundlagen Erste Hilfe" required>
-                            </div>
-
-                            <div class="form-group-alpine">
-                                <label class="form-label-alpine">
-                                    Beschreibung <span class="required-alpine">*</span>
-                                </label>
-                                <textarea name="description" rows="4" class="textarea-alpine" placeholder="Beschreibung des Lernpools..." required></textarea>
-                            </div>
-
-                            <div class="form-group-alpine">
-                                <label class="form-label-alpine">
-                                    Tags <span class="optional-alpine">(optional)</span>
-                                </label>
-                                @if($allTags->isNotEmpty())
-                                <div class="tag-suggestions-alpine">
-                                    @foreach($allTags as $tag)
-                                        <button type="button" @click="addTag('{{ $tag }}')" class="tag-btn-alpine">+ {{ $tag }}</button>
-                                    @endforeach
-                                </div>
-                                @endif
-                                <input type="text" name="tags" x-model="tagInput" class="input-alpine" placeholder="z.B. ZTR, B FGr (mit Komma trennen)">
-                            </div>
-
-                            <label class="checkbox-alpine">
-                                <input type="checkbox" name="is_active" value="1" checked>
-                                <span>Sofort aktivieren</span>
-                            </label>
-                        </div>
-
-                        <div class="modal-footer-alpine">
-                            <button type="button" @click="closeModal()" class="btn-ghost">Abbrechen</button>
-                            <button type="submit" class="btn-primary">Erstellen</button>
-                        </div>
-                    </form>
-                </div>
-            </template>
-
-            <!-- Dynamic Content (from AJAX) -->
-            <template x-if="modalType === 'dynamic' && !isLoading">
-                <div x-html="modalContent"></div>
-            </template>
-        </div>
-    </div>
-
-    <!-- Toast Container -->
-    <div x-show="toast.show"
-         x-cloak
-         x-transition:enter="transition ease-out duration-300"
-         x-transition:enter-start="opacity-0 translate-x-full"
-         x-transition:enter-end="opacity-100 translate-x-0"
-         x-transition:leave="transition ease-in duration-200"
-         x-transition:leave-start="opacity-100 translate-x-0"
-         x-transition:leave-end="opacity-0 translate-x-full"
-         :class="toast.type === 'success' ? 'toast-success-alpine' : 'toast-error-alpine'"
-         class="toast-alpine">
-        <span x-text="(toast.type === 'success' ? '✓ ' : '✗ ') + toast.message"></span>
-    </div>
-</div>
-
 @push('styles')
+<link rel="preconnect" href="https://fonts.bunny.net">
+<link href="https://fonts.bunny.net/css2?family=Barlow+Condensed:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-    .dashboard-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 2rem;
-    }
-
-    .dashboard-header {
-        margin-bottom: 2.5rem;
-        padding-top: 1rem;
-        max-width: 600px;
-    }
-
     [x-cloak] { display: none !important; }
+
+    @keyframes dash-rise {
+        from { opacity: 0; transform: translateY(10px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+    .dash-container > .space-y-4 > * {
+        animation: dash-rise 0.45s cubic-bezier(0.22,1,0.36,1) both;
+    }
+    .dash-container > .space-y-4 > *:nth-child(1) { animation-delay: 0.03s; }
+    .dash-container > .space-y-4 > *:nth-child(2) { animation-delay: 0.07s; }
+    .dash-container > .space-y-4 > *:nth-child(3) { animation-delay: 0.11s; }
+    .dash-container > .space-y-4 > *:nth-child(4) { animation-delay: 0.15s; }
+    .dash-container > .space-y-4 > *:nth-child(5) { animation-delay: 0.19s; }
+    .dash-container > .space-y-4 > *:nth-child(6) { animation-delay: 0.23s; }
+    .dash-container > .space-y-4 > *:nth-child(7) { animation-delay: 0.27s; }
+    @media (prefers-reduced-motion: reduce) {
+        .dash-container > .space-y-4 > * { animation: none; }
+    }
+
+    .ov-filter-pill {
+        font-size: 0.6875rem; font-weight: 600; padding: 0.3rem 0.75rem;
+        border-radius: 2rem; border: 1px solid var(--glass-border);
+        background: transparent; color: var(--text-muted); cursor: pointer;
+        transition: all 150ms; font-family: 'IBM Plex Mono', monospace; text-decoration: none;
+        display: inline-block;
+    }
+    .ov-filter-pill:hover { border-color: rgba(91,154,255,0.3); color: var(--text-secondary); text-decoration: none; }
+    .ov-filter-pill.active { background: rgba(91,154,255,0.12); color: #5b9aff; border-color: rgba(91,154,255,0.3); }
+    html.light-mode .ov-filter-pill.active { background: rgba(0,51,127,0.08); color: #00337F; border-color: rgba(0,51,127,0.2); }
 
     .pool-grid {
         display: grid;
@@ -349,6 +97,34 @@
         font-size: 0.9rem;
         color: var(--text-secondary);
         margin-bottom: 1rem;
+    }
+
+    /* ─── Progress Track ─── */
+    .ov-progress-track-lg {
+        height: 4px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 2px;
+        overflow: hidden;
+    }
+    html.light-mode .ov-progress-track-lg {
+        background: rgba(0,0,0,0.08);
+    }
+
+    /* ─── Separator ─── */
+    .ov-separator {
+        border-top: 1px solid rgba(255,255,255,0.1);
+    }
+    html.light-mode .ov-separator {
+        border-top-color: rgba(0,0,0,0.08);
+    }
+
+    .ov-separator-y {
+        border-top: 1px solid rgba(255,255,255,0.1);
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    html.light-mode .ov-separator-y {
+        border-top-color: rgba(0,0,0,0.08);
+        border-bottom-color: rgba(0,0,0,0.08);
     }
 
     /* Alpine.js Modal Styles */
@@ -610,10 +386,6 @@
     .scale-100 { transform: scale(1); }
 
     @media (max-width: 768px) {
-        .dashboard-container {
-            padding: 1rem;
-        }
-
         .pool-grid {
             grid-template-columns: 1fr;
         }
@@ -991,6 +763,265 @@
 </style>
 @endpush
 
+@section('content')
+<div class="dash-container" x-data="lernpoolManager()">
+    <!-- Header -->
+    <div class="mb-6">
+        <p style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);font-weight:600;margin-bottom:0.25rem;">VERWALTUNG</p>
+        <h1 style="font-size:1.5rem;font-weight:800;line-height:1.2;font-family:'Barlow Condensed',sans-serif;background:linear-gradient(135deg,#5b9aff,#0055cc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Lernpools verwalten</h1>
+        <p class="text-sm" style="color: var(--text-muted);">{{ $ortsverband->name }}</p>
+    </div>
+
+    <!-- Stats Row -->
+    @php
+        $activePools = $lernpools->where('is_active', true)->count();
+        $totalParticipants = $lernpools->sum(fn($pool) => $pool->getEnrollmentCount());
+        $avgProgress = $lernpools->count() ? round($lernpools->avg(fn($pool) => $pool->getAverageProgress())) : 0;
+    @endphp
+
+    <div class="flex gap-3 mb-6" style="flex-wrap: wrap;">
+        <div class="gami-pill">
+            <div class="gami-pill__value" style="color:#5b9aff;-webkit-text-fill-color:#5b9aff;">{{ $lernpools->count() }}</div>
+            <div class="gami-pill__label">Lernpools</div>
+        </div>
+        <div class="gami-pill">
+            <div class="gami-pill__value" style="color:#5b9aff;-webkit-text-fill-color:#5b9aff;">{{ $activePools }}</div>
+            <div class="gami-pill__label">Aktiv</div>
+        </div>
+        <div class="gami-pill">
+            <div class="gami-pill__value" style="color:#5b9aff;-webkit-text-fill-color:#5b9aff;">{{ $totalParticipants }}</div>
+            <div class="gami-pill__label">Lernende</div>
+        </div>
+        <div class="gami-pill">
+            <div class="gami-pill__value" style="color:#5b9aff;-webkit-text-fill-color:#5b9aff;">{{ $avgProgress }}%</div>
+            <div class="gami-pill__label">Fortschritt</div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="space-y-4">
+        <div class="glass p-4" style="border-radius:0.75rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem;">
+                <span class="text-xs uppercase tracking-wider" style="color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:0.5625rem;font-weight:700;">ALLE LERNPOOLS</span>
+                <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                    <button @click="openModal('create')" class="btn-primary btn-sm">Neuer Lernpool</button>
+                    <a href="{{ route('ortsverband.show', $ortsverband) }}" class="btn-ghost btn-sm">Zurück</a>
+                </div>
+            </div>
+
+            <!-- Tags Filter -->
+            @if($allTags->isNotEmpty())
+            <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.25rem;">
+                <a href="{{ route('ortsverband.lernpools.index', $ortsverband) }}"
+                   class="ov-filter-pill {{ !$selectedTag ? 'active' : '' }}">
+                    Alle
+                </a>
+                @foreach($allTags as $tag)
+                    <a href="{{ route('ortsverband.lernpools.index', ['ortsverband' => $ortsverband, 'tag' => $tag]) }}"
+                       class="ov-filter-pill {{ $selectedTag === $tag ? 'active' : '' }}">
+                        {{ $tag }}
+                    </a>
+                @endforeach
+            </div>
+            @endif
+
+            <!-- Pool Grid -->
+            @if($lernpools->count() > 0)
+            <div class="pool-grid">
+                @foreach($lernpools as $pool)
+                    @php
+                        $progress = round($pool->getAverageProgress());
+                        $enrollments = $pool->getEnrollmentCount();
+                        $questions = $pool->getQuestionCount();
+                    @endphp
+                    <div class="glass-subtle pool-card">
+                        <div style="display: flex; justify-content: space-between; align-items: start; gap: 0.75rem; margin-bottom: 0.75rem;">
+                            <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin: 0;">{{ $pool->name }}</h3>
+                            @if($pool->is_active)
+                                <span class="badge-success" style="font-size: 0.65rem;">Aktiv</span>
+                            @else
+                                <span class="badge-glass" style="font-size: 0.65rem;">Inaktiv</span>
+                            @endif
+                        </div>
+
+                        @if($pool->tags && count($pool->tags) > 0)
+                        <div style="display: flex; gap: 0.25rem; flex-wrap: wrap; margin-bottom: 0.75rem;">
+                            @foreach($pool->tags as $tag)
+                                <span class="badge-thw" style="font-size: 0.6rem; padding: 0.15rem 0.4rem;">{{ $tag }}</span>
+                            @endforeach
+                        </div>
+                        @endif
+
+                        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1rem; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                            {{ Str::limit($pool->description, 100) }}
+                        </p>
+
+                        <!-- Stats -->
+                        <div class="ov-separator-y" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; padding: 0.75rem 0; margin-bottom: 0.75rem;">
+                            <div style="text-align: center;">
+                                <div style="font-size: 1.25rem; font-weight: 800; color: var(--text-primary);">{{ $questions }}</div>
+                                <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase;">Fragen</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 1.25rem; font-weight: 800; color: var(--text-primary);">{{ $enrollments }}</div>
+                                <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase;">Teilnehmer</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 1.25rem; font-weight: 800; color: var(--gold-start);">{{ $progress }}%</div>
+                                <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase;">Fortschritt</div>
+                            </div>
+                        </div>
+
+                        <!-- Progress Bar -->
+                        <div style="margin-bottom: 1rem;">
+                            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.25rem;">
+                                <span>Lernfortschritt</span>
+                                <span>{{ $progress }}%</span>
+                            </div>
+                            <div class="ov-progress-track-lg">
+                                <div style="height: 100%; background: var(--gradient-gold); width: {{ $progress }}%; border-radius: 2px;"></div>
+                            </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="ov-separator" style="display: flex; gap: 0.5rem; flex-wrap: wrap; padding-top: 0.75rem;">
+                            <button @click="loadModal('{{ route('ortsverband.lernpools.show', [$ortsverband, $pool]) }}')" class="action-link">
+                                Details
+                            </button>
+                            <button @click="loadModal('{{ route('ortsverband.lernpools.edit', [$ortsverband, $pool]) }}')" class="action-link">
+                                Bearbeiten
+                            </button>
+                            <button @click="loadModal('{{ route('ortsverband.lernpools.questions.index', [$ortsverband, $pool]) }}')" class="action-link">
+                                Fragen
+                            </button>
+                            <form action="{{ route('ortsverband.lernpools.destroy', [$ortsverband, $pool]) }}" method="POST" style="display: inline;" onsubmit="return confirm('Lernpool wirklich löschen?');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="action-link action-link-danger">
+                                    Löschen
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+            @else
+            <div class="empty-state" style="padding: 3rem;">
+                <div class="empty-state-icon"><i class="bi bi-collection"></i></div>
+                <h3 class="empty-state-title">Keine Lernpools</h3>
+                <p class="empty-state-desc">Erstelle deinen ersten Lernpool, um loszulegen.</p>
+                <button @click="openModal('create')" class="btn-primary btn-sm">Neuer Lernpool</button>
+            </div>
+            @endif
+        </div>
+    </div>
+
+    <!-- Alpine.js Modal System -->
+    <div x-show="isOpen"
+         x-cloak
+         class="modal-overlay-alpine"
+         x-transition:enter="transition ease-out duration-200"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-150"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         @click.self="closeModal()"
+         @keydown.escape.window="closeModal()">
+
+        <div class="modal-container-alpine"
+             x-show="isOpen"
+             x-transition:enter="transition ease-out duration-200"
+             x-transition:enter-start="opacity-0 translate-y-4 scale-95"
+             x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+             x-transition:leave="transition ease-in duration-150"
+             x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+             x-transition:leave-end="opacity-0 translate-y-4 scale-95"
+             @click.stop>
+
+            <!-- Loading State -->
+            <template x-if="isLoading">
+                <div class="modal-loading-alpine">
+                    <div class="spinner-alpine"></div>
+                    <div class="modal-loading-text">Lädt...</div>
+                </div>
+            </template>
+
+            <!-- Create Form (Inline) -->
+            <template x-if="modalType === 'create' && !isLoading">
+                <div>
+                    <div class="modal-header-alpine">
+                        <h2>Neuer Lernpool</h2>
+                        <button @click="closeModal()" class="modal-close-alpine">&times;</button>
+                    </div>
+                    <form action="{{ route('ortsverband.lernpools.store', $ortsverband) }}" method="POST">
+                        @csrf
+                        <div class="modal-body-alpine">
+                            <div class="form-group-alpine">
+                                <label class="form-label-alpine">
+                                    Name <span class="required-alpine">*</span>
+                                </label>
+                                <input type="text" name="name" class="input-alpine" placeholder="z.B. Grundlagen Erste Hilfe" required>
+                            </div>
+
+                            <div class="form-group-alpine">
+                                <label class="form-label-alpine">
+                                    Beschreibung <span class="required-alpine">*</span>
+                                </label>
+                                <textarea name="description" rows="4" class="textarea-alpine" placeholder="Beschreibung des Lernpools..." required></textarea>
+                            </div>
+
+                            <div class="form-group-alpine">
+                                <label class="form-label-alpine">
+                                    Tags <span class="optional-alpine">(optional)</span>
+                                </label>
+                                @if($allTags->isNotEmpty())
+                                <div class="tag-suggestions-alpine">
+                                    @foreach($allTags as $tag)
+                                        <button type="button" @click="addTag('{{ $tag }}')" class="tag-btn-alpine">+ {{ $tag }}</button>
+                                    @endforeach
+                                </div>
+                                @endif
+                                <input type="text" name="tags" x-model="tagInput" class="input-alpine" placeholder="z.B. ZTR, B FGr (mit Komma trennen)">
+                            </div>
+
+                            <label class="checkbox-alpine">
+                                <input type="checkbox" name="is_active" value="1" checked>
+                                <span>Sofort aktivieren</span>
+                            </label>
+                        </div>
+
+                        <div class="modal-footer-alpine">
+                            <button type="button" @click="closeModal()" class="btn-ghost">Abbrechen</button>
+                            <button type="submit" class="btn-primary">Erstellen</button>
+                        </div>
+                    </form>
+                </div>
+            </template>
+
+            <!-- Dynamic Content (from AJAX) -->
+            <template x-if="modalType === 'dynamic' && !isLoading">
+                <div x-html="modalContent"></div>
+            </template>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div x-show="toast.show"
+         x-cloak
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0 translate-x-full"
+         x-transition:enter-end="opacity-100 translate-x-0"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100 translate-x-0"
+         x-transition:leave-end="opacity-0 translate-x-full"
+         :class="toast.type === 'success' ? 'toast-success-alpine' : 'toast-error-alpine'"
+         class="toast-alpine">
+        <span x-text="toast.message"></span>
+    </div>
+</div>
+@endsection
+
 @push('alpine-components')
 <script>
 // Lernpool Manager als globale Funktion für Alpine.js
@@ -1289,5 +1320,3 @@ window.lernpoolManager = function() {
 };
 </script>
 @endpush
-
-@endsection

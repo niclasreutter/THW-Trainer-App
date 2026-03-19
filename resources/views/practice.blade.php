@@ -4,20 +4,23 @@
 
 @section('content')
 @php
-    // Hole Antwort-Details aus Session (falls vorhanden)
-    $answerResult = session('answer_result');
+    // Hole Antwort-Details aus View-Variable oder Session (Backward-Compat)
+    $answerResultFromView = isset($answerResult);
+    $answerResult = $answerResult ?? session('answer_result');
     $hasAnswerResult = $answerResult && isset($answerResult['question_id']) && $answerResult['question_id'] == $question->id;
 
-    // Hole Gamification Result aus Session
-    $gamificationResult = session('gamification_result');
+    // Hole Gamification Result aus View-Variable oder Session (Backward-Compat)
+    $gamificationResult = $gamificationResult ?? session('gamification_result');
 
     if ($hasAnswerResult) {
         $isCorrect = $answerResult['is_correct'];
         $userAnswer = collect($answerResult['user_answer']);
         $questionProgress = (object)['consecutive_correct' => $answerResult['question_progress']];
 
-        // Lösche BEIDE Sessions nach dem Auslesen (sie gehören zusammen)
-        session()->forget(['answer_result', 'gamification_result']);
+        // Lösche Sessions nur wenn alte Session-basierte Approach genutzt wird
+        if (!$answerResultFromView) {
+            session()->forget(['answer_result', 'gamification_result']);
+        }
     } else {
         $isCorrect = null;
         $userAnswer = null;
@@ -26,21 +29,23 @@
 @endphp
 
 @push('styles')
+<link rel="preconnect" href="https://fonts.bunny.net">
+<link href="https://fonts.bunny.net/css2?family=Barlow+Condensed:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-    /* Practice Page - Mobile Optimiert (wie Exam) */
+    /* ============================================
+       PRACTICE PAGE - Dashboard-Matched Design
+       Mobile-First, Fullscreen, No Scroll
+       ============================================ */
 
-    /* Mobile: Navigation & Footer ausblenden + Kein Overflow */
+    /* ── Mobile: Fullscreen Takeover ─────────────── */
     @media (max-width: 640px) {
         html, body {
             height: 100dvh !important;
             overflow: hidden !important;
         }
-
         footer, nav, header {
             display: none !important;
         }
-
-        /* Main Container randlos machen */
         main {
             padding: 0 !important;
             margin: 0 !important;
@@ -49,156 +54,758 @@
         }
     }
 
-    /* Practice Container */
-    #practiceContainer {
-        max-width: 900px;
+    /* ── Practice Shell ──────────────────────────── */
+    .practice-shell {
+        max-width: 1100px;
         margin: 0 auto;
-    }
-
-    @media (max-width: 640px) {
-        #practiceContainer {
-            padding: 0 !important;
-            margin: 0 !important;
-            max-width: 100% !important;
-            width: 100% !important;
-            height: 100dvh !important;
-            overflow: hidden !important;
-        }
-    }
-
-    /* Question Card Styling */
-    .question-card {
-        background: rgba(255, 255, 255, 0.03);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 20px;
         padding: 1.5rem;
     }
 
     @media (max-width: 640px) {
-        .question-card {
-            border-radius: 0;
-            border: none;
+        .practice-shell {
+            padding: 0;
+            max-width: 100%;
             height: 100dvh;
-            padding-bottom: 140px;
-            margin: 0;
-            background: #0a0a0b;
-            backdrop-filter: none;
-            -webkit-backdrop-filter: none;
-            overflow-y: auto;
-            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
         }
+    }
+
+    /* ── Top Bar (Mobile) ────────────────────────── */
+    .practice-topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.625rem 1rem;
+        padding-top: calc(0.625rem + env(safe-area-inset-top, 0px));
+        background: rgba(255, 255, 255, 0.03);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        flex-shrink: 0;
+    }
+
+    html.light-mode .practice-topbar {
+        background: rgba(0, 51, 127, 0.03);
+        border-bottom-color: rgba(0, 51, 127, 0.08);
     }
 
     @media (min-width: 641px) {
-        .question-card {
-            padding: 2rem;
-            border-radius: 24px 8px 24px 8px;
-        }
+        .practice-topbar { display: none; }
     }
 
-    /* Answer Option Styling */
-    .answer-option {
+    .topbar-back {
         display: flex;
-        align-items: flex-start;
-        padding: 1rem 1.25rem;
-        background: rgba(255, 255, 255, 0.02);
-        border: 2px solid rgba(255, 255, 255, 0.08);
-        border-radius: 12px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        gap: 0.875rem;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        border-radius: 0.5rem;
+        color: var(--text-secondary);
+        transition: all 0.2s;
     }
 
-    .answer-option:hover {
-        background: rgba(251, 191, 36, 0.05);
-        border-color: rgba(251, 191, 36, 0.3);
-        transform: translateX(4px);
-    }
-
-    .answer-option:active {
-        transform: scale(0.98);
-    }
-
-    .answer-option.selected {
-        background: rgba(251, 191, 36, 0.1);
-        border-color: var(--gold);
-    }
-
-    /* Custom Checkbox */
-    .answer-checkbox {
-        appearance: none;
-        -webkit-appearance: none;
-        width: 24px;
-        height: 24px;
-        min-width: 24px;
-        border: 2px solid rgba(255, 255, 255, 0.3);
-        border-radius: 6px;
+    .topbar-back:hover {
+        color: var(--text-primary);
         background: rgba(255, 255, 255, 0.05);
-        cursor: pointer;
-        transition: all 0.2s ease;
-        position: relative;
-        margin-top: 2px;
     }
 
-    .answer-checkbox:checked {
-        background: var(--gold);
-        border-color: var(--gold);
+    .topbar-center {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
     }
 
-    .answer-checkbox:checked::after {
-        content: '✓';
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        color: #0a0a0b;
-        font-size: 14px;
-        font-weight: bold;
+    .topbar-progress-text {
+        font-size: 0.6875rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        font-family: 'IBM Plex Mono', monospace;
+        letter-spacing: 0.02em;
     }
 
-    /* Result States */
-    .answer-correct {
-        background: rgba(34, 197, 94, 0.15) !important;
-        border-color: rgba(34, 197, 94, 0.5) !important;
+    .topbar-progress-ring {
+        width: 32px;
+        height: 32px;
     }
 
-    .answer-correct-missed {
-        background: rgba(34, 197, 94, 0.08) !important;
-        border-color: rgba(34, 197, 94, 0.3) !important;
-    }
-
-    .answer-wrong {
-        background: rgba(239, 68, 68, 0.15) !important;
-        border-color: rgba(239, 68, 68, 0.5) !important;
-    }
-
-    .answer-neutral {
-        background: rgba(255, 255, 255, 0.02) !important;
-        border-color: rgba(255, 255, 255, 0.06) !important;
-        opacity: 0.6;
-    }
-
-    /* Progress Ring */
-    .progress-ring {
-        width: 48px;
-        height: 48px;
-    }
-
-    .progress-ring-circle {
+    .topbar-progress-ring .ring-track { stroke: rgba(255, 255, 255, 0.08); }
+    .topbar-progress-ring .ring-fill {
         transition: stroke-dashoffset 0.5s ease;
         transform: rotate(-90deg);
         transform-origin: 50% 50%;
     }
 
-    /* Bookmark Button */
-    .bookmark-btn {
-        padding: 0.5rem;
-        border-radius: 10px;
+    html.light-mode .topbar-progress-ring .ring-track { stroke: rgba(0, 51, 127, 0.1); }
+
+    .topbar-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+    }
+
+    /* ── Desktop Header ──────────────────────────── */
+    .practice-header {
+        margin-bottom: 1.25rem;
+    }
+
+    @media (max-width: 640px) {
+        .practice-header { display: none; }
+    }
+
+    .practice-greeting {
+        font-size: 0.5625rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--text-muted);
+        font-weight: 700;
+        font-family: 'IBM Plex Mono', monospace;
+        margin-bottom: 0.375rem;
+    }
+
+    .practice-title {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: var(--text-primary);
+        font-family: 'Barlow Condensed', sans-serif;
+        line-height: 1.2;
+        margin-bottom: 0.25rem;
+    }
+
+    .practice-level-line {
+        font-size: 0.8125rem;
+        color: #5b9aff;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    html.light-mode .practice-level-line { color: #00337F; }
+
+    .practice-xp-bar {
+        height: 4px;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 2px;
+        overflow: hidden;
+        max-width: 160px;
+        flex-shrink: 0;
+    }
+
+    html.light-mode .practice-xp-bar { background: rgba(0, 0, 0, 0.08); }
+
+    .practice-xp-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #5b9aff, #0055cc);
+        border-radius: 2px;
+        transition: width 0.6s ease-out;
+    }
+
+    /* ── Badge Row ────────────────────────────────── */
+    .practice-badges {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        margin-bottom: 1rem;
+    }
+
+    @media (max-width: 640px) {
+        .practice-badges { display: none; }
+    }
+
+    .p-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.2rem 0.625rem;
+        border-radius: 0.375rem;
+        font-size: 0.625rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        line-height: 1;
+        white-space: nowrap;
+    }
+
+    .p-badge--mode {
+        color: #5b9aff;
+        background: rgba(0, 77, 179, 0.12);
+        border: 1px solid rgba(0, 77, 179, 0.25);
+    }
+
+    html.light-mode .p-badge--mode {
+        color: #00337F;
+        background: rgba(0, 51, 127, 0.08);
+        border-color: rgba(0, 51, 127, 0.2);
+    }
+
+    .p-badge--sr {
+        color: #818cf8;
+        background: rgba(129, 140, 248, 0.12);
+        border: 1px solid rgba(129, 140, 248, 0.25);
+    }
+
+    .p-badge--easy {
+        color: #22c55e;
+        background: rgba(34, 197, 94, 0.12);
+        border: 1px solid rgba(34, 197, 94, 0.2);
+    }
+
+    .p-badge--medium {
+        color: #fbbf24;
+        background: rgba(251, 191, 36, 0.12);
+        border: 1px solid rgba(251, 191, 36, 0.2);
+    }
+
+    .p-badge--hard {
+        color: #ef4444;
+        background: rgba(239, 68, 68, 0.12);
+        border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    html.light-mode .p-badge--easy { color: #16a34a; }
+    html.light-mode .p-badge--medium { color: #b45309; }
+    html.light-mode .p-badge--hard { color: #dc2626; }
+
+    .p-badge--progress {
+        color: var(--text-muted);
         background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        font-family: 'IBM Plex Mono', monospace;
+    }
+
+    html.light-mode .p-badge--progress {
+        background: rgba(0, 0, 0, 0.04);
+        border-color: rgba(0, 0, 0, 0.08);
+    }
+
+    /* ── Question Card ───────────────────────────── */
+    .practice-card {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.10);
+        border-radius: 1.5rem 0.5rem 1.5rem 1.5rem;
+        padding: 1.5rem;
+        position: relative;
+        overflow: hidden;
+        animation: practice-rise 0.45s cubic-bezier(0.22,1,0.36,1) both;
+    }
+
+    .practice-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: linear-gradient(90deg, #00337F, #0055cc, #5b9aff);
+    }
+
+    @keyframes practice-rise {
+        from { opacity: 0; transform: translateY(12px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+
+    html.light-mode .practice-card {
+        background: rgba(255, 255, 255, 0.95);
+        border-color: rgba(0, 51, 127, 0.12);
+        box-shadow: 0 4px 24px rgba(0, 51, 127, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+
+    html.light-mode .practice-card::before {
+        background: linear-gradient(90deg, #00337F, #0055cc, #5b9aff);
+    }
+
+    @media (max-width: 640px) {
+        .practice-card {
+            border-radius: 0;
+            border: none;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-base);
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+            padding: 1rem;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            animation: none;
+        }
+
+        .practice-card::before { display: none; }
+
+        html.light-mode .practice-card {
+            background: var(--bg-base);
+            border: none;
+            box-shadow: none;
+        }
+    }
+
+    /* ── Mobile Badges (inside card) ─────────────── */
+    .practice-mobile-badges {
+        display: none;
+        gap: 0.375rem;
+        flex-wrap: wrap;
+        margin-bottom: 0.75rem;
+    }
+
+    @media (max-width: 640px) {
+        .practice-mobile-badges { display: flex; }
+    }
+
+    .pm-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.2rem;
+        padding: 0.15rem 0.5rem;
+        border-radius: 0.25rem;
+        font-size: 0.5625rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+
+    .pm-badge--sr {
+        color: #818cf8;
+        background: rgba(129, 140, 248, 0.12);
+    }
+
+    .pm-badge--easy { color: #22c55e; background: rgba(34, 197, 94, 0.1); }
+    .pm-badge--medium { color: #fbbf24; background: rgba(251, 191, 36, 0.1); }
+    .pm-badge--hard { color: #ef4444; background: rgba(239, 68, 68, 0.1); }
+
+    html.light-mode .pm-badge--easy { color: #16a34a; }
+    html.light-mode .pm-badge--medium { color: #b45309; }
+    html.light-mode .pm-badge--hard { color: #dc2626; }
+
+    /* ── Question Meta ───────────────────────────── */
+    .question-meta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 0.75rem;
+    }
+
+    .question-meta-left {
+        font-size: 0.5625rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--text-muted);
+        font-family: 'IBM Plex Mono', monospace;
+    }
+
+    /* ── Question Text ───────────────────────────── */
+    .question-text {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        line-height: 1.55;
+        margin-bottom: 1.25rem;
+    }
+
+    @media (min-width: 641px) {
+        .question-text {
+            font-size: 1.0625rem;
+        }
+    }
+
+    /* ── Answer Options ──────────────────────────── */
+    .answers-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 0.625rem;
+    }
+
+    .answer-opt {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        padding: 0.875rem 1rem;
+        background: rgba(255, 255, 255, 0.03);
+        border: 2px solid rgba(255, 255, 255, 0.08);
+        border-radius: 0.75rem;
+        cursor: pointer;
         transition: all 0.2s ease;
+        position: relative;
+    }
+
+    .answer-opt:hover {
+        background: rgba(0, 77, 179, 0.06);
+        border-color: rgba(0, 77, 179, 0.25);
+        transform: translateX(3px);
+    }
+
+    .answer-opt:active {
+        transform: scale(0.98);
+    }
+
+    .answer-opt.selected {
+        background: rgba(0, 77, 179, 0.1);
+        border-color: #0055cc;
+        box-shadow: 0 0 0 1px rgba(0, 85, 204, 0.3);
+    }
+
+    html.light-mode .answer-opt {
+        background: #f8fafc;
+        border-color: rgba(0, 51, 127, 0.12);
+    }
+
+    html.light-mode .answer-opt:hover {
+        background: rgba(0, 51, 127, 0.04);
+        border-color: rgba(0, 51, 127, 0.3);
+    }
+
+    html.light-mode .answer-opt.selected {
+        background: rgba(0, 51, 127, 0.08);
+        border-color: #00337F;
+    }
+
+    /* Custom Checkbox */
+    .answer-check {
+        appearance: none;
+        -webkit-appearance: none;
+        width: 22px;
+        height: 22px;
+        min-width: 22px;
+        border: 2px solid rgba(255, 255, 255, 0.25);
+        border-radius: 0.375rem;
+        background: rgba(255, 255, 255, 0.05);
+        cursor: pointer;
+        transition: all 0.2s ease;
+        position: relative;
+        margin-top: 1px;
+    }
+
+    .answer-check:checked {
+        background: linear-gradient(135deg, #0055cc, #5b9aff);
+        border-color: #0055cc;
+    }
+
+    .answer-check:checked::after {
+        content: '✓';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: #fff;
+        font-size: 13px;
+        font-weight: bold;
+    }
+
+    html.light-mode .answer-check {
+        border-color: rgba(0, 51, 127, 0.25);
+        background: #fff;
+    }
+
+    html.light-mode .answer-check:checked {
+        background: linear-gradient(135deg, #00337F, #0055cc);
+        border-color: #00337F;
+    }
+
+    .answer-text {
+        font-size: 0.9375rem;
+        color: var(--text-primary);
+        line-height: 1.45;
+        flex: 1;
+    }
+
+    @media (max-width: 640px) {
+        .answer-text { font-size: 0.875rem; }
+    }
+
+    /* ── Result States ───────────────────────────── */
+    .answer-opt--correct {
+        background: rgba(34, 197, 94, 0.12) !important;
+        border-color: rgba(34, 197, 94, 0.4) !important;
+    }
+
+    .answer-opt--correct-missed {
+        background: rgba(34, 197, 94, 0.06) !important;
+        border-color: rgba(34, 197, 94, 0.25) !important;
+    }
+
+    .answer-opt--wrong {
+        background: rgba(239, 68, 68, 0.12) !important;
+        border-color: rgba(239, 68, 68, 0.4) !important;
+    }
+
+    .answer-opt--neutral {
+        background: rgba(255, 255, 255, 0.02) !important;
+        border-color: rgba(255, 255, 255, 0.05) !important;
+        opacity: 0.5;
+    }
+
+    html.light-mode .answer-opt--correct {
+        background: rgba(34, 197, 94, 0.1) !important;
+    }
+
+    html.light-mode .answer-opt--wrong {
+        background: rgba(239, 68, 68, 0.1) !important;
+    }
+
+    html.light-mode .answer-opt--neutral {
+        background: #f1f5f9 !important;
+        border-color: rgba(0, 0, 0, 0.06) !important;
+    }
+
+    .result-icon {
+        width: 22px;
+        height: 22px;
+        min-width: 22px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-weight: 700;
+        margin-top: 1px;
+    }
+
+    .result-icon--correct {
+        background: rgba(34, 197, 94, 0.2);
+        color: #22c55e;
+    }
+
+    .result-icon--wrong {
+        background: rgba(239, 68, 68, 0.2);
+        color: #ef4444;
+    }
+
+    /* ── Inline Result Banner ────────────────────── */
+    .result-banner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        padding: 0.75rem 1rem;
+        border-radius: 0.75rem;
+        margin-bottom: 1rem;
+        animation: bannerSlide 0.35s cubic-bezier(0.22,1,0.36,1) both;
+    }
+
+    @keyframes bannerSlide {
+        from { opacity: 0; transform: translateY(-8px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .result-banner--correct {
+        background: rgba(34, 197, 94, 0.1);
+        border: 1px solid rgba(34, 197, 94, 0.25);
+    }
+
+    .result-banner--wrong {
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.25);
+    }
+
+    html.light-mode .result-banner--correct {
+        background: rgba(34, 197, 94, 0.08);
+        border-color: rgba(34, 197, 94, 0.2);
+    }
+
+    html.light-mode .result-banner--wrong {
+        background: rgba(239, 68, 68, 0.08);
+        border-color: rgba(239, 68, 68, 0.2);
+    }
+
+    .result-banner-left {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        min-width: 0;
+    }
+
+    .result-banner-icon {
+        font-size: 1.25rem;
+        flex-shrink: 0;
+    }
+
+    .result-banner-text {
+        font-size: 0.875rem;
+        font-weight: 700;
+        font-family: 'Barlow Condensed', sans-serif;
+    }
+
+    .result-banner--correct .result-banner-text { color: #22c55e; }
+    .result-banner--wrong .result-banner-text { color: #ef4444; }
+
+    html.light-mode .result-banner--correct .result-banner-text { color: #16a34a; }
+    html.light-mode .result-banner--wrong .result-banner-text { color: #dc2626; }
+
+    .result-banner-xp {
+        font-size: 0.875rem;
+        font-weight: 800;
+        color: var(--gold);
+        font-family: 'Barlow Condensed', sans-serif;
+        flex-shrink: 0;
+    }
+
+    .result-banner-mastery {
+        font-size: 0.6875rem;
+        color: var(--text-muted);
+        font-family: 'IBM Plex Mono', monospace;
+        flex-shrink: 0;
+    }
+
+    /* ── Result Summary Line ─────────────────────── */
+    .result-summary {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 1rem;
+        padding-top: 0.75rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+        font-size: 0.8125rem;
+    }
+
+    html.light-mode .result-summary {
+        border-top-color: rgba(0, 51, 127, 0.08);
+    }
+
+    .result-label--correct {
+        color: #22c55e;
+        font-weight: 700;
+    }
+
+    .result-label--wrong {
+        color: #ef4444;
+        font-weight: 700;
+    }
+
+    /* ── Desktop Progress Bar ────────────────────── */
+    .practice-progress-bar {
+        margin-bottom: 1.25rem;
+    }
+
+    @media (max-width: 640px) {
+        .practice-progress-bar { display: none; }
+    }
+
+    .ppb-track {
+        height: 4px;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 2px;
+        overflow: hidden;
+    }
+
+    html.light-mode .ppb-track { background: rgba(0, 0, 0, 0.06); }
+
+    .ppb-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #0055cc, #5b9aff);
+        border-radius: 2px;
+        transition: width 0.5s ease-out;
+    }
+
+    /* ── Bottom Action Bar ────────────────────────── */
+    .practice-actions {
+        margin-top: 1.25rem;
+        padding-top: 1rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    html.light-mode .practice-actions {
+        border-top-color: rgba(0, 51, 127, 0.08);
+    }
+
+    @media (max-width: 640px) {
+        .practice-actions {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            margin: 0;
+            padding: 0.875rem 1rem;
+            padding-bottom: calc(0.875rem + env(safe-area-inset-bottom, 0px));
+            background: rgba(10, 10, 11, 0.6);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            backdrop-filter: blur(20px) saturate(180%);
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        html.light-mode .practice-actions {
+            background: rgba(243, 244, 246, 0.6);
+            border-top-color: rgba(0, 51, 127, 0.08);
+        }
+    }
+
+    .action-submit {
+        width: 100%;
+        padding: 0.875rem;
+        font-size: 0.9375rem;
+        font-weight: 700;
+        border-radius: 0.75rem;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-family: inherit;
+        text-align: center;
+        text-decoration: none;
+        display: block;
+    }
+
+    .action-submit--primary {
+        background: linear-gradient(135deg, #00337F, #0055cc);
+        color: #fff;
+        box-shadow: 0 4px 16px rgba(0, 51, 127, 0.3);
+    }
+
+    .action-submit--primary:hover {
+        box-shadow: 0 6px 24px rgba(0, 51, 127, 0.4);
+        transform: translateY(-1px);
+    }
+
+    .action-submit--primary:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+
+    .action-submit--gold {
+        background: var(--gradient-gold);
+        color: #1a1a2e;
+        box-shadow: 0 4px 16px rgba(251, 191, 36, 0.25);
+    }
+
+    .action-submit--gold:hover {
+        box-shadow: 0 6px 24px rgba(251, 191, 36, 0.35);
+        transform: translateY(-1px);
+    }
+
+    .action-end {
+        display: block;
+        width: 100%;
+        text-align: center;
+        margin-top: 0.5rem;
+        padding: 0.5rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        text-decoration: none;
+        border-radius: 0.5rem;
+        transition: color 0.2s;
+    }
+
+    .action-end:hover { color: var(--text-secondary); }
+
+    /* ── Bookmark Button ─────────────────────────── */
+    .bookmark-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        border-radius: 0.5rem;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        transition: all 0.2s ease;
+        cursor: pointer;
+        flex-shrink: 0;
+        padding: 0;
     }
 
     .bookmark-btn:hover {
@@ -207,316 +814,27 @@
     }
 
     .bookmark-btn.active {
-        background: rgba(251, 191, 36, 0.2);
+        background: rgba(251, 191, 36, 0.15);
         border-color: var(--gold);
     }
 
-    /* Gamification Popup */
-    .result-popup {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        z-index: 9999;
-        max-width: 340px;
-        width: 90vw;
-        opacity: 0;
-        transform: translateX(100%);
-        transition: all 0.3s ease-out;
-        pointer-events: none;
-    }
-
-    .result-popup.show {
-        opacity: 1;
-        transform: translateX(0);
-        pointer-events: auto;
-    }
-
-    /* Mobile Header */
-    .mobile-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0.75rem 1rem;
-        padding-top: calc(0.75rem + env(safe-area-inset-top, 0px));
-        background: rgba(255, 255, 255, 0.03);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-        margin: -1.5rem -1.5rem 1rem -1.5rem;
-        flex-shrink: 0;
-    }
-
-    @media (min-width: 641px) {
-        .mobile-header {
-            display: none;
-        }
-    }
-
-    /* ========== SUBMIT BUTTON WRAPPER (Glassmorphism wie Exam) ==========*/
-
-    /* Desktop: normal layout */
-    .submit-button-wrapper {
-        margin-top: 1.5rem;
-        padding-top: 1rem;
-        border-top: 1px solid rgba(255, 255, 255, 0.08);
-    }
-
-    /* Mobile: Fixierte Navigation unten mit Glassmorphism */
-    @media (max-width: 640px) {
-        .submit-button-wrapper {
-            position: fixed !important;
-            bottom: 0 !important;
-            left: 0 !important;
-            right: 0 !important;
-            z-index: 9999 !important;
-            width: 100% !important;
-            margin: 0 !important;
-            padding: 1rem !important;
-            padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px)) !important;
-            /* Glassmorphism Effekt */
-            background: rgba(10, 10, 11, 0.5) !important;
-            -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
-            backdrop-filter: blur(20px) saturate(180%) !important;
-            border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
-        }
-    }
-
-    /* Light Mode */
-    html.light-mode .submit-button-wrapper {
-        border-top-color: rgba(0, 51, 127, 0.08) !important;
-    }
-
-    @media (max-width: 640px) {
-        html.light-mode .submit-button-wrapper {
-            background: rgba(243, 244, 246, 0.5) !important;
-            -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
-            backdrop-filter: blur(20px) saturate(180%) !important;
-            border-top: 1px solid rgba(0, 51, 127, 0.08) !important;
-        }
-    }
-
-    /* Mode Badge */
-    .mode-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.375rem;
-        padding: 0.25rem 0.75rem;
-        background: rgba(251, 191, 36, 0.1);
-        border: 1px solid rgba(251, 191, 36, 0.2);
-        border-radius: 20px;
-        font-size: 0.75rem;
-        color: var(--gold);
-        font-weight: 500;
-    }
-
-    /* Mode Progress Label (Frage X von Y) */
-    .mode-progress-label {
-        font-size: 0.75rem;
-        color: var(--text-muted);
-        font-weight: 600;
-        white-space: nowrap;
-    }
-
-    /* Difficulty Badge */
-    .difficulty-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.25rem;
-        padding: 0.2rem 0.6rem;
-        border-radius: 20px;
-        font-size: 0.7rem;
-        font-weight: 600;
-    }
-
-    .difficulty-easy {
-        background: rgba(34, 197, 94, 0.12);
-        color: #22c55e;
-        border: 1px solid rgba(34, 197, 94, 0.2);
-    }
-
-    .difficulty-medium {
-        background: rgba(251, 191, 36, 0.12);
-        color: #fbbf24;
-        border: 1px solid rgba(251, 191, 36, 0.2);
-    }
-
-    .difficulty-hard {
-        background: rgba(239, 68, 68, 0.12);
-        color: #ef4444;
-        border: 1px solid rgba(239, 68, 68, 0.2);
-    }
-
-    .difficulty-unknown {
-        background: rgba(255, 255, 255, 0.05);
-        color: var(--text-muted);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .difficulty-sr {
-        background: rgba(0, 51, 127, 0.15);
-        color: #4d94ff;
-        border: 1px solid rgba(0, 77, 179, 0.3);
-    }
-
-    html.light-mode .difficulty-easy {
-        background: rgba(34, 197, 94, 0.1);
-        color: #16a34a;
-    }
-
-    html.light-mode .difficulty-medium {
-        background: rgba(217, 119, 6, 0.1);
-        color: #b45309;
-    }
-
-    html.light-mode .difficulty-hard {
-        background: rgba(239, 68, 68, 0.1);
-        color: #dc2626;
-    }
-
-    html.light-mode .difficulty-sr {
-        background: rgba(0, 51, 127, 0.1);
-        color: var(--thw-blue);
-    }
-
-    /* Shake Animation */
-    @keyframes shake {
-        0%, 100% { transform: translateX(0); }
-        20% { transform: translateX(-8px); }
-        40% { transform: translateX(8px); }
-        60% { transform: translateX(-6px); }
-        80% { transform: translateX(6px); }
-    }
-
-    .shake {
-        animation: shake 0.4s ease;
-    }
-
-    /* ============================================
-       LIGHT MODE OVERRIDES
-       ============================================ */
-
-    /* Question Card in Light Mode */
-    html.light-mode .question-card {
-        background: #ffffff !important;
-        backdrop-filter: none !important;
-        -webkit-backdrop-filter: none !important;
-        border: 1px solid rgba(0, 51, 127, 0.12) !important;
-        box-shadow: 0 4px 20px rgba(0, 51, 127, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04) !important;
-    }
-
-    @media (max-width: 640px) {
-        html.light-mode .question-card {
-            background: #f8fafc !important;
-            border: none !important;
-            box-shadow: none !important;
-        }
-    }
-
-    /* Answer Options in Light Mode */
-    html.light-mode .answer-option {
-        background: #f8fafc !important;
-        border: 2px solid rgba(0, 51, 127, 0.12) !important;
-    }
-
-    html.light-mode .answer-option:hover {
-        background: rgba(217, 119, 6, 0.06) !important;
-        border-color: rgba(217, 119, 6, 0.4) !important;
-    }
-
-    html.light-mode .answer-option.selected {
-        background: rgba(217, 119, 6, 0.1) !important;
-        border-color: #d97706 !important;
-    }
-
-    /* Checkbox in Light Mode */
-    html.light-mode .answer-checkbox {
-        border: 2px solid rgba(0, 51, 127, 0.25) !important;
-        background: #ffffff !important;
-    }
-
-    html.light-mode .answer-checkbox:checked {
-        background: #d97706 !important;
-        border-color: #d97706 !important;
-    }
-
-    /* Result States in Light Mode */
-    html.light-mode .answer-correct {
-        background: rgba(34, 197, 94, 0.12) !important;
-        border-color: rgba(34, 197, 94, 0.4) !important;
-    }
-
-    html.light-mode .answer-correct-missed {
-        background: rgba(34, 197, 94, 0.06) !important;
-        border-color: rgba(34, 197, 94, 0.25) !important;
-    }
-
-    html.light-mode .answer-wrong {
-        background: rgba(239, 68, 68, 0.12) !important;
-        border-color: rgba(239, 68, 68, 0.4) !important;
-    }
-
-    html.light-mode .answer-neutral {
-        background: #f1f5f9 !important;
-        border-color: rgba(0, 51, 127, 0.08) !important;
-        opacity: 0.7;
-    }
-
-    /* Bookmark Button in Light Mode */
     html.light-mode .bookmark-btn {
-        background: rgba(0, 51, 127, 0.04) !important;
-        border: 1px solid rgba(0, 51, 127, 0.1) !important;
+        background: rgba(0, 51, 127, 0.04);
+        border-color: rgba(0, 51, 127, 0.1);
     }
 
     html.light-mode .bookmark-btn:hover {
-        background: rgba(217, 119, 6, 0.08) !important;
-        border-color: rgba(217, 119, 6, 0.25) !important;
+        background: rgba(217, 119, 6, 0.08);
+        border-color: rgba(217, 119, 6, 0.25);
     }
 
     html.light-mode .bookmark-btn.active {
-        background: rgba(217, 119, 6, 0.15) !important;
-        border-color: #d97706 !important;
+        background: rgba(217, 119, 6, 0.12);
+        border-color: #d97706;
     }
 
-    /* Mobile Header in Light Mode */
-    html.light-mode .mobile-header {
-        background: rgba(0, 51, 127, 0.03) !important;
-        border-bottom: 1px solid rgba(0, 51, 127, 0.08) !important;
-    }
-
-    /* Mode Badge in Light Mode */
-    html.light-mode .mode-badge {
-        background: rgba(217, 119, 6, 0.1) !important;
-        border: 1px solid rgba(217, 119, 6, 0.2) !important;
-        color: #b45309 !important;
-    }
-
-    /* Progress Bar in Light Mode */
-    html.light-mode .progress-glass {
-        background: rgba(0, 51, 127, 0.08) !important;
-    }
-
-    html.light-mode .progress-fill-gold {
-        background: linear-gradient(90deg, #d97706, #b45309) !important;
-    }
-
-    /* Text colors in Light Mode */
-    html.light-mode .text-dark-primary {
-        color: #1e293b !important;
-    }
-
-    html.light-mode .text-dark-secondary {
-        color: #475569 !important;
-    }
-
-    html.light-mode .text-dark-muted {
-        color: #64748b !important;
-    }
-
-    html.light-mode .text-gold {
-        color: #d97706 !important;
-    }
-
-    /* Bookmark Icon in Light Mode - bessere Sichtbarkeit */
     html.light-mode .bookmark-btn svg path {
-        stroke: rgba(0, 51, 127, 0.5) !important;
+        stroke: rgba(0, 51, 127, 0.4) !important;
     }
 
     html.light-mode .bookmark-btn:hover svg path {
@@ -528,43 +846,53 @@
         fill: #d97706 !important;
     }
 
-    /* Report Alarm Button */
-    .report-alarm-btn {
+    /* ── Report Button ───────────────────────────── */
+    .report-btn {
         display: flex;
         align-items: center;
         justify-content: center;
         width: 2rem;
         height: 2rem;
         border-radius: 0.5rem;
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        background: rgba(255, 255, 255, 0.05);
-        color: rgba(255, 255, 255, 0.35);
-        font-size: 0.85rem;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        background: rgba(255, 255, 255, 0.03);
+        color: rgba(255, 255, 255, 0.3);
+        font-size: 0.8rem;
         cursor: pointer;
         transition: all 0.2s ease;
         flex-shrink: 0;
+        padding: 0;
     }
 
-    .report-alarm-btn:hover {
-        background: rgba(239, 68, 68, 0.15);
+    .report-btn:hover {
+        background: rgba(239, 68, 68, 0.12);
         border-color: rgba(239, 68, 68, 0.3);
         color: #ef4444;
     }
 
-    html.light-mode .report-alarm-btn {
-        border-color: rgba(0, 0, 0, 0.1);
-        background: rgba(0, 0, 0, 0.03);
-        color: rgba(0, 0, 0, 0.3);
+    html.light-mode .report-btn {
+        border-color: rgba(0, 0, 0, 0.08);
+        background: rgba(0, 0, 0, 0.02);
+        color: rgba(0, 0, 0, 0.25);
     }
 
-    html.light-mode .report-alarm-btn:hover {
-        background: rgba(239, 68, 68, 0.1);
-        border-color: rgba(239, 68, 68, 0.3);
+    html.light-mode .report-btn:hover {
+        background: rgba(239, 68, 68, 0.08);
         color: #dc2626;
     }
 
-    /* Report Modal */
-    .report-modal-overlay {
+    /* ── Desktop Bookmark (large) ────────────────── */
+    .bookmark-btn-lg {
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: 0.625rem;
+    }
+
+    /* Fullscreen Overlays werden global via Layout gerendert
+       (milestone-celebration.blade.php + gamification-notifications.blade.php) */
+
+    /* ── Report Modal ────────────────────────────── */
+    .report-overlay {
         display: none;
         position: fixed;
         inset: 0;
@@ -573,284 +901,298 @@
         justify-content: center;
     }
 
-    .report-modal-backdrop {
+    .report-backdrop {
         position: absolute;
         inset: 0;
-        background: rgba(0, 0, 0, 0.5);
+        background: rgba(0, 0, 0, 0.6);
+        -webkit-backdrop-filter: blur(4px);
         backdrop-filter: blur(4px);
     }
 
-    .report-modal-content {
+    .report-card {
         position: relative;
         z-index: 1;
         width: 90%;
-        max-width: 420px;
+        max-width: 400px;
         padding: 1.5rem;
-        animation: modalSlideIn 0.2s ease;
+        animation: reportPop 0.25s ease;
     }
 
-    @keyframes modalSlideIn {
+    @keyframes reportPop {
         from { transform: translateY(10px); opacity: 0; }
         to { transform: translateY(0); opacity: 1; }
     }
 
-    .report-modal-header {
+    .report-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 1rem;
-    }
-
-    .report-modal-header h3 {
-        font-size: 1.1rem;
-        font-weight: 700;
-        color: var(--dark-primary);
-    }
-
-    .report-modal-close {
-        background: none;
-        border: none;
-        color: var(--dark-muted);
-        font-size: 1.2rem;
-        cursor: pointer;
-        padding: 0.25rem;
-        line-height: 1;
-        transition: color 0.2s;
-    }
-
-    .report-modal-close:hover {
-        color: var(--dark-primary);
-    }
-
-    .report-modal-meta {
-        font-size: 0.8rem;
-        color: var(--dark-muted);
         margin-bottom: 0.75rem;
     }
 
-    .report-modal-textarea {
+    .report-header h3 {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        font-family: 'Barlow Condensed', sans-serif;
+    }
+
+    .report-close {
+        background: none;
+        border: none;
+        color: var(--text-muted);
+        font-size: 1.1rem;
+        cursor: pointer;
+        padding: 0.25rem;
+        transition: color 0.2s;
+    }
+
+    .report-close:hover { color: var(--text-primary); }
+
+    .report-meta {
+        font-size: 0.6875rem;
+        color: var(--text-muted);
+        margin-bottom: 0.75rem;
+        font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .report-textarea {
         width: 100%;
         background: rgba(255, 255, 255, 0.05);
         border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 0.5rem;
         padding: 0.75rem;
-        color: var(--dark-primary);
+        color: var(--text-primary);
         font-size: 0.875rem;
         resize: vertical;
-        margin-bottom: 1rem;
+        margin-bottom: 0.75rem;
         transition: border-color 0.2s;
+        font-family: inherit;
     }
 
-    .report-modal-textarea:focus {
+    .report-textarea:focus {
         outline: none;
-        border-color: rgba(255, 255, 255, 0.25);
+        border-color: rgba(0, 85, 204, 0.4);
     }
 
-    .report-modal-textarea::placeholder {
-        color: var(--dark-muted);
-    }
+    .report-textarea::placeholder { color: var(--text-muted); }
 
-    .report-modal-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 0.5rem;
-    }
-
-    .report-modal-feedback {
-        margin-top: 0.75rem;
-        font-size: 0.8rem;
-        text-align: center;
-        display: none;
-    }
-
-    html.light-mode .report-modal-textarea {
+    html.light-mode .report-textarea {
         background: rgba(0, 0, 0, 0.03);
         border-color: rgba(0, 0, 0, 0.12);
         color: #1e293b;
     }
 
-    html.light-mode .report-modal-textarea:focus {
-        border-color: rgba(0, 0, 0, 0.25);
+    .report-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.5rem;
+    }
+
+    .report-feedback {
+        margin-top: 0.75rem;
+        font-size: 0.75rem;
+        text-align: center;
+        display: none;
+    }
+
+    /* ── Shake Animation ─────────────────────────── */
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        20% { transform: translateX(-8px); }
+        40% { transform: translateX(8px); }
+        60% { transform: translateX(-6px); }
+        80% { transform: translateX(6px); }
+    }
+
+    .shake { animation: shake 0.4s ease; }
+
+    /* ── Empty State ─────────────────────────────── */
+    .practice-empty {
+        text-align: center;
+        padding: 3rem 1.5rem;
+    }
+
+    .practice-empty-icon {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        background: rgba(34, 197, 94, 0.12);
+        color: #22c55e;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.75rem;
+        margin-bottom: 1.25rem;
+        box-shadow: 0 0 30px rgba(34, 197, 94, 0.15);
+    }
+
+    /* ── Reduced Motion ──────────────────────────── */
+    @media (prefers-reduced-motion: reduce) {
+        .practice-card,
+        .fs-overlay-card,
+        .answer-opt,
+        .action-submit {
+            animation: none !important;
+            transition: none !important;
+        }
     }
 </style>
 @endpush
 
-<!-- Practice Container -->
-<div class="p-4 sm:p-6 sm:py-8" id="practiceContainer">
+<!-- Practice Shell -->
+<div class="practice-shell" id="practiceContainer">
     @if($question)
-        <div class="question-card">
-            <!-- Mobile Header -->
-            <div class="mobile-header sm:hidden">
-                <a href="{{ route('practice.menu') }}" class="p-2 text-dark-secondary hover:text-gold transition-colors">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                    </svg>
-                </a>
+        @if(($context ?? 'global') === 'global')
+            @php
+                $user = Auth::user();
+                $bookmarked = is_array($user->bookmarked_questions ?? null)
+                    ? $user->bookmarked_questions
+                    : json_decode($user->bookmarked_questions ?? '[]', true);
+                $isBookmarked = in_array($question->id, $bookmarked);
+            @endphp
+        @else
+            @php $isBookmarked = false; @endphp
+        @endif
 
-                <!-- Mobile: Difficulty + SR Badge -->
-                <div class="flex items-center gap-1.5">
-                    @if(isset($isSpacedRepetition) && $isSpacedRepetition)
-                        <span class="difficulty-badge difficulty-sr">
-                            <i class="bi bi-arrow-repeat"></i>
-                        </span>
-                    @endif
+        <!-- Mobile Top Bar -->
+        <div class="practice-topbar">
+            <a href="{{ $menuUrl ?? route('practice.menu') }}" class="topbar-back">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                </svg>
+            </a>
 
-                    @if(isset($difficultyInfo) && $difficultyInfo['level'] !== 'unknown')
-                        <span class="difficulty-badge difficulty-{{ $difficultyInfo['level'] }}">
-                            {{ $difficultyInfo['label'] }}
-                        </span>
-                    @endif
-                </div>
+            <div class="topbar-center">
+                <span class="topbar-progress-text">{{ $progress }}/{{ $total }}</span>
+                <svg class="topbar-progress-ring" viewBox="0 0 36 36">
+                    <circle class="ring-track" cx="18" cy="18" r="14" fill="none" stroke-width="3"/>
+                    <circle class="ring-fill" cx="18" cy="18" r="14" fill="none"
+                            stroke="url(#thwGradMini)" stroke-width="3"
+                            stroke-dasharray="87.96"
+                            stroke-dashoffset="{{ 87.96 - (87.96 * ($progressPercent ?? 0) / 100) }}"/>
+                    <defs>
+                        <linearGradient id="thwGradMini" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#0055cc"/>
+                            <stop offset="100%" stop-color="#5b9aff"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+            </div>
 
-                <div class="flex items-center gap-3">
-                    <span class="text-dark-muted text-xs font-semibold">{{ $progress }}/{{ $total }}</span>
-
-                    <!-- Mini Progress Ring (Gesamt-Fortschritt) -->
-                    <svg class="w-8 h-8" viewBox="0 0 36 36">
-                        <circle cx="18" cy="18" r="14" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="3"/>
-                        <circle cx="18" cy="18" r="14" fill="none" stroke="url(#goldGradientMini)" stroke-width="3"
-                                stroke-dasharray="{{ 87.96 }}"
-                                stroke-dashoffset="{{ 87.96 - (87.96 * ($progressPercent ?? 0) / 100) }}"
-                                class="progress-ring-circle"/>
-                        <defs>
-                            <linearGradient id="goldGradientMini" x1="0%" y1="0%" x2="100%" y2="0%">
-                                <stop offset="0%" stop-color="#fbbf24"/>
-                                <stop offset="100%" stop-color="#f59e0b"/>
-                            </linearGradient>
-                        </defs>
-                    </svg>
-                </div>
-
-                @php
-                    $user = Auth::user();
-                    $bookmarked = is_array($user->bookmarked_questions ?? null)
-                        ? $user->bookmarked_questions
-                        : json_decode($user->bookmarked_questions ?? '[]', true);
-                    $isBookmarked = in_array($question->id, $bookmarked);
-                @endphp
-
+            <div class="topbar-actions">
+                <button type="button" onclick="openReportModal()" class="report-btn" title="Fehler melden">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                </button>
+                @if(($context ?? 'global') === 'global')
                 <button type="button" class="bookmark-btn {{ $isBookmarked ? 'active' : '' }}" id="bookmarkBtnMobile"
                         data-bookmarked="{{ $isBookmarked ? 'true' : 'false' }}"
                         onclick="toggleBookmark({{ $question->id }}, {{ $isBookmarked ? 'true' : 'false' }})">
-                    <svg class="w-5 h-5" viewBox="0 0 20 20" id="bookmarkIconMobile">
+                    <svg class="w-4 h-4" viewBox="0 0 20 20" id="bookmarkIconMobile">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                               d="M5 5a2 2 0 012-2h6a2 2 0 012 2v10l-5-3-5 3V5z"
                               style="stroke: {{ $isBookmarked ? '#fbbf24' : 'rgba(255,255,255,0.4)' }}; fill: {{ $isBookmarked ? '#fbbf24' : 'none' }};"></path>
                     </svg>
                 </button>
+                @endif
             </div>
+        </div>
 
-            <!-- Desktop Header -->
-            <div class="hidden sm:flex items-start justify-between mb-6">
-                <div class="flex-1">
-                    <!-- Mode Badge Row -->
-                    <div class="flex items-center gap-2 mb-3 flex-wrap">
-                        @if(isset($mode))
-                            <div class="mode-badge">
+        <!-- Desktop Header -->
+        <div class="practice-header">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;">
+                <div style="flex:1;">
+                    <div class="practice-greeting">
+                        @if(($context ?? 'global') === 'global')
+                            @if(isset($mode))
                                 @switch($mode)
-                                    @case('unsolved')
-                                        Ungelöste Fragen
-                                        @break
-                                    @case('failed')
-                                        Fehlerwiederholung
-                                        @break
-                                    @case('section')
-                                        Lernabschnitt {{ session('practice_parameter') }}
-                                        @break
-                                    @case('search')
-                                        Suche: "{{ session('practice_parameter') }}"
-                                        @break
-                                    @case('bookmarked')
-                                        Gespeicherte Fragen
-                                        @break
-                                    @case('spaced_repetition')
-                                        Wiederholung
-                                        @break
-                                    @default
-                                        Alle Fragen
+                                    @case('unsolved') Ungelöste Fragen @break
+                                    @case('failed') Fehlerwiederholung @break
+                                    @case('section') Lernabschnitt {{ session('practice_parameter') }} @break
+                                    @case('search') Suche: "{{ session('practice_parameter') }}" @break
+                                    @case('bookmarked') Gespeicherte Fragen @break
+                                    @case('spaced_repetition') Wiederholung @break
+                                    @default Alle Fragen
                                 @endswitch
-                            </div>
-                        @endif
-
-                        @if(isset($isSpacedRepetition) && $isSpacedRepetition)
-                            <span class="difficulty-badge difficulty-sr">
-                                <i class="bi bi-arrow-repeat"></i>
-                                Wiederholung
-                            </span>
-                        @endif
-
-                        @if(isset($difficultyInfo) && $difficultyInfo['level'] !== 'unknown')
-                            <span class="difficulty-badge difficulty-{{ $difficultyInfo['level'] }}">
-                                <i class="bi bi-{{ $difficultyInfo['level'] === 'hard' ? 'exclamation-triangle' : ($difficultyInfo['level'] === 'medium' ? 'dash-circle' : 'check-circle') }}"></i>
-                                {{ $difficultyInfo['label'] }}
-                                @if($difficultyInfo['percent'] !== null)
-                                    ({{ $difficultyInfo['percent'] }}% Fehlerquote)
-                                @endif
-                            </span>
+                            @endif
+                        @else
+                            {{ $contextLabel ?? 'Übungsmodus' }}
                         @endif
                     </div>
-
-                    @if(isset($totalInMode) && $totalInMode > 0)
-                        <span class="mode-progress-label">Frage {{ $currentInMode ?? 1 }} von {{ $totalInMode }}</span>
-                    @endif
-
-                    <h1 class="text-xl font-bold text-dark-primary mb-2">Theorie üben</h1>
-
-                    <!-- Overall Progress Info -->
-                    <div class="flex items-center gap-4">
-                        <div class="text-dark-secondary text-sm">
-                            <span class="text-gold font-semibold">{{ $progress }}</span>
-                            <span class="text-dark-muted">/{{ $total }} gemeistert</span>
+                    <div class="practice-title">{{ $contextLabel ?? 'Theorie üben' }}</div>
+                    <div class="practice-level-line">
+                        <span>{{ $progress }}/{{ $total }} gemeistert &middot; {{ $progressPercent ?? 0 }}%</span>
+                        <div class="practice-xp-bar">
+                            <div class="practice-xp-fill" style="width: {{ $progressPercent ?? 0 }}%;"></div>
                         </div>
-                        <div class="flex-1 max-w-xs">
-                            <div class="progress-glass h-2">
-                                <div class="progress-fill-gold" style="width: {{ $progressPercent ?? 0 }}%;"></div>
-                            </div>
-                        </div>
-                        <span class="text-dark-muted text-xs">{{ $progressPercent ?? 0 }}%</span>
                     </div>
                 </div>
 
-                <!-- Bookmark Button Desktop -->
-                @php
-                    $user = Auth::user();
-                    $bookmarked = is_array($user->bookmarked_questions ?? null)
-                        ? $user->bookmarked_questions
-                        : json_decode($user->bookmarked_questions ?? '[]', true);
-                    $isBookmarked = in_array($question->id, $bookmarked);
-                @endphp
-
-                <button type="button"
-                        class="bookmark-btn {{ $isBookmarked ? 'active' : '' }}"
-                        title="{{ $isBookmarked ? 'Aus Lesezeichen entfernen' : 'Zu Lesezeichen hinzufügen' }}"
-                        id="bookmarkBtn"
-                        data-bookmarked="{{ $isBookmarked ? 'true' : 'false' }}"
-                        onclick="toggleBookmark({{ $question->id }}, {{ $isBookmarked ? 'true' : 'false' }})">
-                    <svg class="w-6 h-6" viewBox="0 0 20 20" id="bookmarkIcon">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M5 5a2 2 0 012-2h6a2 2 0 012 2v10l-5-3-5 3V5z"
-                              style="stroke: {{ $isBookmarked ? '#fbbf24' : 'rgba(255,255,255,0.4)' }}; fill: {{ $isBookmarked ? '#fbbf24' : 'none' }};"></path>
-                    </svg>
-                </button>
+                <div style="display:flex;align-items:center;gap:0.5rem;">
+                    <button type="button" onclick="openReportModal()" class="report-btn bookmark-btn-lg" title="Fehler melden">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                    </button>
+                    @if(($context ?? 'global') === 'global')
+                    <button type="button"
+                            class="bookmark-btn bookmark-btn-lg {{ $isBookmarked ? 'active' : '' }}"
+                            title="{{ $isBookmarked ? 'Aus Lesezeichen entfernen' : 'Zu Lesezeichen hinzufügen' }}"
+                            id="bookmarkBtn"
+                            data-bookmarked="{{ $isBookmarked ? 'true' : 'false' }}"
+                            onclick="toggleBookmark({{ $question->id }}, {{ $isBookmarked ? 'true' : 'false' }})">
+                        <svg class="w-5 h-5" viewBox="0 0 20 20" id="bookmarkIcon">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M5 5a2 2 0 012-2h6a2 2 0 012 2v10l-5-3-5 3V5z"
+                                  style="stroke: {{ $isBookmarked ? '#fbbf24' : 'rgba(255,255,255,0.4)' }}; fill: {{ $isBookmarked ? '#fbbf24' : 'none' }};"></path>
+                        </svg>
+                    </button>
+                    @endif
+                </div>
             </div>
+        </div>
 
-            <form method="POST" action="{{ route('practice.submit') }}" id="practiceForm">
+        <!-- Desktop Badge Row -->
+        <div class="practice-badges">
+            @if(isset($isSpacedRepetition) && $isSpacedRepetition)
+                <span class="p-badge p-badge--sr"><i class="bi bi-arrow-repeat"></i> Wiederholung</span>
+            @endif
+
+            @if(isset($difficultyInfo) && $difficultyInfo['level'] !== 'unknown')
+                <span class="p-badge p-badge--{{ $difficultyInfo['level'] }}">
+                    {{ $difficultyInfo['label'] }}
+                    @if($difficultyInfo['percent'] !== null)
+                        &middot; {{ $difficultyInfo['percent'] }}%
+                    @endif
+                </span>
+            @endif
+
+            @if(isset($totalInMode) && $totalInMode > 0)
+                <span class="p-badge p-badge--progress">Frage {{ $currentInMode ?? 1 }}/{{ $totalInMode }}</span>
+            @endif
+        </div>
+
+        <!-- Desktop Progress Bar -->
+        <div class="practice-progress-bar">
+            <div class="ppb-track">
+                <div class="ppb-fill" style="width: {{ $progressPercent ?? 0 }}%;"></div>
+            </div>
+        </div>
+
+        <!-- Question Card -->
+        <div class="practice-card" id="questionContent">
+            <form method="POST" action="{{ $submitUrl ?? route('practice.submit') }}" id="practiceForm">
                 @csrf
                 <input type="hidden" name="question_id" value="{{ $question->id }}">
                 <input type="hidden" name="answer_time_ms" id="answerTimeMs" value="0">
 
                 @php
-                    // Erstelle ein Array mit den Antworten
                     $answersOriginal = [
                         ['letter' => 'A', 'text' => $question->antwort_a],
                         ['letter' => 'B', 'text' => $question->antwort_b],
                         ['letter' => 'C', 'text' => $question->antwort_c],
                     ];
 
-                    // Wenn eine Antwort angezeigt wird (isCorrect gesetzt), nutze das gespeicherte Mapping
                     if (isset($isCorrect) && isset($answerResult['answer_mapping'])) {
                         $mappingArray = $answerResult['answer_mapping'];
-
                         $answers = [];
                         foreach ($mappingArray as $position => $letter) {
                             foreach ($answersOriginal as $ans) {
@@ -862,10 +1204,8 @@
                         }
                         ksort($answers);
                     } else {
-                        // Neue Frage: shuffle
                         $answers = $answersOriginal;
                         shuffle($answers);
-
                         $mappingArray = [];
                         foreach ($answers as $index => $answer) {
                             $mappingArray[$index] = $answer['letter'];
@@ -873,315 +1213,235 @@
                     }
 
                     $mappingJson = json_encode($mappingArray);
-                    $solution = collect(explode(',', $question->loesung))->map(fn($s) => trim($s));
+                    $solution = collect(explode(',', $question->loesung))->map(fn($s) => strtoupper(trim($s)));
                 @endphp
 
                 <input type="hidden" name="answer_mapping" value="{{ $mappingJson }}">
 
-                <!-- Question Content -->
-                <div id="questionContent">
-                    <!-- Question Meta -->
-                    <div class="flex items-center justify-between mb-3">
-                        <div class="flex items-center gap-2 text-xs text-dark-muted">
-                            <span>ID: {{ $question->id }}</span>
-                            <span class="text-dark-muted/50">|</span>
-                            <span>LA {{ $question->lernabschnitt ?? '-' }}.{{ $question->nummer ?? '-' }}</span>
-                        </div>
-                        <button type="button" onclick="openReportModal()" class="report-alarm-btn" title="Fehler melden">
-                            <i class="bi bi-exclamation-triangle-fill"></i>
-                        </button>
-                    </div>
-
-                    <!-- Question Text -->
-                    <p class="text-dark-primary text-base sm:text-lg leading-relaxed mb-6">
-                        {{ $question->frage }}
-                    </p>
-
-                    <!-- Answer Options -->
-                    <div class="flex flex-col gap-3">
-                        @foreach($answers as $index => $answer)
-                            @php
-                                $originalLetter = $answer['letter'];
-                                $isCorrectAnswer = $solution->contains($originalLetter);
-                                $isUserAnswer = isset($userAnswer) && $userAnswer->contains($originalLetter);
-
-                                // Determine styling based on result
-                                $stateClass = '';
-                                $icon = '';
-
-                                if (isset($isCorrect)) {
-                                    if ($isCorrectAnswer && $isUserAnswer) {
-                                        $stateClass = 'answer-correct';
-                                        $icon = '✓';
-                                    } elseif ($isCorrectAnswer && !$isUserAnswer) {
-                                        $stateClass = 'answer-correct-missed';
-                                        $icon = '✓';
-                                    } elseif (!$isCorrectAnswer && $isUserAnswer) {
-                                        $stateClass = 'answer-wrong';
-                                        $icon = '✗';
-                                    } else {
-                                        $stateClass = 'answer-neutral';
-                                    }
-                                }
-                            @endphp
-
-                            @if(isset($isCorrect))
-                                <!-- Result Display -->
-                                <div class="answer-option {{ $stateClass }}">
-                                    <span class="w-6 h-6 flex items-center justify-center text-lg flex-shrink-0">
-                                        @if($isUserAnswer)
-                                            {{ $icon }}
-                                        @endif
-                                    </span>
-                                    <span class="text-dark-primary text-sm sm:text-base flex-1">
-                                        {{ $answer['text'] }}
-                                    </span>
-                                    @if($isCorrectAnswer && !$isUserAnswer)
-                                        <span class="text-xs font-medium px-2 py-1 rounded bg-success/20 text-success flex-shrink-0">
-                                            Richtig
-                                        </span>
-                                    @endif
-                                </div>
-                            @else
-                                <!-- Answer Selection -->
-                                <label class="answer-option" onclick="updateSelectionStyle(this)">
-                                    <input type="checkbox" name="answer[]" value="{{ $index }}"
-                                           class="answer-checkbox"
-                                           onchange="updateSubmitButton()">
-                                    <span class="text-dark-primary text-sm sm:text-base flex-1">
-                                        {{ $answer['text'] }}
-                                    </span>
-                                </label>
-                            @endif
-                        @endforeach
-                    </div>
-
-                    @if(isset($isCorrect))
-                        <!-- Result Summary -->
-                        <div class="mt-4 pt-4 border-t border-glass-subtle flex items-center justify-between text-sm">
-                            <span class="{{ $isCorrect ? 'text-success' : 'text-error' }} font-medium">
-                                {{ $isCorrect ? '✓ Richtig beantwortet' : '✗ Falsch beantwortet' }}
-                            </span>
-                            <span class="text-dark-muted">
-                                Lösung: {{ $solution->join(', ') }}
-                            </span>
-                        </div>
+                <!-- Mobile Badges -->
+                <div class="practice-mobile-badges">
+                    @if(isset($isSpacedRepetition) && $isSpacedRepetition)
+                        <span class="pm-badge pm-badge--sr"><i class="bi bi-arrow-repeat"></i> SR</span>
+                    @endif
+                    @if(isset($difficultyInfo) && $difficultyInfo['level'] !== 'unknown')
+                        <span class="pm-badge pm-badge--{{ $difficultyInfo['level'] }}">{{ $difficultyInfo['label'] }}</span>
                     @endif
                 </div>
 
-                <!-- Submit/Next Button -->
-                <div class="submit-button-wrapper">
+                <!-- Question Meta -->
+                <div class="question-meta">
+                    <span class="question-meta-left">
+                        ID {{ $question->id }} &middot; LA {{ $question->lernabschnitt ?? '-' }}.{{ $question->nummer ?? '-' }}
+                    </span>
+                </div>
+
+                <!-- Question Text -->
+                <p class="question-text">{{ $question->frage }}</p>
+
+                {{-- Inline Result Banner (nur wenn KEIN Special-Event) --}}
+                @if(isset($isCorrect))
+                    @php
+                        $showGamification = $isCorrect && $gamificationResult && isset($gamificationResult['points_awarded']);
+                        $celebrations = ['Grandios!', 'Fantastisch!', 'Super!', 'Stark!', 'Mega!', 'Klasse!', 'Volltreffer!', 'Genial!'];
+                        $celebrationText = $celebrations[$question->id % count($celebrations)];
+                        $pointsAwarded = $showGamification ? ($gamificationResult['points_awarded'] ?? 0) : 0;
+                        $reason = $showGamification ? ($gamificationResult['reason'] ?? '') : '';
+                        if ($pointsAwarded >= 20) {
+                            $reasonText = str_contains($reason, 'Häufig falsche') ? 'Schwere Frage gelöst' : 'Mit Streak-Bonus';
+                        } else {
+                            $reasonText = $reason;
+                        }
+                        $masteryThreshold = \App\Models\UserQuestionProgress::MASTERY_THRESHOLD;
+                        $showMastered = isset($questionProgress) && $questionProgress->consecutive_correct >= $masteryThreshold;
+                        $remaining = isset($questionProgress) ? $masteryThreshold - $questionProgress->consecutive_correct : $masteryThreshold;
+                        $showAlmostMastered = isset($questionProgress) && $questionProgress->consecutive_correct > 0 && $questionProgress->consecutive_correct < $masteryThreshold;
+
+                        // Special-Events prüfen - wenn vorhanden, zeigt das Layout
+                        // den Fullscreen-Overlay, also hier kein Banner nötig
+                        $hasSpecialEvent = $gamificationResult && (
+                            (isset($gamificationResult['level_up']) && $gamificationResult['level_up']) ||
+                            isset($gamificationResult['achievement']) ||
+                            isset($gamificationResult['streak_milestone'])
+                        );
+                    @endphp
+                    @if(!$hasSpecialEvent)
+                        <div class="result-banner {{ $isCorrect ? 'result-banner--correct' : 'result-banner--wrong' }}">
+                            <div class="result-banner-left">
+                                <span class="result-banner-icon">
+                                    <i class="bi {{ $isCorrect ? 'bi-check-circle-fill' : 'bi-x-circle-fill' }}" style="color:{{ $isCorrect ? '#22c55e' : '#ef4444' }};"></i>
+                                </span>
+                                <span class="result-banner-text">{{ $isCorrect ? $celebrationText : 'Falsch' }}</span>
+                            </div>
+                            <div style="display:flex;align-items:center;gap:0.75rem;">
+                                @if($isCorrect && $showGamification && $pointsAwarded > 0)
+                                    <span class="result-banner-xp">+{{ $pointsAwarded }} XP</span>
+                                @endif
+                                @if($showMastered)
+                                    <span class="result-banner-mastery">Gemeistert!</span>
+                                @elseif($showAlmostMastered)
+                                    <span class="result-banner-mastery">Noch {{ $remaining }}x</span>
+                                @endif
+                            </div>
+                        </div>
+                    @endif
+                @endif
+
+                <!-- Answers -->
+                <div class="answers-grid">
+                    @foreach($answers as $index => $answer)
+                        @php
+                            $originalLetter = $answer['letter'];
+                            $isCorrectAnswer = $solution->contains($originalLetter);
+                            $isUserAnswer = isset($userAnswer) && $userAnswer->contains($originalLetter);
+
+                            $stateClass = '';
+                            $icon = '';
+
+                            if (isset($isCorrect)) {
+                                if ($isCorrectAnswer && $isUserAnswer) {
+                                    $stateClass = 'answer-opt--correct';
+                                    $icon = '✓';
+                                } elseif ($isCorrectAnswer && !$isUserAnswer) {
+                                    $stateClass = 'answer-opt--correct-missed';
+                                    $icon = '✓';
+                                } elseif (!$isCorrectAnswer && $isUserAnswer) {
+                                    $stateClass = 'answer-opt--wrong';
+                                    $icon = '✗';
+                                } else {
+                                    $stateClass = 'answer-opt--neutral';
+                                }
+                            }
+                        @endphp
+
+                        @if(isset($isCorrect))
+                            <div class="answer-opt {{ $stateClass }}">
+                                <span class="result-icon {{ $isUserAnswer ? ($isCorrectAnswer ? 'result-icon--correct' : 'result-icon--wrong') : '' }}">
+                                    @if($isUserAnswer) {{ $icon }} @endif
+                                </span>
+                                <span class="answer-text">{{ $answer['text'] }}</span>
+                                @if($isCorrectAnswer && !$isUserAnswer)
+                                    <span style="font-size:0.625rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;padding:0.15rem 0.4rem;border-radius:0.25rem;background:rgba(34,197,94,0.15);color:#22c55e;flex-shrink:0;">
+                                        Richtig
+                                    </span>
+                                @endif
+                            </div>
+                        @else
+                            <label class="answer-opt" onclick="updateSelectionStyle(this)">
+                                <input type="checkbox" name="answer[]" value="{{ $index }}"
+                                       class="answer-check"
+                                       onchange="updateSubmitButton()">
+                                <span class="answer-text">{{ $answer['text'] }}</span>
+                            </label>
+                        @endif
+                    @endforeach
+                </div>
+
+                @if(isset($isCorrect))
+                    <div class="result-summary">
+                        <span class="{{ $isCorrect ? 'result-label--correct' : 'result-label--wrong' }}">
+                            {{ $isCorrect ? 'Richtig beantwortet' : 'Falsch beantwortet' }}
+                        </span>
+                        <span style="font-size:0.75rem;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;">
+                            {{ $solution->join(', ') }}
+                        </span>
+                    </div>
+                @endif
+
+                <!-- Actions -->
+                <div class="practice-actions">
                     @if(!isset($isCorrect))
-                        <button type="submit" id="submitBtn" class="btn-primary w-full py-4 text-base" disabled>
+                        <button type="submit" id="submitBtn" class="action-submit action-submit--primary" disabled>
                             Antwort absenden
                         </button>
                     @else
-                        <a href="{{ route('practice.index') }}" class="btn-primary w-full py-4 text-base text-center block">
+                        <a href="{{ $showUrl ?? route('practice.index') }}" class="action-submit action-submit--primary">
                             Nächste Frage
                         </a>
                     @endif
-                    <a href="{{ route('practice.summary') }}" class="btn-ghost w-full py-2 text-sm text-center block mt-2">
-                        Lernen beenden
-                    </a>
+                    <a href="{{ $summaryUrl ?? route('practice.summary') }}" class="action-end">Lernen beenden</a>
                 </div>
             </form>
         </div>
 
         <!-- Report Modal -->
-        <div id="reportModal" class="report-modal-overlay" onclick="if(event.target===this)closeReportModal()">
-            <div class="report-modal-backdrop"></div>
-            <div class="report-modal-content glass">
-                <div class="report-modal-header">
+        <div id="reportModal" class="report-overlay" onclick="if(event.target===this)closeReportModal()">
+            <div class="report-backdrop"></div>
+            <div class="report-card glass">
+                <div class="report-header">
                     <h3>Fehler melden</h3>
-                    <button type="button" onclick="closeReportModal()" class="report-modal-close">&#x2715;</button>
+                    <button type="button" onclick="closeReportModal()" class="report-close">&#x2715;</button>
                 </div>
-                <p class="report-modal-meta">Frage {{ $question->lernabschnitt ?? '-' }}.{{ $question->nummer ?? '-' }}</p>
+                <p class="report-meta">Frage {{ $question->lernabschnitt ?? '-' }}.{{ $question->nummer ?? '-' }}</p>
                 <textarea id="reportMessage" rows="3" maxlength="500"
-                    class="report-modal-textarea"
+                    class="report-textarea"
                     placeholder="Optionale Beschreibung des Fehlers (max. 500 Zeichen)"></textarea>
-                <div class="report-modal-actions">
+                <div class="report-actions">
                     <button type="button" onclick="closeReportModal()" class="btn-ghost btn-sm">Abbrechen</button>
                     <button type="button" onclick="submitReport()" id="reportSubmitBtn" class="btn-secondary btn-sm">Melden</button>
                 </div>
-                <p id="reportFeedback" class="report-modal-feedback"></p>
+                <p id="reportFeedback" class="report-feedback"></p>
             </div>
         </div>
 
-        <!-- Gamification Popup -->
-        @php
-            $showGamification = isset($isCorrect) && $isCorrect && $gamificationResult && isset($gamificationResult['points_awarded']);
-
-            if ($showGamification) {
-                $celebrations = [
-                    ['icon' => 'bi-star-fill', 'text' => 'Grandios!'],
-                    ['icon' => 'bi-check-circle-fill', 'text' => 'Fantastisch!'],
-                    ['icon' => 'bi-star', 'text' => 'Super!'],
-                    ['icon' => 'bi-lightning-fill', 'text' => 'Stark!'],
-                    ['icon' => 'bi-fire', 'text' => 'Mega!'],
-                    ['icon' => 'bi-stars', 'text' => 'Klasse!'],
-                    ['icon' => 'bi-bullseye', 'text' => 'Volltreffer!'],
-                    ['icon' => 'bi-rocket-takeoff', 'text' => 'Genial!'],
-                ];
-
-                $celebrationIndex = $question->id % count($celebrations);
-                $celebration = $celebrations[$celebrationIndex];
-
-                $pointsAwarded = $gamificationResult['points_awarded'] ?? 0;
-                $reason = $gamificationResult['reason'] ?? 'Frage beantwortet';
-
-                if ($pointsAwarded >= 20) {
-                    if (str_contains($reason, 'Häufig falsche')) {
-                        $reasonText = 'Häufig falsche Frage gelöst';
-                    } else {
-                        $reasonText = 'Mit Streak-Bonus';
-                    }
-                } else {
-                    $reasonText = $reason;
-                }
-            }
-
-            $masteryThreshold = \App\Models\UserQuestionProgress::MASTERY_THRESHOLD;
-            $showMastered = isset($questionProgress) && $questionProgress->consecutive_correct >= $masteryThreshold;
-            $remaining = isset($questionProgress) ? $masteryThreshold - $questionProgress->consecutive_correct : $masteryThreshold;
-            $showAlmostMastered = isset($questionProgress) && $questionProgress->consecutive_correct > 0 && $questionProgress->consecutive_correct < $masteryThreshold;
-        @endphp
-
-        @if(isset($isCorrect) && $isCorrect)
-            <div id="gamificationPopup" class="result-popup">
-                <div class="glass-success p-5">
-                    @if($showGamification)
-                        <div class="flex items-center gap-3 mb-3">
-                            <span class="text-4xl" style="color: var(--gold-start);"><i class="bi {{ $celebration['icon'] }}"></i></span>
-                            <div>
-                                <div class="text-xl font-bold text-dark-primary">{{ $celebration['text'] }}</div>
-                                <div class="text-lg text-gold font-semibold">+{{ $pointsAwarded }} Punkte</div>
-                            </div>
-                        </div>
-                        <div class="text-sm text-dark-secondary text-center">{{ $reasonText }}</div>
-                    @else
-                        <div class="flex items-center gap-3 mb-3">
-                            <span class="text-4xl" style="color: #22c55e;"><i class="bi bi-check-circle-fill"></i></span>
-                            <div>
-                                <div class="text-xl font-bold text-dark-primary">Richtig!</div>
-                                @if($gamificationResult && isset($gamificationResult['points_awarded']))
-                                    <div class="text-lg text-gold font-semibold">+{{ $gamificationResult['points_awarded'] }} Punkte</div>
-                                @endif
-                            </div>
-                        </div>
-                    @endif
-
-                    @if($showMastered)
-                        <div class="mt-3 p-3 rounded-lg bg-white/10 border border-white/20 text-center">
-                            <div class="font-bold text-dark-primary">Gemeistert!</div>
-                        </div>
-                    @elseif($showAlmostMastered)
-                        <div class="mt-3 p-3 rounded-lg bg-white/10 border border-white/20 text-center">
-                            <div class="font-medium text-dark-primary">Noch {{ $remaining }}x richtig für gemeistert!</div>
-                        </div>
-                    @endif
-                </div>
-            </div>
-        @endif
-
-        <!-- Error Popup -->
-        @if(isset($isCorrect) && !$isCorrect)
-            <div id="errorPopup" class="result-popup">
-                <div class="glass-error p-4">
-                    <div class="flex items-center justify-center gap-2">
-                        <span class="text-2xl">❌</span>
-                        <span class="text-dark-primary font-bold">Falsch. Richtige Antworten markiert.</span>
-                    </div>
-                </div>
-            </div>
-        @endif
+        {{-- Fullscreen-Overlays (Level-Up, Achievement, Streak) werden
+             global über layouts/app.blade.php gerendert via:
+             - components/milestone-celebration.blade.php (Fullscreen)
+             - components/gamification-notifications.blade.php (Fly-in)
+             Hier NICHT nochmal rendern! --}}
 
         <script>
-            // Lernsession: Antwortzeit messen
+            // Answer time measurement
             (function() {
                 var questionStart = Date.now();
                 var form = document.getElementById('practiceForm');
                 if (form) {
                     form.addEventListener('submit', function() {
                         var elapsed = Date.now() - questionStart;
-                        var input = document.getElementById('answerTimeMs');
-                        if (input) input.value = elapsed;
+                        document.getElementById('answerTimeMs').value = elapsed;
                     });
                 }
             })();
 
-            // Update selection style on label
+            // Selection style
             function updateSelectionStyle(label) {
                 const checkbox = label.querySelector('input[type="checkbox"]');
-                if (checkbox.checked) {
-                    label.classList.add('selected');
-                } else {
-                    label.classList.remove('selected');
-                }
+                label.classList.toggle('selected', checkbox.checked);
             }
 
-            // Update submit button state
+            // Submit button state
             function updateSubmitButton() {
                 const checkboxes = document.querySelectorAll('input[name="answer[]"]');
                 const submitBtn = document.getElementById('submitBtn');
                 const checked = Array.from(checkboxes).some(cb => cb.checked);
                 submitBtn.disabled = !checked;
 
-                // Update label styles
                 checkboxes.forEach(cb => {
-                    const label = cb.closest('.answer-option');
-                    if (cb.checked) {
-                        label.classList.add('selected');
-                    } else {
-                        label.classList.remove('selected');
-                    }
+                    cb.closest('.answer-opt').classList.toggle('selected', cb.checked);
                 });
             }
 
-            // Show popups on page load
+            // Shake on wrong answer + Floating points
             document.addEventListener('DOMContentLoaded', function() {
-                // Show Gamification Popup
-                const gamificationPopup = document.getElementById('gamificationPopup');
-                if (gamificationPopup) {
-                    setTimeout(() => {
-                        gamificationPopup.classList.add('show');
-
-                        // Trigger floating points animation
-                        @if(isset($showGamification) && $showGamification)
-                            const points = {{ $pointsAwarded ?? 0 }};
-                            const x = window.innerWidth - 200;
-                            const y = 80;
-                            if (typeof window.showFloatingPoints === 'function') {
-                                window.showFloatingPoints(x, y, points);
-                            }
-                        @endif
-
-                        setTimeout(() => {
-                            gamificationPopup.classList.remove('show');
-                        }, 3000);
-                    }, 100);
-                }
-
-                // Show Error Popup with shake
-                const errorPopup = document.getElementById('errorPopup');
-                if (errorPopup) {
-                    const questionContent = document.getElementById('questionContent');
-                    if (questionContent) {
-                        questionContent.classList.add('shake');
-                        setTimeout(() => questionContent.classList.remove('shake'), 400);
+                @if(isset($isCorrect) && !$isCorrect)
+                    var qc = document.getElementById('questionContent');
+                    if (qc) {
+                        qc.classList.add('shake');
+                        setTimeout(function() { qc.classList.remove('shake'); }, 400);
                     }
+                @endif
 
-                    setTimeout(() => {
-                        errorPopup.classList.add('show');
-                        setTimeout(() => {
-                            errorPopup.classList.remove('show');
-                        }, 3000);
-                    }, 100);
-                }
+                @if(isset($isCorrect) && $isCorrect && $gamificationResult && isset($gamificationResult['points_awarded']) && $gamificationResult['points_awarded'] > 0)
+                    setTimeout(function() {
+                        if (typeof window.showFloatingPoints === 'function') {
+                            window.showFloatingPoints(window.innerWidth / 2, window.innerHeight / 2 - 50, {{ $gamificationResult['points_awarded'] }});
+                        }
+                    }, 600);
+                @endif
             });
 
-            // Report Modal Functions
+            // Report modal
             function openReportModal() {
-                const modal = document.getElementById('reportModal');
+                var modal = document.getElementById('reportModal');
                 modal.style.display = 'flex';
                 document.getElementById('reportMessage').value = '';
                 document.getElementById('reportFeedback').style.display = 'none';
@@ -1193,9 +1453,9 @@
             }
 
             function submitReport() {
-                const btn = document.getElementById('reportSubmitBtn');
-                const feedback = document.getElementById('reportFeedback');
-                const message = document.getElementById('reportMessage').value.trim();
+                var btn = document.getElementById('reportSubmitBtn');
+                var feedback = document.getElementById('reportFeedback');
+                var message = document.getElementById('reportMessage').value.trim();
 
                 btn.disabled = true;
 
@@ -1208,8 +1468,8 @@
                     },
                     body: JSON.stringify({ message: message || null }),
                 })
-                .then(r => r.json())
-                .then(data => {
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
                     feedback.style.display = 'block';
                     if (data.success) {
                         feedback.style.color = '#22c55e';
@@ -1217,11 +1477,11 @@
                         setTimeout(closeReportModal, 1500);
                     } else {
                         feedback.style.color = '#ef4444';
-                        feedback.textContent = data.error ?? 'Fehler beim Senden.';
+                        feedback.textContent = data.error || 'Fehler beim Senden.';
                         btn.disabled = false;
                     }
                 })
-                .catch(() => {
+                .catch(function() {
                     feedback.style.display = 'block';
                     feedback.style.color = '#ef4444';
                     feedback.textContent = 'Verbindungsfehler. Bitte erneut versuchen.';
@@ -1229,19 +1489,18 @@
                 });
             }
 
-            // Bookmark functionality
+            @if(($context ?? 'global') === 'global')
+            // Bookmark toggle
             function toggleBookmark(questionId, currentlyBookmarked) {
-                const btnMobile = document.getElementById('bookmarkBtnMobile');
-                const btnDesktop = document.getElementById('bookmarkBtn');
-                const btn = window.innerWidth <= 640 ? btnMobile : btnDesktop;
-
+                var btnMobile = document.getElementById('bookmarkBtnMobile');
+                var btnDesktop = document.getElementById('bookmarkBtn');
+                var btn = window.innerWidth <= 640 ? btnMobile : btnDesktop;
                 if (!btn) return;
 
-                const formData = new FormData();
+                var formData = new FormData();
                 formData.append('question_id', questionId);
                 formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
 
-                // Show loading
                 btn.style.opacity = '0.5';
                 btn.disabled = true;
 
@@ -1250,59 +1509,47 @@
                     headers: { 'X-Requested-With': 'XMLHttpRequest' },
                     body: formData
                 })
-                .then(response => response.json())
-                .then(data => {
+                .then(function(response) { return response.json(); })
+                .then(function(data) {
                     if (data.success) {
-                        const targetColor = data.is_bookmarked ? '#fbbf24' : 'rgba(255,255,255,0.4)';
-                        const targetFill = data.is_bookmarked ? '#fbbf24' : 'none';
+                        var targetColor = data.is_bookmarked ? '#fbbf24' : 'rgba(255,255,255,0.4)';
+                        var targetFill = data.is_bookmarked ? '#fbbf24' : 'none';
 
-                        // Update both buttons
-                        [btnMobile, btnDesktop].forEach(button => {
+                        [btnMobile, btnDesktop].forEach(function(button) {
                             if (!button) return;
-
                             button.setAttribute('data-bookmarked', data.is_bookmarked ? 'true' : 'false');
-                            button.setAttribute('onclick', `toggleBookmark(${questionId}, ${data.is_bookmarked})`);
+                            button.setAttribute('onclick', 'toggleBookmark(' + questionId + ', ' + data.is_bookmarked + ')');
+                            button.classList.toggle('active', data.is_bookmarked);
 
-                            if (data.is_bookmarked) {
-                                button.classList.add('active');
-                            } else {
-                                button.classList.remove('active');
-                            }
-
-                            const icon = button.querySelector('svg');
-                            if (icon) {
-                                const path = icon.querySelector('path');
-                                if (path) {
-                                    path.style.stroke = targetColor;
-                                    path.style.fill = targetFill;
-                                }
+                            var path = button.querySelector('svg path');
+                            if (path) {
+                                path.style.stroke = targetColor;
+                                path.style.fill = targetFill;
                             }
                         });
                     }
                 })
-                .catch(error => {
+                .catch(function(error) {
                     console.error('Bookmark error:', error);
                 })
-                .finally(() => {
+                .finally(function() {
                     btn.style.opacity = '1';
                     btn.disabled = false;
                 });
             }
+            @endif
         </script>
     @else
         <!-- No more questions -->
-        <div class="glass p-8 text-center">
-            <div class="text-4xl mb-4" style="color: #22c55e;"><i class="bi bi-check-circle-fill"></i></div>
-            <h2 class="text-xl font-bold text-dark-primary mb-2">Geschafft!</h2>
-            <p class="text-dark-secondary mb-6">Du hast alle Fragen in diesem Modus bearbeitet!</p>
-
-            <div class="flex flex-col sm:flex-row gap-3 justify-center">
-                <a href="{{ route('practice.menu') }}" class="btn-primary">
-                    Zurück zum Übungsmenü
-                </a>
-                <a href="{{ route('dashboard') }}" class="btn-secondary">
-                    Dashboard
-                </a>
+        <div class="practice-card">
+            <div class="practice-empty">
+                <div class="practice-empty-icon"><i class="bi bi-check-circle-fill"></i></div>
+                <h2 style="font-size:1.5rem;font-weight:800;color:var(--text-primary);margin-bottom:0.25rem;font-family:'Barlow Condensed',sans-serif;">Geschafft!</h2>
+                <p style="font-size:0.875rem;color:var(--text-secondary);margin-bottom:1.5rem;">Du hast alle Fragen in diesem Modus bearbeitet</p>
+                <div style="display:flex;flex-direction:column;gap:0.75rem;max-width:300px;margin:0 auto;">
+                    <a href="{{ $menuUrl ?? route('practice.menu') }}" class="action-submit action-submit--primary">Zurück zum Menü</a>
+                    <a href="{{ route('dashboard') }}" class="action-submit action-submit--gold">Dashboard</a>
+                </div>
             </div>
         </div>
     @endif

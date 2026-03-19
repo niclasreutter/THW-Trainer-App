@@ -8,9 +8,6 @@
                     <a href="/">
                         <img src="{{ asset('logo-thwtrainer_w.png') }}" alt="THW-Trainer Logo" style="height:100%;max-height:2.5rem;width:auto;" class="mr-2 inline-block align-middle" />
                     </a>
-                    @if(app()->environment('testing') || str_contains(request()->getHost(), 'test.') || config('app.environment_type') === 'testing')
-                        <span class="badge-error ml-2">Test-System!</span>
-                    @endif
                 </div>
 
                 <!-- Navigation Links -->

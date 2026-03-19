@@ -88,7 +88,6 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.0/dist/confetti.browser.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const overlay = document.getElementById('milestoneOverlay');

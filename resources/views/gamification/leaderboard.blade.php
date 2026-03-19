@@ -2,563 +2,483 @@
 @section('title', 'Leaderboard - THW Trainer')
 
 @push('styles')
+<link rel="preconnect" href="https://fonts.bunny.net">
+<link href="https://fonts.bunny.net/css2?family=Barlow+Condensed:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-    .dashboard-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 2rem;
+    /* ─── Layout ──────────────────────────────────── */
+    .lb-container {
+        padding: 0;
     }
 
-    .dashboard-header {
-        margin-bottom: 2.5rem;
-        padding-top: 1rem;
-        max-width: 600px;
+    /* ─── Header ──────────────────────────────────── */
+    .lb-label {
+        font-size: 0.625rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--text-muted);
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+        font-family: 'IBM Plex Mono', monospace;
     }
 
-    /* Tab Navigation */
-    .tabs-container {
-        margin-bottom: 2rem;
+    .lb-title {
+        font-size: 1.5rem;
+        font-weight: 800;
+        line-height: 1.2;
+        font-family: 'Barlow Condensed', sans-serif;
+        background: linear-gradient(135deg, #5b9aff, #0055cc);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 0.15rem;
     }
 
-    /* League Banner */
-    .league-banner {
+    .lb-subtitle {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+    }
+
+    /* ─── Tabs ────────────────────────────────────── */
+    .lb-tabs {
+        display: flex;
+        gap: 0.25rem;
+        margin-bottom: 1.25rem;
+        background: rgba(255, 255, 255, 0.04);
+        border-radius: 0.5rem;
+        padding: 0.2rem;
+    }
+
+    html.light-mode .lb-tabs {
+        background: rgba(0, 0, 0, 0.04);
+    }
+
+    .lb-tab {
+        flex: 1;
+        text-align: center;
+        padding: 0.45rem;
+        border-radius: 0.375rem;
+        color: var(--text-muted);
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+    .lb-tab:hover {
+        color: var(--text-primary);
+        text-decoration: none;
+    }
+
+    .lb-tab.active {
+        background: rgba(91, 154, 255, 0.15);
+        color: #5b9aff;
+        font-weight: 700;
+    }
+
+    html.light-mode .lb-tab.active {
+        background: rgba(0, 51, 127, 0.1);
+        color: #00337F;
+    }
+
+    /* ─── Podium ──────────────────────────────────── */
+    .lb-podium {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 0.75rem;
+        padding: 1.25rem 0.75rem 1rem;
+        margin-bottom: 0.75rem;
+        text-align: center;
+    }
+
+    .lb-podium__label {
+        font-size: 0.5rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--text-muted);
+        font-weight: 700;
+        font-family: 'IBM Plex Mono', monospace;
+        margin-bottom: 1rem;
+    }
+
+    .lb-podium__row {
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        gap: 1.5rem;
+    }
+
+    .lb-podium__step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .lb-podium__step--1 .lb-podium__pedestal { height: 64px; }
+    .lb-podium__step--2 .lb-podium__pedestal { height: 40px; }
+    .lb-podium__step--3 .lb-podium__pedestal { height: 20px; }
+
+    .lb-podium__pedestal {
+        width: 100%;
+        border-radius: 0.5rem 0.5rem 0 0;
+        margin-top: 0.5rem;
+    }
+
+    .lb-podium__step--1 .lb-podium__pedestal {
+        background: linear-gradient(180deg, rgba(251, 191, 36, 0.2), rgba(251, 191, 36, 0.05));
+    }
+
+    .lb-podium__step--2 .lb-podium__pedestal {
+        background: linear-gradient(180deg, rgba(148, 163, 184, 0.15), rgba(148, 163, 184, 0.03));
+    }
+
+    .lb-podium__step--3 .lb-podium__pedestal {
+        background: linear-gradient(180deg, rgba(180, 83, 9, 0.15), rgba(180, 83, 9, 0.03));
+    }
+
+    .lb-podium__user {
+        text-align: center;
+        flex: 1;
+    }
+
+    .lb-podium__avatar-wrap {
+        position: relative;
+        display: inline-block;
+    }
+
+    .lb-podium__avatar {
+        border-radius: 50%;
+        border: 2px solid rgba(255, 255, 255, 0.1);
+    }
+
+    html.light-mode .lb-podium__avatar {
+        border-color: rgba(0, 0, 0, 0.1);
+    }
+
+    .lb-podium__badge {
+        position: absolute;
+        bottom: -2px;
+        right: -2px;
+        border-radius: 50%;
         display: flex;
         align-items: center;
-        gap: 1.25rem;
-        padding: 1.25rem 1.5rem;
-        margin-bottom: 2rem;
+        justify-content: center;
+        font-weight: 800;
+        color: #fff;
+        border: 1.5px solid var(--bg-primary, #0a0e1a);
     }
 
-    .league-banner-icon {
-        font-size: 2.5rem;
+    html.light-mode .lb-podium__badge {
+        border-color: #f8fafc;
+    }
+
+    .lb-podium__name {
+        font-size: 0.6875rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-top: 0.35rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .lb-podium__title {
+        font-size: 0.5rem;
+        color: var(--text-muted);
+        font-style: italic;
+        margin-top: 0.1rem;
+    }
+
+    .lb-podium__points {
+        font-size: 0.625rem;
+        color: var(--text-muted);
+        font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .lb-podium__placeholder {
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.06);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-muted);
+        font-weight: 700;
+        margin: 0 auto;
+    }
+
+    html.light-mode .lb-podium__placeholder {
+        background: rgba(0, 0, 0, 0.06);
+    }
+
+    /* ─── Bento Grid ──────────────────────────────── */
+    .lb-bento {
+        display: grid;
+        grid-template-columns: 1fr 120px;
+        gap: 0.5rem;
+        margin-bottom: 0.75rem;
+    }
+
+    @media (max-width: 400px) {
+        .lb-bento {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* ─── Ranking List ────────────────────────────── */
+    .lb-list {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 0.75rem;
+        padding: 0.625rem;
+    }
+
+    .lb-row {
+        display: flex;
+        align-items: center;
+        gap: 0.625rem;
+        padding: 0.5rem 0.375rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    html.light-mode .lb-row {
+        border-bottom-color: rgba(0, 0, 0, 0.04);
+    }
+
+    .lb-row:last-child {
+        border-bottom: none;
+    }
+
+    .lb-row--current {
+        background: rgba(0, 51, 127, 0.2);
+        border-left: 2px solid #0055cc;
+        border-radius: 0.375rem;
+        margin-bottom: 0.25rem;
+        border-bottom: none;
+    }
+
+    html.light-mode .lb-row--current {
+        background: rgba(0, 51, 127, 0.08);
+    }
+
+    .lb-row--relegation {
+        border-left: 2px solid rgba(239, 68, 68, 0.5);
+        border-radius: 0.25rem;
+        opacity: 0.75;
+    }
+
+    .lb-row__rank {
+        font-family: 'Barlow Condensed', sans-serif;
+        font-size: 0.9375rem;
+        font-weight: 800;
+        color: var(--text-muted);
+        min-width: 1.75rem;
+        text-align: center;
+    }
+
+    .lb-row--current .lb-row__rank {
+        color: #5b9aff;
+    }
+
+    html.light-mode .lb-row--current .lb-row__rank {
+        color: #00337F;
+    }
+
+    .lb-row__avatar {
+        width: 2rem;
+        height: 2rem;
+        border-radius: 50%;
         flex-shrink: 0;
     }
 
-    .league-banner-content h3 {
-        font-size: 1.1rem;
-        font-weight: 700;
-        color: var(--text-primary);
-        margin: 0 0 0.25rem 0;
-    }
-
-    .league-banner-content p {
-        font-size: 0.85rem;
+    .lb-row__name {
+        font-size: 0.8125rem;
+        font-weight: 600;
         color: var(--text-secondary);
-        margin: 0;
+        flex: 1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
-    .league-badge-inline {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.35rem;
-        padding: 0.2rem 0.6rem;
-        border-radius: 0.5rem;
-        font-size: 0.75rem;
+    .lb-row--current .lb-row__name {
+        color: var(--text-primary);
+    }
+
+    .lb-row__points {
+        font-size: 0.6875rem;
+        color: var(--text-muted);
+        font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .lb-row--current .lb-row__points {
+        color: #fbbf24;
         font-weight: 700;
-        border: 1px solid;
     }
 
-    /* Promotion/Relegation Zone Markers */
-    .zone-divider {
+    /* ─── Zone Divider ────────────────────────────── */
+    .lb-zone {
         display: flex;
         align-items: center;
-        gap: 0.75rem;
-        padding: 0.5rem 1.25rem;
-        font-size: 0.7rem;
+        gap: 0.375rem;
+        padding: 0.3rem 0.375rem;
+        font-size: 0.5rem;
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.5px;
     }
 
-    .zone-divider::after {
+    .lb-zone::after {
         content: '';
         flex: 1;
         height: 1px;
     }
 
-    .zone-divider.promotion {
-        color: #22c55e;
-    }
+    .lb-zone--promotion { color: #22c55e; }
+    .lb-zone--promotion::after { background: linear-gradient(90deg, rgba(34, 197, 94, 0.4), transparent); }
 
-    .zone-divider.promotion::after {
-        background: linear-gradient(90deg, rgba(34, 197, 94, 0.4), transparent);
-    }
+    .lb-zone--safe { color: #94a3b8; }
+    .lb-zone--safe::after { background: linear-gradient(90deg, rgba(148, 163, 184, 0.25), transparent); }
 
-    .zone-divider.relegation {
-        color: #ef4444;
-    }
+    .lb-zone--relegation { color: #ef4444; }
+    .lb-zone--relegation::after { background: linear-gradient(90deg, rgba(239, 68, 68, 0.4), transparent); }
 
-    .zone-divider.relegation::after {
-        background: linear-gradient(90deg, rgba(239, 68, 68, 0.4), transparent);
-    }
-
-    .zone-divider.safe {
-        color: #94a3b8;
-    }
-
-    .zone-divider.safe::after {
-        background: linear-gradient(90deg, rgba(148, 163, 184, 0.25), transparent);
-    }
-
-    .promotion-row {
-        border-left: 3px solid rgba(34, 197, 94, 0.5);
-    }
-
-    .safe-row {
-        border-left: 3px solid transparent;
-    }
-
-    .relegation-row {
-        border-left: 3px solid rgba(239, 68, 68, 0.5);
-        opacity: 0.85;
-    }
-
-    /* Leaderboard Table */
-    .leaderboard-table-container {
-        overflow-x: auto;
-    }
-
-    .leaderboard-row {
+    /* ─── Side Cards ──────────────────────────────── */
+    .lb-side {
         display: flex;
-        align-items: center;
-        padding: 1rem 1.25rem;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-        transition: all 0.2s;
-    }
-
-    .leaderboard-row:last-child {
-        border-bottom: none;
-    }
-
-    .leaderboard-row:hover {
-        background: rgba(255, 255, 255, 0.03);
-    }
-
-    .leaderboard-row.rank-1 {
-        background: linear-gradient(90deg, rgba(251, 191, 36, 0.15) 0%, transparent 100%);
-    }
-
-    .leaderboard-row.rank-2 {
-        background: linear-gradient(90deg, rgba(148, 163, 184, 0.12) 0%, transparent 100%);
-    }
-
-    .leaderboard-row.rank-3 {
-        background: linear-gradient(90deg, rgba(180, 83, 9, 0.12) 0%, transparent 100%);
-    }
-
-    .leaderboard-row.current-user {
-        background: linear-gradient(90deg, rgba(0, 51, 127, 0.2) 0%, transparent 100%);
-        border-left: 3px solid var(--thw-blue);
-    }
-
-    /* Rank Column */
-    .rank-col {
-        min-width: 80px;
-        display: flex;
-        align-items: center;
+        flex-direction: column;
         gap: 0.5rem;
     }
 
-    .rank-medal {
-        font-size: 1.5rem;
-    }
-
-    .rank-number {
-        font-size: 1rem;
-        font-weight: 700;
-        color: var(--text-primary);
-    }
-
-    /* User Column */
-    .user-col {
-        flex: 1;
-        min-width: 150px;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .user-name {
-        font-weight: 600;
-        color: var(--text-primary);
-    }
-
-    .you-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.25rem;
-        padding: 0.2rem 0.5rem;
-        background: rgba(0, 51, 127, 0.3);
-        color: #60a5fa;
-        border-radius: 0.375rem;
-        font-size: 0.7rem;
-        font-weight: 600;
-    }
-
-    /* Stats Columns */
-    .stat-col {
-        min-width: 100px;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .stat-icon {
-        font-size: 1.1rem;
-    }
-
-    .stat-value {
-        font-weight: 600;
-        color: var(--text-primary);
-    }
-
-    /* Desktop Table Header */
-    .table-header {
-        display: flex;
-        padding: 0.875rem 1.25rem;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .table-header span {
-        font-size: 0.75rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        color: var(--text-muted);
-    }
-
-    .table-header .rank-col { min-width: 80px; }
-    .table-header .user-col { flex: 1; min-width: 150px; }
-    .table-header .stat-col { min-width: 100px; }
-
-    /* Mobile Cards */
-    .mobile-cards {
-        display: none;
-    }
-
-    .mobile-card {
-        display: flex;
-        gap: 1rem;
-        padding: 1.25rem;
-        margin-bottom: 0.75rem;
-    }
-
-    .mobile-card.rank-1 {
-        background: linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, rgba(251, 191, 36, 0.05) 100%);
-        border: 1px solid rgba(251, 191, 36, 0.2);
-    }
-
-    .mobile-card.rank-2 {
-        background: linear-gradient(135deg, rgba(148, 163, 184, 0.12) 0%, rgba(148, 163, 184, 0.04) 100%);
-        border: 1px solid rgba(148, 163, 184, 0.15);
-    }
-
-    .mobile-card.rank-3 {
-        background: linear-gradient(135deg, rgba(180, 83, 9, 0.12) 0%, rgba(180, 83, 9, 0.04) 100%);
-        border: 1px solid rgba(180, 83, 9, 0.15);
-    }
-
-    .mobile-card.current-user {
-        background: linear-gradient(135deg, rgba(0, 51, 127, 0.2) 0%, rgba(0, 51, 127, 0.08) 100%);
-        border: 1px solid rgba(0, 51, 127, 0.3);
-        border-left: 3px solid var(--thw-blue);
-    }
-
-    .mobile-card.promotion-row {
-        border-left: 3px solid rgba(34, 197, 94, 0.5);
-    }
-
-    .mobile-card.relegation-row {
-        border-left: 3px solid rgba(239, 68, 68, 0.5);
-        opacity: 0.85;
-    }
-
-    .mobile-rank-section {
-        flex-shrink: 0;
+    .lb-card {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 0.75rem;
+        padding: 0.625rem;
         text-align: center;
-        min-width: 50px;
-    }
-
-    .mobile-rank-medal {
-        font-size: 1.75rem;
-        margin-bottom: 0.25rem;
-    }
-
-    .mobile-rank-number {
-        font-size: 0.9rem;
-        font-weight: 700;
-        color: var(--thw-blue);
-    }
-
-    .mobile-user-section {
         flex: 1;
-    }
-
-    .mobile-user-name {
-        font-size: 1rem;
-        font-weight: 700;
-        color: var(--text-primary);
         display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        margin-bottom: 0.75rem;
+        flex-direction: column;
+        justify-content: center;
     }
 
-    .mobile-stats-row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 1rem;
-    }
-
-    .mobile-stat {
-        display: flex;
-        align-items: center;
-        gap: 0.35rem;
-        font-size: 0.85rem;
-    }
-
-    .mobile-stat-label {
+    .lb-card__label {
+        font-size: 0.4375rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
         color: var(--text-muted);
+        font-family: 'IBM Plex Mono', monospace;
+        margin-bottom: 0.2rem;
     }
 
-    .mobile-stat-value {
-        font-weight: 600;
-        color: var(--text-primary);
-    }
-
-    /* Info Box */
-    .info-box {
-        padding: 1.5rem;
-        margin-top: 2rem;
-    }
-
-    .info-box h3 {
-        font-size: 1rem;
-        font-weight: 700;
-        color: var(--text-primary);
-        margin: 0 0 1rem 0;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .info-box ul {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-    }
-
-    .info-box li {
-        padding: 0.5rem 0;
-        color: var(--text-secondary);
-        font-size: 0.9rem;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-    }
-
-    .info-box li i {
-        font-size: 1rem;
-    }
-
-    /* User Rank Card (not in top list) */
-    .user-rank-card {
-        padding: 1.5rem;
-        margin-top: 2rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 1rem;
-    }
-
-    .user-rank-title {
-        font-size: 1.1rem;
-        font-weight: 700;
-        color: var(--text-primary);
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        margin-bottom: 0.5rem;
-    }
-
-    .user-rank-number {
-        font-size: 2rem;
+    .lb-card__value {
         font-weight: 800;
-        background: var(--gradient-gold);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
+        font-family: 'Barlow Condensed', sans-serif;
     }
 
-    .user-rank-details {
-        font-size: 0.85rem;
-        color: var(--text-secondary);
-        margin-top: 0.25rem;
+    .lb-card__bar {
+        height: 3px;
+        background: rgba(255, 255, 255, 0.06);
+        border-radius: 2px;
+        overflow: hidden;
+        margin-top: 0.35rem;
     }
 
-    .user-rank-stats {
-        text-align: right;
+    html.light-mode .lb-card__bar {
+        background: rgba(0, 0, 0, 0.06);
     }
 
-    /* Empty State */
-    .empty-state {
+    .lb-card__bar-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #22c55e, #16a34a);
+        border-radius: 2px;
+    }
+
+    /* ─── Info Line ───────────────────────────────── */
+    .lb-info {
+        text-align: center;
+        padding: 0.5rem;
+        font-size: 0.625rem;
+        color: var(--text-muted);
+        font-family: 'IBM Plex Mono', monospace;
+    }
+
+    /* ─── Empty State ─────────────────────────────── */
+    .lb-empty {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 0.75rem;
         text-align: center;
         padding: 3rem 1.5rem;
     }
 
-    .empty-state-icon {
-        font-size: 3rem;
+    .lb-empty__icon {
+        font-size: 2.5rem;
         color: var(--text-muted);
-        margin-bottom: 1rem;
+        margin-bottom: 0.75rem;
         opacity: 0.5;
     }
 
-    .empty-state-title {
-        font-size: 1.1rem;
+    .lb-empty__title {
+        font-size: 1rem;
         font-weight: 700;
         color: var(--text-primary);
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.25rem;
     }
 
-    .empty-state-desc {
-        font-size: 0.9rem;
-        color: var(--text-secondary);
+    .lb-empty__desc {
+        font-size: 0.8rem;
+        color: var(--text-muted);
     }
 
-    /* Profilrahmen auf Desktop-Zeilen */
-    .leaderboard-row.profile-frame-gold,
-    .leaderboard-row.profile-frame-diamond {
-        margin: 0.25rem 0.5rem;
-        border-radius: 0.75rem;
+    /* ─── Stagger Animation ───────────────────────── */
+    @keyframes lb-rise {
+        from { opacity: 0; transform: translateY(10px); }
+        to   { opacity: 1; transform: translateY(0); }
     }
 
-    /* Profilrahmen auf Mobile-Karten */
-    .mobile-card.profile-frame-gold,
-    .mobile-card.profile-frame-diamond {
-        border-radius: 1rem;
+    .lb-container > * {
+        animation: lb-rise 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
     }
 
-    /* Lootbox indicator */
-    .lootbox-link {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.5rem 1rem;
-        border-radius: 0.75rem;
-        font-size: 0.85rem;
-        font-weight: 600;
-        text-decoration: none;
-        color: var(--gold);
-        background: rgba(251, 191, 36, 0.1);
-        border: 1px solid rgba(251, 191, 36, 0.2);
-        transition: all 0.2s;
-    }
+    .lb-container > *:nth-child(1) { animation-delay: 0.03s; }
+    .lb-container > *:nth-child(2) { animation-delay: 0.07s; }
+    .lb-container > *:nth-child(3) { animation-delay: 0.11s; }
+    .lb-container > *:nth-child(4) { animation-delay: 0.15s; }
+    .lb-container > *:nth-child(5) { animation-delay: 0.19s; }
+    .lb-container > *:nth-child(6) { animation-delay: 0.23s; }
 
-    .lootbox-link:hover {
-        background: rgba(251, 191, 36, 0.15);
-        border-color: rgba(251, 191, 36, 0.3);
-        transform: translateY(-1px);
-    }
-
-    .lootbox-count {
-        background: var(--gold);
-        color: #000;
-        padding: 0.1rem 0.4rem;
-        border-radius: 0.375rem;
-        font-size: 0.75rem;
-        font-weight: 800;
-    }
-
-    /* Responsive */
-    @media (max-width: 768px) {
-        .dashboard-container {
-            padding: 1rem;
-        }
-
-        .desktop-table {
-            display: none;
-        }
-
-        .mobile-cards {
-            display: block;
-        }
-
-        .tabs-glass {
-            flex-direction: column;
-        }
-
-        .tab-glass {
-            width: 100%;
-            text-align: center;
-        }
-
-        .user-rank-card {
-            flex-direction: column;
-            text-align: center;
-        }
-
-        .user-rank-stats {
-            text-align: center;
-        }
-
-        .league-banner {
-            flex-direction: column;
-            text-align: center;
-        }
+    @media (prefers-reduced-motion: reduce) {
+        .lb-container > * { animation: none !important; }
     }
 </style>
 @endpush
 
 @section('content')
-<div class="dashboard-container">
-    <!-- Header -->
-    <header class="dashboard-header">
-        <h1 class="page-title"><span>Leaderboard</span></h1>
-        <p class="page-subtitle">Zeige dein Können und klettere die Rangliste hinauf</p>
-    </header>
+<div class="dash-container">
+<div class="lb-container">
 
-    @if($unopenedLootboxCount > 0)
-        <a href="{{ route('gamification.lootboxes') }}" class="lootbox-link" style="margin-bottom: 1.5rem; display: inline-flex;">
-            <i class="bi bi-gift-fill"></i> Belohnungen öffnen
-            <span class="lootbox-count">{{ $unopenedLootboxCount }}</span>
-        </a>
-    @endif
-
-    <!-- Tab Navigation -->
-    <div class="tabs-container">
-        <div class="tabs-glass">
-            <a href="{{ route('gamification.leaderboard', ['tab' => 'liga']) }}"
-               class="tab-glass {{ $tab === 'liga' ? 'active' : '' }}" style="text-decoration: none;">
-                <i class="bi bi-shield-fill"></i> Liga
-            </a>
-            <a href="{{ route('gamification.leaderboard', ['tab' => 'gesamt']) }}"
-               class="tab-glass {{ $tab === 'gesamt' ? 'active' : '' }}" style="text-decoration: none;">
-                <i class="bi bi-globe"></i> Gesamt
-            </a>
-        </div>
+    {{-- ── Header ── --}}
+    <div style="margin-bottom:1rem;">
+        <p class="lb-label">Rangliste</p>
+        @if($tab === 'liga')
+            <h1 class="lb-title">{{ $leagueInfo['name'] }}-Liga</h1>
+            <p class="lb-subtitle">
+                @if($weekRange)
+                    {{ $weekRange['formatted'] }}
+                @endif
+            </p>
+        @else
+            <h1 class="lb-title">Gesamt-Rangliste</h1>
+            <p class="lb-subtitle">Alle Punkte seit Beginn</p>
+        @endif
     </div>
 
-    @if($tab === 'liga')
-        <!-- League Info Banner -->
-        <div class="glass-accent league-banner">
-            <span class="league-banner-icon"><i class="{{ $leagueInfo['icon'] }}" style="color: {{ $leagueInfo['color'] }};"></i></span>
-            <div class="league-banner-content">
-                <h3>{{ $leagueInfo['name'] }}-Liga</h3>
-                <p>
-                    @if($weekRange)
-                        {{ $weekRange['formatted'] }} (Montag - Sonntag)
-                    @endif
-                    @if($nextLeague)
-                        &middot; Top {{ \App\Services\LeagueService::getPromotionPercent($userLeague) }}% steigen auf in {{ \App\Services\LeagueService::getLeagueName($nextLeague) }} (min. {{ \App\Services\LeagueService::PROMOTION_MIN_POINTS[$userLeague] ?? 0 }} Pkt)
-                    @endif
-                </p>
-            </div>
-        </div>
-    @endif
-
+    {{-- ── Stat Pills ── --}}
     @php
         $totalUsers = $leaderboard->count();
+        $currentUser = Auth::user();
+        $userIndex = $leaderboard->search(fn($u) => $u->id === $currentUser->id);
+        $userRankInList = $userIndex !== false ? $userIndex + 1 : null;
+
         $promotionSlots = min(
             \App\Services\LeagueService::getMaxPromotionSlots($userLeague),
             max(1, (int) floor($totalUsers * \App\Services\LeagueService::getPromotionPercent($userLeague) / 100))
@@ -572,279 +492,219 @@
         $relegationStart = $hasPrevLeague && $totalUsers > $relegationSlots ? $totalUsers - $relegationSlots : null;
     @endphp
 
-    <!-- Leaderboard Table (Desktop) -->
-    <div class="glass desktop-table">
-        <div class="table-header">
-            <span class="rank-col">Rang</span>
-            <span class="user-col">Name</span>
-            <span class="stat-col">{{ $tab === 'liga' ? 'Wochen-Punkte' : 'Punkte' }}</span>
-            <span class="stat-col">Level</span>
-            <span class="stat-col">Streak</span>
+    <div class="flex gap-2 mb-5" style="flex-wrap:wrap;">
+        <div class="gami-pill" style="flex:1;min-width:70px;">
+            <div class="gami-pill__value" style="color:#5b9aff;-webkit-text-fill-color:#5b9aff;">{{ $userRankInList ? '#' . $userRankInList : '–' }}</div>
+            <div class="gami-pill__label">Dein Rang</div>
         </div>
-        <div class="leaderboard-table-container">
-            @if($hasNextLeague && $totalUsers > 0)
-                <div class="zone-divider promotion">
-                    <i class="bi bi-arrow-up-circle-fill"></i>
-                    Aufstiegszone &rarr; {{ \App\Services\LeagueService::getLeagueName($nextLeague) }} (Top {{ $promotionSlots }})
-                </div>
-            @endif
-
-            @forelse($leaderboard as $index => $user)
-                @php
-                    $rank = $index + 1;
-                    $isCurrentUser = Auth::check() && Auth::user()->id === $user->id;
-                    $medal = match($rank) {
-                        1 => '<i class="bi bi-trophy-fill" style="color: #fbbf24;"></i>',
-                        2 => '<i class="bi bi-trophy-fill" style="color: #94a3b8;"></i>',
-                        3 => '<i class="bi bi-trophy-fill" style="color: #b45309;"></i>',
-                        default => ''
-                    };
-                    $rowClass = match($rank) {
-                        1 => 'rank-1',
-                        2 => 'rank-2',
-                        3 => 'rank-3',
-                        default => ''
-                    };
-                    if ($isCurrentUser) $rowClass = 'current-user';
-
-                    // Zone classes
-                    $zoneClass = '';
-                    if ($tab === 'liga') {
-                        if ($hasNextLeague && $rank <= $promotionSlots) {
-                            $zoneClass = 'promotion-row';
-                        } elseif ($hasPrevLeague && $relegationStart && $rank > $relegationStart) {
-                            $zoneClass = 'relegation-row';
-                        } else {
-                            $zoneClass = 'safe-row';
-                        }
-                    }
-                @endphp
-
-                @if($tab === 'liga' && $hasNextLeague && $rank === $promotionSlots + 1 && $totalUsers > $promotionSlots)
-                    <div class="zone-divider safe">
-                        <i class="bi bi-dash-circle-fill"></i>
-                        Verbleibszone
-                    </div>
-                @endif
-
-                @if($tab === 'liga' && $hasPrevLeague && $relegationStart && $rank === $relegationStart + 1)
-                    <div class="zone-divider relegation">
-                        <i class="bi bi-arrow-down-circle-fill"></i>
-                        Abstiegszone &rarr; {{ \App\Services\LeagueService::getLeagueName($prevLeague) }} (Letzte {{ $relegationSlots }})
-                    </div>
-                @endif
-
-                @php
-                    $nameClasses = 'user-name';
-                    $hasFrame = $user->profile_frame_until && \Carbon\Carbon::parse($user->profile_frame_until)->isFuture();
-                    $hasGlow = $user->glowing_name_until && \Carbon\Carbon::parse($user->glowing_name_until)->isFuture();
-                    $hasRankColor = $user->rank_color_until && \Carbon\Carbon::parse($user->rank_color_until)->isFuture() && $user->rank_color;
-                    $hasTitle = $user->active_title_until && \Carbon\Carbon::parse($user->active_title_until)->isFuture() && $user->active_title;
-
-                    if ($hasGlow) {
-                        $nameClasses .= $user->glowing_name_type === 'shimmer' ? ' glowing-name-shimmer' : ' glowing-name-static';
-                    }
-                    if ($hasRankColor) {
-                        $nameClasses .= ' rank-color-' . $user->rank_color;
-                    }
-                    $frameClass = '';
-                    if ($hasFrame) {
-                        $frameClass = ($user->profile_frame_type ?? 'gold') === 'diamond' ? 'profile-frame-diamond' : 'profile-frame-gold';
-                    }
-                @endphp
-                <div class="leaderboard-row {{ $rowClass }} {{ $zoneClass }} {{ $frameClass }}">
-                    <div class="rank-col">
-                        @if($rank <= 3)
-                            <span class="rank-medal">{!! $medal !!}</span>
-                        @endif
-                        <span class="rank-number">#{{ $rank }}</span>
-                    </div>
-                    <div class="user-col">
-                        <div>
-                            <span class="{{ $nameClasses }}">{{ $user->name }}</span>
-                            @if($hasTitle)
-                                <div class="user-title">{{ $user->active_title }}</div>
-                            @endif
-                        </div>
-                        @if($isCurrentUser)
-                            <span class="you-badge"><i class="bi bi-person-fill"></i> Du</span>
-                        @endif
-                    </div>
-                    <div class="stat-col">
-                        <span class="stat-icon" style="color: #06b6d4;"><i class="bi bi-gem"></i></span>
-                        <span class="stat-value">{{ number_format($tab === 'liga' ? $user->weekly_points : ($user->total_points_earned ?? $user->points)) }}</span>
-                    </div>
-                    <div class="stat-col">
-                        <span class="stat-icon" style="color: #fbbf24;"><i class="bi bi-star-fill"></i></span>
-                        <span class="stat-value">{{ $user->level }}</span>
-                    </div>
-                    <div class="stat-col">
-                        <span class="stat-icon" style="color: #f97316;"><i class="bi bi-fire"></i></span>
-                        <span class="stat-value">{{ $user->streak_days }} Tage</span>
-                    </div>
-                </div>
-            @empty
-                <div class="empty-state">
-                    <div class="empty-state-icon"><i class="bi bi-trophy"></i></div>
-                    <p class="empty-state-title">{{ $tab === 'liga' ? 'Noch keine Aktivität in deiner Liga diese Woche' : 'Noch keine Einträge' }}</p>
-                    <p class="empty-state-desc">{{ $tab === 'liga' ? 'Sei der Erste und sammle Punkte!' : '' }}</p>
-                </div>
-            @endforelse
+        <div class="gami-pill" style="flex:1;min-width:70px;">
+            <div class="gami-pill__value" style="color:#fbbf24;-webkit-text-fill-color:#fbbf24;">{{ number_format($tab === 'liga' ? ($currentUser->weekly_points ?? 0) : ($currentUser->points + ($currentUser->total_points_spent ?? 0))) }}</div>
+            <div class="gami-pill__label">{{ $tab === 'liga' ? 'Wochen-Pkt' : 'Gesamt-Pkt' }}</div>
+        </div>
+        <div class="gami-pill" style="flex:1;min-width:70px;">
+            <div class="gami-pill__value" style="color:#f97316;-webkit-text-fill-color:#f97316;">{{ $totalUsers }}</div>
+            <div class="gami-pill__label">Spieler</div>
         </div>
     </div>
 
-    <!-- Mobile Cards -->
-    <div class="mobile-cards">
-        @if($hasNextLeague && $totalUsers > 0)
-            <div class="zone-divider promotion">
-                <i class="bi bi-arrow-up-circle-fill"></i>
-                Aufstiegszone (Top {{ $promotionSlots }})
-            </div>
-        @endif
-
-        @forelse($leaderboard as $index => $user)
-            @php
-                $rank = $index + 1;
-                $isCurrentUser = Auth::check() && Auth::user()->id === $user->id;
-                $medal = match($rank) {
-                    1 => '<i class="bi bi-trophy-fill" style="color: #fbbf24;"></i>',
-                    2 => '<i class="bi bi-trophy-fill" style="color: #94a3b8;"></i>',
-                    3 => '<i class="bi bi-trophy-fill" style="color: #b45309;"></i>',
-                    default => ''
-                };
-                $cardClass = match($rank) {
-                    1 => 'rank-1',
-                    2 => 'rank-2',
-                    3 => 'rank-3',
-                    default => ''
-                };
-                if ($isCurrentUser) $cardClass = 'current-user';
-
-                $mZoneClass = '';
-                if ($tab === 'liga') {
-                    if ($hasNextLeague && $rank <= $promotionSlots) {
-                        $mZoneClass = 'promotion-row';
-                    } elseif ($hasPrevLeague && $relegationStart && $rank > $relegationStart) {
-                        $mZoneClass = 'relegation-row';
-                    } else {
-                        $mZoneClass = 'safe-row';
-                    }
-                }
-            @endphp
-
-            @if($tab === 'liga' && $hasNextLeague && $rank === $promotionSlots + 1 && $totalUsers > $promotionSlots)
-                <div class="zone-divider safe">
-                    <i class="bi bi-dash-circle-fill"></i>
-                    Verbleibszone
-                </div>
-            @endif
-
-            @if($tab === 'liga' && $hasPrevLeague && $relegationStart && $rank === $relegationStart + 1)
-                <div class="zone-divider relegation">
-                    <i class="bi bi-arrow-down-circle-fill"></i>
-                    Abstiegszone (Letzte {{ $relegationSlots }})
-                </div>
-            @endif
-
-            @php
-                $mNameClasses = 'mobile-user-name';
-                $mHasFrame = $user->profile_frame_until && \Carbon\Carbon::parse($user->profile_frame_until)->isFuture();
-                $mHasGlow = $user->glowing_name_until && \Carbon\Carbon::parse($user->glowing_name_until)->isFuture();
-                $mHasRankColor = $user->rank_color_until && \Carbon\Carbon::parse($user->rank_color_until)->isFuture() && $user->rank_color;
-                $mHasTitle = $user->active_title_until && \Carbon\Carbon::parse($user->active_title_until)->isFuture() && $user->active_title;
-                $mFrameClass = '';
-                if ($mHasFrame) {
-                    $mFrameClass = ($user->profile_frame_type ?? 'gold') === 'diamond' ? 'profile-frame-diamond' : 'profile-frame-gold';
-                }
-            @endphp
-            <div class="glass mobile-card {{ $cardClass }} {{ $mZoneClass }} {{ $mFrameClass }}">
-                <div class="mobile-rank-section">
-                    @if($rank <= 3)
-                        <div class="mobile-rank-medal">{!! $medal !!}</div>
-                    @endif
-                    <div class="mobile-rank-number">#{{ $rank }}</div>
-                </div>
-                <div class="mobile-user-section">
-                    <div class="{{ $mNameClasses }}">
-                        <span class="{{ $mHasGlow ? ($user->glowing_name_type === 'shimmer' ? 'glowing-name-shimmer' : 'glowing-name-static') : '' }} {{ $mHasRankColor ? 'rank-color-' . $user->rank_color : '' }}">{{ $user->name }}</span>
-                        @if($isCurrentUser)
-                            <span class="you-badge"><i class="bi bi-person-fill"></i></span>
-                        @endif
-                    </div>
-                    @if($mHasTitle)
-                        <div class="user-title" style="margin-bottom: 0.5rem;">{{ $user->active_title }}</div>
-                    @endif
-                    <div class="mobile-stats-row">
-                        <div class="mobile-stat">
-                            <span style="color: #06b6d4;"><i class="bi bi-gem"></i></span>
-                            <span class="mobile-stat-label">Punkte:</span>
-                            <span class="mobile-stat-value">{{ number_format($tab === 'liga' ? $user->weekly_points : ($user->total_points_earned ?? $user->points)) }}</span>
-                        </div>
-                    </div>
-                    <div class="mobile-stats-row" style="margin-top: 0.5rem;">
-                        <div class="mobile-stat">
-                            <span style="color: #fbbf24;"><i class="bi bi-star-fill"></i></span>
-                            <span class="mobile-stat-label">Level:</span>
-                            <span class="mobile-stat-value">{{ $user->level }}</span>
-                        </div>
-                        <div class="mobile-stat">
-                            <span style="color: #f97316;"><i class="bi bi-fire"></i></span>
-                            <span class="mobile-stat-label">Streak:</span>
-                            <span class="mobile-stat-value">{{ $user->streak_days }}</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        @empty
-            <div class="glass empty-state">
-                <div class="empty-state-icon"><i class="bi bi-trophy"></i></div>
-                <p class="empty-state-title">{{ $tab === 'liga' ? 'Noch keine Aktivität in deiner Liga' : 'Noch keine Einträge' }}</p>
-                <p class="empty-state-desc">{{ $tab === 'liga' ? 'Sei der Erste und sammle Punkte!' : '' }}</p>
-            </div>
-        @endforelse
+    {{-- ── Tabs ── --}}
+    <div class="lb-tabs">
+        <a href="{{ route('gamification.leaderboard', ['tab' => 'liga']) }}" class="lb-tab {{ $tab === 'liga' ? 'active' : '' }}">Liga</a>
+        <a href="{{ route('gamification.leaderboard', ['tab' => 'gesamt']) }}" class="lb-tab {{ $tab === 'gesamt' ? 'active' : '' }}">Gesamt</a>
     </div>
 
-    <!-- Info Box -->
-    <div class="glass-tl info-box">
-        <h3><i class="bi bi-lightbulb" style="color: var(--gold);"></i> So funktioniert das Ligen-System</h3>
-        <ul>
-            <li><i class="bi bi-shield-fill" style="color: var(--gold);"></i> <strong>5 Ligen</strong> von Bronze bis Diamant</li>
-            <li><i class="bi bi-arrow-up-circle-fill" style="color: #22c55e;"></i> <strong>Top {{ $promotionSlots }}</strong> steigen wöchentlich in die nächste Liga auf</li>
-            <li><i class="bi bi-dash-circle-fill" style="color: #94a3b8;"></i> <strong>Platz {{ $promotionSlots + 1 }}{{ $relegationStart ? ' - ' . $relegationStart : '+' }}</strong> bleiben in der aktuellen Liga</li>
-            <li><i class="bi bi-arrow-down-circle-fill" style="color: #ef4444;"></i> <strong>Letzte {{ $relegationSlots }}</strong> steigen in die untere Liga ab</li>
-            <li><i class="bi bi-gift-fill" style="color: #c084fc;"></i> <strong>Platz 1-3</strong> erhalten jede Woche eine Belohnung</li>
-            @if($tab === 'liga')
-                <li><i class="bi bi-arrow-repeat" style="color: #8b5cf6;"></i> <strong>Liga-Wertung</strong> wird jeden Montag zurückgesetzt</li>
-            @endif
-        </ul>
-    </div>
-
-    <!-- Current User Rank (if not visible in league) -->
-    @if(Auth::check() && $tab === 'gesamt')
+    @if($totalUsers === 0)
+        {{-- ── Empty State ── --}}
+        <div class="lb-empty">
+            <div class="lb-empty__icon"><i class="bi bi-trophy"></i></div>
+            <p class="lb-empty__title">{{ $tab === 'liga' ? 'Noch keine Aktivität in deiner Liga' : 'Noch keine Einträge' }}</p>
+            <p class="lb-empty__desc">{{ $tab === 'liga' ? 'Sei der Erste und sammle Punkte!' : '' }}</p>
+        </div>
+    @else
+        {{-- ── Podium (Top 3) ── --}}
         @php
-            $currentUser = Auth::user();
-            $totalEarned = $currentUser->points + ($currentUser->total_points_spent ?? 0);
-            $userRank = \App\Models\User::whereRaw('(points + COALESCE(total_points_spent, 0)) > ?', [$totalEarned])->count() + 1;
-            $isInTop50 = $userRank <= 50;
+            $top3 = $leaderboard->take(3);
+            $rest = $leaderboard->slice(3);
+
+            // Helper: get avatar frame inline styles
+            $getAvatarFrameStyle = function($user) {
+                $hasFrame = $user->profile_frame_until && \Carbon\Carbon::parse($user->profile_frame_until)->isFuture();
+                if (!$hasFrame) return 'border:2px solid rgba(255,255,255,0.1);';
+                $type = $user->profile_frame_type ?? 'gold';
+                if ($type === 'diamond') {
+                    return 'border:2px solid rgba(147,197,253,0.7);box-shadow:0 0 10px rgba(147,197,253,0.35),0 0 20px rgba(167,139,250,0.2);';
+                }
+                return 'border:2px solid rgba(251,191,36,0.6);box-shadow:0 0 8px rgba(251,191,36,0.25);';
+            };
+
+            // Helper: get name CSS classes
+            $getNameClasses = function($user) {
+                $classes = '';
+                $hasGlow = $user->glowing_name_until && \Carbon\Carbon::parse($user->glowing_name_until)->isFuture();
+                $hasRankColor = $user->rank_color_until && \Carbon\Carbon::parse($user->rank_color_until)->isFuture() && $user->rank_color;
+                if ($hasGlow) {
+                    $classes .= $user->glowing_name_type === 'shimmer' ? ' glowing-name-shimmer' : ' glowing-name-static';
+                }
+                if ($hasRankColor) {
+                    $classes .= ' rank-color-' . $user->rank_color;
+                }
+                return $classes;
+            };
+
+            // Helper: has active title
+            $hasActiveTitle = function($user) {
+                return $user->active_title_until && \Carbon\Carbon::parse($user->active_title_until)->isFuture() && $user->active_title;
+            };
         @endphp
 
-        @if(!$isInTop50)
-            <div class="glass-gold user-rank-card">
-                <div>
-                    <div class="user-rank-title">
-                        <i class="bi bi-geo-alt"></i> Deine Platzierung
+        <div class="lb-podium">
+            <p class="lb-podium__label">Top 3</p>
+            <div class="lb-podium__row">
+                @php
+                    // Render order: 2nd, 1st, 3rd (visual left-center-right)
+                    $podiumOrder = [1, 0, 2];
+                    // Arrays indexed by RANK: 0=1st, 1=2nd, 2=3rd
+                    $podiumSizes = [64, 50, 50];
+                    $badgeSizes = [20, 18, 18];
+                    $badgeFontSizes = ['0.625rem', '0.5rem', '0.5rem'];
+                    $badgeColors = ['linear-gradient(135deg,#fbbf24,#f59e0b)', '#94a3b8', '#b45309'];
+                    $badgeFontColors = ['#1a1a2e', '#fff', '#fff'];
+                    $badgeShadows = ['box-shadow:0 0 8px rgba(251,191,36,0.3);', '', ''];
+                    $nameSizes = ['0.8125rem', '0.75rem', '0.75rem'];
+                    $pointColors = ['#f59e0b', '#94a3b8', '#b45309'];
+                @endphp
+
+                @foreach($podiumOrder as $pi)
+                    <div class="lb-podium__step lb-podium__step--{{ $pi + 1 }}">
+                        <div class="lb-podium__user">
+                            @if(isset($top3[$pi]))
+                                @php $user = $top3[$pi]; @endphp
+                                <div class="lb-podium__avatar-wrap">
+                                    <img src="{{ $user->avatar_url }}" class="lb-podium__avatar" style="width:{{ $podiumSizes[$pi] }}px;height:{{ $podiumSizes[$pi] }}px;{{ $getAvatarFrameStyle($user) }}" alt="" />
+                                    <div class="lb-podium__badge" style="width:{{ $badgeSizes[$pi] }}px;height:{{ $badgeSizes[$pi] }}px;font-size:{{ $badgeFontSizes[$pi] }};background:{{ $badgeColors[$pi] }};color:{{ $badgeFontColors[$pi] }};{{ $badgeShadows[$pi] }}">{{ $pi + 1 }}</div>
+                                </div>
+                                <div class="lb-podium__name{{ $getNameClasses($user) }}" style="font-size:{{ $nameSizes[$pi] }};">{{ $user->name }}</div>
+                                @if($hasActiveTitle($user))
+                                    <div class="lb-podium__title">{{ $user->active_title }}</div>
+                                @endif
+                                <div class="lb-podium__points" style="color:{{ $pointColors[$pi] }};">{{ number_format($tab === 'liga' ? $user->weekly_points : ($user->total_points_earned ?? $user->points)) }}</div>
+                            @else
+                                <div class="lb-podium__placeholder" style="width:{{ $podiumSizes[$pi] }}px;height:{{ $podiumSizes[$pi] }}px;font-size:0.75rem;">?</div>
+                                <div class="lb-podium__name" style="font-size:{{ $nameSizes[$pi] }};color:var(--text-muted);">–</div>
+                            @endif
+                        </div>
+                        <div class="lb-podium__pedestal"></div>
                     </div>
-                    <div class="user-rank-number">Rang #{{ $userRank }}</div>
-                    <div class="user-rank-details">
-                        {{ number_format($currentUser->points + ($currentUser->total_points_spent ?? 0)) }} Punkte gesamt
+                @endforeach
+            </div>
+        </div>
+
+        {{-- ── Bento Grid (Ranking List + Side Cards) ── --}}
+        @if($rest->count() > 0 || $tab === 'gesamt')
+        <div class="lb-bento">
+            {{-- Left: Ranking List --}}
+            <div class="lb-list">
+                @if($tab === 'liga' && $hasNextLeague && $promotionSlots <= 3 && $totalUsers > 3)
+                    <div class="lb-zone lb-zone--safe">
+                        <span>Verbleibszone</span>
                     </div>
+                @endif
+
+                @foreach($rest as $index => $user)
+                    @php
+                        $rank = $index + 4;
+                        $isCurrentUser = $user->id === $currentUser->id;
+
+                        $rowClass = 'lb-row';
+                        if ($isCurrentUser) $rowClass .= ' lb-row--current';
+
+                        if ($tab === 'liga') {
+                            if ($hasPrevLeague && $relegationStart && $rank > $relegationStart) {
+                                $rowClass .= ' lb-row--relegation';
+                            }
+                        }
+                    @endphp
+
+                    @if($tab === 'liga' && $hasNextLeague && $rank === $promotionSlots + 1 && $promotionSlots > 3)
+                        <div class="lb-zone lb-zone--safe">
+                            <span>Verbleibszone</span>
+                        </div>
+                    @endif
+
+                    @if($tab === 'liga' && $hasPrevLeague && $relegationStart && $rank === $relegationStart + 1)
+                        <div class="lb-zone lb-zone--relegation">
+                            <span>Abstieg</span>
+                        </div>
+                    @endif
+
+                    <div class="{{ $rowClass }}">
+                        <span class="lb-row__rank">{{ $rank }}</span>
+                        <img src="{{ $user->avatar_url }}" class="lb-row__avatar" style="{{ $getAvatarFrameStyle($user) }}" alt="" />
+                        <span class="lb-row__name{{ $getNameClasses($user) }}">{{ $isCurrentUser ? 'Du' : $user->name }}</span>
+                        <span class="lb-row__points">{{ number_format($tab === 'liga' ? $user->weekly_points : ($user->total_points_earned ?? $user->points)) }}</span>
+                    </div>
+                @endforeach
+            </div>
+
+            {{-- Right: Side Cards --}}
+            <div class="lb-side">
+                {{-- Global Rank Card --}}
+                <div class="lb-card">
+                    <div class="lb-card__label">Gesamt</div>
+                    @php
+                        if ($tab === 'gesamt') {
+                            $globalRank = $userRankInList ? '#' . $userRankInList : '#' . (\App\Models\User::whereRaw('(points + COALESCE(total_points_spent, 0)) > ?', [$currentUser->points + ($currentUser->total_points_spent ?? 0)])->count() + 1);
+                        } else {
+                            $totalEarned = $currentUser->points + ($currentUser->total_points_spent ?? 0);
+                            $globalRank = '#' . (\App\Models\User::whereRaw('(points + COALESCE(total_points_spent, 0)) > ?', [$totalEarned])->count() + 1);
+                        }
+                    @endphp
+                    <div class="lb-card__value" style="font-size:1.5rem;color:#5b9aff;">{{ $globalRank }}</div>
                 </div>
-                <div class="user-rank-stats">
-                    <div class="user-rank-details">Level {{ $currentUser->level }}</div>
-                    <div class="user-rank-details"><i class="bi bi-fire" style="color: #f97316;"></i> {{ $currentUser->streak_days }} Tage Streak</div>
-                </div>
+
+                @if($tab === 'liga' && $hasNextLeague)
+                    {{-- Promotion Progress Card --}}
+                    @php
+                        $promotionUser = $leaderboard[$promotionSlots - 1] ?? null;
+                        $promotionThreshold = $promotionUser ? ($tab === 'liga' ? $promotionUser->weekly_points : 0) : 0;
+                        $minPoints = \App\Services\LeagueService::PROMOTION_MIN_POINTS[$userLeague] ?? 0;
+                        $target = max($promotionThreshold, $minPoints);
+                        $userPoints = $currentUser->weekly_points ?? 0;
+                        $remaining = max(0, $target - $userPoints);
+                        $progress = $target > 0 ? min(100, round(($userPoints / $target) * 100)) : 0;
+                    @endphp
+                    <div class="lb-card">
+                        <div class="lb-card__label">Aufstieg</div>
+                        @if($remaining > 0)
+                            <div class="lb-card__value" style="font-size:1rem;color:#22c55e;">{{ number_format($remaining) }} Pkt</div>
+                        @else
+                            <div class="lb-card__value" style="font-size:0.75rem;color:#22c55e;">Aufstieg!</div>
+                        @endif
+                        <div class="lb-card__bar">
+                            <div class="lb-card__bar-fill" style="width:{{ $progress }}%;"></div>
+                        </div>
+                    </div>
+                @endif
+            </div>
+        </div>
+        @endif
+
+        {{-- ── Info Line ── --}}
+        @if($tab === 'liga' && ($hasNextLeague || $hasPrevLeague))
+            <div class="lb-info">
+                @if($hasNextLeague)
+                    Top {{ $promotionSlots }} steigen auf
+                @endif
+                @if($hasNextLeague && $hasPrevLeague)
+                    ·
+                @endif
+                @if($hasPrevLeague)
+                    Letzte {{ $relegationSlots }} steigen ab
+                @endif
             </div>
         @endif
     @endif
+
+</div>
 </div>
 @endsection

@@ -1,3 +1,4 @@
+.superpowers/
 *.log
 .DS_Store
 .env
@@ -45,3 +46,4 @@ VAPID_KEYS.txt
 backup/
 backups/
 node_modules/
+.superpowers/
