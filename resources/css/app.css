@@ -1347,20 +1347,26 @@
         font-size: 0.9rem;
     }
 
-    .theme-toggle-sm .icon-sun {
+    /* Default: hide all icons */
+    .theme-toggle-sm .icon-sun,
+    .theme-toggle-sm .icon-moon,
+    .theme-toggle-sm .icon-auto {
         display: none;
     }
 
-    .theme-toggle-sm .icon-moon {
+    /* Dark mode: show moon */
+    [data-theme-mode="dark"] .theme-toggle-sm .icon-moon {
         display: block;
     }
 
-    .light-mode .theme-toggle-sm .icon-sun {
+    /* Light mode: show sun */
+    [data-theme-mode="light"] .theme-toggle-sm .icon-sun {
         display: block;
     }
 
-    .light-mode .theme-toggle-sm .icon-moon {
-        display: none;
+    /* Auto mode: show auto icon */
+    [data-theme-mode="auto"] .theme-toggle-sm .icon-auto {
+        display: block;
     }
 
     /* Glass subtle border utility */
@@ -2777,21 +2783,23 @@ html.light-mode ::-webkit-scrollbar-thumb:hover {
     transform: rotate(15deg);
 }
 
-/* Icon visibility based on theme */
-.theme-toggle .icon-sun {
+/* Icon visibility based on theme mode (3-way: dark/light/auto) */
+.theme-toggle .icon-sun,
+.theme-toggle .icon-moon,
+.theme-toggle .icon-auto {
     display: none;
 }
 
-.theme-toggle .icon-moon {
+[data-theme-mode="dark"] .theme-toggle .icon-moon {
     display: block;
 }
 
-.light-mode .theme-toggle .icon-sun {
+[data-theme-mode="light"] .theme-toggle .icon-sun {
     display: block;
 }
 
-.light-mode .theme-toggle .icon-moon {
-    display: none;
+[data-theme-mode="auto"] .theme-toggle .icon-auto {
+    display: block;
 }
 
 /* Theme visibility helpers */

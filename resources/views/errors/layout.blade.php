@@ -23,12 +23,11 @@
     </div>
 
     <script>
-        // Theme aus localStorage laden
+        // Theme aus localStorage laden (mit Auto-Modus)
         (function() {
-            const theme = localStorage.getItem('theme') || 'dark';
-            if (theme === 'light') {
-                document.documentElement.classList.add('light-mode');
-            }
+            var theme = localStorage.getItem('theme');
+            var isLight = theme === 'light' || (!theme && window.matchMedia('(prefers-color-scheme: light)').matches);
+            if (isLight) document.documentElement.classList.add('light-mode');
         })();
     </script>
 </body>
