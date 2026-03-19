@@ -181,8 +181,8 @@
     }
 
     .shop-item__preview {
-        width: 36px;
-        height: 36px;
+        width: 52px;
+        height: 52px;
         border-radius: 50%;
         border: 1px solid rgba(255,255,255,0.08);
         flex-shrink: 0;

@@ -285,8 +285,8 @@
     }
 
     .pf-acc-chip__preview {
-        width: 22px;
-        height: 22px;
+        width: 28px;
+        height: 28px;
         border-radius: 50%;
     }
 
