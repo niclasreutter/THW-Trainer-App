@@ -259,6 +259,11 @@
         background: rgba(0, 51, 127, 0.08);
     }
 
+    .lb-row--promotion {
+        border-left: 2px solid rgba(34, 197, 94, 0.5);
+        border-radius: 0.25rem;
+    }
+
     .lb-row--relegation {
         border-left: 2px solid rgba(239, 68, 68, 0.5);
         border-radius: 0.25rem;
@@ -289,11 +294,26 @@
         flex-shrink: 0;
     }
 
+    .lb-row__info {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+    }
+
     .lb-row__name {
         font-size: 0.8125rem;
         font-weight: 600;
         color: var(--text-secondary);
-        flex: 1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .lb-row__title {
+        font-size: 0.5rem;
+        color: var(--text-muted);
+        font-style: italic;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -604,10 +624,16 @@
         <div class="lb-bento">
             {{-- Left: Ranking List --}}
             <div class="lb-list">
-                @if($tab === 'liga' && $hasNextLeague && $promotionSlots <= 3 && $totalUsers > 3)
-                    <div class="lb-zone lb-zone--safe">
-                        <span>Verbleibszone</span>
-                    </div>
+                @if($tab === 'liga' && $hasNextLeague && $totalUsers > 3)
+                    @if($promotionSlots <= 3)
+                        <div class="lb-zone lb-zone--safe">
+                            <span>Verbleibszone</span>
+                        </div>
+                    @else
+                        <div class="lb-zone lb-zone--promotion">
+                            <span>Aufstieg</span>
+                        </div>
+                    @endif
                 @endif
 
                 @foreach($rest as $index => $user)
@@ -619,6 +645,9 @@
                         if ($isCurrentUser) $rowClass .= ' lb-row--current';
 
                         if ($tab === 'liga') {
+                            if ($hasNextLeague && $rank <= $promotionSlots) {
+                                $rowClass .= ' lb-row--promotion';
+                            }
                             if ($hasPrevLeague && $relegationStart && $rank > $relegationStart) {
                                 $rowClass .= ' lb-row--relegation';
                             }
@@ -640,7 +669,12 @@
                     <div class="{{ $rowClass }}">
                         <span class="lb-row__rank">{{ $rank }}</span>
                         <img src="{{ $user->avatar_url }}" class="lb-row__avatar" style="{{ $getAvatarFrameStyle($user) }}" alt="" />
-                        <span class="lb-row__name{{ $getNameClasses($user) }}">{{ $isCurrentUser ? 'Du' : $user->name }}</span>
+                        <div class="lb-row__info">
+                            <span class="lb-row__name{{ $getNameClasses($user) }}">{{ $isCurrentUser ? 'Du' : $user->name }}</span>
+                            @if($hasActiveTitle($user))
+                                <span class="lb-row__title">{{ $user->active_title }}</span>
+                            @endif
+                        </div>
                         <span class="lb-row__points">{{ number_format($tab === 'liga' ? $user->weekly_points : ($user->total_points_earned ?? $user->points)) }}</span>
                     </div>
                 @endforeach
