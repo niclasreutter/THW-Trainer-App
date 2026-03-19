@@ -7,66 +7,11 @@
 <link rel="preconnect" href="https://fonts.bunny.net">
 <link href="https://fonts.bunny.net/css2?family=Barlow+Condensed:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-    /* ─── Contact Info Cards ──────────────────── */
-    .ct-info-row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 0.5rem;
-        margin-bottom: 1rem;
-    }
-
-    @media (max-width: 400px) {
-        .ct-info-row { grid-template-columns: 1fr; }
-    }
-
-    .ct-info-card {
-        border-radius: 0.75rem;
-        padding: 0.875rem 1rem;
-        display: flex;
-        align-items: center;
-        gap: 0.625rem;
-    }
-
-    .ct-info-icon {
-        width: 2rem;
-        height: 2rem;
-        border-radius: 0.5rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.875rem;
-        flex-shrink: 0;
-        background: rgba(0, 85, 204, 0.12);
-        color: #5b9aff;
-    }
-
-    html.light-mode .ct-info-icon {
-        background: rgba(0, 51, 127, 0.08);
-        color: #00337F;
-    }
-
-    .ct-info-label {
-        font-size: 0.5625rem;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        color: var(--text-muted);
-        font-weight: 700;
-        font-family: 'IBM Plex Mono', monospace;
-    }
-
-    .ct-info-value {
-        font-size: 0.8125rem;
-        font-weight: 600;
-        color: var(--text-primary);
-        margin-top: 0.1rem;
-    }
-
     /* ─── Category Selection ──────────────────── */
     .ct-categories {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 0.5rem;
-        margin-bottom: 1.25rem;
     }
 
     @media (max-width: 400px) {
@@ -269,34 +214,6 @@
         animation: ct-slide-in 0.25s ease-out;
     }
 
-    /* ─── Submit Button ───────────────────────── */
-    .ct-submit {
-        width: 100%;
-        padding: 0.75rem;
-        border: none;
-        border-radius: 0.5rem;
-        font-size: 0.875rem;
-        font-weight: 700;
-        font-family: inherit;
-        cursor: pointer;
-        background: linear-gradient(135deg, #00337F, #0055cc);
-        color: #fff;
-        transition: transform 200ms ease, box-shadow 200ms ease;
-    }
-
-    .ct-submit:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 4px 16px rgba(0, 51, 127, 0.3);
-    }
-
-    .ct-submit:active { transform: translateY(0); }
-
-    .ct-submit:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-        transform: none;
-    }
-
     /* ─── Privacy ─────────────────────────────── */
     .ct-privacy {
         text-align: center;
@@ -315,18 +232,18 @@
         to   { opacity: 1; transform: translateY(0); }
     }
 
-    .dash-container > .ct-content > * {
+    .dash-container > .space-y-4 > * {
         animation: dash-rise 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
     }
 
-    .dash-container > .ct-content > *:nth-child(1) { animation-delay: 0.03s; }
-    .dash-container > .ct-content > *:nth-child(2) { animation-delay: 0.07s; }
-    .dash-container > .ct-content > *:nth-child(3) { animation-delay: 0.11s; }
-    .dash-container > .ct-content > *:nth-child(4) { animation-delay: 0.15s; }
-    .dash-container > .ct-content > *:nth-child(5) { animation-delay: 0.19s; }
+    .dash-container > .space-y-4 > *:nth-child(1) { animation-delay: 0.03s; }
+    .dash-container > .space-y-4 > *:nth-child(2) { animation-delay: 0.07s; }
+    .dash-container > .space-y-4 > *:nth-child(3) { animation-delay: 0.11s; }
+    .dash-container > .space-y-4 > *:nth-child(4) { animation-delay: 0.15s; }
+    .dash-container > .space-y-4 > *:nth-child(5) { animation-delay: 0.19s; }
 
     @media (prefers-reduced-motion: reduce) {
-        .dash-container > .ct-content > * { animation: none; }
+        .dash-container > .space-y-4 > * { animation: none; }
     }
 </style>
 @endpush
@@ -334,34 +251,28 @@
 @section('content')
 <div class="dash-container">
 
-    <!-- Header -->
+    {{-- ── Header (wie Practice-Menu) ── --}}
     <div class="mb-6">
         <p style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);font-weight:600;margin-bottom:0.25rem;">Support</p>
         <h1 style="font-size:1.5rem;font-weight:800;line-height:1.2;font-family:'Barlow Condensed',sans-serif;background:linear-gradient(135deg,#5b9aff,#0055cc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Kontakt & Feedback</h1>
         <p class="text-sm" style="color: var(--text-muted);">Dein Feedback ist mir wichtig! Schreib mir bei Fragen, Ideen oder Problemen.</p>
     </div>
 
-    <div class="ct-content">
-
-        <!-- Info Cards -->
-        <div class="ct-info-row">
-            <div class="glass ct-info-card">
-                <div class="ct-info-icon"><i class="bi bi-clock"></i></div>
-                <div>
-                    <div class="ct-info-label">Antwortzeit</div>
-                    <div class="ct-info-value">24 - 48h</div>
-                </div>
-            </div>
-            <div class="glass ct-info-card">
-                <div class="ct-info-icon"><i class="bi bi-envelope"></i></div>
-                <div>
-                    <div class="ct-info-label">E-Mail</div>
-                    <div class="ct-info-value">kontakt@thw-trainer.de</div>
-                </div>
-            </div>
+    {{-- ── Info Pills (wie gami-pills) ── --}}
+    <div class="flex gap-3 mb-6" style="flex-wrap: wrap;">
+        <div class="gami-pill">
+            <div class="gami-pill__value gami-pill__value--blue">24-48h</div>
+            <div class="gami-pill__label">Antwortzeit</div>
         </div>
+        <div class="gami-pill">
+            <div class="gami-pill__value gami-pill__value--blue" style="font-size: 0.875rem;">kontakt@thw-trainer.de</div>
+            <div class="gami-pill__label">E-Mail</div>
+        </div>
+    </div>
 
-        <!-- Success Message -->
+    <div class="space-y-4">
+
+        {{-- ── Success Message ── --}}
         @if(session('success'))
             <div class="alert-compact glass-success">
                 <i class="bi bi-check-circle-fill alert-compact-icon text-success"></i>
@@ -372,7 +283,7 @@
             </div>
         @endif
 
-        <!-- Error Messages -->
+        {{-- ── Error Messages ── --}}
         @if($errors->any())
             <div class="alert-compact glass-error">
                 <i class="bi bi-x-circle-fill alert-compact-icon text-error"></i>
@@ -387,7 +298,7 @@
             </div>
         @endif
 
-        <!-- Form Card -->
+        {{-- ── Form Card ── --}}
         <div class="glass-tl" style="padding: 1.25rem;">
             <form method="POST" action="{{ route('contact.submit') }}" id="contactForm">
                 @csrf
@@ -518,7 +429,7 @@
                 </div>
 
                 <!-- Submit -->
-                <button type="submit" id="submitBtn" class="ct-submit">
+                <button type="submit" id="submitBtn" class="btn-primary" style="width: 100%;">
                     Nachricht absenden
                 </button>
 
