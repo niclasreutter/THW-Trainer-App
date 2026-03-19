@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Models\UserAvatarAccessory;
+use App\Services\ShopService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -175,6 +177,124 @@ class ProfileController extends Controller
         }
 
         return Redirect::route('profile')->with('status', 'avatar-updated');
+    }
+
+    /**
+     * Toggle an avatar accessory on/off.
+     */
+    public function toggleAccessory(Request $request): JsonResponse
+    {
+        $request->validate([
+            'accessory_slug' => 'required|string|max:50',
+            'color' => 'nullable|string|max:10',
+        ]);
+
+        $user = $request->user();
+        $slug = $request->input('accessory_slug');
+
+        // Besitz prüfen
+        $owned = UserAvatarAccessory::where('user_id', $user->id)
+            ->where('accessory_slug', $slug)
+            ->exists();
+
+        if (!$owned) {
+            return response()->json(['success' => false, 'message' => 'Accessoire nicht im Besitz.'], 422);
+        }
+
+        $item = ShopService::SHOP_ITEMS[$slug] ?? null;
+        if (!$item || ($item['category'] ?? '') !== 'accessory') {
+            return response()->json(['success' => false, 'message' => 'Unbekanntes Accessoire.'], 422);
+        }
+
+        $active = $user->active_accessories ?? [];
+        $paramName = $item['accessory_type'];
+        $colorKey = match ($paramName) {
+            'accessories' => 'accessoriesColor',
+            'facialHair' => 'facialHairColor',
+            default => null,
+        };
+
+        // Toggle: wenn aktiv -> deaktivieren, sonst aktivieren
+        if (isset($active[$paramName]) && $active[$paramName] === $item['accessory_value']) {
+            unset($active[$paramName]);
+            if ($colorKey) {
+                unset($active[$colorKey]);
+            }
+        } else {
+            $active[$paramName] = $item['accessory_value'];
+            // Farbe setzen falls mitgegeben
+            if ($colorKey && $request->input('color')) {
+                $allowedColors = $item['colors'] ?? [];
+                $color = $request->input('color');
+                if (in_array($color, $allowedColors)) {
+                    $active[$colorKey] = $color;
+                }
+            }
+        }
+
+        $user->active_accessories = !empty($active) ? $active : null;
+        $user->save();
+
+        // Active states für alle Kategorien zurückgeben
+        $shopService = new ShopService();
+        $ownedAccessories = $shopService->getOwnedAccessories($user->fresh());
+
+        return response()->json([
+            'success' => true,
+            'avatar_url' => $user->fresh()->avatar_url,
+            'owned_accessories' => $ownedAccessories,
+        ]);
+    }
+
+    /**
+     * Update the color of an active accessory.
+     */
+    public function updateAccessoryColor(Request $request): JsonResponse
+    {
+        $request->validate([
+            'accessory_slug' => 'required|string|max:50',
+            'color' => 'required|string|max:10',
+        ]);
+
+        $user = $request->user();
+        $slug = $request->input('accessory_slug');
+        $color = $request->input('color');
+
+        $item = ShopService::SHOP_ITEMS[$slug] ?? null;
+        if (!$item || ($item['category'] ?? '') !== 'accessory') {
+            return response()->json(['success' => false, 'message' => 'Unbekanntes Accessoire.'], 422);
+        }
+
+        // Farbe muss erlaubt sein
+        $allowedColors = $item['colors'] ?? [];
+        if (!in_array($color, $allowedColors)) {
+            return response()->json(['success' => false, 'message' => 'Ungültige Farbe.'], 422);
+        }
+
+        $active = $user->active_accessories ?? [];
+        $paramName = $item['accessory_type'];
+
+        // Prüfen ob dieses Accessoire aktiv ist
+        if (!isset($active[$paramName]) || $active[$paramName] !== $item['accessory_value']) {
+            return response()->json(['success' => false, 'message' => 'Accessoire ist nicht aktiv.'], 422);
+        }
+
+        $colorKey = match ($paramName) {
+            'accessories' => 'accessoriesColor',
+            'facialHair' => 'facialHairColor',
+            default => null,
+        };
+
+        if ($colorKey) {
+            $active[$colorKey] = $color;
+            $user->active_accessories = $active;
+            $user->save();
+        }
+
+        return response()->json([
+            'success' => true,
+            'avatar_url' => $user->fresh()->avatar_url,
+        ]);
     }
 
     /**

@@ -262,7 +262,9 @@ Route::post('/streak/freeze', [\App\Http\Controllers\GamificationController::cla
 Route::middleware('auth')->group(function () {
     Route::get('/profile', function() {
         $user = auth()->user()->fresh(); // Fresh reload from database
-        return view('profile', compact('user'));
+        $shopService = new \App\Services\ShopService();
+        $ownedAccessories = $shopService->getOwnedAccessories($user);
+        return view('profile', compact('user', 'ownedAccessories'));
     })->name('profile');
     Route::patch('/profile', function(Request $request) {
         \Log::info('Profile route reached via PATCH');
@@ -273,6 +275,8 @@ Route::middleware('auth')->group(function () {
         return app(ProfileController::class)->updatePassword($request);
     })->name('profile.password.update');
     Route::post('/profile/avatar/regenerate', [ProfileController::class, 'regenerateAvatar'])->name('profile.avatar.regenerate');
+    Route::post('/profile/accessory/toggle', [ProfileController::class, 'toggleAccessory'])->name('profile.accessory.toggle');
+    Route::post('/profile/accessory/color', [ProfileController::class, 'updateAccessoryColor'])->name('profile.accessory.color');
     Route::post('/profile/dismiss-leaderboard-banner', [ProfileController::class, 'dismissLeaderboardBanner'])->name('profile.dismiss.leaderboard.banner');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });

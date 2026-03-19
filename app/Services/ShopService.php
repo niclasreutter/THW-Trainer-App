@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\ShopPurchase;
 use App\Models\User;
+use App\Models\UserAvatarAccessory;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -101,6 +102,251 @@ class ShopService
             'duration_days' => 30,
             'max_per_week' => null,
             'category' => 'cosmetic',
+        ],
+
+        // ── Avatar-Accessoires: Brillen ──
+        'acc_prescription01' => [
+            'name' => 'Rundbrille',
+            'description' => 'Eine klassische runde Brille für deinen Avatar.',
+            'price' => 2000,
+            'icon' => 'bi-eyeglasses',
+            'type' => 'permanent',
+            'duration_days' => null,
+            'max_per_week' => null,
+            'category' => 'accessory',
+            'accessory_type' => 'accessories',
+            'accessory_value' => 'prescription01',
+            'colors' => ['000000', '4a312c', '5b9aff', 'fbbf24', 'ef4444'],
+        ],
+        'acc_prescription02' => [
+            'name' => 'Lesebrille',
+            'description' => 'Eine elegante Lesebrille.',
+            'price' => 2000,
+            'icon' => 'bi-eyeglasses',
+            'type' => 'permanent',
+            'duration_days' => null,
+            'max_per_week' => null,
+            'category' => 'accessory',
+            'accessory_type' => 'accessories',
+            'accessory_value' => 'prescription02',
+            'colors' => ['000000', '4a312c', '5b9aff', 'fbbf24', 'ef4444'],
+        ],
+        'acc_round' => [
+            'name' => 'Runde Brille',
+            'description' => 'Retro-Brille im runden Design.',
+            'price' => 2500,
+            'icon' => 'bi-eyeglasses',
+            'type' => 'permanent',
+            'duration_days' => null,
+            'max_per_week' => null,
+            'category' => 'accessory',
+            'accessory_type' => 'accessories',
+            'accessory_value' => 'round',
+            'colors' => ['000000', '4a312c', '5b9aff', 'fbbf24', 'ef4444'],
+        ],
+        'acc_sunglasses' => [
+            'name' => 'Sonnenbrille',
+            'description' => 'Coole Sonnenbrille für deinen Avatar.',
+            'price' => 3000,
+            'icon' => 'bi-eyeglasses',
+            'type' => 'permanent',
+            'duration_days' => null,
+            'max_per_week' => null,
+            'category' => 'accessory',
+            'accessory_type' => 'accessories',
+            'accessory_value' => 'sunglasses',
+            'colors' => ['000000', '4a312c', '5b9aff', 'fbbf24', 'ef4444'],
+        ],
+        'acc_wayfarers' => [
+            'name' => 'Wayfarer',
+            'description' => 'Stilvolle Wayfarer-Brille.',
+            'price' => 3000,
+            'icon' => 'bi-eyeglasses',
+            'type' => 'permanent',
+            'duration_days' => null,
+            'max_per_week' => null,
+            'category' => 'accessory',
+            'accessory_type' => 'accessories',
+            'accessory_value' => 'wayfarers',
+            'colors' => ['000000', '4a312c', '5b9aff', 'fbbf24', 'ef4444'],
+        ],
+        'acc_kurt' => [
+            'name' => 'Nerd-Brille',
+            'description' => 'Eckige Nerd-Brille im Retro-Style.',
+            'price' => 2500,
+            'icon' => 'bi-eyeglasses',
+            'type' => 'permanent',
+            'duration_days' => null,
+            'max_per_week' => null,
+            'category' => 'accessory',
+            'accessory_type' => 'accessories',
+            'accessory_value' => 'kurt',
+            'colors' => ['000000', '4a312c', '5b9aff', 'fbbf24', 'ef4444'],
+        ],
+        'acc_eyepatch' => [
+            'name' => 'Augenklappe',
+            'description' => 'Eine verwegene Augenklappe.',
+            'price' => 3500,
+            'icon' => 'bi-eyeglasses',
+            'type' => 'permanent',
+            'duration_days' => null,
+            'max_per_week' => null,
+            'category' => 'accessory',
+            'accessory_type' => 'accessories',
+            'accessory_value' => 'eyepatch',
+        ],
+
+        // ── Avatar-Accessoires: Hüte/Mützen ──
+        'hat_winterHat1' => [
+            'name' => 'Wintermütze',
+            'description' => 'Eine warme Wintermütze mit Bommel.',
+            'price' => 3000,
+            'icon' => 'bi-snow2',
+            'type' => 'permanent',
+            'duration_days' => null,
+            'max_per_week' => null,
+            'category' => 'accessory',
+            'accessory_type' => 'top',
+            'accessory_value' => 'winterHat1',
+        ],
+        'hat_winterHat02' => [
+            'name' => 'Pudelmütze',
+            'description' => 'Kuschelige Pudelmütze.',
+            'price' => 3000,
+            'icon' => 'bi-snow2',
+            'type' => 'permanent',
+            'duration_days' => null,
+            'max_per_week' => null,
+            'category' => 'accessory',
+            'accessory_type' => 'top',
+            'accessory_value' => 'winterHat02',
+        ],
+        'hat_winterHat03' => [
+            'name' => 'Strickmütze',
+            'description' => 'Handgestrickte Mütze.',
+            'price' => 3500,
+            'icon' => 'bi-snow2',
+            'type' => 'permanent',
+            'duration_days' => null,
+            'max_per_week' => null,
+            'category' => 'accessory',
+            'accessory_type' => 'top',
+            'accessory_value' => 'winterHat03',
+        ],
+        'hat_winterHat04' => [
+            'name' => 'Beanie',
+            'description' => 'Lässige Beanie-Mütze.',
+            'price' => 3500,
+            'icon' => 'bi-snow2',
+            'type' => 'permanent',
+            'duration_days' => null,
+            'max_per_week' => null,
+            'category' => 'accessory',
+            'accessory_type' => 'top',
+            'accessory_value' => 'winterHat04',
+        ],
+        'hat_hat' => [
+            'name' => 'Hut',
+            'description' => 'Ein eleganter Hut.',
+            'price' => 4000,
+            'icon' => 'bi-mortarboard',
+            'type' => 'permanent',
+            'duration_days' => null,
+            'max_per_week' => null,
+            'category' => 'accessory',
+            'accessory_type' => 'top',
+            'accessory_value' => 'hat',
+        ],
+        'hat_hijab' => [
+            'name' => 'Hijab',
+            'description' => 'Ein Hijab für deinen Avatar.',
+            'price' => 3000,
+            'icon' => 'bi-person',
+            'type' => 'permanent',
+            'duration_days' => null,
+            'max_per_week' => null,
+            'category' => 'accessory',
+            'accessory_type' => 'top',
+            'accessory_value' => 'hijab',
+        ],
+        'hat_turban' => [
+            'name' => 'Turban',
+            'description' => 'Ein Turban für deinen Avatar.',
+            'price' => 3500,
+            'icon' => 'bi-person',
+            'type' => 'permanent',
+            'duration_days' => null,
+            'max_per_week' => null,
+            'category' => 'accessory',
+            'accessory_type' => 'top',
+            'accessory_value' => 'turban',
+        ],
+
+        // ── Avatar-Accessoires: Bärte ──
+        'facial_beardLight' => [
+            'name' => 'Dreitagebart',
+            'description' => 'Ein leichter Dreitagebart.',
+            'price' => 2000,
+            'icon' => 'bi-person-fill',
+            'type' => 'permanent',
+            'duration_days' => null,
+            'max_per_week' => null,
+            'category' => 'accessory',
+            'accessory_type' => 'facialHair',
+            'accessory_value' => 'beardLight',
+            'colors' => ['2c1b18', '4a312c', '724133', 'a55728', 'b58143', 'c93305', 'd6b370', '000000'],
+        ],
+        'facial_beardMedium' => [
+            'name' => 'Vollbart',
+            'description' => 'Ein gepflegter Vollbart.',
+            'price' => 2500,
+            'icon' => 'bi-person-fill',
+            'type' => 'permanent',
+            'duration_days' => null,
+            'max_per_week' => null,
+            'category' => 'accessory',
+            'accessory_type' => 'facialHair',
+            'accessory_value' => 'beardMedium',
+            'colors' => ['2c1b18', '4a312c', '724133', 'a55728', 'b58143', 'c93305', 'd6b370', '000000'],
+        ],
+        'facial_beardMajestic' => [
+            'name' => 'Prachtbart',
+            'description' => 'Ein majestätischer Vollbart.',
+            'price' => 4000,
+            'icon' => 'bi-person-fill',
+            'type' => 'permanent',
+            'duration_days' => null,
+            'max_per_week' => null,
+            'category' => 'accessory',
+            'accessory_type' => 'facialHair',
+            'accessory_value' => 'beardMajestic',
+            'colors' => ['2c1b18', '4a312c', '724133', 'a55728', 'b58143', 'c93305', 'd6b370', '000000'],
+        ],
+        'facial_moustacheFancy' => [
+            'name' => 'Schnurrbart',
+            'description' => 'Ein feiner Schnurrbart.',
+            'price' => 2500,
+            'icon' => 'bi-person-fill',
+            'type' => 'permanent',
+            'duration_days' => null,
+            'max_per_week' => null,
+            'category' => 'accessory',
+            'accessory_type' => 'facialHair',
+            'accessory_value' => 'moustacheFancy',
+            'colors' => ['2c1b18', '4a312c', '724133', 'a55728', 'b58143', 'c93305', 'd6b370', '000000'],
+        ],
+        'facial_moustacheMagnum' => [
+            'name' => 'Magnum-Bart',
+            'description' => 'Ein kräftiger Magnum-Schnurrbart.',
+            'price' => 3000,
+            'icon' => 'bi-person-fill',
+            'type' => 'permanent',
+            'duration_days' => null,
+            'max_per_week' => null,
+            'category' => 'accessory',
+            'accessory_type' => 'facialHair',
+            'accessory_value' => 'moustacheMagnum',
+            'colors' => ['2c1b18', '4a312c', '724133', 'a55728', 'b58143', 'c93305', 'd6b370', '000000'],
         ],
     ];
 
@@ -286,6 +532,33 @@ class ShopService
             ];
         }
 
+        // Permanent-Items: Besitz prüfen
+        if (($item['type'] ?? '') === 'permanent') {
+            $owned = UserAvatarAccessory::where('user_id', $user->id)
+                ->where('accessory_slug', $slug)
+                ->exists();
+
+            if ($owned) {
+                $active = $user->active_accessories ?? [];
+                $paramName = $item['accessory_type'] ?? '';
+                $isActive = isset($active[$paramName]) && $active[$paramName] === ($item['accessory_value'] ?? '');
+
+                return [
+                    'can_purchase' => false,
+                    'reason' => 'Bereits im Besitz.',
+                    'is_active' => $isActive,
+                    'expires_at' => null,
+                ];
+            }
+
+            return [
+                'can_purchase' => true,
+                'reason' => null,
+                'is_active' => false,
+                'expires_at' => null,
+            ];
+        }
+
         // Wochen-Limit prüfen
         if ($item['max_per_week'] ?? null) {
             $startOfWeek = Carbon::now()->startOfWeek(Carbon::MONDAY);
@@ -437,8 +710,56 @@ class ShopService
                 $user->profile_frame_until = $expiresAt;
                 $user->profile_frame_type = 'diamond';
                 break;
+
+            default:
+                // Permanente Accessoires
+                if (($item['type'] ?? '') === 'permanent' && ($item['category'] ?? '') === 'accessory') {
+                    UserAvatarAccessory::create([
+                        'user_id' => $user->id,
+                        'accessory_slug' => $slug,
+                        'purchased_at' => Carbon::now(),
+                    ]);
+                }
+                break;
         }
 
         return $expiresAt;
+    }
+
+    /**
+     * Gibt alle gekauften Avatar-Accessoires eines Users zurück, gruppiert nach Typ.
+     */
+    public function getOwnedAccessories(User $user): array
+    {
+        $owned = UserAvatarAccessory::where('user_id', $user->id)
+            ->pluck('accessory_slug')
+            ->toArray();
+
+        $active = $user->active_accessories ?? [];
+
+        $result = [
+            'accessories' => [],
+            'top' => [],
+            'facialHair' => [],
+        ];
+
+        foreach (self::SHOP_ITEMS as $slug => $item) {
+            if (($item['type'] ?? '') !== 'permanent' || ($item['category'] ?? '') !== 'accessory') {
+                continue;
+            }
+            if (!in_array($slug, $owned)) {
+                continue;
+            }
+
+            $paramName = $item['accessory_type'];
+            $isActive = isset($active[$paramName]) && $active[$paramName] === $item['accessory_value'];
+
+            $result[$paramName][$slug] = array_merge($item, [
+                'slug' => $slug,
+                'is_active' => $isActive,
+            ]);
+        }
+
+        return $result;
     }
 }

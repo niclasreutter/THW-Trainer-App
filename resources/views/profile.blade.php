@@ -235,6 +235,102 @@
         .dash-container > .space-y-4 > * { animation: none; }
     }
 
+    /* ─── Accessoire Chips ─── */
+    .pf-acc-section-label {
+        font-size: 0.625rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--text-muted);
+        margin-bottom: 0.4rem;
+        font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .pf-acc-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.375rem;
+        margin-bottom: 0.625rem;
+    }
+
+    .pf-acc-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.3rem 0.6rem;
+        border-radius: 2rem;
+        font-size: 0.6875rem;
+        font-weight: 600;
+        cursor: pointer;
+        background: rgba(255,255,255,0.04);
+        color: var(--text-secondary);
+        border: 1px solid rgba(255,255,255,0.08);
+        transition: all 150ms ease;
+    }
+
+    html.light-mode .pf-acc-chip {
+        background: rgba(0,0,0,0.03);
+        border-color: rgba(0,0,0,0.08);
+    }
+
+    .pf-acc-chip:hover {
+        background: rgba(168,85,247,0.08);
+        color: var(--text-primary);
+    }
+
+    .pf-acc-chip.is-active {
+        background: rgba(168,85,247,0.12);
+        color: #a855f7;
+        border-color: rgba(168,85,247,0.3);
+    }
+
+    .pf-acc-chip__preview {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+    }
+
+    .pf-acc-colors {
+        display: flex;
+        gap: 0.3rem;
+        margin-bottom: 0.75rem;
+        padding-left: 0.25rem;
+    }
+
+    .pf-acc-color-dot {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        cursor: pointer;
+        border: 2px solid transparent;
+        transition: all 150ms ease;
+    }
+
+    .pf-acc-color-dot:hover, .pf-acc-color-dot.selected {
+        transform: scale(1.2);
+    }
+
+    .pf-acc-color-dot.selected {
+        border-color: var(--text-primary);
+    }
+
+    .pf-acc-empty {
+        padding: 1rem;
+        text-align: center;
+        color: var(--text-muted);
+        font-size: 0.8125rem;
+    }
+
+    .pf-acc-empty a {
+        color: #a855f7;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .pf-acc-empty a:hover {
+        text-decoration: underline;
+    }
+
     /* ─── Responsive ─── */
     @media (max-width: 500px) {
         .pf-avatar-card {
@@ -324,6 +420,85 @@
                     </div>
                 </div>
             </div>
+        </div>
+
+        {{-- ── Avatar-Accessoires ── --}}
+        @php
+            $totalOwned = count($ownedAccessories['accessories'] ?? []) + count($ownedAccessories['top'] ?? []) + count($ownedAccessories['facialHair'] ?? []);
+        @endphp
+        <div class="glass p-4" style="border-radius:0.75rem;" x-data="accessoryManager()">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;">
+                <span class="text-xs uppercase tracking-wider" style="color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:0.5625rem;font-weight:700;">Avatar-Accessoires</span>
+                <span style="font-size:0.6875rem;color:var(--text-muted);">{{ $totalOwned }} besitzt</span>
+            </div>
+
+            @if($totalOwned > 0)
+                {{-- Brillen --}}
+                @if(count($ownedAccessories['accessories'] ?? []) > 0)
+                <div class="pf-acc-section-label">Brillen</div>
+                <div class="pf-acc-chips">
+                    @foreach($ownedAccessories['accessories'] as $slug => $acc)
+                    <button class="pf-acc-chip" :class="activeItems.accessories === '{{ $acc['accessory_value'] }}' && 'is-active'"
+                            @click="toggle('{{ $slug }}', '{{ $acc['accessory_value'] }}', 'accessories')" :disabled="toggling">
+                        <img src="https://dicebear.niclas-reutter.de/9.x/avataaars/svg?radius=50&seed=Preview&backgroundType=gradientLinear&backgroundColor=00337f,0055cc&backgroundRotation=135&accessories={{ $acc['accessory_value'] }}&accessoriesProbability=100&eyes=default&mouth=smile" alt="{{ $acc['name'] }}" class="pf-acc-chip__preview" loading="lazy">
+                        {{ $acc['name'] }}
+                    </button>
+                    @endforeach
+                </div>
+                {{-- Farben für aktive Brille --}}
+                <template x-if="activeItems.accessories">
+                    <div class="pf-acc-colors">
+                        @php $glassColors = ['000000', '4a312c', '5b9aff', 'fbbf24', 'ef4444']; @endphp
+                        @foreach($glassColors as $hex)
+                        <div class="pf-acc-color-dot" :class="activeItems.accessoriesColor === '{{ $hex }}' && 'selected'"
+                             style="background:#{{ $hex }};" @click="changeColor(activeSlug('accessories'), '{{ $hex }}')"></div>
+                        @endforeach
+                    </div>
+                </template>
+                @endif
+
+                {{-- Kopfbedeckungen --}}
+                @if(count($ownedAccessories['top'] ?? []) > 0)
+                <div class="pf-acc-section-label">Kopfbedeckungen</div>
+                <div class="pf-acc-chips">
+                    @foreach($ownedAccessories['top'] as $slug => $acc)
+                    <button class="pf-acc-chip" :class="activeItems.top === '{{ $acc['accessory_value'] }}' && 'is-active'"
+                            @click="toggle('{{ $slug }}', '{{ $acc['accessory_value'] }}', 'top')" :disabled="toggling">
+                        <img src="https://dicebear.niclas-reutter.de/9.x/avataaars/svg?radius=50&seed=Preview&backgroundType=gradientLinear&backgroundColor=00337f,0055cc&backgroundRotation=135&top={{ $acc['accessory_value'] }}&eyes=default&mouth=smile" alt="{{ $acc['name'] }}" class="pf-acc-chip__preview" loading="lazy">
+                        {{ $acc['name'] }}
+                    </button>
+                    @endforeach
+                </div>
+                @endif
+
+                {{-- Bärte --}}
+                @if(count($ownedAccessories['facialHair'] ?? []) > 0)
+                <div class="pf-acc-section-label">Bärte</div>
+                <div class="pf-acc-chips">
+                    @foreach($ownedAccessories['facialHair'] as $slug => $acc)
+                    <button class="pf-acc-chip" :class="activeItems.facialHair === '{{ $acc['accessory_value'] }}' && 'is-active'"
+                            @click="toggle('{{ $slug }}', '{{ $acc['accessory_value'] }}', 'facialHair')" :disabled="toggling">
+                        <img src="https://dicebear.niclas-reutter.de/9.x/avataaars/svg?radius=50&seed=Preview&backgroundType=gradientLinear&backgroundColor=00337f,0055cc&backgroundRotation=135&facialHair={{ $acc['accessory_value'] }}&facialHairProbability=100&eyes=default&mouth=smile" alt="{{ $acc['name'] }}" class="pf-acc-chip__preview" loading="lazy">
+                        {{ $acc['name'] }}
+                    </button>
+                    @endforeach
+                </div>
+                {{-- Farben für aktiven Bart --}}
+                <template x-if="activeItems.facialHair">
+                    <div class="pf-acc-colors">
+                        @php $beardColors = ['2c1b18', '4a312c', '724133', 'a55728', 'b58143', 'c93305', 'd6b370', '000000']; @endphp
+                        @foreach($beardColors as $hex)
+                        <div class="pf-acc-color-dot" :class="activeItems.facialHairColor === '{{ $hex }}' && 'selected'"
+                             style="background:#{{ $hex }};" @click="changeColor(activeSlug('facialHair'), '{{ $hex }}')"></div>
+                        @endforeach
+                    </div>
+                </template>
+                @endif
+            @else
+                <div class="pf-acc-empty">
+                    Noch keine Accessoires. <a href="{{ route('shop.index') }}">Besuche den Shop!</a>
+                </div>
+            @endif
         </div>
 
         {{-- ── Persönliche Daten ── --}}
@@ -546,6 +721,99 @@
             document.getElementById('password_confirmation').classList.remove('pf-input-error');
             msg.style.display = 'none';
         }
+    }
+
+    // Accessory Manager
+    function accessoryManager() {
+        return {
+            activeItems: @json($user->active_accessories ?? (object)[]),
+            toggling: false,
+            slugMap: @json(collect($ownedAccessories)->flatMap(function($items) { return collect($items)->mapWithKeys(function($item, $slug) { return [$item['accessory_value'] => $slug]; }); })),
+
+            activeSlug(paramName) {
+                var val = this.activeItems[paramName];
+                return val ? (this.slugMap[val] || '') : '';
+            },
+
+            async toggle(slug, value, paramName) {
+                if (this.toggling) return;
+                this.toggling = true;
+
+                try {
+                    var response = await fetch('{{ route("profile.accessory.toggle") }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Accept': 'application/json',
+                        },
+                        body: JSON.stringify({ accessory_slug: slug }),
+                        cache: 'no-store',
+                    });
+
+                    var data = await response.json();
+                    if (data.success) {
+                        // Rebuild active state from response
+                        var active = {};
+                        ['accessories', 'top', 'facialHair'].forEach(function(type) {
+                            var items = data.owned_accessories[type] || {};
+                            Object.values(items).forEach(function(item) {
+                                if (item.is_active) {
+                                    active[item.accessory_type] = item.accessory_value;
+                                }
+                            });
+                        });
+                        // Preserve color keys from response avatar URL
+                        if (data.avatar_url) {
+                            var url = new URL(data.avatar_url);
+                            var accColor = url.searchParams.get('accessoriesColor');
+                            var fhColor = url.searchParams.get('facialHairColor');
+                            if (accColor) active.accessoriesColor = accColor;
+                            if (fhColor) active.facialHairColor = fhColor;
+                        }
+                        this.activeItems = active;
+                        document.getElementById('pf-avatar-img').src = data.avatar_url + '&_t=' + Date.now();
+                    }
+                } catch (e) {
+                    console.error('Accessory toggle error:', e);
+                } finally {
+                    this.toggling = false;
+                }
+            },
+
+            async changeColor(slug, color) {
+                if (!slug || this.toggling) return;
+                this.toggling = true;
+
+                try {
+                    var response = await fetch('{{ route("profile.accessory.color") }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Accept': 'application/json',
+                        },
+                        body: JSON.stringify({ accessory_slug: slug, color: color }),
+                        cache: 'no-store',
+                    });
+
+                    var data = await response.json();
+                    if (data.success) {
+                        // Update color in active items
+                        var url = new URL(data.avatar_url);
+                        var accColor = url.searchParams.get('accessoriesColor');
+                        var fhColor = url.searchParams.get('facialHairColor');
+                        if (accColor) this.activeItems.accessoriesColor = accColor;
+                        if (fhColor) this.activeItems.facialHairColor = fhColor;
+                        document.getElementById('pf-avatar-img').src = data.avatar_url + '&_t=' + Date.now();
+                    }
+                } catch (e) {
+                    console.error('Color change error:', e);
+                } finally {
+                    this.toggling = false;
+                }
+            }
+        };
     }
 
     // Avatar regeneration
