@@ -175,6 +175,23 @@
         color: #22c55e;
     }
 
+    .shop-item__icon--accessory {
+        background: rgba(168,85,247,0.12);
+        color: #a855f7;
+    }
+
+    .shop-item__preview {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        border: 1px solid rgba(255,255,255,0.08);
+        flex-shrink: 0;
+    }
+
+    html.light-mode .shop-item__preview {
+        border-color: rgba(0,0,0,0.08);
+    }
+
     .shop-item__body { flex: 1; min-width: 0; }
 
     .shop-item__top {
@@ -560,6 +577,7 @@
                 <button class="shop-filter-pill" :class="filter === 'boost' && 'active'" @click="filter = 'boost'; $dispatch('shop-filter', 'boost')">Boosts</button>
                 <button class="shop-filter-pill" :class="filter === 'cosmetic' && 'active'" @click="filter = 'cosmetic'; $dispatch('shop-filter', 'cosmetic')">Kosmetisch</button>
                 <button class="shop-filter-pill" :class="filter === 'utility' && 'active'" @click="filter = 'utility'; $dispatch('shop-filter', 'utility')">Nützlich</button>
+                <button class="shop-filter-pill" :class="filter === 'accessory' && 'active'" @click="filter = 'accessory'; $dispatch('shop-filter', 'accessory')">Accessoires</button>
             </div>
 
             {{-- Shop Items --}}
@@ -573,12 +591,16 @@
                 <div class="shop-item"
                      data-category="{{ $item['category'] }}"
                      x-show="activeFilter === 'all' || activeFilter === '{{ $item['category'] }}'"
-                     x-data="{ confirming: false, selectedColor: 'blue', selectedTitle: 'Meisterhelfer' }"
+                     x-data="{ confirming: false, selectedColor: '{{ isset($item['colors']) ? $item['colors'][0] : 'blue' }}', selectedTitle: 'Meisterhelfer' }"
                      style="position:relative;">
 
+                    @if($item['category'] === 'accessory')
+                    <img src="https://dicebear.niclas-reutter.de/9.x/avataaars/svg?radius=50&seed=ShopPreview&backgroundType=gradientLinear&backgroundColor=00337f,0055cc&backgroundRotation=135&{{ $item['accessory_type'] }}={{ $item['accessory_value'] }}&{{ $item['accessory_type'] === 'accessories' ? 'accessoriesProbability=100' : ($item['accessory_type'] === 'facialHair' ? 'facialHairProbability=100' : '') }}&eyes=default&mouth=smile" alt="{{ $item['name'] }}" class="shop-item__preview" loading="lazy">
+                    @else
                     <div class="shop-item__icon shop-item__icon--{{ $item['category'] }}">
                         <i class="bi {{ $item['icon'] }}"></i>
                     </div>
+                    @endif
 
                     <div class="shop-item__body">
                         <div class="shop-item__top">
@@ -605,8 +627,19 @@
                         </div>
                         @endif
 
+                        {{-- Color selector for accessories with colors --}}
+                        @if($item['category'] === 'accessory' && isset($item['colors']) && !($item['is_active'] ?? false) && ($item['can_purchase'] ?? true))
+                        <div class="shop-color-selector">
+                            @foreach($item['colors'] as $colorHex)
+                            <div class="shop-color-dot" :class="selectedColor === '{{ $colorHex }}' ? 'selected' : ''" @click="selectedColor = '{{ $colorHex }}'" style="background:#{{ $colorHex }};"></div>
+                            @endforeach
+                        </div>
+                        @endif
+
                         <div class="shop-item__tags">
-                            @if(isset($item['duration_days']) && $item['duration_days'])
+                            @if($item['type'] === 'permanent')
+                                <span class="shop-item__tag shop-item__tag--duration">Permanent</span>
+                            @elseif(isset($item['duration_days']) && $item['duration_days'])
                                 <span class="shop-item__tag shop-item__tag--duration">{{ $item['duration_days'] }} Tage</span>
                             @elseif(isset($item['duration_hours']))
                                 <span class="shop-item__tag shop-item__tag--duration">{{ $item['duration_hours'] }}h</span>
@@ -631,7 +664,13 @@
                             <button class="btn-primary btn-sm" @click="confirming = true">Kaufen</button>
                         @else
                             <button class="btn-primary btn-sm" disabled>
-                                {{ $item['reason'] && str_contains($item['reason'], 'Limit') ? 'Limit' : 'Kaufen' }}
+                                @if($item['reason'] && str_contains($item['reason'], 'Besitz'))
+                                    Besitzt
+                                @elseif($item['reason'] && str_contains($item['reason'], 'Limit'))
+                                    Limit
+                                @else
+                                    Kaufen
+                                @endif
                             </button>
                         @endif
                     </div>

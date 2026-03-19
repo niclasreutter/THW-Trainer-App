@@ -24,6 +24,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'email',
         'password',
         'avatar_path',
+        'active_accessories',
         'last_activity_at',
         'email_consent',
         'email_consent_at',
@@ -85,6 +86,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'profile_frame_until' => 'datetime',
             'rank_color_until' => 'datetime',
             'active_title_until' => 'datetime',
+            'active_accessories' => 'array',
         ];
     }
     
@@ -98,12 +100,34 @@ class User extends Authenticatable implements MustVerifyEmail
                 $base = 'https://dicebear.niclas-reutter.de/9.x/';
 
                 if ($this->avatar_path) {
-                    return $base . $this->avatar_path;
+                    $url = $base . $this->avatar_path;
+                } else {
+                    // Fallback for users without avatar_path
+                    $seed = urlencode($this->id . str_replace(' ', '', $this->name));
+                    $url = $base . 'avataaars/svg?radius=50&seed=' . $seed . '&backgroundType=gradientLinear&backgroundColor=00337f,0055cc&backgroundRotation=135&eyes=default,happy&mouth=default,smile';
                 }
 
-                // Fallback for users without avatar_path
-                $seed = urlencode($this->id . str_replace(' ', '', $this->name));
-                return $base . 'avataaars/svg?radius=50&seed=' . $seed . '&backgroundType=gradientLinear&backgroundColor=00337f,0055cc&backgroundRotation=135&eyes=default,happy&mouth=default,smile';
+                // Aktive Accessoires anhängen (DiceBear nutzt den letzten Wert bei doppelten Params)
+                $active = $this->active_accessories;
+                if (!empty($active)) {
+                    if (!empty($active['accessories'])) {
+                        $url .= '&accessories=' . $active['accessories'] . '&accessoriesProbability=100';
+                        if (!empty($active['accessoriesColor'])) {
+                            $url .= '&accessoriesColor=' . $active['accessoriesColor'];
+                        }
+                    }
+                    if (!empty($active['top'])) {
+                        $url .= '&top=' . $active['top'];
+                    }
+                    if (!empty($active['facialHair'])) {
+                        $url .= '&facialHair=' . $active['facialHair'] . '&facialHairProbability=100';
+                        if (!empty($active['facialHairColor'])) {
+                            $url .= '&facialHairColor=' . $active['facialHairColor'];
+                        }
+                    }
+                }
+
+                return $url;
             },
         );
     }
@@ -234,6 +258,14 @@ class User extends Authenticatable implements MustVerifyEmail
     public function lernpoolProgress()
     {
         return $this->hasMany(OrtsverbandLernpoolProgress::class);
+    }
+
+    /**
+     * User hat viele Avatar-Accessoires
+     */
+    public function avatarAccessories()
+    {
+        return $this->hasMany(UserAvatarAccessory::class);
     }
 
     /**
