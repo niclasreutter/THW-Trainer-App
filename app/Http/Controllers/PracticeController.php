@@ -510,6 +510,21 @@ class PracticeController extends Controller
             // Continue with current practice session
             $idsToShow = $practiceIds; // Alle IDs aus der Session
 
+            // SR-Filter: Fragen ausschließen, die noch nicht fällig sind (außer bei Antwort-Anzeige)
+            if (!$showAnsweredQuestion && $mode !== 'spaced_repetition') {
+                $futureSrIds = UserQuestionProgress::where('user_id', $user->id)
+                    ->whereNotNull('next_review_at')
+                    ->where('next_review_at', '>', now())
+                    ->pluck('question_id')
+                    ->toArray();
+                $idsToShow = array_values(array_diff($idsToShow, $futureSrIds));
+
+                // Session-Queue aktualisieren damit gefilterte Fragen nicht wieder auftauchen
+                if (!empty($futureSrIds)) {
+                    session(['practice_ids' => $idsToShow]);
+                }
+            }
+
             if ($showAnsweredQuestion) {
                 // Zeige die gerade beantwortete Frage nochmal
                 $questionId = $answerResult['question_id'];
