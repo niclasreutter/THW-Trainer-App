@@ -354,10 +354,14 @@ class PracticeController extends Controller
                 break;
                 
             case 'section':
-                // Fragen eines Lernabschnitts zufällig sortieren
+                // Fragen eines Lernabschnitts
                 $allSectionIds = Question::where('lernabschnitt', $parameter)->pluck('id')->toArray();
 
-                // Fragen ausschließen, die SR bereits für die Zukunft geplant hat
+                // Bereits gemeisterte Fragen ausschließen
+                $masteredIds = UserQuestionProgress::getMasteredQuestions($user->id);
+                $allSectionIds = array_values(array_diff($allSectionIds, $masteredIds));
+
+                // SR-Fragen mit zukünftigem Review ausschließen
                 $futureSrIds = UserQuestionProgress::where('user_id', $user->id)
                     ->whereNotNull('next_review_at')
                     ->where('next_review_at', '>', now())
@@ -365,10 +369,14 @@ class PracticeController extends Controller
                     ->toArray();
                 $allSectionIds = array_values(array_diff($allSectionIds, $futureSrIds));
 
-                // Zufällige Sortierung der Fragen innerhalb des Lernabschnitts
-                shuffle($allSectionIds);
+                // SR-fällige Fragen zuerst, dann offene Fragen
+                $srService = new SpacedRepetitionService();
+                $srDueIds = $srService->getDueQuestions($user->id);
+                $srDueInSection = array_values(array_intersect($allSectionIds, $srDueIds));
+                $openInSection = array_values(array_diff($allSectionIds, $srDueIds));
+                shuffle($openInSection);
 
-                $idsToShow = $allSectionIds;
+                $idsToShow = array_merge($srDueInSection, $openInSection);
                 break;
                 
             case 'search':
