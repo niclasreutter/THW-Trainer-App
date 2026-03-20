@@ -316,10 +316,18 @@ class PracticeController extends Controller
                 // Nur ungelöste Fragen (nicht gemeistert) zufällig sortieren
                 $masteredIds = UserQuestionProgress::getMasteredQuestions($user->id);
                 $unsolvedIds = Question::whereNotIn('id', $masteredIds)->pluck('id')->toArray();
-                
+
+                // Fragen ausschließen, die SR bereits für die Zukunft geplant hat
+                $futureSrIds = UserQuestionProgress::where('user_id', $user->id)
+                    ->whereNotNull('next_review_at')
+                    ->where('next_review_at', '>', now())
+                    ->pluck('question_id')
+                    ->toArray();
+                $unsolvedIds = array_values(array_diff($unsolvedIds, $futureSrIds));
+
                 // Zufällige Sortierung der ungelösten Fragen
                 shuffle($unsolvedIds);
-                
+
                 $idsToShow = $unsolvedIds;
                 break;
                 
@@ -340,10 +348,18 @@ class PracticeController extends Controller
             case 'section':
                 // Fragen eines Lernabschnitts zufällig sortieren
                 $allSectionIds = Question::where('lernabschnitt', $parameter)->pluck('id')->toArray();
-                
+
+                // Fragen ausschließen, die SR bereits für die Zukunft geplant hat
+                $futureSrIds = UserQuestionProgress::where('user_id', $user->id)
+                    ->whereNotNull('next_review_at')
+                    ->where('next_review_at', '>', now())
+                    ->pluck('question_id')
+                    ->toArray();
+                $allSectionIds = array_values(array_diff($allSectionIds, $futureSrIds));
+
                 // Zufällige Sortierung der Fragen innerhalb des Lernabschnitts
                 shuffle($allSectionIds);
-                
+
                 $idsToShow = $allSectionIds;
                 break;
                 
@@ -355,10 +371,18 @@ class PracticeController extends Controller
                       ->orWhere('antwort_b', 'LIKE', '%' . $parameter . '%')
                       ->orWhere('antwort_c', 'LIKE', '%' . $parameter . '%');
                 })->pluck('id')->toArray();
-                
+
+                // Fragen ausschließen, die SR bereits für die Zukunft geplant hat
+                $futureSrIds = UserQuestionProgress::where('user_id', $user->id)
+                    ->whereNotNull('next_review_at')
+                    ->where('next_review_at', '>', now())
+                    ->pluck('question_id')
+                    ->toArray();
+                $searchIds = array_values(array_diff($searchIds, $futureSrIds));
+
                 // Zufällige Sortierung der Suchergebnisse
                 shuffle($searchIds);
-                
+
                 $idsToShow = $searchIds;
                 break;
                 
