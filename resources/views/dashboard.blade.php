@@ -737,18 +737,20 @@
                                 $dateStr = $dayDate->format('Y-m-d');
                                 $dayData = $weeklyActivity->firstWhere('date', $dateStr);
                                 $count   = $dayData->count ?? 0;
-                                $barPx   = $count > 0 ? max(4, round(($count / $maxCount) * 56)) : 0;
+                                $barPct  = $count > 0 ? max(4, ($count / $maxCount) * 100) : 0;
                                 $isToday = $dayDate->isToday();
                             @endphp
                             <div class="activity-bar__col">
-                                @if($count > 0)
-                                    <span class="activity-bar__count">{{ $count }}</span>
-                                    <div class="activity-bar__fill {{ $isToday ? 'activity-bar__fill--today' : '' }}"
-                                         style="height:{{ $barPx }}px;"
-                                         title="{{ $count }} Fragen am {{ $dayDate->format('d.m.') }}"></div>
-                                @else
-                                    <div class="activity-bar__fill activity-bar__fill--empty" style="height:4px;"></div>
-                                @endif
+                                <div class="activity-bar__track">
+                                    @if($count > 0)
+                                        <span class="activity-bar__count">{{ $count }}</span>
+                                        <div class="activity-bar__fill {{ $isToday ? 'activity-bar__fill--today' : '' }}"
+                                             style="height:{{ $barPct }}%;"
+                                             title="{{ $count }} Fragen am {{ $dayDate->format('d.m.') }}"></div>
+                                    @else
+                                        <div class="activity-bar__fill activity-bar__fill--empty" style="height:4px;"></div>
+                                    @endif
+                                </div>
                                 <span class="activity-bar__day {{ $isToday ? 'activity-bar__day--today' : '' }}">{{ $days[$d] }}</span>
                             </div>
                         @endfor
