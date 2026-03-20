@@ -4629,7 +4629,7 @@ html.light-mode .skeleton::after {
     display: flex;
     align-items: flex-end;
     gap: 0.25rem;
-    height: 80px;
+    height: 100px;
 }
 
 .activity-bar__col {
