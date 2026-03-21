@@ -152,7 +152,7 @@ Route::get('/dashboard', function () {
     } else {
         $solvedCount = \App\Models\UserQuestionProgress::where('user_id', $user->id)->count();
         if ($solvedCount > 0) {
-            // Finde den Lernabschnitt mit den meisten offenen (nicht gemeisterten) Fragen
+            // Finde den niedrigsten Lernabschnitt mit offenen Fragen (der Reihe nach lernen)
             $masteredIds = \App\Models\UserQuestionProgress::getMasteredQuestions($user->id);
             $futureSrIds = \App\Models\UserQuestionProgress::where('user_id', $user->id)
                 ->whereNotNull('next_review_at')
@@ -164,7 +164,7 @@ Route::get('/dashboard', function () {
             $bestSection = \App\Models\Question::whereNotIn('id', $excludedIds)
                 ->selectRaw('lernabschnitt, COUNT(*) as open_count')
                 ->groupBy('lernabschnitt')
-                ->orderByDesc('open_count')
+                ->orderBy('lernabschnitt')
                 ->first();
 
             if ($bestSection) {
