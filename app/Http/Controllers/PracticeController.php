@@ -333,21 +333,21 @@ class PracticeController extends Controller
                 
             case 'failed':
                 // Nur fehlgeschlagene Prüfungsfragen (aus exam_failed_questions)
+                // KEIN SR-Filter hier — Fehlerfragen haben immer Vorrang
                 $failedIds = array_values($failed);
 
                 if (empty($failedIds)) {
-                    return redirect()->route('practice.menu')->with('info', 'Keine falschen Fragen zum Wiederholen! 🎉');
+                    return redirect()->route('practice.menu')->with('info', 'Keine falschen Fragen zum Wiederholen!');
                 }
 
-                // Fragen ausschließen, die SR bereits für die Zukunft geplant hat
-                $futureSrIds = UserQuestionProgress::where('user_id', $user->id)
-                    ->whereNotNull('next_review_at')
-                    ->where('next_review_at', '>', now())
-                    ->pluck('question_id')
-                    ->toArray();
-                $failedIds = array_values(array_diff($failedIds, $futureSrIds));
+                // Bereits gemeisterte Fragen ausschließen (korrekt beantwortet)
+                $masteredIds = UserQuestionProgress::getMasteredQuestions($user->id);
+                $failedIds = array_values(array_diff($failedIds, $masteredIds));
 
-                // Zufällige Sortierung der fehlgeschlagenen Fragen
+                if (empty($failedIds)) {
+                    return redirect()->route('practice.menu')->with('info', 'Alle Fehlerfragen bereits gemeistert!');
+                }
+
                 shuffle($failedIds);
 
                 $idsToShow = $failedIds;
