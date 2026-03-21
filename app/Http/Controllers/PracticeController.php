@@ -674,10 +674,8 @@ class PracticeController extends Controller
             $progressObj->save();
         }
 
-        // SR-Fragen bei falscher Antwort in Fehlerliste aufnehmen
-        // (gemeisterte ODER bereits im SR-System befindliche Fragen)
-        $wasInSr = $progressObj->next_review_at !== null;
-        if (!$isCorrect && ($wasPreviouslyMastered || $wasInSr) && !in_array($question->id, $failed)) {
+        // Bereits gemeisterte Fragen bei falscher Antwort wie Prüfungs-Fehler behandeln
+        if (!$isCorrect && $wasPreviouslyMastered && !in_array($question->id, $failed)) {
             $failed[] = $question->id;
             $user->exam_failed_questions = array_values(array_unique($failed));
             $user->save();
