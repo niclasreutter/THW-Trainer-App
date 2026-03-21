@@ -152,39 +152,55 @@ Route::get('/dashboard', function () {
     } else {
         $solvedCount = \App\Models\UserQuestionProgress::where('user_id', $user->id)->count();
         if ($solvedCount > 0) {
-            // Finde den Lernabschnitt mit den meisten offenen (nicht gemeisterten) Fragen
-            $masteredIds = \App\Models\UserQuestionProgress::getMasteredQuestions($user->id);
-            $futureSrIds = \App\Models\UserQuestionProgress::where('user_id', $user->id)
+            // Prio 1: Fällige SR-Wiederholungen
+            $dueSrCount = \App\Models\UserQuestionProgress::where('user_id', $user->id)
                 ->whereNotNull('next_review_at')
-                ->where('next_review_at', '>', now())
-                ->pluck('question_id')
-                ->toArray();
-            $excludedIds = array_unique(array_merge($masteredIds, $futureSrIds));
+                ->where('next_review_at', '<=', now())
+                ->count();
 
-            $bestSection = \App\Models\Question::whereNotIn('id', $excludedIds)
-                ->selectRaw('lernabschnitt, COUNT(*) as open_count')
-                ->groupBy('lernabschnitt')
-                ->orderByDesc('open_count')
-                ->first();
-
-            if ($bestSection) {
-                $sectionNum = $bestSection->lernabschnitt;
+            if ($dueSrCount > 0) {
                 $smartAction = [
-                    'type' => 'continue', 'label' => 'Weitermachen',
-                    'title' => 'Weiter mit Lernabschnitt ' . $sectionNum,
-                    'desc' => 'Du bist auf einem guten Weg',
-                    'route' => route('practice.section', $sectionNum),
-                    'btn' => 'Starten',
+                    'type' => 'continue', 'label' => 'Wiederholung',
+                    'title' => $dueSrCount . ' ' . ($dueSrCount === 1 ? 'Frage' : 'Fragen') . ' zur Wiederholung',
+                    'desc' => 'Fällige Spaced-Repetition Fragen',
+                    'route' => route('practice.spaced-repetition'),
+                    'btn' => 'Wiederholen',
                 ];
             } else {
-                // Alle Fragen gemeistert oder in SR geplant
-                $smartAction = [
-                    'type' => 'continue', 'label' => 'Weitermachen',
-                    'title' => 'Alle Fragen bearbeitet',
-                    'desc' => 'Wiederhole beliebige Fragen',
-                    'route' => route('practice.all'),
-                    'btn' => 'Starten',
-                ];
+                // Prio 2: Niedrigster Lernabschnitt mit offenen Fragen
+                $masteredIds = \App\Models\UserQuestionProgress::getMasteredQuestions($user->id);
+                $futureSrIds = \App\Models\UserQuestionProgress::where('user_id', $user->id)
+                    ->whereNotNull('next_review_at')
+                    ->where('next_review_at', '>', now())
+                    ->pluck('question_id')
+                    ->toArray();
+                $excludedIds = array_unique(array_merge($masteredIds, $futureSrIds));
+
+                $bestSection = \App\Models\Question::whereNotIn('id', $excludedIds)
+                    ->selectRaw('lernabschnitt, COUNT(*) as open_count')
+                    ->groupBy('lernabschnitt')
+                    ->orderBy('lernabschnitt')
+                    ->first();
+
+                if ($bestSection) {
+                    $sectionNum = $bestSection->lernabschnitt;
+                    $smartAction = [
+                        'type' => 'continue', 'label' => 'Weitermachen',
+                        'title' => 'Weiter mit Lernabschnitt ' . $sectionNum,
+                        'desc' => 'Du bist auf einem guten Weg',
+                        'route' => route('practice.section', $sectionNum),
+                        'btn' => 'Starten',
+                    ];
+                } else {
+                    // Alle Fragen gemeistert oder in SR geplant
+                    $smartAction = [
+                        'type' => 'continue', 'label' => 'Weitermachen',
+                        'title' => 'Alle Fragen bearbeitet',
+                        'desc' => 'Wiederhole beliebige Fragen',
+                        'route' => route('practice.all'),
+                        'btn' => 'Starten',
+                    ];
+                }
             }
         } else {
             $smartAction = [
