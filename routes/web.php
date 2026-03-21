@@ -179,7 +179,7 @@ Route::get('/dashboard', function () {
                 $bestSection = \App\Models\Question::whereNotIn('id', $excludedIds)
                     ->selectRaw('lernabschnitt, COUNT(*) as open_count')
                     ->groupBy('lernabschnitt')
-                    ->orderBy('lernabschnitt')
+                    ->orderByRaw('CAST(lernabschnitt AS UNSIGNED)')
                     ->first();
 
                 if ($bestSection) {
