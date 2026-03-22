@@ -18,7 +18,7 @@
          class="sp-navbar" :class="{ 'scrolled': scrolled }" aria-label="Hauptnavigation">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
             {{-- Logo --}}
-            <a href="{{ route('landing.home') }}" class="flex items-center gap-2.5">
+            <a href="{{ url('/') }}" class="flex items-center gap-2.5">
                 <img src="{{ asset('logo-thwtrainer_w.png') }}" alt="THW-Trainer Logo" class="h-8 w-auto">
                 <span class="font-bold text-xl text-white">THW-Trainer</span>
             </a>
@@ -555,7 +555,7 @@
                 <div>
                     <h4 class="font-semibold text-white text-sm mb-4">Links</h4>
                     <div class="flex flex-col gap-2">
-                        <a href="{{ route('landing.home') }}" class="text-sm text-zinc-500 hover:text-zinc-300 transition-colors">Startseite</a>
+                        <a href="{{ url('/') }}" class="text-sm text-zinc-500 hover:text-zinc-300 transition-colors">Startseite</a>
                         <a href="{{ route('landing.statistics') }}" class="text-sm text-zinc-500 hover:text-zinc-300 transition-colors">Statistiken</a>
                         <a href="{{ route('landing.guest.practice.menu') }}" class="text-sm text-zinc-500 hover:text-zinc-300 transition-colors">Anonym üben</a>
                     </div>
