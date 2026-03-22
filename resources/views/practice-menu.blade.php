@@ -337,7 +337,7 @@
                     $colorClass = $pct >= 80 ? 'green' : ($pct >= 50 ? 'blue' : 'red');
                     $barColor = $pct >= 80 ? '#22c55e' : ($pct >= 50 ? '#0055cc' : '#ef4444');
                 @endphp
-                <a href="{{ route('practice.section', $i) }}" class="section-item">
+                <a href="{{ route('practice.section.menu', $i) }}" class="section-item">
                     <div class="section-num section-num--{{ $colorClass }}">{{ $i }}</div>
                     <div style="flex:1;min-width:0;">
                         <div style="font-size:0.75rem;font-weight:600;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ $sectionNames[$i] }}</div>
