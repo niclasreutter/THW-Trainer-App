@@ -28,6 +28,7 @@
                 <a href="#features" class="text-sm font-medium text-zinc-400 hover:text-white transition-colors duration-200">Features</a>
                 <a href="#how-it-works" class="text-sm font-medium text-zinc-400 hover:text-white transition-colors duration-200">So geht's</a>
                 <a href="#faq" class="text-sm font-medium text-zinc-400 hover:text-white transition-colors duration-200">FAQ</a>
+                <a href="{{ route('landing.statistics') }}" class="text-sm font-medium text-zinc-400 hover:text-white transition-colors duration-200">Statistiken</a>
             </div>
 
             {{-- Desktop Auth --}}
@@ -56,6 +57,7 @@
                 <a href="#features" class="text-zinc-300 hover:text-white py-2" @click="mobileMenuOpen = false">Features</a>
                 <a href="#how-it-works" class="text-zinc-300 hover:text-white py-2" @click="mobileMenuOpen = false">So geht's</a>
                 <a href="#faq" class="text-zinc-300 hover:text-white py-2" @click="mobileMenuOpen = false">FAQ</a>
+                <a href="{{ route('landing.statistics') }}" class="text-zinc-300 hover:text-white py-2" @click="mobileMenuOpen = false">Statistiken</a>
                 <hr class="border-white/10 my-1">
                 <a href="{{ $loginUrl }}" class="text-zinc-300 hover:text-white py-2">Anmelden</a>
                 <a href="{{ $registerUrl }}" class="sp-btn-gold text-center text-sm" style="padding: 0.75rem 1.5rem;">Registrieren</a>
