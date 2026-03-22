@@ -73,11 +73,7 @@ class PracticeController extends Controller
         $solvedCount = count($masteredQuestionIds);
         $failedCount = count($failed);
 
-        // Zukunfts-SR-Fragen abziehen — diese sind nicht jetzt verfügbar
-        $futureSrCount = $progressData->filter(fn($p) =>
-            !$p->isMastered() && $p->next_review_at && $p->next_review_at > now()
-        )->count();
-        $unsolvedCount = $totalQuestions - $solvedCount - $futureSrCount;
+        $unsolvedCount = $totalQuestions - $solvedCount;
 
         // Sync: solved_questions mit tatsächlichem Mastery-Status abgleichen
         $currentSolved = $this->ensureArray($user->solved_questions);
@@ -350,15 +346,8 @@ class PracticeController extends Controller
                 $masteredIds = UserQuestionProgress::getMasteredQuestions($user->id);
                 $unsolvedIds = Question::whereNotIn('id', $masteredIds)->pluck('id')->toArray();
 
-                // Fragen ausschließen, die SR bereits für die Zukunft geplant hat
-                $futureSrIds = UserQuestionProgress::where('user_id', $user->id)
-                    ->whereNotNull('next_review_at')
-                    ->where('next_review_at', '>', now())
-                    ->pluck('question_id')
-                    ->toArray();
-                $unsolvedIds = array_values(array_diff($unsolvedIds, $futureSrIds));
-
                 // Zufällige Sortierung der ungelösten Fragen
+                // Kein SR-Filter — wenn der User aktiv üben will, darf er alle ungelösten Fragen sehen
                 shuffle($unsolvedIds);
 
                 $idsToShow = $unsolvedIds;
