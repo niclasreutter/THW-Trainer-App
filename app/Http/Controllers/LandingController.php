@@ -87,6 +87,11 @@ class LandingController extends Controller
      */
     public function startseite()
     {
+        // In Development: Redirect eingeloggte User zum Dashboard (nur auf /, nicht auf /home)
+        if (config('domains.development') && auth()->check() && ! request()->is('home')) {
+            return redirect()->route('dashboard');
+        }
+
         // Alten Cache löschen (Migration zu neuem Key)
         cache()->forget('landing_stats');
         cache()->forget('landing_stats_v2');

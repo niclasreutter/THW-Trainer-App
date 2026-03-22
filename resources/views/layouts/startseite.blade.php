@@ -9,7 +9,7 @@
 
         <!-- SEO Meta Tags -->
         <meta name="description" content="@hasSection('description')@yield('description')@else THW Theorie kostenlos lernen: Alle aktuellen Prüfungsfragen für die THW Grundausbildung 2026. Prüfungssimulation, Spaced Repetition & Lernfortschritt. @endif">
-        <meta name="keywords" content="THW Theorie, THW Prüfung, THW Grundausbildung, THW Theoriefragen, Technisches Hilfswerk Prüfungsvorbereitung, THW Trainer, THW lernen kostenlos">
+        <meta name="keywords" content="THW Theorie, THW Prüfung, THW Grundausbildung, THW Theoriefragen, Technisches Hilfswerk Prüfungsvorbereitung, THW Trainer, THW lernen kostenlos, THW Prüfungssimulation, THW online, THW Theorieprüfung, THW Prüfungsfragen App, THW online lernen">
         <meta name="author" content="Niclas Reutter">
         @if(app()->environment('testing') || str_contains(request()->getHost(), 'test.') || config('app.environment_type') === 'testing')
             <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
@@ -18,19 +18,20 @@
             <meta name="robots" content="@hasSection('robots')@yield('robots')@else index, follow @endif">
         @endif
 
-        <!-- Open Graph -->
+        <!-- Open Graph / Facebook -->
         <meta property="og:type" content="website">
         <meta property="og:site_name" content="THW-Trainer">
-        <meta property="og:url" content="{{ url()->current() }}">
-        <meta property="og:title" content="@hasSection('title')@yield('title')@else THW-Trainer @endif">
-        <meta property="og:description" content="@hasSection('description')@yield('description')@else THW Theorie kostenlos lernen @endif">
+        <meta property="og:url" content="@hasSection('canonical')@yield('canonical')@else {{ url()->current() }} @endif">
+        <meta property="og:title" content="@hasSection('title')@yield('title')@else THW-Trainer - THW Theorie kostenlos lernen 2026 @endif">
+        <meta property="og:description" content="@hasSection('description')@yield('description')@else THW Theorie kostenlos lernen: Alle aktuellen Prüfungsfragen für die THW Grundausbildung 2026. @endif">
         <meta property="og:image" content="{{ asset('logo-thwtrainer.png') }}">
         <meta property="og:locale" content="de_DE">
 
         <!-- Twitter -->
         <meta property="twitter:card" content="summary_large_image">
-        <meta property="twitter:title" content="@hasSection('title')@yield('title')@else THW-Trainer @endif">
-        <meta property="twitter:description" content="@hasSection('description')@yield('description')@else THW Theorie kostenlos lernen @endif">
+        <meta property="twitter:url" content="@hasSection('canonical')@yield('canonical')@else {{ url()->current() }} @endif">
+        <meta property="twitter:title" content="@hasSection('title')@yield('title')@else THW-Trainer - THW Theorie kostenlos lernen 2026 @endif">
+        <meta property="twitter:description" content="@hasSection('description')@yield('description')@else THW Theorie kostenlos lernen: Alle aktuellen Prüfungsfragen für die THW Grundausbildung 2026. @endif">
         <meta property="twitter:image" content="{{ asset('logo-thwtrainer.png') }}">
 
         <!-- Favicons -->
@@ -39,15 +40,20 @@
         <link rel="apple-touch-icon" href="{{ asset('favicon.ico') }}?v={{ filemtime(public_path('favicon.ico')) }}">
 
         <!-- Canonical URL -->
-        <link rel="canonical" href="{{ url()->current() }}">
-        <link rel="alternate" hreflang="de" href="{{ url()->current() }}">
+        <link rel="canonical" href="@hasSection('canonical')@yield('canonical')@else {{ url()->current() }} @endif">
+
+        <!-- Language -->
+        <link rel="alternate" hreflang="de" href="@hasSection('canonical')@yield('canonical')@else {{ url()->current() }} @endif">
         <link rel="alternate" hreflang="x-default" href="{{ url('/') }}">
 
-        <!-- Performance -->
-        <meta name="theme-color" content="#0a0a0b">
+        <!-- Performance Meta Tags -->
+        <meta name="theme-color" content="#00337F">
         <meta name="mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="format-detection" content="telephone=no">
+        <meta name="msapplication-TileColor" content="#00337F">
         <meta name="application-name" content="THW-Trainer">
 
         <!-- Fonts -->
@@ -65,11 +71,24 @@
             "name": "THW-Trainer",
             "url": "{{ url('/') }}",
             "logo": "{{ asset('logo-thwtrainer.png') }}",
-            "description": "Kostenlose THW Theorieprüfung Vorbereitung online. Alle Prüfungsfragen für Grundausbildung und weitere Lehrgänge.",
+            "description": "Kostenlose THW Theorieprüfung Vorbereitung online. Alle Prüfungsfragen für Grundausbildung, FüUF26 und weitere Lehrgänge.",
             "areaServed": {
                 "@@type": "Country",
                 "name": "Deutschland"
             }
+        }
+        </script>
+
+        <!-- Schema.org WebSite Markup (Sitelinks Search Box) -->
+        <script type="application/ld+json">
+        {
+            "@@context": "https://schema.org",
+            "@@type": "WebSite",
+            "name": "THW-Trainer",
+            "alternateName": ["THW Trainer", "THW-Trainer.de"],
+            "url": "{{ url('/') }}",
+            "description": "Kostenlose Online-Lernplattform für die THW Theorieprüfung. Alle Prüfungsfragen der Grundausbildung 2026 als App.",
+            "inLanguage": "de"
         }
         </script>
 
@@ -86,11 +105,13 @@
         <!-- Cookie Banner -->
         @include('components.cookie-banner')
 
-        <!-- Service Worker -->
+        <!-- Service Worker Registration -->
         <script>
             if ('serviceWorker' in navigator) {
                 window.addEventListener('load', () => {
-                    navigator.serviceWorker.register('/sw.js').catch(() => {});
+                    navigator.serviceWorker.register('/sw.js')
+                        .then(registration => console.log('SW registered'))
+                        .catch(error => console.log('SW failed:', error));
                 });
             }
         </script>

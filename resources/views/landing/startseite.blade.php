@@ -1,7 +1,8 @@
 @extends('layouts.startseite')
 
-@section('title', 'THW-Trainer - Deine THW Theorie Prüfungsvorbereitung 2026')
-@section('description', 'Bestehe deine THW Grundausbildung Theorieprüfung beim ersten Versuch. Alle offiziellen Prüfungsfragen, Prüfungssimulation & Spaced Repetition. Kostenlos & werbefrei.')
+@section('title', 'THW Theorie kostenlos lernen 2026 | THW-Trainer.de')
+@section('description', 'THW Theorie kostenlos lernen: Alle aktuellen Prüfungsfragen für die Grundausbildung 2026. Prüfungssimulation, Spaced Repetition, Ortsverband-Lernpools. Kostenlos & werbefrei.')
+@section('canonical', url('/'))
 
 @section('content')
 @php
@@ -10,6 +11,17 @@
     $appUrl = config('domains.development') ? route('dashboard') : 'https://' . config('domains.app');
 @endphp
 <div x-data="{ mobileMenuOpen: false }">
+
+    {{-- Account gelöscht Meldung --}}
+    @if (session('status') == 'account-deleted')
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20">
+            <div class="glass glass-success p-4 rounded-lg">
+                <p class="text-sm text-green-300 font-medium">
+                    Dein Account wurde erfolgreich gelöscht. Alle deine Daten wurden permanent entfernt.
+                </p>
+            </div>
+        </div>
+    @endif
 
     {{-- ============================================
          NAVBAR - Dark Glass
