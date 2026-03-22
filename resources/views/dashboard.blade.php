@@ -581,6 +581,17 @@
         <div class="space-y-4">
 
             {{-- 1. Smart Action Card --}}
+            @if($smartAction['type'] === 'info')
+            <div class="smart-action smart-action--info" data-tour-step="practice">
+                <div class="smart-action__label">{{ $smartAction['label'] }}</div>
+                <div class="smart-action__title">{{ $smartAction['title'] }}</div>
+                <div class="smart-action__desc">{{ $smartAction['desc'] }}</div>
+                <span class="smart-action__status">
+                    <i class="bi bi-check-circle"></i>
+                    Komm später wieder
+                </span>
+            </div>
+            @else
             <a href="{{ $smartAction['route'] }}"
                class="smart-action {{ session('error') ? 'smart-action--error' : ($smartAction['type'] === 'urgent' ? 'smart-action--urgent' : ($smartAction['type'] === 'live' ? 'smart-action--live' : '')) }}"
                data-tour-step="practice"
@@ -613,6 +624,7 @@
                     </div>
                 @endif
             </a>
+            @endif
 
             {{-- Streak-at-risk Warning --}}
             @if(isset($streakAtRisk) && $streakAtRisk)
