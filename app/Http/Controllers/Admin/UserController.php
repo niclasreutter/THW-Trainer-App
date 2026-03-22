@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers\Admin;
 
+use App\Models\Question;
 use App\Models\User;
 use App\Models\UserQuestionProgress;
 use App\Services\GamificationService;
@@ -163,6 +164,44 @@ class UserController extends Controller
 
         return redirect()->route('admin.users.progress.edit', $user->id)
             ->with('success', $updated . ' Spaced-Repetition-Fragen auf heute vorgezogen');
+    }
+
+    public function setSpacedRepetitionTomorrow($id)
+    {
+        $this->abortIfNotAdmin();
+        $user = User::findOrFail($id);
+
+        $tomorrow = Carbon::tomorrow()->startOfDay();
+
+        // Alle Fragen-IDs holen, für die noch kein Progress existiert
+        $allQuestionIds = Question::pluck('id');
+        $existingIds = UserQuestionProgress::where('user_id', $user->id)
+            ->pluck('question_id');
+        $missingIds = $allQuestionIds->diff($existingIds);
+
+        // Fehlende Einträge erstellen
+        if ($missingIds->isNotEmpty()) {
+            $inserts = $missingIds->map(fn ($qId) => [
+                'user_id' => $user->id,
+                'question_id' => $qId,
+                'consecutive_correct' => 0,
+                'next_review_at' => $tomorrow,
+                'review_interval' => 0,
+                'easiness_factor' => 2.5,
+                'repetition_count' => 0,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ])->toArray();
+
+            UserQuestionProgress::insert($inserts);
+        }
+
+        // Alle bestehenden Einträge auf morgen setzen
+        $updated = UserQuestionProgress::where('user_id', $user->id)
+            ->update(['next_review_at' => $tomorrow]);
+
+        return redirect()->route('admin.users.progress.edit', $user->id)
+            ->with('success', $updated . ' Fragen auf morgen (' . $tomorrow->format('d.m.Y') . ') gesetzt');
     }
 
     public function resetProgress($id)
