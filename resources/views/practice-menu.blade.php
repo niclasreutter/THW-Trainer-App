@@ -218,6 +218,66 @@
         margin-top: 0.1rem;
     }
 
+    /* ─── Smart Action Info State ──────────────── */
+    .smart-action--info {
+        background: linear-gradient(135deg, rgba(34,197,94,0.08), rgba(34,197,94,0.03));
+        border: 1px solid rgba(34,197,94,0.15);
+        cursor: default;
+    }
+
+    .smart-action--info:hover {
+        transform: none;
+        box-shadow: none;
+    }
+
+    .smart-action--info .smart-action__label {
+        color: rgba(34,197,94,0.7);
+    }
+
+    .smart-action--info .smart-action__title {
+        color: #22c55e;
+    }
+
+    html.light-mode .smart-action--info {
+        background: linear-gradient(135deg, rgba(34,197,94,0.06), rgba(34,197,94,0.02));
+        border-color: rgba(34,197,94,0.12);
+    }
+
+    .smart-action__status {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        color: rgba(34,197,94,0.6);
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    /* ─── Disabled Tiles ──────────────────────── */
+    .tile-disabled {
+        opacity: 0.5;
+        cursor: default;
+    }
+
+    /* ─── SR Nudge Upcoming ──────────────────── */
+    .sr-nudge--upcoming {
+        cursor: default;
+    }
+
+    .sr-nudge--upcoming:hover {
+        transform: none;
+        box-shadow: none;
+    }
+
+    .sr-nudge__badge--muted {
+        background: rgba(255,255,255,0.06);
+        color: var(--text-muted);
+        font-size: 0.875rem;
+    }
+
+    html.light-mode .sr-nudge__badge--muted {
+        background: rgba(0,0,0,0.05);
+    }
+
     /* ─── Search Input ───────────────────────────── */
     .pm-search-input {
         width: 100%;
@@ -276,6 +336,17 @@
     <div class="space-y-4">
 
         {{-- ── Smart Action Card ── --}}
+        @if(($smartAction['type'] ?? 'action') === 'info')
+        <div class="smart-action smart-action--info">
+            <div class="smart-action__label">{{ $smartAction['label'] }}</div>
+            <div class="smart-action__title">{{ $smartAction['title'] }}</div>
+            <div class="smart-action__desc">{{ $smartAction['desc'] }}</div>
+            <span class="smart-action__status">
+                <i class="bi bi-check-circle"></i>
+                Komm später wieder
+            </span>
+        </div>
+        @else
         <a href="{{ $smartAction['route'] }}" class="smart-action">
             <div class="smart-action__label">{{ $smartAction['label'] }}</div>
             <div class="smart-action__title">{{ $smartAction['title'] }}</div>
@@ -285,6 +356,7 @@
                 <i class="bi bi-arrow-right"></i>
             </span>
         </a>
+        @endif
 
         {{-- ── Training Mode Tiles ── --}}
         <div class="grid grid-cols-3 gap-2">
@@ -293,20 +365,36 @@
                 <div class="text-xs uppercase tracking-wider mt-1" style="color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:0.5rem;">Alle Fragen</div>
                 <div class="mt-2" style="font-size:0.6875rem;color:#5b9aff;font-weight:600;">Starten →</div>
             </a>
+            @if($unsolvedCount > 0)
             <a href="{{ route('practice.unsolved') }}" class="glass p-3 text-center block" style="border-radius:0.75rem;text-decoration:none;">
                 <div style="font-size:1.5rem;font-weight:800;font-family:'Barlow Condensed',sans-serif;line-height:1;color:var(--warning);">{{ $unsolvedCount }}</div>
                 <div class="text-xs uppercase tracking-wider mt-1" style="color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:0.5rem;">Ungelöste</div>
                 <div class="mt-2" style="font-size:0.6875rem;color:#5b9aff;font-weight:600;">Starten →</div>
             </a>
+            @else
+            <div class="glass p-3 text-center block tile-disabled" style="border-radius:0.75rem;">
+                <div style="font-size:1.5rem;font-weight:800;font-family:'Barlow Condensed',sans-serif;line-height:1;color:var(--text-muted);">0</div>
+                <div class="text-xs uppercase tracking-wider mt-1" style="color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:0.5rem;">Ungelöste</div>
+                <div class="mt-2" style="font-size:0.6875rem;color:var(--text-muted);font-weight:600;">Erledigt</div>
+            </div>
+            @endif
+            @if($failedCount > 0)
             <a href="{{ route('failed.index') }}" class="glass p-3 text-center block" style="border-radius:0.75rem;text-decoration:none;">
                 <div style="font-size:1.5rem;font-weight:800;font-family:'Barlow Condensed',sans-serif;line-height:1;color:var(--error);">{{ $failedCount }}</div>
                 <div class="text-xs uppercase tracking-wider mt-1" style="color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:0.5rem;">Fehler</div>
                 <div class="mt-2" style="font-size:0.6875rem;color:#5b9aff;font-weight:600;">Starten →</div>
             </a>
+            @else
+            <div class="glass p-3 text-center block tile-disabled" style="border-radius:0.75rem;">
+                <div style="font-size:1.5rem;font-weight:800;font-family:'Barlow Condensed',sans-serif;line-height:1;color:var(--text-muted);">0</div>
+                <div class="text-xs uppercase tracking-wider mt-1" style="color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:0.5rem;">Fehler</div>
+                <div class="mt-2" style="font-size:0.6875rem;color:var(--text-muted);font-weight:600;">Keine</div>
+            </div>
+            @endif
         </div>
 
         {{-- ── Spaced Repetition + Fragensuche ── --}}
-        <div class="grid grid-cols-1 gap-2" style="{{ $spacedRepetitionDue > 0 ? 'grid-template-columns:1fr 1fr;' : '' }}">
+        <div class="grid grid-cols-1 gap-2" style="{{ ($spacedRepetitionDue > 0 || $nextSrLabel) ? 'grid-template-columns:1fr 1fr;' : '' }}">
             @if($spacedRepetitionDue > 0)
             <a href="{{ route('practice.spaced-repetition') }}" class="glass sr-nudge">
                 <div class="sr-nudge__badge">{{ $spacedRepetitionDue }}</div>
@@ -315,6 +403,16 @@
                     <div class="sr-nudge__desc">Jetzt wiederholen</div>
                 </div>
             </a>
+            @elseif($nextSrLabel)
+            <div class="glass sr-nudge sr-nudge--upcoming">
+                <div class="sr-nudge__badge sr-nudge__badge--muted">
+                    <i class="bi bi-clock"></i>
+                </div>
+                <div>
+                    <div class="sr-nudge__title" style="color:var(--text-muted);">{{ $nextSrCount }} Reviews {{ $nextSrLabel }}</div>
+                    <div class="sr-nudge__desc">Aktuell keine fällig</div>
+                </div>
+            </div>
             @endif
             <form action="{{ route('practice.search') }}" method="GET" class="glass p-3" style="border-radius:0.75rem;">
                 <div class="text-xs uppercase tracking-wider" style="color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:0.5625rem;font-weight:700;">Fragensuche</div>
