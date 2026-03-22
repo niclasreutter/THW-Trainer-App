@@ -109,7 +109,7 @@
                 {{-- App Mockup --}}
                 <div class="hidden lg:block">
                     <div class="sp-mockup">
-                        <div class="glass glass-gold" style="padding: 2rem; border-radius: 1.5rem 0.5rem 1.5rem 0.5rem;">
+                        <div class="glass glass-blue" style="padding: 2rem; border-radius: 1.5rem 0.5rem 1.5rem 0.5rem;">
                             {{-- Mock Dashboard Header --}}
                             <div class="flex items-center justify-between mb-6">
                                 <div>
@@ -124,7 +124,7 @@
 
                             {{-- Mock Progress Bar --}}
                             <div style="height: 6px; background: rgba(255,255,255,0.08); border-radius: 3px; margin-bottom: 1.75rem; overflow: hidden;">
-                                <div style="width: 75%; height: 100%; background: linear-gradient(90deg, #fbbf24, #f59e0b); border-radius: 3px;"></div>
+                                <div style="width: 75%; height: 100%; background: linear-gradient(90deg, #00337F, #5b9aff); border-radius: 3px;"></div>
                             </div>
 
                             {{-- Mock Stats Row --}}
@@ -169,7 +169,7 @@
     <section class="py-16 lg:py-20 relative" style="background: #060608;" aria-labelledby="stats-heading">
         <h2 id="stats-heading" class="sr-only">Plattform-Statistiken</h2>
         {{-- Top border glow --}}
-        <div style="position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(251, 191, 36, 0.3), transparent);" aria-hidden="true"></div>
+        <div style="position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(91, 154, 255, 0.25), transparent);" aria-hidden="true"></div>
 
         <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="sp-stats">
@@ -210,8 +210,8 @@
 
             <div class="sp-bento">
                 {{-- Main Feature: Alle Prüfungsfragen (2x2) --}}
-                <article class="sp-bento-main glass glass-gold sp-fade-in" style="padding: 2.5rem; border-radius: 2rem 0.75rem 0.75rem 0.75rem;">
-                    <span class="inline-block text-xs font-semibold uppercase tracking-wider text-amber-400 mb-4 px-3 py-1 rounded-full" style="background: rgba(251, 191, 36, 0.1);">Kernfeature</span>
+                <article class="sp-bento-main glass glass-blue sp-fade-in" style="padding: 2.5rem; border-radius: 2rem 0.75rem 0.75rem 0.75rem;">
+                    <span class="inline-block text-xs font-semibold uppercase tracking-wider mb-4 px-3 py-1 rounded-full" style="background: rgba(91, 154, 255, 0.1); color: #93c5fd;">Kernfeature</span>
                     <h3 class="text-2xl lg:text-3xl font-bold text-white mb-4">Alle Prüfungsfragen</h3>
                     <p class="text-zinc-400 leading-relaxed mb-6">
                         Die vollständige Sammlung aller offiziellen THW-Theoriefragen. Immer aktuell, regelmäßig geprüft und erweitert. Von den Grundlagen der Grundausbildung bis zu spezialisierten Lehrgängen.
@@ -277,7 +277,7 @@
             <div class="sp-steps sp-fade-in">
                 {{-- Step 1 --}}
                 <div class="text-center">
-                    <div class="sp-step-number" style="background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #1e293b;">1</div>
+                    <div class="sp-step-number" style="background: #ffffff; color: #00337F;">1</div>
                     <h3 class="text-xl font-bold text-white mb-3">Registrieren</h3>
                     <p class="text-sm text-zinc-400 leading-relaxed max-w-xs mx-auto">
                         Kostenlos anmelden — oder einfach anonym starten. Kein Abo, keine versteckten Kosten, keine Werbung.
@@ -286,7 +286,7 @@
 
                 {{-- Step 2 --}}
                 <div class="text-center">
-                    <div class="sp-step-number" style="background: rgba(251, 191, 36, 0.15); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.3);">2</div>
+                    <div class="sp-step-number" style="background: rgba(91, 154, 255, 0.15); color: #93c5fd; border: 1px solid rgba(91, 154, 255, 0.3);">2</div>
                     <h3 class="text-xl font-bold text-white mb-3">Lernen</h3>
                     <p class="text-sm text-zinc-400 leading-relaxed max-w-xs mx-auto">
                         Fragen beantworten, Fortschritt verfolgen. Spaced Repetition sorgt dafür, dass das Wissen sitzt.
@@ -321,8 +321,8 @@
 
             <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 sp-fade-in">
                 <div class="glass" style="padding: 1.75rem; border-radius: 1.5rem 0.5rem 0.5rem 0.5rem;">
-                    <div class="w-10 h-10 rounded-lg flex items-center justify-center mb-4" style="background: rgba(34, 197, 94, 0.12);">
-                        <i class="bi bi-currency-euro text-lg" style="color: #22c55e;"></i>
+                    <div class="w-10 h-10 rounded-lg flex items-center justify-center mb-4" style="background: rgba(0, 51, 127, 0.15);">
+                        <i class="bi bi-currency-euro text-lg" style="color: #5b9aff;"></i>
                     </div>
                     <h3 class="text-base font-bold text-white mb-2">100% Kostenlos</h3>
                     <p class="text-sm text-zinc-400 leading-relaxed">
@@ -331,8 +331,8 @@
                 </div>
 
                 <div class="glass" style="padding: 1.75rem; border-radius: 0.5rem 1.5rem 0.5rem 0.5rem;">
-                    <div class="w-10 h-10 rounded-lg flex items-center justify-center mb-4" style="background: rgba(251, 191, 36, 0.12);">
-                        <i class="bi bi-ban text-lg" style="color: #fbbf24;"></i>
+                    <div class="w-10 h-10 rounded-lg flex items-center justify-center mb-4" style="background: rgba(0, 51, 127, 0.15);">
+                        <i class="bi bi-ban text-lg" style="color: #5b9aff;"></i>
                     </div>
                     <h3 class="text-base font-bold text-white mb-2">Ohne Werbung</h3>
                     <p class="text-sm text-zinc-400 leading-relaxed">
@@ -341,8 +341,8 @@
                 </div>
 
                 <div class="glass" style="padding: 1.75rem; border-radius: 0.5rem 0.5rem 0.5rem 1.5rem;">
-                    <div class="w-10 h-10 rounded-lg flex items-center justify-center mb-4" style="background: rgba(59, 130, 246, 0.12);">
-                        <i class="bi bi-arrow-repeat text-lg" style="color: #3b82f6;"></i>
+                    <div class="w-10 h-10 rounded-lg flex items-center justify-center mb-4" style="background: rgba(0, 51, 127, 0.15);">
+                        <i class="bi bi-arrow-repeat text-lg" style="color: #5b9aff;"></i>
                     </div>
                     <h3 class="text-base font-bold text-white mb-2">Immer aktuell</h3>
                     <p class="text-sm text-zinc-400 leading-relaxed">
@@ -351,8 +351,8 @@
                 </div>
 
                 <div class="glass" style="padding: 1.75rem; border-radius: 0.5rem 0.5rem 1.5rem 0.5rem;">
-                    <div class="w-10 h-10 rounded-lg flex items-center justify-center mb-4" style="background: rgba(139, 92, 246, 0.12);">
-                        <i class="bi bi-shield-check text-lg" style="color: #8b5cf6;"></i>
+                    <div class="w-10 h-10 rounded-lg flex items-center justify-center mb-4" style="background: rgba(0, 51, 127, 0.15);">
+                        <i class="bi bi-shield-check text-lg" style="color: #5b9aff;"></i>
                     </div>
                     <h3 class="text-base font-bold text-white mb-2">Datenschutz</h3>
                     <p class="text-sm text-zinc-400 leading-relaxed">
@@ -379,8 +379,8 @@
 
             <div class="grid md:grid-cols-3 gap-5 sp-fade-in">
                 {{-- Testimonial 1 - Featured --}}
-                <article class="glass glass-gold md:row-span-2" style="padding: 2rem; border-radius: 1.5rem 0.5rem 1.5rem 0.5rem; display: flex; flex-direction: column; justify-content: center;">
-                    <div class="text-4xl font-black mb-4 leading-none" style="color: rgba(251, 191, 36, 0.2);" aria-hidden="true">"</div>
+                <article class="glass glass-blue md:row-span-2" style="padding: 2rem; border-radius: 1.5rem 0.5rem 1.5rem 0.5rem; display: flex; flex-direction: column; justify-content: center;">
+                    <div class="text-4xl font-black mb-4 leading-none" style="color: rgba(91, 154, 255, 0.25);" aria-hidden="true">"</div>
                     <blockquote class="text-base text-zinc-300 leading-relaxed mb-6">
                         Der THW-Trainer hat mir richtig geholfen. Besonders die Prüfungssimulation war Gold wert — ich wusste genau, was mich erwartet. Durch Spaced Repetition haben sich auch die schwierigen Fragen eingeprägt. Prüfung beim ersten Versuch bestanden!
                     </blockquote>
@@ -392,7 +392,7 @@
 
                 {{-- Testimonial 2 --}}
                 <article class="glass glass-tl" style="padding: 1.75rem;">
-                    <div class="text-2xl font-black mb-3 leading-none" style="color: rgba(251, 191, 36, 0.15);" aria-hidden="true">"</div>
+                    <div class="text-2xl font-black mb-3 leading-none" style="color: rgba(91, 154, 255, 0.2);" aria-hidden="true">"</div>
                     <blockquote class="text-sm text-zinc-300 leading-relaxed mb-4">
                         Endlich eine moderne Lernplattform für die THW-Theorie. Ich konnte überall lernen — im Zug, in der Pause, abends auf der Couch. Super praktisch!
                     </blockquote>
@@ -404,7 +404,7 @@
 
                 {{-- Testimonial 3 --}}
                 <article class="glass glass-br" style="padding: 1.75rem;">
-                    <div class="text-2xl font-black mb-3 leading-none" style="color: rgba(91, 154, 255, 0.15);" aria-hidden="true">"</div>
+                    <div class="text-2xl font-black mb-3 leading-none" style="color: rgba(91, 154, 255, 0.2);" aria-hidden="true">"</div>
                     <blockquote class="text-sm text-zinc-300 leading-relaxed mb-4">
                         Unser OV nutzt die Lernpools und es motiviert ungemein, gemeinsam zu lernen. Die Bestehensquote in unserer Gruppe war 100%.
                     </blockquote>
@@ -577,7 +577,7 @@
                         THW-Trainer ist kostenlos. Unterstütze die Entwicklung!
                     </p>
                     <a href="https://bero-host.de/spenden/ks14llyclh8q" target="_blank" rel="noopener noreferrer"
-                       class="inline-flex items-center gap-2 text-sm font-medium text-amber-400 hover:text-amber-300 transition-colors cursor-pointer">
+                       class="inline-flex items-center gap-2 text-sm font-medium text-blue-400 hover:text-blue-300 transition-colors cursor-pointer">
                         <i class="bi bi-cup-hot"></i>
                         Kaffee spendieren
                     </a>

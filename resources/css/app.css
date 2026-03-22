@@ -3966,8 +3966,8 @@ html.light-mode ::-webkit-scrollbar-thumb:hover {
     position: absolute;
     inset: 0;
     background:
-        radial-gradient(ellipse 60% 50% at 15% 50%, rgba(0, 51, 127, 0.12) 0%, transparent 70%),
-        radial-gradient(ellipse 40% 40% at 85% 30%, rgba(251, 191, 36, 0.06) 0%, transparent 60%);
+        radial-gradient(ellipse 60% 50% at 15% 50%, rgba(0, 51, 127, 0.15) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 40% at 85% 30%, rgba(91, 154, 255, 0.08) 0%, transparent 60%);
     pointer-events: none;
 }
 
@@ -3982,7 +3982,7 @@ html.light-mode ::-webkit-scrollbar-thumb:hover {
 .sp-orb-1 {
     width: 500px;
     height: 500px;
-    background: radial-gradient(circle, rgba(251, 191, 36, 0.2), transparent 70%);
+    background: radial-gradient(circle, rgba(91, 154, 255, 0.2), transparent 70%);
     top: 5%;
     right: -10%;
     animation: sp-float-1 20s ease-in-out infinite;
@@ -4000,7 +4000,7 @@ html.light-mode ::-webkit-scrollbar-thumb:hover {
 .sp-orb-3 {
     width: 250px;
     height: 250px;
-    background: radial-gradient(circle, rgba(139, 92, 246, 0.15), transparent 70%);
+    background: radial-gradient(circle, rgba(0, 77, 179, 0.2), transparent 70%);
     top: 55%;
     right: 25%;
     animation: sp-float-3 18s ease-in-out infinite;
@@ -4029,19 +4029,19 @@ html.light-mode ::-webkit-scrollbar-thumb:hover {
     display: inline-flex;
     align-items: center;
     padding: 0.45rem 1.1rem;
-    background: rgba(251, 191, 36, 0.08);
-    border: 1px solid rgba(251, 191, 36, 0.18);
+    background: rgba(91, 154, 255, 0.08);
+    border: 1px solid rgba(91, 154, 255, 0.2);
     border-radius: 9999px;
-    color: #fbbf24;
+    color: #93bbff;
     font-size: 0.8rem;
     font-weight: 600;
     letter-spacing: 0.03em;
     margin-bottom: 1.5rem;
 }
 
-/* Gold Gradient Text */
+/* Blue Gradient Text */
 .sp-gradient-text {
-    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+    background: linear-gradient(135deg, #93c5fd, #5b9aff);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -4069,7 +4069,7 @@ html.light-mode ::-webkit-scrollbar-thumb:hover {
 .sp-scroll-dot {
     width: 4px;
     height: 8px;
-    background: rgba(251, 191, 36, 0.6);
+    background: rgba(255, 255, 255, 0.5);
     border-radius: 2px;
     position: absolute;
     left: 50%;
@@ -4103,26 +4103,26 @@ html.light-mode ::-webkit-scrollbar-thumb:hover {
     padding: 0.6rem 0;
 }
 
-/* --- Gold CTA Button --- */
+/* --- Primary CTA Button (THW Blau/Weiß) --- */
 .sp-btn-gold {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     padding: 0.95rem 2.25rem;
-    background: linear-gradient(135deg, #fbbf24, #f59e0b);
-    color: #1e293b;
+    background: #ffffff;
+    color: #00337F;
     font-weight: 700;
     font-size: 1rem;
     border-radius: 0.875rem;
     transition: transform 0.25s ease, box-shadow 0.25s ease;
-    box-shadow: 0 0 25px rgba(251, 191, 36, 0.15);
+    box-shadow: 0 0 25px rgba(255, 255, 255, 0.08);
     cursor: pointer;
     text-decoration: none;
 }
 
 .sp-btn-gold:hover {
     transform: translateY(-2px);
-    box-shadow: 0 0 40px rgba(251, 191, 36, 0.3);
+    box-shadow: 0 0 40px rgba(255, 255, 255, 0.15);
 }
 
 /* --- Ghost Button --- */
@@ -4165,16 +4165,13 @@ html.light-mode ::-webkit-scrollbar-thumb:hover {
 }
 
 .sp-stat-card:hover {
-    border-color: rgba(251, 191, 36, 0.15);
+    border-color: rgba(91, 154, 255, 0.2);
 }
 
 .sp-stat-value {
     font-size: 2rem;
     font-weight: 800;
-    background: linear-gradient(135deg, #fbbf24, #f59e0b);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: #ffffff;
     margin-bottom: 0.25rem;
 }
 
@@ -4250,9 +4247,9 @@ html.light-mode ::-webkit-scrollbar-thumb:hover {
     right: 18%;
     height: 2px;
     background: linear-gradient(90deg,
-        rgba(251, 191, 36, 0.25),
-        rgba(251, 191, 36, 0.08),
-        rgba(91, 154, 255, 0.25));
+        rgba(0, 51, 127, 0.4),
+        rgba(91, 154, 255, 0.12),
+        rgba(0, 51, 127, 0.4));
     z-index: 0;
 }
 
@@ -4294,7 +4291,7 @@ html.light-mode ::-webkit-scrollbar-thumb:hover {
     left: 0;
     right: 0;
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(251, 191, 36, 0.4), transparent);
+    background: linear-gradient(90deg, transparent, rgba(91, 154, 255, 0.3), transparent);
 }
 
 .sp-cta::after {
@@ -4338,7 +4335,7 @@ html.light-mode ::-webkit-scrollbar-thumb:hover {
 }
 
 .sp-faq-toggle:hover {
-    color: #fbbf24;
+    color: #93c5fd;
 }
 
 .sp-faq-content {
@@ -4363,7 +4360,7 @@ html.light-mode ::-webkit-scrollbar-thumb:hover {
 
 .sp-faq-chevron.open {
     transform: rotate(180deg);
-    color: #fbbf24;
+    color: #93c5fd;
 }
 
 /* --- Footer --- */
