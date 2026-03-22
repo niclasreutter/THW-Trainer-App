@@ -73,15 +73,15 @@ class TestAllEmailsCommand extends Command
 
         $testEmails = [
             '1. Registrierungs-Bestätigung (verify-registration)' => function() use ($testUser, $email) {
-                Mail::to($email)->send(new VerifyRegistrationMail('https://thw-trainer.de/verify/test-token'));
+                Mail::to($email)->send(new VerifyRegistrationMail('https://' . config('domains.app') . '/verify/test-token'));
             },
             '2. Passwort-Reset (reset-password)' => function() use ($email) {
-                Mail::to($email)->send(new ResetPasswordMail('https://thw-trainer.de/reset-password/test-token'));
+                Mail::to($email)->send(new ResetPasswordMail('https://' . config('domains.app') . '/reset-password/test-token'));
             },
             '3. E-Mail-Bestätigung (verify-email)' => function() use ($testUser, $email) {
                 Mail::send('emails.verify-email', [
                     'user' => $testUser,
-                    'verificationUrl' => 'https://thw-trainer.de/verify-email/test-token'
+                    'verificationUrl' => 'https://' . config('domains.app') . '/verify-email/test-token'
                 ], function ($message) use ($email) {
                     $message->to($email)
                             ->subject('E-Mail-Adresse bestätigen');
@@ -129,7 +129,7 @@ class TestAllEmailsCommand extends Command
                     </div>
 
                     <p style="text-align:center;">
-                        <a href="https://thw-trainer.de" class="glow-button">Jetzt lernen</a>
+                        <a href="https://' . config('domains.app') . '" class="glow-button">Jetzt lernen</a>
                     </p>
 
                     <p>Viele Grüße,<br>Dein THW-Trainer Team</p>
