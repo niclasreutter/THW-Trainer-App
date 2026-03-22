@@ -165,6 +165,20 @@ class UserController extends Controller
             ->with('success', $updated . ' Spaced-Repetition-Fragen auf heute vorgezogen');
     }
 
+    public function setSpacedRepetitionTomorrow($id)
+    {
+        $this->abortIfNotAdmin();
+        $user = User::findOrFail($id);
+
+        $tomorrow = Carbon::tomorrow()->startOfDay();
+
+        $updated = UserQuestionProgress::where('user_id', $user->id)
+            ->update(['next_review_at' => $tomorrow]);
+
+        return redirect()->route('admin.users.progress.edit', $user->id)
+            ->with('success', $updated . ' Fragen auf morgen (' . $tomorrow->format('d.m.Y') . ') gesetzt');
+    }
+
     public function resetProgress($id)
     {
         $this->abortIfNotAdmin();
