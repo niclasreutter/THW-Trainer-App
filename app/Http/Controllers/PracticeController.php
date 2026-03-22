@@ -73,11 +73,7 @@ class PracticeController extends Controller
         $solvedCount = count($masteredQuestionIds);
         $failedCount = count($failed);
 
-        // Zukunfts-SR-Fragen abziehen — diese sind nicht jetzt verfügbar
-        $futureSrCount = $progressData->filter(fn($p) =>
-            !$p->isMastered() && $p->next_review_at && $p->next_review_at > now()
-        )->count();
-        $unsolvedCount = $totalQuestions - $solvedCount - $futureSrCount;
+        $unsolvedCount = $totalQuestions - $solvedCount;
 
         // Sync: solved_questions mit tatsächlichem Mastery-Status abgleichen
         $currentSolved = $this->ensureArray($user->solved_questions);
@@ -127,6 +123,13 @@ class PracticeController extends Controller
                 'title' => "$failedCount Fehler wiederholen",
                 'desc'  => 'Priorisiere fehlgeschlagene Fragen zuerst',
                 'route' => route('failed.index'),
+                'type'  => 'action',
+            ],
+            $unsolvedCount > 0 && $solvedCount >= ($totalQuestions * 0.9) => [
+                'label' => 'Wiederholen',
+                'title' => "Alle $totalQuestions Fragen zufällig lernen",
+                'desc'  => "$solvedCount gemeistert, $unsolvedCount ungelöste werden priorisiert",
+                'route' => route('practice.all'),
                 'type'  => 'action',
             ],
             $unsolvedCount > 0 => [
@@ -372,6 +375,7 @@ class PracticeController extends Controller
                 }
 
                 // Zufällige Sortierung der ungelösten Fragen
+                // Kein SR-Filter — wenn der User aktiv üben will, darf er alle ungelösten Fragen sehen
                 shuffle($unsolvedIds);
 
                 $idsToShow = $unsolvedIds;
@@ -505,17 +509,19 @@ class PracticeController extends Controller
         $idsToShow = array_diff($idsToShow, $skipped);
         
         if (empty($idsToShow)) {
-            $message = $mode === 'unsolved' 
-                ? 'Alle Fragen in diesem Bereich wurden bereits gelöst! 🎉'
-                : 'Keine Fragen gefunden.';
-            
             \Log::info('No questions found after skipped removal', [
                 'mode' => $mode,
                 'parameter' => $parameter,
                 'skipped_count' => count($skipped)
             ]);
-                
-            return redirect()->route('practice.menu')->with('success', $message);
+
+            // Bei 'unsolved' Modus: Fallback auf alle Fragen statt Redirect-Loop zum Menü
+            if ($mode === 'unsolved') {
+                return redirect()->route('practice.all')
+                    ->with('info', 'Keine ungelösten Fragen verfügbar — alle Fragen werden geladen.');
+            }
+
+            return redirect()->route('practice.menu')->with('success', 'Keine Fragen gefunden.');
         }
         
         // Zusätzlicher Sicherheitscheck
