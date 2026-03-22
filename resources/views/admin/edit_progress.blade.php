@@ -89,21 +89,24 @@
                 </div>
             @endif
 
-            <!-- Test-Tool: Alle auf morgen setzen -->
-            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.06);">
-                <div>
-                    <div style="font-weight: 600; color: var(--text-primary);">Alle {{ $srStats['total_in_system'] }} Fragen auf morgen setzen</div>
-                    <div style="font-size: 0.8rem; color: var(--text-muted);">Test-Tool: Setzt alle SR-Fragen (inkl. gemasterte) auf morgen fällig</div>
-                </div>
-                <form method="POST" action="{{ route('admin.users.progress.sr-set-tomorrow', $user->id) }}">
-                    @csrf
-                    <button type="submit" class="btn-secondary btn-sm" onclick="return confirm('Alle {{ $srStats['total_in_system'] }} Fragen auf morgen setzen? (inkl. gemasterte)')">
-                        Alle auf morgen setzen
-                    </button>
-                </form>
-            </div>
         </div>
     @endif
+
+    <!-- Test-Tool: Alle Fragen auf morgen setzen (immer sichtbar) -->
+    <div class="glass" style="margin-bottom: 2rem; padding: 1.5rem;">
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+            <div>
+                <div style="font-weight: 600; color: var(--text-primary);">Alle Fragen auf morgen setzen</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted);">Test-Tool: Erstellt SR-Einträge für alle Fragen und setzt sie auf morgen fällig</div>
+            </div>
+            <form method="POST" action="{{ route('admin.users.progress.sr-set-tomorrow', $user->id) }}">
+                @csrf
+                <button type="submit" class="btn-secondary btn-sm" onclick="return confirm('Alle Fragen auf morgen setzen? (erstellt fehlende Einträge)')">
+                    Alle auf morgen setzen
+                </button>
+            </form>
+        </div>
+    </div>
 
     <!-- Fortschritt zurücksetzen -->
     <div class="glass-error" style="padding: 1.5rem; margin-bottom: 2rem; border: 1px solid rgba(239, 68, 68, 0.25);">
