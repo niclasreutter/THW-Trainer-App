@@ -176,12 +176,75 @@ class PracticeController extends Controller
     }
 
     /**
-     * Lernabschnitt üben
+     * Lernabschnitt-Menü anzeigen (SR, Ungelöst, Gelöst)
+     */
+    public function sectionMenu($section)
+    {
+        $section = (int) $section;
+        if ($section < 1 || $section > 10) {
+            return redirect()->route('practice.menu')->with('error', 'Ungültiger Lernabschnitt.');
+        }
+
+        $user = Auth::user();
+        $sectionQuestionIds = Question::where('lernabschnitt', $section)->pluck('id')->toArray();
+        $totalInSection = count($sectionQuestionIds);
+
+        // Gemeisterte Fragen in diesem Abschnitt
+        $masteredIds = UserQuestionProgress::getMasteredQuestions($user->id);
+        $masteredInSection = array_values(array_intersect($masteredIds, $sectionQuestionIds));
+        $solvedCount = count($masteredInSection);
+
+        // Ungelöste Fragen
+        $unsolvedCount = $totalInSection - $solvedCount;
+
+        // SR-fällige Fragen in diesem Abschnitt
+        $srService = new SpacedRepetitionService();
+        $srDueIds = $srService->getDueQuestions($user->id);
+        $srDueInSection = count(array_intersect($srDueIds, $sectionQuestionIds));
+
+        $sectionName = self::SECTION_NAMES[$section] ?? "Lernabschnitt $section";
+        $pct = $totalInSection > 0 ? round(($solvedCount / $totalInSection) * 100) : 0;
+
+        return view('practice-section-menu', compact(
+            'section', 'sectionName', 'totalInSection', 'solvedCount',
+            'unsolvedCount', 'srDueInSection', 'pct'
+        ));
+    }
+
+    /**
+     * Lernabschnitt üben (alle nicht-gemeisterten)
      */
     public function section($section)
     {
         session()->forget(['practice_mode', 'practice_parameter', 'practice_ids', 'practice_skipped']);
         return $this->practiceMode('section', $section);
+    }
+
+    /**
+     * Nur ungelöste Fragen eines Lernabschnitts üben
+     */
+    public function sectionUnsolved($section)
+    {
+        session()->forget(['practice_mode', 'practice_parameter', 'practice_ids', 'practice_skipped']);
+        return $this->practiceMode('section_unsolved', $section);
+    }
+
+    /**
+     * Nur SR-fällige Fragen eines Lernabschnitts üben
+     */
+    public function sectionSr($section)
+    {
+        session()->forget(['practice_mode', 'practice_parameter', 'practice_ids', 'practice_skipped']);
+        return $this->practiceMode('section_sr', $section);
+    }
+
+    /**
+     * Gemeisterte Fragen eines Lernabschnitts wiederholen
+     */
+    public function sectionSolved($section)
+    {
+        session()->forget(['practice_mode', 'practice_parameter', 'practice_ids', 'practice_skipped']);
+        return $this->practiceMode('section_solved', $section);
     }
 
     /**
@@ -378,7 +441,55 @@ class PracticeController extends Controller
 
                 $idsToShow = array_merge($srDueInSection, $openInSection);
                 break;
-                
+
+            case 'section_unsolved':
+                // Nur ungelöste Fragen eines Lernabschnitts
+                $allSectionIds = Question::where('lernabschnitt', $parameter)->pluck('id')->toArray();
+                $masteredIds = UserQuestionProgress::getMasteredQuestions($user->id);
+                $unsolvedIds = array_values(array_diff($allSectionIds, $masteredIds));
+
+                $futureSrIds = UserQuestionProgress::where('user_id', $user->id)
+                    ->whereNotNull('next_review_at')
+                    ->where('next_review_at', '>', now())
+                    ->pluck('question_id')
+                    ->toArray();
+                $unsolvedIds = array_values(array_diff($unsolvedIds, $futureSrIds));
+                shuffle($unsolvedIds);
+
+                $idsToShow = $unsolvedIds;
+                break;
+
+            case 'section_sr':
+                // Nur SR-fällige Fragen eines Lernabschnitts
+                $allSectionIds = Question::where('lernabschnitt', $parameter)->pluck('id')->toArray();
+                $srService = new SpacedRepetitionService();
+                $srDueIds = $srService->getDueQuestions($user->id);
+                $srDueInSection = array_values(array_intersect($allSectionIds, $srDueIds));
+                shuffle($srDueInSection);
+
+                if (empty($srDueInSection)) {
+                    return redirect()->route('practice.section.menu', $parameter)
+                        ->with('info', 'Keine SR-Wiederholungen fällig in diesem Abschnitt.');
+                }
+
+                $idsToShow = $srDueInSection;
+                break;
+
+            case 'section_solved':
+                // Gemeisterte Fragen eines Lernabschnitts wiederholen
+                $allSectionIds = Question::where('lernabschnitt', $parameter)->pluck('id')->toArray();
+                $masteredIds = UserQuestionProgress::getMasteredQuestions($user->id);
+                $solvedIds = array_values(array_intersect($allSectionIds, $masteredIds));
+                shuffle($solvedIds);
+
+                if (empty($solvedIds)) {
+                    return redirect()->route('practice.section.menu', $parameter)
+                        ->with('info', 'Noch keine Fragen in diesem Abschnitt gemeistert.');
+                }
+
+                $idsToShow = $solvedIds;
+                break;
+
             case 'search':
                 // Fragen mit Suchbegriff zufällig sortieren
                 $searchIds = Question::where(function($q) use ($parameter) {
