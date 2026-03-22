@@ -193,13 +193,42 @@ Route::get('/dashboard', function () {
                     ];
                 } else {
                     // Alle Fragen gemeistert oder in SR geplant
-                    $smartAction = [
-                        'type' => 'continue', 'label' => 'Weitermachen',
-                        'title' => 'Alle Fragen bearbeitet',
-                        'desc' => 'Wiederhole beliebige Fragen',
-                        'route' => route('practice.all'),
-                        'btn' => 'Starten',
-                    ];
+                    if (count($masteredIds) > 0) {
+                        // User hat gemeisterte Fragen die frei wiederholbar sind
+                        $smartAction = [
+                            'type' => 'continue', 'label' => 'Weitermachen',
+                            'title' => 'Alle Fragen bearbeitet',
+                            'desc' => 'Wiederhole beliebige Fragen',
+                            'route' => route('practice.all'),
+                            'btn' => 'Starten',
+                        ];
+                    } else {
+                        // Alle Fragen in zukünftiger SR — heute nichts zu tun
+                        $nextReview = \App\Models\UserQuestionProgress::where('user_id', $user->id)
+                            ->whereNotNull('next_review_at')
+                            ->where('next_review_at', '>', now())
+                            ->orderBy('next_review_at')
+                            ->first();
+
+                        $nextReviewText = 'Komm später wieder';
+                        if ($nextReview) {
+                            $nextDate = \Carbon\Carbon::parse($nextReview->next_review_at);
+                            $diffDays = (int) now()->startOfDay()->diffInDays($nextDate->startOfDay());
+                            $nextReviewText = match(true) {
+                                $diffDays === 0 => 'Nächste Wiederholung: Heute',
+                                $diffDays === 1 => 'Nächste Wiederholung: Morgen',
+                                default => 'Nächste Wiederholung in ' . $diffDays . ' Tagen',
+                            };
+                        }
+
+                        $smartAction = [
+                            'type' => 'info', 'label' => 'Erledigt',
+                            'title' => 'Super gemacht! Für heute alles geschafft',
+                            'desc' => $nextReviewText,
+                            'route' => null,
+                            'btn' => null,
+                        ];
+                    }
                 }
             }
         } else {
@@ -494,6 +523,7 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix
     Route::get('users/{id}/progress', [\App\Http\Controllers\Admin\UserController::class, 'editProgress'])->name('users.progress.edit');
     Route::put('users/{id}/progress', [\App\Http\Controllers\Admin\UserController::class, 'updateProgress'])->name('users.progress.update');
     Route::post('users/{id}/progress/sr-pull-forward', [\App\Http\Controllers\Admin\UserController::class, 'pullForwardSpacedRepetition'])->name('users.progress.sr-pull-forward');
+    Route::post('users/{id}/progress/sr-set-tomorrow', [\App\Http\Controllers\Admin\UserController::class, 'setSpacedRepetitionTomorrow'])->name('users.progress.sr-set-tomorrow');
     Route::post('users/{id}/progress/reset', [\App\Http\Controllers\Admin\UserController::class, 'resetProgress'])->name('users.progress.reset');
     Route::get('users/{id}/xp-history', [\App\Http\Controllers\Admin\UserController::class, 'xpHistory'])->name('users.xp-history');
 

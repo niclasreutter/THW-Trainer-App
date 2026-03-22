@@ -254,7 +254,11 @@ class PracticeController extends Controller
         $solved = $this->ensureArray($user->solved_questions);
         $failed = $this->ensureArray($user->exam_failed_questions);
         $skipped = session('practice_skipped', []);
-        
+
+        // SR-Filter bypassen wenn User in aktiver Lernsession ist
+        $lernsessionService = app(\App\Services\LernsessionService::class);
+        $inActiveSession = (bool) $lernsessionService->isUserInActiveSession($user);
+
         // Basis-Query je nach Modus
         $query = Question::query();
         
@@ -299,12 +303,17 @@ class PracticeController extends Controller
                 // Fragen ausschließen, die SR bereits für die Zukunft geplant hat.
                 // Wenn next_review_at > now() ist die Frage bereits beantwortet worden und
                 // wird vom SR-Algorithmus erst später wieder eingeblendet – nicht heute nochmal zeigen.
-                $futureSrIds = UserQuestionProgress::where('user_id', $user->id)
-                    ->whereNotNull('next_review_at')
-                    ->where('next_review_at', '>', now())
-                    ->pluck('question_id')
-                    ->toArray();
-                $toLearnIds = array_diff($toLearnIds, $futureSrIds);
+                // AUSNAHME: In aktiver Lernsession werden alle Fragen angezeigt.
+                if (!$inActiveSession) {
+                    $futureSrIds = UserQuestionProgress::where('user_id', $user->id)
+                        ->whereNotNull('next_review_at')
+                        ->where('next_review_at', '>', now())
+                        ->pluck('question_id')
+                        ->toArray();
+                    $toLearnIds = array_diff($toLearnIds, $futureSrIds);
+                } else {
+                    $futureSrIds = [];
+                }
 
                 // Nach Lernabschnitten sortiert, innerhalb zufällig
                 $sortedToLearnIds = [];
@@ -338,6 +347,7 @@ class PracticeController extends Controller
                     'total_to_learn' => count($toLearnIds),
                     'remaining_random' => count($remainingIds),
                     'total_ids_to_show' => count($idsToShow),
+                    'in_active_session' => $inActiveSession,
                 ]);
                 break;
                 
@@ -345,6 +355,17 @@ class PracticeController extends Controller
                 // Nur ungelöste Fragen (nicht gemeistert) zufällig sortieren
                 $masteredIds = UserQuestionProgress::getMasteredQuestions($user->id);
                 $unsolvedIds = Question::whereNotIn('id', $masteredIds)->pluck('id')->toArray();
+
+                // Fragen ausschließen, die SR bereits für die Zukunft geplant hat
+                // AUSNAHME: In aktiver Lernsession werden alle Fragen angezeigt.
+                if (!$inActiveSession) {
+                    $futureSrIds = UserQuestionProgress::where('user_id', $user->id)
+                        ->whereNotNull('next_review_at')
+                        ->where('next_review_at', '>', now())
+                        ->pluck('question_id')
+                        ->toArray();
+                    $unsolvedIds = array_values(array_diff($unsolvedIds, $futureSrIds));
+                }
 
                 // Zufällige Sortierung der ungelösten Fragen
                 // Kein SR-Filter — wenn der User aktiv üben will, darf er alle ungelösten Fragen sehen
@@ -412,12 +433,17 @@ class PracticeController extends Controller
                 $currentlyMasteredIds = UserQuestionProgress::getMasteredQuestions($user->id);
                 $toLearnIds = array_diff($toLearnIds, $currentlyMasteredIds);
 
-                $futureSrIds = UserQuestionProgress::where('user_id', $user->id)
-                    ->whereNotNull('next_review_at')
-                    ->where('next_review_at', '>', now())
-                    ->pluck('question_id')
-                    ->toArray();
-                $toLearnIds = array_diff($toLearnIds, $futureSrIds);
+                // AUSNAHME: In aktiver Lernsession werden alle Fragen angezeigt.
+                if (!$inActiveSession) {
+                    $futureSrIds = UserQuestionProgress::where('user_id', $user->id)
+                        ->whereNotNull('next_review_at')
+                        ->where('next_review_at', '>', now())
+                        ->pluck('question_id')
+                        ->toArray();
+                    $toLearnIds = array_diff($toLearnIds, $futureSrIds);
+                } else {
+                    $futureSrIds = [];
+                }
                 $toLearnIds = array_values($toLearnIds);
                 shuffle($toLearnIds);
                 $idsToShow = array_merge($idsToShow, $toLearnIds);
@@ -442,12 +468,15 @@ class PracticeController extends Controller
                 })->pluck('id')->toArray();
 
                 // Fragen ausschließen, die SR bereits für die Zukunft geplant hat
-                $futureSrIds = UserQuestionProgress::where('user_id', $user->id)
-                    ->whereNotNull('next_review_at')
-                    ->where('next_review_at', '>', now())
-                    ->pluck('question_id')
-                    ->toArray();
-                $searchIds = array_values(array_diff($searchIds, $futureSrIds));
+                // AUSNAHME: In aktiver Lernsession werden alle Fragen angezeigt.
+                if (!$inActiveSession) {
+                    $futureSrIds = UserQuestionProgress::where('user_id', $user->id)
+                        ->whereNotNull('next_review_at')
+                        ->where('next_review_at', '>', now())
+                        ->pluck('question_id')
+                        ->toArray();
+                    $searchIds = array_values(array_diff($searchIds, $futureSrIds));
+                }
 
                 // Zufällige Sortierung der Suchergebnisse
                 shuffle($searchIds);
@@ -571,8 +600,10 @@ class PracticeController extends Controller
             // Continue with current practice session
             $idsToShow = $practiceIds; // Alle IDs aus der Session
 
-            // SR-Filter: Fragen ausschließen, die noch nicht fällig sind (außer bei Antwort-Anzeige)
-            if (!$showAnsweredQuestion && $mode !== 'spaced_repetition') {
+            // SR-Filter: Fragen ausschließen, die noch nicht fällig sind (außer bei Antwort-Anzeige oder aktiver Lernsession)
+            $lernsessionService = app(\App\Services\LernsessionService::class);
+            $inActiveSession = (bool) $lernsessionService->isUserInActiveSession($user);
+            if (!$showAnsweredQuestion && $mode !== 'spaced_repetition' && !$inActiveSession) {
                 $futureSrIds = UserQuestionProgress::where('user_id', $user->id)
                     ->whereNotNull('next_review_at')
                     ->where('next_review_at', '>', now())
@@ -712,6 +743,7 @@ class PracticeController extends Controller
         // Check mastery state BEFORE service call (for exam_failed_questions logic)
         $progressObj = UserQuestionProgress::getOrCreate($user->id, $question->id);
         $wasPreviouslyMastered = $progressObj->isMastered();
+        $originalNextReviewAt = $progressObj->next_review_at;
 
         // Delegate progress update, statistic creation, gamification, session stats + queue management to service
         $result = $this->practiceService->submitAnswer('global', null, $question->id, $userAnswer, $mapping);
@@ -735,7 +767,15 @@ class PracticeController extends Controller
         }
 
         // Spaced Repetition: Nächste Wiederholung berechnen
-        (new SpacedRepetitionService())->processAnswer($progressObj, $isCorrect);
+        // In aktiver Lernsession: SR nicht aktualisieren für Fragen die noch nicht fällig waren,
+        // damit der SR-Plan nicht durcheinander kommt.
+        $lernsessionService = app(\App\Services\LernsessionService::class);
+        $sessionParticipantForSr = $lernsessionService->isUserInActiveSession($user);
+        $hadFutureSr = $originalNextReviewAt && $originalNextReviewAt->isFuture();
+
+        if (!$sessionParticipantForSr || !$hadFutureSr) {
+            (new SpacedRepetitionService())->processAnswer($progressObj, $isCorrect);
+        }
 
         $solved = $this->ensureArray($user->solved_questions);
         $skipped = session('practice_skipped', []);
@@ -772,13 +812,11 @@ class PracticeController extends Controller
         // Lernsession-Tracking: Antwort in aktive Session aufzeichnen
         // Gamification result is stored in session by the service (practice_gamification_result)
         $gamificationResult = session('practice_gamification_result');
-        $lernsessionService = app(\App\Services\LernsessionService::class);
-        $sessionParticipant = $lernsessionService->isUserInActiveSession($user);
-        if ($sessionParticipant) {
+        if ($sessionParticipantForSr) {
             $xpAwarded = ($gamificationResult && isset($gamificationResult['points_awarded']))
                 ? $gamificationResult['points_awarded'] : 0;
             $answerTimeMs = (int) $request->input('answer_time_ms', 0);
-            $lernsessionService->recordAnswer($sessionParticipant, $isCorrect, $answerTimeMs, $xpAwarded);
+            $lernsessionService->recordAnswer($sessionParticipantForSr, $isCorrect, $answerTimeMs, $xpAwarded);
         }
 
         // Debug: Prüfe Session vor Redirect
