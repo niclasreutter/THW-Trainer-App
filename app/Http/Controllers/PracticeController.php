@@ -100,33 +100,61 @@ class PracticeController extends Controller
 
         $sectionNames = self::SECTION_NAMES;
 
+        // Spaced Repetition — fällige Reviews + nächster Termin
+        $srService = app(SpacedRepetitionService::class);
+        $spacedRepetitionDue = $srService->getDueCount($user->id);
+        $upcomingSchedule = $srService->getUpcomingSchedule($user->id);
+        $nextSrLabel = !empty($upcomingSchedule) ? $upcomingSchedule[0]['label'] : null;
+        $nextSrCount = !empty($upcomingSchedule) ? $upcomingSchedule[0]['count'] : 0;
+
         // Smart Action — kontextabhängige Empfehlung
+        $allDone = $unsolvedCount === 0 && $failedCount === 0 && $spacedRepetitionDue === 0;
         $smartAction = match(true) {
+            $spacedRepetitionDue > 0 => [
+                'label' => 'Wiederholung fällig',
+                'title' => "$spacedRepetitionDue Reviews warten auf dich",
+                'desc'  => 'Spaced Repetition hält dein Wissen langfristig frisch',
+                'route' => route('practice.spaced-repetition'),
+                'type'  => 'action',
+            ],
             $failedCount > 0 => [
                 'label' => 'Empfohlen',
                 'title' => "$failedCount Fehler wiederholen",
                 'desc'  => 'Priorisiere fehlgeschlagene Fragen zuerst',
                 'route' => route('failed.index'),
+                'type'  => 'action',
             ],
             $unsolvedCount > 0 => [
                 'label' => 'Weiterlernen',
                 'title' => "$unsolvedCount ungelöste Fragen",
                 'desc'  => 'Lerne neue Fragen und erweitere dein Wissen',
                 'route' => route('practice.unsolved'),
+                'type'  => 'action',
+            ],
+            $allDone && $nextSrLabel !== null => [
+                'label' => 'Alles erledigt',
+                'title' => 'Du bist auf dem neuesten Stand',
+                'desc'  => "$nextSrCount Wiederholungen werden $nextSrLabel fällig",
+                'route' => null,
+                'type'  => 'info',
+            ],
+            $allDone => [
+                'label' => 'Alles erledigt',
+                'title' => 'Du hast alle Fragen gemeistert',
+                'desc'  => 'Alle Fragen beantwortet - du bist bestens vorbereitet',
+                'route' => null,
+                'type'  => 'info',
             ],
             default => [
                 'label' => 'Wiederholen',
                 'title' => 'Alle Fragen wiederholen',
                 'desc'  => 'Festige dein Wissen durch Wiederholung',
                 'route' => route('practice.all'),
+                'type'  => 'action',
             ],
         };
 
-        // Spaced Repetition — fällige Reviews
-        $spacedRepetitionDue = app(SpacedRepetitionService::class)
-            ->getDueCount($user->id);
-
-        return view('practice-menu', compact('sectionStats', 'totalQuestions', 'solvedCount', 'failedCount', 'unsolvedCount', 'sectionNames', 'progressPercentage', 'smartAction', 'spacedRepetitionDue'));
+        return view('practice-menu', compact('sectionStats', 'totalQuestions', 'solvedCount', 'failedCount', 'unsolvedCount', 'sectionNames', 'progressPercentage', 'smartAction', 'spacedRepetitionDue', 'nextSrLabel', 'nextSrCount'));
     }
 
     /**
