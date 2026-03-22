@@ -72,7 +72,12 @@ class PracticeController extends Controller
         $masteredQuestionIds = $progressData->filter(fn($p) => $p->isMastered())->pluck('question_id')->toArray();
         $solvedCount = count($masteredQuestionIds);
         $failedCount = count($failed);
-        $unsolvedCount = $totalQuestions - $solvedCount;
+
+        // Zukunfts-SR-Fragen abziehen — diese sind nicht jetzt verfügbar
+        $futureSrCount = $progressData->filter(fn($p) =>
+            !$p->isMastered() && $p->next_review_at && $p->next_review_at > now()
+        )->count();
+        $unsolvedCount = $totalQuestions - $solvedCount - $futureSrCount;
 
         // Sync: solved_questions mit tatsächlichem Mastery-Status abgleichen
         $currentSolved = $this->ensureArray($user->solved_questions);
