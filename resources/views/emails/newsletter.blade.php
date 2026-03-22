@@ -11,7 +11,7 @@
 
             <!-- Logo -->
             <div style="text-align:center;margin-bottom:24px;">
-                <img src="https://thw-trainer.de/logo-thwtrainer.png" alt="THW-Trainer Logo" style="max-width:200px;height:auto;" />
+                <img src="https://{{ config('domains.landing') }}/logo-thwtrainer.png" alt="THW-Trainer Logo" style="max-width:200px;height:auto;" />
             </div>
 
             <!-- Newsletter Content -->
@@ -88,7 +88,7 @@
                 </p>
                 <p style="margin:16px 0 0 0;font-size:13px;color:#888;text-align:center;">
                     Du erhältst diese E-Mail, weil du E-Mail-Benachrichtigungen aktiviert hast.<br>
-                    Du kannst diese Einstellung in deinem <a href="https://thw-trainer.de/profile" style="color:#003399;">Profil</a> ändern.
+                    Du kannst diese Einstellung in deinem <a href="https://{{ config('domains.app') }}/profile" style="color:#003399;">Profil</a> ändern.
                 </p>
             </div>
 
@@ -96,8 +96,8 @@
             <div style="margin-top:24px;padding-top:16px;border-top:1px solid #e5e7eb;text-align:center;">
                 <p style="margin:0;font-size:12px;color:#999;line-height:1.5;">
                     © {{ date('Y') }} THW-Trainer.de |
-                    <a href="https://thw-trainer.de/impressum" style="color:#999;text-decoration:none;">Impressum</a> |
-                    <a href="https://thw-trainer.de/datenschutz" style="color:#999;text-decoration:none;">Datenschutz</a>
+                    <a href="https://{{ config('domains.landing') }}/impressum" style="color:#999;text-decoration:none;">Impressum</a> |
+                    <a href="https://{{ config('domains.landing') }}/datenschutz" style="color:#999;text-decoration:none;">Datenschutz</a>
                 </p>
             </div>
 

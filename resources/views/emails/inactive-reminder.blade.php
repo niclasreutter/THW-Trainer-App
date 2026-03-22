@@ -13,7 +13,7 @@
             <div style="background:linear-gradient(135deg,#00337F,#0055cc);padding:20px 24px 16px;border-radius:1.5rem 0.5rem 0 0;">
                 <div style="display:flex;align-items:center;gap:10px;">
                     <div style="width:32px;height:32px;background:rgba(255,255,255,0.15);border-radius:8px;display:flex;align-items:center;justify-content:center;">
-                        <img src="https://thw-trainer.de/logo-thwtrainer_w.png" alt="THW" style="width:18px;height:18px;">
+                        <img src="https://{{ config('domains.landing') }}/logo-thwtrainer_w.png" alt="THW" style="width:18px;height:18px;">
                     </div>
                     <span style="color:#fff;font-weight:700;font-size:14px;letter-spacing:0.5px;">THW-TRAINER</span>
                 </div>
@@ -103,7 +103,7 @@
 
                 <!-- CTA Button -->
                 <div style="text-align:center;margin:24px 0 8px 0;">
-                    <a href="https://thw-trainer.de/practice-menu" style="background:linear-gradient(135deg,#00337F,#0055cc);color:#fff;padding:12px 32px;border-radius:0.5rem;text-decoration:none;font-weight:700;font-size:13px;display:inline-block;box-shadow:0 4px 15px rgba(0,51,127,0.3);">
+                    <a href="https://{{ config('domains.app') }}/practice-menu" style="background:linear-gradient(135deg,#00337F,#0055cc);color:#fff;padding:12px 32px;border-radius:0.5rem;text-decoration:none;font-weight:700;font-size:13px;display:inline-block;box-shadow:0 4px 15px rgba(0,51,127,0.3);">
                         @if($remainingQuestions > 0)
                             Jetzt weiterlernen
                         @else
@@ -127,8 +127,8 @@
                 <div style="text-align:center;">
                     <p style="margin:0 0 8px 0;font-size:11px;color:#94a3b8;line-height:1.6;"><strong style="color:#64748b;">THW-Trainer</strong> &middot; Dein Lernbegleiter für die THW-Grundausbildung</p>
                     <p style="margin:0 0 4px 0;font-size:11px;color:#94a3b8;">Diese E-Mail wurde automatisch gesendet, weil du {{ $daysInactive }} Tage inaktiv warst und E-Mail-Benachrichtigungen aktiviert hast.</p>
-                    <p style="margin:0 0 6px 0;font-size:11px;color:#94a3b8;"><a href="https://thw-trainer.de/impressum" style="color:#94a3b8;text-decoration:none;">Impressum</a> &middot; <a href="https://thw-trainer.de/datenschutz" style="color:#94a3b8;text-decoration:none;">Datenschutz</a></p>
-                    <p style="margin:0;font-size:11px;color:#cbd5e1;"><a href="https://thw-trainer.de/profile" style="color:#64748b;text-decoration:none;">E-Mail-Einstellungen ändern</a></p>
+                    <p style="margin:0 0 6px 0;font-size:11px;color:#94a3b8;"><a href="https://{{ config('domains.landing') }}/impressum" style="color:#94a3b8;text-decoration:none;">Impressum</a> &middot; <a href="https://{{ config('domains.landing') }}/datenschutz" style="color:#94a3b8;text-decoration:none;">Datenschutz</a></p>
+                    <p style="margin:0;font-size:11px;color:#cbd5e1;"><a href="https://{{ config('domains.app') }}/profile" style="color:#64748b;text-decoration:none;">E-Mail-Einstellungen ändern</a></p>
                 </div>
             </div>
 
