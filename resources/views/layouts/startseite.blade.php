@@ -47,7 +47,8 @@
         <link rel="alternate" hreflang="x-default" href="{{ url('/') }}">
 
         <!-- Performance Meta Tags -->
-        <meta name="theme-color" content="#00337F">
+        <meta name="theme-color" content="#0a0a0b" media="(prefers-color-scheme: dark)">
+        <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
         <meta name="mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -97,7 +98,7 @@
 
         @stack('styles')
     </head>
-    <body class="font-sans antialiased" style="background-color: #0a0a0b; color: #f5f5f5;">
+    <body class="font-sans antialiased sp-page">
         <main>
             @yield('content')
         </main>

@@ -31,7 +31,8 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
             {{-- Logo --}}
             <a href="{{ url('/') }}" class="flex items-center gap-2.5">
-                <img src="{{ asset('logo-thwtrainer_w.png') }}" alt="THW-Trainer Logo" class="h-8 w-auto">
+                <img src="{{ asset('logo-thwtrainer_w.png') }}" alt="THW-Trainer Logo" class="h-8 w-auto sp-logo-dark">
+                <img src="{{ asset('logo-thwtrainer.png') }}" alt="THW-Trainer Logo" class="h-8 w-auto sp-logo-light">
                 <span class="font-bold text-xl text-white">THW-Trainer</span>
             </a>
 
@@ -63,14 +64,14 @@
              x-transition:leave="transition ease-in duration-150"
              x-transition:leave-start="opacity-100"
              x-transition:leave-end="opacity-0 -translate-y-2"
-             class="md:hidden border-t border-white/5 bg-black/90 backdrop-blur-xl"
+             class="md:hidden border-t sp-mobile-menu backdrop-blur-xl"
              style="display: none;">
             <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col gap-3">
                 <a href="#features" class="text-zinc-300 hover:text-white py-2" @click="mobileMenuOpen = false">Features</a>
                 <a href="#how-it-works" class="text-zinc-300 hover:text-white py-2" @click="mobileMenuOpen = false">So geht's</a>
                 <a href="#faq" class="text-zinc-300 hover:text-white py-2" @click="mobileMenuOpen = false">FAQ</a>
                 <a href="{{ route('landing.statistics') }}" class="text-zinc-300 hover:text-white py-2" @click="mobileMenuOpen = false">Statistiken</a>
-                <hr class="border-white/10 my-1">
+                <hr class="sp-mobile-divider my-1">
                 <a href="{{ $loginUrl }}" class="text-zinc-300 hover:text-white py-2">Anmelden</a>
                 <a href="{{ $registerUrl }}" class="sp-btn-gold text-center text-sm" style="padding: 0.75rem 1.5rem;">Registrieren</a>
             </div>
@@ -137,7 +138,7 @@
                             </div>
 
                             {{-- Mock Progress Bar --}}
-                            <div style="height: 6px; background: rgba(255,255,255,0.08); border-radius: 3px; margin-bottom: 1.75rem; overflow: hidden;">
+                            <div class="sp-progress-track" style="height: 6px; border-radius: 3px; margin-bottom: 1.75rem; overflow: hidden;">
                                 <div style="width: 75%; height: 100%; background: linear-gradient(90deg, #00337F, #5b9aff); border-radius: 3px;"></div>
                             </div>
 
@@ -180,10 +181,10 @@
          STATS SECTION
          ============================================ --}}
     @if(isset($stats))
-    <section class="py-16 lg:py-20 relative" style="background: #060608;" aria-labelledby="stats-heading">
+    <section class="py-16 lg:py-20 relative sp-section-alt" aria-labelledby="stats-heading">
         <h2 id="stats-heading" class="sr-only">Plattform-Statistiken</h2>
         {{-- Top border glow --}}
-        <div style="position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(91, 154, 255, 0.25), transparent);" aria-hidden="true"></div>
+        <div class="sp-glow-border" style="position: absolute; top: 0; left: 0; right: 0; height: 1px;" aria-hidden="true"></div>
 
         <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="sp-stats">
@@ -211,7 +212,7 @@
     {{-- ============================================
          FEATURES — Bento Grid
          ============================================ --}}
-    <section id="features" class="py-20 lg:py-28" style="background: #0a0a0b;" aria-labelledby="features-heading">
+    <section id="features" class="py-20 lg:py-28 sp-section" aria-labelledby="features-heading">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <header class="text-center mb-16 sp-fade-in">
                 <h2 id="features-heading" class="text-3xl lg:text-4xl font-extrabold text-white mb-4">
@@ -225,15 +226,15 @@
             <div class="sp-bento">
                 {{-- Main Feature: Alle Prüfungsfragen (2x2) --}}
                 <article class="sp-bento-main glass glass-blue sp-fade-in" style="padding: 2.5rem; border-radius: 2rem 0.75rem 0.75rem 0.75rem;">
-                    <span class="inline-block text-xs font-semibold uppercase tracking-wider mb-4 px-3 py-1 rounded-full" style="background: rgba(91, 154, 255, 0.1); color: #93c5fd;">Kernfeature</span>
+                    <span class="inline-block text-xs font-semibold uppercase tracking-wider mb-4 px-3 py-1 rounded-full sp-feature-badge">Kernfeature</span>
                     <h3 class="text-2xl lg:text-3xl font-bold text-white mb-4">Alle Prüfungsfragen</h3>
                     <p class="text-zinc-400 leading-relaxed mb-6">
                         Die vollständige Sammlung aller offiziellen THW-Theoriefragen. Immer aktuell, regelmäßig geprüft und erweitert. Von den Grundlagen der Grundausbildung bis zu spezialisierten Lehrgängen.
                     </p>
                     <div class="flex flex-wrap gap-2">
-                        <span class="text-xs font-medium px-3 py-1.5 rounded-full text-zinc-300" style="background: rgba(255,255,255,0.06);">Grundausbildung</span>
-                        <span class="text-xs font-medium px-3 py-1.5 rounded-full text-zinc-300" style="background: rgba(255,255,255,0.06);">Lehrgänge</span>
-                        <span class="text-xs font-medium px-3 py-1.5 rounded-full text-zinc-300" style="background: rgba(255,255,255,0.06);">Aktuell 2026</span>
+                        <span class="text-xs font-medium px-3 py-1.5 rounded-full text-zinc-300 sp-tag">Grundausbildung</span>
+                        <span class="text-xs font-medium px-3 py-1.5 rounded-full text-zinc-300 sp-tag">Lehrgänge</span>
+                        <span class="text-xs font-medium px-3 py-1.5 rounded-full text-zinc-300 sp-tag">Aktuell 2026</span>
                     </div>
                 </article>
 
@@ -277,7 +278,7 @@
     {{-- ============================================
          HOW IT WORKS — 3 Steps
          ============================================ --}}
-    <section id="how-it-works" class="py-20 lg:py-28" style="background: #060608;" aria-labelledby="steps-heading">
+    <section id="how-it-works" class="py-20 lg:py-28 sp-section-alt" aria-labelledby="steps-heading">
         <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
             <header class="text-center mb-16 sp-fade-in">
                 <h2 id="steps-heading" class="text-3xl lg:text-4xl font-extrabold text-white mb-4">
@@ -300,7 +301,7 @@
 
                 {{-- Step 2 --}}
                 <div class="text-center">
-                    <div class="sp-step-number" style="background: rgba(91, 154, 255, 0.15); color: #93c5fd; border: 1px solid rgba(91, 154, 255, 0.3);">2</div>
+                    <div class="sp-step-number sp-step-2">2</div>
                     <h3 class="text-xl font-bold text-white mb-3">Lernen</h3>
                     <p class="text-sm text-zinc-400 leading-relaxed max-w-xs mx-auto">
                         Fragen beantworten, Fortschritt verfolgen. Spaced Repetition sorgt dafür, dass das Wissen sitzt.
@@ -309,7 +310,7 @@
 
                 {{-- Step 3 --}}
                 <div class="text-center">
-                    <div class="sp-step-number" style="background: rgba(0, 51, 127, 0.25); color: #5b9aff; border: 1px solid rgba(91, 154, 255, 0.3);">3</div>
+                    <div class="sp-step-number sp-step-3">3</div>
                     <h3 class="text-xl font-bold text-white mb-3">Bestehen</h3>
                     <p class="text-sm text-zinc-400 leading-relaxed max-w-xs mx-auto">
                         Mit der Prüfungssimulation testen — und dann die echte Prüfung souverän meistern.
@@ -322,7 +323,7 @@
     {{-- ============================================
          USPs — Why THW-Trainer
          ============================================ --}}
-    <section class="py-20 lg:py-28" style="background: #0a0a0b;" aria-labelledby="usp-heading">
+    <section class="py-20 lg:py-28 sp-section" aria-labelledby="usp-heading">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <header class="text-center mb-16 sp-fade-in">
                 <h2 id="usp-heading" class="text-3xl lg:text-4xl font-extrabold text-white mb-4">
@@ -335,8 +336,8 @@
 
             <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 sp-fade-in">
                 <div class="glass" style="padding: 1.75rem; border-radius: 1.5rem 0.5rem 0.5rem 0.5rem;">
-                    <div class="w-10 h-10 rounded-lg flex items-center justify-center mb-4" style="background: rgba(0, 51, 127, 0.15);">
-                        <i class="bi bi-currency-euro text-lg" style="color: #5b9aff;"></i>
+                    <div class="w-10 h-10 rounded-lg flex items-center justify-center mb-4 sp-icon-box">
+                        <i class="bi bi-currency-euro text-lg sp-icon-color"></i>
                     </div>
                     <h3 class="text-base font-bold text-white mb-2">100% Kostenlos</h3>
                     <p class="text-sm text-zinc-400 leading-relaxed">
@@ -345,8 +346,8 @@
                 </div>
 
                 <div class="glass" style="padding: 1.75rem; border-radius: 0.5rem 1.5rem 0.5rem 0.5rem;">
-                    <div class="w-10 h-10 rounded-lg flex items-center justify-center mb-4" style="background: rgba(0, 51, 127, 0.15);">
-                        <i class="bi bi-ban text-lg" style="color: #5b9aff;"></i>
+                    <div class="w-10 h-10 rounded-lg flex items-center justify-center mb-4 sp-icon-box">
+                        <i class="bi bi-ban text-lg sp-icon-color"></i>
                     </div>
                     <h3 class="text-base font-bold text-white mb-2">Ohne Werbung</h3>
                     <p class="text-sm text-zinc-400 leading-relaxed">
@@ -355,8 +356,8 @@
                 </div>
 
                 <div class="glass" style="padding: 1.75rem; border-radius: 0.5rem 0.5rem 0.5rem 1.5rem;">
-                    <div class="w-10 h-10 rounded-lg flex items-center justify-center mb-4" style="background: rgba(0, 51, 127, 0.15);">
-                        <i class="bi bi-arrow-repeat text-lg" style="color: #5b9aff;"></i>
+                    <div class="w-10 h-10 rounded-lg flex items-center justify-center mb-4 sp-icon-box">
+                        <i class="bi bi-arrow-repeat text-lg sp-icon-color"></i>
                     </div>
                     <h3 class="text-base font-bold text-white mb-2">Immer aktuell</h3>
                     <p class="text-sm text-zinc-400 leading-relaxed">
@@ -365,8 +366,8 @@
                 </div>
 
                 <div class="glass" style="padding: 1.75rem; border-radius: 0.5rem 0.5rem 1.5rem 0.5rem;">
-                    <div class="w-10 h-10 rounded-lg flex items-center justify-center mb-4" style="background: rgba(0, 51, 127, 0.15);">
-                        <i class="bi bi-shield-check text-lg" style="color: #5b9aff;"></i>
+                    <div class="w-10 h-10 rounded-lg flex items-center justify-center mb-4 sp-icon-box">
+                        <i class="bi bi-shield-check text-lg sp-icon-color"></i>
                     </div>
                     <h3 class="text-base font-bold text-white mb-2">Datenschutz</h3>
                     <p class="text-sm text-zinc-400 leading-relaxed">
@@ -380,7 +381,7 @@
     {{-- ============================================
          TESTIMONIALS
          ============================================ --}}
-    <section class="py-20 lg:py-28" style="background: #060608;" aria-labelledby="testimonials-heading">
+    <section class="py-20 lg:py-28 sp-section-alt" aria-labelledby="testimonials-heading">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <header class="text-center mb-16 sp-fade-in">
                 <h2 id="testimonials-heading" class="text-3xl lg:text-4xl font-extrabold text-white mb-4">
@@ -394,7 +395,7 @@
             <div class="grid md:grid-cols-3 gap-5 sp-fade-in">
                 {{-- Testimonial 1 - Featured --}}
                 <article class="glass glass-blue md:row-span-2" style="padding: 2rem; border-radius: 1.5rem 0.5rem 1.5rem 0.5rem; display: flex; flex-direction: column; justify-content: center;">
-                    <div class="text-4xl font-black mb-4 leading-none" style="color: rgba(91, 154, 255, 0.25);" aria-hidden="true">"</div>
+                    <div class="text-4xl font-black mb-4 leading-none sp-quote-mark" aria-hidden="true">"</div>
                     <blockquote class="text-base text-zinc-300 leading-relaxed mb-6">
                         Der THW-Trainer hat mir richtig geholfen. Besonders die Prüfungssimulation war Gold wert — ich wusste genau, was mich erwartet. Durch Spaced Repetition haben sich auch die schwierigen Fragen eingeprägt. Prüfung beim ersten Versuch bestanden!
                     </blockquote>
@@ -406,7 +407,7 @@
 
                 {{-- Testimonial 2 --}}
                 <article class="glass glass-tl" style="padding: 1.75rem;">
-                    <div class="text-2xl font-black mb-3 leading-none" style="color: rgba(91, 154, 255, 0.2);" aria-hidden="true">"</div>
+                    <div class="text-2xl font-black mb-3 leading-none sp-quote-mark-sm" aria-hidden="true">"</div>
                     <blockquote class="text-sm text-zinc-300 leading-relaxed mb-4">
                         Endlich eine moderne Lernplattform für die THW-Theorie. Ich konnte überall lernen — im Zug, in der Pause, abends auf der Couch. Super praktisch!
                     </blockquote>
@@ -418,7 +419,7 @@
 
                 {{-- Testimonial 3 --}}
                 <article class="glass glass-br" style="padding: 1.75rem;">
-                    <div class="text-2xl font-black mb-3 leading-none" style="color: rgba(91, 154, 255, 0.2);" aria-hidden="true">"</div>
+                    <div class="text-2xl font-black mb-3 leading-none sp-quote-mark-sm" aria-hidden="true">"</div>
                     <blockquote class="text-sm text-zinc-300 leading-relaxed mb-4">
                         Unser OV nutzt die Lernpools und es motiviert ungemein, gemeinsam zu lernen. Die Bestehensquote in unserer Gruppe war 100%.
                     </blockquote>
@@ -461,7 +462,7 @@
     {{-- ============================================
          FAQ SECTION
          ============================================ --}}
-    <section id="faq" class="py-20 lg:py-28" style="background: #0a0a0b;" aria-labelledby="faq-heading">
+    <section id="faq" class="py-20 lg:py-28 sp-section" aria-labelledby="faq-heading">
         <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
             <header class="text-center mb-12 sp-fade-in">
                 <h2 id="faq-heading" class="text-3xl lg:text-4xl font-extrabold text-white mb-4">
@@ -557,7 +558,8 @@
                 {{-- Brand --}}
                 <div>
                     <div class="flex items-center gap-2.5 mb-4">
-                        <img src="{{ asset('logo-thwtrainer_w.png') }}" alt="THW-Trainer" class="h-8 w-auto">
+                        <img src="{{ asset('logo-thwtrainer_w.png') }}" alt="THW-Trainer" class="h-8 w-auto sp-logo-dark">
+                        <img src="{{ asset('logo-thwtrainer.png') }}" alt="THW-Trainer" class="h-8 w-auto sp-logo-light">
                         <span class="font-bold text-lg text-white">THW-Trainer</span>
                     </div>
                     <p class="text-sm text-zinc-500 max-w-xs leading-relaxed">
@@ -599,7 +601,7 @@
             </div>
 
             {{-- Copyright --}}
-            <div class="pt-8" style="border-top: 1px solid rgba(255,255,255,0.06);">
+            <div class="pt-8 sp-copyright-border">
                 <p class="text-sm text-zinc-600">&copy; {{ date('Y') }} THW-Trainer. Entwickelt von Niclas Reutter.</p>
                 <p class="text-xs text-zinc-700 mt-1">
                     Kein offizielles Angebot des THW. Private Initiative zur Prüfungsvorbereitung.
