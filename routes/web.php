@@ -328,11 +328,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/practice-menu', [\App\Http\Controllers\PracticeController::class, 'menu'])->name('practice.menu');
     Route::get('/practice/all', [\App\Http\Controllers\PracticeController::class, 'all'])->name('practice.all');
     Route::get('/practice/unsolved', [\App\Http\Controllers\PracticeController::class, 'unsolved'])->name('practice.unsolved');
-    Route::get('/practice/section/{section}/menu', [\App\Http\Controllers\PracticeController::class, 'sectionMenu'])->name('practice.section.menu');
     Route::get('/practice/section/{section}', [\App\Http\Controllers\PracticeController::class, 'section'])->name('practice.section');
-    Route::get('/practice/section/{section}/unsolved', [\App\Http\Controllers\PracticeController::class, 'sectionUnsolved'])->name('practice.section.unsolved');
-    Route::get('/practice/section/{section}/sr', [\App\Http\Controllers\PracticeController::class, 'sectionSr'])->name('practice.section.sr');
-    Route::get('/practice/section/{section}/solved', [\App\Http\Controllers\PracticeController::class, 'sectionSolved'])->name('practice.section.solved');
     Route::get('/practice/search', [\App\Http\Controllers\PracticeController::class, 'search'])->name('practice.search');
     Route::get('/practice/spaced-repetition', [\App\Http\Controllers\PracticeController::class, 'spacedRepetition'])->name('practice.spaced-repetition');
 
