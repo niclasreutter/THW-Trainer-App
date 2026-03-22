@@ -354,40 +354,60 @@ class PracticeController extends Controller
                 break;
                 
             case 'section':
-                // Fragen eines Lernabschnitts mit Prio-Sortierung:
-                // 1. SR-fällige Fragen (höchste Prio)
-                // 2. Ungelöste Fragen (nicht gemeistert, kein SR)
-                // 3. Gemeisterte Fragen (Wiederholung)
-                // Innerhalb jeder Gruppe zufällig sortiert
+                // Gleiche Prio-Logik wie 'all', aber auf einen Lernabschnitt beschränkt
                 $allSectionIds = Question::where('lernabschnitt', $parameter)->pluck('id')->toArray();
 
-                // Zukunfts-SR ausschließen (nicht heute fällig)
+                $idsToShow = [];
+                $alreadyQueued = [];
+
+                // 1. SR fällige Wiederholungen zuerst
+                $srService = new SpacedRepetitionService();
+                $srDueIds = $srService->getDueQuestions($user->id);
+                $srDueInSection = array_values(array_intersect($allSectionIds, $srDueIds));
+                shuffle($srDueInSection);
+                $idsToShow = array_merge($idsToShow, $srDueInSection);
+                $alreadyQueued = array_merge($alreadyQueued, $srDueInSection);
+
+                // 2. Fehlerfragen aus Prüfungen
+                $failedInSection = array_values(array_intersect($failed, $allSectionIds));
+                $failedInSection = array_diff($failedInSection, $alreadyQueued);
+                shuffle($failedInSection);
+                $idsToShow = array_merge($idsToShow, $failedInSection);
+                $alreadyQueued = array_merge($alreadyQueued, $failedInSection);
+
+                // 3. Ungelöste Fragen (nicht gemeistert + nie beantwortet)
+                $unmasteredIds = UserQuestionProgress::getUnmasteredQuestions($user->id);
+                $answeredQuestionIds = UserQuestionProgress::where('user_id', $user->id)
+                    ->pluck('question_id')
+                    ->toArray();
+                $neverAnsweredIds = array_diff($allSectionIds, $answeredQuestionIds);
+
+                $toLearnIds = array_unique(array_merge(
+                    array_intersect($unmasteredIds, $allSectionIds),
+                    $neverAnsweredIds
+                ));
+                $toLearnIds = array_diff($toLearnIds, $alreadyQueued);
+                $currentlyMasteredIds = UserQuestionProgress::getMasteredQuestions($user->id);
+                $toLearnIds = array_diff($toLearnIds, $currentlyMasteredIds);
+
                 $futureSrIds = UserQuestionProgress::where('user_id', $user->id)
                     ->whereNotNull('next_review_at')
                     ->where('next_review_at', '>', now())
                     ->pluck('question_id')
                     ->toArray();
-                $availableIds = array_values(array_diff($allSectionIds, $futureSrIds));
+                $toLearnIds = array_diff($toLearnIds, $futureSrIds);
+                $toLearnIds = array_values($toLearnIds);
+                shuffle($toLearnIds);
+                $idsToShow = array_merge($idsToShow, $toLearnIds);
+                $alreadyQueued = array_merge($alreadyQueued, $toLearnIds);
 
-                // Gemeisterte IDs ermitteln
-                $masteredIds = UserQuestionProgress::getMasteredQuestions($user->id);
-
-                // 1. SR-fällige Fragen
-                $srService = new SpacedRepetitionService();
-                $srDueIds = $srService->getDueQuestions($user->id);
-                $srDueInSection = array_values(array_intersect($availableIds, $srDueIds));
-                shuffle($srDueInSection);
-
-                // 2. Ungelöste Fragen (nicht gemeistert, nicht SR-fällig)
-                $unsolvedIds = array_values(array_diff($availableIds, $masteredIds, $srDueInSection));
-                shuffle($unsolvedIds);
-
-                // 3. Gemeisterte Fragen (Wiederholung)
-                $solvedIds = array_values(array_intersect($availableIds, $masteredIds));
-                $solvedIds = array_values(array_diff($solvedIds, $srDueInSection));
-                shuffle($solvedIds);
-
-                $idsToShow = array_merge($srDueInSection, $unsolvedIds, $solvedIds);
+                // 4. Restliche Fragen (gemeisterte, zur Wiederholung)
+                $remainingIds = array_diff($allSectionIds, $alreadyQueued);
+                $remainingIds = array_diff($remainingIds, $futureSrIds);
+                $remainingIds = array_values($remainingIds);
+                shuffle($remainingIds);
+                $idsToShow = array_merge($idsToShow, $remainingIds);
+                $idsToShow = array_values(array_unique($idsToShow));
                 break;
 
             case 'search':
