@@ -223,7 +223,7 @@ class GamificationService
         }
 
         // Mindestaktivität prüfen: Tagesziel erreicht ODER 1 Prüfung absolviert
-        $dailyGoal = $user->daily_streak_goal;
+        $dailyGoal = min(self::STREAK_MIN_QUESTIONS, $user->daily_streak_goal);
         $meetsMinimum = $examCompleted
             || ($dailyGoal == 0)
             || ($user->daily_questions_solved >= $dailyGoal);
