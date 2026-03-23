@@ -296,6 +296,9 @@ Route::get('/dashboard', function () {
     $todayCorrect = \App\Models\QuestionStatistic::where('user_id', $user->id)
         ->whereDate('created_at', today())->where('is_correct', true)->count();
 
+    // Dynamisches Streak-Tagesziel
+    $dailyStreakGoal = $user->daily_streak_goal ?? $gamificationService->calculateDailyStreakGoal($user);
+
     return view('dashboard', compact(
         'user', 'recentExams', 'totalQuestions', 'spacedRepetitionDue',
         'weeklyActivity', 'sectionStats', 'streakFreezeStatus',
@@ -304,7 +307,7 @@ Route::get('/dashboard', function () {
         'masteryPercent', 'solvedPercent', 'solvedTotal',
         'canStartExam', 'exams', 'hasFailedQuestions',
         'levelProgress', 'nextLevelPoints', 'unopenedLootboxes',
-        'todayAnswered', 'todayCorrect'
+        'todayAnswered', 'todayCorrect', 'dailyStreakGoal'
     ));
 })->middleware(['auth', 'verified'])->name('dashboard');
 

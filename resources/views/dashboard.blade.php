@@ -999,10 +999,17 @@
                     <div class="gami-pill__value gami-pill__value--gold">{{ $user->streak_days ?? 0 }}</div>
                     <div class="gami-pill__label">Streak</div>
                     @if(($user->streak_days ?? 0) >= 1)
-                        <div class="streak-progress">
-                            <div class="streak-progress__fill {{ $todayAnswered >= 20 ? 'streak-progress__fill--done' : '' }}" style="width:{{ min(100, ($todayAnswered / 20) * 100) }}%;"></div>
-                        </div>
-                        <div class="streak-progress__text {{ $todayAnswered >= 20 ? 'streak-progress__text--done' : '' }}">{{ min($todayAnswered, 20) }}/20</div>
+                        @if($dailyStreakGoal > 0)
+                            <div class="streak-progress">
+                                <div class="streak-progress__fill {{ $todayAnswered >= $dailyStreakGoal ? 'streak-progress__fill--done' : '' }}" style="width:{{ min(100, ($todayAnswered / $dailyStreakGoal) * 100) }}%;"></div>
+                            </div>
+                            <div class="streak-progress__text {{ $todayAnswered >= $dailyStreakGoal ? 'streak-progress__text--done' : '' }}">{{ min($todayAnswered, $dailyStreakGoal) }}/{{ $dailyStreakGoal }}</div>
+                        @else
+                            <div class="streak-progress">
+                                <div class="streak-progress__fill streak-progress__fill--done" style="width:100%;"></div>
+                            </div>
+                            <div class="streak-progress__text streak-progress__text--done">Keine Fragen f&auml;llig</div>
+                        @endif
                     @endif
                 </div>
                 <div class="gami-pill" data-tour-step="achievements">
@@ -1105,10 +1112,17 @@
                 <div class="gami-pill__value gami-pill__value--gold">{{ $user->streak_days ?? 0 }}</div>
                 <div class="gami-pill__label">Streak</div>
                 @if(($user->streak_days ?? 0) >= 1)
-                    <div class="streak-progress">
-                        <div class="streak-progress__fill {{ $todayAnswered >= 20 ? 'streak-progress__fill--done' : '' }}" style="width:{{ min(100, ($todayAnswered / 20) * 100) }}%;"></div>
-                    </div>
-                    <div class="streak-progress__text {{ $todayAnswered >= 20 ? 'streak-progress__text--done' : '' }}">{{ min($todayAnswered, 20) }}/20</div>
+                    @if($dailyStreakGoal > 0)
+                        <div class="streak-progress">
+                            <div class="streak-progress__fill {{ $todayAnswered >= $dailyStreakGoal ? 'streak-progress__fill--done' : '' }}" style="width:{{ min(100, ($todayAnswered / $dailyStreakGoal) * 100) }}%;"></div>
+                        </div>
+                        <div class="streak-progress__text {{ $todayAnswered >= $dailyStreakGoal ? 'streak-progress__text--done' : '' }}">{{ min($todayAnswered, $dailyStreakGoal) }}/{{ $dailyStreakGoal }}</div>
+                    @else
+                        <div class="streak-progress">
+                            <div class="streak-progress__fill streak-progress__fill--done" style="width:100%;"></div>
+                        </div>
+                        <div class="streak-progress__text streak-progress__text--done">Keine Fragen f&auml;llig</div>
+                    @endif
                 @endif
             </div>
             <div class="gami-pill" data-tour-step="achievements">
