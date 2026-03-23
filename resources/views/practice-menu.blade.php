@@ -252,39 +252,28 @@
         font-weight: 600;
     }
 
-    /* ─── Practice Unavailable Banner ────────── */
-    .practice-unavailable {
-        background: linear-gradient(135deg, rgba(251,191,36,0.08), rgba(251,191,36,0.03));
+    /* ─── Smart Action Warning State ─────────── */
+    .smart-action--warning {
+        background: linear-gradient(135deg, rgba(251,191,36,0.10), rgba(251,191,36,0.04));
         border: 1px solid rgba(251,191,36,0.18);
-        border-radius: 0.75rem;
-        padding: 1rem 1.25rem;
+        cursor: default;
+        transition: opacity 0.6s ease;
     }
 
-    .practice-unavailable__title {
-        font-size: 0.8125rem;
-        font-weight: 700;
+    .smart-action--warning:hover {
+        transform: none;
+        box-shadow: none;
+    }
+
+    .smart-action--warning .smart-action__label {
+        color: rgba(251,191,36,0.7);
+    }
+
+    .smart-action--warning .smart-action__title {
         color: #f59e0b;
-        margin-bottom: 0.25rem;
     }
 
-    .practice-unavailable__message {
-        font-size: 0.75rem;
-        color: var(--text-secondary);
-        line-height: 1.5;
-    }
-
-    .practice-unavailable__review {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.375rem;
-        margin-top: 0.5rem;
-        font-size: 0.75rem;
-        font-weight: 600;
-        color: #f59e0b;
-        font-family: 'IBM Plex Mono', monospace;
-    }
-
-    html.light-mode .practice-unavailable {
+    html.light-mode .smart-action--warning {
         background: linear-gradient(135deg, rgba(251,191,36,0.06), rgba(251,191,36,0.02));
         border-color: rgba(251,191,36,0.15);
     }
@@ -372,20 +361,23 @@
 
     <div class="space-y-4">
 
-        {{-- ── Practice Unavailable Banner ── --}}
+        {{-- ── Smart Action Card ── --}}
         @if(session('practice_unavailable'))
             @php $unavailable = session('practice_unavailable'); @endphp
-            <div class="practice-unavailable">
-                <div class="practice-unavailable__title">{{ $unavailable['title'] }}</div>
-                <div class="practice-unavailable__message">{{ $unavailable['message'] }}</div>
-                <div class="practice-unavailable__review">
+            <div class="smart-action smart-action--warning" id="practice-unavailable-card">
+                <div class="smart-action__label">Nicht verfügbar</div>
+                <div class="smart-action__title">{{ $unavailable['title'] }}</div>
+                <div class="smart-action__desc">{{ $unavailable['message'] }}</div>
+                <span class="smart-action__status" style="color:rgba(251,191,36,0.6);">
                     <i class="bi bi-clock"></i>
                     {{ $unavailable['next_review'] }}
-                </div>
+                </span>
             </div>
+
+            {{-- Normale Smart Action Card (anfangs versteckt, wird nach 10s eingeblendet) --}}
+            <div id="smart-action-normal" style="display:none;">
         @endif
 
-        {{-- ── Smart Action Card ── --}}
         @if(($smartAction['type'] ?? 'action') === 'info')
         <div class="smart-action smart-action--info">
             <div class="smart-action__label">{{ $smartAction['label'] }}</div>
@@ -406,6 +398,10 @@
                 <i class="bi bi-arrow-right"></i>
             </span>
         </a>
+        @endif
+
+        @if(session('practice_unavailable'))
+            </div>
         @endif
 
         {{-- ── Training Mode Tiles ── --}}
@@ -502,3 +498,21 @@
     </div>
 </div>
 @endsection
+
+@if(session('practice_unavailable'))
+@push('scripts')
+<script>
+    setTimeout(function() {
+        var warning = document.getElementById('practice-unavailable-card');
+        var normal = document.getElementById('smart-action-normal');
+        if (warning && normal) {
+            warning.style.opacity = '0';
+            setTimeout(function() {
+                warning.style.display = 'none';
+                normal.style.display = 'block';
+            }, 600);
+        }
+    }, 10000);
+</script>
+@endpush
+@endif
