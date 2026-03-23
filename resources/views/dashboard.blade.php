@@ -627,7 +627,7 @@
             @endif
 
             {{-- Streak-at-risk Warning --}}
-            @if(isset($streakAtRisk) && $streakAtRisk)
+            @if(isset($streakAtRisk) && $streakAtRisk && ($dailyStreakGoal ?? 0) > 0)
             <div class="streak-warning">
                 <div style="display:flex;align-items:center;gap:0.5rem;">
                     <i class="bi bi-fire" style="color:#f59e0b;font-size:1rem;"></i>
@@ -636,7 +636,7 @@
                             {{ $user->streak_days }} Tage Streak in Gefahr!
                         </div>
                         <div style="font-size:0.6875rem;color:var(--text-muted);">
-                            Beantworte heute mind. 20 Fragen
+                            Beantworte heute mind. {{ $dailyStreakGoal }} Fragen
                             @if(($user->streak_freezes_available ?? 0) > 0)
                                 &middot; {{ $user->streak_freezes_available }} Freeze{{ $user->streak_freezes_available > 1 ? 's' : '' }} verfügbar
                             @endif
