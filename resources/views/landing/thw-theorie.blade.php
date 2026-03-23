@@ -34,12 +34,12 @@
     {{-- ============================================
          HERO SECTION - Compact
          ============================================ --}}
-    <section class="sp-hero" style="min-height: auto; padding: 8rem 0 4rem;" aria-label="THW Theorie">
+    <section class="sp-hero" style="min-height: auto; padding: 6rem 0 3rem;" aria-label="THW Theorie">
         <div class="sp-orb sp-orb-1" aria-hidden="true"></div>
         <div class="sp-orb sp-orb-2" aria-hidden="true"></div>
 
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div class="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center min-h-[90vh] py-24 lg:py-0">
+            <div class="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center py-12 lg:py-16">
                 {{-- Text Side --}}
                 <div>
                     {{-- Breadcrumb --}}
