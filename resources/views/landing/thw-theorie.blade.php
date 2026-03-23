@@ -25,6 +25,7 @@
             </a>
             <div class="hidden md:flex items-center gap-3">
                 <a href="{{ url('/') }}" class="text-sm font-medium text-zinc-400 hover:text-white transition-colors duration-200 px-4 py-2">Startseite</a>
+                <a href="{{ route('landing.statistics') }}" class="text-sm font-medium text-zinc-400 hover:text-white transition-colors duration-200 px-4 py-2">Statistiken</a>
                 <a href="{{ $registerUrl }}" class="sp-btn-gold text-sm" style="padding: 0.5rem 1.25rem;">Kostenlos starten</a>
             </div>
         </div>
@@ -304,6 +305,7 @@
                 </div>
                 <div class="flex items-center gap-6 text-sm text-zinc-500">
                     <a href="{{ url('/') }}" class="hover:text-zinc-300 transition-colors">Startseite</a>
+                    <a href="{{ route('landing.statistics') }}" class="hover:text-zinc-300 transition-colors">Statistiken</a>
                     <a href="{{ route('landing.impressum') }}" class="hover:text-zinc-300 transition-colors">Impressum</a>
                     <a href="{{ route('landing.datenschutz') }}" class="hover:text-zinc-300 transition-colors">Datenschutz</a>
                 </div>
