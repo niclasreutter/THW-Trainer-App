@@ -252,6 +252,43 @@
         font-weight: 600;
     }
 
+    /* ─── Practice Unavailable Banner ────────── */
+    .practice-unavailable {
+        background: linear-gradient(135deg, rgba(251,191,36,0.08), rgba(251,191,36,0.03));
+        border: 1px solid rgba(251,191,36,0.18);
+        border-radius: 0.75rem;
+        padding: 1rem 1.25rem;
+    }
+
+    .practice-unavailable__title {
+        font-size: 0.8125rem;
+        font-weight: 700;
+        color: #f59e0b;
+        margin-bottom: 0.25rem;
+    }
+
+    .practice-unavailable__message {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        line-height: 1.5;
+    }
+
+    .practice-unavailable__review {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        margin-top: 0.5rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #f59e0b;
+        font-family: 'IBM Plex Mono', monospace;
+    }
+
+    html.light-mode .practice-unavailable {
+        background: linear-gradient(135deg, rgba(251,191,36,0.06), rgba(251,191,36,0.02));
+        border-color: rgba(251,191,36,0.15);
+    }
+
     /* ─── Disabled Tiles ──────────────────────── */
     .tile-disabled {
         opacity: 0.5;
@@ -334,6 +371,19 @@
     </div>
 
     <div class="space-y-4">
+
+        {{-- ── Practice Unavailable Banner ── --}}
+        @if(session('practice_unavailable'))
+            @php $unavailable = session('practice_unavailable'); @endphp
+            <div class="practice-unavailable">
+                <div class="practice-unavailable__title">{{ $unavailable['title'] }}</div>
+                <div class="practice-unavailable__message">{{ $unavailable['message'] }}</div>
+                <div class="practice-unavailable__review">
+                    <i class="bi bi-clock"></i>
+                    {{ $unavailable['next_review'] }}
+                </div>
+            </div>
+        @endif
 
         {{-- ── Smart Action Card ── --}}
         @if(($smartAction['type'] ?? 'action') === 'info')
