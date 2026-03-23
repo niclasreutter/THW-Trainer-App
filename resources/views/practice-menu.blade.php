@@ -252,6 +252,32 @@
         font-weight: 600;
     }
 
+    /* ─── Smart Action Warning State ─────────── */
+    .smart-action--warning {
+        background: linear-gradient(135deg, rgba(251,191,36,0.10), rgba(251,191,36,0.04));
+        border: 1px solid rgba(251,191,36,0.18);
+        cursor: default;
+        transition: opacity 0.6s ease;
+    }
+
+    .smart-action--warning:hover {
+        transform: none;
+        box-shadow: none;
+    }
+
+    .smart-action--warning .smart-action__label {
+        color: rgba(251,191,36,0.7);
+    }
+
+    .smart-action--warning .smart-action__title {
+        color: #f59e0b;
+    }
+
+    html.light-mode .smart-action--warning {
+        background: linear-gradient(135deg, rgba(251,191,36,0.06), rgba(251,191,36,0.02));
+        border-color: rgba(251,191,36,0.15);
+    }
+
     /* ─── Disabled Tiles ──────────────────────── */
     .tile-disabled {
         opacity: 0.5;
@@ -336,6 +362,22 @@
     <div class="space-y-4">
 
         {{-- ── Smart Action Card ── --}}
+        @if(session('practice_unavailable'))
+            @php $unavailable = session('practice_unavailable'); @endphp
+            <div class="smart-action smart-action--warning" id="practice-unavailable-card">
+                <div class="smart-action__label">Nicht verfügbar</div>
+                <div class="smart-action__title">{{ $unavailable['title'] }}</div>
+                <div class="smart-action__desc">{{ $unavailable['message'] }}</div>
+                <span class="smart-action__status" style="color:rgba(251,191,36,0.6);">
+                    <i class="bi bi-clock"></i>
+                    {{ $unavailable['next_review'] }}
+                </span>
+            </div>
+
+            {{-- Normale Smart Action Card (anfangs versteckt, wird nach 10s eingeblendet) --}}
+            <div id="smart-action-normal" style="display:none;">
+        @endif
+
         @if(($smartAction['type'] ?? 'action') === 'info')
         <div class="smart-action smart-action--info">
             <div class="smart-action__label">{{ $smartAction['label'] }}</div>
@@ -356,6 +398,10 @@
                 <i class="bi bi-arrow-right"></i>
             </span>
         </a>
+        @endif
+
+        @if(session('practice_unavailable'))
+            </div>
         @endif
 
         {{-- ── Training Mode Tiles ── --}}
@@ -452,3 +498,21 @@
     </div>
 </div>
 @endsection
+
+@if(session('practice_unavailable'))
+@push('scripts')
+<script>
+    setTimeout(function() {
+        var warning = document.getElementById('practice-unavailable-card');
+        var normal = document.getElementById('smart-action-normal');
+        if (warning && normal) {
+            warning.style.opacity = '0';
+            setTimeout(function() {
+                warning.style.display = 'none';
+                normal.style.display = 'block';
+            }, 600);
+        }
+    }, 10000);
+</script>
+@endpush
+@endif
