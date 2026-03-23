@@ -67,10 +67,12 @@ class DailyReset extends Command
                 // 2. STREAK: Prüfe ob Mindestaktivität gestern NICHT erreicht wurde
                 if ($user->streak_days > 0) {
                     if (!$lastActivity || $lastActivity->lt($yesterday)) {
-                        // Prüfe ob Streak Freeze verfügbar ist
-                        $freezeStatus = $gamificationService->getStreakFreezeStatus($user);
-
-                        if ($freezeStatus['remaining'] > 0) {
+                        // Tagesziel war 0 → auto-qualify (keine Fragen verfügbar)
+                        if ($user->daily_streak_goal === 0) {
+                            $user->last_activity_date = $yesterday;
+                            $changed = true;
+                            $this->line("  Streak auto-qualifiziert (Tagesziel=0): {$user->name} (Streak: {$user->streak_days})");
+                        } elseif (($freezeStatus = $gamificationService->getStreakFreezeStatus($user)) && $freezeStatus['remaining'] > 0) {
                             // Auto-Freeze: Streak wird geschützt
                             $freezeResult = $gamificationService->applyManualFreeze($user);
 

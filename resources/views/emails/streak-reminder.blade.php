@@ -35,20 +35,21 @@
                     // daily_questions_solved nur verwenden wenn es von heute ist
                     $isToday = $user->daily_questions_date && \Carbon\Carbon::parse($user->daily_questions_date)->isToday();
                     $solved = $isToday ? ($user->daily_questions_solved ?? 0) : 0;
-                    $remaining = max(0, 20 - $solved);
+                    $goal = $user->daily_streak_goal ?? 20;
+                    $remaining = max(0, $goal - $solved);
                 @endphp
 
                 <!-- Progress Stat Pill -->
                 <div style="background:#f0f4ff;border-radius:2rem;padding:14px 18px;margin-bottom:8px;border:1px solid rgba(0,51,127,0.12);">
                     <div style="display:flex;justify-content:space-between;align-items:center;">
                         <span style="font-size:11px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:#64748b;">Fortschritt heute</span>
-                        <span style="font-size:14px;font-weight:800;color:#00337F;">{{ $solved }}/20 Fragen</span>
+                        <span style="font-size:14px;font-weight:800;color:#00337F;">{{ $solved }}/{{ $goal }} Fragen</span>
                     </div>
                 </div>
 
                 <!-- Progress Bar -->
                 <div style="background:#dbeafe;border-radius:4px;height:6px;overflow:hidden;margin-bottom:16px;">
-                    <div style="background:linear-gradient(90deg,#00337F,#3b82f6);height:6px;width:{{ min(100, ($solved / 20) * 100) }}%;border-radius:4px;"></div>
+                    <div style="background:linear-gradient(90deg,#00337F,#3b82f6);height:6px;width:{{ $goal > 0 ? min(100, ($solved / $goal) * 100) : 100 }}%;border-radius:4px;"></div>
                 </div>
 
                 <!-- Motivation -->

@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\LearningSessionParticipant;
+use App\Models\Question;
 use App\Models\User;
 use App\Models\XpHistory;
 use Carbon\Carbon;
@@ -216,9 +217,16 @@ class GamificationService
             return;
         }
 
-        // Mindestaktivität prüfen: X Fragen beantwortet ODER 1 Prüfung absolviert
+        // Dynamisches Tagesziel berechnen falls noch nicht gesetzt
+        if ($user->daily_streak_goal === null) {
+            $user->daily_streak_goal = $this->calculateDailyStreakGoal($user);
+        }
+
+        // Mindestaktivität prüfen: Tagesziel erreicht ODER 1 Prüfung absolviert
+        $dailyGoal = $user->daily_streak_goal;
         $meetsMinimum = $examCompleted
-            || ($user->daily_questions_solved >= self::STREAK_MIN_QUESTIONS);
+            || ($dailyGoal == 0)
+            || ($user->daily_questions_solved >= $dailyGoal);
 
         if (!$meetsMinimum) {
             return;
@@ -388,15 +396,34 @@ class GamificationService
     private function updateDailyQuestions(User $user)
     {
         $today = Carbon::today();
-        
+
         if (!$user->daily_questions_date || Carbon::parse($user->daily_questions_date)->lt($today)) {
             $user->daily_questions_solved = 1;
             $user->daily_questions_date = $today;
+            $user->daily_streak_goal = $this->calculateDailyStreakGoal($user);
         } else {
             $user->daily_questions_solved += 1;
         }
-        
+
         $user->save();
+    }
+
+    /**
+     * Berechnet das dynamische Tagesziel basierend auf verfügbaren Fragen.
+     * Tagesziel = min(20, SR-fällige Fragen + offene/ungelöste Fragen)
+     */
+    public function calculateDailyStreakGoal(User $user): int
+    {
+        $srService = new SpacedRepetitionService();
+        $srDueCount = $srService->getDueCount($user->id);
+
+        $totalQuestions = Question::count();
+        $solvedCount = count($this->ensureArray($user->solved_questions));
+        $unsolvedCount = $totalQuestions - $solvedCount;
+
+        $available = $srDueCount + $unsolvedCount;
+
+        return min(self::STREAK_MIN_QUESTIONS, $available);
     }
 
     private function calculateLevel(int $points)

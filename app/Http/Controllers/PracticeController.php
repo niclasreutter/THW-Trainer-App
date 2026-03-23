@@ -521,6 +521,51 @@ class PracticeController extends Controller
                     ->with('info', 'Keine ungelösten Fragen verfügbar — alle Fragen werden geladen.');
             }
 
+            // Prüfe ob Fragen existieren, aber alle durch SR-Zeitplanung blockiert sind
+            if (in_array($mode, ['section', 'all', 'search'])) {
+                $sectionQuestionIds = match($mode) {
+                    'section' => Question::where('lernabschnitt', $parameter)->pluck('id')->toArray(),
+                    'search' => Question::where(function($q) use ($parameter) {
+                        $q->where('frage', 'LIKE', '%' . $parameter . '%')
+                          ->orWhere('antwort_a', 'LIKE', '%' . $parameter . '%')
+                          ->orWhere('antwort_b', 'LIKE', '%' . $parameter . '%')
+                          ->orWhere('antwort_c', 'LIKE', '%' . $parameter . '%');
+                    })->pluck('id')->toArray(),
+                    default => Question::pluck('id')->toArray(),
+                };
+
+                if (!empty($sectionQuestionIds)) {
+                    $earliestReview = UserQuestionProgress::where('user_id', $user->id)
+                        ->whereIn('question_id', $sectionQuestionIds)
+                        ->whereNotNull('next_review_at')
+                        ->where('next_review_at', '>', now())
+                        ->orderBy('next_review_at', 'asc')
+                        ->value('next_review_at');
+
+                    if ($earliestReview) {
+                        $reviewDate = \Carbon\Carbon::parse($earliestReview);
+                        $sectionLabel = $mode === 'section'
+                            ? 'Lernabschnitt ' . $parameter . ' (' . (self::SECTION_NAMES[$parameter] ?? '') . ')'
+                            : ($mode === 'search' ? 'Suchergebnis' : 'Alle Fragen');
+
+                        if ($reviewDate->isToday()) {
+                            $timeLabel = 'heute um ' . $reviewDate->format('H:i') . ' Uhr';
+                        } elseif ($reviewDate->isTomorrow()) {
+                            $timeLabel = 'morgen um ' . $reviewDate->format('H:i') . ' Uhr';
+                        } else {
+                            $timeLabel = 'am ' . $reviewDate->format('d.m.Y') . ' um ' . $reviewDate->format('H:i') . ' Uhr';
+                        }
+
+                        return redirect()->route('practice.menu')
+                            ->with('practice_unavailable', [
+                                'title' => 'Alle Fragen bereits beantwortet',
+                                'message' => $sectionLabel . ': Alle Fragen wurden bereits beantwortet und sind durch Spaced Repetition geplant.',
+                                'next_review' => 'Nächste Wiederholung: ' . $timeLabel,
+                            ]);
+                    }
+                }
+            }
+
             return redirect()->route('practice.menu')->with('success', 'Keine Fragen gefunden.');
         }
         
