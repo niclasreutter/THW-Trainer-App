@@ -32,6 +32,10 @@ Route::get('/datenschutz', function () {
     return view('landing.datenschutz');
 })->name('landing.datenschutz');
 
+// SEO Sub-Landingpages
+Route::get('/thw-theorie', [\App\Http\Controllers\LandingController::class, 'thwTheorie'])
+    ->name('landing.thw-theorie');
+
 // Öffentliche Statistik (anonym, aggregiert)
 Route::get('/statistik', [\App\Http\Controllers\PublicStatisticsController::class, 'index'])
     ->name('landing.statistics');
@@ -59,6 +63,7 @@ Route::get('/robots.txt', function () {
 Allow: /
 
 # Sekundäre öffentliche Seiten
+Allow: /thw-theorie
 Allow: /guest/practice-menu
 Allow: /statistik
 
