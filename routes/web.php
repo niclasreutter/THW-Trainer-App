@@ -296,8 +296,11 @@ Route::get('/dashboard', function () {
     $todayCorrect = \App\Models\QuestionStatistic::where('user_id', $user->id)
         ->whereDate('created_at', today())->where('is_correct', true)->count();
 
-    // Dynamisches Streak-Tagesziel
-    $dailyStreakGoal = $user->daily_streak_goal ?? $gamificationService->calculateDailyStreakGoal($user);
+    // Dynamisches Streak-Tagesziel (max. 20 für Streak-Qualifikation)
+    $dailyStreakGoal = min(
+        \App\Services\GamificationService::STREAK_MIN_QUESTIONS,
+        $user->daily_streak_goal ?? $gamificationService->calculateDailyStreakGoal($user)
+    );
 
     return view('dashboard', compact(
         'user', 'recentExams', 'totalQuestions', 'spacedRepetitionDue',
