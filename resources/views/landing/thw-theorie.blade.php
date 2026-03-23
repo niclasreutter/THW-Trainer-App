@@ -39,34 +39,90 @@
         <div class="sp-orb sp-orb-2" aria-hidden="true"></div>
 
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div class="max-w-3xl">
-                {{-- Breadcrumb --}}
-                <nav class="mb-6 text-sm text-zinc-500" aria-label="Breadcrumb">
-                    <a href="{{ url('/') }}" class="hover:text-white transition-colors">Startseite</a>
-                    <span class="mx-2">/</span>
-                    <span class="text-zinc-300">THW Theorie</span>
-                </nav>
+            <div class="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center min-h-[90vh] py-24 lg:py-0">
+                {{-- Text Side --}}
+                <div>
+                    {{-- Breadcrumb --}}
+                    <nav class="mb-6 text-sm text-zinc-500" aria-label="Breadcrumb">
+                        <a href="{{ url('/') }}" class="hover:text-white transition-colors">Startseite</a>
+                        <span class="mx-2">/</span>
+                        <span class="text-zinc-300">THW Theorie</span>
+                    </nav>
 
-                <span class="sp-hero-badge">Grundausbildung (GA) Theorie 2026</span>
+                    <span class="sp-hero-badge">Grundausbildung (GA) Theorie 2026</span>
 
-                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight mb-6">
-                    THW Theorie
-                    <br>
-                    <span class="sp-gradient-text">online lernen</span>
-                </h1>
+                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight mb-6">
+                        THW Theorie
+                        <br>
+                        <span class="sp-gradient-text">online lernen</span>
+                    </h1>
 
-                <p class="text-lg lg:text-xl text-zinc-400 mb-10 max-w-xl leading-relaxed">
-                    Alle {{ $totalQuestions }} offiziellen THW Theorie Fragen der Grundausbildung in 10 Lernabschnitten. Lerne gezielt, verfolge deinen Fortschritt und bestehe die THW Theorieprüfung.
-                </p>
+                    <p class="text-lg lg:text-xl text-zinc-400 mb-10 max-w-xl leading-relaxed">
+                        Alle {{ $totalQuestions }} offiziellen THW Theorie Fragen der Grundausbildung in 10 Lernabschnitten. Lerne gezielt, verfolge deinen Fortschritt und bestehe die THW Theorieprüfung.
+                    </p>
 
-                <div class="flex flex-col sm:flex-row gap-4">
-                    <a href="{{ $appUrl }}" class="sp-btn-gold" aria-label="Jetzt kostenlos THW Theorie lernen">
-                        Kostenlos starten
-                    </a>
-                    <a href="{{ route('landing.guest.practice.menu') }}" class="sp-btn-ghost" aria-label="THW Theorie anonym üben">
-                        Anonym üben
-                    </a>
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <a href="{{ $appUrl }}" class="sp-btn-gold" aria-label="Jetzt kostenlos THW Theorie lernen">
+                            Kostenlos starten
+                        </a>
+                        <a href="{{ route('landing.guest.practice.menu') }}" class="sp-btn-ghost" aria-label="THW Theorie anonym üben">
+                            Anonym üben
+                        </a>
+                    </div>
                 </div>
+
+                {{-- App Mockup --}}
+                <div class="hidden lg:block">
+                    <div class="sp-mockup">
+                        <div class="glass glass-blue" style="padding: 2rem; border-radius: 1.5rem 0.5rem 1.5rem 0.5rem;">
+                            {{-- Mock Dashboard Header --}}
+                            <div class="flex items-center justify-between mb-6">
+                                <div>
+                                    <div class="text-xs text-zinc-500 uppercase tracking-wider mb-1">Dein Lernfortschritt</div>
+                                    <div class="text-2xl font-bold text-white">Grundausbildung</div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-2xl font-extrabold sp-gradient-text">75%</div>
+                                    <div class="text-xs text-zinc-500">abgeschlossen</div>
+                                </div>
+                            </div>
+
+                            {{-- Mock Progress Bar --}}
+                            <div class="sp-progress-track" style="height: 6px; border-radius: 3px; margin-bottom: 1.75rem; overflow: hidden;">
+                                <div style="width: 75%; height: 100%; background: linear-gradient(90deg, #00337F, #5b9aff); border-radius: 3px;"></div>
+                            </div>
+
+                            {{-- Mock Stats Row --}}
+                            <div class="grid grid-cols-3 gap-3 mb-6">
+                                <div class="glass-subtle" style="padding: 0.75rem; border-radius: 0.75rem; text-align: center;">
+                                    <div class="text-lg font-bold text-white">342</div>
+                                    <div class="text-xs text-zinc-500">Richtig</div>
+                                </div>
+                                <div class="glass-subtle" style="padding: 0.75rem; border-radius: 0.75rem; text-align: center;">
+                                    <div class="text-lg font-bold text-white">7</div>
+                                    <div class="text-xs text-zinc-500">Tage-Streak</div>
+                                </div>
+                                <div class="glass-subtle" style="padding: 0.75rem; border-radius: 0.75rem; text-align: center;">
+                                    <div class="text-lg font-bold text-white">89%</div>
+                                    <div class="text-xs text-zinc-500">Quote</div>
+                                </div>
+                            </div>
+
+                            {{-- Mock Question Preview --}}
+                            <div class="glass" style="padding: 1rem 1.25rem; border-radius: 0.75rem;">
+                                <div class="text-xs text-zinc-500 mb-2">Frage 23 / {{ $totalQuestions }}</div>
+                                <div class="text-sm text-zinc-300 leading-relaxed">Welche Aufgabe hat das THW im Rahmen der zivilen Verteidigung?</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Scroll Indicator --}}
+        <div class="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 hidden lg:block" aria-hidden="true">
+            <div class="sp-scroll-indicator">
+                <div class="sp-scroll-dot"></div>
             </div>
         </div>
     </section>
