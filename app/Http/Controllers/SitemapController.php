@@ -23,6 +23,9 @@ class SitemapController extends Controller
         // Hauptseite (höchste Priorität - DAS ist die wichtigste Seite!)
         $sitemap .= $this->addUrl(url('/'), '1.0', 'daily');
 
+        // SEO Sub-Landingpages
+        $sitemap .= $this->addUrl(route('landing.thw-theorie'), '0.9', 'weekly');
+
         // Öffentliche Statistik-Seite
         $sitemap .= $this->addUrl(route('landing.statistics'), '0.7', 'weekly');
 

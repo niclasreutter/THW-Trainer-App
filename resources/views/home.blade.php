@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'THW Theorie kostenlos online lernen | Prüfungsfragen 2026')
-@section('description', 'THW Theorieprüfung online vorbereiten: Alle Prüfungsfragen der Grundausbildung 2026 ✓ Prüfungssimulation ✓ Als App installierbar ✓ Kostenlos & werbefrei')
+@section('title', 'THW Theorie & Prüfungsfragen online lernen | Kostenlos 2026')
+@section('description', 'THW Trainer App: Alle Prüfungsfragen der Grundausbildung (GA) online lernen ✓ Theorieprüfung 2026 ✓ Prüfungssimulation ✓ Als App installierbar ✓ Kostenlos & werbefrei')
 
 @section('content')
 <div class="overflow-x-hidden">
@@ -39,7 +39,7 @@
 
                 <!-- Untertitel -->
                 <p class="text-lg sm:text-xl lg:text-2xl text-blue-100 mb-8 max-w-3xl mx-auto font-light leading-relaxed">
-                    Dein digitaler Begleiter für die THW Grundausbildung Theorieprüfung - Jetzt kostenlos starten!
+                    Dein digitaler Begleiter für das THW Training und die Grundausbildung (GA) Theorieprüfung - Jetzt kostenlos starten!
                 </p>
 
                 <!-- CTA Button -->
@@ -74,7 +74,7 @@
                     Was bietet der THW-Trainer?
                 </h2>
                 <p class="text-base lg:text-xl text-gray-600 max-w-4xl mx-auto leading-relaxed font-light">
-                    Alles für deine THW Theorieprüfung - online und kostenlos
+                    Alles für dein THW Training und die Theorieprüfung - online und kostenlos
                 </p>
             </header>
 
@@ -129,7 +129,7 @@
                 Bereit zum Lernen?
             </h2>
             <p class="text-base lg:text-lg text-white mb-4 lg:mb-6 max-w-4xl mx-auto leading-relaxed font-light">
-                Starte jetzt mit dem THW-Trainer und bereite dich optimal auf deine <strong class="font-semibold">THW Grundausbildung Theorieprüfung</strong> vor - online und jederzeit.
+                Starte jetzt mit der <strong class="font-semibold">THW Trainer App</strong> und bereite dich optimal auf deine <strong class="font-semibold">THW Grundausbildung (GA) Theorieprüfung</strong> vor - alle Prüfungsfragen online und jederzeit.
             </p>
             <p class="text-sm lg:text-base text-white max-w-4xl mx-auto leading-relaxed font-light mb-8">
                 Registriere dich kostenlos und beginne sofort mit dem Lernen, egal ob Handy, Laptop oder Tablet!<br>
@@ -283,6 +283,54 @@
                             Der THW-Trainer ist eine <strong>private Initiative</strong> eines aktiven THW-Mitglieds und nicht offiziell
                             vom THW herausgegeben. Die Fragen basieren jedoch auf den offiziellen Ausbildungsunterlagen
                             und werden regelmäßig aktualisiert, um den aktuellen Stand der THW-Ausbildung zu reflektieren.
+                        </p>
+                    </div>
+                </article>
+
+                <!-- FAQ Item 9 -->
+                <article class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                    <button class="faq-toggle w-full text-left p-5 lg:p-6 flex justify-between items-center hover:bg-blue-50 transition-colors" onclick="toggleFAQ('faq9')" aria-expanded="false" aria-controls="faq9">
+                        <span class="text-base lg:text-lg font-semibold text-gray-900 pr-4" itemprop="name">Gibt es eine THW Prüfungsfragen App?</span>
+                        <span class="faq-icon text-2xl text-thw-blue font-bold flex-shrink-0" aria-hidden="true">+</span>
+                    </button>
+                    <div id="faq9" class="faq-content hidden px-5 lg:px-6 pb-5 lg:pb-6" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                        <p class="text-gray-700 leading-relaxed text-sm lg:text-base" itemprop="text">
+                            Ja! Der <strong>THW-Trainer</strong> ist als Progressive Web App (PWA) verfügbar und kann direkt auf deinem
+                            Smartphone installiert werden. Die <strong>THW Prüfungsfragen App</strong> funktioniert auf Android und iOS,
+                            ist kostenlos und benötigt keinen Download aus dem App Store. Installiere sie einfach über
+                            den Browser auf deinen Homescreen und übe alle <strong>THW Theorie Fragen</strong> auch offline.
+                        </p>
+                    </div>
+                </article>
+
+                <!-- FAQ Item 10 -->
+                <article class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                    <button class="faq-toggle w-full text-left p-5 lg:p-6 flex justify-between items-center hover:bg-blue-50 transition-colors" onclick="toggleFAQ('faq10')" aria-expanded="false" aria-controls="faq10">
+                        <span class="text-base lg:text-lg font-semibold text-gray-900 pr-4" itemprop="name">Kann ich für die THW GA Prüfung online üben?</span>
+                        <span class="faq-icon text-2xl text-thw-blue font-bold flex-shrink-0" aria-hidden="true">+</span>
+                    </button>
+                    <div id="faq10" class="faq-content hidden px-5 lg:px-6 pb-5 lg:pb-6" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                        <p class="text-gray-700 leading-relaxed text-sm lg:text-base" itemprop="text">
+                            Ja, mit dem THW-Trainer kannst du dich gezielt auf die <strong>THW GA Prüfung</strong> (Grundausbildung) vorbereiten.
+                            GA steht für Grundausbildung - die erste und wichtigste Ausbildungsstufe im THW.
+                            Alle <strong>Prüfungsfragen der Grundausbildung</strong> stehen dir online zur Verfügung, inklusive
+                            Prüfungssimulation unter realistischen Bedingungen.
+                        </p>
+                    </div>
+                </article>
+
+                <!-- FAQ Item 11 -->
+                <article class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                    <button class="faq-toggle w-full text-left p-5 lg:p-6 flex justify-between items-center hover:bg-blue-50 transition-colors" onclick="toggleFAQ('faq11')" aria-expanded="false" aria-controls="faq11">
+                        <span class="text-base lg:text-lg font-semibold text-gray-900 pr-4" itemprop="name">Wo kann ich THW Theorie Fragen online üben?</span>
+                        <span class="faq-icon text-2xl text-thw-blue font-bold flex-shrink-0" aria-hidden="true">+</span>
+                    </button>
+                    <div id="faq11" class="faq-content hidden px-5 lg:px-6 pb-5 lg:pb-6" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                        <p class="text-gray-700 leading-relaxed text-sm lg:text-base" itemprop="text">
+                            Auf <strong>thw-trainer.de</strong> kannst du alle <strong>THW Theorie Fragen</strong> kostenlos online üben.
+                            Du brauchst nur einen Browser - kein Download und keine Installation nötig.
+                            Das <strong>THW Training</strong> funktioniert auf Handy, Tablet und PC. Starte einfach und übe
+                            alle <strong>THW Prüfungsfragen</strong> bequem von überall - ob zu Hause oder unterwegs.
                         </p>
                     </div>
                 </article>
@@ -496,6 +544,30 @@ document.addEventListener('DOMContentLoaded', function() {
                 "@@type": "Answer",
                 "text": "Der THW-Trainer ist eine private Initiative eines aktiven THW-Mitglieds und nicht offiziell vom THW herausgegeben. Die Fragen basieren jedoch auf den offiziellen Ausbildungsunterlagen und werden regelmäßig aktualisiert, um den aktuellen Stand der THW-Ausbildung zu reflektieren."
             }
+        },
+        {
+            "@@type": "Question",
+            "name": "Gibt es eine THW Prüfungsfragen App?",
+            "acceptedAnswer": {
+                "@@type": "Answer",
+                "text": "Ja! Der THW-Trainer ist als Progressive Web App (PWA) verfügbar und kann direkt auf deinem Smartphone installiert werden. Die THW Prüfungsfragen App funktioniert auf Android und iOS, ist kostenlos und benötigt keinen Download aus dem App Store. Installiere sie einfach über den Browser auf deinen Homescreen und übe alle THW Theorie Fragen auch offline."
+            }
+        },
+        {
+            "@@type": "Question",
+            "name": "Kann ich für die THW GA Prüfung online üben?",
+            "acceptedAnswer": {
+                "@@type": "Answer",
+                "text": "Ja, mit dem THW-Trainer kannst du dich gezielt auf die THW GA Prüfung (Grundausbildung) vorbereiten. GA steht für Grundausbildung - die erste und wichtigste Ausbildungsstufe im THW. Alle Prüfungsfragen der Grundausbildung stehen dir online zur Verfügung, inklusive Prüfungssimulation unter realistischen Bedingungen."
+            }
+        },
+        {
+            "@@type": "Question",
+            "name": "Wo kann ich THW Theorie Fragen online üben?",
+            "acceptedAnswer": {
+                "@@type": "Answer",
+                "text": "Auf thw-trainer.de kannst du alle THW Theorie Fragen kostenlos online üben. Du brauchst nur einen Browser - kein Download und keine Installation nötig. Das THW Training funktioniert auf Handy, Tablet und PC. Starte einfach und übe alle THW Prüfungsfragen bequem von überall - ob zu Hause oder unterwegs."
+            }
         }
     ]
 }
@@ -508,7 +580,7 @@ document.addEventListener('DOMContentLoaded', function() {
     "@@type": "WebApplication",
     "name": "THW-Trainer",
     "url": "{{ url('/') }}",
-    "description": "Kostenlose THW Prüfungsfragen App für die Theorieprüfung. Online lernen für Grundausbildung, FüUF26 und mehr. Prüfungssimulation und Lernfortschritt.",
+    "description": "Kostenlose THW Trainer App mit allen Prüfungsfragen für die Theorieprüfung. THW Theorie online lernen für Grundausbildung (GA), FüUF26 und mehr. Prüfungssimulation und Lernfortschritt.",
     "applicationCategory": "EducationalApplication",
     "operatingSystem": "Web Browser, iOS, Android",
     "offers": {

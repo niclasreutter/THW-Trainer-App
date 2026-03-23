@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ExamStatistic;
 use App\Models\LehrgangQuestionStatistic;
 use App\Models\OrtsverbandLernpoolQuestionStatistic;
+use App\Models\Question;
 use App\Models\QuestionStatistic;
 use App\Models\User;
 use Carbon\Carbon;
@@ -141,5 +142,48 @@ class LandingController extends Controller
         });
 
         return view('landing.startseite', compact('stats'));
+    }
+
+    /**
+     * THW Theorie Sub-Landingpage — SEO-optimiert für "thw theorie" Keywords.
+     */
+    public function thwTheorie()
+    {
+        $sectionNames = [
+            1 => 'Das THW im Gefüge des Zivil- und Katastrophenschutzes',
+            2 => 'Arbeitssicherheit und Gesundheitsschutz',
+            3 => 'Arbeiten mit Leinen, Drahtseilen, Ketten, Rund- und Bandschlingen',
+            4 => 'Arbeiten mit Leitern',
+            5 => 'Stromerzeugung und Beleuchtung',
+            6 => 'Metall-, Holz- und Steinbearbeitung',
+            7 => 'Bewegen von Lasten',
+            8 => 'Arbeiten am und auf dem Wasser',
+            9 => 'Einsatzgrundlagen',
+            10 => 'Grundlagen der Rettung und Bergung',
+        ];
+
+        $sections = cache()->remember('landing_thw_theorie_sections', 3600, function () use ($sectionNames) {
+            $counts = Question::selectRaw('lernabschnitt, COUNT(*) as total')
+                ->groupBy('lernabschnitt')
+                ->pluck('total', 'lernabschnitt');
+
+            $result = [];
+            foreach ($sectionNames as $nr => $name) {
+                $result[] = [
+                    'nr' => $nr,
+                    'name' => $name,
+                    'count' => $counts->get((string) $nr, 0),
+                ];
+            }
+
+            return $result;
+        });
+
+        $totalQuestions = collect($sections)->sum('count');
+
+        // Stats aus dem gleichen Cache wie Startseite
+        $stats = cache()->get('landing_stats_v4');
+
+        return view('landing.thw-theorie', compact('sections', 'totalQuestions', 'stats'));
     }
 }

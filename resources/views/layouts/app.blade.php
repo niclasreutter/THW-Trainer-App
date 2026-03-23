@@ -18,7 +18,7 @@
 
         <!-- SEO Meta Tags -->
         <meta name="description" content="@hasSection('description')@yield('description')@else THW-Trainer: Bereite dich optimal auf deine THW-Prüfung vor. Kostenlose Theoriefragen, Prüfungssimulation und Lernfortschritt. Jetzt anonym oder mit Account üben! @endif">
-        <meta name="keywords" content="THW, Technisches Hilfswerk, Theorie, Prüfung, Übung, Lernfortschritt, kostenlos, Simulation">
+        <meta name="keywords" content="THW, THW Trainer, THW Trainer App, THW Theorie, THW Prüfungsfragen, THW Grundausbildung, THW GA Prüfung, THW Training, Theorieprüfung, THW Prüfung, Technisches Hilfswerk, THW online, Prüfungssimulation, kostenlos">
         <meta name="author" content="Niclas Reutter">
         @if(app()->environment('testing') || str_contains(request()->getHost(), 'test.') || config('app.environment_type') === 'testing')
             <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
