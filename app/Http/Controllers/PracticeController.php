@@ -307,17 +307,15 @@ class PracticeController extends Controller
                 $currentlyMasteredIds = UserQuestionProgress::getMasteredQuestions($user->id);
                 $toLearnIds = array_diff($toLearnIds, $currentlyMasteredIds);
 
-                // Fragen ausschließen, die SR bereits für die Zukunft geplant hat.
-                // Wenn next_review_at > now() ist die Frage bereits beantwortet worden und
-                // wird vom SR-Algorithmus erst später wieder eingeblendet – nicht heute nochmal zeigen.
-                // AUSNAHME: In aktiver Lernsession werden alle Fragen angezeigt.
+                // KEIN SR-Filter für ungelöste Fragen — wenn der User aktiv üben will,
+                // soll er alle ungelösten Fragen sehen können, auch wenn SR sie für später geplant hat.
+                // SR-Filter gilt nur für bereits gemeisterte Fragen (Schritt 4 unten).
                 if (!$inActiveSession) {
                     $futureSrIds = UserQuestionProgress::where('user_id', $user->id)
                         ->whereNotNull('next_review_at')
                         ->where('next_review_at', '>', now())
                         ->pluck('question_id')
                         ->toArray();
-                    $toLearnIds = array_diff($toLearnIds, $futureSrIds);
                 } else {
                     $futureSrIds = [];
                 }
@@ -363,19 +361,8 @@ class PracticeController extends Controller
                 $masteredIds = UserQuestionProgress::getMasteredQuestions($user->id);
                 $unsolvedIds = Question::whereNotIn('id', $masteredIds)->pluck('id')->toArray();
 
-                // Fragen ausschließen, die SR bereits für die Zukunft geplant hat
-                // AUSNAHME: In aktiver Lernsession werden alle Fragen angezeigt.
-                if (!$inActiveSession) {
-                    $futureSrIds = UserQuestionProgress::where('user_id', $user->id)
-                        ->whereNotNull('next_review_at')
-                        ->where('next_review_at', '>', now())
-                        ->pluck('question_id')
-                        ->toArray();
-                    $unsolvedIds = array_values(array_diff($unsolvedIds, $futureSrIds));
-                }
-
-                // Zufällige Sortierung der ungelösten Fragen
-                // Kein SR-Filter — wenn der User aktiv üben will, darf er alle ungelösten Fragen sehen
+                // Kein SR-Filter — wenn der User aktiv üben will, darf er alle ungelösten Fragen sehen.
+                // Ungelöste Fragen sind per Definition noch nicht gemeistert, also sollen sie immer verfügbar sein.
                 shuffle($unsolvedIds);
 
                 $idsToShow = $unsolvedIds;
@@ -440,14 +427,14 @@ class PracticeController extends Controller
                 $currentlyMasteredIds = UserQuestionProgress::getMasteredQuestions($user->id);
                 $toLearnIds = array_diff($toLearnIds, $currentlyMasteredIds);
 
-                // AUSNAHME: In aktiver Lernsession werden alle Fragen angezeigt.
+                // KEIN SR-Filter für ungelöste Fragen — User soll alle üben können.
+                // SR-Filter gilt nur für gemeisterte Fragen (Schritt 4).
                 if (!$inActiveSession) {
                     $futureSrIds = UserQuestionProgress::where('user_id', $user->id)
                         ->whereNotNull('next_review_at')
                         ->where('next_review_at', '>', now())
                         ->pluck('question_id')
                         ->toArray();
-                    $toLearnIds = array_diff($toLearnIds, $futureSrIds);
                 } else {
                     $futureSrIds = [];
                 }
@@ -654,22 +641,9 @@ class PracticeController extends Controller
             // Continue with current practice session
             $idsToShow = $practiceIds; // Alle IDs aus der Session
 
-            // SR-Filter: Fragen ausschließen, die noch nicht fällig sind (außer bei Antwort-Anzeige oder aktiver Lernsession)
-            $lernsessionService = app(\App\Services\LernsessionService::class);
-            $inActiveSession = (bool) $lernsessionService->isUserInActiveSession($user);
-            if (!$showAnsweredQuestion && $mode !== 'spaced_repetition' && !$inActiveSession) {
-                $futureSrIds = UserQuestionProgress::where('user_id', $user->id)
-                    ->whereNotNull('next_review_at')
-                    ->where('next_review_at', '>', now())
-                    ->pluck('question_id')
-                    ->toArray();
-                $idsToShow = array_values(array_diff($idsToShow, $futureSrIds));
-
-                // Session-Queue aktualisieren damit gefilterte Fragen nicht wieder auftauchen
-                if (!empty($futureSrIds)) {
-                    session(['practice_ids' => $idsToShow]);
-                }
-            }
+            // KEIN SR-Filter mehr in show() — die Queue wurde beim Session-Start bereits
+            // korrekt gefiltert. Ein nachträglicher SR-Filter entfernt destruktiv Fragen
+            // aus der Queue und verursacht einen Loop-Bug (User sieht nur 1 Frage, dann Menü).
 
             if ($showAnsweredQuestion) {
                 // Zeige die gerade beantwortete Frage nochmal
