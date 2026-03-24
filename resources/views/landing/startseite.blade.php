@@ -473,122 +473,122 @@
                 </h2>
             </header>
 
-            <div class="space-y-3 sp-fade-in" itemscope itemtype="https://schema.org/FAQPage">
+            <div class="space-y-3 sp-fade-in">
                 {{-- FAQ 1 --}}
-                <article class="sp-faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                <article class="sp-faq-item">
                     <button class="sp-faq-toggle" onclick="toggleSpFAQ(this)" aria-expanded="false">
-                        <span itemprop="name">Was kostet der THW-Trainer?</span>
+                        <span>Was kostet der THW-Trainer?</span>
                         <svg class="sp-faq-chevron" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                             <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
                         </svg>
                     </button>
-                    <div class="sp-faq-content" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
-                        <p class="text-sm text-zinc-400 leading-relaxed" itemprop="text">
+                    <div class="sp-faq-content">
+                        <p class="text-sm text-zinc-400 leading-relaxed">
                             Nichts. Der THW-Trainer ist komplett kostenlos, werbefrei und ohne versteckte Kosten. Er wird als private Initiative zur Unterstützung der THW-Ausbildung betrieben.
                         </p>
                     </div>
                 </article>
 
                 {{-- FAQ 2 --}}
-                <article class="sp-faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                <article class="sp-faq-item">
                     <button class="sp-faq-toggle" onclick="toggleSpFAQ(this)" aria-expanded="false">
-                        <span itemprop="name">Welche Prüfungsfragen sind enthalten?</span>
+                        <span>Welche Prüfungsfragen sind enthalten?</span>
                         <svg class="sp-faq-chevron" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                             <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
                         </svg>
                     </button>
-                    <div class="sp-faq-content" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
-                        <p class="text-sm text-zinc-400 leading-relaxed" itemprop="text">
+                    <div class="sp-faq-content">
+                        <p class="text-sm text-zinc-400 leading-relaxed">
                             Alle offiziellen Theoriefragen der THW Grundausbildung sowie Fragen verschiedener Lehrgänge. Der Fragenkatalog wird regelmäßig aktualisiert und entspricht dem Stand 2026.
                         </p>
                     </div>
                 </article>
 
                 {{-- FAQ 3 --}}
-                <article class="sp-faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                <article class="sp-faq-item">
                     <button class="sp-faq-toggle" onclick="toggleSpFAQ(this)" aria-expanded="false">
-                        <span itemprop="name">Kann ich auch ohne Registrierung üben?</span>
+                        <span>Kann ich auch ohne Registrierung üben?</span>
                         <svg class="sp-faq-chevron" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                             <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
                         </svg>
                     </button>
-                    <div class="sp-faq-content" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
-                        <p class="text-sm text-zinc-400 leading-relaxed" itemprop="text">
+                    <div class="sp-faq-content">
+                        <p class="text-sm text-zinc-400 leading-relaxed">
                             Ja! Du kannst anonym und ohne Account Fragen üben und Prüfungssimulationen durchführen. Für Lernfortschritt, Spaced Repetition und Ortsverband-Features ist eine kostenlose Registrierung nötig.
                         </p>
                     </div>
                 </article>
 
                 {{-- FAQ 4 --}}
-                <article class="sp-faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                <article class="sp-faq-item">
                     <button class="sp-faq-toggle" onclick="toggleSpFAQ(this)" aria-expanded="false">
-                        <span itemprop="name">Funktioniert die App auf dem Handy?</span>
+                        <span>Funktioniert die App auf dem Handy?</span>
                         <svg class="sp-faq-chevron" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                             <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
                         </svg>
                     </button>
-                    <div class="sp-faq-content" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
-                        <p class="text-sm text-zinc-400 leading-relaxed" itemprop="text">
+                    <div class="sp-faq-content">
+                        <p class="text-sm text-zinc-400 leading-relaxed">
                             Ja, der THW-Trainer ist als Progressive Web App (PWA) für alle Geräte optimiert. Du kannst ihn auf dem Handy wie eine echte App installieren und sogar offline nutzen.
                         </p>
                     </div>
                 </article>
 
                 {{-- FAQ 5 --}}
-                <article class="sp-faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                <article class="sp-faq-item">
                     <button class="sp-faq-toggle" onclick="toggleSpFAQ(this)" aria-expanded="false">
-                        <span itemprop="name">Ist das ein offizielles THW-Angebot?</span>
+                        <span>Ist das ein offizielles THW-Angebot?</span>
                         <svg class="sp-faq-chevron" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                             <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
                         </svg>
                     </button>
-                    <div class="sp-faq-content" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
-                        <p class="text-sm text-zinc-400 leading-relaxed" itemprop="text">
+                    <div class="sp-faq-content">
+                        <p class="text-sm text-zinc-400 leading-relaxed">
                             Nein, der THW-Trainer ist eine private Initiative zur Unterstützung der THW-Ausbildung. Er wird von einem THW-Helfer ehrenamtlich entwickelt und betrieben.
                         </p>
                     </div>
                 </article>
 
                 {{-- FAQ 6 --}}
-                <article class="sp-faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                <article class="sp-faq-item">
                     <button class="sp-faq-toggle" onclick="toggleSpFAQ(this)" aria-expanded="false">
-                        <span itemprop="name">Gibt es eine THW Prüfungsfragen App?</span>
+                        <span>Gibt es eine THW Prüfungsfragen App?</span>
                         <svg class="sp-faq-chevron" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                             <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
                         </svg>
                     </button>
-                    <div class="sp-faq-content" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
-                        <p class="text-sm text-zinc-400 leading-relaxed" itemprop="text">
+                    <div class="sp-faq-content">
+                        <p class="text-sm text-zinc-400 leading-relaxed">
                             Ja! Der THW-Trainer ist als Progressive Web App (PWA) verfügbar und kann direkt auf deinem Smartphone installiert werden. Die THW Prüfungsfragen App funktioniert auf Android und iOS, ist kostenlos und benötigt keinen Download aus dem App Store. Installiere sie einfach über den Browser auf deinen Homescreen und übe alle THW Theorie Fragen auch offline.
                         </p>
                     </div>
                 </article>
 
                 {{-- FAQ 7 --}}
-                <article class="sp-faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                <article class="sp-faq-item">
                     <button class="sp-faq-toggle" onclick="toggleSpFAQ(this)" aria-expanded="false">
-                        <span itemprop="name">Kann ich für die THW GA Prüfung online üben?</span>
+                        <span>Kann ich für die THW GA Prüfung online üben?</span>
                         <svg class="sp-faq-chevron" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                             <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
                         </svg>
                     </button>
-                    <div class="sp-faq-content" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
-                        <p class="text-sm text-zinc-400 leading-relaxed" itemprop="text">
+                    <div class="sp-faq-content">
+                        <p class="text-sm text-zinc-400 leading-relaxed">
                             Ja, mit dem THW-Trainer kannst du dich gezielt auf die THW GA Prüfung (Grundausbildung) vorbereiten. GA steht für Grundausbildung — die erste und wichtigste Ausbildungsstufe im THW. Alle Prüfungsfragen der Grundausbildung stehen dir online zur Verfügung, inklusive Prüfungssimulation unter realistischen Bedingungen.
                         </p>
                     </div>
                 </article>
 
                 {{-- FAQ 8 --}}
-                <article class="sp-faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                <article class="sp-faq-item">
                     <button class="sp-faq-toggle" onclick="toggleSpFAQ(this)" aria-expanded="false">
-                        <span itemprop="name">Wo kann ich THW Theorie Fragen online üben?</span>
+                        <span>Wo kann ich THW Theorie Fragen online üben?</span>
                         <svg class="sp-faq-chevron" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                             <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
                         </svg>
                     </button>
-                    <div class="sp-faq-content" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
-                        <p class="text-sm text-zinc-400 leading-relaxed" itemprop="text">
+                    <div class="sp-faq-content">
+                        <p class="text-sm text-zinc-400 leading-relaxed">
                             Auf thw-trainer.de kannst du alle THW Theorie Fragen kostenlos online üben. Du brauchst nur einen Browser — kein Download und keine Installation nötig. Das THW Training funktioniert auf Handy, Tablet und PC. Starte einfach und übe alle THW Prüfungsfragen bequem von überall — ob zu Hause oder unterwegs.
                         </p>
                     </div>

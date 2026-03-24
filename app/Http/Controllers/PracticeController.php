@@ -110,6 +110,7 @@ class PracticeController extends Controller
 
         // Smart Action — kontextabhängige Empfehlung
         $allDone = $unsolvedCount === 0 && $failedCount === 0 && $spacedRepetitionDue === 0;
+        $examPassedCount = $user->exam_passed_count ?? 0;
         $smartAction = match(true) {
             $spacedRepetitionDue > 0 => [
                 'label' => 'Wiederholung fällig',
@@ -139,6 +140,24 @@ class PracticeController extends Controller
                 'route' => route('practice.unsolved'),
                 'type'  => 'action',
             ],
+            $allDone && $examPassedCount >= 5 => [
+                'label' => 'Prüfungsbereit',
+                'title' => "$examPassedCount/5 bestanden — bereit für die echte Prüfung!",
+                'desc'  => $nextSrLabel !== null
+                    ? "$nextSrCount Wiederholungen werden $nextSrLabel fällig"
+                    : 'Übe weiter um sicher zu bleiben',
+                'route' => route('exam.index'),
+                'type'  => 'action',
+            ],
+            $allDone && $examPassedCount >= 1 => [
+                'label' => 'Dranbleiben',
+                'title' => "$examPassedCount/5 Prüfungen bestanden",
+                'desc'  => $nextSrLabel !== null
+                    ? "Übe weiter — $nextSrCount Wiederholungen $nextSrLabel fällig"
+                    : 'Übe weiter um sicherer zu werden',
+                'route' => route('exam.index'),
+                'type'  => 'action',
+            ],
             $allDone && $nextSrLabel !== null => [
                 'label' => 'Alles erledigt',
                 'title' => 'Du bist auf dem neuesten Stand',
@@ -149,9 +168,9 @@ class PracticeController extends Controller
             $allDone => [
                 'label' => 'Alles erledigt',
                 'title' => 'Du hast alle Fragen gemeistert',
-                'desc'  => 'Alle Fragen beantwortet - du bist bestens vorbereitet',
-                'route' => null,
-                'type'  => 'info',
+                'desc'  => 'Starte deine erste Prüfungssimulation',
+                'route' => route('exam.index'),
+                'type'  => 'action',
             ],
             default => [
                 'label' => 'Wiederholen',
