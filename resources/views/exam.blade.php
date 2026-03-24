@@ -548,7 +548,7 @@ html.light-mode .exam-answer.selected .exam-checkbox {
         left: 0;
         right: 0;
         z-index: 100;
-        padding-bottom: max(calc(0.875rem + env(safe-area-inset-bottom, 0px)), 3.5rem);
+        padding-bottom: max(calc(0.875rem + env(safe-area-inset-bottom, 0px)), 4.5rem);
     }
 }
 
@@ -1196,9 +1196,6 @@ html.light-mode .exam-answer.result-missed {
                         <div class="exam-question-la">LA {{ $frage->lernabschnitt ?? '-' }}.{{ $frage->nummer ?? '-' }}</div>
                         <div class="exam-question-text">
                             {{ $frage->frage }}
-                            @if(substr_count($frage->loesung, ',') > 0)
-                                <span style="opacity: 0.5; font-size: 0.75em;">({{ substr_count($frage->loesung, ',') + 1 }} richtige Antworten)</span>
-                            @endif
                         </div>
                     </div>
 

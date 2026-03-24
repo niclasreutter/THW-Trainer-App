@@ -720,7 +720,7 @@
             z-index: 100;
             margin: 0;
             padding: 0.875rem 1rem;
-            padding-bottom: max(calc(0.875rem + env(safe-area-inset-bottom, 0px)), 3.5rem);
+            padding-bottom: max(calc(0.875rem + env(safe-area-inset-bottom, 0px)), 4.5rem);
             background: rgba(10, 10, 11, 0.6);
             -webkit-backdrop-filter: blur(20px) saturate(180%);
             backdrop-filter: blur(20px) saturate(180%);
