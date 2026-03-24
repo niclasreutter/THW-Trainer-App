@@ -142,13 +142,37 @@ Route::get('/dashboard', function () {
             'btn' => 'Wiederholen',
         ];
     } elseif ($canStartExam) {
-        $smartAction = [
-            'type' => 'ready', 'label' => 'Bereit',
-            'title' => 'Alle Fragen gemeistert — Prüfung ablegen!',
-            'desc' => $exams . '/5 Prüfungen bestanden',
-            'route' => route('exam.index'),
-            'btn' => 'Prüfung starten',
-        ];
+        $examPassedCount = $user->exam_passed_count ?? 0;
+        $smartAction = match(true) {
+            $examPassedCount >= 5 => [
+                'type' => 'ready', 'label' => 'Prüfungsbereit',
+                'title' => $examPassedCount . '/5 Prüfungen bestanden — bereit für die echte Prüfung!',
+                'desc' => 'Du bist bestens vorbereitet. Übe weiter um sicher zu bleiben.',
+                'route' => route('exam.index'),
+                'btn' => 'Prüfung starten',
+            ],
+            $examPassedCount === 4 => [
+                'type' => 'ready', 'label' => 'Fast geschafft',
+                'title' => '4/5 Prüfungen bestanden — noch eine!',
+                'desc' => 'Nur noch eine bestandene Prüfung bis zur Prüfungsbereitschaft',
+                'route' => route('exam.index'),
+                'btn' => 'Prüfung starten',
+            ],
+            $examPassedCount >= 1 => [
+                'type' => 'ready', 'label' => 'Dranbleiben',
+                'title' => $examPassedCount . '/5 Prüfungen bestanden',
+                'desc' => 'Übe weiter um sicherer zu werden',
+                'route' => route('exam.index'),
+                'btn' => 'Prüfung starten',
+            ],
+            default => [
+                'type' => 'ready', 'label' => 'Bereit',
+                'title' => 'Alle Fragen gemeistert — Prüfung ablegen!',
+                'desc' => 'Starte deine erste Prüfungssimulation',
+                'route' => route('exam.index'),
+                'btn' => 'Prüfung starten',
+            ],
+        };
     } else {
         $solvedCount = \App\Models\UserQuestionProgress::where('user_id', $user->id)->count();
         if ($solvedCount > 0) {
