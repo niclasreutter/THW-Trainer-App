@@ -338,6 +338,12 @@ html.light-mode .exam-stat-pill--open .exam-stat-value {
     }
 }
 
+@media (display-mode: standalone) and (max-width: 640px) {
+    .exam-content {
+        padding-bottom: max(calc(7rem + env(safe-area-inset-bottom, 0px)), 9rem);
+    }
+}
+
 @media (min-width: 641px) {
     .exam-content {
         padding: 0;
@@ -548,6 +554,13 @@ html.light-mode .exam-answer.selected .exam-checkbox {
         left: 0;
         right: 0;
         z-index: 100;
+    }
+}
+
+/* Android PWA: Gesture-Bar überlappt Content, env(safe-area-inset-bottom) gibt 0 zurück */
+@media (display-mode: standalone) and (max-width: 640px) {
+    .exam-bottom-bar {
+        padding-bottom: max(calc(0.875rem + env(safe-area-inset-bottom, 0px)), 2.5rem);
     }
 }
 
