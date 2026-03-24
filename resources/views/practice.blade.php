@@ -733,6 +733,13 @@
         }
     }
 
+    /* Android PWA: Gesture-Bar überlappt Content, env(safe-area-inset-bottom) gibt 0 zurück */
+    @media (display-mode: standalone) and (max-width: 640px) {
+        .practice-actions {
+            padding-bottom: max(calc(0.875rem + env(safe-area-inset-bottom, 0px)), 2.5rem);
+        }
+    }
+
     .action-submit {
         width: 100%;
         padding: 0.875rem;
