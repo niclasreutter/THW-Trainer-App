@@ -1196,9 +1196,6 @@ html.light-mode .exam-answer.result-missed {
                         <div class="exam-question-la">LA {{ $frage->lernabschnitt ?? '-' }}.{{ $frage->nummer ?? '-' }}</div>
                         <div class="exam-question-text">
                             {{ $frage->frage }}
-                            @if(substr_count($frage->loesung, ',') > 0)
-                                <span style="opacity: 0.5; font-size: 0.75em;">({{ substr_count($frage->loesung, ',') + 1 }} richtige Antworten)</span>
-                            @endif
                         </div>
                     </div>
 
