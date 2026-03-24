@@ -269,77 +269,77 @@
                 </h2>
             </header>
 
-            <div class="space-y-3 sp-fade-in" itemscope itemtype="https://schema.org/FAQPage">
+            <div class="space-y-3 sp-fade-in">
                 {{-- FAQ 1 --}}
-                <article class="sp-faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                <article class="sp-faq-item">
                     <button class="sp-faq-toggle" onclick="toggleSpFAQ(this)" aria-expanded="false">
-                        <span itemprop="name">Was ist die THW Grundausbildung Theorie?</span>
+                        <span>Was ist die THW Grundausbildung Theorie?</span>
                         <svg class="sp-faq-chevron" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                             <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
                         </svg>
                     </button>
-                    <div class="sp-faq-content" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
-                        <p class="text-sm text-zinc-400 leading-relaxed" itemprop="text">
+                    <div class="sp-faq-content">
+                        <p class="text-sm text-zinc-400 leading-relaxed">
                             Die THW Grundausbildung (GA) Theorie umfasst {{ $totalQuestions }} Prüfungsfragen aus 10 Lernabschnitten. Sie deckt alle theoretischen Grundlagen ab, die ein THW-Helfer benötigt: von Arbeitssicherheit über Einsatzgrundlagen bis hin zu technischem Wissen. Die Theorieprüfung muss bestanden werden, um die Grundausbildung abzuschließen.
                         </p>
                     </div>
                 </article>
 
                 {{-- FAQ 2 --}}
-                <article class="sp-faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                <article class="sp-faq-item">
                     <button class="sp-faq-toggle" onclick="toggleSpFAQ(this)" aria-expanded="false">
-                        <span itemprop="name">Wie viele Theorie Fragen hat die THW Grundausbildung?</span>
+                        <span>Wie viele Theorie Fragen hat die THW Grundausbildung?</span>
                         <svg class="sp-faq-chevron" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                             <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
                         </svg>
                     </button>
-                    <div class="sp-faq-content" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
-                        <p class="text-sm text-zinc-400 leading-relaxed" itemprop="text">
+                    <div class="sp-faq-content">
+                        <p class="text-sm text-zinc-400 leading-relaxed">
                             Der vollständige Fragenkatalog der THW Grundausbildung Theorie enthalt {{ $totalQuestions }} Fragen, aufgeteilt in 10 Lernabschnitte. In der Prüfung selbst werden davon 30 Fragen zufällig ausgewählt. Im THW-Trainer kannst du alle {{ $totalQuestions }} Fragen üben.
                         </p>
                     </div>
                 </article>
 
                 {{-- FAQ 3 --}}
-                <article class="sp-faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                <article class="sp-faq-item">
                     <button class="sp-faq-toggle" onclick="toggleSpFAQ(this)" aria-expanded="false">
-                        <span itemprop="name">Kann ich THW Theorie Fragen kostenlos online üben?</span>
+                        <span>Kann ich THW Theorie Fragen kostenlos online üben?</span>
                         <svg class="sp-faq-chevron" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                             <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
                         </svg>
                     </button>
-                    <div class="sp-faq-content" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
-                        <p class="text-sm text-zinc-400 leading-relaxed" itemprop="text">
+                    <div class="sp-faq-content">
+                        <p class="text-sm text-zinc-400 leading-relaxed">
                             Ja, auf thw-trainer.de kannst du alle THW Theorie Fragen komplett kostenlos und ohne Werbung online üben. Du kannst sofort anonym starten oder dich kostenlos registrieren, um deinen Lernfortschritt zu speichern. Die App funktioniert auf Handy, Tablet und PC.
                         </p>
                     </div>
                 </article>
 
                 {{-- FAQ 4 --}}
-                <article class="sp-faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                <article class="sp-faq-item">
                     <button class="sp-faq-toggle" onclick="toggleSpFAQ(this)" aria-expanded="false">
-                        <span itemprop="name">Wie bestehe ich die THW Theorieprüfung?</span>
+                        <span>Wie bestehe ich die THW Theorieprüfung?</span>
                         <svg class="sp-faq-chevron" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                             <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
                         </svg>
                     </button>
-                    <div class="sp-faq-content" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
-                        <p class="text-sm text-zinc-400 leading-relaxed" itemprop="text">
+                    <div class="sp-faq-content">
+                        <p class="text-sm text-zinc-400 leading-relaxed">
                             Zum Bestehen der THW Theorieprüfung müssen mindestens 80% der 30 Prüfungsfragen korrekt beantwortet werden. Der beste Weg zur Vorbereitung: Alle Theorie Fragen im THW-Trainer durcharbeiten, schwierige Fragen mit Spaced Repetition wiederholen und die Prüfungssimulation nutzen, um dich unter realistischen Bedingungen zu testen.
                         </p>
                     </div>
                 </article>
 
                 {{-- FAQ 5 --}}
-                <article class="sp-faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                <article class="sp-faq-item">
                     <button class="sp-faq-toggle" onclick="toggleSpFAQ(this)" aria-expanded="false">
-                        <span itemprop="name">Was sind die Themen der THW GA Prüfung?</span>
+                        <span>Was sind die Themen der THW GA Prüfung?</span>
                         <svg class="sp-faq-chevron" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                             <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
                         </svg>
                     </button>
-                    <div class="sp-faq-content" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
-                        <p class="text-sm text-zinc-400 leading-relaxed" itemprop="text">
+                    <div class="sp-faq-content">
+                        <p class="text-sm text-zinc-400 leading-relaxed">
                             Die THW GA Prüfung (Grundausbildung) deckt 10 Lernabschnitte ab: Das THW im Zivil- und Katastrophenschutz, Arbeitssicherheit, Arbeiten mit Leinen und Seilen, Leitern, Stromerzeugung, Metall-/Holz-/Steinbearbeitung, Bewegen von Lasten, Arbeiten am Wasser, Einsatzgrundlagen und Grundlagen der Rettung. Im THW-Trainer kannst du jeden Abschnitt gezielt üben.
                         </p>
                     </div>

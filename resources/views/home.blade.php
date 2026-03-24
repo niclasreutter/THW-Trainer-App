@@ -164,15 +164,15 @@
                 </p>
             </header>
             
-            <div class="space-y-4" itemscope itemtype="https://schema.org/FAQPage">
+            <div class="space-y-4">
                 <!-- FAQ Item 1 -->
-                <article class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                <article class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                     <button class="faq-toggle w-full text-left p-5 lg:p-6 flex justify-between items-center hover:bg-blue-50 transition-colors" onclick="toggleFAQ('faq1')" aria-expanded="false" aria-controls="faq1">
-                        <span class="text-base lg:text-lg font-semibold text-gray-900 pr-4" itemprop="name">Was ist die THW Grundausbildung?</span>
+                        <span class="text-base lg:text-lg font-semibold text-gray-900 pr-4">Was ist die THW Grundausbildung?</span>
                         <span class="faq-icon text-2xl text-thw-blue font-bold flex-shrink-0" aria-hidden="true">+</span>
                     </button>
-                    <div id="faq1" class="faq-content hidden px-5 lg:px-6 pb-5 lg:pb-6" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
-                        <p class="text-gray-700 leading-relaxed text-sm lg:text-base" itemprop="text">
+                    <div id="faq1" class="faq-content hidden px-5 lg:px-6 pb-5 lg:pb-6">
+                        <p class="text-gray-700 leading-relaxed text-sm lg:text-base">
                             Die <strong>THW Grundausbildung</strong> ist die erste Ausbildungsstufe im <strong>Technischen Hilfswerk</strong>.
                             Sie vermittelt die grundlegenden Kenntnisse und Fähigkeiten für alle THW-Helfer.
                             Die <strong>Theorieprüfung</strong> ist ein wichtiger Bestandteil dieser Ausbildung und umfasst
@@ -183,13 +183,13 @@
                 </article>
 
                 <!-- FAQ Item 2 -->
-                <article class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                <article class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                     <button class="faq-toggle w-full text-left p-5 lg:p-6 flex justify-between items-center hover:bg-blue-50 transition-colors" onclick="toggleFAQ('faq2')" aria-expanded="false" aria-controls="faq2">
-                        <span class="text-base lg:text-lg font-semibold text-gray-900 pr-4" itemprop="name">Wie bereite ich mich auf die THW Grundausbildung Theorie vor?</span>
+                        <span class="text-base lg:text-lg font-semibold text-gray-900 pr-4">Wie bereite ich mich auf die THW Grundausbildung Theorie vor?</span>
                         <span class="faq-icon text-2xl text-thw-blue font-bold flex-shrink-0" aria-hidden="true">+</span>
                     </button>
-                    <div id="faq2" class="faq-content hidden px-5 lg:px-6 pb-5 lg:pb-6" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
-                        <p class="text-gray-700 leading-relaxed text-sm lg:text-base" itemprop="text">
+                    <div id="faq2" class="faq-content hidden px-5 lg:px-6 pb-5 lg:pb-6">
+                        <p class="text-gray-700 leading-relaxed text-sm lg:text-base">
                             Der <strong>THW-Trainer</strong> bietet dir alle aktuellen <strong>THW-Theoriefragen</strong> zur optimalen Vorbereitung.
                             Übe systematisch alle Themenbereiche, nutze die <strong>Prüfungssimulation</strong> und verfolge deinen Lernfortschritt.
                             Die App funktioniert auf allen Geräten, sodass du auch unterwegs lernen kannst.
@@ -198,13 +198,13 @@
                 </article>
 
                 <!-- FAQ Item 3 -->
-                <article class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                <article class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                     <button class="faq-toggle w-full text-left p-5 lg:p-6 flex justify-between items-center hover:bg-blue-50 transition-colors" onclick="toggleFAQ('faq3')" aria-expanded="false" aria-controls="faq3">
-                        <span class="text-base lg:text-lg font-semibold text-gray-900 pr-4" itemprop="name">Ist der THW-Trainer kostenlos?</span>
+                        <span class="text-base lg:text-lg font-semibold text-gray-900 pr-4">Ist der THW-Trainer kostenlos?</span>
                         <span class="faq-icon text-2xl text-thw-blue font-bold flex-shrink-0" aria-hidden="true">+</span>
                     </button>
-                    <div id="faq3" class="faq-content hidden px-5 lg:px-6 pb-5 lg:pb-6" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
-                        <p class="text-gray-700 leading-relaxed text-sm lg:text-base" itemprop="text">
+                    <div id="faq3" class="faq-content hidden px-5 lg:px-6 pb-5 lg:pb-6">
+                        <p class="text-gray-700 leading-relaxed text-sm lg:text-base">
                             Ja, der <strong>THW-Trainer ist komplett kostenlos</strong>! Du kannst sofort mit dem Lernen beginnen,
                             ohne jegliche Kosten. Auch eine Anmeldung ist nicht zwingend erforderlich -
                             du kannst anonym üben oder dich kostenlos registrieren, um deinen Lernfortschritt zu speichern.
@@ -213,13 +213,13 @@
                 </article>
 
                 <!-- FAQ Item 4 -->
-                <article class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                <article class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                     <button class="faq-toggle w-full text-left p-5 lg:p-6 flex justify-between items-center hover:bg-blue-50 transition-colors" onclick="toggleFAQ('faq4')" aria-expanded="false" aria-controls="faq4">
-                        <span class="text-base lg:text-lg font-semibold text-gray-900 pr-4" itemprop="name">Wie viele Fragen gibt es im THW-Trainer?</span>
+                        <span class="text-base lg:text-lg font-semibold text-gray-900 pr-4">Wie viele Fragen gibt es im THW-Trainer?</span>
                         <span class="faq-icon text-2xl text-thw-blue font-bold flex-shrink-0" aria-hidden="true">+</span>
                     </button>
-                    <div id="faq4" class="faq-content hidden px-5 lg:px-6 pb-5 lg:pb-6" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
-                        <p class="text-gray-700 leading-relaxed text-sm lg:text-base" itemprop="text">
+                    <div id="faq4" class="faq-content hidden px-5 lg:px-6 pb-5 lg:pb-6">
+                        <p class="text-gray-700 leading-relaxed text-sm lg:text-base">
                             Der THW-Trainer enthält <strong>alle aktuellen THW-Theoriefragen</strong> aus allen relevanten Bereichen
                             der Grundausbildung. Die Fragen werden regelmäßig aktualisiert und spiegeln den
                             aktuellen Stand der THW-Ausbildung wider.
@@ -228,13 +228,13 @@
                 </article>
 
                 <!-- FAQ Item 5 -->
-                <article class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                <article class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                     <button class="faq-toggle w-full text-left p-5 lg:p-6 flex justify-between items-center hover:bg-blue-50 transition-colors" onclick="toggleFAQ('faq5')" aria-expanded="false" aria-controls="faq5">
-                        <span class="text-base lg:text-lg font-semibold text-gray-900 pr-4" itemprop="name">Welche Themen werden in der THW Grundausbildung abgefragt?</span>
+                        <span class="text-base lg:text-lg font-semibold text-gray-900 pr-4">Welche Themen werden in der THW Grundausbildung abgefragt?</span>
                         <span class="faq-icon text-2xl text-thw-blue font-bold flex-shrink-0" aria-hidden="true">+</span>
                     </button>
-                    <div id="faq5" class="faq-content hidden px-5 lg:px-6 pb-5 lg:pb-6" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
-                        <p class="text-gray-700 leading-relaxed text-sm lg:text-base" itemprop="text">
+                    <div id="faq5" class="faq-content hidden px-5 lg:px-6 pb-5 lg:pb-6">
+                        <p class="text-gray-700 leading-relaxed text-sm lg:text-base">
                             Die <strong>THW Grundausbildung</strong> umfasst Themen wie: <strong>Rechtsgrundlagen</strong>, Organisation des THW,
                             Einsatzgrundlagen, Gefahren der Einsatzstelle, Technische Hilfe, Einsatzablauf,
                             Führung und Kommunikation.
@@ -243,13 +243,13 @@
                 </article>
 
                 <!-- FAQ Item 6 -->
-                <article class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                <article class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                     <button class="faq-toggle w-full text-left p-5 lg:p-6 flex justify-between items-center hover:bg-blue-50 transition-colors" onclick="toggleFAQ('faq6')" aria-expanded="false" aria-controls="faq6">
-                        <span class="text-base lg:text-lg font-semibold text-gray-900 pr-4" itemprop="name">Funktioniert der THW-Trainer auf dem Handy?</span>
+                        <span class="text-base lg:text-lg font-semibold text-gray-900 pr-4">Funktioniert der THW-Trainer auf dem Handy?</span>
                         <span class="faq-icon text-2xl text-thw-blue font-bold flex-shrink-0" aria-hidden="true">+</span>
                     </button>
-                    <div id="faq6" class="faq-content hidden px-5 lg:px-6 pb-5 lg:pb-6" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
-                        <p class="text-gray-700 leading-relaxed text-sm lg:text-base" itemprop="text">
+                    <div id="faq6" class="faq-content hidden px-5 lg:px-6 pb-5 lg:pb-6">
+                        <p class="text-gray-700 leading-relaxed text-sm lg:text-base">
                             Ja, der THW-Trainer ist <strong>vollständig responsive</strong> und funktioniert optimal auf Smartphones,
                             Tablets und Desktop-Computern. Du kannst überall und jederzeit lernen -
                             egal ob zu Hause, unterwegs oder in der Pause.
@@ -258,13 +258,13 @@
                 </article>
 
                 <!-- FAQ Item 7 -->
-                <article class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                <article class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                     <button class="faq-toggle w-full text-left p-5 lg:p-6 flex justify-between items-center hover:bg-blue-50 transition-colors" onclick="toggleFAQ('faq7')" aria-expanded="false" aria-controls="faq7">
-                        <span class="text-base lg:text-lg font-semibold text-gray-900 pr-4" itemprop="name">Wie schwer ist die THW Grundausbildung Theorieprüfung?</span>
+                        <span class="text-base lg:text-lg font-semibold text-gray-900 pr-4">Wie schwer ist die THW Grundausbildung Theorieprüfung?</span>
                         <span class="faq-icon text-2xl text-thw-blue font-bold flex-shrink-0" aria-hidden="true">+</span>
                     </button>
-                    <div id="faq7" class="faq-content hidden px-5 lg:px-6 pb-5 lg:pb-6" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
-                        <p class="text-gray-700 leading-relaxed text-sm lg:text-base" itemprop="text">
+                    <div id="faq7" class="faq-content hidden px-5 lg:px-6 pb-5 lg:pb-6">
+                        <p class="text-gray-700 leading-relaxed text-sm lg:text-base">
                             Mit der richtigen Vorbereitung ist die <strong>THW Grundausbildung Theorieprüfung</strong> gut zu schaffen.
                             Der THW-Trainer hilft dir dabei, alle wichtigen Themen zu verstehen und zu üben.
                             Nutze die <strong>Prüfungssimulation</strong>, um dich unter realistischen Bedingungen zu testen.
@@ -273,13 +273,13 @@
                 </article>
 
                 <!-- FAQ Item 8 -->
-                <article class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                <article class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                     <button class="faq-toggle w-full text-left p-5 lg:p-6 flex justify-between items-center hover:bg-blue-50 transition-colors" onclick="toggleFAQ('faq8')" aria-expanded="false" aria-controls="faq8">
-                        <span class="text-base lg:text-lg font-semibold text-gray-900 pr-4" itemprop="name">Ist der THW-Trainer offiziell vom THW?</span>
+                        <span class="text-base lg:text-lg font-semibold text-gray-900 pr-4">Ist der THW-Trainer offiziell vom THW?</span>
                         <span class="faq-icon text-2xl text-thw-blue font-bold flex-shrink-0" aria-hidden="true">+</span>
                     </button>
-                    <div id="faq8" class="faq-content hidden px-5 lg:px-6 pb-5 lg:pb-6" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
-                        <p class="text-gray-700 leading-relaxed text-sm lg:text-base" itemprop="text">
+                    <div id="faq8" class="faq-content hidden px-5 lg:px-6 pb-5 lg:pb-6">
+                        <p class="text-gray-700 leading-relaxed text-sm lg:text-base">
                             Der THW-Trainer ist eine <strong>private Initiative</strong> eines aktiven THW-Mitglieds und nicht offiziell
                             vom THW herausgegeben. Die Fragen basieren jedoch auf den offiziellen Ausbildungsunterlagen
                             und werden regelmäßig aktualisiert, um den aktuellen Stand der THW-Ausbildung zu reflektieren.
@@ -288,13 +288,13 @@
                 </article>
 
                 <!-- FAQ Item 9 -->
-                <article class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                <article class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                     <button class="faq-toggle w-full text-left p-5 lg:p-6 flex justify-between items-center hover:bg-blue-50 transition-colors" onclick="toggleFAQ('faq9')" aria-expanded="false" aria-controls="faq9">
-                        <span class="text-base lg:text-lg font-semibold text-gray-900 pr-4" itemprop="name">Gibt es eine THW Prüfungsfragen App?</span>
+                        <span class="text-base lg:text-lg font-semibold text-gray-900 pr-4">Gibt es eine THW Prüfungsfragen App?</span>
                         <span class="faq-icon text-2xl text-thw-blue font-bold flex-shrink-0" aria-hidden="true">+</span>
                     </button>
-                    <div id="faq9" class="faq-content hidden px-5 lg:px-6 pb-5 lg:pb-6" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
-                        <p class="text-gray-700 leading-relaxed text-sm lg:text-base" itemprop="text">
+                    <div id="faq9" class="faq-content hidden px-5 lg:px-6 pb-5 lg:pb-6">
+                        <p class="text-gray-700 leading-relaxed text-sm lg:text-base">
                             Ja! Der <strong>THW-Trainer</strong> ist als Progressive Web App (PWA) verfügbar und kann direkt auf deinem
                             Smartphone installiert werden. Die <strong>THW Prüfungsfragen App</strong> funktioniert auf Android und iOS,
                             ist kostenlos und benötigt keinen Download aus dem App Store. Installiere sie einfach über
@@ -304,13 +304,13 @@
                 </article>
 
                 <!-- FAQ Item 10 -->
-                <article class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                <article class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                     <button class="faq-toggle w-full text-left p-5 lg:p-6 flex justify-between items-center hover:bg-blue-50 transition-colors" onclick="toggleFAQ('faq10')" aria-expanded="false" aria-controls="faq10">
-                        <span class="text-base lg:text-lg font-semibold text-gray-900 pr-4" itemprop="name">Kann ich für die THW GA Prüfung online üben?</span>
+                        <span class="text-base lg:text-lg font-semibold text-gray-900 pr-4">Kann ich für die THW GA Prüfung online üben?</span>
                         <span class="faq-icon text-2xl text-thw-blue font-bold flex-shrink-0" aria-hidden="true">+</span>
                     </button>
-                    <div id="faq10" class="faq-content hidden px-5 lg:px-6 pb-5 lg:pb-6" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
-                        <p class="text-gray-700 leading-relaxed text-sm lg:text-base" itemprop="text">
+                    <div id="faq10" class="faq-content hidden px-5 lg:px-6 pb-5 lg:pb-6">
+                        <p class="text-gray-700 leading-relaxed text-sm lg:text-base">
                             Ja, mit dem THW-Trainer kannst du dich gezielt auf die <strong>THW GA Prüfung</strong> (Grundausbildung) vorbereiten.
                             GA steht für Grundausbildung - die erste und wichtigste Ausbildungsstufe im THW.
                             Alle <strong>Prüfungsfragen der Grundausbildung</strong> stehen dir online zur Verfügung, inklusive
@@ -320,13 +320,13 @@
                 </article>
 
                 <!-- FAQ Item 11 -->
-                <article class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                <article class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                     <button class="faq-toggle w-full text-left p-5 lg:p-6 flex justify-between items-center hover:bg-blue-50 transition-colors" onclick="toggleFAQ('faq11')" aria-expanded="false" aria-controls="faq11">
-                        <span class="text-base lg:text-lg font-semibold text-gray-900 pr-4" itemprop="name">Wo kann ich THW Theorie Fragen online üben?</span>
+                        <span class="text-base lg:text-lg font-semibold text-gray-900 pr-4">Wo kann ich THW Theorie Fragen online üben?</span>
                         <span class="faq-icon text-2xl text-thw-blue font-bold flex-shrink-0" aria-hidden="true">+</span>
                     </button>
-                    <div id="faq11" class="faq-content hidden px-5 lg:px-6 pb-5 lg:pb-6" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
-                        <p class="text-gray-700 leading-relaxed text-sm lg:text-base" itemprop="text">
+                    <div id="faq11" class="faq-content hidden px-5 lg:px-6 pb-5 lg:pb-6">
+                        <p class="text-gray-700 leading-relaxed text-sm lg:text-base">
                             Auf <strong>thw-trainer.de</strong> kannst du alle <strong>THW Theorie Fragen</strong> kostenlos online üben.
                             Du brauchst nur einen Browser - kein Download und keine Installation nötig.
                             Das <strong>THW Training</strong> funktioniert auf Handy, Tablet und PC. Starte einfach und übe
