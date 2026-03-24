@@ -332,6 +332,12 @@ html.light-mode .exam-stat-pill--open .exam-stat-value {
     -webkit-overflow-scrolling: touch;
 }
 
+@media (max-width: 640px) {
+    .exam-content {
+        padding-bottom: calc(7rem + env(safe-area-inset-bottom, 0px));
+    }
+}
+
 @media (min-width: 641px) {
     .exam-content {
         padding: 0;
@@ -533,6 +539,16 @@ html.light-mode .exam-answer.selected .exam-checkbox {
     padding: 0.75rem 1rem;
     padding-bottom: calc(0.875rem + env(safe-area-inset-bottom, 0px));
     flex-shrink: 0;
+}
+
+@media (max-width: 640px) {
+    .exam-bottom-bar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 100;
+    }
 }
 
 html.light-mode .exam-bottom-bar {
