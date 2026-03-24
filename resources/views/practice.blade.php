@@ -720,7 +720,7 @@
             z-index: 100;
             margin: 0;
             padding: 0.875rem 1rem;
-            padding-bottom: calc(0.875rem + env(safe-area-inset-bottom, 0px));
+            padding-bottom: max(calc(0.875rem + env(safe-area-inset-bottom, 0px)), 4.5rem);
             background: rgba(10, 10, 11, 0.6);
             -webkit-backdrop-filter: blur(20px) saturate(180%);
             backdrop-filter: blur(20px) saturate(180%);
@@ -730,13 +730,6 @@
         html.light-mode .practice-actions {
             background: rgba(243, 244, 246, 0.6);
             border-top-color: rgba(0, 51, 127, 0.08);
-        }
-    }
-
-    /* Android PWA: Gesture-Bar überlappt Content, env(safe-area-inset-bottom) gibt 0 zurück */
-    @media (display-mode: standalone) and (max-width: 640px) {
-        .practice-actions {
-            padding-bottom: max(calc(0.875rem + env(safe-area-inset-bottom, 0px)), 2.5rem);
         }
     }
 

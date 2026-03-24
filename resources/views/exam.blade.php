@@ -334,12 +334,6 @@ html.light-mode .exam-stat-pill--open .exam-stat-value {
 
 @media (max-width: 640px) {
     .exam-content {
-        padding-bottom: calc(7rem + env(safe-area-inset-bottom, 0px));
-    }
-}
-
-@media (display-mode: standalone) and (max-width: 640px) {
-    .exam-content {
         padding-bottom: max(calc(7rem + env(safe-area-inset-bottom, 0px)), 9rem);
     }
 }
@@ -554,13 +548,7 @@ html.light-mode .exam-answer.selected .exam-checkbox {
         left: 0;
         right: 0;
         z-index: 100;
-    }
-}
-
-/* Android PWA: Gesture-Bar überlappt Content, env(safe-area-inset-bottom) gibt 0 zurück */
-@media (display-mode: standalone) and (max-width: 640px) {
-    .exam-bottom-bar {
-        padding-bottom: max(calc(0.875rem + env(safe-area-inset-bottom, 0px)), 2.5rem);
+        padding-bottom: max(calc(0.875rem + env(safe-area-inset-bottom, 0px)), 4.5rem);
     }
 }
 
@@ -1208,9 +1196,6 @@ html.light-mode .exam-answer.result-missed {
                         <div class="exam-question-la">LA {{ $frage->lernabschnitt ?? '-' }}.{{ $frage->nummer ?? '-' }}</div>
                         <div class="exam-question-text">
                             {{ $frage->frage }}
-                            @if(substr_count($frage->loesung, ',') > 0)
-                                <span style="opacity: 0.5; font-size: 0.75em;">({{ substr_count($frage->loesung, ',') + 1 }} richtige Antworten)</span>
-                            @endif
                         </div>
                     </div>
 
