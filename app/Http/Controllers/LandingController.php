@@ -186,4 +186,73 @@ class LandingController extends Controller
 
         return view('landing.thw-theorie', compact('sections', 'totalQuestions', 'stats'));
     }
+
+    /**
+     * THW Prüfungsfragen Sub-Landingpage — SEO-optimiert für "thw prüfungsfragen" Keywords.
+     */
+    public function thwPruefungsfragen()
+    {
+        $totalQuestions = cache()->remember('landing_total_questions', 3600, function () {
+            return Question::count();
+        });
+
+        $stats = cache()->get('landing_stats_v4');
+
+        return view('landing.thw-pruefungsfragen', compact('totalQuestions', 'stats'));
+    }
+
+    /**
+     * THW Theorieprüfung Sub-Landingpage — SEO-optimiert für "thw theorieprüfung" Keywords.
+     */
+    public function thwTheoriepruefung()
+    {
+        $totalQuestions = cache()->remember('landing_total_questions', 3600, function () {
+            return Question::count();
+        });
+
+        $stats = cache()->get('landing_stats_v4');
+
+        return view('landing.thw-theoriepruefung', compact('totalQuestions', 'stats'));
+    }
+
+    /**
+     * THW Grundausbildung Sub-Landingpage — SEO-optimiert für "thw grundausbildung" Keywords.
+     */
+    public function thwGrundausbildung()
+    {
+        $sectionNames = [
+            1 => 'Das THW im Gefüge des Zivil- und Katastrophenschutzes',
+            2 => 'Arbeitssicherheit und Gesundheitsschutz',
+            3 => 'Arbeiten mit Leinen, Drahtseilen, Ketten, Rund- und Bandschlingen',
+            4 => 'Arbeiten mit Leitern',
+            5 => 'Stromerzeugung und Beleuchtung',
+            6 => 'Metall-, Holz- und Steinbearbeitung',
+            7 => 'Bewegen von Lasten',
+            8 => 'Arbeiten am und auf dem Wasser',
+            9 => 'Einsatzgrundlagen',
+            10 => 'Grundlagen der Rettung und Bergung',
+        ];
+
+        $sections = cache()->remember('landing_thw_theorie_sections', 3600, function () use ($sectionNames) {
+            $counts = Question::selectRaw('lernabschnitt, COUNT(*) as total')
+                ->groupBy('lernabschnitt')
+                ->pluck('total', 'lernabschnitt');
+
+            $result = [];
+            foreach ($sectionNames as $nr => $name) {
+                $result[] = [
+                    'nr' => $nr,
+                    'name' => $name,
+                    'count' => $counts->get((string) $nr, 0),
+                ];
+            }
+
+            return $result;
+        });
+
+        $totalQuestions = collect($sections)->sum('count');
+        $stats = cache()->get('landing_stats_v4');
+
+        return view('landing.thw-grundausbildung', compact('sections', 'totalQuestions', 'stats'));
+    }
 }
