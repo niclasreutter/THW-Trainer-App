@@ -1,7 +1,7 @@
 @extends('layouts.startseite')
 
-@section('title', 'THW Theorie - Alle Fragen der Grundausbildung online lernen')
-@section('description', 'THW Theorie: Alle {{ $totalQuestions }} Prüfungsfragen der Grundausbildung (GA) in 10 Lernabschnitten. Theoriefragen online lernen, Prüfungssimulation und Lernfortschritt. Kostenlos 2026.')
+@section('title', 'THW Theorie 2026 — Alle Prüfungsfragen der Grundausbildung online lernen')
+@section('description', 'Lerne alle {{ $totalQuestions }} offiziellen THW Theorie Fragen kostenlos online. 10 Lernabschnitte, Prüfungssimulation, Spaced Repetition. Jetzt starten und Theorieprüfung bestehen!')
 @section('canonical', url('/thw-theorie'))
 
 @section('content')

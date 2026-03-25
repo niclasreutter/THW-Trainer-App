@@ -1,7 +1,7 @@
 @extends('layouts.startseite')
 
-@section('title', 'THW Theorie - Alle Prüfungsfragen kostenlos online lernen 2026')
-@section('description', 'THW Training App: Alle Prüfungsfragen der Grundausbildung (GA) online lernen. THW Theorie, Theorieprüfung 2026, Prüfungssimulation. Kostenlos, werbefrei & als App installierbar.')
+@section('title', 'THW-Trainer — Kostenlose Prüfungsvorbereitung für die Grundausbildung 2026')
+@section('description', 'THW-Trainer: Die kostenlose App zur Vorbereitung auf die THW Grundausbildung. Alle Prüfungsfragen online lernen, Prüfungssimulation, Lernfortschritt. Werbefrei & als App installierbar.')
 @section('canonical', url('/'))
 
 @section('content')
