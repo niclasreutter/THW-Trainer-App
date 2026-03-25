@@ -291,44 +291,21 @@ class PracticeController extends Controller
         switch ($mode) {
             case 'all':
                 // Intelligente Priorisierung für Practice All:
-                // 1. Spaced Repetition Fragen (fällige Wiederholungen, höchste Priorität)
-                // 2. Falsch beantwortete + ungelöste Fragen
-                // 3. Restliche Fragen in zufälliger Reihenfolge
+                // 1. Falsch beantwortete Fragen aus Prüfungen (dringend)
+                // 2. Ungelöste Fragen: nicht-gemeistert + nie beantwortet (Lernfortschritt)
+                // 3. Spaced Repetition Fragen (fällige Wiederholungen, bereits gemeistert)
+                // 4. Restliche Fragen in zufälliger Reihenfolge
 
                 $idsToShow = [];
                 $alreadyQueued = [];
 
-                // 1. Spaced Repetition: Fällige Wiederholungen zuerst
+                // Basis-Daten laden
                 $srService = new SpacedRepetitionService();
                 $srDueIds = $srService->getDueQuestions($user->id);
-                shuffle($srDueIds);
-                $idsToShow = array_merge($idsToShow, $srDueIds);
-                $alreadyQueued = array_merge($alreadyQueued, $srDueIds);
-
-                // 2. Falsch beantwortete Fragen aus Prüfungen
-                $failedIds = array_values($failed);
-                $failedIds = array_diff($failedIds, $alreadyQueued);
-                shuffle($failedIds);
-                $idsToShow = array_merge($idsToShow, $failedIds);
-                $alreadyQueued = array_merge($alreadyQueued, $failedIds);
-
-                // 3. Nicht-gemeisterte + nie beantwortete Fragen (ungelöst)
-                $unmasteredIds = UserQuestionProgress::getUnmasteredQuestions($user->id);
                 $allQuestionIds = Question::pluck('id')->toArray();
-                $answeredQuestionIds = UserQuestionProgress::where('user_id', $user->id)
-                    ->pluck('question_id')
-                    ->toArray();
-                $neverAnsweredIds = array_diff($allQuestionIds, $answeredQuestionIds);
-
-                $toLearnIds = array_unique(array_merge($unmasteredIds, $neverAnsweredIds));
-                $toLearnIds = array_diff($toLearnIds, $alreadyQueued);
-                // Nur tatsächlich gemeisterte Fragen (consecutive_correct >= MASTERY_THRESHOLD) ausschließen
                 $currentlyMasteredIds = UserQuestionProgress::getMasteredQuestions($user->id);
-                $toLearnIds = array_diff($toLearnIds, $currentlyMasteredIds);
 
-                // KEIN SR-Filter für ungelöste Fragen — wenn der User aktiv üben will,
-                // soll er alle ungelösten Fragen sehen können, auch wenn SR sie für später geplant hat.
-                // SR-Filter gilt nur für bereits gemeisterte Fragen (Schritt 4 unten).
+                // SR-Filter: Zukünftige SR-Fragen nur ausblenden wenn nicht in aktiver Lernsession
                 if (!$inActiveSession) {
                     $futureSrIds = UserQuestionProgress::where('user_id', $user->id)
                         ->whereNotNull('next_review_at')
@@ -338,6 +315,23 @@ class PracticeController extends Controller
                 } else {
                     $futureSrIds = [];
                 }
+
+                // 1. Falsch beantwortete Fragen aus Prüfungen
+                $failedIds = array_values($failed);
+                shuffle($failedIds);
+                $idsToShow = array_merge($idsToShow, $failedIds);
+                $alreadyQueued = array_merge($alreadyQueued, $failedIds);
+
+                // 2. Nicht-gemeisterte + nie beantwortete Fragen (ungelöst)
+                $unmasteredIds = UserQuestionProgress::getUnmasteredQuestions($user->id);
+                $answeredQuestionIds = UserQuestionProgress::where('user_id', $user->id)
+                    ->pluck('question_id')
+                    ->toArray();
+                $neverAnsweredIds = array_diff($allQuestionIds, $answeredQuestionIds);
+
+                $toLearnIds = array_unique(array_merge($unmasteredIds, $neverAnsweredIds));
+                $toLearnIds = array_diff($toLearnIds, $alreadyQueued);
+                $toLearnIds = array_diff($toLearnIds, $currentlyMasteredIds);
 
                 // Nach Lernabschnitten sortiert, innerhalb zufällig
                 $sortedToLearnIds = [];
@@ -352,6 +346,13 @@ class PracticeController extends Controller
                 $idsToShow = array_merge($idsToShow, $sortedToLearnIds);
                 $alreadyQueued = array_merge($alreadyQueued, $sortedToLearnIds);
 
+                // 3. Spaced Repetition: Fällige Wiederholungen (bereits gemeistert, aber Review nötig)
+                $srDueIds = array_diff($srDueIds, $alreadyQueued);
+                $srDueIds = array_values($srDueIds);
+                shuffle($srDueIds);
+                $idsToShow = array_merge($idsToShow, $srDueIds);
+                $alreadyQueued = array_merge($alreadyQueued, $srDueIds);
+
                 // 4. Restliche Fragen zufällig (bereits gemeisterte, keine SR fällig)
                 $remainingIds = array_diff($allQuestionIds, $alreadyQueued);
                 $remainingIds = array_diff($remainingIds, $futureSrIds);
@@ -363,10 +364,10 @@ class PracticeController extends Controller
                 // Debug-Ausgabe
                 \Log::info('Practice Mode All Debug', [
                     'user_id' => $user->id,
-                    'sr_due_count' => count($srDueIds),
                     'failed_count' => count($failedIds),
                     'unmastered_count' => count($unmasteredIds),
                     'never_answered_count' => count($neverAnsweredIds),
+                    'sr_due_count' => count($srDueIds),
                     'future_sr_excluded' => count($futureSrIds),
                     'total_to_learn' => count($toLearnIds),
                     'remaining_random' => count($remainingIds),
@@ -416,22 +417,26 @@ class PracticeController extends Controller
                 $idsToShow = [];
                 $alreadyQueued = [];
 
-                // 1. SR fällige Wiederholungen zuerst
-                $srService = new SpacedRepetitionService();
-                $srDueIds = $srService->getDueQuestions($user->id);
-                $srDueInSection = array_values(array_intersect($allSectionIds, $srDueIds));
-                shuffle($srDueInSection);
-                $idsToShow = array_merge($idsToShow, $srDueInSection);
-                $alreadyQueued = array_merge($alreadyQueued, $srDueInSection);
+                $currentlyMasteredIds = UserQuestionProgress::getMasteredQuestions($user->id);
 
-                // 2. Fehlerfragen aus Prüfungen
+                // SR-Filter: Zukünftige SR-Fragen nur ausblenden wenn nicht in aktiver Lernsession
+                if (!$inActiveSession) {
+                    $futureSrIds = UserQuestionProgress::where('user_id', $user->id)
+                        ->whereNotNull('next_review_at')
+                        ->where('next_review_at', '>', now())
+                        ->pluck('question_id')
+                        ->toArray();
+                } else {
+                    $futureSrIds = [];
+                }
+
+                // 1. Fehlerfragen aus Prüfungen
                 $failedInSection = array_values(array_intersect($failed, $allSectionIds));
-                $failedInSection = array_diff($failedInSection, $alreadyQueued);
                 shuffle($failedInSection);
                 $idsToShow = array_merge($idsToShow, $failedInSection);
                 $alreadyQueued = array_merge($alreadyQueued, $failedInSection);
 
-                // 3. Ungelöste Fragen (nicht gemeistert + nie beantwortet)
+                // 2. Ungelöste Fragen (nicht gemeistert + nie beantwortet)
                 $unmasteredIds = UserQuestionProgress::getUnmasteredQuestions($user->id);
                 $answeredQuestionIds = UserQuestionProgress::where('user_id', $user->id)
                     ->pluck('question_id')
@@ -443,24 +448,21 @@ class PracticeController extends Controller
                     $neverAnsweredIds
                 ));
                 $toLearnIds = array_diff($toLearnIds, $alreadyQueued);
-                $currentlyMasteredIds = UserQuestionProgress::getMasteredQuestions($user->id);
                 $toLearnIds = array_diff($toLearnIds, $currentlyMasteredIds);
-
-                // KEIN SR-Filter für ungelöste Fragen — User soll alle üben können.
-                // SR-Filter gilt nur für gemeisterte Fragen (Schritt 4).
-                if (!$inActiveSession) {
-                    $futureSrIds = UserQuestionProgress::where('user_id', $user->id)
-                        ->whereNotNull('next_review_at')
-                        ->where('next_review_at', '>', now())
-                        ->pluck('question_id')
-                        ->toArray();
-                } else {
-                    $futureSrIds = [];
-                }
                 $toLearnIds = array_values($toLearnIds);
                 shuffle($toLearnIds);
                 $idsToShow = array_merge($idsToShow, $toLearnIds);
                 $alreadyQueued = array_merge($alreadyQueued, $toLearnIds);
+
+                // 3. SR fällige Wiederholungen (bereits gemeistert, aber Review nötig)
+                $srService = new SpacedRepetitionService();
+                $srDueIds = $srService->getDueQuestions($user->id);
+                $srDueInSection = array_values(array_intersect($allSectionIds, $srDueIds));
+                $srDueInSection = array_diff($srDueInSection, $alreadyQueued);
+                $srDueInSection = array_values($srDueInSection);
+                shuffle($srDueInSection);
+                $idsToShow = array_merge($idsToShow, $srDueInSection);
+                $alreadyQueued = array_merge($alreadyQueued, $srDueInSection);
 
                 // 4. Restliche Fragen (gemeisterte, zur Wiederholung)
                 $remainingIds = array_diff($allSectionIds, $alreadyQueued);

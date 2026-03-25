@@ -179,7 +179,6 @@ class GamificationService
                 'type' => 'level_up',
                 'level' => $user->level,
             ]]);
-            session()->save();
         }
 
         // Store notifications in session (für sofortige Anzeige)
@@ -187,15 +186,6 @@ class GamificationService
             $existingNotifications = session('gamification_notifications', []);
             $allNotifications = array_merge($existingNotifications, $notifications);
             session(['gamification_notifications' => $allNotifications]);
-            session()->save(); // Force save
-
-            // Debug-Logging
-            \Log::info('Gamification notifications stored in session', [
-                'user_id' => $user->id,
-                'notifications_count' => count($allNotifications),
-                'notifications' => $allNotifications,
-                'session_id' => session()->getId()
-            ]);
         }
 
         return [
@@ -236,8 +226,9 @@ class GamificationService
         $this->resetWeeklyFreezesIfNeeded($user);
 
         if (!$lastActivity) {
-            // Erste Aktivität
-            $user->streak_days = 0;
+            // Erste Aktivität — Streak startet bei 1
+            $user->streak_days = 1;
+            $this->flashStreakExtendedCelebration($user);
         } elseif ($lastActivity->diffInDays($today) > 1) {
             // Tage verpasst - versuche Streak Freeze
             $missedDays = $lastActivity->diffInDays($today) - 1;
@@ -258,8 +249,9 @@ class GamificationService
                 $this->flashStreakExtendedCelebration($user);
                 $this->checkStreakAchievements($user);
             } else {
-                // Streak unterbrochen
-                $user->streak_days = 0;
+                // Streak unterbrochen — Neustart bei 1
+                $user->streak_days = 1;
+                $this->flashStreakExtendedCelebration($user);
             }
         } elseif ($lastActivity->diffInDays($today) == 1) {
             // Streak fortgesetzt (normaler Folgetag)
@@ -555,7 +547,6 @@ class GamificationService
             'days' => $user->streak_days,
             'week_calendar' => $this->buildWeekCalendarData($user),
         ]]);
-        session()->save();
     }
 
     private function checkStreakAchievements(User $user)
@@ -580,7 +571,6 @@ class GamificationService
                 'days' => $user->streak_days,
                 'week_calendar' => $this->buildWeekCalendarData($user),
             ]]);
-            session()->save();
         }
     }
 
@@ -681,15 +671,6 @@ class GamificationService
                 $existingNotifications = session('gamification_notifications', []);
                 $existingNotifications[] = $notification;
                 session(['gamification_notifications' => $existingNotifications]);
-                session()->save(); // Force save
-
-                // Debug-Logging
-                \Log::info('Achievement notification stored in session', [
-                    'user_id' => $user->id,
-                    'achievement_key' => $achievementKey,
-                    'notification' => $notification,
-                    'session_id' => session()->getId()
-                ]);
             }
 
             return true; // Neues Achievement
