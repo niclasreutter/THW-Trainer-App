@@ -143,7 +143,8 @@
                 <!-- Logo -->
                 <div class="sidebar-header">
                     <div class="sidebar-logo-mark">
-                        <img src="{{ asset('logo-thwtrainer.png') . '?v=' . filemtime(public_path('logo-thwtrainer.png')) }}" alt="THW" class="w-8 h-8 relative" style="z-index:1;">
+                        <img src="{{ asset('logo-thwtrainer.png') . '?v=' . filemtime(public_path('logo-thwtrainer.png')) }}" alt="THW" class="w-8 h-8 relative dark:hidden" style="z-index:1;">
+                        <img src="{{ asset('logo-thwtrainer_w.png') . '?v=' . filemtime(public_path('logo-thwtrainer_w.png')) }}" alt="THW" class="w-8 h-8 relative hidden dark:block" style="z-index:1;">
                     </div>
                     <span class="sidebar-brand">THW-Trainer</span>
                 </div>

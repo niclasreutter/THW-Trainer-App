@@ -6,7 +6,8 @@
                 <!-- Logo/Text -->
                 <div class="shrink-0 flex items-center">
                     <a href="/">
-                        <img src="{{ asset('logo-thwtrainer_w.png') . '?v=' . filemtime(public_path('logo-thwtrainer_w.png')) }}" alt="THW-Trainer Logo" style="height:100%;max-height:2.5rem;width:auto;" class="mr-2 inline-block align-middle" />
+                        <img src="{{ asset('logo-thwtrainer.png') . '?v=' . filemtime(public_path('logo-thwtrainer.png')) }}" alt="THW-Trainer Logo" style="height:100%;max-height:2.5rem;width:auto;" class="mr-2 inline-block align-middle dark:hidden" />
+                        <img src="{{ asset('logo-thwtrainer_w.png') . '?v=' . filemtime(public_path('logo-thwtrainer_w.png')) }}" alt="THW-Trainer Logo" style="height:100%;max-height:2.5rem;width:auto;" class="mr-2 inline-block align-middle hidden dark:block" />
                     </a>
                 </div>
 
