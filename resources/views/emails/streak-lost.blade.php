@@ -13,7 +13,7 @@
             <div style="background:linear-gradient(135deg,#00337F,#0055cc);padding:20px 24px 16px;border-radius:1.5rem 0.5rem 0 0;">
                 <div style="display:flex;align-items:center;gap:10px;">
                     <div style="width:32px;height:32px;background:rgba(255,255,255,0.15);border-radius:8px;display:flex;align-items:center;justify-content:center;">
-                        <img src="https://{{ config('domains.landing') }}/logo-thwtrainer_w.png" alt="THW" style="width:18px;height:18px;">
+                        <img src="{{ asset('logo-thwtrainer_w.png') . '?v=' . filemtime(public_path('logo-thwtrainer_w.png')) }}" alt="THW" style="width:18px;height:18px;">
                     </div>
                     <span style="color:#fff;font-weight:700;font-size:14px;letter-spacing:0.5px;">THW-TRAINER</span>
                 </div>

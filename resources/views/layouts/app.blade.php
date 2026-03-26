@@ -143,7 +143,8 @@
                 <!-- Logo -->
                 <div class="sidebar-header">
                     <div class="sidebar-logo-mark">
-                        <img src="{{ asset('logo-thwtrainer.png') . '?v=' . filemtime(public_path('logo-thwtrainer.png')) }}" alt="THW" class="w-8 h-8 relative" style="z-index:1;">
+                        <img src="{{ asset('logo-thwtrainer.png') . '?v=' . filemtime(public_path('logo-thwtrainer.png')) }}" alt="THW" class="w-8 h-8 relative logo-for-light" style="z-index:1;">
+                        <img src="{{ asset('logo-thwtrainer_w.png') . '?v=' . filemtime(public_path('logo-thwtrainer_w.png')) }}" alt="THW" class="w-8 h-8 relative logo-for-dark" style="z-index:1;">
                     </div>
                     <span class="sidebar-brand">THW-Trainer</span>
                 </div>
@@ -318,8 +319,9 @@
                 <header class="lg:hidden sticky top-0 z-40 mobile-header-glass">
                     <div class="flex items-center justify-between px-4 py-3">
                         <div class="flex items-center gap-2">
-                            <div class="w-8 h-8 rounded-lg bg-gradient-gold flex items-center justify-center">
-                                <img src="{{ asset('logo-thwtrainer_w.png') . '?v=' . filemtime(public_path('logo-thwtrainer_w.png')) }}" alt="THW" class="w-5 h-5">
+                            <div class="w-8 h-8 flex items-center justify-center">
+                                <img src="{{ asset('logo-thwtrainer.png') . '?v=' . filemtime(public_path('logo-thwtrainer.png')) }}" alt="THW" class="w-8 h-8 logo-for-light">
+                                <img src="{{ asset('logo-thwtrainer_w.png') . '?v=' . filemtime(public_path('logo-thwtrainer_w.png')) }}" alt="THW" class="w-8 h-8 logo-for-dark">
                             </div>
                             <span class="font-semibold text-dark-primary">THW-Trainer</span>
                         </div>
