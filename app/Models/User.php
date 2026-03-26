@@ -22,6 +22,7 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $fillable = [
         'name',
         'email',
+        'pending_email',
         'password',
         'avatar_path',
         'active_accessories',
@@ -215,28 +216,30 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Sendet die Verifikations-E-Mail mit einem Zahlencode.
+     * Bei pending_email wird der Code an die neue Adresse gesendet.
      */
     public function sendEmailVerificationNotification()
     {
         $code = $this->generateVerificationCode();
+        $targetEmail = $this->pending_email ?? $this->email;
 
         try {
             \Log::info('Attempting to send verification email', [
                 'user_id' => $this->id,
-                'email' => $this->email,
-                'name' => $this->name
+                'email' => $targetEmail,
+                'is_pending' => !is_null($this->pending_email),
             ]);
 
-            \Mail::to($this->email)->send(new \App\Mail\VerifyRegistrationMail($code));
+            \Mail::to($targetEmail)->send(new \App\Mail\VerifyRegistrationMail($code));
 
             \Log::info('Verification email sent successfully', [
                 'user_id' => $this->id,
-                'email' => $this->email
+                'email' => $targetEmail
             ]);
         } catch (\Exception $e) {
             \Log::error('Failed to send verification email', [
                 'user_id' => $this->id,
-                'email' => $this->email,
+                'email' => $targetEmail,
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
