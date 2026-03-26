@@ -544,7 +544,11 @@
     <div class="auth-right">
         <div class="auth-form-container">
             <h2>E-Mail Bestätigung</h2>
-            <p>Wir haben einen 6-stelligen Code an <strong>{{ auth()->user()->email }}</strong> gesendet. Gib den Code hier ein:</p>
+            @if(isset($pendingEmail))
+                <p>Wir haben einen 6-stelligen Code an <strong>{{ $pendingEmail }}</strong> gesendet. Gib den Code ein, um deine neue E-Mail-Adresse zu bestätigen:</p>
+            @else
+                <p>Wir haben einen 6-stelligen Code an <strong>{{ auth()->user()->email }}</strong> gesendet. Gib den Code hier ein:</p>
+            @endif
 
             @if (session('status') == 'verification-code-sent')
                 <div class="success-box">
@@ -587,10 +591,17 @@
                 <button type="submit" class="auth-secondary-btn">Neuen Code senden</button>
             </form>
 
-            <form method="POST" action="{{ route('logout') }}">
-                @csrf
-                <button type="submit" class="auth-secondary-btn">Abmelden</button>
-            </form>
+            @if(isset($pendingEmail))
+                <form method="POST" action="{{ route('profile.cancel-email-change') }}">
+                    @csrf
+                    <button type="submit" class="auth-secondary-btn">Abbrechen</button>
+                </form>
+            @else
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit" class="auth-secondary-btn">Abmelden</button>
+                </form>
+            @endif
         </div>
     </div>
 </div>

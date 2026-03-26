@@ -374,6 +374,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/profile/accessory/color', [ProfileController::class, 'updateAccessoryColor'])->name('profile.accessory.color');
     Route::post('/profile/dismiss-leaderboard-banner', [ProfileController::class, 'dismissLeaderboardBanner'])->name('profile.dismiss.leaderboard.banner');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::post('/profile/cancel-email-change', [ProfileController::class, 'cancelEmailChange'])->name('profile.cancel-email-change');
 });
 
 // Contact Routes - für eingeloggte Nutzer

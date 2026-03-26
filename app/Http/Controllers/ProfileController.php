@@ -39,7 +39,7 @@ class ProfileController extends Controller
         // Validierung mit unique Check für Name (außer der aktuelle User)
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', \Illuminate\Validation\Rule::unique('users', 'email')->ignore($user->id)],
             'email_consent' => ['boolean'],
             'leaderboard_consent' => ['boolean'],
             'exam_date' => ['nullable', 'date', 'after_or_equal:today'],
@@ -80,21 +80,21 @@ class ProfileController extends Controller
         // Prüfe ob E-Mail geändert wurde
         if ($originalEmail !== $newEmail) {
             \Log::info('Email change detected');
-            
-            $user->email = $newEmail;
-            $user->email_verified_at = null;
+
+            // Neue E-Mail als pending speichern - Account bleibt aktiv mit alter E-Mail
+            $user->pending_email = $newEmail;
             $user->save();
-            
-            \Log::info('User saved with new email and email_verified_at = null');
-            
-            // E-Mail-Verifizierung senden
+
+            \Log::info('Pending email saved: ' . $newEmail . ' (current email stays: ' . $originalEmail . ')');
+
+            // Verifizierungscode an die NEUE E-Mail senden
             try {
                 $user->sendEmailVerificationNotification();
-                \Log::info('Email verification sent to: ' . $user->email);
+                \Log::info('Email verification sent to pending email: ' . $newEmail);
             } catch (\Exception $e) {
                 \Log::error('Failed to send email verification: ' . $e->getMessage());
             }
-            
+
             return Redirect::route('profile')->with('status', 'email-verification-sent');
         }
 
@@ -295,6 +295,27 @@ class ProfileController extends Controller
             'success' => true,
             'avatar_url' => $user->fresh()->avatar_url,
         ]);
+    }
+
+    /**
+     * Cancel a pending email change.
+     */
+    public function cancelEmailChange(Request $request): RedirectResponse
+    {
+        $user = $request->user();
+
+        if ($user->pending_email) {
+            \Log::info('Email change cancelled', [
+                'user_id' => $user->id,
+                'pending_email' => $user->pending_email,
+            ]);
+            $user->pending_email = null;
+            $user->verification_code = null;
+            $user->verification_code_expires_at = null;
+            $user->save();
+        }
+
+        return Redirect::route('profile')->with('status', 'email-change-cancelled');
     }
 
     /**

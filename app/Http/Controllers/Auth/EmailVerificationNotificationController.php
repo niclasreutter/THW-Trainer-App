@@ -13,12 +13,15 @@ class EmailVerificationNotificationController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        if ($request->user()->hasVerifiedEmail()) {
+        $user = $request->user();
+
+        // Bereits verifiziert und keine pending E-Mail → nichts zu tun
+        if ($user->hasVerifiedEmail() && !$user->pending_email) {
             return redirect()->intended(route('dashboard', absolute: false));
         }
 
         $request->session()->forget('verification_attempts');
-        $request->user()->sendEmailVerificationNotification();
+        $user->sendEmailVerificationNotification();
 
         return back()->with('status', 'verification-code-sent');
     }

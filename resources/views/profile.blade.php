@@ -353,19 +353,37 @@
     </div>
 
     {{-- ── Status Messages ── --}}
-    @if (session('status') == 'profile-updated' || session('status') == 'password-updated')
+    @if (session('status') == 'profile-updated' || session('status') == 'password-updated' || session('status') == 'email-change-cancelled')
     <div class="alert-compact glass-success" style="margin-bottom: 1rem;">
         <i class="bi bi-check-circle alert-compact-icon"></i>
         <div class="alert-compact-content">
             <div class="alert-compact-title">
-                {{ session('status') == 'profile-updated' ? 'Profil erfolgreich aktualisiert.' : 'Passwort erfolgreich geändert.' }}
+                @if(session('status') == 'profile-updated') Profil erfolgreich aktualisiert.
+                @elseif(session('status') == 'password-updated') Passwort erfolgreich geändert.
+                @elseif(session('status') == 'email-change-cancelled') E-Mail-Änderung abgebrochen.
+                @endif
             </div>
         </div>
         <button style="background:none;border:none;cursor:pointer;font-size:1.25rem;color:var(--text-secondary);" onclick="this.parentElement.remove()">&times;</button>
     </div>
     @endif
 
-    @if (!$user->hasVerifiedEmail())
+    @if ($user->pending_email)
+    <div class="alert-compact glass-warning" style="margin-bottom: 1rem;">
+        <i class="bi bi-clock-history alert-compact-icon"></i>
+        <div class="alert-compact-content">
+            <div class="alert-compact-title">E-Mail-Änderung ausstehend</div>
+            <div class="alert-compact-desc">
+                Ein Bestätigungscode wurde an <strong>{{ $user->pending_email }}</strong> gesendet.
+                <a href="{{ route('verification.notice') }}" style="color:var(--gold);text-decoration:underline;">Jetzt bestätigen</a>
+                <form method="POST" action="{{ route('profile.cancel-email-change') }}" style="display:inline;">
+                    @csrf
+                    <button type="submit" style="background:none;border:none;color:var(--text-secondary);text-decoration:underline;cursor:pointer;padding:0;font-size:inherit;">Abbrechen</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    @elseif (!$user->hasVerifiedEmail())
     <div class="alert-compact glass-warning" style="margin-bottom: 1rem;">
         <i class="bi bi-clock-history alert-compact-icon"></i>
         <div class="alert-compact-content">
@@ -529,6 +547,11 @@
                     @error('email')
                         <div class="pf-form-error">{{ $message }}</div>
                     @enderror
+                    @if($user->pending_email)
+                        <div style="margin-top:0.35rem;font-size:0.8rem;color:var(--warning);">
+                            Ausstehende Änderung zu: {{ $user->pending_email }}
+                        </div>
+                    @endif
                 </div>
 
                 {{-- E-Mail Consent --}}
