@@ -55,6 +55,12 @@
     --transition-slow: 400ms ease;
 }
 
+/* Logo theme switching */
+.logo-for-light { display: none; }
+.logo-for-dark { display: block; }
+html.light-mode .logo-for-light { display: block; }
+html.light-mode .logo-for-dark { display: none; }
+
 /* Light Mode Variables */
 :root.light-mode,
 .light-mode {
