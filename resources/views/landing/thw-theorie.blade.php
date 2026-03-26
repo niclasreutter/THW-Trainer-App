@@ -200,7 +200,7 @@
                     <div class="glass" style="padding: 2rem; border-radius: 1.5rem 0.5rem 0.5rem 0.5rem;">
                         <h3 class="text-lg font-bold text-white mb-3">Die Grundausbildung im THW</h3>
                         <p class="text-sm text-zinc-400 leading-relaxed">
-                            Die <strong class="text-zinc-300">THW Grundausbildung</strong> (kurz: GA) ist die erste Ausbildungsstufe im Technischen Hilfswerk.
+                            Die <a href="{{ url('/thw-grundausbildung') }}" class="text-zinc-300 font-bold hover:text-blue-400 transition-colors">THW Grundausbildung</a> (kurz: GA) ist die erste Ausbildungsstufe im Technischen Hilfswerk.
                             Jeder neue THW-Helfer durchläuft diese Ausbildung, die aus einem praktischen und einem
                             <strong class="text-zinc-300">theoretischen Teil</strong> besteht. Die Theorieprüfung umfasst {{ $totalQuestions }} Fragen
                             aus 10 Lernabschnitten und muss bestanden werden, um die Grundausbildung abzuschließen.
@@ -210,7 +210,7 @@
                     <div class="glass glass-slash" style="padding: 2rem;">
                         <h3 class="text-lg font-bold text-white mb-3">Wie läuft die THW Theorieprüfung ab?</h3>
                         <p class="text-sm text-zinc-400 leading-relaxed">
-                            In der <strong class="text-zinc-300">THW Theorieprüfung</strong> der Grundausbildung werden 30 Fragen aus allen
+                            In der <a href="{{ url('/thw-theoriepruefung') }}" class="text-zinc-300 font-bold hover:text-blue-400 transition-colors">THW Theorieprüfung</a> der Grundausbildung werden 30 Fragen aus allen
                             10 Lernabschnitten gestellt. Pro Frage gibt es drei Antwortmöglichkeiten, von denen eine oder mehrere
                             richtig sein können. Zum Bestehen müssen mindestens 80% der Fragen korrekt beantwortet werden.
                             Mit dem THW-Trainer kannst du alle Theorie Fragen vorab üben und die Prüfungssimulation nutzen.
@@ -220,7 +220,7 @@
                     <div class="glass glass-tl" style="padding: 2rem;">
                         <h3 class="text-lg font-bold text-white mb-3">THW Theorie online lernen</h3>
                         <p class="text-sm text-zinc-400 leading-relaxed">
-                            Der <strong class="text-zinc-300">THW-Trainer</strong> bietet dir alle offiziellen <strong class="text-zinc-300">THW Theorie Fragen</strong> kostenlos
+                            Der <strong class="text-zinc-300">THW-Trainer</strong> bietet dir alle offiziellen <a href="{{ url('/thw-pruefungsfragen') }}" class="text-zinc-300 font-bold hover:text-blue-400 transition-colors">THW Prüfungsfragen</a> kostenlos
                             und online zum Lernen an. Nutze das intelligente Spaced-Repetition-System, um schwierige Fragen
                             gezielt zu wiederholen. Verfolge deinen Lernfortschritt pro Lernabschnitt und starte die
                             Prüfungssimulation, wenn du bereit bist. Das THW Training funktioniert auf Handy, Tablet und PC.
@@ -349,23 +349,73 @@
     </section>
 
     {{-- ============================================
-         FOOTER - Compact
+         FOOTER
          ============================================ --}}
-    <footer class="sp-footer py-10">
+    <footer class="sp-footer py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div class="flex items-center gap-2.5">
-                    <img src="{{ asset('logo-thwtrainer_w.png') }}" alt="THW-Trainer" class="h-6 w-auto sp-logo-dark">
-                    <img src="{{ asset('logo-thwtrainer.png') }}" alt="THW-Trainer" class="h-6 w-auto sp-logo-light">
-                    <span class="font-bold text-sm text-white">THW-Trainer</span>
+            <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-8 mb-10">
+                {{-- Brand --}}
+                <div>
+                    <div class="flex items-center gap-2.5 mb-4">
+                        <img src="{{ asset('logo-thwtrainer_w.png') }}" alt="THW-Trainer" class="h-8 w-auto sp-logo-dark">
+                        <img src="{{ asset('logo-thwtrainer.png') }}" alt="THW-Trainer" class="h-8 w-auto sp-logo-light">
+                        <span class="font-bold text-lg text-white">THW-Trainer</span>
+                    </div>
+                    <p class="text-sm text-zinc-500 max-w-xs leading-relaxed">
+                        Kostenlose Lernplattform für die THW Grundausbildung Theorieprüfung.
+                    </p>
                 </div>
-                <div class="flex items-center gap-6 text-sm text-zinc-500">
-                    <a href="{{ url('/') }}" class="hover:text-zinc-300 transition-colors">Startseite</a>
-                    <a href="{{ route('landing.statistics') }}" class="hover:text-zinc-300 transition-colors">Statistiken</a>
-                    <a href="{{ route('landing.impressum') }}" class="hover:text-zinc-300 transition-colors">Impressum</a>
-                    <a href="{{ route('landing.datenschutz') }}" class="hover:text-zinc-300 transition-colors">Datenschutz</a>
+
+                {{-- Themen --}}
+                <div>
+                    <h4 class="font-semibold text-white text-sm mb-4">Themen</h4>
+                    <div class="flex flex-col gap-2">
+                        <a href="{{ url('/thw-theorie') }}" class="text-sm text-zinc-500 hover:text-zinc-300 transition-colors">THW Theorie</a>
+                        <a href="{{ url('/thw-pruefungsfragen') }}" class="text-sm text-zinc-500 hover:text-zinc-300 transition-colors">THW Prüfungsfragen</a>
+                        <a href="{{ url('/thw-theoriepruefung') }}" class="text-sm text-zinc-500 hover:text-zinc-300 transition-colors">THW Theorieprüfung</a>
+                        <a href="{{ url('/thw-grundausbildung') }}" class="text-sm text-zinc-500 hover:text-zinc-300 transition-colors">THW Grundausbildung</a>
+                    </div>
                 </div>
-                <p class="text-xs text-zinc-600">&copy; {{ date('Y') }} THW-Trainer</p>
+
+                {{-- Plattform --}}
+                <div>
+                    <h4 class="font-semibold text-white text-sm mb-4">Plattform</h4>
+                    <div class="flex flex-col gap-2">
+                        <a href="{{ url('/') }}" class="text-sm text-zinc-500 hover:text-zinc-300 transition-colors">Startseite</a>
+                        <a href="{{ route('landing.statistics') }}" class="text-sm text-zinc-500 hover:text-zinc-300 transition-colors">Statistiken</a>
+                        <a href="{{ route('landing.guest.practice.menu') }}" class="text-sm text-zinc-500 hover:text-zinc-300 transition-colors">Anonym üben</a>
+                    </div>
+                </div>
+
+                {{-- Rechtliches --}}
+                <div>
+                    <h4 class="font-semibold text-white text-sm mb-4">Rechtliches</h4>
+                    <div class="flex flex-col gap-2">
+                        <a href="{{ route('landing.impressum') }}" class="text-sm text-zinc-500 hover:text-zinc-300 transition-colors">Impressum</a>
+                        <a href="{{ route('landing.datenschutz') }}" class="text-sm text-zinc-500 hover:text-zinc-300 transition-colors">Datenschutz</a>
+                    </div>
+                </div>
+
+                {{-- Unterstützen --}}
+                <div>
+                    <h4 class="font-semibold text-white text-sm mb-4">Unterstützen</h4>
+                    <p class="text-sm text-zinc-500 mb-3 leading-relaxed">
+                        THW-Trainer ist kostenlos. Unterstütze die Entwicklung!
+                    </p>
+                    <a href="https://bero-host.de/spenden/ks14llyclh8q" target="_blank" rel="noopener noreferrer"
+                       class="inline-flex items-center gap-2 text-sm font-medium text-blue-400 hover:text-blue-300 transition-colors cursor-pointer">
+                        <i class="bi bi-cup-hot"></i>
+                        Kaffee spendieren
+                    </a>
+                </div>
+            </div>
+
+            {{-- Copyright --}}
+            <div class="pt-8 sp-copyright-border">
+                <p class="text-sm text-zinc-600">&copy; {{ date('Y') }} THW-Trainer. Entwickelt von Niclas Reutter.</p>
+                <p class="text-xs text-zinc-700 mt-1">
+                    Kein offizielles Angebot des THW. Private Initiative zur Prüfungsvorbereitung.
+                </p>
             </div>
         </div>
     </footer>
