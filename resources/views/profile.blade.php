@@ -353,19 +353,37 @@
     </div>
 
     {{-- ── Status Messages ── --}}
-    @if (session('status') == 'profile-updated' || session('status') == 'password-updated')
+    @if (session('status') == 'profile-updated' || session('status') == 'password-updated' || session('status') == 'email-change-cancelled')
     <div class="alert-compact glass-success" style="margin-bottom: 1rem;">
         <i class="bi bi-check-circle alert-compact-icon"></i>
         <div class="alert-compact-content">
             <div class="alert-compact-title">
-                {{ session('status') == 'profile-updated' ? 'Profil erfolgreich aktualisiert.' : 'Passwort erfolgreich geändert.' }}
+                @if(session('status') == 'profile-updated') Profil erfolgreich aktualisiert.
+                @elseif(session('status') == 'password-updated') Passwort erfolgreich geändert.
+                @elseif(session('status') == 'email-change-cancelled') E-Mail-Änderung abgebrochen.
+                @endif
             </div>
         </div>
         <button style="background:none;border:none;cursor:pointer;font-size:1.25rem;color:var(--text-secondary);" onclick="this.parentElement.remove()">&times;</button>
     </div>
     @endif
 
-    @if (!$user->hasVerifiedEmail())
+    @if ($user->pending_email)
+    <div class="alert-compact glass-warning" style="margin-bottom: 1rem;">
+        <i class="bi bi-clock-history alert-compact-icon"></i>
+        <div class="alert-compact-content">
+            <div class="alert-compact-title">E-Mail-Änderung ausstehend</div>
+            <div class="alert-compact-desc">
+                Ein Bestätigungscode wurde an <strong>{{ $user->pending_email }}</strong> gesendet.
+                <a href="{{ route('verification.notice') }}" style="color:var(--gold);text-decoration:underline;">Jetzt bestätigen</a>
+                <form method="POST" action="{{ route('profile.cancel-email-change') }}" style="display:inline;">
+                    @csrf
+                    <button type="submit" style="background:none;border:none;color:var(--text-secondary);text-decoration:underline;cursor:pointer;padding:0;font-size:inherit;">Abbrechen</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    @elseif (!$user->hasVerifiedEmail())
     <div class="alert-compact glass-warning" style="margin-bottom: 1rem;">
         <i class="bi bi-clock-history alert-compact-icon"></i>
         <div class="alert-compact-content">
@@ -387,8 +405,13 @@
             <div class="gami-pill__label">Tage dabei</div>
         </div>
         <div class="gami-pill">
-            <div class="gami-pill__value" style="color:{{ $user->hasVerifiedEmail() ? 'var(--success)' : 'var(--warning)' }};-webkit-text-fill-color:{{ $user->hasVerifiedEmail() ? 'var(--success)' : 'var(--warning)' }};">{{ $user->hasVerifiedEmail() ? 'OK' : '---' }}</div>
-            <div class="gami-pill__label">E-Mail</div>
+            @if($user->pending_email)
+                <div class="gami-pill__value" style="color:var(--warning);-webkit-text-fill-color:var(--warning);">...</div>
+                <div class="gami-pill__label">Änderung</div>
+            @else
+                <div class="gami-pill__value" style="color:{{ $user->hasVerifiedEmail() ? 'var(--success)' : 'var(--warning)' }};-webkit-text-fill-color:{{ $user->hasVerifiedEmail() ? 'var(--success)' : 'var(--warning)' }};">{{ $user->hasVerifiedEmail() ? 'OK' : '---' }}</div>
+                <div class="gami-pill__label">E-Mail</div>
+            @endif
         </div>
         <div class="gami-pill">
             <div class="gami-pill__value" style="color:#5b9aff;-webkit-text-fill-color:#5b9aff;">{{ $user->last_login_at ? $user->last_login_at->diffForHumans(null, true) : 'Jetzt' }}</div>
@@ -411,7 +434,9 @@
                     <div class="pf-avatar-name">{{ $user->name }}</div>
                     <div class="pf-avatar-email">{{ $user->email }}</div>
                     <div class="pf-avatar-tags">
-                        @if($user->hasVerifiedEmail())
+                        @if($user->pending_email)
+                            <span class="pf-tag pf-tag--warn">E-Mail-Änderung ausstehend</span>
+                        @elseif($user->hasVerifiedEmail())
                             <span class="pf-tag pf-tag--ok">Verifiziert</span>
                         @else
                             <span class="pf-tag pf-tag--warn">Nicht verifiziert</span>
@@ -529,6 +554,11 @@
                     @error('email')
                         <div class="pf-form-error">{{ $message }}</div>
                     @enderror
+                    @if($user->pending_email)
+                        <div style="margin-top:0.35rem;font-size:0.8rem;color:var(--warning);">
+                            Ausstehende Änderung zu: {{ $user->pending_email }}
+                        </div>
+                    @endif
                 </div>
 
                 {{-- E-Mail Consent --}}
@@ -651,12 +681,16 @@
                 <div class="pf-info-row">
                     <span class="pf-info-label">Konto-Status</span>
                     <span class="pf-info-value">
-                        @if($user->hasVerifiedEmail())
+                        @if($user->pending_email)
+                            <span style="color:#f59e0b;">E-Mail-Änderung</span>
+                            <span class="pf-info-sub">Bestätigung an {{ $user->pending_email }} gesendet</span>
+                        @elseif($user->hasVerifiedEmail())
                             <span style="color:#22c55e;">Bestätigt</span>
+                            <span class="pf-info-sub">E-Mail verifiziert</span>
                         @else
                             <span style="color:#f59e0b;">Ausstehend</span>
+                            <span class="pf-info-sub">E-Mail nicht verifiziert</span>
                         @endif
-                        <span class="pf-info-sub">E-Mail {{ $user->hasVerifiedEmail() ? 'verifiziert' : 'nicht verifiziert' }}</span>
                     </span>
                 </div>
                 <div class="pf-info-row">
