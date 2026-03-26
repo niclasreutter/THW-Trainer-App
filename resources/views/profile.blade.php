@@ -405,8 +405,13 @@
             <div class="gami-pill__label">Tage dabei</div>
         </div>
         <div class="gami-pill">
-            <div class="gami-pill__value" style="color:{{ $user->hasVerifiedEmail() ? 'var(--success)' : 'var(--warning)' }};-webkit-text-fill-color:{{ $user->hasVerifiedEmail() ? 'var(--success)' : 'var(--warning)' }};">{{ $user->hasVerifiedEmail() ? 'OK' : '---' }}</div>
-            <div class="gami-pill__label">E-Mail</div>
+            @if($user->pending_email)
+                <div class="gami-pill__value" style="color:var(--warning);-webkit-text-fill-color:var(--warning);">...</div>
+                <div class="gami-pill__label">Änderung</div>
+            @else
+                <div class="gami-pill__value" style="color:{{ $user->hasVerifiedEmail() ? 'var(--success)' : 'var(--warning)' }};-webkit-text-fill-color:{{ $user->hasVerifiedEmail() ? 'var(--success)' : 'var(--warning)' }};">{{ $user->hasVerifiedEmail() ? 'OK' : '---' }}</div>
+                <div class="gami-pill__label">E-Mail</div>
+            @endif
         </div>
         <div class="gami-pill">
             <div class="gami-pill__value" style="color:#5b9aff;-webkit-text-fill-color:#5b9aff;">{{ $user->last_login_at ? $user->last_login_at->diffForHumans(null, true) : 'Jetzt' }}</div>
@@ -429,7 +434,9 @@
                     <div class="pf-avatar-name">{{ $user->name }}</div>
                     <div class="pf-avatar-email">{{ $user->email }}</div>
                     <div class="pf-avatar-tags">
-                        @if($user->hasVerifiedEmail())
+                        @if($user->pending_email)
+                            <span class="pf-tag pf-tag--warn">E-Mail-Änderung ausstehend</span>
+                        @elseif($user->hasVerifiedEmail())
                             <span class="pf-tag pf-tag--ok">Verifiziert</span>
                         @else
                             <span class="pf-tag pf-tag--warn">Nicht verifiziert</span>
@@ -674,12 +681,16 @@
                 <div class="pf-info-row">
                     <span class="pf-info-label">Konto-Status</span>
                     <span class="pf-info-value">
-                        @if($user->hasVerifiedEmail())
+                        @if($user->pending_email)
+                            <span style="color:#f59e0b;">E-Mail-Änderung</span>
+                            <span class="pf-info-sub">Bestätigung an {{ $user->pending_email }} gesendet</span>
+                        @elseif($user->hasVerifiedEmail())
                             <span style="color:#22c55e;">Bestätigt</span>
+                            <span class="pf-info-sub">E-Mail verifiziert</span>
                         @else
                             <span style="color:#f59e0b;">Ausstehend</span>
+                            <span class="pf-info-sub">E-Mail nicht verifiziert</span>
                         @endif
-                        <span class="pf-info-sub">E-Mail {{ $user->hasVerifiedEmail() ? 'verifiziert' : 'nicht verifiziert' }}</span>
                     </span>
                 </div>
                 <div class="pf-info-row">
