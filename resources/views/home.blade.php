@@ -621,7 +621,7 @@ document.addEventListener('DOMContentLoaded', function() {
     "@@type": "Organization",
     "name": "THW-Trainer",
     "url": "{{ url('/') }}",
-    "logo": "{{ asset('logo-thwtrainer.png') }}",
+    "logo": "{{ asset('logo-thwtrainer.png') . '?v=' . filemtime(public_path('logo-thwtrainer.png')) }}",
     "sameAs": [
         "https://github.com/niclasreutter"
     ],

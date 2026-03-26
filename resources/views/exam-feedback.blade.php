@@ -16,7 +16,7 @@
         <!-- Logo -->
         <div style="text-align:center;margin-bottom:32px;">
             <a href="/">
-                <img src="{{ asset('logo-thwtrainer.png') }}" alt="THW-Trainer Logo" style="max-height:48px;width:auto;" />
+                <img src="{{ asset('logo-thwtrainer.png') . '?v=' . filemtime(public_path('logo-thwtrainer.png')) }}" alt="THW-Trainer Logo" style="max-height:48px;width:auto;" />
             </a>
         </div>
 

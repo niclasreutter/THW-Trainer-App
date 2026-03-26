@@ -32,7 +32,7 @@
         <meta property="og:url" content="{{ url()->current() }}">
         <meta property="og:title" content="@hasSection('title')@yield('title') - THW-Trainer @else THW-Trainer - Dein digitaler Begleiter für THW-Theorie @endif">
         <meta property="og:description" content="@hasSection('description')@yield('description')@else THW-Trainer: Bereite dich optimal auf deine THW-Prüfung vor. Kostenlose Theoriefragen, Prüfungssimulation und Lernfortschritt. @endif">
-        <meta property="og:image" content="{{ asset('logo-thwtrainer.png') }}">
+        <meta property="og:image" content="{{ asset('logo-thwtrainer.png') . '?v=' . filemtime(public_path('logo-thwtrainer.png')) }}">
         <meta property="og:locale" content="de_DE">
 
         <!-- Twitter -->
@@ -40,7 +40,7 @@
         <meta property="twitter:url" content="{{ url()->current() }}">
         <meta property="twitter:title" content="@hasSection('title')@yield('title') - THW-Trainer @else THW-Trainer - Dein digitaler Begleiter für THW-Theorie @endif">
         <meta property="twitter:description" content="@hasSection('description')@yield('description')@else THW-Trainer: Bereite dich optimal auf deine THW-Prüfung vor. Kostenlose Theoriefragen, Prüfungssimulation und Lernfortschritt. @endif">
-        <meta property="twitter:image" content="{{ asset('logo-thwtrainer.png') }}">
+        <meta property="twitter:image" content="{{ asset('logo-thwtrainer.png') . '?v=' . filemtime(public_path('logo-thwtrainer.png')) }}">
 
         <!-- Favicons -->
         <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}?v={{ filemtime(public_path('favicon.ico')) }}">
@@ -76,7 +76,7 @@
             "@@type": "Organization",
             "name": "THW-Trainer",
             "url": "{{ url('/') }}",
-            "logo": "{{ asset('logo-thwtrainer.png') }}",
+            "logo": "{{ asset('logo-thwtrainer.png') . '?v=' . filemtime(public_path('logo-thwtrainer.png')) }}",
             "description": "Kostenlose THW Theorie Prüfungsvorbereitung für Grundausbildung, FüUF26 und weitere Lehrgänge. Lernen im Ortsverband mit eigenen Fragen möglich.",
             "areaServed": {
                 "@@type": "Country",
@@ -143,7 +143,7 @@
                 <!-- Logo -->
                 <div class="sidebar-header">
                     <div class="sidebar-logo-mark">
-                        <img src="{{ asset('logo-thwtrainer.png') }}?v={{ filemtime(public_path('logo-thwtrainer.png')) }}" alt="THW" class="w-8 h-8 relative" style="z-index:1;">
+                        <img src="{{ asset('logo-thwtrainer.png') . '?v=' . filemtime(public_path('logo-thwtrainer.png')) }}" alt="THW" class="w-8 h-8 relative" style="z-index:1;">
                     </div>
                     <span class="sidebar-brand">THW-Trainer</span>
                 </div>
@@ -319,7 +319,7 @@
                     <div class="flex items-center justify-between px-4 py-3">
                         <div class="flex items-center gap-2">
                             <div class="w-8 h-8 rounded-lg bg-gradient-gold flex items-center justify-center">
-                                <img src="{{ asset('logo-thwtrainer_w.png') }}" alt="THW" class="w-5 h-5">
+                                <img src="{{ asset('logo-thwtrainer_w.png') . '?v=' . filemtime(public_path('logo-thwtrainer_w.png')) }}" alt="THW" class="w-5 h-5">
                             </div>
                             <span class="font-semibold text-dark-primary">THW-Trainer</span>
                         </div>
