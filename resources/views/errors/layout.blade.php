@@ -17,7 +17,7 @@
             justify-content: center;
             padding: 1.5rem;
         }
-        .error-logo { height: 2rem; width: auto; margin-bottom: 2rem; }
+        .error-logo { height: 4rem; width: auto; margin-bottom: 2rem; }
         .error-code {
             font-size: clamp(4rem, 15vw, 8rem);
             font-weight: 800;
