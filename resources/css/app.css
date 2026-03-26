@@ -912,21 +912,10 @@
     .sidebar-logo-mark {
         width: 36px;
         height: 36px;
-        border-radius: 10px;
-        background: linear-gradient(145deg, var(--thw-blue), #004db3);
         display: flex;
         align-items: center;
         justify-content: center;
         flex-shrink: 0;
-        position: relative;
-        box-shadow: 0 2px 12px rgba(0, 51, 127, 0.3);
-    }
-    .sidebar-logo-mark::after {
-        content: '';
-        position: absolute;
-        inset: 0;
-        border-radius: 10px;
-        background: linear-gradient(145deg, rgba(255,255,255,0.15) 0%, transparent 50%);
     }
 
     .sidebar-brand {
