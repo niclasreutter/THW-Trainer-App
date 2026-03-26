@@ -4,6 +4,7 @@ import Alpine from 'alpinejs';
 import confetti from 'canvas-confetti';
 
 window.Alpine = Alpine;
+window.confetti = confetti;
 
 // Confetti Funktionen für Gamification
 window.triggerLevelUpConfetti = function() {

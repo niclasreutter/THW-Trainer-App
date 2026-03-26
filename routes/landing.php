@@ -36,6 +36,15 @@ Route::get('/datenschutz', function () {
 Route::get('/thw-theorie', [\App\Http\Controllers\LandingController::class, 'thwTheorie'])
     ->name('landing.thw-theorie');
 
+Route::get('/thw-pruefungsfragen', [\App\Http\Controllers\LandingController::class, 'thwPruefungsfragen'])
+    ->name('landing.thw-pruefungsfragen');
+
+Route::get('/thw-theoriepruefung', [\App\Http\Controllers\LandingController::class, 'thwTheoriepruefung'])
+    ->name('landing.thw-theoriepruefung');
+
+Route::get('/thw-grundausbildung', [\App\Http\Controllers\LandingController::class, 'thwGrundausbildung'])
+    ->name('landing.thw-grundausbildung');
+
 // Öffentliche Statistik (anonym, aggregiert)
 Route::get('/statistik', [\App\Http\Controllers\PublicStatisticsController::class, 'index'])
     ->name('landing.statistics');
@@ -64,6 +73,9 @@ Allow: /
 
 # Sekundäre öffentliche Seiten
 Allow: /thw-theorie
+Allow: /thw-pruefungsfragen
+Allow: /thw-theoriepruefung
+Allow: /thw-grundausbildung
 Allow: /guest/practice-menu
 Allow: /statistik
 

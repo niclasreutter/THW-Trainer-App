@@ -25,6 +25,9 @@ class SitemapController extends Controller
 
         // SEO Sub-Landingpages
         $sitemap .= $this->addUrl(route('landing.thw-theorie'), '0.9', 'weekly');
+        $sitemap .= $this->addUrl(route('landing.thw-pruefungsfragen'), '0.8', 'weekly');
+        $sitemap .= $this->addUrl(route('landing.thw-theoriepruefung'), '0.8', 'weekly');
+        $sitemap .= $this->addUrl(route('landing.thw-grundausbildung'), '0.8', 'weekly');
 
         // Öffentliche Statistik-Seite
         $sitemap .= $this->addUrl(route('landing.statistics'), '0.7', 'weekly');

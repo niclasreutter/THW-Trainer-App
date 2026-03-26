@@ -1,7 +1,7 @@
 @extends('layouts.startseite')
 
-@section('title', 'THW Theorie - Alle Prüfungsfragen kostenlos online lernen 2026')
-@section('description', 'THW Training App: Alle Prüfungsfragen der Grundausbildung (GA) online lernen. THW Theorie, Theorieprüfung 2026, Prüfungssimulation. Kostenlos, werbefrei & als App installierbar.')
+@section('title', 'THW-Trainer — Kostenlose Prüfungsvorbereitung für die Grundausbildung 2026')
+@section('description', 'THW-Trainer: Die kostenlose App zur Vorbereitung auf die THW Grundausbildung. Alle Prüfungsfragen online lernen, Prüfungssimulation, Lernfortschritt. Werbefrei & als App installierbar.')
 @section('canonical', url('/'))
 
 @section('content')
@@ -602,7 +602,7 @@
          ============================================ --}}
     <footer class="sp-footer py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-10">
+            <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-8 mb-10">
                 {{-- Brand --}}
                 <div>
                     <div class="flex items-center gap-2.5 mb-4">
@@ -611,13 +611,24 @@
                         <span class="font-bold text-lg text-white">THW-Trainer</span>
                     </div>
                     <p class="text-sm text-zinc-500 max-w-xs leading-relaxed">
-                        Kostenlose THW Training App für die Grundausbildung (GA) Theorieprüfung. Alle Prüfungsfragen online lernen.
+                        Kostenlose Lernplattform für die THW Grundausbildung Theorieprüfung.
                     </p>
                 </div>
 
-                {{-- Links --}}
+                {{-- Themen --}}
                 <div>
-                    <h4 class="font-semibold text-white text-sm mb-4">Links</h4>
+                    <h4 class="font-semibold text-white text-sm mb-4">Themen</h4>
+                    <div class="flex flex-col gap-2">
+                        <a href="{{ url('/thw-theorie') }}" class="text-sm text-zinc-500 hover:text-zinc-300 transition-colors">THW Theorie</a>
+                        <a href="{{ url('/thw-pruefungsfragen') }}" class="text-sm text-zinc-500 hover:text-zinc-300 transition-colors">THW Prüfungsfragen</a>
+                        <a href="{{ url('/thw-theoriepruefung') }}" class="text-sm text-zinc-500 hover:text-zinc-300 transition-colors">THW Theorieprüfung</a>
+                        <a href="{{ url('/thw-grundausbildung') }}" class="text-sm text-zinc-500 hover:text-zinc-300 transition-colors">THW Grundausbildung</a>
+                    </div>
+                </div>
+
+                {{-- Plattform --}}
+                <div>
+                    <h4 class="font-semibold text-white text-sm mb-4">Plattform</h4>
                     <div class="flex flex-col gap-2">
                         <a href="{{ url('/') }}" class="text-sm text-zinc-500 hover:text-zinc-300 transition-colors">Startseite</a>
                         <a href="{{ route('landing.statistics') }}" class="text-sm text-zinc-500 hover:text-zinc-300 transition-colors">Statistiken</a>

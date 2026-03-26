@@ -1,8 +1,8 @@
 @extends('layouts.startseite')
 
-@section('title', 'THW Theorie 2026 — Alle Prüfungsfragen der Grundausbildung online lernen')
-@section('description', 'Lerne alle {{ $totalQuestions }} offiziellen THW Theorie Fragen kostenlos online. 10 Lernabschnitte, Prüfungssimulation, Spaced Repetition. Jetzt starten und Theorieprüfung bestehen!')
-@section('canonical', url('/thw-theorie'))
+@section('title', 'THW Prüfungsfragen — Alle Fragen der Grundausbildung kostenlos üben 2026')
+@section('description', 'Alle offiziellen THW Prüfungsfragen der Grundausbildung (GA) kostenlos online üben. ' . $totalQuestions . ' Fragen, Prüfungssimulation, Lernfortschritt. Jetzt THW Prüfungsfragen lernen!')
+@section('canonical', url('/thw-pruefungsfragen'))
 
 @section('content')
 @php
@@ -34,7 +34,7 @@
     {{-- ============================================
          HERO SECTION - Compact
          ============================================ --}}
-    <section class="sp-hero" style="min-height: auto; padding: 6rem 0 3rem;" aria-label="THW Theorie">
+    <section class="sp-hero" style="min-height: auto; padding: 6rem 0 3rem;" aria-label="THW Prüfungsfragen">
         <div class="sp-orb sp-orb-1" aria-hidden="true"></div>
         <div class="sp-orb sp-orb-2" aria-hidden="true"></div>
 
@@ -46,26 +46,26 @@
                     <nav class="mb-6 text-sm text-zinc-500" aria-label="Breadcrumb">
                         <a href="{{ url('/') }}" class="hover:text-white transition-colors">Startseite</a>
                         <span class="mx-2">/</span>
-                        <span class="text-zinc-300">THW Theorie</span>
+                        <span class="text-zinc-300">THW Prüfungsfragen</span>
                     </nav>
 
-                    <span class="sp-hero-badge">Grundausbildung (GA) Theorie 2026</span>
+                    <span class="sp-hero-badge">Offizieller Fragenkatalog 2026</span>
 
                     <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight mb-6">
-                        THW Theorie
+                        THW Prüfungsfragen
                         <br>
-                        <span class="sp-gradient-text">online lernen</span>
+                        <span class="sp-gradient-text">online üben</span>
                     </h1>
 
                     <p class="text-lg lg:text-xl text-zinc-400 mb-10 max-w-xl leading-relaxed">
-                        Alle {{ $totalQuestions }} offiziellen THW Theorie Fragen der Grundausbildung in 10 Lernabschnitten. Lerne gezielt, verfolge deinen Fortschritt und bestehe die THW Theorieprüfung.
+                        Übe alle {{ $totalQuestions }} offiziellen Prüfungsfragen der THW Grundausbildung. Lerne gezielt mit Karteikarten-System, verfolge deinen Fortschritt und bereite dich optimal auf die Theorieprüfung vor.
                     </p>
 
                     <div class="flex flex-col sm:flex-row gap-4">
-                        <a href="{{ $appUrl }}" class="sp-btn-gold" aria-label="Jetzt kostenlos THW Theorie lernen">
+                        <a href="{{ $appUrl }}" class="sp-btn-gold" aria-label="Jetzt kostenlos THW Prüfungsfragen üben">
                             Kostenlos starten
                         </a>
-                        <a href="{{ route('landing.guest.practice.menu') }}" class="sp-btn-ghost" aria-label="THW Theorie anonym üben">
+                        <a href="{{ route('landing.guest.practice.menu') }}" class="sp-btn-ghost" aria-label="THW Prüfungsfragen anonym üben">
                             Anonym üben
                         </a>
                     </div>
@@ -75,43 +75,39 @@
                 <div class="hidden lg:block">
                     <div class="sp-mockup">
                         <div class="glass glass-blue" style="padding: 2rem; border-radius: 1.5rem 0.5rem 1.5rem 0.5rem;">
-                            {{-- Mock Dashboard Header --}}
+                            {{-- Mock Question Header --}}
                             <div class="flex items-center justify-between mb-6">
                                 <div>
-                                    <div class="text-xs text-zinc-500 uppercase tracking-wider mb-1">Dein Lernfortschritt</div>
-                                    <div class="text-2xl font-bold text-white">Grundausbildung</div>
+                                    <div class="text-xs text-zinc-500 uppercase tracking-wider mb-1">Prüfungsfrage</div>
+                                    <div class="text-2xl font-bold text-white">Frage 12 / 30</div>
                                 </div>
                                 <div class="text-right">
-                                    <div class="text-2xl font-extrabold sp-gradient-text">75%</div>
-                                    <div class="text-xs text-zinc-500">abgeschlossen</div>
+                                    <div class="text-2xl font-extrabold sp-gradient-text">83%</div>
+                                    <div class="text-xs text-zinc-500">richtig</div>
                                 </div>
                             </div>
 
                             {{-- Mock Progress Bar --}}
                             <div class="sp-progress-track" style="height: 6px; border-radius: 3px; margin-bottom: 1.75rem; overflow: hidden;">
-                                <div style="width: 75%; height: 100%; background: linear-gradient(90deg, #00337F, #5b9aff); border-radius: 3px;"></div>
+                                <div style="width: 40%; height: 100%; background: linear-gradient(90deg, #00337F, #5b9aff); border-radius: 3px;"></div>
                             </div>
 
-                            {{-- Mock Stats Row --}}
-                            <div class="grid grid-cols-3 gap-3 mb-6">
-                                <div class="glass-subtle" style="padding: 0.75rem; border-radius: 0.75rem; text-align: center;">
-                                    <div class="text-lg font-bold text-white">342</div>
-                                    <div class="text-xs text-zinc-500">Richtig</div>
-                                </div>
-                                <div class="glass-subtle" style="padding: 0.75rem; border-radius: 0.75rem; text-align: center;">
-                                    <div class="text-lg font-bold text-white">7</div>
-                                    <div class="text-xs text-zinc-500">Tage-Streak</div>
-                                </div>
-                                <div class="glass-subtle" style="padding: 0.75rem; border-radius: 0.75rem; text-align: center;">
-                                    <div class="text-lg font-bold text-white">89%</div>
-                                    <div class="text-xs text-zinc-500">Quote</div>
-                                </div>
+                            {{-- Mock Question --}}
+                            <div class="glass" style="padding: 1rem 1.25rem; border-radius: 0.75rem; margin-bottom: 1rem;">
+                                <div class="text-sm text-zinc-300 leading-relaxed">Welche persönliche Schutzausstattung gehört zur Grundausstattung eines THW-Helfers?</div>
                             </div>
 
-                            {{-- Mock Question Preview --}}
-                            <div class="glass" style="padding: 1rem 1.25rem; border-radius: 0.75rem;">
-                                <div class="text-xs text-zinc-500 mb-2">Frage 23 / {{ $totalQuestions }}</div>
-                                <div class="text-sm text-zinc-300 leading-relaxed">Welche Aufgabe hat das THW im Rahmen der zivilen Verteidigung?</div>
+                            {{-- Mock Answer Options --}}
+                            <div class="space-y-2">
+                                <div class="glass-subtle" style="padding: 0.75rem 1rem; border-radius: 0.75rem; border-left: 3px solid #5b9aff;">
+                                    <div class="text-sm text-zinc-300"><span class="text-zinc-500 font-bold mr-2">A</span>Helm, Schutzbrille, Gehörschutz</div>
+                                </div>
+                                <div class="glass-subtle" style="padding: 0.75rem 1rem; border-radius: 0.75rem;">
+                                    <div class="text-sm text-zinc-400"><span class="text-zinc-500 font-bold mr-2">B</span>Atemschutzgerät, Strahlenschutzanzug</div>
+                                </div>
+                                <div class="glass-subtle" style="padding: 0.75rem 1rem; border-radius: 0.75rem;">
+                                    <div class="text-sm text-zinc-400"><span class="text-zinc-500 font-bold mr-2">C</span>Taucheranzug, Schwimmweste</div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -131,57 +127,29 @@
          STATS ROW
          ============================================ --}}
     <section class="py-12 lg:py-16 relative sp-section-alt" aria-labelledby="stats-heading">
-        <h2 id="stats-heading" class="sr-only">THW Theorie in Zahlen</h2>
+        <h2 id="stats-heading" class="sr-only">THW Prüfungsfragen in Zahlen</h2>
         <div class="sp-glow-border" style="position: absolute; top: 0; left: 0; right: 0; height: 1px;" aria-hidden="true"></div>
 
         <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="sp-stats">
                 <div class="sp-stat-card">
                     <div class="sp-stat-value">{{ $totalQuestions }}</div>
-                    <div class="sp-stat-label">Theoriefragen</div>
+                    <div class="sp-stat-label">Prüfungsfragen</div>
                 </div>
                 <div class="sp-stat-card">
-                    <div class="sp-stat-value">10</div>
-                    <div class="sp-stat-label">Lernabschnitte</div>
+                    <div class="sp-stat-value">30</div>
+                    <div class="sp-stat-label">Fragen pro Prüfung</div>
+                </div>
+                <div class="sp-stat-card">
+                    <div class="sp-stat-value">80%</div>
+                    <div class="sp-stat-label">zum Bestehen</div>
                 </div>
                 @if($stats)
-                <div class="sp-stat-card">
-                    <div class="sp-stat-value">{{ number_format($stats['users'], 0, ',', '.') }}+</div>
-                    <div class="sp-stat-label">Nutzer lernen bereits</div>
-                </div>
                 <div class="sp-stat-card">
                     <div class="sp-stat-value">{{ $stats['pass_rate'] }}%</div>
                     <div class="sp-stat-label">Bestehensquote</div>
                 </div>
                 @endif
-            </div>
-        </div>
-    </section>
-
-    {{-- ============================================
-         LERNABSCHNITTE - Bento Grid
-         ============================================ --}}
-    <section id="lernabschnitte" class="py-20 lg:py-28 sp-section" aria-labelledby="sections-heading">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <header class="text-center mb-16 sp-fade-in">
-                <h2 id="sections-heading" class="text-3xl lg:text-4xl font-extrabold text-white mb-4">
-                    Die 10 <span class="sp-gradient-text">Lernabschnitte</span>
-                </h2>
-                <p class="text-lg text-zinc-500 max-w-2xl mx-auto">
-                    Die THW Grundausbildung Theorie gliedert sich in folgende Themengebiete
-                </p>
-            </header>
-
-            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 sp-fade-in">
-                @foreach($sections as $section)
-                <article class="glass {{ $loop->first ? 'glass-blue sm:col-span-2 lg:col-span-1' : ($loop->iteration === 2 ? 'glass-tl' : ($loop->last ? 'glass-br' : '')) }}" style="padding: 1.75rem; border-radius: {{ $loop->first ? '1.5rem 0.5rem 0.5rem 0.5rem' : ($loop->last ? '0.5rem 0.5rem 1.5rem 0.5rem' : '0.75rem') }};">
-                    <div class="flex items-start justify-between mb-3">
-                        <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-full sp-feature-badge">LA {{ $section['nr'] }}</span>
-                        <span class="text-xs text-zinc-500">{{ $section['count'] }} Fragen</span>
-                    </div>
-                    <h3 class="text-base font-bold text-white leading-snug">{{ $section['name'] }}</h3>
-                </article>
-                @endforeach
             </div>
         </div>
     </section>
@@ -193,37 +161,37 @@
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="sp-fade-in">
                 <h2 id="content-heading" class="text-3xl lg:text-4xl font-extrabold text-white mb-10">
-                    Was ist die <span class="sp-gradient-text">THW Grundausbildung Theorie</span>?
+                    Der offizielle <span class="sp-gradient-text">THW Fragenkatalog</span>
                 </h2>
 
                 <div class="space-y-8">
                     <div class="glass" style="padding: 2rem; border-radius: 1.5rem 0.5rem 0.5rem 0.5rem;">
-                        <h3 class="text-lg font-bold text-white mb-3">Die Grundausbildung im THW</h3>
+                        <h3 class="text-lg font-bold text-white mb-3">Alle THW Prüfungsfragen auf einen Blick</h3>
                         <p class="text-sm text-zinc-400 leading-relaxed">
-                            Die <a href="{{ url('/thw-grundausbildung') }}" class="text-zinc-300 font-bold hover:text-blue-400 transition-colors">THW Grundausbildung</a> (kurz: GA) ist die erste Ausbildungsstufe im Technischen Hilfswerk.
-                            Jeder neue THW-Helfer durchläuft diese Ausbildung, die aus einem praktischen und einem
-                            <strong class="text-zinc-300">theoretischen Teil</strong> besteht. Die Theorieprüfung umfasst {{ $totalQuestions }} Fragen
-                            aus 10 Lernabschnitten und muss bestanden werden, um die Grundausbildung abzuschließen.
+                            Der offizielle Fragenkatalog der <a href="{{ url('/thw-grundausbildung') }}" class="text-blue-400 hover:text-blue-300 transition-colors">THW Grundausbildung</a>
+                            umfasst <strong class="text-zinc-300">{{ $totalQuestions }} Prüfungsfragen</strong> aus 10 Lernabschnitten. Jede Frage bietet drei Antwortmöglichkeiten (A, B, C),
+                            von denen eine oder mehrere richtig sein können. Im THW-Trainer findest du den kompletten Fragenkatalog zum
+                            kostenlosen Üben — übersichtlich nach Lernabschnitten gegliedert.
                         </p>
                     </div>
 
                     <div class="glass glass-slash" style="padding: 2rem;">
-                        <h3 class="text-lg font-bold text-white mb-3">Wie läuft die THW Theorieprüfung ab?</h3>
+                        <h3 class="text-lg font-bold text-white mb-3">THW Prüfungsfragen online üben</h3>
                         <p class="text-sm text-zinc-400 leading-relaxed">
-                            In der <a href="{{ url('/thw-theoriepruefung') }}" class="text-zinc-300 font-bold hover:text-blue-400 transition-colors">THW Theorieprüfung</a> der Grundausbildung werden 30 Fragen aus allen
-                            10 Lernabschnitten gestellt. Pro Frage gibt es drei Antwortmöglichkeiten, von denen eine oder mehrere
-                            richtig sein können. Zum Bestehen müssen mindestens 80% der Fragen korrekt beantwortet werden.
-                            Mit dem THW-Trainer kannst du alle Theorie Fragen vorab üben und die Prüfungssimulation nutzen.
+                            Mit dem THW-Trainer übst du alle Prüfungsfragen gezielt und effizient. Das intelligente
+                            <strong class="text-zinc-300">Spaced-Repetition-System</strong> erkennt deine Schwächen und wiederholt schwierige Fragen
+                            automatisch häufiger. Verfolge deinen Lernfortschritt pro Lernabschnitt und sieh jederzeit, welche
+                            <a href="{{ url('/thw-theorie') }}" class="text-blue-400 hover:text-blue-300 transition-colors">THW Theorie</a>-Themen du noch vertiefen solltest.
                         </p>
                     </div>
 
                     <div class="glass glass-tl" style="padding: 2rem;">
-                        <h3 class="text-lg font-bold text-white mb-3">THW Theorie online lernen</h3>
+                        <h3 class="text-lg font-bold text-white mb-3">Von der Übung zur Prüfung</h3>
                         <p class="text-sm text-zinc-400 leading-relaxed">
-                            Der <strong class="text-zinc-300">THW-Trainer</strong> bietet dir alle offiziellen <a href="{{ url('/thw-pruefungsfragen') }}" class="text-zinc-300 font-bold hover:text-blue-400 transition-colors">THW Prüfungsfragen</a> kostenlos
-                            und online zum Lernen an. Nutze das intelligente Spaced-Repetition-System, um schwierige Fragen
-                            gezielt zu wiederholen. Verfolge deinen Lernfortschritt pro Lernabschnitt und starte die
-                            Prüfungssimulation, wenn du bereit bist. Das THW Training funktioniert auf Handy, Tablet und PC.
+                            Wenn du alle Prüfungsfragen sicher beherrschst, teste dich mit der <strong class="text-zinc-300">Prüfungssimulation</strong>.
+                            Dabei werden — genau wie in der echten <a href="{{ url('/thw-theoriepruefung') }}" class="text-blue-400 hover:text-blue-300 transition-colors">THW Theorieprüfung</a> —
+                            30 Fragen zufällig ausgewählt. Zum Bestehen müssen mindestens 80% korrekt beantwortet werden. So gehst du
+                            optimal vorbereitet in die Prüfung.
                         </p>
                     </div>
                 </div>
@@ -237,11 +205,10 @@
     <section class="sp-cta py-20 lg:py-28" aria-labelledby="cta-heading">
         <div class="max-w-3xl mx-auto text-center px-4 sm:px-6 lg:px-8 relative z-10">
             <h2 id="cta-heading" class="text-3xl lg:text-4xl font-extrabold text-white mb-5">
-                Bereit für die THW Theorieprüfung?
+                Bereit für die THW Prüfungsfragen?
             </h2>
             <p class="text-lg text-blue-100 mb-4 max-w-2xl mx-auto leading-relaxed" style="opacity: 0.85;">
-                Starte jetzt mit der <strong class="text-white">THW Training App</strong> und lerne alle
-                <strong class="text-white">{{ $totalQuestions }} Theoriefragen</strong> der Grundausbildung.
+                Starte jetzt und übe alle <strong class="text-white">{{ $totalQuestions }} Prüfungsfragen</strong> der Grundausbildung.
             </p>
             <p class="text-sm text-blue-200 mb-10 max-w-2xl mx-auto" style="opacity: 0.65;">
                 Kostenlos, werbefrei und auf allen Geräten verfügbar.
@@ -251,7 +218,7 @@
                 <a href="{{ $registerUrl }}" class="sp-btn-gold" aria-label="Jetzt kostenlos registrieren">
                     Jetzt kostenlos anmelden
                 </a>
-                <a href="{{ route('landing.guest.practice.menu') }}" class="sp-btn-ghost" style="border-color: rgba(255,255,255,0.25);" aria-label="Anonym THW Theorie üben">
+                <a href="{{ route('landing.guest.practice.menu') }}" class="sp-btn-ghost" style="border-color: rgba(255,255,255,0.25);" aria-label="THW Prüfungsfragen anonym üben">
                     Erst mal ausprobieren
                 </a>
             </div>
@@ -273,14 +240,14 @@
                 {{-- FAQ 1 --}}
                 <article class="sp-faq-item">
                     <button class="sp-faq-toggle" onclick="toggleSpFAQ(this)" aria-expanded="false">
-                        <span>Was ist die THW Grundausbildung Theorie?</span>
+                        <span>Wie viele THW Prüfungsfragen gibt es?</span>
                         <svg class="sp-faq-chevron" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                             <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
                         </svg>
                     </button>
                     <div class="sp-faq-content">
                         <p class="text-sm text-zinc-400 leading-relaxed">
-                            Die THW Grundausbildung (GA) Theorie umfasst {{ $totalQuestions }} Prüfungsfragen aus 10 Lernabschnitten. Sie deckt alle theoretischen Grundlagen ab, die ein THW-Helfer benötigt: von Arbeitssicherheit über Einsatzgrundlagen bis hin zu technischem Wissen. Die Theorieprüfung muss bestanden werden, um die Grundausbildung abzuschließen.
+                            Der offizielle Fragenkatalog der THW Grundausbildung umfasst {{ $totalQuestions }} Fragen aus 10 Lernabschnitten. In der Prüfung werden davon 30 Fragen zufällig ausgewählt. Im THW-Trainer kannst du alle Fragen üben.
                         </p>
                     </div>
                 </article>
@@ -288,14 +255,14 @@
                 {{-- FAQ 2 --}}
                 <article class="sp-faq-item">
                     <button class="sp-faq-toggle" onclick="toggleSpFAQ(this)" aria-expanded="false">
-                        <span>Wie viele Theorie Fragen hat die THW Grundausbildung?</span>
+                        <span>Sind das die offiziellen THW Prüfungsfragen?</span>
                         <svg class="sp-faq-chevron" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                             <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
                         </svg>
                     </button>
                     <div class="sp-faq-content">
                         <p class="text-sm text-zinc-400 leading-relaxed">
-                            Der vollständige Fragenkatalog der THW Grundausbildung Theorie enthalt {{ $totalQuestions }} Fragen, aufgeteilt in 10 Lernabschnitte. In der Prüfung selbst werden davon 30 Fragen zufällig ausgewählt. Im THW-Trainer kannst du alle {{ $totalQuestions }} Fragen üben.
+                            Ja, der THW-Trainer enthält alle offiziellen Prüfungsfragen der THW Grundausbildung (GA). Die Fragen werden regelmäßig auf Aktualität geprüft und aktualisiert.
                         </p>
                     </div>
                 </article>
@@ -303,14 +270,14 @@
                 {{-- FAQ 3 --}}
                 <article class="sp-faq-item">
                     <button class="sp-faq-toggle" onclick="toggleSpFAQ(this)" aria-expanded="false">
-                        <span>Kann ich THW Theorie Fragen kostenlos online üben?</span>
+                        <span>Kann ich die THW Prüfungsfragen kostenlos üben?</span>
                         <svg class="sp-faq-chevron" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                             <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
                         </svg>
                     </button>
                     <div class="sp-faq-content">
                         <p class="text-sm text-zinc-400 leading-relaxed">
-                            Ja, auf thw-trainer.de kannst du alle THW Theorie Fragen komplett kostenlos und ohne Werbung online üben. Du kannst sofort anonym starten oder dich kostenlos registrieren, um deinen Lernfortschritt zu speichern. Die App funktioniert auf Handy, Tablet und PC.
+                            Ja, alle Prüfungsfragen sind komplett kostenlos und ohne Werbung verfügbar. Du kannst sofort anonym starten oder dich registrieren, um deinen Lernfortschritt zu speichern.
                         </p>
                     </div>
                 </article>
@@ -318,14 +285,14 @@
                 {{-- FAQ 4 --}}
                 <article class="sp-faq-item">
                     <button class="sp-faq-toggle" onclick="toggleSpFAQ(this)" aria-expanded="false">
-                        <span>Wie bestehe ich die THW Theorieprüfung?</span>
+                        <span>Wie sind die THW Prüfungsfragen aufgebaut?</span>
                         <svg class="sp-faq-chevron" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                             <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
                         </svg>
                     </button>
                     <div class="sp-faq-content">
                         <p class="text-sm text-zinc-400 leading-relaxed">
-                            Zum Bestehen der THW Theorieprüfung müssen mindestens 80% der 30 Prüfungsfragen korrekt beantwortet werden. Der beste Weg zur Vorbereitung: Alle Theorie Fragen im THW-Trainer durcharbeiten, schwierige Fragen mit Spaced Repetition wiederholen und die Prüfungssimulation nutzen, um dich unter realistischen Bedingungen zu testen.
+                            Jede Frage hat drei Antwortmöglichkeiten (A, B, C). Es können eine oder mehrere Antworten richtig sein. Die Fragen decken alle 10 Lernabschnitte der Grundausbildung ab — von Arbeitssicherheit bis Rettungsgrundlagen.
                         </p>
                     </div>
                 </article>
@@ -333,14 +300,14 @@
                 {{-- FAQ 5 --}}
                 <article class="sp-faq-item">
                     <button class="sp-faq-toggle" onclick="toggleSpFAQ(this)" aria-expanded="false">
-                        <span>Was sind die Themen der THW GA Prüfung?</span>
+                        <span>Wie lerne ich die THW Prüfungsfragen am besten?</span>
                         <svg class="sp-faq-chevron" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                             <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
                         </svg>
                     </button>
                     <div class="sp-faq-content">
                         <p class="text-sm text-zinc-400 leading-relaxed">
-                            Die THW GA Prüfung (Grundausbildung) deckt 10 Lernabschnitte ab: Das THW im Zivil- und Katastrophenschutz, Arbeitssicherheit, Arbeiten mit Leinen und Seilen, Leitern, Stromerzeugung, Metall-/Holz-/Steinbearbeitung, Bewegen von Lasten, Arbeiten am Wasser, Einsatzgrundlagen und Grundlagen der Rettung. Im THW-Trainer kannst du jeden Abschnitt gezielt üben.
+                            Arbeite alle Fragen systematisch durch, nutze die Spaced-Repetition-Funktion für schwierige Fragen und teste dich regelmäßig mit der Prüfungssimulation. So gehst du optimal vorbereitet in die THW Theorieprüfung.
                         </p>
                     </div>
                 </article>
@@ -349,12 +316,12 @@
     </section>
 
     {{-- ============================================
-         FOOTER
+         FOOTER - Full 5-Column
          ============================================ --}}
     <footer class="sp-footer py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-8 mb-10">
-                {{-- Brand --}}
+                <!-- Brand -->
                 <div>
                     <div class="flex items-center gap-2.5 mb-4">
                         <img src="{{ asset('logo-thwtrainer_w.png') }}" alt="THW-Trainer" class="h-8 w-auto sp-logo-dark">
@@ -366,7 +333,7 @@
                     </p>
                 </div>
 
-                {{-- Themen --}}
+                <!-- Themen -->
                 <div>
                     <h4 class="font-semibold text-white text-sm mb-4">Themen</h4>
                     <div class="flex flex-col gap-2">
@@ -377,7 +344,7 @@
                     </div>
                 </div>
 
-                {{-- Plattform --}}
+                <!-- Plattform -->
                 <div>
                     <h4 class="font-semibold text-white text-sm mb-4">Plattform</h4>
                     <div class="flex flex-col gap-2">
@@ -387,7 +354,7 @@
                     </div>
                 </div>
 
-                {{-- Rechtliches --}}
+                <!-- Rechtliches -->
                 <div>
                     <h4 class="font-semibold text-white text-sm mb-4">Rechtliches</h4>
                     <div class="flex flex-col gap-2">
@@ -396,7 +363,7 @@
                     </div>
                 </div>
 
-                {{-- Unterstützen --}}
+                <!-- Unterstützen -->
                 <div>
                     <h4 class="font-semibold text-white text-sm mb-4">Unterstützen</h4>
                     <p class="text-sm text-zinc-500 mb-3 leading-relaxed">
@@ -410,7 +377,7 @@
                 </div>
             </div>
 
-            {{-- Copyright --}}
+            <!-- Copyright -->
             <div class="pt-8 sp-copyright-border">
                 <p class="text-sm text-zinc-600">&copy; {{ date('Y') }} THW-Trainer. Entwickelt von Niclas Reutter.</p>
                 <p class="text-xs text-zinc-700 mt-1">
@@ -430,73 +397,45 @@
     "mainEntity": [
         {
             "@@type": "Question",
-            "name": "Was ist die THW Grundausbildung Theorie?",
+            "name": "Wie viele THW Prüfungsfragen gibt es?",
             "acceptedAnswer": {
                 "@@type": "Answer",
-                "text": "Die THW Grundausbildung (GA) Theorie umfasst {{ $totalQuestions }} Prüfungsfragen aus 10 Lernabschnitten. Sie deckt alle theoretischen Grundlagen ab, die ein THW-Helfer benötigt: von Arbeitssicherheit über Einsatzgrundlagen bis hin zu technischem Wissen."
+                "text": "Der offizielle Fragenkatalog der THW Grundausbildung umfasst {{ $totalQuestions }} Fragen aus 10 Lernabschnitten. In der Prüfung werden davon 30 Fragen zufällig ausgewählt. Im THW-Trainer kannst du alle Fragen üben."
             }
         },
         {
             "@@type": "Question",
-            "name": "Wie viele Theorie Fragen hat die THW Grundausbildung?",
+            "name": "Sind das die offiziellen THW Prüfungsfragen?",
             "acceptedAnswer": {
                 "@@type": "Answer",
-                "text": "Der vollständige Fragenkatalog der THW Grundausbildung Theorie enthalt {{ $totalQuestions }} Fragen, aufgeteilt in 10 Lernabschnitte. In der Prüfung selbst werden davon 30 Fragen zufällig ausgewählt."
+                "text": "Ja, der THW-Trainer enthält alle offiziellen Prüfungsfragen der THW Grundausbildung (GA). Die Fragen werden regelmäßig auf Aktualität geprüft und aktualisiert."
             }
         },
         {
             "@@type": "Question",
-            "name": "Kann ich THW Theorie Fragen kostenlos online üben?",
+            "name": "Kann ich die THW Prüfungsfragen kostenlos üben?",
             "acceptedAnswer": {
                 "@@type": "Answer",
-                "text": "Ja, auf thw-trainer.de kannst du alle THW Theorie Fragen komplett kostenlos und ohne Werbung online üben. Du kannst sofort anonym starten oder dich kostenlos registrieren."
+                "text": "Ja, alle Prüfungsfragen sind komplett kostenlos und ohne Werbung verfügbar. Du kannst sofort anonym starten oder dich registrieren, um deinen Lernfortschritt zu speichern."
             }
         },
         {
             "@@type": "Question",
-            "name": "Wie bestehe ich die THW Theorieprüfung?",
+            "name": "Wie sind die THW Prüfungsfragen aufgebaut?",
             "acceptedAnswer": {
                 "@@type": "Answer",
-                "text": "Zum Bestehen der THW Theorieprüfung müssen mindestens 80% der 30 Prüfungsfragen korrekt beantwortet werden. Der beste Weg: Alle Theorie Fragen durcharbeiten, schwierige Fragen mit Spaced Repetition wiederholen und die Prüfungssimulation nutzen."
+                "text": "Jede Frage hat drei Antwortmöglichkeiten (A, B, C). Es können eine oder mehrere Antworten richtig sein. Die Fragen decken alle 10 Lernabschnitte der Grundausbildung ab — von Arbeitssicherheit bis Rettungsgrundlagen."
             }
         },
         {
             "@@type": "Question",
-            "name": "Was sind die Themen der THW GA Prüfung?",
+            "name": "Wie lerne ich die THW Prüfungsfragen am besten?",
             "acceptedAnswer": {
                 "@@type": "Answer",
-                "text": "Die THW GA Prüfung deckt 10 Lernabschnitte ab: THW im Zivil- und Katastrophenschutz, Arbeitssicherheit, Arbeiten mit Leinen und Seilen, Leitern, Stromerzeugung, Metall-/Holz-/Steinbearbeitung, Bewegen von Lasten, Arbeiten am Wasser, Einsatzgrundlagen und Grundlagen der Rettung."
+                "text": "Arbeite alle Fragen systematisch durch, nutze die Spaced-Repetition-Funktion für schwierige Fragen und teste dich regelmäßig mit der Prüfungssimulation. So gehst du optimal vorbereitet in die THW Theorieprüfung."
             }
         }
     ]
-}
-</script>
-
-<script type="application/ld+json">
-{
-    "@@context": "https://schema.org",
-    "@@type": "Course",
-    "name": "THW Grundausbildung Theorie",
-    "description": "Alle {{ $totalQuestions }} offiziellen Prüfungsfragen der THW Grundausbildung (GA) Theorie in 10 Lernabschnitten. Kostenlos online lernen mit Prüfungssimulation.",
-    "provider": {
-        "@@type": "Organization",
-        "name": "THW-Trainer",
-        "url": "{{ url('/') }}"
-    },
-    "educationalLevel": "Grundausbildung",
-    "inLanguage": "de",
-    "isAccessibleForFree": true,
-    "offers": {
-        "@@type": "Offer",
-        "price": "0",
-        "priceCurrency": "EUR",
-        "availability": "https://schema.org/InStock"
-    },
-    "hasCourseInstance": {
-        "@@type": "CourseInstance",
-        "courseMode": "online",
-        "courseWorkload": "PT20H"
-    }
 }
 </script>
 
@@ -514,8 +453,8 @@
         {
             "@@type": "ListItem",
             "position": 2,
-            "name": "THW Theorie",
-            "item": "{{ url('/thw-theorie') }}"
+            "name": "THW Prüfungsfragen",
+            "item": "{{ url('/thw-pruefungsfragen') }}"
         }
     ]
 }
