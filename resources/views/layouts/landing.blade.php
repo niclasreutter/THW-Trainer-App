@@ -24,7 +24,7 @@
         <meta property="og:url" content="@hasSection('canonical')@yield('canonical')@else {{ url()->current() }} @endif">
         <meta property="og:title" content="@hasSection('title')@yield('title')@else THW-Trainer - THW Theorie kostenlos lernen 2026 @endif">
         <meta property="og:description" content="@hasSection('description')@yield('description')@else THW Theorie kostenlos lernen: Alle aktuellen Prüfungsfragen für die THW Grundausbildung 2026. @endif">
-        <meta property="og:image" content="{{ asset('logo-thwtrainer.png') }}">
+        <meta property="og:image" content="{{ asset('logo-thwtrainer.png') . '?v=' . filemtime(public_path('logo-thwtrainer.png')) }}">
         <meta property="og:locale" content="de_DE">
 
         <!-- Twitter -->
@@ -32,7 +32,7 @@
         <meta property="twitter:url" content="@hasSection('canonical')@yield('canonical')@else {{ url()->current() }} @endif">
         <meta property="twitter:title" content="@hasSection('title')@yield('title')@else THW-Trainer - THW Theorie kostenlos lernen 2026 @endif">
         <meta property="twitter:description" content="@hasSection('description')@yield('description')@else THW Theorie kostenlos lernen: Alle aktuellen Prüfungsfragen für die THW Grundausbildung 2026. @endif">
-        <meta property="twitter:image" content="{{ asset('logo-thwtrainer.png') }}">
+        <meta property="twitter:image" content="{{ asset('logo-thwtrainer.png') . '?v=' . filemtime(public_path('logo-thwtrainer.png')) }}">
 
         <!-- Favicons -->
         <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}?v={{ filemtime(public_path('favicon.ico')) }}">
@@ -70,7 +70,7 @@
             "@@type": "Organization",
             "name": "THW-Trainer",
             "url": "{{ url('/') }}",
-            "logo": "{{ asset('logo-thwtrainer.png') }}",
+            "logo": "{{ asset('logo-thwtrainer.png') . '?v=' . filemtime(public_path('logo-thwtrainer.png')) }}",
             "description": "Kostenlose THW Theorieprüfung Vorbereitung online. Alle Prüfungsfragen für Grundausbildung, FüUF26 und weitere Lehrgänge.",
             "areaServed": {
                 "@@type": "Country",

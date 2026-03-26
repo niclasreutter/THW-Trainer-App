@@ -3,7 +3,7 @@
     <div class="landing-navbar-container">
         {{-- Logo --}}
         <a href="{{ route('landing.home') }}" class="landing-navbar-brand">
-            <img src="{{ asset('logo-thwtrainer.png') }}" alt="THW-Trainer Logo" class="h-8 w-auto">
+            <img src="{{ asset('logo-thwtrainer.png') . '?v=' . filemtime(public_path('logo-thwtrainer.png')) }}" alt="THW-Trainer Logo" class="h-8 w-auto">
             <span class="font-bold text-xl text-thw-blue">THW-Trainer</span>
         </a>
 

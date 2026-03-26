@@ -19,8 +19,8 @@
          class="sp-navbar" :class="{ 'scrolled': scrolled }" aria-label="Hauptnavigation">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
             <a href="{{ url('/') }}" class="flex items-center gap-2.5">
-                <img src="{{ asset('logo-thwtrainer_w.png') }}" alt="THW-Trainer Logo" class="h-8 w-auto sp-logo-dark">
-                <img src="{{ asset('logo-thwtrainer.png') }}" alt="THW-Trainer Logo" class="h-8 w-auto sp-logo-light">
+                <img src="{{ asset('logo-thwtrainer_w.png') . '?v=' . filemtime(public_path('logo-thwtrainer_w.png')) }}" alt="THW-Trainer Logo" class="h-8 w-auto sp-logo-dark">
+                <img src="{{ asset('logo-thwtrainer.png') . '?v=' . filemtime(public_path('logo-thwtrainer.png')) }}" alt="THW-Trainer Logo" class="h-8 w-auto sp-logo-light">
                 <span class="font-bold text-xl text-white">THW-Trainer</span>
             </a>
             <div class="hidden md:flex items-center gap-3">
@@ -329,8 +329,8 @@
                 <!-- Brand -->
                 <div>
                     <div class="flex items-center gap-2.5 mb-4">
-                        <img src="{{ asset('logo-thwtrainer_w.png') }}" alt="THW-Trainer" class="h-8 w-auto sp-logo-dark">
-                        <img src="{{ asset('logo-thwtrainer.png') }}" alt="THW-Trainer" class="h-8 w-auto sp-logo-light">
+                        <img src="{{ asset('logo-thwtrainer_w.png') . '?v=' . filemtime(public_path('logo-thwtrainer_w.png')) }}" alt="THW-Trainer" class="h-8 w-auto sp-logo-dark">
+                        <img src="{{ asset('logo-thwtrainer.png') . '?v=' . filemtime(public_path('logo-thwtrainer.png')) }}" alt="THW-Trainer" class="h-8 w-auto sp-logo-light">
                         <span class="font-bold text-lg text-white">THW-Trainer</span>
                     </div>
                     <p class="text-sm text-zinc-500 max-w-xs leading-relaxed">
