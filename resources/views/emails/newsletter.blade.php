@@ -11,7 +11,7 @@
 
             <!-- Logo -->
             <div style="text-align:center;margin-bottom:24px;">
-                <img src="https://{{ config('domains.landing') }}/logo-thwtrainer.png" alt="THW-Trainer Logo" style="max-width:200px;height:auto;" />
+                <img src="{{ asset('logo-thwtrainer.png') . '?v=' . filemtime(public_path('logo-thwtrainer.png')) }}" alt="THW-Trainer Logo" style="max-width:200px;height:auto;" />
             </div>
 
             <!-- Newsletter Content -->

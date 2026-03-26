@@ -318,8 +318,9 @@
                 <header class="lg:hidden sticky top-0 z-40 mobile-header-glass">
                     <div class="flex items-center justify-between px-4 py-3">
                         <div class="flex items-center gap-2">
-                            <div class="w-8 h-8 rounded-lg bg-gradient-gold flex items-center justify-center">
-                                <img src="{{ asset('logo-thwtrainer_w.png') . '?v=' . filemtime(public_path('logo-thwtrainer_w.png')) }}" alt="THW" class="w-5 h-5">
+                            <div class="w-8 h-8 flex items-center justify-center">
+                                <img src="{{ asset('logo-thwtrainer.png') . '?v=' . filemtime(public_path('logo-thwtrainer.png')) }}" alt="THW" class="w-8 h-8 dark:hidden">
+                                <img src="{{ asset('logo-thwtrainer_w.png') . '?v=' . filemtime(public_path('logo-thwtrainer_w.png')) }}" alt="THW" class="w-8 h-8 hidden dark:block">
                             </div>
                             <span class="font-semibold text-dark-primary">THW-Trainer</span>
                         </div>
