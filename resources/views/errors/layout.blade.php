@@ -64,8 +64,8 @@
 </head>
 <body>
     <div class="error-page">
-        <img src="{{ asset('logo-thwtrainer.png') }}" alt="THW-Trainer" class="error-logo error-logo-light">
-        <img src="{{ asset('logo-thwtrainer_w.png') }}" alt="THW-Trainer" class="error-logo error-logo-dark">
+        <img src="{{ asset('logo-thwtrainer.png') . '?v=' . filemtime(public_path('logo-thwtrainer.png')) }}" alt="THW-Trainer" class="error-logo error-logo-light">
+        <img src="{{ asset('logo-thwtrainer_w.png') . '?v=' . filemtime(public_path('logo-thwtrainer_w.png')) }}" alt="THW-Trainer" class="error-logo error-logo-dark">
 
         @yield('content')
 
