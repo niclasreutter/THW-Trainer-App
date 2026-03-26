@@ -32,7 +32,8 @@ class InactiveReminderMail extends Mailable implements ShouldQueue
         
         // Berechne Fragen-Statistiken
         $this->totalQuestions = Question::count();
-        $this->masteredQuestions = count($user->solved_questions ?? []);
+        $solved = $user->solved_questions ?? '';
+        $this->masteredQuestions = is_array($solved) ? count($solved) : (is_string($solved) && $solved !== '' ? count(explode(',', $solved)) : 0);
         $this->remainingQuestions = max(0, $this->totalQuestions - $this->masteredQuestions);
 
         $threshold = \App\Models\UserQuestionProgress::MASTERY_THRESHOLD;
