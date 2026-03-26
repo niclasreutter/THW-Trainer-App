@@ -77,12 +77,21 @@ class ProfileController extends Controller
         // Prüfungsdatum verarbeiten (privat, nur für den eigenen User sichtbar)
         $user->exam_date = $request->input('exam_date') ?: null;
 
+        // Wenn E-Mail-Feld unverändert und pending_email existiert → pending löschen
+        if ($originalEmail === $newEmail && $user->pending_email) {
+            $user->pending_email = null;
+            $user->verification_code = null;
+            $user->verification_code_expires_at = null;
+        }
+
         // Prüfe ob E-Mail geändert wurde
         if ($originalEmail !== $newEmail) {
             \Log::info('Email change detected');
 
             // Neue E-Mail als pending speichern - Account bleibt aktiv mit alter E-Mail
             $user->pending_email = $newEmail;
+            $user->verification_code = null;
+            $user->verification_code_expires_at = null;
             $user->save();
 
             \Log::info('Pending email saved: ' . $newEmail . ' (current email stays: ' . $originalEmail . ')');
