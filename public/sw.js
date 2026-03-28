@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v2.1';
+const CACHE_VERSION = 'v2.2';
 const CACHE_NAME = `thw-trainer-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `thw-trainer-runtime-${CACHE_VERSION}`;
 
@@ -129,22 +129,16 @@ self.addEventListener('push', event => {
     try {
       data = Object.assign(data, event.data.json());
     } catch (e) {
-      console.error('[SW] Failed to parse push data:', e);
+      data.body = event.data.text() || data.body;
     }
   }
 
-  const options = {
-    body: data.body,
-    icon: data.icon || '/logo-thwtrainer.png',
-    badge: data.badge || '/logo-thwtrainer.png',
-    tag: data.tag || 'thw-notification',
-    data: { url: data.url || '/notifications' },
-    vibrate: [100, 50, 100],
-    requireInteraction: false,
-  };
-
   event.waitUntil(
-    self.registration.showNotification(data.title, options)
+    self.registration.showNotification(data.title, {
+      body: data.body,
+      tag: data.tag || 'thw-notification',
+      data: { url: data.url || '/notifications' },
+    })
   );
 });
 
