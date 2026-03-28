@@ -1,86 +1,86 @@
 @auth
-<div x-data="pushNotificationBanner()"
-     x-show="showBanner"
-     x-cloak
-     x-transition:enter="transition ease-out duration-300"
-     x-transition:enter-start="opacity-0 transform -translate-y-2"
-     x-transition:enter-end="opacity-100 transform translate-y-0"
-     x-transition:leave="transition ease-in duration-200"
-     x-transition:leave-start="opacity-100"
-     x-transition:leave-end="opacity-0"
-     class="glass p-4 mb-4 border border-white/10 rounded-xl">
+<div x-data="pushNotificationPopup()" x-cloak>
 
-    {{-- Nicht subscribed: Opt-In anzeigen --}}
-    <template x-if="!subscribed">
-        <div class="flex items-center justify-between gap-4">
-            <div class="flex items-center gap-3 min-w-0">
-                <i class="bi bi-bell text-xl" style="color: var(--gold-start)"></i>
-                <div class="min-w-0">
-                    <p class="text-sm font-medium" style="color: var(--text-primary)">
-                        Push-Benachrichtigungen aktivieren
+    {{-- Overlay --}}
+    <div x-show="showPopup"
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         class="modal-overlay-glass"
+         style="z-index: 9999;">
+
+        {{-- Modal --}}
+        <div class="fixed inset-0 flex items-center justify-center p-4" style="z-index: 10000;">
+            <div x-show="showPopup"
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0 transform scale-95"
+                 x-transition:enter-end="opacity-100 transform scale-100"
+                 x-transition:leave="transition ease-in duration-200"
+                 x-transition:leave-start="opacity-100 transform scale-100"
+                 x-transition:leave-end="opacity-0 transform scale-95"
+                 @click.outside="dismiss()"
+                 class="modal-glass w-full max-w-sm">
+
+                <div class="modal-body-glass text-center">
+                    {{-- Icon --}}
+                    <div class="mx-auto mb-4 w-16 h-16 rounded-full flex items-center justify-center"
+                         style="background: linear-gradient(135deg, var(--gold-start), var(--gold-end));">
+                        <i class="bi bi-bell-fill text-2xl text-black"></i>
+                    </div>
+
+                    {{-- Text --}}
+                    <h3 class="text-lg font-bold mb-2" style="color: var(--text-primary)">
+                        Push-Benachrichtigungen
+                    </h3>
+                    <p class="text-sm mb-6" style="color: var(--text-secondary)">
+                        Erhalte Mitteilungen zu Level-Ups, Achievements und Liga-Ergebnissen direkt auf dein Geraet.
                     </p>
-                    <p class="text-xs" style="color: var(--text-secondary)">
-                        Erhalte Mitteilungen zu Level-Ups, Achievements und Liga-Ergebnissen.
-                    </p>
+
+                    {{-- Buttons --}}
+                    <div class="flex flex-col gap-3">
+                        <button @click="subscribe()"
+                                class="btn-primary w-full py-3"
+                                :disabled="loading">
+                            <span x-show="!loading">Aktivieren</span>
+                            <span x-show="loading">Wird aktiviert...</span>
+                        </button>
+                        <button @click="dismiss()"
+                                class="btn-ghost w-full py-2 text-sm">
+                            Nein danke
+                        </button>
+                    </div>
                 </div>
             </div>
-            <div class="flex items-center gap-2 shrink-0">
-                <button @click="subscribe()"
-                        class="btn-primary text-sm px-3 py-1.5"
-                        :disabled="loading">
-                    <span x-show="!loading">Aktivieren</span>
-                    <span x-show="loading">...</span>
-                </button>
-                <button @click="dismiss()"
-                        class="btn-ghost text-sm px-2 py-1.5">
-                    Nein danke
-                </button>
-            </div>
         </div>
-    </template>
-
-    {{-- Bereits subscribed: Status anzeigen --}}
-    <template x-if="subscribed">
-        <div class="flex items-center justify-between gap-4">
-            <div class="flex items-center gap-3">
-                <i class="bi bi-bell-fill text-xl" style="color: var(--success)"></i>
-                <p class="text-sm" style="color: var(--text-primary)">
-                    Push-Benachrichtigungen sind aktiviert.
-                </p>
-            </div>
-            <button @click="unsubscribe()" class="btn-ghost text-sm px-3 py-1.5" style="color: var(--error)">
-                Deaktivieren
-            </button>
-        </div>
-    </template>
+    </div>
 </div>
 
 <script>
-function pushNotificationBanner() {
+function pushNotificationPopup() {
     return {
-        showBanner: false,
-        subscribed: false,
+        showPopup: false,
         loading: false,
 
         init() {
             if (!('PushManager' in window) || !('serviceWorker' in navigator)) return;
             if (localStorage.getItem('push-banner-dismissed')) return;
+            if (Notification.permission === 'denied') return;
 
             if (Notification.permission === 'granted') {
                 this.checkExistingSubscription();
-            } else if (Notification.permission !== 'denied') {
-                this.showBanner = true;
+            } else {
+                setTimeout(() => { this.showPopup = true; }, 1500);
             }
         },
 
         async checkExistingSubscription() {
             const reg = await navigator.serviceWorker.ready;
             const sub = await reg.pushManager.getSubscription();
-            if (sub) {
-                this.subscribed = true;
-                this.showBanner = true;
-            } else {
-                this.showBanner = true;
+            if (!sub) {
+                setTimeout(() => { this.showPopup = true; }, 1500);
             }
         },
 
@@ -90,6 +90,7 @@ function pushNotificationBanner() {
                 const permission = await Notification.requestPermission();
                 if (permission !== 'granted') {
                     this.loading = false;
+                    this.dismiss();
                     return;
                 }
 
@@ -105,7 +106,7 @@ function pushNotificationBanner() {
 
                 const sub = subscription.toJSON();
 
-                const response = await fetch('/push/subscribe', {
+                await fetch('/push/subscribe', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -121,39 +122,16 @@ function pushNotificationBanner() {
                     }),
                 });
 
-                if (response.ok) {
-                    this.subscribed = true;
-                }
+                this.showPopup = false;
+                localStorage.setItem('push-banner-dismissed', '1');
             } catch (e) {
                 console.error('Push subscription failed:', e);
             }
             this.loading = false;
         },
 
-        async unsubscribe() {
-            try {
-                const reg = await navigator.serviceWorker.ready;
-                const subscription = await reg.pushManager.getSubscription();
-                if (subscription) {
-                    await fetch('/push/unsubscribe', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                        },
-                        body: JSON.stringify({ endpoint: subscription.endpoint }),
-                    });
-                    await subscription.unsubscribe();
-                }
-                this.subscribed = false;
-                this.showBanner = false;
-            } catch (e) {
-                console.error('Push unsubscribe failed:', e);
-            }
-        },
-
         dismiss() {
-            this.showBanner = false;
+            this.showPopup = false;
             localStorage.setItem('push-banner-dismissed', '1');
         },
 
