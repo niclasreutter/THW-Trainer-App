@@ -158,6 +158,41 @@ Schedule::command('system:performance-optimization')
     ->emailOutputOnFailure($adminEmail);
 
 // ============================================================
+// PUSH BENACHRICHTIGUNGEN
+// ============================================================
+
+// Liga-Status Push (Mittwoch, Freitag, Sonntag um 18:00)
+Schedule::command('push:league-status')
+    ->days([3, 5, 0])
+    ->at('18:00')
+    ->timezone('Europe/Berlin')
+    ->withoutOverlapping(10)
+    ->appendOutputTo($schedulerLog)
+    ->onFailure($onFail('push:league-status'))
+    ->description('Sendet Liga-Status Push an alle Liga-Teilnehmer')
+    ->emailOutputOnFailure($adminEmail);
+
+// Streak-Erinnerung Push (täglich um 19:00)
+Schedule::command('push:streak-reminder')
+    ->dailyAt('19:00')
+    ->timezone('Europe/Berlin')
+    ->withoutOverlapping(10)
+    ->appendOutputTo($schedulerLog)
+    ->onFailure($onFail('push:streak-reminder'))
+    ->description('Sendet Streak-Erinnerung Push an User die heute noch nicht gelernt haben')
+    ->emailOutputOnFailure($adminEmail);
+
+// Streak-Erinnerung Push DRINGEND (täglich um 21:00)
+Schedule::command('push:streak-reminder --urgent')
+    ->dailyAt('21:00')
+    ->timezone('Europe/Berlin')
+    ->withoutOverlapping(10)
+    ->appendOutputTo($schedulerLog)
+    ->onFailure($onFail('push:streak-reminder-urgent'))
+    ->description('Sendet letzte Streak-Warnung Push an User die heute noch nicht gelernt haben')
+    ->emailOutputOnFailure($adminEmail);
+
+// ============================================================
 // WÖCHENTLICHE JOBS
 // ============================================================
 
