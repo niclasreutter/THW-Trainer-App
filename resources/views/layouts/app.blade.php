@@ -346,6 +346,7 @@
 
                 <!-- Page Content -->
                 <main class="flex-1 px-4 lg:px-8 py-6 lg:py-8 @auth pb-28 lg:pb-8 @endauth" id="main-content" style="min-width:0;overflow-x:hidden;">
+                    @include('components.push-notification-banner')
                     @yield('content')
                 </main>
 
@@ -651,7 +652,10 @@
             if ('serviceWorker' in navigator) {
                 window.addEventListener('load', () => {
                     navigator.serviceWorker.register('/sw.js')
-                        .then(registration => console.log('SW registered'))
+                        .then(registration => {
+                            console.log('SW registered');
+                            window.swRegistration = registration;
+                        })
                         .catch(error => console.log('SW failed:', error));
                 });
             }

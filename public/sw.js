@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v2.0';
+const CACHE_VERSION = 'v2.1';
 const CACHE_NAME = `thw-trainer-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `thw-trainer-runtime-${CACHE_VERSION}`;
 
@@ -115,6 +115,56 @@ self.addEventListener('fetch', event => {
           statusText: 'Request Timeout'
         });
       });
+    })
+  );
+});
+
+// Push notification received
+self.addEventListener('push', event => {
+  console.log('[SW] Push received');
+
+  let data = { title: 'THW Trainer', body: 'Neue Mitteilung', url: '/notifications' };
+
+  if (event.data) {
+    try {
+      data = Object.assign(data, event.data.json());
+    } catch (e) {
+      console.error('[SW] Failed to parse push data:', e);
+    }
+  }
+
+  const options = {
+    body: data.body,
+    icon: data.icon || '/logo-thwtrainer.png',
+    badge: data.badge || '/logo-thwtrainer.png',
+    tag: data.tag || 'thw-notification',
+    data: { url: data.url || '/notifications' },
+    vibrate: [100, 50, 100],
+    requireInteraction: false,
+  };
+
+  event.waitUntil(
+    self.registration.showNotification(data.title, options)
+  );
+});
+
+// Notification click handler
+self.addEventListener('notificationclick', event => {
+  console.log('[SW] Notification clicked');
+  event.notification.close();
+
+  const url = event.notification.data?.url || '/notifications';
+
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(windowClients => {
+      for (const client of windowClients) {
+        if (client.url.includes(url) && 'focus' in client) {
+          return client.focus();
+        }
+      }
+      if (clients.openWindow) {
+        return clients.openWindow(url);
+      }
     })
   );
 });

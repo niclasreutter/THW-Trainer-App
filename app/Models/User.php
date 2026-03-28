@@ -325,4 +325,14 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(XpHistory::class)->orderBy('created_at', 'desc');
     }
+
+    public function pushSubscriptions()
+    {
+        return $this->hasMany(PushSubscription::class);
+    }
+
+    public function activePushSubscriptions()
+    {
+        return $this->hasMany(PushSubscription::class)->where('is_active', true);
+    }
 }
