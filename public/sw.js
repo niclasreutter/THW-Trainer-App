@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v2.3';
+const CACHE_VERSION = 'v2.5';
 const CACHE_NAME = `thw-trainer-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `thw-trainer-runtime-${CACHE_VERSION}`;
 
@@ -22,7 +22,7 @@ self.addEventListener('install', event => {
       })
       .then(() => {
         console.log('[SW] Installation complete');
-        return self.skipWaiting();
+        // KEIN skipWaiting() — iOS bricht Push-Subscriptions wenn der SW sofort aktiviert wird
       })
       .catch(error => {
         console.error('[SW] Installation failed:', error);
@@ -48,7 +48,7 @@ self.addEventListener('activate', event => {
       );
     }).then(() => {
       console.log('[SW] Activation complete');
-      return self.clients.claim();
+      // KEIN clients.claim() — verhindert Push-Probleme auf iOS
     })
   );
 });
@@ -138,6 +138,32 @@ self.addEventListener('push', event => {
       body: data.body,
       data: { url: data.url || '/notifications' },
     })
+  );
+});
+
+// Handle subscription loss (iOS kills subscription on SW update)
+self.addEventListener('pushsubscriptionchange', event => {
+  console.log('[SW] Push subscription changed, re-subscribing...');
+  event.waitUntil(
+    self.registration.pushManager.subscribe(event.oldSubscription.options)
+      .then(newSubscription => {
+        const sub = newSubscription.toJSON();
+        return fetch('/push/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            endpoint: sub.endpoint,
+            keys: {
+              p256dh: sub.keys.p256dh,
+              auth: sub.keys.auth,
+            },
+            contentEncoding: (PushManager.supportedContentEncodings || ['aes128gcm'])[0],
+            old_endpoint: event.oldSubscription ? event.oldSubscription.endpoint : null,
+          }),
+        });
+      })
+      .then(() => console.log('[SW] Re-subscription successful'))
+      .catch(err => console.error('[SW] Re-subscription failed:', err))
   );
 });
 
