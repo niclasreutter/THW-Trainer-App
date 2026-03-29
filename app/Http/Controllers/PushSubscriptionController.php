@@ -26,17 +26,35 @@ class PushSubscriptionController extends Controller
                 ->where('endpoint', $validated['endpoint'])
                 ->first();
 
+            // Deaktiviere alte Subscription falls Endpoint gewechselt hat (SW re-subscribe)
+            $oldEndpoint = $request->input('old_endpoint');
+            if ($oldEndpoint) {
+                PushSubscription::where('user_id', auth()->id())
+                    ->where('endpoint', $oldEndpoint)
+                    ->update(['is_active' => false]);
+            }
+
             if ($subscription) {
                 // Reaktiviere existierende Subscription
-                $subscription->update(['is_active' => true]);
+                $subscription->update([
+                    'is_active' => true,
+                    'public_key' => $validated['keys']['p256dh'],
+                    'auth_token' => $validated['keys']['auth'],
+                    'content_encoding' => $request->input('contentEncoding', 'aes128gcm'),
+                ]);
             } else {
+                // Deaktiviere alle anderen Subscriptions dieses Users
+                PushSubscription::where('user_id', auth()->id())
+                    ->where('endpoint', '!=', $validated['endpoint'])
+                    ->update(['is_active' => false]);
+
                 // Erstelle neue Subscription
                 $subscription = PushSubscription::create([
                     'user_id' => auth()->id(),
                     'endpoint' => $validated['endpoint'],
                     'public_key' => $validated['keys']['p256dh'],
                     'auth_token' => $validated['keys']['auth'],
-                    'content_encoding' => $request->input('contentEncoding', 'aesgcm'),
+                    'content_encoding' => $request->input('contentEncoding', 'aes128gcm'),
                 ]);
             }
 

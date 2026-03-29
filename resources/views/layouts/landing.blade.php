@@ -138,9 +138,52 @@
                         .then(registration => {
                             console.log('SW registered');
                             window.swRegistration = registration;
+                            revalidatePushSubscription(registration);
                         })
                         .catch(error => console.log('SW failed:', error));
                 });
+            }
+
+            async function revalidatePushSubscription(registration) {
+                if (Notification.permission !== 'granted') return;
+                try {
+                    const subscription = await registration.pushManager.getSubscription();
+                    if (!subscription) {
+                        console.log('[Push] Subscription lost, re-subscribing...');
+                        const keyResponse = await fetch('/push/key');
+                        const keyData = await keyResponse.json();
+                        if (!keyData.success) return;
+
+                        const padding = '='.repeat((4 - keyData.publicKey.length % 4) % 4);
+                        const base64 = (keyData.publicKey + padding).replace(/-/g, '+').replace(/_/g, '/');
+                        const rawData = window.atob(base64);
+                        const applicationServerKey = new Uint8Array(rawData.length);
+                        for (let i = 0; i < rawData.length; ++i) applicationServerKey[i] = rawData.charCodeAt(i);
+
+                        const newSub = await registration.pushManager.subscribe({
+                            userVisibleOnly: true,
+                            applicationServerKey: applicationServerKey,
+                        });
+                        const sub = newSub.toJSON();
+                        const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+                        if (!csrfMeta) return;
+                        await fetch('/push/subscribe', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': csrfMeta.content,
+                            },
+                            body: JSON.stringify({
+                                endpoint: sub.endpoint,
+                                keys: { p256dh: sub.keys.p256dh, auth: sub.keys.auth },
+                                contentEncoding: (PushManager.supportedContentEncodings || ['aes128gcm'])[0],
+                            }),
+                        });
+                        console.log('[Push] Re-subscription successful');
+                    }
+                } catch (e) {
+                    console.error('[Push] Re-validation failed:', e);
+                }
             }
         </script>
 
