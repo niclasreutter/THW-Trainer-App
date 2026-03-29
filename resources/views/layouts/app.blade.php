@@ -651,7 +651,17 @@
         <script>
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.register('/sw.js')
-                    .then(reg => { window.swRegistration = reg; })
+                    .then(reg => {
+                        window.swRegistration = reg;
+                        // Temporaer: SW-Version anzeigen
+                        const sw = reg.active || reg.installing || reg.waiting;
+                        if (sw) {
+                            fetch('/sw.js').then(r => r.text()).then(t => {
+                                const v = t.match(/v[\d.]+/);
+                                if (v) document.title = 'SW ' + v[0] + ' | ' + document.title;
+                            });
+                        }
+                    })
                     .catch(err => console.log('[SW] Failed:', err));
             }
         </script>
