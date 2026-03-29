@@ -34,9 +34,12 @@ class WebPushService
      */
     public function sendNotification(Notification $notification): void
     {
+        $url = $this->resolveUrlForType($notification->type);
+
         $payload = json_encode([
             'title' => $notification->title,
             'body' => $notification->message,
+            'url' => $url,
         ]);
 
         $this->sendToUserById($notification->user_id, $payload);
@@ -50,9 +53,19 @@ class WebPushService
         $payload = json_encode([
             'title' => $title,
             'body' => $body,
+            'url' => $url,
         ]);
 
         $this->sendToUserById($user->id, $payload);
+    }
+
+    private function resolveUrlForType(string $type): string
+    {
+        return match (true) {
+            str_contains($type, 'streak') => '/practice',
+            str_contains($type, 'league') => '/leaderboard',
+            default => '/notifications',
+        };
     }
 
     private function sendToUserById(int $userId, string $payload): void
