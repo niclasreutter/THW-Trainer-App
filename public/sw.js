@@ -1,50 +1,22 @@
-const CACHE_VERSION = 'v3.0';
-const CACHE_NAME = `thw-trainer-${CACHE_VERSION}`;
+// v3.1 — Nur Push, kein Caching/Fetch
+// iOS kann Push blockieren wenn der SW mit Fetch-Events beschaeftigt ist
 
-// Assets to precache
-const PRECACHE_ASSETS = [
-  '/offline',
-  '/logo-thwtrainer.png',
-  '/logo-thwtrainer_w.png',
-  '/manifest.json',
-  '/favicon.ico'
-];
-
-// Install event
 self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(PRECACHE_ASSETS))
-      .then(() => self.skipWaiting())
-  );
+  self.skipWaiting();
 });
 
-// Activate event - cleanup old caches + claim clients
 self.addEventListener('activate', event => {
+  // Alte Caches aufraeumen
   event.waitUntil(
     caches.keys()
-      .then(names => Promise.all(
-        names
-          .filter(n => n.startsWith('thw-trainer-') && n !== CACHE_NAME)
-          .map(n => caches.delete(n))
-      ))
+      .then(names => Promise.all(names.map(n => caches.delete(n))))
       .then(() => self.clients.claim())
   );
 });
 
-// Fetch event - nur Navigation offline-fallback, kein Runtime-Caching
-self.addEventListener('fetch', event => {
-  if (event.request.mode !== 'navigate') return;
+// KEIN fetch handler — Push-only SW
 
-  event.respondWith(
-    fetch(event.request).catch(() =>
-      caches.match(event.request)
-        .then(r => r || caches.match('/offline'))
-    )
-  );
-});
-
-// Push — IMMER sichtbare Notification, IMMER in waitUntil
+// Push — IMMER sichtbare Notification in waitUntil
 self.addEventListener('push', event => {
   let data = {};
   try {
@@ -53,15 +25,15 @@ self.addEventListener('push', event => {
     data = { title: 'THW Trainer', body: event.data?.text() ?? '' };
   }
 
-  const promise = self.registration.showNotification(
-    data.title || 'THW Trainer',
-    {
-      body: data.body || 'Neue Mitteilung',
-      data: { url: data.url || '/notifications' },
-    }
+  event.waitUntil(
+    self.registration.showNotification(
+      data.title || 'THW Trainer',
+      {
+        body: data.body || 'Neue Mitteilung',
+        data: { url: data.url || '/notifications' },
+      }
+    )
   );
-
-  event.waitUntil(promise);
 });
 
 // Notification click
@@ -72,7 +44,7 @@ self.addEventListener('notificationclick', event => {
   );
 });
 
-// Subscription-Wechsel (iOS kann Endpoint nach Reload aendern)
+// Subscription-Wechsel
 self.addEventListener('pushsubscriptionchange', event => {
   event.waitUntil(
     self.registration.pushManager.subscribe(event.oldSubscription?.options || { userVisibleOnly: true })
