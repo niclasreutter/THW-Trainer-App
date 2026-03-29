@@ -650,23 +650,50 @@
         <!-- Service Worker Registration -->
         <script>
             if ('serviceWorker' in navigator) {
-                window.addEventListener('load', async () => {
-                    try {
-                        // Prüfe ob SW bereits registriert ist — NICHT erneut register() aufrufen
-                        // iOS Safari Bug: Erneutes register() kann Push-Events brechen
-                        let registration = await navigator.serviceWorker.getRegistration('/');
-                        if (registration) {
-                            console.log('[SW] Already registered, reusing');
-                        } else {
-                            registration = await navigator.serviceWorker.register('/sw.js');
-                            console.log('[SW] Newly registered');
-                        }
-                        window.swRegistration = registration;
-                    } catch (error) {
-                        console.log('[SW] Failed:', error);
-                    }
-                });
+                navigator.serviceWorker.register('/sw.js')
+                    .then(reg => { window.swRegistration = reg; })
+                    .catch(err => console.log('[SW] Failed:', err));
             }
+
+            // iOS: Subscription pruefen + Endpoint-Wechsel erkennen
+            async function ensurePushSubscription() {
+                if (!('PushManager' in window)) return;
+                if (Notification.permission !== 'granted') return;
+
+                try {
+                    const reg = await navigator.serviceWorker.ready;
+                    const sub = await reg.pushManager.getSubscription();
+                    if (!sub) return; // Kein Abo — Popup wird sich darum kuemmern
+
+                    // Endpoint-Wechsel erkennen
+                    const storedEndpoint = localStorage.getItem('push-endpoint');
+                    if (storedEndpoint && storedEndpoint !== sub.endpoint) {
+                        // iOS hat neuen Endpoint generiert — Backend updaten
+                        const json = sub.toJSON();
+                        const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+                        if (csrfMeta) {
+                            await fetch('/push/subscribe', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': csrfMeta.content,
+                                },
+                                body: JSON.stringify({
+                                    endpoint: json.endpoint,
+                                    keys: { p256dh: json.keys.p256dh, auth: json.keys.auth },
+                                    contentEncoding: (PushManager.supportedContentEncodings || ['aes128gcm'])[0],
+                                    old_endpoint: storedEndpoint,
+                                }),
+                            });
+                        }
+                        localStorage.setItem('push-endpoint', sub.endpoint);
+                    }
+                } catch (e) {
+                    // Stille Fehler — Push nicht brechen
+                }
+            }
+            // Erst nach kurzer Verzoegerung ausfuehren damit SW ready ist
+            setTimeout(ensurePushSubscription, 3000);
         </script>
 
         <!-- Page-specific scripts -->
