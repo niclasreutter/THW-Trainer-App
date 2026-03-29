@@ -43,11 +43,6 @@ class PushSubscriptionController extends Controller
                     'content_encoding' => $request->input('contentEncoding', 'aes128gcm'),
                 ]);
             } else {
-                // Deaktiviere alle anderen Subscriptions dieses Users
-                PushSubscription::where('user_id', auth()->id())
-                    ->where('endpoint', '!=', $validated['endpoint'])
-                    ->update(['is_active' => false]);
-
                 // Erstelle neue Subscription
                 $subscription = PushSubscription::create([
                     'user_id' => auth()->id(),
