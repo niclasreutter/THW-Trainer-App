@@ -23,7 +23,7 @@ class WebPushService
                     'privateKey' => config('services.vapid.private_key'),
                 ],
             ]);
-            $this->webPush->setAutomaticPadding(2048);
+            $this->webPush->setAutomaticPadding(false);
         }
 
         return $this->webPush;
@@ -37,10 +37,6 @@ class WebPushService
         $payload = json_encode([
             'title' => $notification->title,
             'body' => $notification->message,
-            'icon' => '/logo-thwtrainer.png',
-            'badge' => '/logo-thwtrainer.png',
-            'url' => '/notifications',
-            'tag' => 'thw-notification-' . $notification->id,
         ]);
 
         $this->sendToUserById($notification->user_id, $payload);
@@ -54,10 +50,6 @@ class WebPushService
         $payload = json_encode([
             'title' => $title,
             'body' => $body,
-            'icon' => '/logo-thwtrainer.png',
-            'badge' => '/logo-thwtrainer.png',
-            'url' => $url,
-            'tag' => 'thw-push-' . time(),
         ]);
 
         $this->sendToUserById($user->id, $payload);
