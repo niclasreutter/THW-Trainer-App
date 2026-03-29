@@ -109,20 +109,9 @@
         <!-- Service Worker Registration -->
         <script>
             if ('serviceWorker' in navigator) {
-                window.addEventListener('load', async () => {
-                    try {
-                        let registration = await navigator.serviceWorker.getRegistration('/');
-                        if (registration) {
-                            console.log('[SW] Already registered, reusing');
-                        } else {
-                            registration = await navigator.serviceWorker.register('/sw.js');
-                            console.log('[SW] Newly registered');
-                        }
-                        window.swRegistration = registration;
-                    } catch (error) {
-                        console.log('[SW] Failed:', error);
-                    }
-                });
+                navigator.serviceWorker.register('/sw.js')
+                    .then(reg => { window.swRegistration = reg; })
+                    .catch(err => console.log('[SW] Failed:', err));
             }
         </script>
 

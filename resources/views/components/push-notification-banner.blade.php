@@ -114,6 +114,7 @@ function pushNotificationPopup() {
 
                 this.showPopup = false;
                 localStorage.setItem('push-subscribed', '1');
+                localStorage.setItem('push-endpoint', sub.endpoint);
                 localStorage.setItem('push-banner-dismissed', '1');
             } catch (e) {
                 console.error('Push subscription failed:', e);

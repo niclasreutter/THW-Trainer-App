@@ -1,6 +1,5 @@
-const CACHE_VERSION = 'v2.5';
+const CACHE_VERSION = 'v3.0';
 const CACHE_NAME = `thw-trainer-${CACHE_VERSION}`;
-const RUNTIME_CACHE = `thw-trainer-runtime-${CACHE_VERSION}`;
 
 // Assets to precache
 const PRECACHE_ASSETS = [
@@ -11,179 +10,84 @@ const PRECACHE_ASSETS = [
   '/favicon.ico'
 ];
 
-// Install event - precache offline page
+// Install event
 self.addEventListener('install', event => {
-  console.log('[SW] Installing service worker...');
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then(cache => {
-        console.log('[SW] Precaching offline assets');
-        return cache.addAll(PRECACHE_ASSETS);
-      })
-      .then(() => {
-        console.log('[SW] Installation complete');
-        // KEIN skipWaiting() — iOS bricht Push-Subscriptions wenn der SW sofort aktiviert wird
-      })
-      .catch(error => {
-        console.error('[SW] Installation failed:', error);
-      })
+      .then(cache => cache.addAll(PRECACHE_ASSETS))
+      .then(() => self.skipWaiting())
   );
 });
 
-// Activate event - cleanup old caches
+// Activate event - cleanup old caches + claim clients
 self.addEventListener('activate', event => {
-  console.log('[SW] Activating service worker...');
   event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames
-          .filter(cacheName => 
-            cacheName.startsWith('thw-trainer-') && 
-            !cacheName.includes(CACHE_VERSION)
-          )
-          .map(cacheName => {
-            console.log('[SW] Deleting old cache:', cacheName);
-            return caches.delete(cacheName);
-          })
-      );
-    }).then(() => {
-      console.log('[SW] Activation complete');
-      // KEIN clients.claim() — verhindert Push-Probleme auf iOS
-    })
+    caches.keys()
+      .then(names => Promise.all(
+        names
+          .filter(n => n.startsWith('thw-trainer-') && n !== CACHE_NAME)
+          .map(n => caches.delete(n))
+      ))
+      .then(() => self.clients.claim())
   );
 });
 
-// Fetch event - Network first, offline page as fallback
+// Fetch event - nur Navigation offline-fallback, kein Runtime-Caching
 self.addEventListener('fetch', event => {
-  const { request } = event;
-  
-  // Skip non-GET requests
-  if (request.method !== 'GET') return;
-  
-  // Skip chrome extensions and other non-http(s) requests
-  if (!request.url.startsWith('http')) return;
+  if (event.request.mode !== 'navigate') return;
 
-  // For navigation requests (HTML pages)
-  if (request.mode === 'navigate') {
-    event.respondWith(
-      fetch(request)
-        .then(response => {
-          // Clone and cache successful responses
-          if (response.status === 200) {
-            const responseToCache = response.clone();
-            caches.open(RUNTIME_CACHE).then(cache => {
-              cache.put(request, responseToCache);
-            });
-          }
-          return response;
-        })
-        .catch(() => {
-          // Network failed - try cache
-          return caches.match(request).then(cachedResponse => {
-            if (cachedResponse) {
-              return cachedResponse;
-            }
-            
-            // Fallback to offline page
-            return caches.match('/offline');
-          });
-        })
-    );
-    return;
-  }
-
-  // For all other requests (CSS, JS, images) - cache first
   event.respondWith(
-    caches.match(request).then(cachedResponse => {
-      if (cachedResponse) {
-        return cachedResponse;
-      }
-      
-      return fetch(request).then(response => {
-        // Cache successful responses
-        if (response.status === 200) {
-          const responseToCache = response.clone();
-          caches.open(RUNTIME_CACHE).then(cache => {
-            cache.put(request, responseToCache);
-          });
-        }
-        return response;
-      }).catch(() => {
-        // Return nothing on error for assets
-        return new Response('', {
-          status: 408,
-          statusText: 'Request Timeout'
-        });
-      });
-    })
+    fetch(event.request).catch(() =>
+      caches.match(event.request)
+        .then(r => r || caches.match('/offline'))
+    )
   );
 });
 
-// Push notification received
+// Push — IMMER sichtbare Notification, IMMER in waitUntil
 self.addEventListener('push', event => {
-  console.log('[SW] Push received');
-
-  let data = { title: 'THW Trainer', body: 'Neue Mitteilung', url: '/notifications' };
-
-  if (event.data) {
-    try {
-      data = Object.assign(data, event.data.json());
-    } catch (e) {
-      data.body = event.data.text() || data.body;
-    }
+  let data = {};
+  try {
+    data = event.data?.json() ?? {};
+  } catch (e) {
+    data = { title: 'THW Trainer', body: event.data?.text() ?? '' };
   }
 
-  event.waitUntil(
-    self.registration.showNotification(data.title, {
-      body: data.body,
+  const promise = self.registration.showNotification(
+    data.title || 'THW Trainer',
+    {
+      body: data.body || 'Neue Mitteilung',
       data: { url: data.url || '/notifications' },
-    })
+    }
+  );
+
+  event.waitUntil(promise);
+});
+
+// Notification click
+self.addEventListener('notificationclick', event => {
+  event.notification.close();
+  event.waitUntil(
+    clients.openWindow(event.notification.data?.url || '/notifications')
   );
 });
 
-// Handle subscription loss (iOS kills subscription on SW update)
+// Subscription-Wechsel (iOS kann Endpoint nach Reload aendern)
 self.addEventListener('pushsubscriptionchange', event => {
-  console.log('[SW] Push subscription changed, re-subscribing...');
   event.waitUntil(
-    self.registration.pushManager.subscribe(event.oldSubscription.options)
-      .then(newSubscription => {
-        const sub = newSubscription.toJSON();
+    self.registration.pushManager.subscribe(event.oldSubscription?.options || { userVisibleOnly: true })
+      .then(sub => {
+        const json = sub.toJSON();
         return fetch('/push/subscribe', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            endpoint: sub.endpoint,
-            keys: {
-              p256dh: sub.keys.p256dh,
-              auth: sub.keys.auth,
-            },
+            endpoint: json.endpoint,
+            keys: { p256dh: json.keys.p256dh, auth: json.keys.auth },
             contentEncoding: (PushManager.supportedContentEncodings || ['aes128gcm'])[0],
-            old_endpoint: event.oldSubscription ? event.oldSubscription.endpoint : null,
+            old_endpoint: event.oldSubscription?.endpoint || null,
           }),
         });
       })
-      .then(() => console.log('[SW] Re-subscription successful'))
-      .catch(err => console.error('[SW] Re-subscription failed:', err))
-  );
-});
-
-// Notification click handler
-self.addEventListener('notificationclick', event => {
-  console.log('[SW] Notification clicked');
-  event.notification.close();
-
-  const url = event.notification.data?.url || '/notifications';
-
-  event.waitUntil(
-    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(windowClients => {
-      for (const client of windowClients) {
-        if (client.url.includes(url) && 'focus' in client) {
-          return client.focus();
-        }
-      }
-      if (clients.openWindow) {
-        return clients.openWindow(url);
-      }
-    })
   );
 });
