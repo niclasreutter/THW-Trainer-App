@@ -124,6 +124,18 @@
         @stack('styles')
     </head>
     <body class="font-sans antialiased" x-data="{ sidebarOpen: false }">
+        <!-- PWA Splash Screen -->
+        <div id="pwa-splash" style="position:fixed;inset:0;z-index:99999;background:#fff;display:flex;align-items:center;justify-content:center;flex-direction:column;transition:opacity .3s ease">
+            <img src="{{ asset('logo-thwtrainer.png') }}" alt="THW-Trainer" style="width:80px;height:80px">
+            <span style="margin-top:16px;font-family:Figtree,system-ui,sans-serif;font-size:18px;font-weight:700;color:#003d7a;letter-spacing:-.02em">THW-Trainer</span>
+        </div>
+        <script>
+            window.addEventListener('DOMContentLoaded', function() {
+                var s = document.getElementById('pwa-splash');
+                if (s) { s.style.opacity = '0'; setTimeout(function() { s.remove(); }, 300); }
+            });
+        </script>
+
         <div class="min-h-screen flex">
             <!-- Sidebar (Desktop) -->
             @auth
