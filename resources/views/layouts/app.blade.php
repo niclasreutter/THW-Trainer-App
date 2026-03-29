@@ -650,15 +650,22 @@
         <!-- Service Worker Registration -->
         <script>
             if ('serviceWorker' in navigator) {
-                window.addEventListener('load', () => {
-                    navigator.serviceWorker.register('/sw.js')
-                        .then(registration => {
-                            console.log('SW registered');
-                            window.swRegistration = registration;
-                            // Re-validate push subscription on every page load
-                            revalidatePushSubscription(registration);
-                        })
-                        .catch(error => console.log('SW failed:', error));
+                window.addEventListener('load', async () => {
+                    try {
+                        // Prüfe ob SW bereits registriert ist — NICHT erneut register() aufrufen
+                        // iOS Safari Bug: Erneutes register() kann Push-Events brechen
+                        let registration = await navigator.serviceWorker.getRegistration('/');
+                        if (registration) {
+                            console.log('[SW] Already registered, reusing');
+                        } else {
+                            registration = await navigator.serviceWorker.register('/sw.js');
+                            console.log('[SW] Newly registered');
+                        }
+                        window.swRegistration = registration;
+                        revalidatePushSubscription(registration);
+                    } catch (error) {
+                        console.log('[SW] Failed:', error);
+                    }
                 });
             }
 

@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v2.4';
+const CACHE_VERSION = 'v2.5';
 const CACHE_NAME = `thw-trainer-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `thw-trainer-runtime-${CACHE_VERSION}`;
 
@@ -22,7 +22,7 @@ self.addEventListener('install', event => {
       })
       .then(() => {
         console.log('[SW] Installation complete');
-        return self.skipWaiting();
+        // KEIN skipWaiting() — iOS bricht Push-Subscriptions wenn der SW sofort aktiviert wird
       })
       .catch(error => {
         console.error('[SW] Installation failed:', error);
@@ -48,7 +48,7 @@ self.addEventListener('activate', event => {
       );
     }).then(() => {
       console.log('[SW] Activation complete');
-      return self.clients.claim();
+      // KEIN clients.claim() — verhindert Push-Probleme auf iOS
     })
   );
 });
