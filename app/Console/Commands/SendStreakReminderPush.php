@@ -9,14 +9,16 @@ use Illuminate\Console\Command;
 
 class SendStreakReminderPush extends Command
 {
-    protected $signature = 'push:streak-reminder {--urgent : Letzte Erinnerung (21:00)}';
+    protected $signature = 'push:streak-reminder {--urgent : Letzte Erinnerung (21:00)} {--morning : Motivations-Push am Morgen (08:00)}';
 
     protected $description = 'Sendet Streak-Erinnerung Push an User die heute noch nicht gelernt haben';
 
     public function handle(): int
     {
         $isUrgent = $this->option('urgent');
-        $this->info('Starte Streak-Erinnerung Push' . ($isUrgent ? ' (DRINGEND)' : '') . '...');
+        $isMorning = $this->option('morning');
+        $label = $isMorning ? ' (MORGEN)' : ($isUrgent ? ' (DRINGEND)' : '');
+        $this->info('Starte Streak-Erinnerung Push' . $label . '...');
 
         $today = Carbon::today();
         $sent = 0;
@@ -36,11 +38,21 @@ class SendStreakReminderPush extends Command
         foreach ($users as $user) {
             try {
                 $days = $user->streak_days;
-                $message = $isUrgent
-                    ? "Letzte Chance! Dein {$days}-Tage-Streak laeuft heute aus."
-                    : "Dein Streak von {$days} Tagen ist in Gefahr! Beantworte ein paar Fragen, um ihn zu halten.";
 
-                $type = $isUrgent ? 'streak_reminder_urgent' : 'streak_reminder';
+                if ($isMorning) {
+                    $messages = [
+                        "Guten Morgen! Halte deinen {$days}-Tage-Streak am Leben — lerne heute ein paar Fragen.",
+                        "Dein {$days}-Tage-Streak wartet auf dich! Ein paar Fragen genuegen.",
+                        "Tag {$days} deines Streaks! Lerne heute weiter und bleib dran.",
+                    ];
+                    $message = $messages[array_rand($messages)];
+                } elseif ($isUrgent) {
+                    $message = "Letzte Chance! Dein {$days}-Tage-Streak laeuft heute aus.";
+                } else {
+                    $message = "Dein Streak von {$days} Tagen ist in Gefahr! Beantworte ein paar Fragen, um ihn zu halten.";
+                }
+
+                $type = $isMorning ? 'streak_reminder_morning' : ($isUrgent ? 'streak_reminder_urgent' : 'streak_reminder');
 
                 // Pruefen ob heute schon eine Streak-Erinnerung gesendet wurde
                 $alreadySent = Notification::where('user_id', $user->id)
@@ -52,13 +64,15 @@ class SendStreakReminderPush extends Command
                     continue;
                 }
 
+                $title = $isMorning ? 'Streak halten' : ($isUrgent ? 'Streak in Gefahr!' : 'Streak-Erinnerung');
+
                 Notification::create([
                     'user_id' => $user->id,
                     'type' => $type,
-                    'title' => $isUrgent ? 'Streak in Gefahr!' : 'Streak-Erinnerung',
+                    'title' => $title,
                     'message' => $message,
                     'icon' => 'bi-fire',
-                    'data' => ['streak_days' => $days, 'urgent' => $isUrgent],
+                    'data' => ['streak_days' => $days, 'urgent' => $isUrgent, 'morning' => $isMorning],
                 ]);
 
                 $sent++;

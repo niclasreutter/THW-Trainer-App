@@ -161,6 +161,16 @@ Schedule::command('system:performance-optimization')
 // PUSH BENACHRICHTIGUNGEN
 // ============================================================
 
+// Streak-Erinnerung Push MORGENS (täglich um 08:00)
+Schedule::command('push:streak-reminder --morning')
+    ->dailyAt('08:00')
+    ->timezone('Europe/Berlin')
+    ->withoutOverlapping(10)
+    ->appendOutputTo($schedulerLog)
+    ->onFailure($onFail('push:streak-reminder-morning'))
+    ->description('Sendet motivierende Streak-Erinnerung am Morgen')
+    ->emailOutputOnFailure($adminEmail);
+
 // Liga-Status Push (Mittwoch, Freitag, Sonntag um 18:00)
 Schedule::command('push:league-status')
     ->days([3, 5, 0])
