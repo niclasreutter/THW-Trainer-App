@@ -133,8 +133,11 @@
         <!-- Service Worker Registration -->
         <script>
             if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(reg => { window.swRegistration = reg; })
+                navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' })
+                    .then(reg => {
+                        window.swRegistration = reg;
+                        reg.update();
+                    })
                     .catch(err => console.log('[SW] Failed:', err));
             }
         </script>
