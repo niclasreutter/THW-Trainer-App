@@ -67,21 +67,11 @@ function pushNotificationPopup() {
         init() {
             if (!('PushManager' in window) || !('serviceWorker' in navigator)) return;
             if (localStorage.getItem('push-banner-dismissed')) return;
+            if (localStorage.getItem('push-subscribed')) return;
             if (Notification.permission === 'denied') return;
 
-            if (Notification.permission === 'granted') {
-                this.checkExistingSubscription();
-            } else {
-                setTimeout(() => { this.showPopup = true; }, 1500);
-            }
-        },
-
-        async checkExistingSubscription() {
-            const reg = await navigator.serviceWorker.ready;
-            const sub = await reg.pushManager.getSubscription();
-            if (!sub) {
-                setTimeout(() => { this.showPopup = true; }, 1500);
-            }
+            // Zeige Popup nur wenn noch nicht subscribed
+            setTimeout(() => { this.showPopup = true; }, 1500);
         },
 
         async subscribe() {
@@ -123,6 +113,7 @@ function pushNotificationPopup() {
                 });
 
                 this.showPopup = false;
+                localStorage.setItem('push-subscribed', '1');
                 localStorage.setItem('push-banner-dismissed', '1');
             } catch (e) {
                 console.error('Push subscription failed:', e);
