@@ -26,24 +26,9 @@ class PushSubscriptionController extends Controller
                 ->where('endpoint', $validated['endpoint'])
                 ->first();
 
-            // Deaktiviere alte Subscription falls Endpoint gewechselt hat (SW re-subscribe)
-            $oldEndpoint = $request->input('old_endpoint');
-            if ($oldEndpoint) {
-                PushSubscription::where('user_id', auth()->id())
-                    ->where('endpoint', $oldEndpoint)
-                    ->update(['is_active' => false]);
-            }
-
             if ($subscription) {
                 // Reaktiviere existierende Subscription
-                $subscription->update([
-                    'is_active' => true,
-                    'public_key' => $validated['keys']['p256dh'],
-                    'auth_token' => $validated['keys']['auth'],
-                    // IMMER aes128gcm — iOS Safari meldet faelschlicherweise aesgcm,
-                    // aber Apple Push Service verlangt aes128gcm
-                    'content_encoding' => 'aes128gcm',
-                ]);
+                $subscription->update(['is_active' => true]);
             } else {
                 // Erstelle neue Subscription
                 $subscription = PushSubscription::create([
@@ -51,7 +36,7 @@ class PushSubscriptionController extends Controller
                     'endpoint' => $validated['endpoint'],
                     'public_key' => $validated['keys']['p256dh'],
                     'auth_token' => $validated['keys']['auth'],
-                    'content_encoding' => 'aes128gcm',
+                    'content_encoding' => $request->input('contentEncoding', 'aesgcm'),
                 ]);
             }
 
@@ -120,86 +105,6 @@ class PushSubscriptionController extends Controller
                 'message' => 'Fehler beim Deaktivieren der Push-Benachrichtigungen',
             ], 500);
         }
-    }
-
-    /**
-     * Push debug/test page — shows subscription status and allows sending test push.
-     */
-    public function debugPage()
-    {
-        $user = auth()->user();
-        $subscriptions = PushSubscription::where('user_id', $user->id)->get();
-
-        return view('admin.push-test', [
-            'subscriptions' => $subscriptions,
-            'vapidConfigured' => !empty(config('services.vapid.public_key')),
-        ]);
-    }
-
-    /**
-     * Send a test push to the current user.
-     */
-    public function testPush(): JsonResponse
-    {
-        $user = auth()->user();
-        $subscriptions = PushSubscription::where('user_id', $user->id)
-            ->where('is_active', true)
-            ->get();
-
-        if ($subscriptions->isEmpty()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Keine aktiven Push-Subscriptions gefunden',
-            ]);
-        }
-
-        $details = $subscriptions->map(fn ($s) => [
-            'id' => $s->id,
-            'is_apple' => str_contains($s->endpoint, 'apple') || str_contains($s->endpoint, 'push.apple'),
-            'endpoint_short' => substr($s->endpoint, 0, 80) . '...',
-            'encoding' => $s->content_encoding,
-        ]);
-
-        try {
-            app(\App\Services\WebPushService::class)->sendToUser(
-                $user,
-                'Test Push',
-                'Wenn du das siehst, funktionieren Push-Notifications!',
-                '/notifications'
-            );
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Test-Push gesendet — pruefe Logs fuer Details',
-                'subscriptions' => $details,
-            ]);
-        } catch (\Throwable $e) {
-            Log::error('Test push failed', [
-                'user_id' => $user->id,
-                'error' => $e->getMessage(),
-            ]);
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Push fehlgeschlagen: ' . $e->getMessage(),
-                'subscriptions' => $details,
-            ], 500);
-        }
-    }
-
-    /**
-     * Debug ping from service worker — logs that push was received on device.
-     */
-    public function debugPing(Request $request): JsonResponse
-    {
-        Log::warning('PUSH DEBUG PING — SW received push on device', [
-            'sw_version' => $request->input('sw_version'),
-            'title' => $request->input('title'),
-            'ip' => $request->ip(),
-            'user_agent' => substr($request->userAgent(), 0, 100),
-        ]);
-
-        return response()->json(['ok' => true]);
     }
 
     /**

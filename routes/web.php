@@ -354,9 +354,6 @@ Route::post('/onboarding/skip', function () { return redirect()->route('dashboar
 Route::post('/onboarding/tour-complete', [\App\Http\Controllers\OnboardingController::class, 'tourComplete'])->middleware(['auth', 'verified'])->name('onboarding.tour.complete');
 Route::post('/streak/freeze', [\App\Http\Controllers\GamificationController::class, 'useStreakFreeze'])->middleware(['auth', 'verified'])->name('streak.freeze');
 
-// Push Debug-Ping (vom Service Worker, kein Auth/CSRF)
-Route::post('/push/debug-ping', [\App\Http\Controllers\PushSubscriptionController::class, 'debugPing']);
-
 Route::middleware('auth')->group(function () {
     Route::get('/profile', function() {
         $user = auth()->user()->fresh(); // Fresh reload from database
@@ -437,12 +434,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/notifications/read-all', [\App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('notifications.read-all');
     Route::delete('/notifications/{id}', [\App\Http\Controllers\NotificationController::class, 'destroy'])->name('notifications.destroy');
     Route::post('/notifications/clear-read', [\App\Http\Controllers\NotificationController::class, 'clearRead'])->name('notifications.clear-read');
-
-    // Push Notification Routes
-    Route::post('/push/subscribe', [\App\Http\Controllers\PushSubscriptionController::class, 'subscribe'])->name('push.subscribe');
-    Route::post('/push/unsubscribe', [\App\Http\Controllers\PushSubscriptionController::class, 'unsubscribe'])->name('push.unsubscribe');
-    Route::get('/push/key', [\App\Http\Controllers\PushSubscriptionController::class, 'getPublicKey'])->name('push.key');
-
+    
     // Lehrgang Routes (für Kurse)
     Route::get('/lehrgaenge', [\App\Http\Controllers\LehrgangController::class, 'index'])->name('lehrgaenge.index');
     Route::get('/lehrgaenge/{slug}', [\App\Http\Controllers\LehrgangController::class, 'show'])->name('lehrgaenge.show');
@@ -594,10 +586,6 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix
     Route::post('ortsverband/{ortsverband}/view-as', [\App\Http\Controllers\Admin\OrtsverbandController::class, 'viewAs'])->name('ortsverband.view-as');
     Route::post('ortsverband/exit-view', [\App\Http\Controllers\Admin\OrtsverbandController::class, 'exitView'])->name('ortsverband.exit-view');
     Route::delete('ortsverband/{ortsverband}', [\App\Http\Controllers\Admin\OrtsverbandController::class, 'destroy'])->name('ortsverband.destroy');
-
-    // Push Debug & Test
-    Route::get('push-test', [\App\Http\Controllers\PushSubscriptionController::class, 'debugPage'])->name('push-test');
-    Route::post('push-test/send', [\App\Http\Controllers\PushSubscriptionController::class, 'testPush'])->name('push-test.send');
 
     // Zeitsimulator (nur Non-Production - Routes werden in Production gar nicht registriert)
     if (!app()->environment('production')) {
