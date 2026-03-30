@@ -658,14 +658,89 @@
             }
         </script>
 
-        <!-- Service Worker Registration -->
+        <!-- Push Opt-In Modal -->
+        <x-push-opt-in-modal />
+
+        <!-- Service Worker + Push Registration -->
         <script>
-            if ('serviceWorker' in navigator) {
-                window.addEventListener('load', () => {
-                    navigator.serviceWorker.register('/sw.js')
-                        .then(registration => console.log('SW registered'))
-                        .catch(error => console.log('SW failed:', error));
-                });
+            function pushOptIn() {
+                return {
+                    showModal: false,
+                    registration: null,
+
+                    async init() {
+                        if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+
+                        try {
+                            this.registration = await navigator.serviceWorker.register('/sw.js');
+                            console.log('SW registered');
+                        } catch (e) {
+                            console.log('SW failed:', e);
+                            return;
+                        }
+
+                        // Check if already subscribed
+                        const subscription = await this.registration.pushManager.getSubscription();
+                        if (subscription) return;
+
+                        // Check dismiss cooldown (7 days)
+                        const dismissed = localStorage.getItem('push_dismissed_at');
+                        if (dismissed) {
+                            const daysSince = (Date.now() - parseInt(dismissed)) / (1000 * 60 * 60 * 24);
+                            if (daysSince < 7) return;
+                        }
+
+                        // Show modal after short delay
+                        setTimeout(() => { this.showModal = true; }, 2000);
+                    },
+
+                    dismiss() {
+                        this.showModal = false;
+                        localStorage.setItem('push_dismissed_at', Date.now().toString());
+                    },
+
+                    async subscribe() {
+                        this.showModal = false;
+                        try {
+                            // Get VAPID public key
+                            const res = await fetch('{{ route("push.public-key") }}');
+                            const { publicKey } = await res.json();
+
+                            // Convert VAPID key to Uint8Array
+                            const urlBase64ToUint8Array = (base64String) => {
+                                const padding = '='.repeat((4 - base64String.length % 4) % 4);
+                                const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+                                const raw = atob(base64);
+                                const arr = new Uint8Array(raw.length);
+                                for (let i = 0; i < raw.length; ++i) arr[i] = raw.charCodeAt(i);
+                                return arr;
+                            };
+
+                            const subscription = await this.registration.pushManager.subscribe({
+                                userVisibleOnly: true,
+                                applicationServerKey: urlBase64ToUint8Array(publicKey)
+                            });
+
+                            const sub = subscription.toJSON();
+                            await fetch('{{ route("push.subscribe") }}', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                                },
+                                body: JSON.stringify({
+                                    endpoint: sub.endpoint,
+                                    keys: sub.keys,
+                                    content_encoding: PushManager.supportedContentEncodings?.[0] || 'aes128gcm'
+                                })
+                            });
+
+                            console.log('Push subscription saved');
+                        } catch (e) {
+                            console.error('Push subscription failed:', e);
+                        }
+                    }
+                };
             }
         </script>
 
