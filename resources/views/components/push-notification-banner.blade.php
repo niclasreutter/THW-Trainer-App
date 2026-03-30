@@ -108,7 +108,7 @@ function pushNotificationPopup() {
                             p256dh: sub.keys.p256dh,
                             auth: sub.keys.auth,
                         },
-                        contentEncoding: (PushManager.supportedContentEncodings || ['aes128gcm'])[0],
+                        contentEncoding: 'aes128gcm',
                     }),
                 });
 
