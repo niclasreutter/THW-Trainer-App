@@ -196,7 +196,7 @@ function pushDebug() {
             this.sending = true;
             this.result = null;
             try {
-                const resp = await fetch('/push/test', {
+                const resp = await fetch('{{ route("admin.push-test.send") }}', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

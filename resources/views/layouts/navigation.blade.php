@@ -140,6 +140,9 @@
                                     <a href="{{ route('admin.leagues.index') }}" class="dropdown-item-glass">
                                         Ligen
                                     </a>
+                                    <a href="{{ route('admin.push-test') }}" class="dropdown-item-glass">
+                                        Push-Test
+                                    </a>
                                     @if(!app()->environment('production'))
                                     <a href="{{ route('admin.time-simulator') }}" class="dropdown-item-glass">
                                         Zeitsimulator
@@ -364,6 +367,9 @@
                         </a>
                         <a href="{{ route('admin.leagues.index') }}" class="block px-3 py-2 text-sm text-dark-secondary hover:text-gold hover:bg-glass-white-5 rounded-md transition-colors duration-200">
                             Ligen
+                        </a>
+                        <a href="{{ route('admin.push-test') }}" class="block px-3 py-2 text-sm text-dark-secondary hover:text-gold hover:bg-glass-white-5 rounded-md transition-colors duration-200">
+                            Push-Test
                         </a>
                     </div>
                 @endif

@@ -128,7 +128,7 @@ class PushSubscriptionController extends Controller
         $user = auth()->user();
         $subscriptions = PushSubscription::where('user_id', $user->id)->get();
 
-        return view('push-debug', [
+        return view('admin.push-test', [
             'subscriptions' => $subscriptions,
             'vapidConfigured' => !empty(config('services.vapid.public_key')),
         ]);
