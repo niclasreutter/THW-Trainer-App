@@ -37,6 +37,10 @@
                     <span x-text="contentEncoding" style="color: var(--text-primary)"></span>
                 </div>
                 <div class="flex justify-between items-center py-2" style="border-bottom: 1px solid var(--glass-border)">
+                    <span style="color: var(--text-secondary)">SW Version</span>
+                    <span x-text="swVersion" :style="swVersion === 'Pruefe...' ? 'color: var(--text-muted)' : 'color: var(--text-primary)'"></span>
+                </div>
+                <div class="flex justify-between items-center py-2" style="border-bottom: 1px solid var(--glass-border)">
                     <span style="color: var(--text-secondary)">Standalone PWA</span>
                     <span x-text="isPwa ? 'Ja' : 'Nein'" style="color: var(--text-primary)"></span>
                 </div>
@@ -132,6 +136,7 @@
 function pushDebug() {
     return {
         swStatus: 'Pruefe...',
+        swVersion: 'Pruefe...',
         permissionStatus: 'Pruefe...',
         subscriptionStatus: 'Pruefe...',
         pushService: '-',
@@ -156,8 +161,16 @@ function pushDebug() {
                 const reg = await navigator.serviceWorker.getRegistration('/sw.js');
                 if (reg) {
                     this.swStatus = reg.active ? 'Aktiv' : (reg.installing ? 'Installiert...' : 'Wartend');
+                    // SW-Version abfragen
+                    if (reg.active) {
+                        const mc = new MessageChannel();
+                        mc.port1.onmessage = (e) => { this.swVersion = 'v' + (e.data?.version || '?'); };
+                        reg.active.postMessage({ type: 'get-version' }, [mc.port2]);
+                        setTimeout(() => { if (this.swVersion === 'Pruefe...') this.swVersion = 'Keine Antwort (alter SW?)'; }, 2000);
+                    }
                 } else {
                     this.swStatus = 'Nicht registriert';
+                    this.swVersion = '-';
                 }
             } catch (e) {
                 this.swStatus = 'Fehler: ' + e.message;

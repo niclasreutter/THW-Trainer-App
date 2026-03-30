@@ -186,6 +186,21 @@ class PushSubscriptionController extends Controller
     }
 
     /**
+     * Debug ping from service worker — logs that push was received on device.
+     */
+    public function debugPing(Request $request): JsonResponse
+    {
+        Log::warning('PUSH DEBUG PING — SW received push on device', [
+            'sw_version' => $request->input('sw_version'),
+            'title' => $request->input('title'),
+            'ip' => $request->ip(),
+            'user_agent' => substr($request->userAgent(), 0, 100),
+        ]);
+
+        return response()->json(['ok' => true]);
+    }
+
+    /**
      * Get the VAPID public key for the client.
      */
     public function getPublicKey(): JsonResponse
