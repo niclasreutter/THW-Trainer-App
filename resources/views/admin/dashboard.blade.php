@@ -434,6 +434,9 @@
                     <span class="text-blue" style="font-weight:700;">{{ $unreadMessages }}</span>&nbsp;Ungelesen
                 </a>
             @endif
+            <a href="{{ route('admin.push-test') }}" class="sys-pill" style="border-color:rgba(168,85,247,0.2);">
+                Push-Test
+            </a>
         </div>
     </div>
 
