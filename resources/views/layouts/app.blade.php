@@ -124,6 +124,18 @@
         @stack('styles')
     </head>
     <body class="font-sans antialiased" x-data="{ sidebarOpen: false }">
+        <!-- PWA Splash Screen -->
+        <div id="pwa-splash" style="position:fixed;inset:0;z-index:99999;background:#fff;display:flex;align-items:center;justify-content:center;flex-direction:column;transition:opacity .3s ease">
+            <img src="{{ asset('logo-thwtrainer.png') }}" alt="THW-Trainer" style="width:80px;height:80px">
+            <span style="margin-top:16px;font-family:Figtree,system-ui,sans-serif;font-size:18px;font-weight:700;color:#003d7a;letter-spacing:-.02em">THW-Trainer</span>
+        </div>
+        <script>
+            window.addEventListener('DOMContentLoaded', function() {
+                var s = document.getElementById('pwa-splash');
+                if (s) { s.style.opacity = '0'; setTimeout(function() { s.remove(); }, 300); }
+            });
+        </script>
+
         <div class="min-h-screen flex">
             <!-- Sidebar (Desktop) -->
             @auth
@@ -346,6 +358,7 @@
 
                 <!-- Page Content -->
                 <main class="flex-1 px-4 lg:px-8 py-6 lg:py-8 @auth pb-28 lg:pb-8 @endauth" id="main-content" style="min-width:0;overflow-x:hidden;">
+                    @include('components.push-notification-banner')
                     @yield('content')
                 </main>
 
@@ -649,11 +662,110 @@
         <!-- Service Worker Registration -->
         <script>
             if ('serviceWorker' in navigator) {
-                window.addEventListener('load', () => {
-                    navigator.serviceWorker.register('/sw.js')
-                        .then(registration => console.log('SW registered'))
-                        .catch(error => console.log('SW failed:', error));
+                navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' })
+                    .then(reg => {
+                        window.swRegistration = reg;
+                        reg.update();
+                    })
+                    .catch(err => console.log('[SW] Failed:', err));
+
+                // iOS-Fix: Push-Subscription nach SW-Neustart wiederherstellen
+                // iOS killt den SW aggressiv und feuert pushsubscriptionchange nicht
+                @auth
+                if (localStorage.getItem('push-subscribed') && Notification.permission === 'granted') {
+                    navigator.serviceWorker.ready.then(async reg => {
+                        try {
+                            const existing = await reg.pushManager.getSubscription();
+                            if (existing) {
+                                // Subscription existiert noch - Endpoint-Aenderung pruefen
+                                const storedEndpoint = localStorage.getItem('push-endpoint');
+                                if (storedEndpoint && storedEndpoint !== existing.endpoint) {
+                                    const json = existing.toJSON();
+                                    await fetch('/push/subscribe', {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
+                                        },
+                                        body: JSON.stringify({
+                                            endpoint: json.endpoint,
+                                            keys: { p256dh: json.keys.p256dh, auth: json.keys.auth },
+                                            contentEncoding: (PushManager.supportedContentEncodings || ['aes128gcm'])[0],
+                                            old_endpoint: storedEndpoint,
+                                        }),
+                                    });
+                                    localStorage.setItem('push-endpoint', json.endpoint);
+                                    console.log('[Push] Endpoint updated');
+                                }
+                                return;
+                            }
+
+                            // Subscription verloren - neu subscriben
+                            console.log('[Push] Subscription lost, re-subscribing...');
+                            const keyResp = await fetch('/push/key');
+                            const keyData = await keyResp.json();
+                            if (!keyData.success) return;
+
+                            const pad = '='.repeat((4 - keyData.publicKey.length % 4) % 4);
+                            const b64 = (keyData.publicKey + pad).replace(/-/g, '+').replace(/_/g, '/');
+                            const raw = atob(b64);
+                            const key = new Uint8Array(raw.length);
+                            for (let i = 0; i < raw.length; ++i) key[i] = raw.charCodeAt(i);
+
+                            const newSub = await reg.pushManager.subscribe({
+                                userVisibleOnly: true,
+                                applicationServerKey: key,
+                            });
+
+                            const json = newSub.toJSON();
+                            const oldEndpoint = localStorage.getItem('push-endpoint');
+
+                            await fetch('/push/subscribe', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
+                                },
+                                body: JSON.stringify({
+                                    endpoint: json.endpoint,
+                                    keys: { p256dh: json.keys.p256dh, auth: json.keys.auth },
+                                    contentEncoding: (PushManager.supportedContentEncodings || ['aes128gcm'])[0],
+                                    old_endpoint: oldEndpoint || null,
+                                }),
+                            });
+
+                            localStorage.setItem('push-endpoint', json.endpoint);
+                            console.log('[Push] Re-subscribed successfully');
+                        } catch (e) {
+                            console.log('[Push] Re-subscription failed:', e);
+                        }
+                    });
+                }
+                // SW -> Client Nachricht: Subscription hat sich geaendert
+                navigator.serviceWorker.addEventListener('message', async event => {
+                    if (event.data?.type !== 'pushsubscriptionchange') return;
+                    try {
+                        const sub = event.data.subscription;
+                        await fetch('/push/subscribe', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
+                            },
+                            body: JSON.stringify({
+                                endpoint: sub.endpoint,
+                                keys: { p256dh: sub.keys.p256dh, auth: sub.keys.auth },
+                                contentEncoding: (PushManager.supportedContentEncodings || ['aes128gcm'])[0],
+                                old_endpoint: event.data.oldEndpoint,
+                            }),
+                        });
+                        localStorage.setItem('push-endpoint', sub.endpoint);
+                        console.log('[Push] Subscription change synced to server');
+                    } catch (e) {
+                        console.log('[Push] Subscription change sync failed:', e);
+                    }
                 });
+                @endauth
             }
         </script>
 

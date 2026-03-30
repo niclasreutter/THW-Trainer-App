@@ -129,6 +129,9 @@ class LernsessionService
 
         // E-Mail an alle berechtigten User senden
         $this->sendSessionStartedEmails($instance);
+
+        // Push-Benachrichtigung an alle berechtigten User senden
+        $this->sendSessionStartedPush($instance);
     }
 
     // Instanz abschließen: Ranking finalisieren, Winner bestimmen, Belohnungskiste vergeben
@@ -260,6 +263,38 @@ class LernsessionService
             }
         } catch (\Exception $e) {
             Log::error("Fehler beim Senden der Lernsession-Start-Mails: {$e->getMessage()}");
+        }
+    }
+
+    private function sendSessionStartedPush(LearningSessionInstance $instance): void
+    {
+        try {
+            $session = $instance->learningSession;
+            $endsAt = $instance->ends_at?->format('H:i') ?? '';
+            $title = 'Lernsession gestartet!';
+            $message = "\"{$session->title}\" ist jetzt aktiv" . ($endsAt ? " bis {$endsAt} Uhr." : ".");
+
+            $query = User::whereHas('pushSubscriptions', fn($q) => $q->where('is_active', true));
+
+            if ($session->isOvSession()) {
+                $query->whereHas('ortsverbände', function ($q) use ($session) {
+                    $q->where('ortsverbände.id', $session->ortsverband_id);
+                });
+            }
+
+            $users = $query->get();
+
+            foreach ($users as $user) {
+                Notification::create([
+                    'user_id' => $user->id,
+                    'type' => 'lernsession_started',
+                    'title' => $title,
+                    'message' => $message,
+                    'data' => json_encode(['instance_id' => $instance->id]),
+                ]);
+            }
+        } catch (\Exception $e) {
+            Log::error("Fehler beim Senden der Lernsession-Start-Push: {$e->getMessage()}");
         }
     }
 

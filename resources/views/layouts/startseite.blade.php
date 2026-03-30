@@ -109,11 +109,12 @@
         <!-- Service Worker Registration -->
         <script>
             if ('serviceWorker' in navigator) {
-                window.addEventListener('load', () => {
-                    navigator.serviceWorker.register('/sw.js')
-                        .then(registration => console.log('SW registered'))
-                        .catch(error => console.log('SW failed:', error));
-                });
+                navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' })
+                    .then(reg => {
+                        window.swRegistration = reg;
+                        reg.update();
+                    })
+                    .catch(err => console.log('[SW] Failed:', err));
             }
         </script>
 
