@@ -57,6 +57,51 @@ Schedule::command('app:send-spaced-repetition-reminders')
     ->description('Sendet Erinnerungen an User mit fälligen Wiederholungen')
     ->emailOutputOnFailure($adminEmail);
 
+// Guten-Morgen Push
+// Laeuft taeglich um 08:30 Uhr
+Schedule::command('push:send-morning')
+    ->dailyAt('08:30')
+    ->timezone('Europe/Berlin')
+    ->appendOutputTo($schedulerLog)
+    ->onFailure($onFail('push:send-morning'))
+    ->description('Sendet Guten-Morgen Push an alle User mit Push-Subscription')
+    ->emailOutputOnFailure($adminEmail);
+
+// Pruefungs-Tagesplan Push
+// Laeuft taeglich um 09:00 Uhr
+Schedule::command('push:send-exam-reminder')
+    ->dailyAt('09:00')
+    ->timezone('Europe/Berlin')
+    ->appendOutputTo($schedulerLog)
+    ->onFailure($onFail('push:send-exam-reminder'))
+    ->description('Sendet Pruefungs-Tagesplan Push an User mit Pruefungsdatum')
+    ->emailOutputOnFailure($adminEmail);
+
+// Streak-Erinnerung Push (3x taeglich)
+Schedule::command('push:send-streak morning')
+    ->dailyAt('12:00')
+    ->timezone('Europe/Berlin')
+    ->appendOutputTo($schedulerLog)
+    ->onFailure($onFail('push:send-streak morning'))
+    ->description('Streak-Push Mittag: Erinnerung an offene Fragen')
+    ->emailOutputOnFailure($adminEmail);
+
+Schedule::command('push:send-streak afternoon')
+    ->dailyAt('17:00')
+    ->timezone('Europe/Berlin')
+    ->appendOutputTo($schedulerLog)
+    ->onFailure($onFail('push:send-streak afternoon'))
+    ->description('Streak-Push Nachmittag: Erinnerung an offene Fragen')
+    ->emailOutputOnFailure($adminEmail);
+
+Schedule::command('push:send-streak evening')
+    ->dailyAt('21:00')
+    ->timezone('Europe/Berlin')
+    ->appendOutputTo($schedulerLog)
+    ->onFailure($onFail('push:send-streak evening'))
+    ->description('Streak-Push Abend: Letzte Chance fuer den Streak')
+    ->emailOutputOnFailure($adminEmail);
+
 // Tägliche Admin-Übersicht (nur Production)
 // Läuft täglich um 08:00 Uhr
 Schedule::command('admin:daily-report')
