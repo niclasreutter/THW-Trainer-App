@@ -582,6 +582,10 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix
     Route::get('exam-feedback', [\App\Http\Controllers\Admin\ExamFeedbackController::class, 'index'])->name('exam-feedback.index');
     Route::delete('exam-feedback/{examFeedback}', [\App\Http\Controllers\Admin\ExamFeedbackController::class, 'destroy'])->name('exam-feedback.destroy');
 
+    // Push Notifications (Admin)
+    Route::get('push', [\App\Http\Controllers\Admin\PushController::class, 'index'])->name('push.index');
+    Route::post('push/send', [\App\Http\Controllers\Admin\PushController::class, 'send'])->name('push.send');
+
     // Log Viewer (Scheduler, Worker)
     Route::get('logs/{type}', [\App\Http\Controllers\Admin\SchedulerLogController::class, 'index'])->name('logs.index')->whereIn('type', ['scheduler', 'worker']);
     Route::delete('logs/{type}', [\App\Http\Controllers\Admin\SchedulerLogController::class, 'destroy'])->name('logs.destroy')->whereIn('type', ['scheduler', 'worker']);
