@@ -5,9 +5,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Alpine.js: Elemente mit x-cloak verstecken bis Alpine initialisiert */
-[x-cloak] { display: none !important; }
-
 /* ============================================
    DARK MODE GLASSMORPHISM DESIGN SYSTEM
    THW-Trainer-App v2.0

@@ -33,8 +33,6 @@ class AppServiceProvider extends ServiceProvider
         $this->registerPolicies();
         $this->registerBladeDirectives();
         $this->registerQueueLogging();
-
-        \App\Models\Notification::observe(\App\Observers\NotificationObserver::class);
     }
 
     /**
