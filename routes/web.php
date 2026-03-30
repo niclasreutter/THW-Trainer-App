@@ -439,6 +439,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/push/subscribe', [\App\Http\Controllers\PushSubscriptionController::class, 'subscribe'])->name('push.subscribe');
     Route::post('/push/unsubscribe', [\App\Http\Controllers\PushSubscriptionController::class, 'unsubscribe'])->name('push.unsubscribe');
     Route::get('/push/key', [\App\Http\Controllers\PushSubscriptionController::class, 'getPublicKey'])->name('push.key');
+    Route::get('/push/debug', [\App\Http\Controllers\PushSubscriptionController::class, 'debugPage'])->name('push.debug');
     Route::post('/push/test', [\App\Http\Controllers\PushSubscriptionController::class, 'testPush'])->name('push.test');
 
     // Lehrgang Routes (für Kurse)

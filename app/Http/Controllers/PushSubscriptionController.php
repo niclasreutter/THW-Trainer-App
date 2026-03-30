@@ -121,7 +121,21 @@ class PushSubscriptionController extends Controller
     }
 
     /**
-     * Send a test push to the current user (debug endpoint).
+     * Push debug/test page — shows subscription status and allows sending test push.
+     */
+    public function debugPage()
+    {
+        $user = auth()->user();
+        $subscriptions = PushSubscription::where('user_id', $user->id)->get();
+
+        return view('push-debug', [
+            'subscriptions' => $subscriptions,
+            'vapidConfigured' => !empty(config('services.vapid.public_key')),
+        ]);
+    }
+
+    /**
+     * Send a test push to the current user.
      */
     public function testPush(): JsonResponse
     {
@@ -134,7 +148,6 @@ class PushSubscriptionController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Keine aktiven Push-Subscriptions gefunden',
-                'subscriptions' => [],
             ]);
         }
 
@@ -143,7 +156,6 @@ class PushSubscriptionController extends Controller
             'is_apple' => str_contains($s->endpoint, 'apple') || str_contains($s->endpoint, 'push.apple'),
             'endpoint_short' => substr($s->endpoint, 0, 80) . '...',
             'encoding' => $s->content_encoding,
-            'created_at' => $s->created_at?->toDateTimeString(),
         ]);
 
         try {
@@ -156,7 +168,7 @@ class PushSubscriptionController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Test-Push gesendet - pruefe Logs fuer Details',
+                'message' => 'Test-Push gesendet — pruefe Logs fuer Details',
                 'subscriptions' => $details,
             ]);
         } catch (\Throwable $e) {
