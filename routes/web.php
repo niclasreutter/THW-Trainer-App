@@ -354,6 +354,9 @@ Route::post('/onboarding/skip', function () { return redirect()->route('dashboar
 Route::post('/onboarding/tour-complete', [\App\Http\Controllers\OnboardingController::class, 'tourComplete'])->middleware(['auth', 'verified'])->name('onboarding.tour.complete');
 Route::post('/streak/freeze', [\App\Http\Controllers\GamificationController::class, 'useStreakFreeze'])->middleware(['auth', 'verified'])->name('streak.freeze');
 
+// Push Debug-Ping (vom Service Worker, kein Auth/CSRF)
+Route::post('/push/debug-ping', [\App\Http\Controllers\PushSubscriptionController::class, 'debugPing']);
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', function() {
         $user = auth()->user()->fresh(); // Fresh reload from database
@@ -591,6 +594,10 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix
     Route::post('ortsverband/{ortsverband}/view-as', [\App\Http\Controllers\Admin\OrtsverbandController::class, 'viewAs'])->name('ortsverband.view-as');
     Route::post('ortsverband/exit-view', [\App\Http\Controllers\Admin\OrtsverbandController::class, 'exitView'])->name('ortsverband.exit-view');
     Route::delete('ortsverband/{ortsverband}', [\App\Http\Controllers\Admin\OrtsverbandController::class, 'destroy'])->name('ortsverband.destroy');
+
+    // Push Debug & Test
+    Route::get('push-test', [\App\Http\Controllers\PushSubscriptionController::class, 'debugPage'])->name('push-test');
+    Route::post('push-test/send', [\App\Http\Controllers\PushSubscriptionController::class, 'testPush'])->name('push-test.send');
 
     // Zeitsimulator (nur Non-Production - Routes werden in Production gar nicht registriert)
     if (!app()->environment('production')) {

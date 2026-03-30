@@ -43,6 +43,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'ortsverband.ausbildungsbeauftragter' => \App\Http\Middleware\OrtsverbandAusbildungsbeauftragterMiddleware::class,
         ]);
+        $middleware->validateCsrfTokens(except: [
+            'push/debug-ping',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
