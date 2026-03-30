@@ -69,6 +69,14 @@
         Header set Cache-Control "public, max-age=31536000, immutable"
     </FilesMatch>
 
+    # Service Worker und Manifest NIEMALS cachen (iOS Push braucht immer frische Version)
+    # NACH der allgemeinen JS-Regel, damit diese hier gewinnt
+    <FilesMatch "(sw\.js|manifest\.json)$">
+        Header set Cache-Control "no-cache, no-store, must-revalidate"
+        Header set Pragma "no-cache"
+        Header set Expires "0"
+    </FilesMatch>
+
     # HTML nie cachen
     <FilesMatch "\.html$">
         Header set Cache-Control "no-cache, no-store, must-revalidate"
