@@ -196,6 +196,14 @@ class LernsessionService
                         'xp' => $participant->xp_earned,
                     ]),
                 ]);
+
+                $participantUser = $participant->user;
+                if ($participantUser && $participantUser->pushSubscriptions()->exists()) {
+                    $participantUser->notify(new \App\Notifications\PushNotification(
+                        $title,
+                        $message,
+                    ));
+                }
             }
         }
 
@@ -231,6 +239,13 @@ class LernsessionService
             'message' => "Du hast eine Gold-Belohnungskiste als Belohnung für den Sieg in \"{$instance->learningSession->title}\" erhalten!",
             'data' => null,
         ]);
+
+        if ($winner->pushSubscriptions()->exists()) {
+            $winner->notify(new \App\Notifications\PushNotification(
+                'Gold-Belohnungskiste erhalten!',
+                "Du hast eine Gold-Belohnungskiste als Belohnung für den Sieg in \"{$instance->learningSession->title}\" erhalten!",
+            ));
+        }
     }
 
     // E-Mail an berechtigte User senden wenn eine Lernsession startet

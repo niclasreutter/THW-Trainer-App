@@ -948,7 +948,7 @@ class GamificationService
      */
     private function createNotification(User $user, array $data)
     {
-        return \App\Models\Notification::create([
+        $notification = \App\Models\Notification::create([
             'user_id' => $user->id,
             'type' => $data['type'],
             'title' => $data['title'],
@@ -956,5 +956,14 @@ class GamificationService
             'icon' => $data['icon'] ?? null,
             'data' => $data['data'] ?? null,
         ]);
+
+        if ($user->pushSubscriptions()->exists()) {
+            $user->notify(new \App\Notifications\PushNotification(
+                $data['title'],
+                $data['message'],
+            ));
+        }
+
+        return $notification;
     }
 }
