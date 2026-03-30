@@ -702,9 +702,7 @@
                     async subscribe() {
                         this.showModal = false;
                         try {
-                            // Get VAPID public key
-                            const res = await fetch('{{ route("push.public-key") }}');
-                            const { publicKey } = await res.json();
+                            const publicKey = @json(config('services.webpush.public_key'));
 
                             // Convert VAPID key to Uint8Array
                             const urlBase64ToUint8Array = (base64String) => {

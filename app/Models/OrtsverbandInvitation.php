@@ -130,7 +130,7 @@ class OrtsverbandInvitation extends Model
 
             if ($ausbildungsbeauftragter->pushSubscriptions()->exists()) {
                 $ausbildungsbeauftragter->notify(new \App\Notifications\PushNotification(
-                    '👥 Neues Mitglied',
+                    'Neues Mitglied',
                     "{$newMember->name} ist deinem Ortsverband beigetreten",
                 ));
             }
