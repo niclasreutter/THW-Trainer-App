@@ -40,7 +40,9 @@ class PushSubscriptionController extends Controller
                     'is_active' => true,
                     'public_key' => $validated['keys']['p256dh'],
                     'auth_token' => $validated['keys']['auth'],
-                    'content_encoding' => $request->input('contentEncoding', 'aes128gcm'),
+                    // IMMER aes128gcm — iOS Safari meldet faelschlicherweise aesgcm,
+                    // aber Apple Push Service verlangt aes128gcm
+                    'content_encoding' => 'aes128gcm',
                 ]);
             } else {
                 // Erstelle neue Subscription
@@ -49,7 +51,7 @@ class PushSubscriptionController extends Controller
                     'endpoint' => $validated['endpoint'],
                     'public_key' => $validated['keys']['p256dh'],
                     'auth_token' => $validated['keys']['auth'],
-                    'content_encoding' => $request->input('contentEncoding', 'aes128gcm'),
+                    'content_encoding' => 'aes128gcm',
                 ]);
             }
 
