@@ -592,6 +592,10 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix
     Route::post('ortsverband/exit-view', [\App\Http\Controllers\Admin\OrtsverbandController::class, 'exitView'])->name('ortsverband.exit-view');
     Route::delete('ortsverband/{ortsverband}', [\App\Http\Controllers\Admin\OrtsverbandController::class, 'destroy'])->name('ortsverband.destroy');
 
+    // Push Debug & Test
+    Route::get('push-test', [\App\Http\Controllers\PushSubscriptionController::class, 'debugPage'])->name('push-test');
+    Route::post('push-test/send', [\App\Http\Controllers\PushSubscriptionController::class, 'testPush'])->name('push-test.send');
+
     // Zeitsimulator (nur Non-Production - Routes werden in Production gar nicht registriert)
     if (!app()->environment('production')) {
         Route::get('/time-simulator', [\App\Http\Controllers\Admin\TimeSimulatorController::class, 'index'])->name('time-simulator');

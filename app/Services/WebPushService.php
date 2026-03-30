@@ -22,8 +22,14 @@ class WebPushService
                     'publicKey' => config('services.vapid.public_key'),
                     'privateKey' => config('services.vapid.private_key'),
                 ],
+            ], [], 30, [
+                // Apple Push Service braucht explizites Timeout und akzeptiert
+                // nur bestimmte TLS-Versionen
+                'verify' => true,
             ]);
             $this->webPush->setAutomaticPadding(false);
+            // TTL: 24 Stunden — Apple verwirft Push ohne TTL oder mit TTL=0
+            $this->webPush->setDefaultOptions(['TTL' => 86400]);
         }
 
         return $this->webPush;
@@ -75,6 +81,7 @@ class WebPushService
             ->get();
 
         if ($subscriptions->isEmpty()) {
+            Log::debug('No active push subscriptions for user', ['user_id' => $userId]);
             return;
         }
 
@@ -93,13 +100,35 @@ class WebPushService
         }
 
         foreach ($webPush->flush() as $report) {
-            if ($report->isSubscriptionExpired()) {
-                $endpoint = $report->getRequest()->getUri()->__toString();
+            $endpoint = $report->getRequest()->getUri()->__toString();
+            $isApple = str_contains($endpoint, 'apple') || str_contains($endpoint, 'push.apple');
+            $service = $isApple ? 'Apple' : 'FCM';
+
+            if ($report->isSuccess()) {
+                Log::debug('Push sent successfully', [
+                    'user_id' => $userId,
+                    'service' => $service,
+                    'endpoint' => substr($endpoint, 0, 80),
+                ]);
+            } elseif ($report->isSubscriptionExpired()) {
                 PushSubscription::where('endpoint', $endpoint)
                     ->update(['is_active' => false]);
 
-                Log::info('Push subscription expired, deactivated', [
+                Log::warning('Push subscription expired, deactivated', [
+                    'user_id' => $userId,
+                    'service' => $service,
                     'endpoint' => substr($endpoint, 0, 80),
+                    'reason' => $report->getReason(),
+                    'status' => $report->getResponse()?->getStatusCode(),
+                ]);
+            } else {
+                Log::error('Push send failed', [
+                    'user_id' => $userId,
+                    'service' => $service,
+                    'endpoint' => substr($endpoint, 0, 80),
+                    'reason' => $report->getReason(),
+                    'status' => $report->getResponse()?->getStatusCode(),
+                    'expired' => $report->isSubscriptionExpired(),
                 ]);
             }
         }

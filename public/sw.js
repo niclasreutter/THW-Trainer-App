@@ -1,7 +1,9 @@
-// v4.0 — Push-only mit iOS-Fixes
+// v5.0 — Push-only mit iOS-Fixes
 // iOS: Kein Fetch-Handler, besseres notificationclick, robuster push handler
+// KEIN Cache — Push-only SW
 
 self.addEventListener('install', event => {
+  console.log('[SW v5] Installing push-only service worker');
   self.skipWaiting();
 });
 
@@ -10,6 +12,7 @@ self.addEventListener('activate', event => {
     caches.keys()
       .then(names => Promise.all(names.map(n => caches.delete(n))))
       .then(() => self.clients.claim())
+      .then(() => console.log('[SW v5] Activated, old caches cleared'))
   );
 });
 
@@ -26,8 +29,8 @@ self.addEventListener('push', event => {
 
   const options = {
     body: data.body || 'Neue Mitteilung',
-    icon: '/icons/icon-192x192.png',
-    badge: '/icons/icon-192x192.png',
+    icon: '/icon-192.png',
+    badge: '/icon-192.png',
     data: { url: data.url || '/notifications' },
     // iOS braucht tag um doppelte Notifications zu vermeiden
     tag: data.tag || 'thw-' + Date.now(),
