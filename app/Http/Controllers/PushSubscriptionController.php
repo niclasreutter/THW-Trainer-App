@@ -40,7 +40,9 @@ class PushSubscriptionController extends Controller
                     'is_active' => true,
                     'public_key' => $validated['keys']['p256dh'],
                     'auth_token' => $validated['keys']['auth'],
-                    'content_encoding' => $request->input('contentEncoding', 'aes128gcm'),
+                    // IMMER aes128gcm — iOS Safari meldet faelschlicherweise aesgcm,
+                    // aber Apple Push Service verlangt aes128gcm
+                    'content_encoding' => 'aes128gcm',
                 ]);
             } else {
                 // Erstelle neue Subscription
@@ -49,7 +51,7 @@ class PushSubscriptionController extends Controller
                     'endpoint' => $validated['endpoint'],
                     'public_key' => $validated['keys']['p256dh'],
                     'auth_token' => $validated['keys']['auth'],
-                    'content_encoding' => $request->input('contentEncoding', 'aes128gcm'),
+                    'content_encoding' => 'aes128gcm',
                 ]);
             }
 
@@ -183,6 +185,21 @@ class PushSubscriptionController extends Controller
                 'subscriptions' => $details,
             ], 500);
         }
+    }
+
+    /**
+     * Debug ping from service worker — logs that push was received on device.
+     */
+    public function debugPing(Request $request): JsonResponse
+    {
+        Log::warning('PUSH DEBUG PING — SW received push on device', [
+            'sw_version' => $request->input('sw_version'),
+            'title' => $request->input('title'),
+            'ip' => $request->ip(),
+            'user_agent' => substr($request->userAgent(), 0, 100),
+        ]);
+
+        return response()->json(['ok' => true]);
     }
 
     /**

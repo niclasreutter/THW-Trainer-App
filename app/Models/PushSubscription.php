@@ -16,6 +16,10 @@ class PushSubscription extends Model
         'is_active',
     ];
 
+    protected $attributes = [
+        'content_encoding' => 'aes128gcm',
+    ];
+
     protected $casts = [
         'is_active' => 'boolean',
     ];

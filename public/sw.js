@@ -1,9 +1,10 @@
-// v5.0 — Push-only mit iOS-Fixes
+// v6.0 — Push-only mit Debug-Ping
 // iOS: Kein Fetch-Handler, besseres notificationclick, robuster push handler
 // KEIN Cache — Push-only SW
+const SW_VERSION = '6.0';
 
 self.addEventListener('install', event => {
-  console.log('[SW v5] Installing push-only service worker');
+  console.log('[SW v' + SW_VERSION + '] Installing push-only service worker');
   self.skipWaiting();
 });
 
@@ -37,8 +38,23 @@ self.addEventListener('push', event => {
   };
 
   event.waitUntil(
-    self.registration.showNotification(data.title || 'THW Trainer', options)
+    Promise.all([
+      self.registration.showNotification(data.title || 'THW Trainer', options),
+      // Debug-Ping: meldet dem Server dass der Push im SW angekommen ist
+      fetch('/push/debug-ping', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sw_version: SW_VERSION, received: true, title: data.title || 'unknown' }),
+      }).catch(() => {}), // Fehler ignorieren, Notification ist wichtiger
+    ])
   );
+});
+
+// Version per Message an Client melden
+self.addEventListener('message', event => {
+  if (event.data?.type === 'get-version') {
+    event.ports?.[0]?.postMessage({ version: SW_VERSION });
+  }
 });
 
 // Notification click — existierendes Fenster fokussieren statt neues oeffnen
