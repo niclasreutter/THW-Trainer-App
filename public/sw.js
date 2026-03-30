@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v2.0';
+const CACHE_VERSION = 'v3.0';
 const CACHE_NAME = `thw-trainer-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `thw-trainer-runtime-${CACHE_VERSION}`;
 
@@ -116,5 +116,56 @@ self.addEventListener('fetch', event => {
         });
       });
     })
+  );
+});
+
+// Push notification received
+self.addEventListener('push', event => {
+  if (!event.data) return;
+
+  let data;
+  try {
+    data = event.data.json();
+  } catch (e) {
+    data = {
+      title: 'THW Trainer',
+      body: event.data.text()
+    };
+  }
+
+  const title = data.title || 'THW Trainer';
+  const options = {
+    body: data.body || '',
+    icon: data.icon || '/logo-thwtrainer.png',
+    badge: data.badge || '/logo-thwtrainer.png',
+    tag: data.tag || 'thw-trainer-default',
+    data: data.data || {},
+    vibrate: [200, 100, 200]
+  };
+
+  event.waitUntil(
+    self.registration.showNotification(title, options)
+  );
+});
+
+// Notification clicked
+self.addEventListener('notificationclick', event => {
+  event.notification.close();
+
+  const url = event.notification.data?.url || '/dashboard';
+
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true })
+      .then(windowClients => {
+        // Focus existing window if available
+        for (const client of windowClients) {
+          if (client.url.includes(self.location.origin) && 'focus' in client) {
+            client.navigate(url);
+            return client.focus();
+          }
+        }
+        // Open new window
+        return clients.openWindow(url);
+      })
   );
 });
