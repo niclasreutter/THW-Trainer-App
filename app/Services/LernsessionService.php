@@ -273,6 +273,27 @@ class LernsessionService
                     Log::warning("Lernsession-Start-Mail an {$user->email} fehlgeschlagen: {$e->getMessage()}");
                 }
             }
+
+            // Push an User mit Push-Subscription senden
+            $pushQuery = User::whereHas('pushSubscriptions');
+            if ($session->isOvSession()) {
+                $pushQuery->whereHas('ortsverbände', function ($q) use ($session) {
+                    $q->where('ortsverbände.id', $session->ortsverband_id);
+                });
+            }
+            $pushUsers = $pushQuery->get();
+
+            foreach ($pushUsers as $pushUser) {
+                try {
+                    $pushUser->notify(new \App\Notifications\PushNotification(
+                        'Lernsession gestartet',
+                        "{$session->title} — Jetzt mitmachen!",
+                        '/lernsessions'
+                    ));
+                } catch (\Exception $e) {
+                    Log::warning("Lernsession-Start-Push an User {$pushUser->id} fehlgeschlagen: {$e->getMessage()}");
+                }
+            }
         } catch (\Exception $e) {
             Log::error("Fehler beim Senden der Lernsession-Start-Mails: {$e->getMessage()}");
         }
