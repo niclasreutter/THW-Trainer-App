@@ -121,6 +121,59 @@ class PushSubscriptionController extends Controller
     }
 
     /**
+     * Send a test push to the current user (debug endpoint).
+     */
+    public function testPush(): JsonResponse
+    {
+        $user = auth()->user();
+        $subscriptions = PushSubscription::where('user_id', $user->id)
+            ->where('is_active', true)
+            ->get();
+
+        if ($subscriptions->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Keine aktiven Push-Subscriptions gefunden',
+                'subscriptions' => [],
+            ]);
+        }
+
+        $details = $subscriptions->map(fn ($s) => [
+            'id' => $s->id,
+            'is_apple' => str_contains($s->endpoint, 'apple') || str_contains($s->endpoint, 'push.apple'),
+            'endpoint_short' => substr($s->endpoint, 0, 80) . '...',
+            'encoding' => $s->content_encoding,
+            'created_at' => $s->created_at?->toDateTimeString(),
+        ]);
+
+        try {
+            app(\App\Services\WebPushService::class)->sendToUser(
+                $user,
+                'Test Push',
+                'Wenn du das siehst, funktionieren Push-Notifications!',
+                '/notifications'
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Test-Push gesendet - pruefe Logs fuer Details',
+                'subscriptions' => $details,
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('Test push failed', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Push fehlgeschlagen: ' . $e->getMessage(),
+                'subscriptions' => $details,
+            ], 500);
+        }
+    }
+
+    /**
      * Get the VAPID public key for the client.
      */
     public function getPublicKey(): JsonResponse
