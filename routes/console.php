@@ -57,6 +57,16 @@ Schedule::command('app:send-spaced-repetition-reminders')
     ->description('Sendet Erinnerungen an User mit fälligen Wiederholungen')
     ->emailOutputOnFailure($adminEmail);
 
+// Spaced Repetition Push
+// Laeuft taeglich um 08:00 Uhr
+Schedule::command('push:send-spaced-repetition')
+    ->dailyAt('08:00')
+    ->timezone('Europe/Berlin')
+    ->appendOutputTo($schedulerLog)
+    ->onFailure($onFail('push:send-spaced-repetition'))
+    ->description('Sendet Push an User mit faelligen Wiederholungen')
+    ->emailOutputOnFailure($adminEmail);
+
 // Guten-Morgen Push
 // Laeuft taeglich um 08:30 Uhr
 Schedule::command('push:send-morning')
