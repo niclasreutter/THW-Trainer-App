@@ -67,11 +67,13 @@ class SendStreakPush extends Command
                     $body = sprintf($template['body'], $remaining, $user->streak_days);
                 }
 
-                $user->notify(new PushNotification(
-                    $template['title'],
-                    $body,
-                    '/dashboard'
-                ));
+                $user->notify(
+                    (new PushNotification(
+                        $template['title'],
+                        $body,
+                        '/dashboard'
+                    ))->delay(now()->addSeconds(rand(0, 1800)))
+                );
                 $sent++;
             } catch (\Exception $e) {
                 $this->error("Push an User {$user->id} fehlgeschlagen: {$e->getMessage()}");

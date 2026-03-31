@@ -21,11 +21,13 @@ class SendMorningPush extends Command
         $sent = 0;
         foreach ($users as $user) {
             try {
-                $user->notify(new PushNotification(
-                    'Guten Morgen!',
-                    'Zeit zum Lernen — starte jetzt deine taegliche Session.',
-                    '/dashboard'
-                ));
+                $user->notify(
+                    (new PushNotification(
+                        'Guten Morgen!',
+                        'Zeit zum Lernen — starte jetzt deine taegliche Session.',
+                        '/dashboard'
+                    ))->delay(now()->addSeconds(rand(0, 1800)))
+                );
                 $sent++;
             } catch (\Exception $e) {
                 $this->error("Push an User {$user->id} fehlgeschlagen: {$e->getMessage()}");

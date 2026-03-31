@@ -30,11 +30,13 @@ class SendExamReminderPush extends Command
                 $daysLeft = $today->diffInDays(Carbon::parse($user->exam_date));
                 $dailyGoal = $user->daily_streak_goal ?? 20;
 
-                $user->notify(new PushNotification(
-                    "Pruefung in {$daysLeft} Tagen",
-                    "Dein Tagesziel: {$dailyGoal} Fragen — bleib dran!",
-                    '/dashboard'
-                ));
+                $user->notify(
+                    (new PushNotification(
+                        "Pruefung in {$daysLeft} Tagen",
+                        "Dein Tagesziel: {$dailyGoal} Fragen — bleib dran!",
+                        '/dashboard'
+                    ))->delay(now()->addSeconds(rand(0, 1800)))
+                );
                 $sent++;
             } catch (\Exception $e) {
                 $this->error("Push an User {$user->id} fehlgeschlagen: {$e->getMessage()}");
