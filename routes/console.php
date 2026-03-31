@@ -144,6 +144,16 @@ Schedule::command('app:send-inactive-reminders')
     ->description('Sendet Erinnerungen an User die 4+ Tage inaktiv sind')
     ->emailOutputOnFailure($adminEmail);
 
+// Inaktive User Push-Erinnerung (7+ Tage inaktiv)
+// Laeuft taeglich um 10:00 Uhr
+Schedule::command('push:send-inactive')
+    ->dailyAt('10:00')
+    ->timezone('Europe/Berlin')
+    ->appendOutputTo($schedulerLog)
+    ->onFailure($onFail('push:send-inactive'))
+    ->description('Sendet Push-Erinnerung an User die 7+ Tage inaktiv sind')
+    ->emailOutputOnFailure($adminEmail);
+
 // Prüfungs-Feedback-Anfrage (eine Woche nach der Prüfung)
 // Läuft täglich um 10:00 Uhr
 Schedule::command('exam:send-feedback-requests')
