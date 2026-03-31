@@ -101,6 +101,14 @@ class DailyReset extends Command
                                 $this->warn("  Streak zurückgesetzt (Freeze fehlgeschlagen): {$user->name} ({$oldStreak} → 0)");
 
                                 $this->sendStreakLostMail($user, $oldStreak);
+
+                                if ($user->pushSubscriptions()->exists()) {
+                                    $user->notify(new \App\Notifications\PushNotification(
+                                        'Streak verloren',
+                                        'Dein Streak wurde zurueckgesetzt. Starte heute einen neuen!',
+                                        '/dashboard'
+                                    ));
+                                }
                             }
                         } else {
                             // Kein Freeze verfügbar - Streak resetten
@@ -112,6 +120,14 @@ class DailyReset extends Command
                             $this->line("  Streak zurückgesetzt: {$user->name} ({$oldStreak} → 0, Aktivität: {$lastActivityStr})");
 
                             $this->sendStreakLostMail($user, $oldStreak);
+
+                            if ($user->pushSubscriptions()->exists()) {
+                                $user->notify(new \App\Notifications\PushNotification(
+                                    'Streak verloren',
+                                    'Dein Streak wurde zurueckgesetzt. Starte heute einen neuen!',
+                                    '/dashboard'
+                                ));
+                            }
                         }
                     }
                 }
