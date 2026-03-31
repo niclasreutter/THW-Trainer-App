@@ -77,6 +77,16 @@ Schedule::command('push:send-exam-reminder')
     ->description('Sendet Pruefungs-Tagesplan Push an User mit Pruefungsdatum')
     ->emailOutputOnFailure($adminEmail);
 
+// Pruefungstag Viel-Erfolg Push
+// Laeuft taeglich um 08:00 Uhr
+Schedule::command('push:send-exam-goodluck')
+    ->dailyAt('08:00')
+    ->timezone('Europe/Berlin')
+    ->appendOutputTo($schedulerLog)
+    ->onFailure($onFail('push:send-exam-goodluck'))
+    ->description('Sendet Viel-Erfolg Push an User deren Pruefung heute ist')
+    ->emailOutputOnFailure($adminEmail);
+
 // Streak-Erinnerung Push (3x taeglich)
 Schedule::command('push:send-streak morning')
     ->dailyAt('12:00')
