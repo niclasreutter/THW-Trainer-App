@@ -92,6 +92,14 @@ class DailyReset extends Command
                                         $this->warn("  Mail-Fehler ({$user->email}): " . $mailError->getMessage());
                                     }
                                 }
+
+                                if ($user->pushSubscriptions()->exists()) {
+                                    $user->notify(new \App\Notifications\PushNotification(
+                                        'Streak-Freeze aktiviert',
+                                        'Ein Streak-Freeze wurde automatisch eingesetzt — dein Streak ist sicher!',
+                                        '/dashboard'
+                                    ));
+                                }
                             } else {
                                 // Freeze fehlgeschlagen - Streak resetten
                                 $oldStreak = $user->streak_days;
