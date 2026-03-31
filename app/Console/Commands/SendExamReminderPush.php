@@ -29,11 +29,16 @@ class SendExamReminderPush extends Command
             try {
                 $daysLeft = $today->diffInDays(Carbon::parse($user->exam_date));
                 $dailyGoal = $user->daily_streak_goal ?? 20;
+                $remaining = max(0, $dailyGoal - $user->daily_questions_solved);
+
+                if ($remaining === 0) {
+                    continue;
+                }
 
                 $user->notify(
                     (new PushNotification(
                         "Pruefung in {$daysLeft} Tagen",
-                        "Dein Tagesziel: {$dailyGoal} Fragen — bleib dran!",
+                        "Noch {$remaining} Fragen fuer dein Tagesziel — bleib dran!",
                         '/dashboard'
                     ))->delay(now()->addSeconds(rand(0, 1800)))
                 );
