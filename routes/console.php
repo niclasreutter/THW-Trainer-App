@@ -237,6 +237,16 @@ Schedule::command('league:process-weekly')
     ->description('Verarbeitet Liga-Auf-/Abstiege und vergibt Wochenbelohnungen')
     ->emailOutputOnFailure($adminEmail);
 
+// Wochenbericht Push
+// Laeuft jeden Montag um 09:00 Uhr
+Schedule::command('push:send-weekly-report')
+    ->weeklyOn(1, '09:00')
+    ->timezone('Europe/Berlin')
+    ->appendOutputTo($schedulerLog)
+    ->onFailure($onFail('push:send-weekly-report'))
+    ->description('Sendet Wochenrueckblick Push an alle User mit Push-Subscription')
+    ->emailOutputOnFailure($adminEmail);
+
 // Wöchentliches Datenbank-Backup (nur Production)
 // Läuft jeden Sonntag um 02:00 Uhr
 Schedule::command('database:backup')
