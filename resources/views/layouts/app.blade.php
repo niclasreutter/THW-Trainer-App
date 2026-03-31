@@ -729,7 +729,7 @@
                                 body: JSON.stringify({
                                     endpoint: sub.endpoint,
                                     keys: sub.keys,
-                                    content_encoding: PushManager.supportedContentEncodings?.[0] || 'aes128gcm'
+                                    content_encoding: 'aes128gcm'
                                 })
                             });
 
