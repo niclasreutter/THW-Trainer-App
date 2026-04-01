@@ -57,6 +57,71 @@ Schedule::command('app:send-spaced-repetition-reminders')
     ->description('Sendet Erinnerungen an User mit fälligen Wiederholungen')
     ->emailOutputOnFailure($adminEmail);
 
+// Spaced Repetition Push
+// Laeuft taeglich um 08:00 Uhr
+Schedule::command('push:send-spaced-repetition')
+    ->dailyAt('08:00')
+    ->timezone('Europe/Berlin')
+    ->appendOutputTo($schedulerLog)
+    ->onFailure($onFail('push:send-spaced-repetition'))
+    ->description('Sendet Push an User mit faelligen Wiederholungen')
+    ->emailOutputOnFailure($adminEmail);
+
+// Guten-Morgen Push
+// Laeuft taeglich um 08:30 Uhr
+Schedule::command('push:send-morning')
+    ->dailyAt('08:30')
+    ->timezone('Europe/Berlin')
+    ->appendOutputTo($schedulerLog)
+    ->onFailure($onFail('push:send-morning'))
+    ->description('Sendet Guten-Morgen Push an alle User mit Push-Subscription')
+    ->emailOutputOnFailure($adminEmail);
+
+// Pruefungs-Tagesplan Push
+// Laeuft taeglich um 09:00 Uhr
+Schedule::command('push:send-exam-reminder')
+    ->dailyAt('09:00')
+    ->timezone('Europe/Berlin')
+    ->appendOutputTo($schedulerLog)
+    ->onFailure($onFail('push:send-exam-reminder'))
+    ->description('Sendet Pruefungs-Tagesplan Push an User mit Pruefungsdatum')
+    ->emailOutputOnFailure($adminEmail);
+
+// Pruefungstag Viel-Erfolg Push
+// Laeuft taeglich um 08:00 Uhr
+Schedule::command('push:send-exam-goodluck')
+    ->dailyAt('08:00')
+    ->timezone('Europe/Berlin')
+    ->appendOutputTo($schedulerLog)
+    ->onFailure($onFail('push:send-exam-goodluck'))
+    ->description('Sendet Viel-Erfolg Push an User deren Pruefung heute ist')
+    ->emailOutputOnFailure($adminEmail);
+
+// Streak-Erinnerung Push (3x taeglich)
+Schedule::command('push:send-streak morning')
+    ->dailyAt('12:00')
+    ->timezone('Europe/Berlin')
+    ->appendOutputTo($schedulerLog)
+    ->onFailure($onFail('push:send-streak morning'))
+    ->description('Streak-Push Mittag: Erinnerung an offene Fragen')
+    ->emailOutputOnFailure($adminEmail);
+
+Schedule::command('push:send-streak afternoon')
+    ->dailyAt('17:00')
+    ->timezone('Europe/Berlin')
+    ->appendOutputTo($schedulerLog)
+    ->onFailure($onFail('push:send-streak afternoon'))
+    ->description('Streak-Push Nachmittag: Erinnerung an offene Fragen')
+    ->emailOutputOnFailure($adminEmail);
+
+Schedule::command('push:send-streak evening')
+    ->dailyAt('21:00')
+    ->timezone('Europe/Berlin')
+    ->appendOutputTo($schedulerLog)
+    ->onFailure($onFail('push:send-streak evening'))
+    ->description('Streak-Push Abend: Letzte Chance fuer den Streak')
+    ->emailOutputOnFailure($adminEmail);
+
 // Tägliche Admin-Übersicht (nur Production)
 // Läuft täglich um 08:00 Uhr
 Schedule::command('admin:daily-report')
@@ -87,6 +152,16 @@ Schedule::command('app:send-inactive-reminders')
     ->appendOutputTo($schedulerLog)
     ->onFailure($onFail('app:send-inactive-reminders'))
     ->description('Sendet Erinnerungen an User die 4+ Tage inaktiv sind')
+    ->emailOutputOnFailure($adminEmail);
+
+// Inaktive User Push-Erinnerung (7+ Tage inaktiv)
+// Laeuft taeglich um 10:00 Uhr
+Schedule::command('push:send-inactive')
+    ->dailyAt('10:00')
+    ->timezone('Europe/Berlin')
+    ->appendOutputTo($schedulerLog)
+    ->onFailure($onFail('push:send-inactive'))
+    ->description('Sendet Push-Erinnerung an User die 7+ Tage inaktiv sind')
     ->emailOutputOnFailure($adminEmail);
 
 // Prüfungs-Feedback-Anfrage (eine Woche nach der Prüfung)
@@ -170,6 +245,16 @@ Schedule::command('league:process-weekly')
     ->appendOutputTo($schedulerLog)
     ->onFailure($onFail('league:process-weekly'))
     ->description('Verarbeitet Liga-Auf-/Abstiege und vergibt Wochenbelohnungen')
+    ->emailOutputOnFailure($adminEmail);
+
+// Wochenbericht Push
+// Laeuft jeden Montag um 09:00 Uhr
+Schedule::command('push:send-weekly-report')
+    ->weeklyOn(1, '09:00')
+    ->timezone('Europe/Berlin')
+    ->appendOutputTo($schedulerLog)
+    ->onFailure($onFail('push:send-weekly-report'))
+    ->description('Sendet Wochenrueckblick Push an alle User mit Push-Subscription')
     ->emailOutputOnFailure($adminEmail);
 
 // Wöchentliches Datenbank-Backup (nur Production)

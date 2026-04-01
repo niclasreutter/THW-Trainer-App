@@ -429,5 +429,12 @@ class LeagueService
             'icon' => $icon,
             'data' => $data,
         ]);
+
+        if ($user->pushSubscriptions()->exists()) {
+            $user->notify(new \App\Notifications\PushNotification(
+                $title,
+                $message,
+            ));
+        }
     }
 }

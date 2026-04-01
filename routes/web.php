@@ -434,7 +434,12 @@ Route::middleware('auth')->group(function () {
     Route::post('/notifications/read-all', [\App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('notifications.read-all');
     Route::delete('/notifications/{id}', [\App\Http\Controllers\NotificationController::class, 'destroy'])->name('notifications.destroy');
     Route::post('/notifications/clear-read', [\App\Http\Controllers\NotificationController::class, 'clearRead'])->name('notifications.clear-read');
-    
+
+    // Push Notification Routes
+    Route::get('/push/public-key', [\App\Http\Controllers\PushController::class, 'publicKey'])->name('push.public-key');
+    Route::post('/push/subscribe', [\App\Http\Controllers\PushController::class, 'subscribe'])->name('push.subscribe');
+    Route::post('/push/unsubscribe', [\App\Http\Controllers\PushController::class, 'unsubscribe'])->name('push.unsubscribe');
+
     // Lehrgang Routes (für Kurse)
     Route::get('/lehrgaenge', [\App\Http\Controllers\LehrgangController::class, 'index'])->name('lehrgaenge.index');
     Route::get('/lehrgaenge/{slug}', [\App\Http\Controllers\LehrgangController::class, 'show'])->name('lehrgaenge.show');
@@ -576,6 +581,10 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix
     // Prüfungs-Feedback
     Route::get('exam-feedback', [\App\Http\Controllers\Admin\ExamFeedbackController::class, 'index'])->name('exam-feedback.index');
     Route::delete('exam-feedback/{examFeedback}', [\App\Http\Controllers\Admin\ExamFeedbackController::class, 'destroy'])->name('exam-feedback.destroy');
+
+    // Push Notifications (Admin)
+    Route::get('push', [\App\Http\Controllers\Admin\PushController::class, 'index'])->name('push.index');
+    Route::post('push/send', [\App\Http\Controllers\Admin\PushController::class, 'send'])->name('push.send');
 
     // Log Viewer (Scheduler, Worker)
     Route::get('logs/{type}', [\App\Http\Controllers\Admin\SchedulerLogController::class, 'index'])->name('logs.index')->whereIn('type', ['scheduler', 'worker']);
