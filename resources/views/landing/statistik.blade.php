@@ -1,26 +1,61 @@
-@extends('layouts.landing')
+@extends('layouts.startseite')
 
 @section('title', 'Plattform-Statistiken | THW-Trainer.de')
 @section('description', 'Anonyme Plattform-Statistiken des THW-Trainers: Registrierte Nutzer, beantwortete Fragen, Bestehensquote und mehr.')
+@section('canonical', url('/statistik'))
 
 @section('content')
-<div class="overflow-x-hidden" style="background-color: #ffffff;">
+@php
+    $loginUrl = config('domains.development') ? route('login') : 'https://' . config('domains.app') . '/login';
+    $registerUrl = config('domains.development') ? route('register') : 'https://' . config('domains.app') . '/register';
+    $appUrl = config('domains.development') ? route('dashboard') : 'https://' . config('domains.app');
+@endphp
+<div>
 
     {{-- ============================================
-         HERO SECTION
+         NAVBAR
          ============================================ --}}
-    <section class="landing-hero" style="min-height: 40vh;" aria-label="Statistik-Hauptbereich">
-        <div class="landing-hero-content">
-            <div class="text-center max-w-4xl mx-auto">
-                <span class="landing-hero-tagline">Transparente Zahlen</span>
+    <nav x-data="{ scrolled: false }" @scroll.window="scrolled = window.scrollY > 50"
+         class="sp-navbar" :class="{ 'scrolled': scrolled }" aria-label="Hauptnavigation">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+            <a href="{{ url('/') }}" class="flex items-center gap-2.5">
+                <img src="{{ asset('logo-thwtrainer_w.png') . '?v=' . filemtime(public_path('logo-thwtrainer_w.png')) }}" alt="THW-Trainer Logo" class="h-8 w-auto sp-logo-dark">
+                <img src="{{ asset('logo-thwtrainer.png') . '?v=' . filemtime(public_path('logo-thwtrainer.png')) }}" alt="THW-Trainer Logo" class="h-8 w-auto sp-logo-light">
+                <span class="font-bold text-xl text-white">THW-Trainer</span>
+            </a>
+            <div class="hidden md:flex items-center gap-3">
+                <a href="{{ url('/') }}" class="text-sm font-medium text-zinc-400 hover:text-white transition-colors duration-200 px-4 py-2">Startseite</a>
+                <a href="{{ route('landing.statistics') }}" class="text-sm font-medium text-white transition-colors duration-200 px-4 py-2">Statistiken</a>
+                <a href="{{ $registerUrl }}" class="sp-btn-gold text-sm" style="padding: 0.5rem 1.25rem;">Kostenlos starten</a>
+            </div>
+        </div>
+    </nav>
 
-                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold mb-6 tracking-tight text-white leading-tight">
-                    <span class="landing-hero-gradient-text">Plattform</span>
+    {{-- ============================================
+         HERO SECTION — Compact
+         ============================================ --}}
+    <section class="sp-hero" style="min-height: auto; padding: 6rem 0 3rem;" aria-label="Statistik-Hauptbereich">
+        <div class="sp-orb sp-orb-1" aria-hidden="true"></div>
+        <div class="sp-orb sp-orb-2" aria-hidden="true"></div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="text-center py-12 lg:py-16">
+                {{-- Breadcrumb --}}
+                <nav class="mb-6 text-sm text-zinc-500" aria-label="Breadcrumb">
+                    <a href="{{ url('/') }}" class="hover:text-white transition-colors">Startseite</a>
+                    <span class="mx-2">/</span>
+                    <span class="text-zinc-300">Statistiken</span>
+                </nav>
+
+                <span class="sp-hero-badge">Plattform-Zahlen</span>
+
+                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight mb-6">
+                    Plattform
                     <br>
-                    <span class="text-white">Statistiken</span>
+                    <span class="sp-gradient-text">Statistiken</span>
                 </h1>
 
-                <p class="text-lg lg:text-xl text-blue-100 mb-8 max-w-2xl mx-auto leading-relaxed font-light" style="opacity: 0.85;">
+                <p class="text-lg lg:text-xl text-zinc-400 mb-4 max-w-2xl mx-auto leading-relaxed">
                     Anonyme, aggregierte Zahlen der gesamten THW-Trainer Community
                 </p>
             </div>
@@ -28,93 +63,121 @@
     </section>
 
     {{-- ============================================
-         STATS STRIP
+         STATS ROW — KPIs
          ============================================ --}}
-    <section class="px-4 sm:px-6 lg:px-8" style="background-color: #ffffff;" aria-labelledby="stats-heading">
+    <section class="py-12 lg:py-16 relative sp-section-alt" aria-labelledby="stats-heading">
         <h2 id="stats-heading" class="sr-only">Plattform-Kennzahlen</h2>
-        <div class="landing-stats-strip landing-fade-in">
-            <div class="landing-stat-item">
-                <div class="landing-stat-value" data-count="{{ (int) ($stats['users'] ?? 0) }}" data-suffix="+">0+</div>
-                <div class="landing-stat-label">Registrierte Nutzer</div>
-            </div>
-            <div class="landing-stat-item">
-                <div class="landing-stat-value" data-count="{{ (int) ($stats['questions_answered'] ?? 0) }}" data-suffix="+">0+</div>
-                <div class="landing-stat-label">Fragen beantwortet</div>
-            </div>
-            <div class="landing-stat-item">
-                <div class="landing-stat-value" data-count="{{ (int) ($stats['exams_passed'] ?? 0) }}" data-suffix="+">0+</div>
-                <div class="landing-stat-label">Prüfungen bestanden</div>
-            </div>
-            <div class="landing-stat-item">
-                <div class="landing-stat-value" data-count="{{ (int) ($stats['pass_rate'] ?? 0) }}" data-suffix="%">0%</div>
-                <div class="landing-stat-label">Bestehensquote</div>
+        <div class="sp-glow-border" style="position: absolute; top: 0; left: 0; right: 0; height: 1px;" aria-hidden="true"></div>
+
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="sp-stats sp-fade-in">
+                <div class="sp-stat-card">
+                    <div class="sp-stat-value" data-count="{{ (int) ($stats['users'] ?? 0) }}" data-suffix="+">0+</div>
+                    <div class="sp-stat-label">Registrierte Nutzer</div>
+                </div>
+                <div class="sp-stat-card">
+                    <div class="sp-stat-value" data-count="{{ (int) ($stats['questions_answered'] ?? 0) }}" data-suffix="+">0+</div>
+                    <div class="sp-stat-label">Fragen beantwortet</div>
+                </div>
+                <div class="sp-stat-card">
+                    <div class="sp-stat-value" data-count="{{ (int) ($stats['pass_rate'] ?? 0) }}" data-suffix="%">0%</div>
+                    <div class="sp-stat-label">Bestehensquote</div>
+                </div>
+                <div class="sp-stat-card">
+                    @if($stats['avg_rating'])
+                        <div class="sp-stat-value">{{ number_format($stats['avg_rating'], 1, ',', '.') }}/5</div>
+                    @else
+                        <div class="sp-stat-value" data-count="{{ (int) ($stats['avg_hit_rate'] ?? 0) }}" data-suffix="%">0%</div>
+                    @endif
+                    <div class="sp-stat-label">{{ $stats['avg_rating'] ? 'Durchschn. Bewertung' : 'Trefferquote' }}</div>
+                </div>
             </div>
         </div>
     </section>
 
     {{-- ============================================
-         CHARTS SECTION — Aktivität & Trends
+         COMMUNITY WACHSTUM — User Growth Chart
          ============================================ --}}
-    <section class="py-16 lg:py-24 bg-white" aria-labelledby="charts-heading">
+    @if(count($stats['user_growth']['labels']) > 0)
+    <section class="py-20 lg:py-28 sp-section" aria-labelledby="growth-heading">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <header class="landing-section-header center">
-                <h2 id="charts-heading">Aktivität & Trends</h2>
-                <p>30-Tage Überblick der Plattform-Nutzung</p>
+            <header class="text-center mb-16 sp-fade-in">
+                <h2 id="growth-heading" class="text-3xl lg:text-4xl font-extrabold text-white mb-4">
+                    Community <span class="sp-gradient-text">Wachstum</span>
+                </h2>
+                <p class="text-lg text-zinc-500 max-w-2xl mx-auto">
+                    Nutzerentwicklung der letzten 90 Tage
+                </p>
             </header>
 
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 landing-fade-in">
-                {{-- Chart 1: Aktive Nutzer (Bar) --}}
-                <div class="bg-white rounded-2xl shadow-lg border border-slate-100 p-6 lg:p-8">
-                    <div class="flex justify-between items-center mb-4">
-                        <div class="text-sm font-semibold text-slate-500 uppercase tracking-wider">Aktive Nutzer pro Tag</div>
-                        @php $lastDay = end($stats['chart']); @endphp
+            <div class="sp-fade-in">
+                <div class="glass glass-blue" style="padding: 2rem; border-radius: 1.5rem 0.5rem 1.5rem 0.5rem;">
+                    <div class="flex justify-between items-center mb-6">
+                        <div>
+                            <div class="text-xs text-zinc-500 uppercase tracking-wider mb-1">Gesamtnutzer</div>
+                            <div class="text-2xl font-bold text-white">{{ number_format($stats['users'], 0, ',', '.') }}+</div>
+                        </div>
                         <div class="text-right">
-                            <span class="text-2xl font-bold text-slate-900">{{ $lastDay['value'] }}</span>
-                            <span class="text-xs text-slate-500 ml-1">heute</span>
+                            @php
+                                $growthTotal = $stats['user_growth']['total'];
+                                $growthDiff = count($growthTotal) >= 2 ? end($growthTotal) - reset($growthTotal) : 0;
+                            @endphp
+                            @if($growthDiff > 0)
+                                <div class="text-sm font-semibold text-green-400">+{{ number_format($growthDiff, 0, ',', '.') }}</div>
+                                <div class="text-xs text-zinc-500">in 90 Tagen</div>
+                            @endif
                         </div>
                     </div>
-                    <div style="position: relative; height: 280px;">
-                        <canvas id="activeUsersChart"></canvas>
+                    <div style="position: relative; height: 300px;">
+                        <canvas id="growthChart"></canvas>
                     </div>
                 </div>
+            </div>
+        </div>
+    </section>
+    @endif
 
-                {{-- Chart 2: Beantwortete Fragen (Line) --}}
-                <div class="bg-white rounded-2xl shadow-lg border border-slate-100 p-6 lg:p-8">
+    {{-- ============================================
+         AKTIVITÄT & TRENDS — Konsolidierte Charts
+         ============================================ --}}
+    <section class="py-20 lg:py-28 sp-section-alt" aria-labelledby="charts-heading">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <header class="text-center mb-16 sp-fade-in">
+                <h2 id="charts-heading" class="text-3xl lg:text-4xl font-extrabold text-white mb-4">
+                    Aktivität & <span class="sp-gradient-text">Trends</span>
+                </h2>
+                <p class="text-lg text-zinc-500 max-w-2xl mx-auto">
+                    30-Tage Überblick der Plattform-Nutzung
+                </p>
+            </header>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 sp-fade-in">
+                {{-- Chart A: Lernaktivität (Active Users + Questions) --}}
+                <div class="glass" style="padding: 1.75rem; border-radius: 1.5rem 0.5rem 0.5rem 0.5rem;">
                     <div class="flex justify-between items-center mb-4">
-                        <div class="text-sm font-semibold text-slate-500 uppercase tracking-wider">Beantwortete Fragen pro Tag</div>
+                        <div>
+                            <div class="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Lernaktivität</div>
+                        </div>
                         @php $lastQ = end($stats['questions_per_day']['values']); @endphp
                         <div class="text-right">
-                            <span class="text-2xl font-bold text-slate-900">{{ number_format($lastQ, 0, ',', '.') }}</span>
-                            <span class="text-xs text-slate-500 ml-1">heute</span>
+                            <span class="text-xl font-bold text-white">{{ number_format($lastQ, 0, ',', '.') }}</span>
+                            <span class="text-xs text-zinc-500 ml-1">Fragen heute</span>
                         </div>
                     </div>
                     <div style="position: relative; height: 280px;">
-                        <canvas id="questionsChart"></canvas>
+                        <canvas id="activityChart"></canvas>
                     </div>
                 </div>
 
-                {{-- Chart 3: Erfolgsquote (Line) --}}
-                <div class="bg-white rounded-2xl shadow-lg border border-slate-100 p-6 lg:p-8">
+                {{-- Chart B: Prüfungen & Erfolg (Exams + Success Rate) --}}
+                <div class="glass" style="padding: 1.75rem; border-radius: 0.5rem 0.5rem 0.5rem 1.5rem;">
                     <div class="flex justify-between items-center mb-4">
-                        <div class="text-sm font-semibold text-slate-500 uppercase tracking-wider">Erfolgsquote im Zeitverlauf</div>
-                        <div class="text-right">
-                            <span class="text-2xl font-bold text-slate-900">{{ $stats['avg_hit_rate'] }}%</span>
-                            <span class="text-xs text-slate-500 ml-1">gesamt</span>
+                        <div>
+                            <div class="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Prüfungen & Erfolg</div>
                         </div>
-                    </div>
-                    <div style="position: relative; height: 280px;">
-                        <canvas id="successRateChart"></canvas>
-                    </div>
-                </div>
-
-                {{-- Chart 4: Prüfungen pro Tag (Bar) --}}
-                <div class="bg-white rounded-2xl shadow-lg border border-slate-100 p-6 lg:p-8">
-                    <div class="flex justify-between items-center mb-4">
-                        <div class="text-sm font-semibold text-slate-500 uppercase tracking-wider">Prüfungen pro Tag</div>
-                        @php $lastExam = end($stats['exams_per_day']['total']); @endphp
                         <div class="text-right">
-                            <span class="text-2xl font-bold text-slate-900">{{ $lastExam }}</span>
-                            <span class="text-xs text-slate-500 ml-1">heute</span>
+                            <span class="text-xl font-bold text-white">{{ $stats['avg_hit_rate'] }}%</span>
+                            <span class="text-xs text-zinc-500 ml-1">Erfolgsquote</span>
                         </div>
                     </div>
                     <div style="position: relative; height: 280px;">
@@ -126,54 +189,58 @@
     </section>
 
     {{-- ============================================
-         DETAILS — Bento Grid
+         PLATTFORM IM DETAIL — Bento Grid
          ============================================ --}}
-    <section class="py-16 lg:py-24 bg-slate-50" aria-labelledby="details-heading">
+    <section class="py-20 lg:py-28 sp-section" aria-labelledby="details-heading">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <header class="landing-section-header center">
-                <h2 id="details-heading">Plattform im Detail</h2>
-                <p>Zahlen und Fakten zum THW-Trainer</p>
+            <header class="text-center mb-16 sp-fade-in">
+                <h2 id="details-heading" class="text-3xl lg:text-4xl font-extrabold text-white mb-4">
+                    Plattform im <span class="sp-gradient-text">Detail</span>
+                </h2>
+                <p class="text-lg text-zinc-500 max-w-2xl mx-auto">
+                    Zahlen und Fakten zum THW-Trainer
+                </p>
             </header>
 
-            <div class="landing-bento">
+            <div class="sp-bento sp-fade-in">
                 {{-- Hauptkarte: Trefferquote --}}
-                <article class="landing-bento-card landing-bento-main landing-fade-in">
-                    <span class="landing-bento-tag">Community</span>
-                    <h3 class="landing-bento-title">Durchschnittliche Trefferquote</h3>
-                    <div class="flex items-baseline gap-2 mt-4">
-                        <span class="text-5xl lg:text-6xl font-extrabold" style="background: linear-gradient(135deg, #fbbf24, #f59e0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                <article class="sp-bento-main glass glass-blue" style="padding: 2.5rem; border-radius: 2rem 0.75rem 0.75rem 0.75rem;">
+                    <span class="inline-block text-xs font-semibold uppercase tracking-wider mb-4 px-3 py-1 rounded-full sp-feature-badge">Community</span>
+                    <h3 class="text-2xl lg:text-3xl font-bold text-white mb-4">Durchschnittliche Trefferquote</h3>
+                    <div class="flex items-baseline gap-3 mt-4">
+                        <span class="text-5xl lg:text-6xl font-extrabold sp-gradient-text">
                             {{ $stats['avg_hit_rate'] }}%
                         </span>
-                        <span class="text-slate-500 text-lg">aller Antworten korrekt</span>
+                        <span class="text-zinc-500 text-lg">aller Antworten korrekt</span>
                     </div>
-                    <p class="landing-bento-text mt-4">
+                    <p class="text-zinc-400 leading-relaxed mt-4">
                         Über {{ number_format($stats['questions_answered'], 0, ',', '.') }} beantwortete Fragen
                         mit einer durchschnittlichen Trefferquote von {{ $stats['avg_hit_rate'] }}%.
                     </p>
                 </article>
 
-                {{-- Gesamtfragen --}}
-                <article class="landing-bento-card landing-bento-side landing-fade-in">
-                    <h3 class="landing-bento-title">Fragenkatalog</h3>
-                    <div class="text-3xl font-bold text-slate-900 mt-3">{{ number_format($stats['total_questions'], 0, ',', '.') }}</div>
-                    <p class="landing-bento-text mt-2">
+                {{-- Fragenkatalog --}}
+                <article class="glass glass-tl" style="padding: 1.75rem;">
+                    <h3 class="text-lg font-bold text-white mb-3">Fragenkatalog</h3>
+                    <div class="text-3xl font-extrabold text-white mt-3">{{ number_format($stats['total_questions'], 0, ',', '.') }}</div>
+                    <p class="text-sm text-zinc-400 leading-relaxed mt-2">
                         Theoriefragen in {{ count($stats['section_counts']) }} Lernabschnitten
                     </p>
                 </article>
 
-                {{-- Bestehensquote --}}
-                <article class="landing-bento-card landing-bento-side landing-fade-in" style="border-radius: 0.75rem 2rem 0.75rem 0.75rem;">
-                    <h3 class="landing-bento-title">Bestehensquote</h3>
-                    <div class="text-3xl font-bold mt-3" style="color: #16a34a;">{{ $stats['pass_rate'] }}%</div>
-                    <p class="landing-bento-text mt-2">
-                        {{ number_format($stats['exams_passed'], 0, ',', '.') }}+ bestandene Prüfungssimulationen
+                {{-- Verfügbare Lehrgänge --}}
+                <article class="glass glass-br" style="padding: 1.75rem;">
+                    <h3 class="text-lg font-bold text-white mb-3">Lehrgänge</h3>
+                    <div class="text-3xl font-extrabold text-white mt-3">{{ $stats['lehrgang_count'] }}</div>
+                    <p class="text-sm text-zinc-400 leading-relaxed mt-2">
+                        verfügbare Lehrgänge mit {{ number_format($stats['lehrgang_question_count'], 0, ',', '.') }} Fragen
                     </p>
                 </article>
 
-                {{-- Breite Karte: Lernabschnitte als Horizontal Bar Chart --}}
-                <article class="landing-bento-card landing-bento-wide landing-fade-in">
+                {{-- Breite Karte: Lernabschnitte --}}
+                <article class="sp-bento-wide glass" style="padding: 2rem; border-radius: 0.5rem 2rem 0.5rem 2rem;">
                     <div class="w-full">
-                        <h3 class="landing-bento-title mb-4">Fragen pro Lernabschnitt</h3>
+                        <h3 class="text-lg font-bold text-white mb-4">Fragen pro Lernabschnitt</h3>
                         <div style="position: relative; height: 260px;">
                             <canvas id="sectionChart"></canvas>
                         </div>
@@ -184,52 +251,110 @@
     </section>
 
     {{-- ============================================
+         DSGVO-HINWEIS
+         ============================================ --}}
+    <section class="py-8 lg:py-12 sp-section-alt" aria-labelledby="privacy-heading">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="glass sp-fade-in" style="padding: 1.25rem 1.75rem; border-radius: 0.75rem;">
+                <div class="flex items-start gap-3">
+                    <i class="bi bi-shield-check text-lg" style="color: #5b9aff; margin-top: 2px;"></i>
+                    <div>
+                        <h3 id="privacy-heading" class="text-sm font-semibold text-white mb-1">Datenschutz-Hinweis</h3>
+                        <p class="text-xs text-zinc-500 leading-relaxed">
+                            Alle auf dieser Seite angezeigten Statistiken sind vollständig anonymisiert und aggregiert.
+                            Es werden keine personenbezogenen Daten dargestellt. Nutzerzahlen sind gerundet.
+                            Die Daten dienen ausschließlich der transparenten Darstellung der Plattformnutzung gem. Art. 6 Abs. 1 lit. f DSGVO.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {{-- ============================================
          CTA SECTION
          ============================================ --}}
-    <section class="landing-cta" aria-labelledby="cta-heading">
-        <div class="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8 pt-8">
-            <h2 id="cta-heading" class="text-2xl lg:text-4xl font-bold text-white mb-4 tracking-tight">
+    <section class="sp-cta py-20 lg:py-28" aria-labelledby="cta-heading">
+        <div class="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
+            <h2 id="cta-heading" class="text-2xl lg:text-4xl font-extrabold text-white mb-4 tracking-tight">
                 Werde Teil der Community
             </h2>
-            <p class="text-base lg:text-lg text-blue-100 mb-4 max-w-3xl mx-auto leading-relaxed font-light">
+            <p class="text-base lg:text-lg text-zinc-400 mb-4 max-w-3xl mx-auto leading-relaxed">
                 Registriere dich kostenlos und starte jetzt mit deiner
                 <strong class="font-semibold text-white">THW Grundausbildung Theorieprüfung</strong> Vorbereitung.
             </p>
-            <p class="text-sm lg:text-base text-blue-200 max-w-3xl mx-auto leading-relaxed font-light mb-8" style="opacity: 0.8;">
+            <p class="text-sm text-zinc-500 max-w-3xl mx-auto leading-relaxed mb-8">
                 Bereits {{ number_format($stats['users'], 0, ',', '.') }}+ Helfer lernen mit dem THW-Trainer.
             </p>
 
             <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                @php
-                    $registerUrl = config('domains.development')
-                        ? route('register')
-                        : 'https://' . config('domains.app') . '/register';
-                    $loginUrl = config('domains.development')
-                        ? route('login')
-                        : 'https://' . config('domains.app') . '/login';
-                @endphp
-                <a href="{{ $registerUrl }}"
-                   class="inline-block bg-gradient-to-r from-yellow-400 to-amber-500 text-blue-900 px-8 py-4 rounded-xl font-bold hover:scale-105 transition-all duration-300 shadow-lg shadow-yellow-500/30 text-center"
-                   aria-label="Jetzt kostenlos registrieren">
+                <a href="{{ $registerUrl }}" class="sp-btn-gold" aria-label="Jetzt kostenlos registrieren">
                     Jetzt kostenlos anmelden
                 </a>
-
-                <a href="{{ $loginUrl }}"
-                   class="inline-block bg-white/10 text-white px-8 py-4 rounded-xl font-bold border-2 border-white/30 hover:bg-white/20 hover:border-white/50 transition-all duration-300 text-center backdrop-blur-sm"
-                   aria-label="Zum Login">
+                <a href="{{ $loginUrl }}" class="sp-btn-ghost" aria-label="Zum Login">
                     Login
                 </a>
             </div>
         </div>
     </section>
 
+    {{-- ============================================
+         FOOTER
+         ============================================ --}}
+    <footer class="sp-footer py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-10">
+                <div>
+                    <div class="flex items-center gap-2.5 mb-4">
+                        <img src="{{ asset('logo-thwtrainer_w.png') . '?v=' . filemtime(public_path('logo-thwtrainer_w.png')) }}" alt="THW-Trainer" class="h-8 w-auto sp-logo-dark">
+                        <img src="{{ asset('logo-thwtrainer.png') . '?v=' . filemtime(public_path('logo-thwtrainer.png')) }}" alt="THW-Trainer" class="h-8 w-auto sp-logo-light">
+                        <span class="font-bold text-lg text-white">THW-Trainer</span>
+                    </div>
+                    <p class="text-sm text-zinc-500 max-w-xs leading-relaxed">
+                        Kostenlose Lernplattform für die THW Grundausbildung Theorieprüfung.
+                    </p>
+                </div>
+
+                <div>
+                    <h4 class="font-semibold text-white text-sm mb-4">Themen</h4>
+                    <div class="flex flex-col gap-2">
+                        <a href="{{ url('/thw-theorie') }}" class="text-sm text-zinc-500 hover:text-zinc-300 transition-colors">THW Theorie</a>
+                        <a href="{{ url('/thw-pruefungsfragen') }}" class="text-sm text-zinc-500 hover:text-zinc-300 transition-colors">THW Prüfungsfragen</a>
+                        <a href="{{ url('/thw-grundausbildung') }}" class="text-sm text-zinc-500 hover:text-zinc-300 transition-colors">THW Grundausbildung</a>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="font-semibold text-white text-sm mb-4">Plattform</h4>
+                    <div class="flex flex-col gap-2">
+                        <a href="{{ url('/') }}" class="text-sm text-zinc-500 hover:text-zinc-300 transition-colors">Startseite</a>
+                        <a href="{{ route('landing.statistics') }}" class="text-sm text-zinc-500 hover:text-zinc-300 transition-colors">Statistiken</a>
+                        <a href="{{ route('landing.guest.practice.menu') }}" class="text-sm text-zinc-500 hover:text-zinc-300 transition-colors">Anonym üben</a>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="font-semibold text-white text-sm mb-4">Rechtliches</h4>
+                    <div class="flex flex-col gap-2">
+                        <a href="{{ route('landing.impressum') }}" class="text-sm text-zinc-500 hover:text-zinc-300 transition-colors">Impressum</a>
+                        <a href="{{ route('landing.datenschutz') }}" class="text-sm text-zinc-500 hover:text-zinc-300 transition-colors">Datenschutz</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sp-copyright-border pt-6 text-center">
+                <p class="text-xs text-zinc-600">&copy; {{ date('Y') }} THW-Trainer.de &mdash; Alle Rechte vorbehalten.</p>
+            </div>
+        </div>
+    </footer>
+
 </div>
 
-{{-- Counter Animation Script --}}
+{{-- Counter Animation + Fade-in Script --}}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Scroll fade-in animation
-    var fadeEls = document.querySelectorAll('.landing-fade-in');
+    // sp-fade-in observer
+    var fadeEls = document.querySelectorAll('.sp-fade-in');
     if (fadeEls.length && 'IntersectionObserver' in window) {
         var observer = new IntersectionObserver(function(entries) {
             entries.forEach(function(entry) {
@@ -239,14 +364,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
         }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
-
         fadeEls.forEach(function(el) { observer.observe(el); });
     } else {
         fadeEls.forEach(function(el) { el.classList.add('visible'); });
     }
 
-    // Counter animation for stats strip
-    var statEls = document.querySelectorAll('.landing-stat-value[data-count]');
+    // Counter animation for stats
+    var statEls = document.querySelectorAll('.sp-stat-value[data-count]');
     if (statEls.length && 'IntersectionObserver' in window) {
         var countObserver = new IntersectionObserver(function(entries) {
             entries.forEach(function(entry) {
@@ -293,24 +417,28 @@ function animateStatCounter(el) {
 document.addEventListener('DOMContentLoaded', function() {
     if (typeof Chart === 'undefined') return;
 
-    // Light mode defaults
+    // Dark mode defaults
     Chart.defaults.font.family = "'Figtree', system-ui, sans-serif";
-    Chart.defaults.color = '#64748b';
+    Chart.defaults.color = '#a1a1aa';
 
-    var lightScales = {
+    var darkScales = {
         y: {
             beginAtZero: true,
-            grid: { color: 'rgba(0, 0, 0, 0.06)', drawBorder: false },
-            ticks: { font: { size: 11 }, color: '#94a3b8' }
+            grid: { color: 'rgba(255, 255, 255, 0.06)', drawBorder: false },
+            ticks: { font: { size: 11 }, color: '#71717a' }
         },
         x: {
             grid: { display: false },
-            ticks: { font: { size: 10 }, color: '#94a3b8', maxRotation: 45, minRotation: 45 }
+            ticks: { font: { size: 10 }, color: '#71717a', maxRotation: 45, minRotation: 45 }
         }
     };
 
     var tooltipStyle = {
-        backgroundColor: '#1e293b',
+        backgroundColor: 'rgba(15, 23, 42, 0.9)',
+        titleColor: '#ffffff',
+        bodyColor: '#d4d4d8',
+        borderColor: 'rgba(255, 255, 255, 0.1)',
+        borderWidth: 1,
         padding: 12,
         cornerRadius: 8,
         titleFont: { size: 13, weight: 'bold' },
@@ -322,7 +450,6 @@ document.addEventListener('DOMContentLoaded', function() {
     var activeValues = @json(collect($stats['chart'])->pluck('value'));
     var qLabels = @json($stats['questions_per_day']['labels']);
     var qValues = @json($stats['questions_per_day']['values']);
-    var srLabels = @json($stats['success_rate_per_day']['labels']);
     var srValues = @json($stats['success_rate_per_day']['values']);
     var exLabels = @json($stats['exams_per_day']['labels']);
     var exTotal = @json($stats['exams_per_day']['total']);
@@ -330,113 +457,107 @@ document.addEventListener('DOMContentLoaded', function() {
     var sectionLabels = @json(array_map(function($s) { return 'Abschnitt ' . $s; }, array_keys($stats['section_counts'])));
     var sectionValues = @json(array_values($stats['section_counts']));
 
-    // 1. Active Users (Bar Chart)
-    new Chart(document.getElementById('activeUsersChart'), {
-        type: 'bar',
-        data: {
-            labels: activeLabels,
-            datasets: [{
-                data: activeValues,
-                backgroundColor: function(ctx) {
-                    return ctx.dataIndex === activeValues.length - 1
-                        ? 'rgba(245, 158, 11, 0.85)'
-                        : 'rgba(0, 51, 127, 0.7)';
-                },
-                borderRadius: 4,
-                borderSkipped: false,
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false }, tooltip: tooltipStyle },
-            scales: lightScales
-        }
-    });
+    // Growth chart data
+    var growthLabels = @json($stats['user_growth']['labels']);
+    var growthTotal = @json($stats['user_growth']['total']);
+    var growthVerified = @json($stats['user_growth']['verified']);
 
-    // 2. Questions per Day (Line Chart)
-    new Chart(document.getElementById('questionsChart'), {
-        type: 'line',
+    // 1. User Growth (Area Chart)
+    if (growthLabels.length > 0 && document.getElementById('growthChart')) {
+        new Chart(document.getElementById('growthChart'), {
+            type: 'line',
+            data: {
+                labels: growthLabels,
+                datasets: [
+                    {
+                        label: 'Gesamt',
+                        data: growthTotal,
+                        borderColor: '#5b9aff',
+                        backgroundColor: 'rgba(91, 154, 255, 0.1)',
+                        borderWidth: 2.5,
+                        fill: true,
+                        tension: 0.35,
+                        pointRadius: 0,
+                        pointHoverRadius: 5,
+                        pointHoverBackgroundColor: '#5b9aff',
+                    },
+                    {
+                        label: 'Verifiziert',
+                        data: growthVerified,
+                        borderColor: 'rgba(147, 197, 253, 0.5)',
+                        backgroundColor: 'rgba(147, 197, 253, 0.05)',
+                        borderWidth: 1.5,
+                        borderDash: [4, 4],
+                        fill: true,
+                        tension: 0.35,
+                        pointRadius: 0,
+                        pointHoverRadius: 4,
+                        pointHoverBackgroundColor: '#93c5fd',
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        align: 'end',
+                        labels: { font: { size: 11 }, color: '#71717a', usePointStyle: true, pointStyle: 'line', padding: 16 }
+                    },
+                    tooltip: tooltipStyle
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        grid: { color: 'rgba(255, 255, 255, 0.06)', drawBorder: false },
+                        ticks: { font: { size: 11 }, color: '#71717a' }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: {
+                            font: { size: 10 },
+                            color: '#71717a',
+                            maxRotation: 45,
+                            minRotation: 45,
+                            maxTicksLimit: 15
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // 2. Lernaktivität (Combined: Active Users Bar + Questions Line)
+    new Chart(document.getElementById('activityChart'), {
+        type: 'bar',
         data: {
             labels: qLabels,
-            datasets: [{
-                data: qValues,
-                borderColor: '#f59e0b',
-                backgroundColor: 'rgba(245, 158, 11, 0.08)',
-                borderWidth: 2.5,
-                fill: true,
-                tension: 0.35,
-                pointRadius: 0,
-                pointHoverRadius: 5,
-                pointHoverBackgroundColor: '#f59e0b',
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false }, tooltip: tooltipStyle },
-            scales: lightScales
-        }
-    });
-
-    // 3. Success Rate (Line Chart)
-    new Chart(document.getElementById('successRateChart'), {
-        type: 'line',
-        data: {
-            labels: srLabels,
-            datasets: [{
-                data: srValues,
-                borderColor: '#16a34a',
-                backgroundColor: 'rgba(22, 163, 74, 0.08)',
-                borderWidth: 2.5,
-                fill: true,
-                tension: 0.35,
-                pointRadius: 0,
-                pointHoverRadius: 5,
-                pointHoverBackgroundColor: '#16a34a',
-                spanGaps: true,
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false }, tooltip: tooltipStyle },
-            scales: {
-                y: {
-                    beginAtZero: false,
-                    min: 0,
-                    max: 100,
-                    grid: { color: 'rgba(0, 0, 0, 0.06)', drawBorder: false },
-                    ticks: {
-                        font: { size: 11 },
-                        color: '#94a3b8',
-                        callback: function(v) { return v + '%'; }
-                    }
-                },
-                x: lightScales.x
-            }
-        }
-    });
-
-    // 4. Exams per Day (Stacked Bar Chart)
-    new Chart(document.getElementById('examsChart'), {
-        type: 'bar',
-        data: {
-            labels: exLabels,
             datasets: [
                 {
-                    label: 'Bestanden',
-                    data: exPassed,
-                    backgroundColor: 'rgba(22, 163, 74, 0.7)',
+                    label: 'Aktive Nutzer',
+                    data: activeValues,
+                    backgroundColor: 'rgba(91, 154, 255, 0.35)',
                     borderRadius: 4,
                     borderSkipped: false,
+                    order: 2,
+                    yAxisID: 'y',
                 },
                 {
-                    label: 'Nicht bestanden',
-                    data: exTotal.map(function(t, i) { return t - exPassed[i]; }),
-                    backgroundColor: 'rgba(239, 68, 68, 0.5)',
-                    borderRadius: 4,
-                    borderSkipped: false,
+                    label: 'Fragen',
+                    data: qValues,
+                    type: 'line',
+                    borderColor: '#fbbf24',
+                    backgroundColor: 'rgba(251, 191, 36, 0.08)',
+                    borderWidth: 2.5,
+                    fill: true,
+                    tension: 0.35,
+                    pointRadius: 0,
+                    pointHoverRadius: 5,
+                    pointHoverBackgroundColor: '#fbbf24',
+                    order: 1,
+                    yAxisID: 'y1',
                 }
             ]
         },
@@ -447,7 +568,84 @@ document.addEventListener('DOMContentLoaded', function() {
                 legend: {
                     display: true,
                     position: 'bottom',
-                    labels: { font: { size: 11 }, color: '#64748b', usePointStyle: true, pointStyle: 'rectRounded', padding: 16 }
+                    labels: { font: { size: 11 }, color: '#71717a', usePointStyle: true, padding: 16 }
+                },
+                tooltip: tooltipStyle
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    position: 'left',
+                    grid: { color: 'rgba(255, 255, 255, 0.06)', drawBorder: false },
+                    ticks: { font: { size: 11 }, color: '#71717a' },
+                    title: { display: false }
+                },
+                y1: {
+                    beginAtZero: true,
+                    position: 'right',
+                    grid: { display: false },
+                    ticks: { font: { size: 11 }, color: '#71717a' },
+                    title: { display: false }
+                },
+                x: {
+                    grid: { display: false },
+                    ticks: { font: { size: 10 }, color: '#71717a', maxRotation: 45, minRotation: 45 }
+                }
+            }
+        }
+    });
+
+    // 3. Prüfungen & Erfolg (Stacked Bar + Success Rate Line)
+    new Chart(document.getElementById('examsChart'), {
+        type: 'bar',
+        data: {
+            labels: exLabels,
+            datasets: [
+                {
+                    label: 'Bestanden',
+                    data: exPassed,
+                    backgroundColor: 'rgba(34, 197, 94, 0.6)',
+                    borderRadius: 4,
+                    borderSkipped: false,
+                    stack: 'exams',
+                    order: 2,
+                    yAxisID: 'y',
+                },
+                {
+                    label: 'Nicht bestanden',
+                    data: exTotal.map(function(t, i) { return t - exPassed[i]; }),
+                    backgroundColor: 'rgba(239, 68, 68, 0.4)',
+                    borderRadius: 4,
+                    borderSkipped: false,
+                    stack: 'exams',
+                    order: 3,
+                    yAxisID: 'y',
+                },
+                {
+                    label: 'Erfolgsquote',
+                    data: srValues,
+                    type: 'line',
+                    borderColor: '#93c5fd',
+                    backgroundColor: 'transparent',
+                    borderWidth: 2,
+                    tension: 0.35,
+                    pointRadius: 0,
+                    pointHoverRadius: 5,
+                    pointHoverBackgroundColor: '#93c5fd',
+                    spanGaps: true,
+                    order: 1,
+                    yAxisID: 'y1',
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'bottom',
+                    labels: { font: { size: 11 }, color: '#71717a', usePointStyle: true, padding: 16 }
                 },
                 tooltip: tooltipStyle
             },
@@ -455,22 +653,35 @@ document.addEventListener('DOMContentLoaded', function() {
                 y: {
                     beginAtZero: true,
                     stacked: true,
-                    grid: { color: 'rgba(0, 0, 0, 0.06)', drawBorder: false },
-                    ticks: { font: { size: 11 }, color: '#94a3b8' }
+                    position: 'left',
+                    grid: { color: 'rgba(255, 255, 255, 0.06)', drawBorder: false },
+                    ticks: { font: { size: 11 }, color: '#71717a' }
+                },
+                y1: {
+                    beginAtZero: false,
+                    min: 0,
+                    max: 100,
+                    position: 'right',
+                    grid: { display: false },
+                    ticks: {
+                        font: { size: 11 },
+                        color: '#71717a',
+                        callback: function(v) { return v + '%'; }
+                    }
                 },
                 x: {
                     stacked: true,
                     grid: { display: false },
-                    ticks: { font: { size: 10 }, color: '#94a3b8', maxRotation: 45, minRotation: 45 }
+                    ticks: { font: { size: 10 }, color: '#71717a', maxRotation: 45, minRotation: 45 }
                 }
             }
         }
     });
 
-    // 5. Section Breakdown (Horizontal Bar)
+    // 4. Section Breakdown (Horizontal Bar — Dark Mode)
     var sectionColors = [
-        '#00337F', '#0055cc', '#3b82f6', '#60a5fa', '#93c5fd',
-        '#1e40af', '#1d4ed8', '#2563eb', '#3b82f6', '#60a5fa'
+        '#1e40af', '#1d4ed8', '#2563eb', '#3b82f6', '#60a5fa',
+        '#5b9aff', '#93c5fd', '#7dd3fc', '#38bdf8', '#0ea5e9'
     ];
     new Chart(document.getElementById('sectionChart'), {
         type: 'bar',
@@ -496,12 +707,12 @@ document.addEventListener('DOMContentLoaded', function() {
             scales: {
                 x: {
                     beginAtZero: true,
-                    grid: { color: 'rgba(0, 0, 0, 0.06)', drawBorder: false },
-                    ticks: { font: { size: 11 }, color: '#94a3b8' }
+                    grid: { color: 'rgba(255, 255, 255, 0.06)', drawBorder: false },
+                    ticks: { font: { size: 11 }, color: '#71717a' }
                 },
                 y: {
                     grid: { display: false },
-                    ticks: { font: { size: 12, weight: '500' }, color: '#334155' }
+                    ticks: { font: { size: 12, weight: '500' }, color: '#d4d4d8' }
                 }
             }
         }
