@@ -2,12 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ExamFeedback;
 use App\Models\ExamStatistic;
+use App\Models\Lehrgang;
+use App\Models\LehrgangQuestion;
 use App\Models\LehrgangQuestionStatistic;
 use App\Models\OrtsverbandLernpoolQuestionStatistic;
 use App\Models\Question;
 use App\Models\QuestionStatistic;
 use App\Models\User;
+use App\Models\UserCountHistory;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -16,7 +20,7 @@ class PublicStatisticsController extends Controller
 {
     public function index()
     {
-        $stats = Cache::remember('public_statistics_v3', 300, function () {
+        $stats = Cache::remember('public_statistics_v4', 300, function () {
             $totalExams = ExamStatistic::count();
             $passedExams = ExamStatistic::where('is_passed', true)->count();
             $users = User::count();
@@ -35,6 +39,27 @@ class PublicStatisticsController extends Controller
                 ->orderBy('lernabschnitt')
                 ->pluck('total', 'lernabschnitt')
                 ->toArray();
+
+            // Average exam feedback rating (anonymous aggregate)
+            $avgRating = ExamFeedback::whereNotNull('rating')
+                ->where('rating', '>', 0)
+                ->avg('rating');
+
+            // Lehrgang counts
+            $lehrgangCount = Lehrgang::count();
+            $lehrgangQuestionCount = LehrgangQuestion::count();
+
+            // User growth (last 90 days) from UserCountHistory
+            $userGrowthData = UserCountHistory::where('date', '>=', Carbon::today()->subDays(89))
+                ->orderBy('date')
+                ->get(['date', 'total_users', 'verified_users']);
+
+            $userGrowth = ['labels' => [], 'total' => [], 'verified' => []];
+            foreach ($userGrowthData as $row) {
+                $userGrowth['labels'][] = $row->date->format('d.m.');
+                $userGrowth['total'][] = $row->total_users;
+                $userGrowth['verified'][] = $row->verified_users;
+            }
 
             $thirtyDaysAgo = Carbon::today()->subDays(29);
 
@@ -125,8 +150,12 @@ class PublicStatisticsController extends Controller
                 'exams_passed' => (int) (floor($passedExams / 10) * 10),
                 'pass_rate' => $totalExams > 0 ? (int) round(($passedExams / $totalExams) * 100) : 0,
                 'avg_hit_rate' => $avgHitRate,
+                'avg_rating' => $avgRating ? round($avgRating, 1) : null,
                 'total_questions' => Question::count(),
                 'section_counts' => $sectionCounts,
+                'lehrgang_count' => $lehrgangCount,
+                'lehrgang_question_count' => $lehrgangQuestionCount,
+                'user_growth' => $userGrowth,
                 'chart' => $chartData,
                 'questions_per_day' => $questionsPerDay,
                 'success_rate_per_day' => $successRatePerDay,
