@@ -292,12 +292,11 @@
 <div class="space-y-4">
 
     {{-- ── 1. Header + System Status ── --}}
-    <div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;">
-        <header class="dashboard-header" style="max-width:none;">
-            <h1 class="page-title">System <span>Dashboard</span></h1>
-            <p class="page-subtitle">Benutzer, Aktivitäten und Systemstatus</p>
-        </header>
-        <div style="display:flex;gap:0.375rem;flex-wrap:wrap;">
+    <div>
+        <p style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);font-weight:600;margin-bottom:0.25rem;">Administration</p>
+        <h1 style="font-size:1.5rem;font-weight:800;line-height:1.2;font-family:'Barlow Condensed',sans-serif;background:linear-gradient(135deg,#5b9aff,#0055cc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">System Dashboard</h1>
+        <p style="font-size:0.875rem;color:var(--text-muted);margin-top:0.125rem;">Benutzer, Aktivitäten und Systemstatus</p>
+        <div style="display:flex;gap:0.375rem;flex-wrap:wrap;margin-top:0.75rem;">
             <span class="sys-pill">
                 <span class="status-dot {{ $systemStatus['database']['status'] === 'ok' ? 'ok' : 'err' }}"></span> DB
             </span>
@@ -305,62 +304,47 @@
                 <span class="status-dot {{ $systemStatus['cache']['status'] === 'ok' ? 'ok' : 'err' }}"></span> Cache
             </span>
             <span class="sys-pill" style="border-color:rgba(91,154,255,0.2);">
-                <span style="font-weight:700;color:var(--thw-blue-light);">{{ $systemStatus['online_users']['count'] }}</span>&nbsp;Online
+                <span style="font-weight:700;color:#5b9aff;">{{ $systemStatus['online_users']['count'] }}</span>&nbsp;Online
             </span>
             @if($openIssues > 0)
                 <a href="{{ route('admin.issues.index') }}" class="sys-pill" style="border-color:rgba(245,158,11,0.2);">
-                    <span style="font-weight:700;color:var(--warning);">{{ $openIssues }}</span>&nbsp;Issues
+                    <span style="font-weight:700;color:#f59e0b;">{{ $openIssues }}</span>&nbsp;Issues
                 </a>
             @endif
             @if($unreadMessages > 0)
                 <a href="{{ route('admin.contact-messages.index') }}" class="sys-pill" style="border-color:rgba(59,130,246,0.2);">
-                    <span style="font-weight:700;color:var(--thw-blue-light);">{{ $unreadMessages }}</span>&nbsp;Ungelesen
+                    <span style="font-weight:700;color:#5b9aff;">{{ $unreadMessages }}</span>&nbsp;Ungelesen
                 </a>
             @endif
         </div>
     </div>
 
-    {{-- ── 2. Stats Row ── --}}
+    {{-- ── 2. Gami Pills ── --}}
     @php
         $successRate = $totalAnsweredQuestions > 0
             ? round(($totalCorrectAnswers / $totalAnsweredQuestions) * 100, 1)
             : 0;
     @endphp
-    <div class="stats-row">
-        <div class="stat-pill">
-            <span class="stat-pill-icon text-gold"><i class="bi bi-people"></i></span>
-            <div>
-                <div class="stat-pill-value">{{ number_format($totalUsers, 0, ',', '.') }}</div>
-                <div class="stat-pill-label">Benutzer</div>
-            </div>
+    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+        <div class="gami-pill">
+            <div class="gami-pill__value gami-pill__value--blue">{{ number_format($totalUsers, 0, ',', '.') }}</div>
+            <div class="gami-pill__label">Benutzer</div>
         </div>
-        <div class="stat-pill">
-            <span class="stat-pill-icon text-success"><i class="bi bi-patch-check"></i></span>
-            <div>
-                <div class="stat-pill-value">{{ $verificationRate }}%</div>
-                <div class="stat-pill-label">Verifiziert</div>
-            </div>
+        <div class="gami-pill">
+            <div class="gami-pill__value" style="color:var(--success);">{{ $verificationRate }}%</div>
+            <div class="gami-pill__label">Verifiziert</div>
         </div>
-        <div class="stat-pill">
-            <span class="stat-pill-icon" style="color:var(--thw-blue-light);"><i class="bi bi-chat-dots"></i></span>
-            <div>
-                <div class="stat-pill-value">{{ number_format($totalAnsweredQuestions, 0, ',', '.') }}</div>
-                <div class="stat-pill-label">Beantwortet</div>
-            </div>
+        <div class="gami-pill">
+            <div class="gami-pill__value">{{ number_format($totalAnsweredQuestions, 0, ',', '.') }}</div>
+            <div class="gami-pill__label">Beantwortet</div>
         </div>
-        <div class="stat-pill">
-            <span class="stat-pill-icon text-success"><i class="bi bi-check-circle"></i></span>
-            <div>
-                <div class="stat-pill-value">{{ $successRate }}%</div>
-                <div class="stat-pill-label">Erfolgsrate</div>
-            </div>
+        <div class="gami-pill">
+            <div class="gami-pill__value" style="color:var(--success);">{{ $successRate }}%</div>
+            <div class="gami-pill__label">Erfolgsrate</div>
         </div>
-        <div class="stat-pill">
-            <span class="stat-pill-icon text-gold"><i class="bi bi-person-plus"></i></span>
-            <div>
-                <div class="stat-pill-value">+{{ $newUsersToday }}</div>
-                <div class="stat-pill-label">Heute neu</div>
-            </div>
+        <div class="gami-pill">
+            <div class="gami-pill__value gami-pill__value--gold">+{{ $newUsersToday }}</div>
+            <div class="gami-pill__label">Heute neu</div>
         </div>
     </div>
 
@@ -440,8 +424,8 @@
     </div>
 
     {{-- ── 4. Spaced Repetition Section ── --}}
-    <div class="section-header" style="padding-left: 1rem; border-left: 3px solid var(--gold-start);">
-        <h2 class="section-title">Spaced Repetition</h2>
+    <div style="padding-left:1rem;border-left:3px solid var(--gold-start);">
+        <h2 style="font-size:1.1rem;font-weight:700;color:var(--text-primary);">Spaced Repetition</h2>
     </div>
 
     <div class="bento-grid">
@@ -517,8 +501,8 @@
     </div>
 
     {{-- ── 5. Leaderboard ── --}}
-    <div class="section-header" style="padding-left: 1rem; border-left: 3px solid var(--gold-start);">
-        <h2 class="section-title">Leaderboard</h2>
+    <div style="padding-left:1rem;border-left:3px solid var(--gold-start);">
+        <h2 style="font-size:1.1rem;font-weight:700;color:var(--text-primary);">Leaderboard</h2>
     </div>
 
     <div class="glass-br">
@@ -570,8 +554,8 @@
     </div>
 
     {{-- ── 6. Charts ── --}}
-    <div class="section-header" style="padding-left: 1rem; border-left: 3px solid var(--gold-start);">
-        <h2 class="section-title">Statistiken (30 Tage)</h2>
+    <div style="padding-left:1rem;border-left:3px solid var(--gold-start);">
+        <h2 style="font-size:1.1rem;font-weight:700;color:var(--text-primary);">Statistiken (30 Tage)</h2>
     </div>
 
     <div class="bento-grid">
