@@ -33,57 +33,15 @@
     .status-dot.ok { background: #22c55e; box-shadow: 0 0 4px rgba(34, 197, 94, 0.4); }
     .status-dot.err { background: #ef4444; box-shadow: 0 0 4px rgba(239, 68, 68, 0.4); }
 
-    /* ── KPI Bar ── */
-    .kpi-value {
-        font-size: 1.75rem;
-        font-weight: 800;
-        font-family: 'Barlow Condensed', sans-serif;
-    }
-    .kpi-label {
+    /* ── Card Label ── */
+    .card-label {
         font-size: 0.5625rem;
-        color: var(--text-muted);
         text-transform: uppercase;
-        letter-spacing: 0.06em;
-        font-family: 'IBM Plex Mono', monospace;
-        margin-top: 0.125rem;
-    }
-    .kpi-divider {
-        width: 1px;
-        height: 2.5rem;
-        background: rgba(91, 154, 255, 0.15);
-    }
-
-    /* ── Card Headers ── */
-    .card-header {
-        font-size: 0.7rem;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
+        letter-spacing: 0.08em;
         color: var(--text-muted);
-        margin-bottom: 1rem;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-family: 'IBM Plex Mono', monospace;
-    }
-    .card-header .bi { color: #5b9aff; }
-
-    /* ── Section Header (Admin-style with line) ── */
-    .admin-section-header {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-    }
-    .admin-section-title {
-        font-size: 1rem;
         font-weight: 700;
-        font-family: 'Barlow Condensed', sans-serif;
-        color: var(--text-primary);
-        white-space: nowrap;
-    }
-    .section-line {
-        flex: 1;
-        height: 1px;
-        background: var(--glass-border);
+        margin-bottom: 0.75rem;
+        font-family: 'IBM Plex Mono', monospace;
     }
 
     /* ── Activity Feed ── */
@@ -246,8 +204,6 @@
         vertical-align: middle;
         margin-left: 0.2rem;
     }
-    .badge-error { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
-    .badge-warning { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
 
     /* ── Chart ── */
     .chart-container {
@@ -257,54 +213,6 @@
     .chart-container canvas {
         max-width: 100% !important;
         height: auto !important;
-    }
-
-    /* ── Colors ── */
-    .text-blue { color: #5b9aff; }
-    .text-thw { color: #00337F; }
-    .text-gold { color: #fbbf24; }
-    .text-success { color: #22c55e; }
-    .text-error { color: #ef4444; }
-    .text-warning { color: #f59e0b; }
-    .text-purple { color: #8b5cf6; }
-
-    /* ── Header ── */
-    .header-prefix {
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        color: var(--text-muted);
-        font-weight: 600;
-        margin-bottom: 0.25rem;
-    }
-    .header-title {
-        font-size: 1.5rem;
-        font-weight: 800;
-        line-height: 1.2;
-        font-family: 'Barlow Condensed', sans-serif;
-        background: linear-gradient(135deg, #5b9aff, #0055cc);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-    }
-    .header-subtitle {
-        font-size: 0.875rem;
-        color: var(--text-muted);
-        margin-top: 0.125rem;
-    }
-
-    /* ── SR Mini Bar ── */
-    .sr-bar {
-        height: 4px;
-        background: rgba(255, 255, 255, 0.06);
-        border-radius: 2px;
-        overflow: hidden;
-        margin-top: 0.375rem;
-    }
-    .sr-bar__fill {
-        height: 100%;
-        border-radius: 2px;
-        transition: width 0.6s ease-out;
     }
 
     /* ── Stagger Animation ── */
@@ -342,12 +250,8 @@
     /* ── Responsive ── */
     @media (max-width: 600px) {
         .dash-container { padding: 1rem; }
-        .header-title { font-size: 1.25rem; }
-        .kpi-divider { display: none; }
-        .kpi-value { font-size: 1.25rem; }
         .lb-2col,
         .feed-2col { grid-template-columns: 1fr !important; }
-        .kpi-bar-inner { gap: 0.75rem !important; }
     }
 
     /* ── Light Mode ── */
@@ -355,11 +259,6 @@
         background: #ffffff;
         border-color: rgba(0, 51, 127, 0.1);
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-    }
-    html.light-mode .header-title {
-        background: linear-gradient(135deg, #00337F, #0055cc);
-        -webkit-background-clip: text;
-        background-clip: text;
     }
     html.light-mode .activity-item {
         background: rgba(0, 51, 127, 0.02);
@@ -385,21 +284,6 @@
     html.light-mode .stat-row {
         border-bottom-color: rgba(0, 0, 0, 0.06);
     }
-    html.light-mode .text-blue {
-        color: #00337F;
-    }
-    html.light-mode .card-header .bi {
-        color: #00337F;
-    }
-    html.light-mode .section-line {
-        background: rgba(0, 51, 127, 0.1);
-    }
-    html.light-mode .sr-bar {
-        background: rgba(0, 0, 0, 0.06);
-    }
-    html.light-mode .kpi-divider {
-        background: rgba(0, 51, 127, 0.12);
-    }
 </style>
 @endpush
 
@@ -409,11 +293,10 @@
 
     {{-- ── 1. Header + System Status ── --}}
     <div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;">
-        <div>
-            <p class="header-prefix">Administration</p>
-            <h1 class="header-title">System Dashboard</h1>
-            <p class="header-subtitle">Benutzer, Aktivitäten und Systemstatus</p>
-        </div>
+        <header class="dashboard-header" style="max-width:none;">
+            <h1 class="page-title">System <span>Dashboard</span></h1>
+            <p class="page-subtitle">Benutzer, Aktivitäten und Systemstatus</p>
+        </header>
         <div style="display:flex;gap:0.375rem;flex-wrap:wrap;">
             <span class="sys-pill">
                 <span class="status-dot {{ $systemStatus['database']['status'] === 'ok' ? 'ok' : 'err' }}"></span> DB
@@ -422,52 +305,61 @@
                 <span class="status-dot {{ $systemStatus['cache']['status'] === 'ok' ? 'ok' : 'err' }}"></span> Cache
             </span>
             <span class="sys-pill" style="border-color:rgba(91,154,255,0.2);">
-                <span class="text-blue" style="font-weight:700;">{{ $systemStatus['online_users']['count'] }}</span>&nbsp;Online
+                <span style="font-weight:700;color:var(--thw-blue-light);">{{ $systemStatus['online_users']['count'] }}</span>&nbsp;Online
             </span>
             @if($openIssues > 0)
                 <a href="{{ route('admin.issues.index') }}" class="sys-pill" style="border-color:rgba(245,158,11,0.2);">
-                    <span class="text-warning" style="font-weight:700;">{{ $openIssues }}</span>&nbsp;Issues
+                    <span style="font-weight:700;color:var(--warning);">{{ $openIssues }}</span>&nbsp;Issues
                 </a>
             @endif
             @if($unreadMessages > 0)
                 <a href="{{ route('admin.contact-messages.index') }}" class="sys-pill" style="border-color:rgba(59,130,246,0.2);">
-                    <span class="text-blue" style="font-weight:700;">{{ $unreadMessages }}</span>&nbsp;Ungelesen
+                    <span style="font-weight:700;color:var(--thw-blue-light);">{{ $unreadMessages }}</span>&nbsp;Ungelesen
                 </a>
             @endif
         </div>
     </div>
 
-    {{-- ── 2. KPI Bar ── --}}
+    {{-- ── 2. Stats Row ── --}}
     @php
         $successRate = $totalAnsweredQuestions > 0
             ? round(($totalCorrectAnswers / $totalAnsweredQuestions) * 100, 1)
             : 0;
     @endphp
-    <div class="glass-thw" style="border-radius:2rem 0.75rem 2rem 0.75rem;padding:1rem 1.5rem;">
-        <div class="kpi-bar-inner" style="display:flex;justify-content:space-around;align-items:center;flex-wrap:wrap;gap:1rem;">
-            <div style="text-align:center;">
-                <div class="kpi-value" style="color:#5b9aff;">{{ number_format($totalUsers, 0, ',', '.') }}</div>
-                <div class="kpi-label">Benutzer</div>
+    <div class="stats-row">
+        <div class="stat-pill">
+            <span class="stat-pill-icon text-gold"><i class="bi bi-people"></i></span>
+            <div>
+                <div class="stat-pill-value">{{ number_format($totalUsers, 0, ',', '.') }}</div>
+                <div class="stat-pill-label">Benutzer</div>
             </div>
-            <div class="kpi-divider"></div>
-            <div style="text-align:center;">
-                <div class="kpi-value" style="color:#5b9aff;">{{ $verificationRate }}%</div>
-                <div class="kpi-label">Verifiziert</div>
+        </div>
+        <div class="stat-pill">
+            <span class="stat-pill-icon text-success"><i class="bi bi-patch-check"></i></span>
+            <div>
+                <div class="stat-pill-value">{{ $verificationRate }}%</div>
+                <div class="stat-pill-label">Verifiziert</div>
             </div>
-            <div class="kpi-divider"></div>
-            <div style="text-align:center;">
-                <div class="kpi-value" style="color:var(--text-primary);">{{ number_format($totalAnsweredQuestions, 0, ',', '.') }}</div>
-                <div class="kpi-label">Beantwortet</div>
+        </div>
+        <div class="stat-pill">
+            <span class="stat-pill-icon" style="color:var(--thw-blue-light);"><i class="bi bi-chat-dots"></i></span>
+            <div>
+                <div class="stat-pill-value">{{ number_format($totalAnsweredQuestions, 0, ',', '.') }}</div>
+                <div class="stat-pill-label">Beantwortet</div>
             </div>
-            <div class="kpi-divider"></div>
-            <div style="text-align:center;">
-                <div class="kpi-value" style="color:#22c55e;">{{ $successRate }}%</div>
-                <div class="kpi-label">Erfolgsrate</div>
+        </div>
+        <div class="stat-pill">
+            <span class="stat-pill-icon text-success"><i class="bi bi-check-circle"></i></span>
+            <div>
+                <div class="stat-pill-value">{{ $successRate }}%</div>
+                <div class="stat-pill-label">Erfolgsrate</div>
             </div>
-            <div class="kpi-divider"></div>
-            <div style="text-align:center;">
-                <div class="kpi-value" style="color:#22c55e;">+{{ $newUsersToday }}</div>
-                <div class="kpi-label">Heute neu</div>
+        </div>
+        <div class="stat-pill">
+            <span class="stat-pill-icon text-gold"><i class="bi bi-person-plus"></i></span>
+            <div>
+                <div class="stat-pill-value">+{{ $newUsersToday }}</div>
+                <div class="stat-pill-label">Heute neu</div>
             </div>
         </div>
     </div>
@@ -475,7 +367,7 @@
     {{-- ── 3. Activity (3/4) + Stats (1/4) ── --}}
     <div class="bento-grid">
         <div class="glass-blue bento-2of3">
-            <div class="card-header"><i class="bi bi-activity"></i> Aktivitäts-Feed (24h)</div>
+            <div class="card-label">Aktivitäts-Feed (24h)</div>
             <div class="feed-2col" style="display:grid;grid-template-columns:1fr 1fr;gap:0.375rem;">
                 @forelse($activityFeed as $activity)
                     @if($activity['link'])
@@ -513,7 +405,7 @@
         </div>
 
         <div class="glass-tl bento-third">
-            <div class="card-header"><i class="bi bi-bar-chart"></i> Übersicht</div>
+            <div class="card-label">Übersicht</div>
             <div class="stat-row">
                 <span class="stat-row-label">Aktiv heute</span>
                 <span class="stat-row-value text-blue">{{ $userActivity['today'] }}</span>
@@ -548,17 +440,14 @@
     </div>
 
     {{-- ── 4. Spaced Repetition Section ── --}}
-    <div>
-        <div class="admin-section-header">
-            <h2 class="admin-section-title">Spaced Repetition</h2>
-            <div class="section-line"></div>
-        </div>
+    <div class="section-header" style="padding-left: 1rem; border-left: 3px solid var(--gold-start);">
+        <h2 class="section-title">Spaced Repetition</h2>
     </div>
 
     <div class="bento-grid">
         {{-- SR Overview --}}
         <div class="glass-purple bento-half">
-            <div class="card-header"><i class="bi bi-arrow-repeat" style="color:#8b5cf6;"></i> SR Übersicht</div>
+            <div class="card-label">SR Übersicht</div>
             <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.75rem;margin-bottom:1rem;">
                 <div class="gami-pill">
                     <div class="gami-pill__value text-purple">{{ number_format($srStats['active_users'], 0, ',', '.') }}</div>
@@ -589,7 +478,7 @@
 
         {{-- SR Due Reviews --}}
         <div class="glass-slash bento-half">
-            <div class="card-header"><i class="bi bi-clock-history" style="color:#8b5cf6;"></i> Fällige Reviews</div>
+            <div class="card-label">Fällige Reviews</div>
 
             {{-- Due Today - prominent --}}
             <div style="text-align:center;padding:0.75rem 0;margin-bottom:0.75rem;background:rgba(139,92,246,0.06);border-radius:0.75rem;border:1px solid rgba(139,92,246,0.1);">
@@ -628,8 +517,12 @@
     </div>
 
     {{-- ── 5. Leaderboard ── --}}
+    <div class="section-header" style="padding-left: 1rem; border-left: 3px solid var(--gold-start);">
+        <h2 class="section-title">Leaderboard</h2>
+    </div>
+
     <div class="glass-br">
-        <div class="card-header"><i class="bi bi-trophy"></i> Top 10 Leaderboard</div>
+        <div class="card-label">Top 10</div>
         <div class="lb-2col" style="display:grid;grid-template-columns:1fr 1fr;gap:0.375rem;">
             @forelse($leaderboard as $index => $user)
                 @php
@@ -677,30 +570,27 @@
     </div>
 
     {{-- ── 6. Charts ── --}}
-    <div>
-        <div class="admin-section-header">
-            <h2 class="admin-section-title">Statistiken (30 Tage)</h2>
-            <div class="section-line"></div>
-        </div>
+    <div class="section-header" style="padding-left: 1rem; border-left: 3px solid var(--gold-start);">
+        <h2 class="section-title">Statistiken (30 Tage)</h2>
     </div>
 
     <div class="bento-grid">
         <div class="glass bento-half">
-            <div class="card-header"><i class="bi bi-people"></i> Benutzeraktivität</div>
+            <div class="card-label">Benutzeraktivität</div>
             <div class="chart-container">
                 <canvas id="userActivityChart"></canvas>
             </div>
         </div>
 
         <div class="glass bento-half">
-            <div class="card-header"><i class="bi bi-question-circle"></i> Beantwortete Fragen</div>
+            <div class="card-label">Beantwortete Fragen</div>
             <div class="chart-container">
                 <canvas id="questionsChart"></canvas>
             </div>
         </div>
 
         <div class="glass-slash bento-wide">
-            <div class="card-header"><i class="bi bi-graph-up-arrow"></i> Benutzer-Wachstum</div>
+            <div class="card-label">Benutzer-Wachstum</div>
             <div class="chart-container">
                 <canvas id="userGrowthChart"></canvas>
             </div>
