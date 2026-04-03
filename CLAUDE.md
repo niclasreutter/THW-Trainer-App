@@ -24,7 +24,11 @@ git commit -m "EMOJI: Beschreibung (max 4 Wörter)"
 
 ### 2. Design-System: Dark Mode Glassmorphism
 
-**Standard-Layout (Bento Grid):**
+**Zwei Container-Varianten:**
+- `.dash-container` (max 1100px) - Dashboard, Practice-Menu, Admin Dashboard
+- `.dashboard-container` (max 1200px) - Admin Sub-Seiten (Users, Fragen, etc.)
+
+**Standard-Layout (Admin Sub-Seiten):**
 ```html
 <div class="dashboard-container">
     <header class="dashboard-header">
@@ -33,7 +37,13 @@ git commit -m "EMOJI: Beschreibung (max 4 Wörter)"
     </header>
 
     <div class="stats-row">
-        <div class="stat-pill">...</div>
+        <div class="stat-pill">
+            <span class="stat-pill-icon text-gold"><i class="bi bi-people"></i></span>
+            <div>
+                <div class="stat-pill-value">42</div>
+                <div class="stat-pill-label">Label</div>
+            </div>
+        </div>
     </div>
 
     <div class="bento-grid">
@@ -43,20 +53,59 @@ git commit -m "EMOJI: Beschreibung (max 4 Wörter)"
 </div>
 ```
 
+**Dashboard-Layout (mit Stagger-Animation):**
+```html
+<div class="dash-container">
+<div class="space-y-4">
+    <header class="dashboard-header">
+        <h1 class="page-title">Prefix <span>Gold-Text</span></h1>
+        <p class="page-subtitle">Beschreibung</p>
+    </header>
+
+    <div class="stats-row">
+        <div class="stat-pill">...</div>
+    </div>
+
+    <div class="section-header" style="padding-left: 1rem; border-left: 3px solid var(--gold-start);">
+        <h2 class="section-title">Abschnitt</h2>
+    </div>
+
+    <div class="bento-grid">
+        <div class="glass-blue bento-2of3">Hauptinhalt</div>
+        <div class="glass-tl bento-third">Sidebar</div>
+    </div>
+</div>
+</div>
+```
+
 **Glass Card Varianten:**
 - `.glass` - Standard
-- `.glass-gold`, `.glass-blue`, `.glass-purple` - Lensflare-Glow
-- `.glass-tl`, `.glass-br`, `.glass-slash` - Asymmetrisch
+- `.glass-gold`, `.glass-blue`, `.glass-purple`, `.glass-cyan`, `.glass-green` - Lensflare-Glow
+- `.glass-tl`, `.glass-br`, `.glass-slash`, `.glass-organic` - Asymmetrisch
+- `.glass-thw` - THW-Blau getönt
+- `.glass-accent` - Gold-Akzent links
+- `.glass-featured` - Groß mit Gold-Top-Line
 - `.glass-success`, `.glass-error`, `.glass-warning` - Semantisch
 
-**Buttons:** `.btn-primary` (Gold) | `.btn-secondary` (THW-Blau) | `.btn-ghost` | `.btn-danger`
+**Bento Grid Spans:**
+- `.bento-main` (2x2) | `.bento-wide` (4 Spalten) | `.bento-half` (2) | `.bento-2of3` (2) | `.bento-third` (1) | `.bento-side` (1)
+
+**Section Headers:** Immer Gold-Left-Border Pattern:
+```html
+<div class="section-header" style="padding-left: 1rem; border-left: 3px solid var(--gold-start);">
+    <h2 class="section-title">Titel</h2>
+</div>
+```
+
+**Buttons:** `.btn-primary` (THW-Blau Gradient) | `.btn-secondary` (Soft-Blau) | `.btn-ghost` | `.btn-danger`
 
 **Wichtig:**
 - **Keine Emojis** im UI verwenden
-- **Icons nur sinnvoll** einsetzen (z.B. Status-Badges, nicht in Buttons)
+- **Icons nur sinnvoll** einsetzen (z.B. Status-Badges in stat-pills)
 - **Buttons ohne Icons** - cleaner und professioneller
 - **Asymmetrie nutzen** - Vermeide generischen "AI-Look"
 - Bootstrap Icons (`bi bi-*`) für notwendige Icons
+- **Stagger-Animation**: `.space-y-4` Wrapper für `dash-rise` Effekt
 - Details: **[docs/PATTERNS.md](docs/PATTERNS.md)**
 
 ### 3. Nach jeder Änderung
@@ -108,4 +157,4 @@ fetch(url, { cache: 'no-store' });
 - **[docs/FILE-GUIDE.md](docs/FILE-GUIDE.md)** - Datei-Navigation, wo was ist
 
 ---
-*Letzte Aktualisierung: 16. März 2026*
+*Letzte Aktualisierung: 3. April 2026*
