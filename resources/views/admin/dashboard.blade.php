@@ -33,57 +33,15 @@
     .status-dot.ok { background: #22c55e; box-shadow: 0 0 4px rgba(34, 197, 94, 0.4); }
     .status-dot.err { background: #ef4444; box-shadow: 0 0 4px rgba(239, 68, 68, 0.4); }
 
-    /* ── KPI Bar ── */
-    .kpi-value {
-        font-size: 1.75rem;
-        font-weight: 800;
-        font-family: 'Barlow Condensed', sans-serif;
-    }
-    .kpi-label {
+    /* ── Card Label ── */
+    .card-label {
         font-size: 0.5625rem;
-        color: var(--text-muted);
         text-transform: uppercase;
-        letter-spacing: 0.06em;
-        font-family: 'IBM Plex Mono', monospace;
-        margin-top: 0.125rem;
-    }
-    .kpi-divider {
-        width: 1px;
-        height: 2.5rem;
-        background: rgba(91, 154, 255, 0.15);
-    }
-
-    /* ── Card Headers ── */
-    .card-header {
-        font-size: 0.7rem;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
+        letter-spacing: 0.08em;
         color: var(--text-muted);
-        margin-bottom: 1rem;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-family: 'IBM Plex Mono', monospace;
-    }
-    .card-header .bi { color: #5b9aff; }
-
-    /* ── Section Header (Admin-style with line) ── */
-    .admin-section-header {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-    }
-    .admin-section-title {
-        font-size: 1rem;
         font-weight: 700;
-        font-family: 'Barlow Condensed', sans-serif;
-        color: var(--text-primary);
-        white-space: nowrap;
-    }
-    .section-line {
-        flex: 1;
-        height: 1px;
-        background: var(--glass-border);
+        margin-bottom: 0.75rem;
+        font-family: 'IBM Plex Mono', monospace;
     }
 
     /* ── Activity Feed ── */
@@ -246,8 +204,16 @@
         vertical-align: middle;
         margin-left: 0.2rem;
     }
-    .badge-error { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
-    .badge-warning { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+
+    /* ── Chart Grid ── */
+    .chart-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+    @media (max-width: 600px) {
+        .chart-grid { grid-template-columns: 1fr; }
+    }
 
     /* ── Chart ── */
     .chart-container {
@@ -257,54 +223,6 @@
     .chart-container canvas {
         max-width: 100% !important;
         height: auto !important;
-    }
-
-    /* ── Colors ── */
-    .text-blue { color: #5b9aff; }
-    .text-thw { color: #00337F; }
-    .text-gold { color: #fbbf24; }
-    .text-success { color: #22c55e; }
-    .text-error { color: #ef4444; }
-    .text-warning { color: #f59e0b; }
-    .text-purple { color: #8b5cf6; }
-
-    /* ── Header ── */
-    .header-prefix {
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        color: var(--text-muted);
-        font-weight: 600;
-        margin-bottom: 0.25rem;
-    }
-    .header-title {
-        font-size: 1.5rem;
-        font-weight: 800;
-        line-height: 1.2;
-        font-family: 'Barlow Condensed', sans-serif;
-        background: linear-gradient(135deg, #5b9aff, #0055cc);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-    }
-    .header-subtitle {
-        font-size: 0.875rem;
-        color: var(--text-muted);
-        margin-top: 0.125rem;
-    }
-
-    /* ── SR Mini Bar ── */
-    .sr-bar {
-        height: 4px;
-        background: rgba(255, 255, 255, 0.06);
-        border-radius: 2px;
-        overflow: hidden;
-        margin-top: 0.375rem;
-    }
-    .sr-bar__fill {
-        height: 100%;
-        border-radius: 2px;
-        transition: width 0.6s ease-out;
     }
 
     /* ── Stagger Animation ── */
@@ -342,12 +260,8 @@
     /* ── Responsive ── */
     @media (max-width: 600px) {
         .dash-container { padding: 1rem; }
-        .header-title { font-size: 1.25rem; }
-        .kpi-divider { display: none; }
-        .kpi-value { font-size: 1.25rem; }
         .lb-2col,
         .feed-2col { grid-template-columns: 1fr !important; }
-        .kpi-bar-inner { gap: 0.75rem !important; }
     }
 
     /* ── Light Mode ── */
@@ -355,11 +269,6 @@
         background: #ffffff;
         border-color: rgba(0, 51, 127, 0.1);
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-    }
-    html.light-mode .header-title {
-        background: linear-gradient(135deg, #00337F, #0055cc);
-        -webkit-background-clip: text;
-        background-clip: text;
     }
     html.light-mode .activity-item {
         background: rgba(0, 51, 127, 0.02);
@@ -385,21 +294,6 @@
     html.light-mode .stat-row {
         border-bottom-color: rgba(0, 0, 0, 0.06);
     }
-    html.light-mode .text-blue {
-        color: #00337F;
-    }
-    html.light-mode .card-header .bi {
-        color: #00337F;
-    }
-    html.light-mode .section-line {
-        background: rgba(0, 51, 127, 0.1);
-    }
-    html.light-mode .sr-bar {
-        background: rgba(0, 0, 0, 0.06);
-    }
-    html.light-mode .kpi-divider {
-        background: rgba(0, 51, 127, 0.12);
-    }
 </style>
 @endpush
 
@@ -408,13 +302,11 @@
 <div class="space-y-4">
 
     {{-- ── 1. Header + System Status ── --}}
-    <div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;">
-        <div>
-            <p class="header-prefix">Administration</p>
-            <h1 class="header-title">System Dashboard</h1>
-            <p class="header-subtitle">Benutzer, Aktivitäten und Systemstatus</p>
-        </div>
-        <div style="display:flex;gap:0.375rem;flex-wrap:wrap;">
+    <div>
+        <p style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);font-weight:600;margin-bottom:0.25rem;">Administration</p>
+        <h1 style="font-size:1.5rem;font-weight:800;line-height:1.2;font-family:'Barlow Condensed',sans-serif;background:linear-gradient(135deg,#5b9aff,#0055cc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">System Dashboard</h1>
+        <p style="font-size:0.875rem;color:var(--text-muted);margin-top:0.125rem;">Benutzer, Aktivitäten und Systemstatus</p>
+        <div style="display:flex;gap:0.375rem;flex-wrap:wrap;margin-top:0.75rem;">
             <span class="sys-pill">
                 <span class="status-dot {{ $systemStatus['database']['status'] === 'ok' ? 'ok' : 'err' }}"></span> DB
             </span>
@@ -422,215 +314,209 @@
                 <span class="status-dot {{ $systemStatus['cache']['status'] === 'ok' ? 'ok' : 'err' }}"></span> Cache
             </span>
             <span class="sys-pill" style="border-color:rgba(91,154,255,0.2);">
-                <span class="text-blue" style="font-weight:700;">{{ $systemStatus['online_users']['count'] }}</span>&nbsp;Online
+                <span style="font-weight:700;color:#5b9aff;">{{ $systemStatus['online_users']['count'] }}</span>&nbsp;Online
             </span>
             @if($openIssues > 0)
                 <a href="{{ route('admin.issues.index') }}" class="sys-pill" style="border-color:rgba(245,158,11,0.2);">
-                    <span class="text-warning" style="font-weight:700;">{{ $openIssues }}</span>&nbsp;Issues
+                    <span style="font-weight:700;color:#f59e0b;">{{ $openIssues }}</span>&nbsp;Issues
                 </a>
             @endif
             @if($unreadMessages > 0)
                 <a href="{{ route('admin.contact-messages.index') }}" class="sys-pill" style="border-color:rgba(59,130,246,0.2);">
-                    <span class="text-blue" style="font-weight:700;">{{ $unreadMessages }}</span>&nbsp;Ungelesen
+                    <span style="font-weight:700;color:#5b9aff;">{{ $unreadMessages }}</span>&nbsp;Ungelesen
                 </a>
             @endif
         </div>
     </div>
 
-    {{-- ── 2. KPI Bar ── --}}
+    {{-- ── 2. Gami Pills ── --}}
     @php
         $successRate = $totalAnsweredQuestions > 0
             ? round(($totalCorrectAnswers / $totalAnsweredQuestions) * 100, 1)
             : 0;
     @endphp
-    <div class="glass-thw" style="border-radius:2rem 0.75rem 2rem 0.75rem;padding:1rem 1.5rem;">
-        <div class="kpi-bar-inner" style="display:flex;justify-content:space-around;align-items:center;flex-wrap:wrap;gap:1rem;">
-            <div style="text-align:center;">
-                <div class="kpi-value" style="color:#5b9aff;">{{ number_format($totalUsers, 0, ',', '.') }}</div>
-                <div class="kpi-label">Benutzer</div>
-            </div>
-            <div class="kpi-divider"></div>
-            <div style="text-align:center;">
-                <div class="kpi-value" style="color:#5b9aff;">{{ $verificationRate }}%</div>
-                <div class="kpi-label">Verifiziert</div>
-            </div>
-            <div class="kpi-divider"></div>
-            <div style="text-align:center;">
-                <div class="kpi-value" style="color:var(--text-primary);">{{ number_format($totalAnsweredQuestions, 0, ',', '.') }}</div>
-                <div class="kpi-label">Beantwortet</div>
-            </div>
-            <div class="kpi-divider"></div>
-            <div style="text-align:center;">
-                <div class="kpi-value" style="color:#22c55e;">{{ $successRate }}%</div>
-                <div class="kpi-label">Erfolgsrate</div>
-            </div>
-            <div class="kpi-divider"></div>
-            <div style="text-align:center;">
-                <div class="kpi-value" style="color:#22c55e;">+{{ $newUsersToday }}</div>
-                <div class="kpi-label">Heute neu</div>
-            </div>
+    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+        <div class="gami-pill">
+            <div class="gami-pill__value gami-pill__value--blue">{{ number_format($totalUsers, 0, ',', '.') }}</div>
+            <div class="gami-pill__label">Benutzer</div>
+        </div>
+        <div class="gami-pill">
+            <div class="gami-pill__value" style="color:var(--success);">{{ $verificationRate }}%</div>
+            <div class="gami-pill__label">Verifiziert</div>
+        </div>
+        <div class="gami-pill">
+            <div class="gami-pill__value">{{ number_format($totalAnsweredQuestions, 0, ',', '.') }}</div>
+            <div class="gami-pill__label">Beantwortet</div>
+        </div>
+        <div class="gami-pill">
+            <div class="gami-pill__value" style="color:var(--success);">{{ $successRate }}%</div>
+            <div class="gami-pill__label">Erfolgsrate</div>
+        </div>
+        <div class="gami-pill">
+            <div class="gami-pill__value gami-pill__value--gold">+{{ $newUsersToday }}</div>
+            <div class="gami-pill__label">Heute neu</div>
         </div>
     </div>
 
-    {{-- ── 3. Activity (3/4) + Stats (1/4) ── --}}
-    <div class="bento-grid">
-        <div class="glass-blue bento-2of3">
-            <div class="card-header"><i class="bi bi-activity"></i> Aktivitäts-Feed (24h)</div>
-            <div class="feed-2col" style="display:grid;grid-template-columns:1fr 1fr;gap:0.375rem;">
-                @forelse($activityFeed as $activity)
-                    @if($activity['link'])
-                        <a href="{{ $activity['link'] }}" class="activity-item" style="cursor:pointer;">
-                    @else
-                        <div class="activity-item">
-                    @endif
-                        <div class="activity-icon {{ $activity['color'] }}">
-                            <i class="bi bi-{{ $activity['icon'] }}"></i>
-                        </div>
-                        <div class="activity-content">
-                            <div class="activity-title">
-                                {{ $activity['title'] }}
-                                @if(!empty($activity['unread']))
-                                    <span class="badge-sm badge-error">NEU</span>
-                                @endif
-                                @if(!empty($activity['open']))
-                                    <span class="badge-sm badge-warning">OFFEN</span>
-                                @endif
-                            </div>
-                            <div class="activity-desc">{{ $activity['description'] }}</div>
-                        </div>
-                        <span class="activity-time">{{ $activity['time']->diffForHumans(null, true, true) }}</span>
-                    @if($activity['link'])
-                        </a>
-                    @else
-                        </div>
-                    @endif
-                @empty
-                    <div style="grid-column:span 2;text-align:center;padding:2rem;color:var(--text-muted);">
-                        Keine Aktivitäten in den letzten 24h
+    {{-- ── 3. Push & Engagement ── --}}
+    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+        <div class="gami-pill">
+            <div class="gami-pill__value gami-pill__value--blue">{{ number_format($pushStats['total_devices'], 0, ',', '.') }}</div>
+            <div class="gami-pill__label">Push-Geräte</div>
+        </div>
+        <div class="gami-pill">
+            <div class="gami-pill__value" style="color:#8b5cf6;">{{ number_format($pushStats['unique_users'], 0, ',', '.') }}</div>
+            <div class="gami-pill__label">Push-Nutzer</div>
+        </div>
+        <div class="gami-pill">
+            <div class="gami-pill__value" style="color:var(--success);">{{ number_format($totalCorrectAnswers, 0, ',', '.') }}</div>
+            <div class="gami-pill__label">Richtig</div>
+        </div>
+        <div class="gami-pill">
+            <div class="gami-pill__value" style="color:var(--error);">{{ number_format($totalWrongAnswers, 0, ',', '.') }}</div>
+            <div class="gami-pill__label">Falsch</div>
+        </div>
+    </div>
+
+    {{-- ── 4. Activity Feed ── --}}
+    <div class="glass" style="padding:1rem;">
+        <div class="card-label">Aktivitäts-Feed (24h)</div>
+        <div style="display:flex;flex-direction:column;gap:0.25rem;">
+            @forelse($activityFeed as $activity)
+                @if($activity['link'])
+                    <a href="{{ $activity['link'] }}" class="activity-item" style="cursor:pointer;">
+                @else
+                    <div class="activity-item">
+                @endif
+                    <div class="activity-icon {{ $activity['color'] }}">
+                        <i class="bi bi-{{ $activity['icon'] }}"></i>
                     </div>
-                @endforelse
-            </div>
+                    <div class="activity-content">
+                        <div class="activity-title">
+                            {{ $activity['title'] }}
+                            @if(!empty($activity['unread']))
+                                <span class="badge-sm badge-error">NEU</span>
+                            @endif
+                            @if(!empty($activity['open']))
+                                <span class="badge-sm badge-warning">OFFEN</span>
+                            @endif
+                        </div>
+                        <div class="activity-desc">{{ $activity['description'] }}</div>
+                    </div>
+                    <span class="activity-time">{{ $activity['time']->diffForHumans(null, true, true) }}</span>
+                @if($activity['link'])
+                    </a>
+                @else
+                    </div>
+                @endif
+            @empty
+                <div style="text-align:center;padding:1.5rem;color:var(--text-muted);">
+                    Keine Aktivitäten in den letzten 24h
+                </div>
+            @endforelse
+        </div>
+    </div>
+
+    {{-- ── 4. Übersicht ── --}}
+    <div class="glass" style="padding:1rem;">
+        <div class="card-label">Übersicht</div>
+        <div class="stat-row">
+            <span class="stat-row-label">Aktiv heute</span>
+            <span class="stat-row-value" style="color:#5b9aff;">{{ $userActivity['today'] }}</span>
+        </div>
+        <div class="stat-row">
+            <span class="stat-row-label">Aktiv Woche</span>
+            <span class="stat-row-value">{{ $userActivity['this_week'] }}</span>
+        </div>
+        <div class="stat-row">
+            <span class="stat-row-label">Aktiv Monat</span>
+            <span class="stat-row-value">{{ $userActivity['this_month'] }}</span>
+        </div>
+        <div class="stat-row">
+            <span class="stat-row-label">Ø Fortschritt</span>
+            <span class="stat-row-value" style="color:#5b9aff;">{{ $learningProgress['average_progress'] }}%</span>
+        </div>
+        <div class="stat-row">
+            <span class="stat-row-label">Richtig</span>
+            <span class="stat-row-value" style="color:var(--success);">{{ number_format($totalCorrectAnswers, 0, ',', '.') }}</span>
+        </div>
+        <div class="stat-row">
+            <span class="stat-row-label">Falsch</span>
+            <span class="stat-row-value" style="color:var(--error);">{{ number_format($totalWrongAnswers, 0, ',', '.') }}</span>
+        </div>
+    </div>
+
+    {{-- ── 5. Spaced Repetition ── --}}
+    <div class="card-label" style="margin-bottom:0;">Spaced Repetition</div>
+
+    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+        <div class="gami-pill">
+            <div class="gami-pill__value" style="color:#8b5cf6;">{{ number_format($srStats['active_users'], 0, ',', '.') }}</div>
+            <div class="gami-pill__label">User aktiv</div>
+        </div>
+        <div class="gami-pill">
+            <div class="gami-pill__value gami-pill__value--blue">{{ number_format($srStats['total_in_sr'], 0, ',', '.') }}</div>
+            <div class="gami-pill__label">Fragen im SR</div>
+        </div>
+        <div class="gami-pill">
+            <div class="gami-pill__value" style="color:var(--success);">{{ number_format($srStats['mastered'], 0, ',', '.') }}</div>
+            <div class="gami-pill__label">Gemeistert</div>
+        </div>
+        <div class="gami-pill">
+            <div class="gami-pill__value" style="color:#8b5cf6;">{{ number_format($srStats['due_today'], 0, ',', '.') }}</div>
+            <div class="gami-pill__label">Fällig heute</div>
+        </div>
+        <div class="gami-pill">
+            <div class="gami-pill__value" style="color:var(--warning);">{{ number_format($srStats['overdue'], 0, ',', '.') }}</div>
+            <div class="gami-pill__label">Überfällig</div>
+        </div>
+    </div>
+
+    <div class="glass" style="padding:1rem;">
+        <div class="card-label">SR Details</div>
+        <div class="stat-row">
+            <span class="stat-row-label">Ø Intervall</span>
+            <span class="stat-row-value" style="color:#5b9aff;">{{ $srStats['avg_interval'] }} Tage</span>
+        </div>
+        <div class="stat-row">
+            <span class="stat-row-label">Ø Easiness Factor</span>
+            <span class="stat-row-value">{{ $srStats['avg_easiness'] }}</span>
+        </div>
+        <div class="stat-row">
+            <span class="stat-row-label">Mastery-Rate</span>
+            <span class="stat-row-value" style="color:var(--success);">{{ $srStats['mastery_rate'] }}%</span>
+        </div>
+        <div class="stat-row">
+            <span class="stat-row-label">Fällig morgen</span>
+            <span class="stat-row-value">{{ number_format($srStats['due_tomorrow'], 0, ',', '.') }}</span>
+        </div>
+        <div class="stat-row">
+            <span class="stat-row-label">Fällig diese Woche</span>
+            <span class="stat-row-value">{{ number_format($srStats['due_this_week'], 0, ',', '.') }}</span>
         </div>
 
-        <div class="glass-tl bento-third">
-            <div class="card-header"><i class="bi bi-bar-chart"></i> Übersicht</div>
-            <div class="stat-row">
-                <span class="stat-row-label">Aktiv heute</span>
-                <span class="stat-row-value text-blue">{{ $userActivity['today'] }}</span>
-            </div>
-            <div class="stat-row">
-                <span class="stat-row-label">Aktiv Woche</span>
-                <span class="stat-row-value">{{ $userActivity['this_week'] }}</span>
-            </div>
-            <div class="stat-row">
-                <span class="stat-row-label">Aktiv Monat</span>
-                <span class="stat-row-value">{{ $userActivity['this_month'] }}</span>
-            </div>
-            <div style="border-top:1px solid rgba(255,255,255,0.06);margin-top:0.375rem;padding-top:0.375rem;">
-                <div class="stat-row">
-                    <span class="stat-row-label">Ø Fortschritt</span>
-                    <span class="stat-row-value text-blue">{{ $learningProgress['average_progress'] }}%</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-row-label">Mit Erfolgen</span>
-                    <span class="stat-row-value">{{ $learningProgress['users_with_achievements'] }}</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-row-label">Richtig</span>
-                    <span class="stat-row-value text-success">{{ number_format($totalCorrectAnswers, 0, ',', '.') }}</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-row-label">Falsch</span>
-                    <span class="stat-row-value text-error">{{ number_format($totalWrongAnswers, 0, ',', '.') }}</span>
-                </div>
+        {{-- Interval distribution bar --}}
+        @php
+            $dist = $srStats['interval_distribution'];
+            $distTotal = max(array_sum($dist), 1);
+        @endphp
+        <div style="margin-top:0.75rem;">
+            <div style="font-size:0.5625rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;font-family:'IBM Plex Mono',monospace;margin-bottom:0.375rem;">Intervall-Verteilung</div>
+            <div style="display:flex;gap:2px;height:20px;border-radius:0.25rem;overflow:hidden;">
+                <div style="flex:{{ max($dist['1_3'], 1) }};background:rgba(139,92,246,0.4);display:flex;align-items:center;justify-content:center;font-size:0.5rem;font-weight:600;color:white;">1-3d</div>
+                <div style="flex:{{ max($dist['4_7'], 1) }};background:rgba(91,154,255,0.4);display:flex;align-items:center;justify-content:center;font-size:0.5rem;font-weight:600;color:white;">4-7d</div>
+                <div style="flex:{{ max($dist['8_14'], 1) }};background:rgba(34,197,94,0.4);display:flex;align-items:center;justify-content:center;font-size:0.5rem;font-weight:600;color:white;">8-14d</div>
+                <div style="flex:{{ max($dist['15_plus'], 1) }};background:rgba(251,191,36,0.4);display:flex;align-items:center;justify-content:center;font-size:0.5rem;font-weight:600;color:white;">15d+</div>
             </div>
         </div>
     </div>
 
-    {{-- ── 4. Spaced Repetition Section ── --}}
-    <div>
-        <div class="admin-section-header">
-            <h2 class="admin-section-title">Spaced Repetition</h2>
-            <div class="section-line"></div>
-        </div>
-    </div>
+    {{-- ── 6. Leaderboard ── --}}
+    <div class="card-label" style="margin-bottom:0;">Leaderboard</div>
 
-    <div class="bento-grid">
-        {{-- SR Overview --}}
-        <div class="glass-purple bento-half">
-            <div class="card-header"><i class="bi bi-arrow-repeat" style="color:#8b5cf6;"></i> SR Übersicht</div>
-            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.75rem;margin-bottom:1rem;">
-                <div class="gami-pill">
-                    <div class="gami-pill__value text-purple">{{ number_format($srStats['active_users'], 0, ',', '.') }}</div>
-                    <div class="gami-pill__label">User aktiv</div>
-                </div>
-                <div class="gami-pill">
-                    <div class="gami-pill__value text-blue">{{ number_format($srStats['total_in_sr'], 0, ',', '.') }}</div>
-                    <div class="gami-pill__label">Fragen im SR</div>
-                </div>
-                <div class="gami-pill">
-                    <div class="gami-pill__value text-success">{{ number_format($srStats['mastered'], 0, ',', '.') }}</div>
-                    <div class="gami-pill__label">Gemeistert</div>
-                </div>
-            </div>
-            <div class="stat-row">
-                <span class="stat-row-label">Ø Intervall</span>
-                <span class="stat-row-value text-blue">{{ $srStats['avg_interval'] }} Tage</span>
-            </div>
-            <div class="stat-row">
-                <span class="stat-row-label">Ø Easiness Factor</span>
-                <span class="stat-row-value">{{ $srStats['avg_easiness'] }}</span>
-            </div>
-            <div class="stat-row">
-                <span class="stat-row-label">Mastery-Rate</span>
-                <span class="stat-row-value text-success">{{ $srStats['mastery_rate'] }}%</span>
-            </div>
-        </div>
-
-        {{-- SR Due Reviews --}}
-        <div class="glass-slash bento-half">
-            <div class="card-header"><i class="bi bi-clock-history" style="color:#8b5cf6;"></i> Fällige Reviews</div>
-
-            {{-- Due Today - prominent --}}
-            <div style="text-align:center;padding:0.75rem 0;margin-bottom:0.75rem;background:rgba(139,92,246,0.06);border-radius:0.75rem;border:1px solid rgba(139,92,246,0.1);">
-                <div style="font-size:2rem;font-weight:800;color:#8b5cf6;font-family:'Barlow Condensed',sans-serif;">{{ number_format($srStats['due_today'], 0, ',', '.') }}</div>
-                <div style="font-size:0.5625rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;font-family:'IBM Plex Mono',monospace;">Reviews fällig heute</div>
-            </div>
-
-            <div class="stat-row">
-                <span class="stat-row-label">Fällig morgen</span>
-                <span class="stat-row-value">{{ number_format($srStats['due_tomorrow'], 0, ',', '.') }}</span>
-            </div>
-            <div class="stat-row">
-                <span class="stat-row-label">Fällig diese Woche</span>
-                <span class="stat-row-value">{{ number_format($srStats['due_this_week'], 0, ',', '.') }}</span>
-            </div>
-            <div class="stat-row">
-                <span class="stat-row-label">Überfällig (verpasst)</span>
-                <span class="stat-row-value text-warning">{{ number_format($srStats['overdue'], 0, ',', '.') }}</span>
-            </div>
-
-            {{-- Interval distribution bar --}}
-            @php
-                $dist = $srStats['interval_distribution'];
-                $distTotal = max(array_sum($dist), 1);
-            @endphp
-            <div style="margin-top:0.75rem;">
-                <div style="font-size:0.5625rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;font-family:'IBM Plex Mono',monospace;margin-bottom:0.375rem;">Intervall-Verteilung</div>
-                <div style="display:flex;gap:2px;height:24px;border-radius:0.25rem;overflow:hidden;">
-                    <div style="flex:{{ max($dist['1_3'], 1) }};background:rgba(139,92,246,0.4);display:flex;align-items:center;justify-content:center;font-size:0.5rem;font-weight:600;color:white;">1-3d</div>
-                    <div style="flex:{{ max($dist['4_7'], 1) }};background:rgba(91,154,255,0.4);display:flex;align-items:center;justify-content:center;font-size:0.5rem;font-weight:600;color:white;">4-7d</div>
-                    <div style="flex:{{ max($dist['8_14'], 1) }};background:rgba(34,197,94,0.4);display:flex;align-items:center;justify-content:center;font-size:0.5rem;font-weight:600;color:white;">8-14d</div>
-                    <div style="flex:{{ max($dist['15_plus'], 1) }};background:rgba(251,191,36,0.4);display:flex;align-items:center;justify-content:center;font-size:0.5rem;font-weight:600;color:white;">15d+</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    {{-- ── 5. Leaderboard ── --}}
-    <div class="glass-br">
-        <div class="card-header"><i class="bi bi-trophy"></i> Top 10 Leaderboard</div>
-        <div class="lb-2col" style="display:grid;grid-template-columns:1fr 1fr;gap:0.375rem;">
+    <div class="glass" style="padding:1rem;">
+        <div class="card-label">Top 10</div>
+        <div style="display:flex;flex-direction:column;gap:0.25rem;">
             @forelse($leaderboard as $index => $user)
                 @php
                     $position = $index + 1;
@@ -669,38 +555,40 @@
                     </div>
                 </div>
             @empty
-                <div style="grid-column:span 2;text-align:center;padding:1.5rem;color:var(--text-muted);">
+                <div style="text-align:center;padding:1.5rem;color:var(--text-muted);">
                     Keine Daten vorhanden
                 </div>
             @endforelse
         </div>
     </div>
 
-    {{-- ── 6. Charts ── --}}
-    <div>
-        <div class="admin-section-header">
-            <h2 class="admin-section-title">Statistiken (30 Tage)</h2>
-            <div class="section-line"></div>
-        </div>
-    </div>
+    {{-- ── 8. Charts ── --}}
+    <div class="card-label" style="margin-bottom:0;">Statistiken (30 Tage)</div>
 
-    <div class="bento-grid">
-        <div class="glass bento-half">
-            <div class="card-header"><i class="bi bi-people"></i> Benutzeraktivität</div>
+    <div class="chart-grid">
+        <div class="glass" style="padding:1rem;">
+            <div class="card-label">Benutzeraktivität</div>
             <div class="chart-container">
                 <canvas id="userActivityChart"></canvas>
             </div>
         </div>
 
-        <div class="glass bento-half">
-            <div class="card-header"><i class="bi bi-question-circle"></i> Beantwortete Fragen</div>
+        <div class="glass" style="padding:1rem;">
+            <div class="card-label">Beantwortete Fragen</div>
             <div class="chart-container">
                 <canvas id="questionsChart"></canvas>
             </div>
         </div>
 
-        <div class="glass-slash bento-wide">
-            <div class="card-header"><i class="bi bi-graph-up-arrow"></i> Benutzer-Wachstum</div>
+        <div class="glass" style="padding:1rem;">
+            <div class="card-label">Prüfungen</div>
+            <div class="chart-container">
+                <canvas id="examsChart"></canvas>
+            </div>
+        </div>
+
+        <div class="glass" style="padding:1rem;">
+            <div class="card-label">Benutzer-Wachstum</div>
             <div class="chart-container">
                 <canvas id="userGrowthChart"></canvas>
             </div>
@@ -856,7 +744,34 @@ document.addEventListener('DOMContentLoaded', function() {
         options: commonOptions
     });
 
-    // Chart 3: User-Wachstum
+    // Chart 3: Prüfungen
+    new Chart(document.getElementById('examsChart'), {
+        type: 'bar',
+        data: {
+            labels: {!! json_encode($chartData['labels']) !!},
+            datasets: [
+                {
+                    label: 'Bestanden',
+                    data: {!! json_encode($chartData['examsPassed']) !!},
+                    backgroundColor: 'rgba(34, 197, 94, 0.6)',
+                    borderColor: '#22c55e',
+                    borderWidth: 1,
+                    borderRadius: 3
+                },
+                {
+                    label: 'Nicht bestanden',
+                    data: {!! json_encode($chartData['examsFailed']) !!},
+                    backgroundColor: 'rgba(239, 68, 68, 0.6)',
+                    borderColor: '#ef4444',
+                    borderWidth: 1,
+                    borderRadius: 3
+                }
+            ]
+        },
+        options: { ...commonOptions, scales: { ...commonOptions.scales, x: { ...commonOptions.scales.x, stacked: true }, y: { ...commonOptions.scales.y, stacked: true } } }
+    });
+
+    // Chart 4: User-Wachstum
     new Chart(document.getElementById('userGrowthChart'), {
         type: 'line',
         data: {
