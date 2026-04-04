@@ -205,6 +205,16 @@
         margin-left: 0.2rem;
     }
 
+    /* ── Chart Grid ── */
+    .chart-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+    @media (max-width: 600px) {
+        .chart-grid { grid-template-columns: 1fr; }
+    }
+
     /* ── Chart ── */
     .chart-container {
         height: 200px;
@@ -348,7 +358,27 @@
         </div>
     </div>
 
-    {{-- ── 3. Activity Feed ── --}}
+    {{-- ── 3. Push & Engagement ── --}}
+    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+        <div class="gami-pill">
+            <div class="gami-pill__value gami-pill__value--blue">{{ number_format($pushStats['total_devices'], 0, ',', '.') }}</div>
+            <div class="gami-pill__label">Push-Geräte</div>
+        </div>
+        <div class="gami-pill">
+            <div class="gami-pill__value" style="color:#8b5cf6;">{{ number_format($pushStats['unique_users'], 0, ',', '.') }}</div>
+            <div class="gami-pill__label">Push-Nutzer</div>
+        </div>
+        <div class="gami-pill">
+            <div class="gami-pill__value" style="color:var(--success);">{{ number_format($totalCorrectAnswers, 0, ',', '.') }}</div>
+            <div class="gami-pill__label">Richtig</div>
+        </div>
+        <div class="gami-pill">
+            <div class="gami-pill__value" style="color:var(--error);">{{ number_format($totalWrongAnswers, 0, ',', '.') }}</div>
+            <div class="gami-pill__label">Falsch</div>
+        </div>
+    </div>
+
+    {{-- ── 4. Activity Feed ── --}}
     <div class="glass" style="padding:1rem;">
         <div class="card-label">Aktivitäts-Feed (24h)</div>
         <div style="display:flex;flex-direction:column;gap:0.25rem;">
@@ -417,9 +447,7 @@
     </div>
 
     {{-- ── 5. Spaced Repetition ── --}}
-    <div style="padding-left:1rem;border-left:3px solid var(--gold-start);">
-        <h2 style="font-size:1.1rem;font-weight:700;color:var(--text-primary);">Spaced Repetition</h2>
-    </div>
+    <div class="card-label" style="margin-bottom:0;">Spaced Repetition</div>
 
     <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
         <div class="gami-pill">
@@ -484,9 +512,7 @@
     </div>
 
     {{-- ── 6. Leaderboard ── --}}
-    <div style="padding-left:1rem;border-left:3px solid var(--gold-start);">
-        <h2 style="font-size:1.1rem;font-weight:700;color:var(--text-primary);">Leaderboard</h2>
-    </div>
+    <div class="card-label" style="margin-bottom:0;">Leaderboard</div>
 
     <div class="glass" style="padding:1rem;">
         <div class="card-label">Top 10</div>
@@ -536,29 +562,36 @@
         </div>
     </div>
 
-    {{-- ── 7. Charts ── --}}
-    <div style="padding-left:1rem;border-left:3px solid var(--gold-start);">
-        <h2 style="font-size:1.1rem;font-weight:700;color:var(--text-primary);">Statistiken (30 Tage)</h2>
-    </div>
+    {{-- ── 8. Charts ── --}}
+    <div class="card-label" style="margin-bottom:0;">Statistiken (30 Tage)</div>
 
-    <div class="glass" style="padding:1rem;">
-        <div class="card-label">Benutzeraktivität</div>
-        <div class="chart-container">
-            <canvas id="userActivityChart"></canvas>
+    <div class="chart-grid">
+        <div class="glass" style="padding:1rem;">
+            <div class="card-label">Benutzeraktivität</div>
+            <div class="chart-container">
+                <canvas id="userActivityChart"></canvas>
+            </div>
         </div>
-    </div>
 
-    <div class="glass" style="padding:1rem;">
-        <div class="card-label">Beantwortete Fragen</div>
-        <div class="chart-container">
-            <canvas id="questionsChart"></canvas>
+        <div class="glass" style="padding:1rem;">
+            <div class="card-label">Beantwortete Fragen</div>
+            <div class="chart-container">
+                <canvas id="questionsChart"></canvas>
+            </div>
         </div>
-    </div>
 
-    <div class="glass" style="padding:1rem;">
-        <div class="card-label">Benutzer-Wachstum</div>
-        <div class="chart-container">
-            <canvas id="userGrowthChart"></canvas>
+        <div class="glass" style="padding:1rem;">
+            <div class="card-label">Prüfungen</div>
+            <div class="chart-container">
+                <canvas id="examsChart"></canvas>
+            </div>
+        </div>
+
+        <div class="glass" style="padding:1rem;">
+            <div class="card-label">Benutzer-Wachstum</div>
+            <div class="chart-container">
+                <canvas id="userGrowthChart"></canvas>
+            </div>
         </div>
     </div>
 
@@ -711,7 +744,34 @@ document.addEventListener('DOMContentLoaded', function() {
         options: commonOptions
     });
 
-    // Chart 3: User-Wachstum
+    // Chart 3: Prüfungen
+    new Chart(document.getElementById('examsChart'), {
+        type: 'bar',
+        data: {
+            labels: {!! json_encode($chartData['labels']) !!},
+            datasets: [
+                {
+                    label: 'Bestanden',
+                    data: {!! json_encode($chartData['examsPassed']) !!},
+                    backgroundColor: 'rgba(34, 197, 94, 0.6)',
+                    borderColor: '#22c55e',
+                    borderWidth: 1,
+                    borderRadius: 3
+                },
+                {
+                    label: 'Nicht bestanden',
+                    data: {!! json_encode($chartData['examsFailed']) !!},
+                    backgroundColor: 'rgba(239, 68, 68, 0.6)',
+                    borderColor: '#ef4444',
+                    borderWidth: 1,
+                    borderRadius: 3
+                }
+            ]
+        },
+        options: { ...commonOptions, scales: { ...commonOptions.scales, x: { ...commonOptions.scales.x, stacked: true }, y: { ...commonOptions.scales.y, stacked: true } } }
+    });
+
+    // Chart 4: User-Wachstum
     new Chart(document.getElementById('userGrowthChart'), {
         type: 'line',
         data: {

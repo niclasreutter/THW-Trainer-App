@@ -60,6 +60,9 @@ class DashboardController extends Controller
 
         $srStats = $this->getSpacedRepetitionStats();
 
+        // Push-Statistiken
+        $pushStats = $this->getPushStats();
+
         return view('admin.dashboard', compact(
             'systemStatus',
             'totalUsers',
@@ -79,7 +82,8 @@ class DashboardController extends Controller
             'activityFeed',
             'openIssues',
             'unreadMessages',
-            'srStats'
+            'srStats',
+            'pushStats'
         ));
     }
     
@@ -240,6 +244,8 @@ class DashboardController extends Controller
         $questionsWrong = [];
         $userCountData = [];
         $unverifiedCountData = [];
+        $examsPassed = [];
+        $examsFailed = [];
 
         // Sammle Daten für die letzten 30 Tage (inkl. heute)
         for ($i = 29; $i >= 0; $i--) {
@@ -264,7 +270,11 @@ class DashboardController extends Controller
             $questionsCorrect[] = $correctQuestions;
             $questionsWrong[] = $wrongQuestions;
 
-            // Chart 3: User-Verlauf (aus user_count_history Tabelle)
+            // Chart 3: Prüfungen
+            $examsPassed[] = ExamStatistic::whereBetween('created_at', [$day, $dayEnd])->where('is_passed', true)->count();
+            $examsFailed[] = ExamStatistic::whereBetween('created_at', [$day, $dayEnd])->where('is_passed', false)->count();
+
+            // Chart 4: User-Verlauf (aus user_count_history Tabelle)
             $userCount = \App\Models\UserCountHistory::whereDate('date', $day->format('Y-m-d'))->first();
 
             if ($userCount) {
@@ -289,6 +299,8 @@ class DashboardController extends Controller
             'questionsWrong' => $questionsWrong,
             'userCount' => $userCountData,
             'unverifiedCount' => $unverifiedCountData,
+            'examsPassed' => $examsPassed,
+            'examsFailed' => $examsFailed,
         ];
     }
 
@@ -417,6 +429,17 @@ class DashboardController extends Controller
 
         // Nach Zeit sortieren und limitieren
         return $activities->sortByDesc('time')->take(15)->values();
+    }
+
+    private function getPushStats()
+    {
+        $totalSubscriptions = DB::table('push_subscriptions')->count();
+        $uniqueUsers = DB::table('push_subscriptions')->distinct('subscribable_id')->count('subscribable_id');
+
+        return [
+            'total_devices' => $totalSubscriptions,
+            'unique_users' => $uniqueUsers,
+        ];
     }
 
     private function getSpacedRepetitionStats()
