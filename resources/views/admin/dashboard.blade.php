@@ -348,166 +348,149 @@
         </div>
     </div>
 
-    {{-- ── 3. Activity (3/4) + Stats (1/4) ── --}}
-    <div class="bento-grid">
-        <div class="glass-blue bento-2of3">
-            <div class="card-label">Aktivitäts-Feed (24h)</div>
-            <div class="feed-2col" style="display:grid;grid-template-columns:1fr 1fr;gap:0.375rem;">
-                @forelse($activityFeed as $activity)
-                    @if($activity['link'])
-                        <a href="{{ $activity['link'] }}" class="activity-item" style="cursor:pointer;">
-                    @else
-                        <div class="activity-item">
-                    @endif
-                        <div class="activity-icon {{ $activity['color'] }}">
-                            <i class="bi bi-{{ $activity['icon'] }}"></i>
-                        </div>
-                        <div class="activity-content">
-                            <div class="activity-title">
-                                {{ $activity['title'] }}
-                                @if(!empty($activity['unread']))
-                                    <span class="badge-sm badge-error">NEU</span>
-                                @endif
-                                @if(!empty($activity['open']))
-                                    <span class="badge-sm badge-warning">OFFEN</span>
-                                @endif
-                            </div>
-                            <div class="activity-desc">{{ $activity['description'] }}</div>
-                        </div>
-                        <span class="activity-time">{{ $activity['time']->diffForHumans(null, true, true) }}</span>
-                    @if($activity['link'])
-                        </a>
-                    @else
-                        </div>
-                    @endif
-                @empty
-                    <div style="grid-column:span 2;text-align:center;padding:2rem;color:var(--text-muted);">
-                        Keine Aktivitäten in den letzten 24h
+    {{-- ── 3. Activity Feed ── --}}
+    <div class="glass" style="padding:1rem;">
+        <div class="card-label">Aktivitäts-Feed (24h)</div>
+        <div style="display:flex;flex-direction:column;gap:0.25rem;">
+            @forelse($activityFeed as $activity)
+                @if($activity['link'])
+                    <a href="{{ $activity['link'] }}" class="activity-item" style="cursor:pointer;">
+                @else
+                    <div class="activity-item">
+                @endif
+                    <div class="activity-icon {{ $activity['color'] }}">
+                        <i class="bi bi-{{ $activity['icon'] }}"></i>
                     </div>
-                @endforelse
-            </div>
-        </div>
-
-        <div class="glass-tl bento-third">
-            <div class="card-label">Übersicht</div>
-            <div class="stat-row">
-                <span class="stat-row-label">Aktiv heute</span>
-                <span class="stat-row-value text-blue">{{ $userActivity['today'] }}</span>
-            </div>
-            <div class="stat-row">
-                <span class="stat-row-label">Aktiv Woche</span>
-                <span class="stat-row-value">{{ $userActivity['this_week'] }}</span>
-            </div>
-            <div class="stat-row">
-                <span class="stat-row-label">Aktiv Monat</span>
-                <span class="stat-row-value">{{ $userActivity['this_month'] }}</span>
-            </div>
-            <div style="border-top:1px solid rgba(255,255,255,0.06);margin-top:0.375rem;padding-top:0.375rem;">
-                <div class="stat-row">
-                    <span class="stat-row-label">Ø Fortschritt</span>
-                    <span class="stat-row-value text-blue">{{ $learningProgress['average_progress'] }}%</span>
+                    <div class="activity-content">
+                        <div class="activity-title">
+                            {{ $activity['title'] }}
+                            @if(!empty($activity['unread']))
+                                <span class="badge-sm badge-error">NEU</span>
+                            @endif
+                            @if(!empty($activity['open']))
+                                <span class="badge-sm badge-warning">OFFEN</span>
+                            @endif
+                        </div>
+                        <div class="activity-desc">{{ $activity['description'] }}</div>
+                    </div>
+                    <span class="activity-time">{{ $activity['time']->diffForHumans(null, true, true) }}</span>
+                @if($activity['link'])
+                    </a>
+                @else
+                    </div>
+                @endif
+            @empty
+                <div style="text-align:center;padding:1.5rem;color:var(--text-muted);">
+                    Keine Aktivitäten in den letzten 24h
                 </div>
-                <div class="stat-row">
-                    <span class="stat-row-label">Mit Erfolgen</span>
-                    <span class="stat-row-value">{{ $learningProgress['users_with_achievements'] }}</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-row-label">Richtig</span>
-                    <span class="stat-row-value text-success">{{ number_format($totalCorrectAnswers, 0, ',', '.') }}</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-row-label">Falsch</span>
-                    <span class="stat-row-value text-error">{{ number_format($totalWrongAnswers, 0, ',', '.') }}</span>
-                </div>
-            </div>
+            @endforelse
         </div>
     </div>
 
-    {{-- ── 4. Spaced Repetition Section ── --}}
+    {{-- ── 4. Übersicht ── --}}
+    <div class="glass" style="padding:1rem;">
+        <div class="card-label">Übersicht</div>
+        <div class="stat-row">
+            <span class="stat-row-label">Aktiv heute</span>
+            <span class="stat-row-value" style="color:#5b9aff;">{{ $userActivity['today'] }}</span>
+        </div>
+        <div class="stat-row">
+            <span class="stat-row-label">Aktiv Woche</span>
+            <span class="stat-row-value">{{ $userActivity['this_week'] }}</span>
+        </div>
+        <div class="stat-row">
+            <span class="stat-row-label">Aktiv Monat</span>
+            <span class="stat-row-value">{{ $userActivity['this_month'] }}</span>
+        </div>
+        <div class="stat-row">
+            <span class="stat-row-label">Ø Fortschritt</span>
+            <span class="stat-row-value" style="color:#5b9aff;">{{ $learningProgress['average_progress'] }}%</span>
+        </div>
+        <div class="stat-row">
+            <span class="stat-row-label">Richtig</span>
+            <span class="stat-row-value" style="color:var(--success);">{{ number_format($totalCorrectAnswers, 0, ',', '.') }}</span>
+        </div>
+        <div class="stat-row">
+            <span class="stat-row-label">Falsch</span>
+            <span class="stat-row-value" style="color:var(--error);">{{ number_format($totalWrongAnswers, 0, ',', '.') }}</span>
+        </div>
+    </div>
+
+    {{-- ── 5. Spaced Repetition ── --}}
     <div style="padding-left:1rem;border-left:3px solid var(--gold-start);">
         <h2 style="font-size:1.1rem;font-weight:700;color:var(--text-primary);">Spaced Repetition</h2>
     </div>
 
-    <div class="bento-grid">
-        {{-- SR Overview --}}
-        <div class="glass-purple bento-half">
-            <div class="card-label">SR Übersicht</div>
-            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.75rem;margin-bottom:1rem;">
-                <div class="gami-pill">
-                    <div class="gami-pill__value text-purple">{{ number_format($srStats['active_users'], 0, ',', '.') }}</div>
-                    <div class="gami-pill__label">User aktiv</div>
-                </div>
-                <div class="gami-pill">
-                    <div class="gami-pill__value text-blue">{{ number_format($srStats['total_in_sr'], 0, ',', '.') }}</div>
-                    <div class="gami-pill__label">Fragen im SR</div>
-                </div>
-                <div class="gami-pill">
-                    <div class="gami-pill__value text-success">{{ number_format($srStats['mastered'], 0, ',', '.') }}</div>
-                    <div class="gami-pill__label">Gemeistert</div>
-                </div>
-            </div>
-            <div class="stat-row">
-                <span class="stat-row-label">Ø Intervall</span>
-                <span class="stat-row-value text-blue">{{ $srStats['avg_interval'] }} Tage</span>
-            </div>
-            <div class="stat-row">
-                <span class="stat-row-label">Ø Easiness Factor</span>
-                <span class="stat-row-value">{{ $srStats['avg_easiness'] }}</span>
-            </div>
-            <div class="stat-row">
-                <span class="stat-row-label">Mastery-Rate</span>
-                <span class="stat-row-value text-success">{{ $srStats['mastery_rate'] }}%</span>
-            </div>
+    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+        <div class="gami-pill">
+            <div class="gami-pill__value" style="color:#8b5cf6;">{{ number_format($srStats['active_users'], 0, ',', '.') }}</div>
+            <div class="gami-pill__label">User aktiv</div>
+        </div>
+        <div class="gami-pill">
+            <div class="gami-pill__value gami-pill__value--blue">{{ number_format($srStats['total_in_sr'], 0, ',', '.') }}</div>
+            <div class="gami-pill__label">Fragen im SR</div>
+        </div>
+        <div class="gami-pill">
+            <div class="gami-pill__value" style="color:var(--success);">{{ number_format($srStats['mastered'], 0, ',', '.') }}</div>
+            <div class="gami-pill__label">Gemeistert</div>
+        </div>
+        <div class="gami-pill">
+            <div class="gami-pill__value" style="color:#8b5cf6;">{{ number_format($srStats['due_today'], 0, ',', '.') }}</div>
+            <div class="gami-pill__label">Fällig heute</div>
+        </div>
+        <div class="gami-pill">
+            <div class="gami-pill__value" style="color:var(--warning);">{{ number_format($srStats['overdue'], 0, ',', '.') }}</div>
+            <div class="gami-pill__label">Überfällig</div>
+        </div>
+    </div>
+
+    <div class="glass" style="padding:1rem;">
+        <div class="card-label">SR Details</div>
+        <div class="stat-row">
+            <span class="stat-row-label">Ø Intervall</span>
+            <span class="stat-row-value" style="color:#5b9aff;">{{ $srStats['avg_interval'] }} Tage</span>
+        </div>
+        <div class="stat-row">
+            <span class="stat-row-label">Ø Easiness Factor</span>
+            <span class="stat-row-value">{{ $srStats['avg_easiness'] }}</span>
+        </div>
+        <div class="stat-row">
+            <span class="stat-row-label">Mastery-Rate</span>
+            <span class="stat-row-value" style="color:var(--success);">{{ $srStats['mastery_rate'] }}%</span>
+        </div>
+        <div class="stat-row">
+            <span class="stat-row-label">Fällig morgen</span>
+            <span class="stat-row-value">{{ number_format($srStats['due_tomorrow'], 0, ',', '.') }}</span>
+        </div>
+        <div class="stat-row">
+            <span class="stat-row-label">Fällig diese Woche</span>
+            <span class="stat-row-value">{{ number_format($srStats['due_this_week'], 0, ',', '.') }}</span>
         </div>
 
-        {{-- SR Due Reviews --}}
-        <div class="glass-slash bento-half">
-            <div class="card-label">Fällige Reviews</div>
-
-            {{-- Due Today - prominent --}}
-            <div style="text-align:center;padding:0.75rem 0;margin-bottom:0.75rem;background:rgba(139,92,246,0.06);border-radius:0.75rem;border:1px solid rgba(139,92,246,0.1);">
-                <div style="font-size:2rem;font-weight:800;color:#8b5cf6;font-family:'Barlow Condensed',sans-serif;">{{ number_format($srStats['due_today'], 0, ',', '.') }}</div>
-                <div style="font-size:0.5625rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;font-family:'IBM Plex Mono',monospace;">Reviews fällig heute</div>
-            </div>
-
-            <div class="stat-row">
-                <span class="stat-row-label">Fällig morgen</span>
-                <span class="stat-row-value">{{ number_format($srStats['due_tomorrow'], 0, ',', '.') }}</span>
-            </div>
-            <div class="stat-row">
-                <span class="stat-row-label">Fällig diese Woche</span>
-                <span class="stat-row-value">{{ number_format($srStats['due_this_week'], 0, ',', '.') }}</span>
-            </div>
-            <div class="stat-row">
-                <span class="stat-row-label">Überfällig (verpasst)</span>
-                <span class="stat-row-value text-warning">{{ number_format($srStats['overdue'], 0, ',', '.') }}</span>
-            </div>
-
-            {{-- Interval distribution bar --}}
-            @php
-                $dist = $srStats['interval_distribution'];
-                $distTotal = max(array_sum($dist), 1);
-            @endphp
-            <div style="margin-top:0.75rem;">
-                <div style="font-size:0.5625rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;font-family:'IBM Plex Mono',monospace;margin-bottom:0.375rem;">Intervall-Verteilung</div>
-                <div style="display:flex;gap:2px;height:24px;border-radius:0.25rem;overflow:hidden;">
-                    <div style="flex:{{ max($dist['1_3'], 1) }};background:rgba(139,92,246,0.4);display:flex;align-items:center;justify-content:center;font-size:0.5rem;font-weight:600;color:white;">1-3d</div>
-                    <div style="flex:{{ max($dist['4_7'], 1) }};background:rgba(91,154,255,0.4);display:flex;align-items:center;justify-content:center;font-size:0.5rem;font-weight:600;color:white;">4-7d</div>
-                    <div style="flex:{{ max($dist['8_14'], 1) }};background:rgba(34,197,94,0.4);display:flex;align-items:center;justify-content:center;font-size:0.5rem;font-weight:600;color:white;">8-14d</div>
-                    <div style="flex:{{ max($dist['15_plus'], 1) }};background:rgba(251,191,36,0.4);display:flex;align-items:center;justify-content:center;font-size:0.5rem;font-weight:600;color:white;">15d+</div>
-                </div>
+        {{-- Interval distribution bar --}}
+        @php
+            $dist = $srStats['interval_distribution'];
+            $distTotal = max(array_sum($dist), 1);
+        @endphp
+        <div style="margin-top:0.75rem;">
+            <div style="font-size:0.5625rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;font-family:'IBM Plex Mono',monospace;margin-bottom:0.375rem;">Intervall-Verteilung</div>
+            <div style="display:flex;gap:2px;height:20px;border-radius:0.25rem;overflow:hidden;">
+                <div style="flex:{{ max($dist['1_3'], 1) }};background:rgba(139,92,246,0.4);display:flex;align-items:center;justify-content:center;font-size:0.5rem;font-weight:600;color:white;">1-3d</div>
+                <div style="flex:{{ max($dist['4_7'], 1) }};background:rgba(91,154,255,0.4);display:flex;align-items:center;justify-content:center;font-size:0.5rem;font-weight:600;color:white;">4-7d</div>
+                <div style="flex:{{ max($dist['8_14'], 1) }};background:rgba(34,197,94,0.4);display:flex;align-items:center;justify-content:center;font-size:0.5rem;font-weight:600;color:white;">8-14d</div>
+                <div style="flex:{{ max($dist['15_plus'], 1) }};background:rgba(251,191,36,0.4);display:flex;align-items:center;justify-content:center;font-size:0.5rem;font-weight:600;color:white;">15d+</div>
             </div>
         </div>
     </div>
 
-    {{-- ── 5. Leaderboard ── --}}
+    {{-- ── 6. Leaderboard ── --}}
     <div style="padding-left:1rem;border-left:3px solid var(--gold-start);">
         <h2 style="font-size:1.1rem;font-weight:700;color:var(--text-primary);">Leaderboard</h2>
     </div>
 
-    <div class="glass-br">
+    <div class="glass" style="padding:1rem;">
         <div class="card-label">Top 10</div>
-        <div class="lb-2col" style="display:grid;grid-template-columns:1fr 1fr;gap:0.375rem;">
+        <div style="display:flex;flex-direction:column;gap:0.25rem;">
             @forelse($leaderboard as $index => $user)
                 @php
                     $position = $index + 1;
@@ -546,38 +529,36 @@
                     </div>
                 </div>
             @empty
-                <div style="grid-column:span 2;text-align:center;padding:1.5rem;color:var(--text-muted);">
+                <div style="text-align:center;padding:1.5rem;color:var(--text-muted);">
                     Keine Daten vorhanden
                 </div>
             @endforelse
         </div>
     </div>
 
-    {{-- ── 6. Charts ── --}}
+    {{-- ── 7. Charts ── --}}
     <div style="padding-left:1rem;border-left:3px solid var(--gold-start);">
         <h2 style="font-size:1.1rem;font-weight:700;color:var(--text-primary);">Statistiken (30 Tage)</h2>
     </div>
 
-    <div class="bento-grid">
-        <div class="glass bento-half">
-            <div class="card-label">Benutzeraktivität</div>
-            <div class="chart-container">
-                <canvas id="userActivityChart"></canvas>
-            </div>
+    <div class="glass" style="padding:1rem;">
+        <div class="card-label">Benutzeraktivität</div>
+        <div class="chart-container">
+            <canvas id="userActivityChart"></canvas>
         </div>
+    </div>
 
-        <div class="glass bento-half">
-            <div class="card-label">Beantwortete Fragen</div>
-            <div class="chart-container">
-                <canvas id="questionsChart"></canvas>
-            </div>
+    <div class="glass" style="padding:1rem;">
+        <div class="card-label">Beantwortete Fragen</div>
+        <div class="chart-container">
+            <canvas id="questionsChart"></canvas>
         </div>
+    </div>
 
-        <div class="glass-slash bento-wide">
-            <div class="card-label">Benutzer-Wachstum</div>
-            <div class="chart-container">
-                <canvas id="userGrowthChart"></canvas>
-            </div>
+    <div class="glass" style="padding:1rem;">
+        <div class="card-label">Benutzer-Wachstum</div>
+        <div class="chart-container">
+            <canvas id="userGrowthChart"></canvas>
         </div>
     </div>
 
