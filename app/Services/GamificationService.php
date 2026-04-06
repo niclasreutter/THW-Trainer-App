@@ -20,9 +20,7 @@ class GamificationService
     const MAX_STREAK_FREEZES_PER_WEEK = 2;
     const STREAK_MIN_QUESTIONS = 20;
 
-    // Anti-Farming: Diminishing Returns
-    const WEEKLY_FULL_POINTS_THRESHOLD = 1000;
-    const DIMINISHING_FACTOR = 0.5;
+    // Anti-Farming: Bereits gelöste Fragen geben weniger
     const SOLVED_QUESTION_FACTOR = 0.5;
 
     // Level-System (Punkte benötigt für nächstes Level)
@@ -339,13 +337,6 @@ class GamificationService
             }
         }
 
-        // Anti-Farming: Nach 1.000 weekly_points gibt es 50% weniger
-        $this->resetWeeklyPointsIfNeeded($user);
-        if (($user->weekly_points ?? 0) >= self::WEEKLY_FULL_POINTS_THRESHOLD) {
-            $totalPoints = (int) round($totalPoints * self::DIMINISHING_FACTOR);
-            $reason .= ' (reduziert)';
-        }
-
         $result = $this->awardPoints($user, $totalPoints, $reason, 'question', $questionId);
 
         $this->checkQuestionAchievements($user);
@@ -389,13 +380,6 @@ class GamificationService
             }
 
             $totalPoints = (int) round($totalPoints * $multiplier);
-
-            // Anti-Farming: Nach 1.000 weekly_points gibt es 50% weniger
-            $this->resetWeeklyPointsIfNeeded($user);
-            if (($user->weekly_points ?? 0) >= self::WEEKLY_FULL_POINTS_THRESHOLD) {
-                $totalPoints = (int) round($totalPoints * self::DIMINISHING_FACTOR);
-                $reason .= ' (reduziert)';
-            }
 
             $result = $this->awardPoints($user, $totalPoints, $reason, 'exam');
 
