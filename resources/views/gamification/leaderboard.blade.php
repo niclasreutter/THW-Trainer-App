@@ -544,7 +544,7 @@
         {{-- ── Podium (Top 3) ── --}}
         @php
             $top3 = $leaderboard->take(3);
-            $rest = $leaderboard->slice(3);
+            $rest = $leaderboard->slice(3)->values();
 
             // Helper: get avatar frame inline styles
             $getAvatarFrameStyle = function($user) {
