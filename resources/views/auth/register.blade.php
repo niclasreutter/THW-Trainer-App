@@ -14,12 +14,19 @@
 
             <div class="auth-demo-carousel">
                 <!-- Demo 1: Quiz -->
-                <div class="auth-demo-panel" x-show="active === 0" x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0 transform translate-y-2" x-transition:enter-end="opacity-100 transform translate-y-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
+                <div class="auth-demo-panel" x-show="active === 0"
+                     x-transition:enter="transition ease-out duration-500"
+                     x-transition:enter-start="opacity-0"
+                     x-transition:enter-end="opacity-100"
+                     x-transition:leave="transition ease-in duration-300"
+                     x-transition:leave-start="opacity-100"
+                     x-transition:leave-end="opacity-0"
+                     style="position: absolute; inset: 0;">
                     <div class="demo-quiz-card">
                         <div class="demo-quiz-badge">Grundausbildung</div>
                         <div class="demo-quiz-question" x-text="questions[currentQ].text"></div>
                         <div class="demo-quiz-options">
-                            <template x-for="(answer, idx) in questions[currentQ].answers" :key="idx">
+                            <template x-for="(answer, idx) in questions[currentQ].answers" :key="currentQ + '-' + idx">
                                 <div class="demo-quiz-option"
                                      :class="{
                                          'selected': quizStep >= 1 && idx === quizSelectedIdx,
@@ -32,14 +39,19 @@
                                 </div>
                             </template>
                         </div>
-                        <div class="demo-quiz-result" :class="quizIsCorrect ? 'success' : 'error'" x-show="quizStep >= 2" x-transition>
-                            <span x-text="quizIsCorrect ? 'Richtig beantwortet!' : 'Die richtige Antwort wurde markiert.'"></span>
-                        </div>
+                        <div class="demo-quiz-result success" x-show="quizStep >= 2" x-transition>Richtig beantwortet!</div>
                     </div>
                 </div>
 
                 <!-- Demo 2: Progress -->
-                <div class="auth-demo-panel" x-show="active === 1" x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0 transform translate-y-2" x-transition:enter-end="opacity-100 transform translate-y-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
+                <div class="auth-demo-panel" x-show="active === 1"
+                     x-transition:enter="transition ease-out duration-500"
+                     x-transition:enter-start="opacity-0"
+                     x-transition:enter-end="opacity-100"
+                     x-transition:leave="transition ease-in duration-300"
+                     x-transition:leave-start="opacity-100"
+                     x-transition:leave-end="opacity-0"
+                     style="position: absolute; inset: 0;">
                     <div class="demo-progress-card" style="position: relative;">
                         <div class="demo-progress-header">
                             <div class="demo-progress-title">Dein Lernfortschritt</div>
@@ -77,7 +89,14 @@
                 </div>
 
                 <!-- Demo 3: Stats -->
-                <div class="auth-demo-panel" x-show="active === 2" x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0 transform translate-y-2" x-transition:enter-end="opacity-100 transform translate-y-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
+                <div class="auth-demo-panel" x-show="active === 2"
+                     x-transition:enter="transition ease-out duration-500"
+                     x-transition:enter-start="opacity-0"
+                     x-transition:enter-end="opacity-100"
+                     x-transition:leave="transition ease-in duration-300"
+                     x-transition:leave-start="opacity-100"
+                     x-transition:leave-end="opacity-0"
+                     style="position: absolute; inset: 0;">
                     <div class="demo-stats-grid">
                         <div class="demo-stats-card">
                             <div class="demo-stats-number blue" x-text="statUsers">0</div>
@@ -95,7 +114,6 @@
                 </div>
             </div>
 
-            <!-- Demo indicators -->
             <div class="auth-demo-indicators">
                 <div class="auth-demo-dot" :class="{ 'active': active === 0 }" @click="goTo(0)"></div>
                 <div class="auth-demo-dot" :class="{ 'active': active === 1 }" @click="goTo(1)"></div>
@@ -103,7 +121,6 @@
             </div>
         </div>
 
-        <!-- Footer -->
         <div class="auth-showcase-footer">
             &copy; 2026 THW-Trainer
             <span class="auth-showcase-footer-divider">&middot;</span>
@@ -156,57 +173,29 @@
 
                 <div class="auth-field">
                     <label for="name" class="auth-label">Vollstaendiger Name</label>
-                    <input id="name"
-                           type="text"
-                           name="name"
-                           value="{{ old('name') }}"
-                           required
-                           autofocus
-                           class="auth-input"
-                           placeholder="Max Mustermann">
+                    <input id="name" type="text" name="name" value="{{ old('name') }}" required autofocus class="auth-input" placeholder="Max Mustermann">
                 </div>
 
                 <div class="auth-field">
                     <label for="email" class="auth-label">E-Mail-Adresse</label>
-                    <input id="email"
-                           type="email"
-                           name="email"
-                           value="{{ old('email') }}"
-                           required
-                           class="auth-input"
-                           placeholder="max@beispiel.de">
+                    <input id="email" type="email" name="email" value="{{ old('email') }}" required class="auth-input" placeholder="max@beispiel.de">
                 </div>
 
                 <div class="auth-row">
                     <div class="auth-field">
                         <label for="password" class="auth-label">Passwort</label>
-                        <input id="password"
-                               type="password"
-                               name="password"
-                               required
-                               class="auth-input"
-                               placeholder="Mind. 8 Zeichen">
+                        <input id="password" type="password" name="password" required class="auth-input" placeholder="Mind. 8 Zeichen">
                     </div>
                     <div class="auth-field">
                         <label for="password_confirmation" class="auth-label">Bestaetigen</label>
-                        <input id="password_confirmation"
-                               type="password"
-                               name="password_confirmation"
-                               required
-                               class="auth-input"
-                               placeholder="Wiederholen">
+                        <input id="password_confirmation" type="password" name="password_confirmation" required class="auth-input" placeholder="Wiederholen">
                     </div>
                 </div>
 
                 @if(!($inviteInfo && $inviteInfo->isValid()))
                 <div class="auth-field">
                     <label for="invitation_code" class="auth-label">OV-Code (optional)</label>
-                    <input id="invitation_code"
-                           type="text"
-                           name="invitation_code"
-                           value="{{ old('invitation_code', request('code') ?? request('invite') ?? '') }}"
-                           class="auth-input"
-                           placeholder="z.B. THW-XXXXXXXX">
+                    <input id="invitation_code" type="text" name="invitation_code" value="{{ old('invitation_code', request('code') ?? request('invite') ?? '') }}" class="auth-input" placeholder="z.B. THW-XXXXXXXX">
                     <p class="auth-helper">Hast du einen Einladungscode von deinem Ortsverband erhalten?</p>
                 </div>
                 @else
@@ -215,8 +204,7 @@
 
                 <div class="auth-consent-box">
                     <div class="auth-consent-inner">
-                        <input type="checkbox" name="email_consent" id="email_consent" value="1"
-                               {{ old('email_consent') ? 'checked' : '' }}>
+                        <input type="checkbox" name="email_consent" id="email_consent" value="1" {{ old('email_consent') ? 'checked' : '' }}>
                         <div>
                             <label for="email_consent" class="auth-consent-label">E-Mail-Benachrichtigungen</label>
                             <p class="auth-consent-desc">Erhalte Mails zu deinem Lernfortschritt und neuen Features</p>
@@ -244,12 +232,12 @@ document.addEventListener('alpine:init', () => {
         active: 0,
         interval: null,
         currentQ: 0,
-
         questions: @json($demoQuestions),
+        dbUsers: {{ $authStats['users'] }},
+        dbQuestions: {{ $authStats['questions'] }},
 
         quizStep: 0,
         quizSelectedIdx: -1,
-        quizIsCorrect: false,
 
         progressAnswered: 0,
         progressCorrectPct: 0,
@@ -266,9 +254,10 @@ document.addEventListener('alpine:init', () => {
             if (this.questions.length === 0) return;
             this.runDemo(0);
             this.interval = setInterval(() => {
-                this.active = (this.active + 1) % 3;
+                const next = (this.active + 1) % 3;
+                this.active = next;
                 this.resetAll();
-                this.$nextTick(() => this.runDemo(this.active));
+                this.$nextTick(() => this.runDemo(next));
             }, 7000);
         },
 
@@ -278,19 +267,16 @@ document.addEventListener('alpine:init', () => {
             this.resetAll();
             this.$nextTick(() => this.runDemo(idx));
             this.interval = setInterval(() => {
-                this.active = (this.active + 1) % 3;
+                const next = (this.active + 1) % 3;
+                this.active = next;
                 this.resetAll();
-                this.$nextTick(() => this.runDemo(this.active));
+                this.$nextTick(() => this.runDemo(next));
             }, 7000);
         },
 
         resetAll() {
-            if (this.quizStep > 0) {
-                this.currentQ = (this.currentQ + 1) % this.questions.length;
-            }
             this.quizStep = 0;
             this.quizSelectedIdx = -1;
-            this.quizIsCorrect = false;
             this.progressAnswered = 0;
             this.progressCorrectPct = 0;
             this.progressXP = 0;
@@ -310,10 +296,12 @@ document.addEventListener('alpine:init', () => {
         runQuiz() {
             const q = this.questions[this.currentQ];
             this.quizSelectedIdx = q.correctIdxs[0];
-            this.quizIsCorrect = true;
 
             setTimeout(() => { this.quizStep = 1; }, 1200);
             setTimeout(() => { this.quizStep = 2; }, 3000);
+            setTimeout(() => {
+                this.currentQ = (this.currentQ + 1) % this.questions.length;
+            }, 6500);
         },
 
         runProgress() {
@@ -336,8 +324,8 @@ document.addEventListener('alpine:init', () => {
         },
 
         runStats() {
-            this.animateValue('statUsers', 0, 200, 2000, v => v + '+');
-            this.animateValue('statQuestions', 0, 1000, 2000, v => v.toLocaleString('de-DE') + '+');
+            this.animateValue('statUsers', 0, this.dbUsers, 2000, v => v.toLocaleString('de-DE') + '+');
+            this.animateValue('statQuestions', 0, this.dbQuestions, 2000, v => v.toLocaleString('de-DE') + '+');
             this.animateValue('statFree', 0, 100, 1800);
         },
 

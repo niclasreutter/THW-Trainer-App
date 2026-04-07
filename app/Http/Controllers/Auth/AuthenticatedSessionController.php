@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Helpers\DomainHelper;
 use App\Models\Question;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -18,7 +19,8 @@ class AuthenticatedSessionController extends Controller
      */
     public function create(): View
     {
-        $demoQuestions = Question::inRandomOrder()->limit(3)
+        $demoQuestions = Question::whereRaw("LENGTH(loesung) = 1")
+            ->inRandomOrder()->limit(3)
             ->get(['frage', 'antwort_a', 'antwort_b', 'antwort_c', 'loesung'])
             ->map(function ($q) {
                 $map = ['A' => 0, 'B' => 1, 'C' => 2];
@@ -32,7 +34,14 @@ class AuthenticatedSessionController extends Controller
                 ];
             })->values();
 
-        return view('auth.login', compact('demoQuestions'));
+        $authStats = cache()->remember('auth_stats', 300, function () {
+            return [
+                'users' => (int) (floor(User::count() / 10) * 10),
+                'questions' => (int) (floor(Question::count() / 10) * 10),
+            ];
+        });
+
+        return view('auth.login', compact('demoQuestions', 'authStats'));
     }
 
     /**

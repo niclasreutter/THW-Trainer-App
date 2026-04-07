@@ -22,7 +22,8 @@ class RegisteredUserController extends Controller
      */
     public function create(Request $request): View
     {
-        $demoQuestions = Question::inRandomOrder()->limit(3)
+        $demoQuestions = Question::whereRaw("LENGTH(loesung) = 1")
+            ->inRandomOrder()->limit(3)
             ->get(['frage', 'antwort_a', 'antwort_b', 'antwort_c', 'loesung'])
             ->map(function ($q) {
                 $map = ['A' => 0, 'B' => 1, 'C' => 2];
@@ -36,7 +37,14 @@ class RegisteredUserController extends Controller
                 ];
             })->values();
 
-        return view('auth.register', compact('demoQuestions'));
+        $authStats = cache()->remember('auth_stats', 300, function () {
+            return [
+                'users' => (int) (floor(\App\Models\User::count() / 10) * 10),
+                'questions' => (int) (floor(Question::count() / 10) * 10),
+            ];
+        });
+
+        return view('auth.register', compact('demoQuestions', 'authStats'));
     }
 
     /**
