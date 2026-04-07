@@ -6,50 +6,108 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <title>@hasSection('title')@yield('title') - THW-Trainer @else THW-Trainer @endif</title>
-        
+
         <!-- SEO Meta Tags -->
         <meta name="description" content="@hasSection('description')@yield('description')@else THW-Trainer: Bereite dich optimal auf deine THW-Prüfung vor. @endif">
         <meta name="robots" content="noindex, nofollow">
-        
+
         <!-- Favicons -->
         <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
         <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
-        
+
         <!-- Performance Meta Tags -->
-        <meta name="theme-color" content="#00337F">
+        <meta name="theme-color" content="#0a0a0b">
         <meta name="mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-capable" content="yes">
-        
+
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700,800&display=swap" rel="stylesheet" />
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
-        
+
         <style>
             * {
                 margin: 0;
                 padding: 0;
                 box-sizing: border-box;
             }
-            
+
             html, body {
                 min-height: 100%;
                 overflow-x: hidden;
                 display: flex;
                 flex-direction: column;
             }
-            
+
             body {
                 font-family: 'Figtree', sans-serif;
+                background: linear-gradient(160deg, #0a0a0b 0%, #0d1117 40%, #0a0f1a 70%, #0a0a0b 100%);
+                color: #f5f5f5;
+            }
+
+            /* Floating gradient orbs */
+            .auth-orb {
+                position: fixed;
+                border-radius: 50%;
+                filter: blur(80px);
+                pointer-events: none;
+                z-index: 0;
+                opacity: 0.4;
+            }
+
+            .auth-orb-1 {
+                width: 500px;
+                height: 500px;
+                background: radial-gradient(circle, rgba(0, 51, 127, 0.3) 0%, transparent 70%);
+                top: -10%;
+                right: -5%;
+                animation: auth-float-1 20s ease-in-out infinite;
+            }
+
+            .auth-orb-2 {
+                width: 400px;
+                height: 400px;
+                background: radial-gradient(circle, rgba(251, 191, 36, 0.15) 0%, transparent 70%);
+                bottom: -5%;
+                left: -5%;
+                animation: auth-float-2 25s ease-in-out infinite;
+            }
+
+            .auth-orb-3 {
+                width: 300px;
+                height: 300px;
+                background: radial-gradient(circle, rgba(59, 130, 246, 0.2) 0%, transparent 70%);
+                top: 40%;
+                left: 30%;
+                animation: auth-float-3 22s ease-in-out infinite;
+            }
+
+            @keyframes auth-float-1 {
+                0%, 100% { transform: translate(0, 0) scale(1); }
+                33% { transform: translate(-30px, 20px) scale(1.05); }
+                66% { transform: translate(20px, -15px) scale(0.95); }
+            }
+
+            @keyframes auth-float-2 {
+                0%, 100% { transform: translate(0, 0) scale(1); }
+                33% { transform: translate(25px, -20px) scale(1.08); }
+                66% { transform: translate(-15px, 25px) scale(0.92); }
+            }
+
+            @keyframes auth-float-3 {
+                0%, 100% { transform: translate(0, 0) scale(1); }
+                50% { transform: translate(-20px, -25px) scale(1.1); }
             }
 
             .auth-navbar {
                 display: none;
-                background: linear-gradient(135deg, #00337F 0%, #002a66 100%);
+                background: rgba(10, 10, 11, 0.8);
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+                border-bottom: 1px solid rgba(255, 255, 255, 0.06);
                 padding: 1rem 2rem;
-                box-shadow: 0 2px 8px rgba(0, 51, 127, 0.15);
             }
 
             .auth-navbar-content {
@@ -62,7 +120,7 @@
             .auth-navbar-brand {
                 font-size: 1.3rem;
                 font-weight: 800;
-                color: white;
+                color: #f5f5f5;
                 text-decoration: none;
                 letter-spacing: 1px;
             }
@@ -73,31 +131,36 @@
 
             .auth-main {
                 flex: 1;
+                position: relative;
+                z-index: 1;
             }
 
             .auth-footer-bar {
                 display: none;
-                background: linear-gradient(135deg, #00337F 0%, #002a66 100%);
+                background: rgba(10, 10, 11, 0.8);
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+                border-top: 1px solid rgba(255, 255, 255, 0.06);
                 padding: 1.5rem 2rem;
                 text-align: center;
                 font-size: 0.85rem;
-                color: white;
+                color: rgba(255, 255, 255, 0.6);
             }
 
             .auth-footer-bar a {
-                color: white;
+                color: rgba(255, 255, 255, 0.7);
                 text-decoration: none;
-                transition: opacity 0.2s ease;
+                transition: color 0.2s ease;
                 margin: 0 0.75rem;
             }
 
             .auth-footer-bar a:hover {
-                opacity: 0.8;
+                color: #f5f5f5;
             }
 
             .auth-footer-divider {
                 display: inline-block;
-                color: rgba(255,255,255,0.5);
+                color: rgba(255, 255, 255, 0.3);
                 margin: 0 0.5rem;
             }
 
@@ -105,33 +168,37 @@
                 .auth-navbar {
                     display: block;
                 }
-                
+
                 .auth-footer-bar {
                     display: block;
                 }
             }
         </style>
-        
+
         @stack('styles')
     </head>
     <body>
-        <!-- Top Navbar -->
+        <!-- Floating Orbs -->
+        <div class="auth-orb auth-orb-1"></div>
+        <div class="auth-orb auth-orb-2"></div>
+        <div class="auth-orb auth-orb-3"></div>
+
+        <!-- Top Navbar (mobile) -->
         <div class="auth-navbar">
             <div class="auth-navbar-content">
                 <a href="{{ url('/') }}" class="auth-navbar-brand">THW-TRAINER</a>
             </div>
         </div>
 
-
         <!-- Main Content -->
         <div class="auth-main">
             @yield('content')
         </div>
 
-        <!-- Bottom Footer Bar -->
+        <!-- Bottom Footer Bar (mobile) -->
         <div class="auth-footer-bar">
             <a href="{{ route('landing.datenschutz') }}">Datenschutz</a>
-            <span class="auth-footer-divider">•</span>
+            <span class="auth-footer-divider">&middot;</span>
             <a href="{{ route('landing.impressum') }}">Impressum</a>
         </div>
     </body>
