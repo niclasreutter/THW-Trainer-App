@@ -6022,6 +6022,20 @@ html.light-mode .smart-action--info {
     max-width: 420px;
 }
 
+.auth-form-brand {
+    display: none;
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: rgba(255, 255, 255, 0.35);
+    text-decoration: none;
+    letter-spacing: 1.5px;
+    margin-bottom: 1.5rem;
+}
+
+.auth-form-brand:hover {
+    color: rgba(255, 255, 255, 0.55);
+}
+
 .auth-form-title {
     font-size: 1.6rem;
     font-weight: 800;
@@ -6378,11 +6392,15 @@ html.light-mode .smart-action--info {
 @media (max-width: 768px) {
     .auth-split {
         flex-direction: column;
-        min-height: calc(100dvh - 60px - 70px);
+        min-height: calc(100dvh - 70px);
     }
 
     .auth-showcase {
         display: none;
+    }
+
+    .auth-form-brand {
+        display: block;
     }
 
     .auth-form-panel {
@@ -6577,6 +6595,14 @@ html.light-mode .smart-action--info {
     }
 
     /* Form panel */
+    .auth-form-brand {
+        color: rgba(0, 51, 127, 0.4);
+    }
+
+    .auth-form-brand:hover {
+        color: rgba(0, 51, 127, 0.6);
+    }
+
     .auth-form-title {
         color: #0f172a;
     }

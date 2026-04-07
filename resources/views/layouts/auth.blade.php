@@ -169,10 +169,6 @@
             }
 
             @media (max-width: 768px) {
-                .auth-navbar {
-                    display: block;
-                }
-
                 .auth-footer-bar {
                     display: block;
                 }
