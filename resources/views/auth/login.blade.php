@@ -17,26 +17,24 @@
                 <div class="auth-demo-panel" x-show="active === 0" x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0 transform translate-y-2" x-transition:enter-end="opacity-100 transform translate-y-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
                     <div class="demo-quiz-card">
                         <div class="demo-quiz-badge">Grundausbildung</div>
-                        <div class="demo-quiz-question">Welche Aufgabe hat das THW im Rahmen des Zivilschutzes?</div>
+                        <div class="demo-quiz-question" x-text="questions[currentQ].text"></div>
                         <div class="demo-quiz-options">
-                            <div class="demo-quiz-option" :class="{ 'selected': quizStep >= 1 && quizSelected === 0, 'correct': quizStep >= 2 && 0 === quizCorrect, 'neutral': quizStep >= 2 && 0 !== quizSelected && 0 !== quizCorrect }">
-                                <span class="demo-letter">A</span>
-                                <span>Brandbekaempfung</span>
-                            </div>
-                            <div class="demo-quiz-option" :class="{ 'selected': quizStep >= 1 && quizSelected === 1, 'correct': quizStep >= 2 && 1 === quizCorrect, 'wrong': quizStep >= 2 && 1 === quizSelected && 1 !== quizCorrect, 'neutral': quizStep >= 2 && 1 !== quizSelected && 1 !== quizCorrect }">
-                                <span class="demo-letter">B</span>
-                                <span>Verkehrsregelung</span>
-                            </div>
-                            <div class="demo-quiz-option" :class="{ 'selected': quizStep >= 1 && quizSelected === 2, 'correct': quizStep >= 2 && 2 === quizCorrect, 'wrong': quizStep >= 2 && 2 === quizSelected && 2 !== quizCorrect, 'neutral': quizStep >= 2 && 2 !== quizSelected && 2 !== quizCorrect }">
-                                <span class="demo-letter">C</span>
-                                <span>Technische Hilfe</span>
-                            </div>
-                            <div class="demo-quiz-option" :class="{ 'selected': quizStep >= 1 && quizSelected === 3, 'correct': quizStep >= 2 && 3 === quizCorrect, 'neutral': quizStep >= 2 && 3 !== quizSelected && 3 !== quizCorrect }">
-                                <span class="demo-letter">D</span>
-                                <span>Strafverfolgung</span>
-                            </div>
+                            <template x-for="(answer, idx) in questions[currentQ].answers" :key="idx">
+                                <div class="demo-quiz-option"
+                                     :class="{
+                                         'selected': quizStep >= 1 && idx === quizSelectedIdx,
+                                         'correct': quizStep >= 2 && questions[currentQ].correctIdxs.includes(idx),
+                                         'wrong': quizStep >= 2 && idx === quizSelectedIdx && !questions[currentQ].correctIdxs.includes(idx),
+                                         'neutral': quizStep >= 2 && idx !== quizSelectedIdx && !questions[currentQ].correctIdxs.includes(idx)
+                                     }">
+                                    <span class="demo-letter" x-text="['A', 'B', 'C'][idx]"></span>
+                                    <span x-text="answer"></span>
+                                </div>
+                            </template>
                         </div>
-                        <div class="demo-quiz-result success" x-show="quizStep >= 2" x-transition>Richtig! Technische Hilfe ist die Kernaufgabe.</div>
+                        <div class="demo-quiz-result" :class="quizIsCorrect ? 'success' : 'error'" x-show="quizStep >= 2" x-transition>
+                            <span x-text="quizIsCorrect ? 'Richtig beantwortet!' : 'Die richtige Antwort wurde markiert.'"></span>
+                        </div>
                     </div>
                 </div>
 
@@ -59,7 +57,7 @@
                                 <div class="demo-stat-label">Richtig</div>
                             </div>
                             <div class="demo-stat-item">
-                                <div class="demo-stat-value text-gold" x-text="progressXP">0</div>
+                                <div class="demo-stat-value text-blue" x-text="progressXP">0</div>
                                 <div class="demo-stat-label">XP</div>
                             </div>
                         </div>
@@ -86,7 +84,7 @@
                             <div class="demo-stats-label">Aktive User</div>
                         </div>
                         <div class="demo-stats-card">
-                            <div class="demo-stats-number gold" x-text="statQuestions">0</div>
+                            <div class="demo-stats-number blue" x-text="statQuestions">0</div>
                             <div class="demo-stats-label">Fragen</div>
                         </div>
                         <div class="demo-stats-card wide">
@@ -121,7 +119,6 @@
             <h2 class="auth-form-title">Willkommen zurueck</h2>
             <p class="auth-form-subtitle">Melde dich an, um auf deinen Lernfortschritt zuzugreifen.</p>
 
-            <!-- Error Messages -->
             @if ($errors->any())
                 <div class="auth-error-box">
                     <strong>Anmeldung fehlgeschlagen</strong>
@@ -131,10 +128,8 @@
                 </div>
             @endif
 
-            <!-- Session Status -->
             <x-auth-session-status class="auth-success-box" :status="session('status')" />
 
-            <!-- Login Form -->
             <form method="POST" action="{{ route('login') }}">
                 @csrf
 
@@ -185,11 +180,19 @@ document.addEventListener('alpine:init', () => {
     Alpine.data('authShowcase', () => ({
         active: 0,
         interval: null,
+        currentQ: 0,
+
+        // Questions from database
+        questions: @json($demoQuestions->map(fn($q) => [
+            'text' => $q->frage,
+            'answers' => [$q->antwort_a, $q->antwort_b, $q->antwort_c],
+            'correctIdxs' => collect(explode(',', $q->loesung))->map(fn($l) => ['A' => 0, 'B' => 1, 'C' => 2][trim($l)] ?? 0)->values()->toArray(),
+        ])->values()),
 
         // Quiz state
         quizStep: 0,
-        quizSelected: 2,
-        quizCorrect: 2,
+        quizSelectedIdx: -1,
+        quizIsCorrect: false,
 
         // Progress state
         progressAnswered: 0,
@@ -205,6 +208,7 @@ document.addEventListener('alpine:init', () => {
         statFree: 0,
 
         start() {
+            if (this.questions.length === 0) return;
             this.runDemo(0);
             this.interval = setInterval(() => {
                 this.active = (this.active + 1) % 3;
@@ -227,6 +231,8 @@ document.addEventListener('alpine:init', () => {
 
         resetAll() {
             this.quizStep = 0;
+            this.quizSelectedIdx = -1;
+            this.quizIsCorrect = false;
             this.progressAnswered = 0;
             this.progressCorrectPct = 0;
             this.progressXP = 0;
@@ -244,8 +250,17 @@ document.addEventListener('alpine:init', () => {
         },
 
         runQuiz() {
+            const q = this.questions[this.currentQ];
+            // Pick a correct answer to "select"
+            this.quizSelectedIdx = q.correctIdxs[0];
+            this.quizIsCorrect = true;
+
             setTimeout(() => { this.quizStep = 1; }, 1200);
-            setTimeout(() => { this.quizStep = 2; }, 3000);
+            setTimeout(() => {
+                this.quizStep = 2;
+                // Advance to next question for next cycle
+                this.currentQ = (this.currentQ + 1) % this.questions.length;
+            }, 3000);
         },
 
         runProgress() {
@@ -254,7 +269,6 @@ document.addEventListener('alpine:init', () => {
             this.animateValue('progressXP', 0, 1240, 2000);
             this.animateValue('progressPct', 0, 68, 2000);
 
-            // Floating XP
             setTimeout(() => this.addXP(25, 60), 800);
             setTimeout(() => this.addXP(10, 30), 1600);
             setTimeout(() => this.addXP(50, 80), 2800);

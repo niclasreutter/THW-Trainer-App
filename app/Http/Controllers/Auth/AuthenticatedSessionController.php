@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Helpers\DomainHelper;
+use App\Models\Question;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,7 +18,9 @@ class AuthenticatedSessionController extends Controller
      */
     public function create(): View
     {
-        return view('auth.login');
+        $demoQuestions = Question::inRandomOrder()->limit(3)->get(['frage', 'antwort_a', 'antwort_b', 'antwort_c', 'loesung']);
+
+        return view('auth.login', compact('demoQuestions'));
     }
 
     /**
