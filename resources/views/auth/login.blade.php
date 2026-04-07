@@ -133,6 +133,7 @@
     <!-- Right: Login Form -->
     <div class="auth-form-panel">
         <div class="auth-form-card">
+            <a href="{{ url('/') }}" class="auth-form-brand">THW-Trainer</a>
             <h2 class="auth-form-title">Willkommen zurück</h2>
             <p class="auth-form-subtitle">Melde dich an, um auf deinen Lernfortschritt zuzugreifen.</p>
 
