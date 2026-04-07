@@ -22,7 +22,19 @@ class RegisteredUserController extends Controller
      */
     public function create(Request $request): View
     {
-        $demoQuestions = Question::inRandomOrder()->limit(3)->get(['frage', 'antwort_a', 'antwort_b', 'antwort_c', 'loesung']);
+        $demoQuestions = Question::inRandomOrder()->limit(3)
+            ->get(['frage', 'antwort_a', 'antwort_b', 'antwort_c', 'loesung'])
+            ->map(function ($q) {
+                $map = ['A' => 0, 'B' => 1, 'C' => 2];
+                return [
+                    'text' => $q->frage,
+                    'answers' => [$q->antwort_a, $q->antwort_b, $q->antwort_c],
+                    'correctIdxs' => collect(explode(',', $q->loesung))
+                        ->map(fn($l) => $map[trim($l)] ?? 0)
+                        ->values()
+                        ->toArray(),
+                ];
+            })->values();
 
         return view('auth.register', compact('demoQuestions'));
     }

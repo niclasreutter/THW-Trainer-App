@@ -245,11 +245,7 @@ document.addEventListener('alpine:init', () => {
         interval: null,
         currentQ: 0,
 
-        questions: @json($demoQuestions->map(fn($q) => [
-            'text' => $q->frage,
-            'answers' => [$q->antwort_a, $q->antwort_b, $q->antwort_c],
-            'correctIdxs' => collect(explode(',', $q->loesung))->map(fn($l) => ['A' => 0, 'B' => 1, 'C' => 2][trim($l)] ?? 0)->values()->toArray(),
-        ])->values()),
+        questions: @json($demoQuestions),
 
         quizStep: 0,
         quizSelectedIdx: -1,
