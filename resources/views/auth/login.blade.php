@@ -24,15 +24,15 @@
                      style="position: absolute; inset: 0;">
                     <div class="demo-quiz-card">
                         <div class="demo-quiz-badge">Grundausbildung</div>
-                        <div class="demo-quiz-question" x-text="questions[currentQ].text"></div>
+                        <div class="demo-quiz-question" x-text="questions[displayQ].text"></div>
                         <div class="demo-quiz-options">
-                            <template x-for="(answer, idx) in questions[currentQ].answers" :key="currentQ + '-' + idx">
+                            <template x-for="(answer, idx) in questions[displayQ].answers" :key="displayQ + '-' + idx">
                                 <div class="demo-quiz-option"
                                      :class="{
                                          'selected': quizStep >= 1 && idx === quizSelectedIdx,
-                                         'correct': quizStep >= 2 && questions[currentQ].correctIdxs.includes(idx),
-                                         'wrong': quizStep >= 2 && idx === quizSelectedIdx && !questions[currentQ].correctIdxs.includes(idx),
-                                         'neutral': quizStep >= 2 && idx !== quizSelectedIdx && !questions[currentQ].correctIdxs.includes(idx)
+                                         'correct': quizStep >= 2 && questions[displayQ].correctIdxs.includes(idx),
+                                         'wrong': quizStep >= 2 && idx === quizSelectedIdx && !questions[displayQ].correctIdxs.includes(idx),
+                                         'neutral': quizStep >= 2 && idx !== quizSelectedIdx && !questions[displayQ].correctIdxs.includes(idx)
                                      }">
                                     <span class="demo-letter" x-text="['A', 'B', 'C'][idx]"></span>
                                     <span x-text="answer"></span>
@@ -133,7 +133,7 @@
     <!-- Right: Login Form -->
     <div class="auth-form-panel">
         <div class="auth-form-card">
-            <h2 class="auth-form-title">Willkommen zurueck</h2>
+            <h2 class="auth-form-title">Willkommen zurück</h2>
             <p class="auth-form-subtitle">Melde dich an, um auf deinen Lernfortschritt zuzugreifen.</p>
 
             @if ($errors->any())
@@ -186,6 +186,7 @@ document.addEventListener('alpine:init', () => {
         active: 0,
         interval: null,
         currentQ: 0,
+        displayQ: 0,
         questions: @json($demoQuestions),
         dbUsers: {{ $authStats['users'] }},
         dbQuestions: {{ $authStats['questions'] }},
@@ -210,7 +211,6 @@ document.addEventListener('alpine:init', () => {
             this.interval = setInterval(() => {
                 const next = (this.active + 1) % 3;
                 this.active = next;
-                this.resetAll();
                 this.$nextTick(() => this.runDemo(next));
             }, 7000);
         },
@@ -218,27 +218,12 @@ document.addEventListener('alpine:init', () => {
         goTo(idx) {
             clearInterval(this.interval);
             this.active = idx;
-            this.resetAll();
             this.$nextTick(() => this.runDemo(idx));
             this.interval = setInterval(() => {
                 const next = (this.active + 1) % 3;
                 this.active = next;
-                this.resetAll();
                 this.$nextTick(() => this.runDemo(next));
             }, 7000);
-        },
-
-        resetAll() {
-            this.quizStep = 0;
-            this.quizSelectedIdx = -1;
-            this.progressAnswered = 0;
-            this.progressCorrectPct = 0;
-            this.progressXP = 0;
-            this.progressPct = 0;
-            this.floatingXPs = [];
-            this.statUsers = 0;
-            this.statQuestions = 0;
-            this.statFree = 0;
         },
 
         runDemo(idx) {
@@ -248,20 +233,20 @@ document.addEventListener('alpine:init', () => {
         },
 
         runQuiz() {
-            const q = this.questions[this.currentQ];
-            this.quizSelectedIdx = q.correctIdxs[0];
+            this.displayQ = this.currentQ;
+            this.quizStep = 0;
+            this.quizSelectedIdx = this.questions[this.displayQ].correctIdxs[0];
 
             setTimeout(() => { this.quizStep = 1; }, 1200);
-            setTimeout(() => {
-                this.quizStep = 2;
-            }, 3000);
-            // Advance question for next cycle after full display
-            setTimeout(() => {
-                this.currentQ = (this.currentQ + 1) % this.questions.length;
-            }, 6500);
+            setTimeout(() => { this.quizStep = 2; }, 3000);
         },
 
         runProgress() {
+            this.progressAnswered = 0;
+            this.progressCorrectPct = 0;
+            this.progressXP = 0;
+            this.progressPct = 0;
+            this.floatingXPs = [];
             this.animateValue('progressAnswered', 0, 147, 1800);
             this.animateValue('progressCorrectPct', 0, 82, 1800);
             this.animateValue('progressXP', 0, 1240, 2000);
@@ -281,6 +266,10 @@ document.addEventListener('alpine:init', () => {
         },
 
         runStats() {
+            this.statUsers = 0;
+            this.statQuestions = 0;
+            this.statFree = 0;
+            this.currentQ = (this.currentQ + 1) % this.questions.length;
             this.animateValue('statUsers', 0, this.dbUsers, 2000, v => v.toLocaleString('de-DE') + '+');
             this.animateValue('statQuestions', 0, this.dbQuestions, 2000, v => v.toLocaleString('de-DE') + '+');
             this.animateValue('statFree', 0, 100, 1800);
