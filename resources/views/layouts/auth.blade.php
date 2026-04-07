@@ -134,6 +134,7 @@
                 flex: 1;
                 position: relative;
                 z-index: 1;
+                min-height: 0;
             }
 
             .auth-footer-bar {

@@ -6387,6 +6387,7 @@ html.light-mode .smart-action--info {
 @media (max-width: 768px) {
     .auth-split {
         flex-direction: column;
+        min-height: 0;
     }
 
     .auth-showcase {
@@ -6395,7 +6396,7 @@ html.light-mode .smart-action--info {
 
     .auth-form-panel {
         flex: 1;
-        min-height: 100vh;
+        min-height: 0;
         padding: 2rem 1.5rem;
     }
 
