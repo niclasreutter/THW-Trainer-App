@@ -69,7 +69,7 @@
             .auth-orb-2 {
                 width: 400px;
                 height: 400px;
-                background: radial-gradient(circle, rgba(251, 191, 36, 0.15) 0%, transparent 70%);
+                background: radial-gradient(circle, rgba(59, 130, 246, 0.18) 0%, transparent 70%);
                 bottom: -5%;
                 left: -5%;
                 animation: auth-float-2 25s ease-in-out infinite;

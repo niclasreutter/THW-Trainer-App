@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\Question;
 use App\Models\OrtsverbandInvitation;
 use App\Helpers\DomainHelper;
 use Illuminate\Auth\Events\Registered;
@@ -21,7 +22,9 @@ class RegisteredUserController extends Controller
      */
     public function create(Request $request): View
     {
-        return view('auth.register');
+        $demoQuestions = Question::inRandomOrder()->limit(3)->get(['frage', 'antwort_a', 'antwort_b', 'antwort_c', 'loesung']);
+
+        return view('auth.register', compact('demoQuestions'));
     }
 
     /**

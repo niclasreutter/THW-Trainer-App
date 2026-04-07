@@ -17,26 +17,24 @@
                 <div class="auth-demo-panel" x-show="active === 0" x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0 transform translate-y-2" x-transition:enter-end="opacity-100 transform translate-y-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
                     <div class="demo-quiz-card">
                         <div class="demo-quiz-badge">Grundausbildung</div>
-                        <div class="demo-quiz-question">Was bedeutet die Abkuerzung THW?</div>
+                        <div class="demo-quiz-question" x-text="questions[currentQ].text"></div>
                         <div class="demo-quiz-options">
-                            <div class="demo-quiz-option" :class="{ 'selected': quizStep >= 1 && quizSelected === 0, 'correct': quizStep >= 2 && 0 === quizCorrect, 'neutral': quizStep >= 2 && 0 !== quizSelected && 0 !== quizCorrect }">
-                                <span class="demo-letter">A</span>
-                                <span>Technisches Hauptwerk</span>
-                            </div>
-                            <div class="demo-quiz-option" :class="{ 'selected': quizStep >= 1 && quizSelected === 1, 'correct': quizStep >= 2 && 1 === quizCorrect, 'wrong': quizStep >= 2 && 1 === quizSelected && 1 !== quizCorrect, 'neutral': quizStep >= 2 && 1 !== quizSelected && 1 !== quizCorrect }">
-                                <span class="demo-letter">B</span>
-                                <span>Technische Hilfe Westfalen</span>
-                            </div>
-                            <div class="demo-quiz-option" :class="{ 'selected': quizStep >= 1 && quizSelected === 2, 'correct': quizStep >= 2 && 2 === quizCorrect, 'wrong': quizStep >= 2 && 2 === quizSelected && 2 !== quizCorrect, 'neutral': quizStep >= 2 && 2 !== quizSelected && 2 !== quizCorrect }">
-                                <span class="demo-letter">C</span>
-                                <span>Technisches Hilfswerk</span>
-                            </div>
-                            <div class="demo-quiz-option" :class="{ 'selected': quizStep >= 1 && quizSelected === 3, 'neutral': quizStep >= 2 && 3 !== quizSelected && 3 !== quizCorrect }">
-                                <span class="demo-letter">D</span>
-                                <span>Technische Hilfswache</span>
-                            </div>
+                            <template x-for="(answer, idx) in questions[currentQ].answers" :key="idx">
+                                <div class="demo-quiz-option"
+                                     :class="{
+                                         'selected': quizStep >= 1 && idx === quizSelectedIdx,
+                                         'correct': quizStep >= 2 && questions[currentQ].correctIdxs.includes(idx),
+                                         'wrong': quizStep >= 2 && idx === quizSelectedIdx && !questions[currentQ].correctIdxs.includes(idx),
+                                         'neutral': quizStep >= 2 && idx !== quizSelectedIdx && !questions[currentQ].correctIdxs.includes(idx)
+                                     }">
+                                    <span class="demo-letter" x-text="['A', 'B', 'C'][idx]"></span>
+                                    <span x-text="answer"></span>
+                                </div>
+                            </template>
                         </div>
-                        <div class="demo-quiz-result success" x-show="quizStep >= 2" x-transition>Richtig! Technisches Hilfswerk.</div>
+                        <div class="demo-quiz-result" :class="quizIsCorrect ? 'success' : 'error'" x-show="quizStep >= 2" x-transition>
+                            <span x-text="quizIsCorrect ? 'Richtig beantwortet!' : 'Die richtige Antwort wurde markiert.'"></span>
+                        </div>
                     </div>
                 </div>
 
@@ -59,7 +57,7 @@
                                 <div class="demo-stat-label">Richtig</div>
                             </div>
                             <div class="demo-stat-item">
-                                <div class="demo-stat-value text-gold" x-text="progressXP">0</div>
+                                <div class="demo-stat-value text-blue" x-text="progressXP">0</div>
                                 <div class="demo-stat-label">XP</div>
                             </div>
                         </div>
@@ -86,7 +84,7 @@
                             <div class="demo-stats-label">Aktive User</div>
                         </div>
                         <div class="demo-stats-card">
-                            <div class="demo-stats-number gold" x-text="statQuestions">0</div>
+                            <div class="demo-stats-number blue" x-text="statQuestions">0</div>
                             <div class="demo-stats-label">Fragen</div>
                         </div>
                         <div class="demo-stats-card wide">
@@ -156,7 +154,6 @@
             <form method="POST" action="{{ route('register') }}">
                 @csrf
 
-                <!-- Name -->
                 <div class="auth-field">
                     <label for="name" class="auth-label">Vollstaendiger Name</label>
                     <input id="name"
@@ -169,7 +166,6 @@
                            placeholder="Max Mustermann">
                 </div>
 
-                <!-- Email -->
                 <div class="auth-field">
                     <label for="email" class="auth-label">E-Mail-Adresse</label>
                     <input id="email"
@@ -181,7 +177,6 @@
                            placeholder="max@beispiel.de">
                 </div>
 
-                <!-- Passwords side by side -->
                 <div class="auth-row">
                     <div class="auth-field">
                         <label for="password" class="auth-label">Passwort</label>
@@ -203,7 +198,6 @@
                     </div>
                 </div>
 
-                <!-- OV-Code -->
                 @if(!($inviteInfo && $inviteInfo->isValid()))
                 <div class="auth-field">
                     <label for="invitation_code" class="auth-label">OV-Code (optional)</label>
@@ -219,7 +213,6 @@
                 <input type="hidden" name="invitation_code" value="{{ $inviteInfo->code }}">
                 @endif
 
-                <!-- Email Consent -->
                 <div class="auth-consent-box">
                     <div class="auth-consent-inner">
                         <input type="checkbox" name="email_consent" id="email_consent" value="1"
@@ -231,11 +224,9 @@
                     </div>
                 </div>
 
-                <!-- Register Button -->
                 <button type="submit" class="auth-submit-btn">Account erstellen</button>
             </form>
 
-            <!-- Guest Access -->
             <a href="{{ route('landing.guest.practice.menu') }}" class="auth-ghost-btn">Als Gast ueben</a>
 
             <div class="auth-divider"><span>oder</span></div>
@@ -252,13 +243,18 @@ document.addEventListener('alpine:init', () => {
     Alpine.data('authShowcase', () => ({
         active: 0,
         interval: null,
+        currentQ: 0,
 
-        // Quiz state
+        questions: @json($demoQuestions->map(fn($q) => [
+            'text' => $q->frage,
+            'answers' => [$q->antwort_a, $q->antwort_b, $q->antwort_c],
+            'correctIdxs' => collect(explode(',', $q->loesung))->map(fn($l) => ['A' => 0, 'B' => 1, 'C' => 2][trim($l)] ?? 0)->values()->toArray(),
+        ])->values()),
+
         quizStep: 0,
-        quizSelected: 2,
-        quizCorrect: 2,
+        quizSelectedIdx: -1,
+        quizIsCorrect: false,
 
-        // Progress state
         progressAnswered: 0,
         progressCorrectPct: 0,
         progressXP: 0,
@@ -266,12 +262,12 @@ document.addEventListener('alpine:init', () => {
         floatingXPs: [],
         xpCounter: 0,
 
-        // Stats state
         statUsers: 0,
         statQuestions: 0,
         statFree: 0,
 
         start() {
+            if (this.questions.length === 0) return;
             this.runDemo(0);
             this.interval = setInterval(() => {
                 this.active = (this.active + 1) % 3;
@@ -294,6 +290,8 @@ document.addEventListener('alpine:init', () => {
 
         resetAll() {
             this.quizStep = 0;
+            this.quizSelectedIdx = -1;
+            this.quizIsCorrect = false;
             this.progressAnswered = 0;
             this.progressCorrectPct = 0;
             this.progressXP = 0;
@@ -311,8 +309,15 @@ document.addEventListener('alpine:init', () => {
         },
 
         runQuiz() {
+            const q = this.questions[this.currentQ];
+            this.quizSelectedIdx = q.correctIdxs[0];
+            this.quizIsCorrect = true;
+
             setTimeout(() => { this.quizStep = 1; }, 1200);
-            setTimeout(() => { this.quizStep = 2; }, 3000);
+            setTimeout(() => {
+                this.quizStep = 2;
+                this.currentQ = (this.currentQ + 1) % this.questions.length;
+            }, 3000);
         },
 
         runProgress() {

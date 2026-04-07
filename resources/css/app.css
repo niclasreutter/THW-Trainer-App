@@ -5659,7 +5659,7 @@ html.light-mode .smart-action--info {
 
 .auth-showcase-headline span {
     display: block;
-    background: linear-gradient(90deg, #fbbf24, #f59e0b);
+    background: linear-gradient(90deg, #60a5fa, #3b82f6);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -5859,12 +5859,12 @@ html.light-mode .smart-action--info {
     align-items: center;
     gap: 0.5rem;
     padding: 0.35rem 0.75rem;
-    background: rgba(251, 191, 36, 0.1);
-    border: 1px solid rgba(251, 191, 36, 0.25);
+    background: rgba(0, 51, 127, 0.15);
+    border: 1px solid rgba(59, 130, 246, 0.3);
     border-radius: 1rem;
     font-size: 0.8rem;
     font-weight: 700;
-    color: #fbbf24;
+    color: #60a5fa;
 }
 
 .demo-progress-stats {
@@ -5895,7 +5895,7 @@ html.light-mode .smart-action--info {
 }
 
 .demo-stat-value.text-gold {
-    color: #fbbf24;
+    color: #60a5fa;
 }
 
 .demo-stat-label {
@@ -5945,7 +5945,7 @@ html.light-mode .smart-action--info {
     right: 1.5rem;
     font-size: 0.85rem;
     font-weight: 700;
-    color: #fbbf24;
+    color: #60a5fa;
     animation: auth-float-up 1.5s ease-out forwards;
     pointer-events: none;
 }
@@ -5995,7 +5995,7 @@ html.light-mode .smart-action--info {
 }
 
 .demo-stats-number.blue { color: #60a5fa; }
-.demo-stats-number.gold { color: #fbbf24; }
+.demo-stats-number.gold { color: #60a5fa; }
 .demo-stats-number.green { color: #4ade80; }
 
 .demo-stats-label {
