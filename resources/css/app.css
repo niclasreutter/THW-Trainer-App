@@ -6020,12 +6020,6 @@ html.light-mode .smart-action--info {
 .auth-form-card {
     width: 100%;
     max-width: 420px;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 1.5rem 0.75rem 1.5rem 0.75rem;
-    padding: 2.5rem;
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
 }
 
 .auth-form-title {
@@ -6379,9 +6373,6 @@ html.light-mode .smart-action--info {
         font-size: 2.2rem;
     }
 
-    .auth-form-card {
-        padding: 2rem;
-    }
 }
 
 @media (max-width: 768px) {
@@ -6402,11 +6393,6 @@ html.light-mode .smart-action--info {
 
     .auth-form-card {
         max-width: 100%;
-        background: transparent;
-        border: none;
-        backdrop-filter: none;
-        -webkit-backdrop-filter: none;
-        padding: 0;
     }
 }
 
@@ -6591,14 +6577,6 @@ html.light-mode .smart-action--info {
     }
 
     /* Form panel */
-    .auth-form-card {
-        background: #ffffff;
-        border-color: rgba(0, 51, 127, 0.1);
-        backdrop-filter: none;
-        -webkit-backdrop-filter: none;
-        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
-    }
-
     .auth-form-title {
         color: #0f172a;
     }
@@ -6738,12 +6716,4 @@ html.light-mode .smart-action--info {
 
     .auth-helper { color: #94a3b8; }
 
-    /* Mobile: transparent card in light mode too */
-    @media (max-width: 768px) {
-        .auth-form-card {
-            background: transparent !important;
-            border: none !important;
-            box-shadow: none !important;
-        }
-    }
 }
