@@ -6180,6 +6180,13 @@ html.light-mode .smart-action--info {
 }
 
 /* Secondary button (ghost) */
+.auth-secondary-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
 .auth-ghost-btn {
     display: block;
     width: 100%;
