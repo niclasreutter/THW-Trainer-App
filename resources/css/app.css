@@ -5676,7 +5676,7 @@ html.light-mode .smart-action--info {
 /* Demo Carousel */
 .auth-demo-carousel {
     position: relative;
-    min-height: 320px;
+    height: 320px;
 }
 
 .auth-demo-panel {
@@ -6612,23 +6612,23 @@ html.light-mode .smart-action--info {
     }
 
     .auth-input {
-        background: #f8fafc;
-        border-color: #e2e8f0;
-        color: #0f172a;
+        background: #f8fafc !important;
+        border-color: #e2e8f0 !important;
+        color: #0f172a !important;
     }
 
     .auth-input::placeholder {
-        color: #94a3b8;
+        color: #94a3b8 !important;
     }
 
     .auth-input:hover {
-        border-color: #cbd5e1;
+        border-color: #cbd5e1 !important;
     }
 
     .auth-input:focus {
-        border-color: #00337F;
-        box-shadow: 0 0 0 3px rgba(0, 51, 127, 0.1);
-        background: #ffffff;
+        border-color: #00337F !important;
+        box-shadow: 0 0 0 3px rgba(0, 51, 127, 0.1) !important;
+        background: #ffffff !important;
     }
 
     .auth-input:-webkit-autofill,
