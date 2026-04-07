@@ -285,6 +285,9 @@ document.addEventListener('alpine:init', () => {
         },
 
         resetAll() {
+            if (this.quizStep > 0) {
+                this.currentQ = (this.currentQ + 1) % this.questions.length;
+            }
             this.quizStep = 0;
             this.quizSelectedIdx = -1;
             this.quizIsCorrect = false;
@@ -310,10 +313,7 @@ document.addEventListener('alpine:init', () => {
             this.quizIsCorrect = true;
 
             setTimeout(() => { this.quizStep = 1; }, 1200);
-            setTimeout(() => {
-                this.quizStep = 2;
-                this.currentQ = (this.currentQ + 1) % this.questions.length;
-            }, 3000);
+            setTimeout(() => { this.quizStep = 2; }, 3000);
         },
 
         runProgress() {

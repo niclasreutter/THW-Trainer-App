@@ -16,7 +16,8 @@
         <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
 
         <!-- Performance Meta Tags -->
-        <meta name="theme-color" content="#0a0a0b">
+        <meta name="theme-color" content="#0a0a0b" media="(prefers-color-scheme: dark)">
+        <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
         <meta name="mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-capable" content="yes">
 
@@ -41,13 +42,13 @@
                 flex-direction: column;
             }
 
+            /* ── Dark Mode (default) ───────────────── */
             body {
                 font-family: 'Figtree', sans-serif;
                 background: linear-gradient(160deg, #0a0a0b 0%, #0d1117 40%, #0a0f1a 70%, #0a0a0b 100%);
                 color: #f5f5f5;
             }
 
-            /* Floating gradient orbs */
             .auth-orb {
                 position: fixed;
                 border-radius: 50%;
@@ -171,6 +172,57 @@
 
                 .auth-footer-bar {
                     display: block;
+                }
+            }
+
+            /* ── Light Mode ────────────────────────── */
+            @media (prefers-color-scheme: light) {
+                body {
+                    background: #ffffff;
+                    color: #0f172a;
+                }
+
+                .auth-orb {
+                    opacity: 0.15;
+                }
+
+                .auth-orb-1 {
+                    background: radial-gradient(circle, rgba(0, 51, 127, 0.2) 0%, transparent 70%);
+                }
+
+                .auth-orb-2 {
+                    background: radial-gradient(circle, rgba(59, 130, 246, 0.12) 0%, transparent 70%);
+                }
+
+                .auth-orb-3 {
+                    background: radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
+                }
+
+                .auth-navbar {
+                    background: rgba(255, 255, 255, 0.85);
+                    border-bottom: 1px solid rgba(0, 51, 127, 0.08);
+                }
+
+                .auth-navbar-brand {
+                    color: #00337F;
+                }
+
+                .auth-footer-bar {
+                    background: rgba(255, 255, 255, 0.85);
+                    border-top: 1px solid rgba(0, 51, 127, 0.08);
+                    color: #64748b;
+                }
+
+                .auth-footer-bar a {
+                    color: #475569;
+                }
+
+                .auth-footer-bar a:hover {
+                    color: #00337F;
+                }
+
+                .auth-footer-divider {
+                    color: #cbd5e1;
                 }
             }
         </style>
