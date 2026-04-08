@@ -383,6 +383,13 @@ Route::middleware('auth')->group(function () {
     Route::post('/kontakt', [\App\Http\Controllers\ContactController::class, 'store'])->name('contact.submit');
 });
 
+// Nutzerumfrage
+Route::middleware('auth')->group(function () {
+    Route::get('/umfrage', [\App\Http\Controllers\SurveyController::class, 'index'])->name('umfrage.index');
+    Route::post('/umfrage', [\App\Http\Controllers\SurveyController::class, 'store'])->name('umfrage.store');
+    Route::delete('/umfrage/{response}', [\App\Http\Controllers\SurveyController::class, 'destroy'])->name('umfrage.destroy');
+});
+
 Route::middleware('auth')->group(function () {
     // Practice Menu und Modi
     Route::get('/practice-menu', [\App\Http\Controllers\PracticeController::class, 'menu'])->name('practice.menu');
@@ -581,6 +588,12 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix
     // Prüfungs-Feedback
     Route::get('exam-feedback', [\App\Http\Controllers\Admin\ExamFeedbackController::class, 'index'])->name('exam-feedback.index');
     Route::delete('exam-feedback/{examFeedback}', [\App\Http\Controllers\Admin\ExamFeedbackController::class, 'destroy'])->name('exam-feedback.destroy');
+
+    // Nutzerumfragen
+    Route::get('umfragen', [\App\Http\Controllers\Admin\SurveyController::class, 'index'])->name('umfragen.index');
+    Route::get('umfragen/export', [\App\Http\Controllers\Admin\SurveyController::class, 'export'])->name('umfragen.export');
+    Route::post('umfragen', [\App\Http\Controllers\Admin\SurveyController::class, 'store'])->name('umfragen.store');
+    Route::patch('umfragen/{survey}/toggle', [\App\Http\Controllers\Admin\SurveyController::class, 'toggle'])->name('umfragen.toggle');
 
     // Push Notifications (Admin)
     Route::get('push', [\App\Http\Controllers\Admin\PushController::class, 'index'])->name('push.index');
