@@ -36,6 +36,7 @@ class LandingGuestPracticeController extends Controller
             'guest_practice_mode' => 'all',
             'guest_practice_parameter' => null,
             'guest_practice_ids' => $allIds,
+            'guest_practice_total_start' => count($allIds),
         ]);
 
         return redirect()->route('landing.guest.practice.index');
@@ -184,11 +185,16 @@ class LandingGuestPracticeController extends Controller
      */
     private function baseViewData(int $total, string $mode): array
     {
+        $totalStart = session('guest_practice_total_start', $total);
+        $remaining = count(session('guest_practice_ids', []));
+        $progress = $totalStart - $remaining;
+        $progressPercent = $totalStart > 0 ? round(($progress / $totalStart) * 100) : 0;
+
         return [
-            'progress' => 0,
-            'total' => $total,
+            'progress' => $progress,
+            'total' => $totalStart,
             'mode' => $mode,
-            'progressPercent' => 0,
+            'progressPercent' => $progressPercent,
             'difficultyInfo' => ['level' => 'unknown', 'label' => '', 'color' => '', 'percent' => null],
             'isSpacedRepetition' => false,
             'context' => 'guest',
