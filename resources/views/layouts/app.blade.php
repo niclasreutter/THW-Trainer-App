@@ -273,6 +273,9 @@
                     <a href="{{ route('admin.exam-feedback.index') }}" class="sidebar-link {{ request()->routeIs('admin.exam-feedback.*') ? 'active' : '' }}">
                         <i class="bi bi-mortarboard"></i> Prüfungs-Feedback
                     </a>
+                    <a href="{{ route('admin.umfragen.index') }}" class="sidebar-link {{ request()->routeIs('admin.umfragen.*') ? 'active' : '' }}">
+                        <i class="bi bi-clipboard-data"></i> Umfragen
+                    </a>
                     <a href="{{ route('admin.logs.index', 'scheduler') }}" class="sidebar-link {{ request()->routeIs('admin.logs.*') && request()->route('type') === 'scheduler' ? 'active' : '' }}">
                         <i class="bi bi-terminal"></i> Scheduler-Logs
                     </a>
@@ -531,6 +534,9 @@
                 </a>
                 <a href="{{ route('admin.exam-feedback.index') }}" class="sidebar-link {{ request()->routeIs('admin.exam-feedback.*') ? 'active' : '' }}">
                     <i class="bi bi-mortarboard"></i> Prüfungs-Feedback
+                </a>
+                <a href="{{ route('admin.umfragen.index') }}" class="sidebar-link {{ request()->routeIs('admin.umfragen.*') ? 'active' : '' }}">
+                    <i class="bi bi-clipboard-data"></i> Umfragen
                 </a>
                 <a href="{{ route('admin.logs.index', 'scheduler') }}" class="sidebar-link {{ request()->routeIs('admin.logs.*') && request()->route('type') === 'scheduler' ? 'active' : '' }}">
                     <i class="bi bi-terminal"></i> Scheduler-Logs

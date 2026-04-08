@@ -79,15 +79,24 @@
             @forelse ($responses->filter(fn($r) => $r->feedback_general || $r->feedback_wishes || $r->feedback_changes) as $response)
                 <div class="glass" style="padding: 1.25rem; border-radius: 0.75rem;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-                        <span style="font-weight: 600; color: var(--text-primary); font-size: 0.875rem;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="font-weight: 600; color: var(--text-primary); font-size: 0.875rem;">
+                                @if ($response->publish_mode === 'name')
+                                    {{ $response->user->name ?? 'Gelöscht' }}
+                                @elseif ($response->publish_mode === 'anonymous')
+                                    Anonym
+                                @else
+                                    {{ $response->user->name ?? 'Gelöscht' }}
+                                @endif
+                            </span>
                             @if ($response->publish_mode === 'name')
-                                {{ $response->user->name ?? 'Geloescht' }}
+                                <span style="font-size: 0.625rem; padding: 0.15rem 0.5rem; background: rgba(34,197,94,0.15); color: #86efac; border-radius: 1rem;">Mit Name</span>
                             @elseif ($response->publish_mode === 'anonymous')
-                                Anonym
+                                <span style="font-size: 0.625rem; padding: 0.15rem 0.5rem; background: rgba(251,191,36,0.15); color: #fbbf24; border-radius: 1rem;">Anonym</span>
                             @else
-                                [Privat] {{ $response->user->name ?? 'Geloescht' }}
+                                <span style="font-size: 0.625rem; padding: 0.15rem 0.5rem; background: rgba(239,68,68,0.15); color: #fca5a5; border-radius: 1rem;">Privat</span>
                             @endif
-                        </span>
+                        </div>
                         <span style="font-size: 0.75rem; color: var(--text-muted);">{{ $response->created_at->format('d.m.Y H:i') }}</span>
                     </div>
 
@@ -99,13 +108,13 @@
                     @endif
                     @if ($response->feedback_wishes)
                         <div style="margin-bottom: 0.5rem;">
-                            <span style="font-size: 0.75rem; color: var(--gold-start); font-weight: 600;">Wuensche:</span>
+                            <span style="font-size: 0.75rem; color: var(--gold-start); font-weight: 600;">Wünsche:</span>
                             <p style="font-size: 0.8125rem; color: var(--text-muted); margin-top: 0.25rem;">{{ $response->feedback_wishes }}</p>
                         </div>
                     @endif
                     @if ($response->feedback_changes)
                         <div>
-                            <span style="font-size: 0.75rem; color: var(--gold-start); font-weight: 600;">Aenderungen:</span>
+                            <span style="font-size: 0.75rem; color: var(--gold-start); font-weight: 600;">Änderungen:</span>
                             <p style="font-size: 0.8125rem; color: var(--text-muted); margin-top: 0.25rem;">{{ $response->feedback_changes }}</p>
                         </div>
                     @endif
