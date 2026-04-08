@@ -84,13 +84,13 @@ class SurveyController extends Controller
         return redirect()->route('umfrage.index')->with('success', 'Vielen Dank fuer dein Feedback!');
     }
 
-    public function destroy(SurveyResponse $response)
+    public function destroy(SurveyResponse $survey_response)
     {
-        if ($response->user_id !== auth()->id()) {
+        if ($survey_response->user_id !== auth()->id()) {
             abort(403);
         }
 
-        $response->delete();
+        $survey_response->delete();
 
         return redirect()->route('dashboard')->with('success', 'Deine Umfrage-Antwort wurde geloescht.');
     }

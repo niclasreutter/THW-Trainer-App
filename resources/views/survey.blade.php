@@ -12,7 +12,7 @@
     @if ($existingResponse)
         {{-- Danke-Ansicht --}}
         <div class="glass-gold" style="padding: 2rem; border-radius: 1rem; text-align: center;">
-            <div style="font-size: 3rem; margin-bottom: 1rem;">&#128588;</div>
+            <div style="font-size: 3rem; margin-bottom: 1rem; color: var(--gold-start);"><i class="bi bi-check-circle"></i></div>
             <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.5rem;">Vielen Dank!</h2>
             <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Du hast an dieser Umfrage bereits teilgenommen. Dein Feedback hilft uns, den THW Trainer zu verbessern.</p>
 

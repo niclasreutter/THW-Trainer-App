@@ -101,6 +101,7 @@ class SurveyController extends Controller
 
         return response()->streamDownload(function () use ($responses) {
             $handle = fopen('php://output', 'w');
+            fwrite($handle, "\xEF\xBB\xBF"); // UTF-8 BOM for Excel
             fputcsv($handle, [
                 'ID', 'Umfrage', 'User', 'Gesamt', 'Bedienbarkeit', 'Design',
                 'Gefunden ueber', 'Feedback', 'Wuensche', 'Aenderungen',

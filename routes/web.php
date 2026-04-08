@@ -387,7 +387,7 @@ Route::middleware('auth')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::get('/umfrage', [\App\Http\Controllers\SurveyController::class, 'index'])->name('umfrage.index');
     Route::post('/umfrage', [\App\Http\Controllers\SurveyController::class, 'store'])->name('umfrage.store');
-    Route::delete('/umfrage/{response}', [\App\Http\Controllers\SurveyController::class, 'destroy'])->name('umfrage.destroy');
+    Route::delete('/umfrage/{survey_response}', [\App\Http\Controllers\SurveyController::class, 'destroy'])->name('umfrage.destroy');
 });
 
 Route::middleware('auth')->group(function () {
