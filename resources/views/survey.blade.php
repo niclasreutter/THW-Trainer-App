@@ -21,7 +21,7 @@
     }
 
     .survey-progress__segment.active {
-        background: linear-gradient(90deg, var(--gold-start), var(--gold-end));
+        background: linear-gradient(90deg, #5b9aff, #0055cc);
     }
 
     .survey-progress__label {
@@ -60,7 +60,7 @@
     }
 
     .survey-step__question .required {
-        color: var(--gold-start);
+        color: #5b9aff;
         font-weight: 400;
     }
 
@@ -71,45 +71,84 @@
         font-family: -apple-system, sans-serif;
     }
 
-    /* ─── Emoji Rating (compact) ────────────────── */
+    /* ─── Emoji Rating (centered, no box) ──────── */
     .survey-emoji-row {
         display: flex;
-        gap: 0.375rem;
+        justify-content: center;
+        gap: 0.75rem;
+        padding: 0.25rem 0;
     }
 
     .survey-emoji-row .emoji-btn {
-        font-size: 1.5rem;
-        padding: 0.35rem 0.45rem;
-        border-radius: 0.625rem;
+        font-size: 1.75rem;
+        padding: 0;
+        border: none;
+        background: none;
+        border-radius: 0;
+        box-shadow: none;
+        opacity: 0.5;
+        cursor: pointer;
+        transition: all 0.25s cubic-bezier(0.22,1,0.36,1);
+        filter: grayscale(0.4);
     }
 
-    /* ─── Rating Group (compact, horizontal on desktop) */
+    .survey-emoji-row .emoji-btn:hover {
+        opacity: 0.8;
+        transform: scale(1.15);
+        filter: grayscale(0);
+        border: none;
+        background: none;
+        box-shadow: none;
+    }
+
+    .survey-emoji-row .emoji-btn.selected {
+        opacity: 1;
+        transform: scale(1.4);
+        filter: grayscale(0) drop-shadow(0 0 10px rgba(91,154,255,0.5)) drop-shadow(0 0 20px rgba(91,154,255,0.25));
+        border: none;
+        background: none;
+        box-shadow: none;
+    }
+
+    /* ─── Rating Group (stacked, centered) ──────── */
     .survey-ratings {
         display: flex;
         flex-direction: column;
-        gap: 0.875rem;
+        gap: 1.25rem;
     }
 
     .survey-rating-item {
         display: flex;
+        flex-direction: column;
         align-items: center;
-        justify-content: space-between;
-        gap: 0.75rem;
+        gap: 0.375rem;
     }
 
     .survey-rating-item__label {
-        font-size: 0.8125rem;
+        font-size: 0.75rem;
         font-weight: 600;
-        color: var(--text-primary);
-        flex-shrink: 0;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        font-family: 'IBM Plex Mono', monospace;
     }
 
-    @media (max-width: 480px) {
-        .survey-rating-item {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 0.375rem;
-        }
+    .survey-rating-item__label .required {
+        color: #5b9aff;
+    }
+
+    /* ─── Blue accent overrides for survey ──────── */
+    .survey-radios .radio-glass.selected {
+        border-color: #5b9aff;
+        background: rgba(91,154,255,0.08);
+    }
+
+    .survey-radios .radio-glass.selected .radio-dot {
+        border-color: #5b9aff;
+    }
+
+    .survey-radios .radio-glass.selected .radio-dot::after {
+        background: #5b9aff;
     }
 
     /* ─── Chips (compact) ───────────────────────── */
@@ -153,7 +192,7 @@
 
     .survey-consent input[type="checkbox"] {
         margin-top: 0.2rem;
-        accent-color: var(--gold-start);
+        accent-color: #5b9aff;
         width: 1rem;
         height: 1rem;
         flex-shrink: 0;
@@ -166,7 +205,7 @@
     }
 
     .survey-consent a {
-        color: var(--gold-start);
+        color: #5b9aff;
         text-decoration: underline;
     }
 
@@ -188,7 +227,7 @@
 
     .survey-thanks__icon {
         font-size: 2.5rem;
-        color: var(--gold-start);
+        color: #5b9aff;
         margin-bottom: 0.75rem;
     }
 
