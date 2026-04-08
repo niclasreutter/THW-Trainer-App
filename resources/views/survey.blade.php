@@ -35,9 +35,9 @@
         margin-left: 0.5rem;
     }
 
-    /* ─── Step Card ─────────────────────────────── */
+    /* ─── Step Content (no card wrapper) ──────────── */
     .survey-step {
-        padding: 1.25rem 1.5rem;
+        padding: 0.5rem 0;
     }
 
     .survey-step__title {
@@ -47,14 +47,14 @@
         color: rgba(255,255,255,0.4);
         font-weight: 700;
         font-family: 'IBM Plex Mono', monospace;
-        margin-bottom: 0.75rem;
+        margin-bottom: 0.5rem;
     }
 
     .survey-step__question {
         font-size: 0.9375rem;
         font-weight: 700;
         color: var(--text-primary);
-        margin-bottom: 0.625rem;
+        margin-bottom: 0.5rem;
         font-family: 'Barlow Condensed', sans-serif;
         letter-spacing: 0.01em;
     }
@@ -76,7 +76,7 @@
         display: flex;
         justify-content: center;
         gap: 0.75rem;
-        padding: 0.25rem 0;
+        padding: 0.125rem 0;
     }
 
     .survey-emoji-row .emoji-btn {
@@ -114,14 +114,14 @@
     .survey-ratings {
         display: flex;
         flex-direction: column;
-        gap: 1.25rem;
+        gap: 0.75rem;
     }
 
     .survey-rating-item {
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 0.375rem;
+        gap: 0.25rem;
     }
 
     .survey-rating-item__label {
@@ -214,9 +214,8 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-top: 1.25rem;
-        padding-top: 0.875rem;
-        border-top: 1px solid rgba(255,255,255,0.06);
+        margin-top: 0.75rem;
+        padding-top: 0.5rem;
     }
 
     /* ─── Thank You ─────────────────────────────── */
@@ -336,7 +335,7 @@
                 @csrf
 
                 {{-- Step 1: Bewertungen --}}
-                <div class="glass survey-step" x-show="step === 1" x-transition:enter="survey-step-enter">
+                <div class="survey-step" x-show="step === 1" x-transition:enter="survey-step-enter">
                     <div class="survey-step__title">Schritt 1 — Bewertungen</div>
 
                     <div class="survey-ratings">
@@ -382,7 +381,7 @@
                 </div>
 
                 {{-- Step 2: Wie gefunden --}}
-                <div class="glass survey-step" x-show="step === 2" x-transition:enter="survey-step-enter">
+                <div class="survey-step" x-show="step === 2" x-transition:enter="survey-step-enter">
                     <div class="survey-step__title">Schritt 2 — Herkunft</div>
 
                     <div class="survey-step__question">Wie bist du auf den THW Trainer aufmerksam geworden? <span class="required">*</span></div>
@@ -403,7 +402,7 @@
                 </div>
 
                 {{-- Step 3: Feedback + Hermine --}}
-                <div class="glass survey-step" x-show="step === 3" x-transition:enter="survey-step-enter">
+                <div class="survey-step" x-show="step === 3" x-transition:enter="survey-step-enter">
                     <div class="survey-step__title">Schritt 3 — Feedback & Wuensche</div>
 
                     <div class="survey-feedback-group">
@@ -442,7 +441,7 @@
                 </div>
 
                 {{-- Step 4: Datenschutz & Absenden --}}
-                <div class="glass survey-step" x-show="step === 4" x-transition:enter="survey-step-enter">
+                <div class="survey-step" x-show="step === 4" x-transition:enter="survey-step-enter">
                     <div class="survey-step__title">Schritt 4 — Datenschutz</div>
 
                     <div class="survey-step__question">Wie duerfen wir deine Antworten verwenden? <span class="required">*</span></div>
