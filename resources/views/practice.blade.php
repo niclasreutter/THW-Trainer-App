@@ -1,29 +1,31 @@
-@extends('layouts.app')
-@section('title', 'THW Theorie üben - Interaktive Fragen mit Lernfortschritt')
-@section('description', 'Übe THW Theoriefragen mit deinem persönlichen Lernfortschritt. Markiere schwierige Fragen, filtere nach Lernabschnitten und verfolge deinen Erfolg. Kostenlos und effektiv!')
+@extends(isset($isLanding) && $isLanding ? 'layouts.landing' : 'layouts.app')
+@section('title', isset($isLanding) && $isLanding ? 'Anonym üben | THW-Trainer.de' : 'THW Theorie üben - Interaktive Fragen mit Lernfortschritt')
+@section('description', isset($isLanding) && $isLanding ? 'Übe THW Theoriefragen sofort und anonym ohne Anmeldung. Kostenlos verfügbar!' : 'Übe THW Theoriefragen mit deinem persönlichen Lernfortschritt. Markiere schwierige Fragen, filtere nach Lernabschnitten und verfolge deinen Erfolg. Kostenlos und effektiv!')
 
 @section('content')
 @php
+    $isGuest = ($context ?? 'global') === 'guest';
+
     // Hole Antwort-Details aus View-Variable oder Session (Backward-Compat)
     $answerResultFromView = isset($answerResult);
     $answerResult = $answerResult ?? session('answer_result');
-    $hasAnswerResult = $answerResult && isset($answerResult['question_id']) && $answerResult['question_id'] == $question->id;
+    $hasAnswerResult = $answerResult && isset($answerResult['question_id']) && isset($question) && $question && $answerResult['question_id'] == $question->id;
 
     // Hole Gamification Result aus View-Variable oder Session (Backward-Compat)
-    $gamificationResult = $gamificationResult ?? session('gamification_result');
+    $gamificationResult = $gamificationResult ?? ($isGuest ? null : session('gamification_result'));
 
     if ($hasAnswerResult) {
         $isCorrect = $answerResult['is_correct'];
         $userAnswer = collect($answerResult['user_answer']);
-        $questionProgress = (object)['consecutive_correct' => $answerResult['question_progress']];
+        $questionProgress = (object)['consecutive_correct' => $answerResult['question_progress'] ?? 0];
 
         // Lösche Sessions nur wenn alte Session-basierte Approach genutzt wird
         if (!$answerResultFromView) {
             session()->forget(['answer_result', 'gamification_result']);
         }
     } else {
-        $isCorrect = null;
-        $userAnswer = null;
+        $isCorrect = $isCorrect ?? null;
+        $userAnswer = $userAnswer ?? null;
         $questionProgress = null;
     }
 @endphp
@@ -1045,18 +1047,41 @@
 
 <!-- Practice Shell -->
 <div class="practice-shell" id="practiceContainer">
+    @if(isset($registrationPrompt))
+        {{-- Fullscreen Registration Interstitial --}}
+        <div style="position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:1.5rem;">
+            <div style="position:absolute;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);"></div>
+            <div class="glass-featured" style="position:relative;z-index:1;max-width:420px;width:100%;padding:2.5rem 2rem;text-align:center;">
+                <div style="width:64px;height:64px;border-radius:50%;background:var(--gradient-gold-135);display:inline-flex;align-items:center;justify-content:center;margin-bottom:1.5rem;font-size:1.75rem;color:#1a1a2e;">
+                    <i class="bi {{ $registrationPrompt['icon'] }}"></i>
+                </div>
+                <h2 style="font-size:1.5rem;font-weight:800;color:var(--text-primary);margin-bottom:0.75rem;font-family:'Barlow Condensed',sans-serif;">{{ $registrationPrompt['title'] }}</h2>
+                <p style="font-size:0.875rem;color:var(--text-secondary);line-height:1.6;margin-bottom:1rem;">{{ $registrationPrompt['description'] }}</p>
+                <span style="display:inline-block;background:rgba(251,191,36,0.12);color:#f59e0b;font-size:0.6875rem;font-weight:700;padding:0.3rem 0.75rem;border-radius:2rem;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:1.5rem;">{{ $registrationPrompt['benefit'] }}</span>
+                <p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:1.5rem;">{{ $questionsAnswered ?? 0 }} Fragen beantwortet</p>
+                <a href="{{ route('register') }}" class="action-submit action-submit--gold" style="display:block;margin-bottom:0.75rem;">Kostenlos registrieren</a>
+                <a href="{{ ($showUrl ?? route('landing.guest.practice.index')) . '?continue=1' }}" class="action-submit" style="display:block;background:transparent;color:var(--text-muted);font-size:0.8125rem;">Weiter üben</a>
+            </div>
+        </div>
+    @endif
+
     @if($question)
-        @if(($context ?? 'global') === 'global')
-            @php
-                $user = Auth::user();
-                $bookmarked = is_array($user->bookmarked_questions ?? null)
-                    ? $user->bookmarked_questions
-                    : json_decode($user->bookmarked_questions ?? '[]', true);
-                $isBookmarked = in_array($question->id, $bookmarked);
-            @endphp
-        @else
+        @auth
+            @if(($context ?? 'global') === 'global')
+                @php
+                    $user = Auth::user();
+                    $bookmarked = is_array($user->bookmarked_questions ?? null)
+                        ? $user->bookmarked_questions
+                        : json_decode($user->bookmarked_questions ?? '[]', true);
+                    $isBookmarked = in_array($question->id, $bookmarked);
+                @endphp
+            @else
+                @php $isBookmarked = false; @endphp
+            @endif
+        @endauth
+        @guest
             @php $isBookmarked = false; @endphp
-        @endif
+        @endguest
 
         <!-- Mobile Top Bar -->
         <div class="practice-topbar">
@@ -1084,6 +1109,7 @@
             </div>
 
             <div class="topbar-actions">
+                @auth
                 <button type="button" onclick="openReportModal()" class="report-btn" title="Fehler melden">
                     <i class="bi bi-exclamation-triangle-fill"></i>
                 </button>
@@ -1098,6 +1124,7 @@
                     </svg>
                 </button>
                 @endif
+                @endauth
             </div>
         </div>
 
@@ -1106,7 +1133,9 @@
             <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;">
                 <div style="flex:1;">
                     <div class="practice-greeting">
-                        @if(($context ?? 'global') === 'global')
+                        @if($isGuest)
+                            Anonym üben
+                        @elseif(($context ?? 'global') === 'global')
                             @if(isset($mode))
                                 @switch($mode)
                                     @case('unsolved') Ungelöste Fragen @break
@@ -1131,6 +1160,7 @@
                     </div>
                 </div>
 
+                @auth
                 <div style="display:flex;align-items:center;gap:0.5rem;">
                     <button type="button" onclick="openReportModal()" class="report-btn bookmark-btn-lg" title="Fehler melden">
                         <i class="bi bi-exclamation-triangle-fill"></i>
@@ -1150,6 +1180,7 @@
                     </button>
                     @endif
                 </div>
+                @endauth
             </div>
         </div>
 
@@ -1254,10 +1285,10 @@
                         } else {
                             $reasonText = $reason;
                         }
-                        $masteryThreshold = \App\Models\UserQuestionProgress::MASTERY_THRESHOLD;
-                        $showMastered = isset($questionProgress) && $questionProgress->consecutive_correct >= $masteryThreshold;
+                        $masteryThreshold = $isGuest ? 3 : \App\Models\UserQuestionProgress::MASTERY_THRESHOLD;
+                        $showMastered = !$isGuest && isset($questionProgress) && $questionProgress->consecutive_correct >= $masteryThreshold;
                         $remaining = isset($questionProgress) ? $masteryThreshold - $questionProgress->consecutive_correct : $masteryThreshold;
-                        $showAlmostMastered = isset($questionProgress) && $questionProgress->consecutive_correct > 0 && $questionProgress->consecutive_correct < $masteryThreshold;
+                        $showAlmostMastered = !$isGuest && isset($questionProgress) && $questionProgress->consecutive_correct > 0 && $questionProgress->consecutive_correct < $masteryThreshold;
 
                         // Special-Events prüfen - wenn vorhanden, zeigt das Layout
                         // den Fullscreen-Overlay, also hier kein Banner nötig
@@ -1366,6 +1397,7 @@
             </form>
         </div>
 
+        @auth
         <!-- Report Modal -->
         <div id="reportModal" class="report-overlay" onclick="if(event.target===this)closeReportModal()">
             <div class="report-backdrop"></div>
@@ -1385,6 +1417,7 @@
                 <p id="reportFeedback" class="report-feedback"></p>
             </div>
         </div>
+        @endauth
 
         {{-- Fullscreen-Overlays (Level-Up, Achievement, Streak) werden
              global über layouts/app.blade.php gerendert via:
@@ -1442,6 +1475,7 @@
                 @endif
             });
 
+            @auth
             // Report modal
             function openReportModal() {
                 var modal = document.getElementById('reportModal');
@@ -1541,6 +1575,7 @@
                 });
             }
             @endif
+            @endauth
         </script>
     @else
         <!-- No more questions -->
@@ -1551,7 +1586,12 @@
                 <p style="font-size:0.875rem;color:var(--text-secondary);margin-bottom:1.5rem;">Du hast alle Fragen in diesem Modus bearbeitet</p>
                 <div style="display:flex;flex-direction:column;gap:0.75rem;max-width:300px;margin:0 auto;">
                     <a href="{{ $menuUrl ?? route('practice.menu') }}" class="action-submit action-submit--primary">Zurück zum Menü</a>
+                    @auth
                     <a href="{{ route('dashboard') }}" class="action-submit action-submit--gold">Dashboard</a>
+                    @endauth
+                    @guest
+                    <a href="{{ route('register') }}" class="action-submit action-submit--gold">Kostenlos registrieren</a>
+                    @endguest
                 </div>
             </div>
         </div>
