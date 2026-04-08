@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Helpers\DomainHelper;
+use App\Models\Question;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,7 +19,29 @@ class AuthenticatedSessionController extends Controller
      */
     public function create(): View
     {
-        return view('auth.login');
+        $demoQuestions = Question::whereRaw("LENGTH(loesung) = 1")
+            ->inRandomOrder()->limit(3)
+            ->get(['frage', 'antwort_a', 'antwort_b', 'antwort_c', 'loesung'])
+            ->map(function ($q) {
+                $map = ['A' => 0, 'B' => 1, 'C' => 2];
+                return [
+                    'text' => $q->frage,
+                    'answers' => [$q->antwort_a, $q->antwort_b, $q->antwort_c],
+                    'correctIdxs' => collect(explode(',', $q->loesung))
+                        ->map(fn($l) => $map[trim($l)] ?? 0)
+                        ->values()
+                        ->toArray(),
+                ];
+            })->values();
+
+        $authStats = cache()->remember('auth_stats', 300, function () {
+            return [
+                'users' => (int) (floor(User::count() / 10) * 10),
+                'questions' => (int) (floor(Question::count() / 10) * 10),
+            ];
+        });
+
+        return view('auth.login', compact('demoQuestions', 'authStats'));
     }
 
     /**

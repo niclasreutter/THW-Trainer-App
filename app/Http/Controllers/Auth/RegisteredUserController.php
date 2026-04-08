@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\Question;
 use App\Models\OrtsverbandInvitation;
 use App\Helpers\DomainHelper;
 use Illuminate\Auth\Events\Registered;
@@ -21,7 +22,29 @@ class RegisteredUserController extends Controller
      */
     public function create(Request $request): View
     {
-        return view('auth.register');
+        $demoQuestions = Question::whereRaw("LENGTH(loesung) = 1")
+            ->inRandomOrder()->limit(3)
+            ->get(['frage', 'antwort_a', 'antwort_b', 'antwort_c', 'loesung'])
+            ->map(function ($q) {
+                $map = ['A' => 0, 'B' => 1, 'C' => 2];
+                return [
+                    'text' => $q->frage,
+                    'answers' => [$q->antwort_a, $q->antwort_b, $q->antwort_c],
+                    'correctIdxs' => collect(explode(',', $q->loesung))
+                        ->map(fn($l) => $map[trim($l)] ?? 0)
+                        ->values()
+                        ->toArray(),
+                ];
+            })->values();
+
+        $authStats = cache()->remember('auth_stats', 300, function () {
+            return [
+                'users' => (int) (floor(\App\Models\User::count() / 10) * 10),
+                'questions' => (int) (floor(Question::count() / 10) * 10),
+            ];
+        });
+
+        return view('auth.register', compact('demoQuestions', 'authStats'));
     }
 
     /**

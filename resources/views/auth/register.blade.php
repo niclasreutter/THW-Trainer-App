@@ -1,490 +1,143 @@
-
 @extends('layouts.auth')
 
 @section('title', 'Registrierung - THW Trainer')
 @section('description', 'Erstelle deinen kostenlosen THW-Trainer Account und starte sofort mit dem Lernen. Verfolge deinen Fortschritt und bereite dich optimal auf deine THW-Prüfung vor.')
 
 @section('content')
-<style>
-    * {
-        box-sizing: border-box;
-    }
+<div class="auth-split">
+    <!-- Left: Showcase -->
+    <div class="auth-showcase" x-data="authShowcase()" x-init="start()">
+        <div class="auth-showcase-inner">
+            <div class="auth-showcase-brand">THW-Trainer</div>
+            <h1 class="auth-showcase-headline">Starte jetzt.<br><span>Lerne effektiv.</span></h1>
+            <p class="auth-showcase-subtitle">Kostenlos registrieren und sofort mit dem Lernen beginnen. Dein Fortschritt wird gespeichert.</p>
 
-    .auth-container {
-        display: flex;
-        min-height: 100vh;
-        background: white;
-    }
+            <div class="auth-demo-carousel">
+                <!-- Demo 1: Quiz -->
+                <div class="auth-demo-panel" x-show="active === 0"
+                     x-transition:enter="transition ease-out duration-500"
+                     x-transition:enter-start="opacity-0"
+                     x-transition:enter-end="opacity-100"
+                     x-transition:leave="transition ease-in duration-300"
+                     x-transition:leave-start="opacity-100"
+                     x-transition:leave-end="opacity-0"
+                     style="position: absolute; inset: 0;">
+                    <div class="demo-quiz-card">
+                        <div class="demo-quiz-badge">Grundausbildung</div>
+                        <div class="demo-quiz-question" x-text="questions[displayQ].text"></div>
+                        <div class="demo-quiz-options">
+                            <template x-for="(answer, idx) in questions[displayQ].answers" :key="displayQ + '-' + idx">
+                                <div class="demo-quiz-option"
+                                     :class="{
+                                         'selected': quizStep >= 1 && idx === quizSelectedIdx,
+                                         'correct': quizStep >= 2 && questions[displayQ].correctIdxs.includes(idx),
+                                         'wrong': quizStep >= 2 && idx === quizSelectedIdx && !questions[displayQ].correctIdxs.includes(idx),
+                                         'neutral': quizStep >= 2 && idx !== quizSelectedIdx && !questions[displayQ].correctIdxs.includes(idx)
+                                     }">
+                                    <span class="demo-letter" x-text="['A', 'B', 'C'][idx]"></span>
+                                    <span x-text="answer"></span>
+                                </div>
+                            </template>
+                        </div>
+                        <div class="demo-quiz-result success" x-show="quizStep >= 2" x-transition>Richtig beantwortet!</div>
+                    </div>
+                </div>
 
-    .auth-left {
-        flex: 1.5;
-        background: linear-gradient(160deg, #00337F 0%, #001d4a 100%);
-        padding: 3rem 4rem;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        color: white;
-        position: relative;
-        overflow: hidden;
-    }
+                <!-- Demo 2: Progress -->
+                <div class="auth-demo-panel" x-show="active === 1"
+                     x-transition:enter="transition ease-out duration-500"
+                     x-transition:enter-start="opacity-0"
+                     x-transition:enter-end="opacity-100"
+                     x-transition:leave="transition ease-in duration-300"
+                     x-transition:leave-start="opacity-100"
+                     x-transition:leave-end="opacity-0"
+                     style="position: absolute; inset: 0;">
+                    <div class="demo-progress-card" style="position: relative;">
+                        <div class="demo-progress-header">
+                            <div class="demo-progress-title">Dein Lernfortschritt</div>
+                            <div class="demo-streak-badge">
+                                <span>5 Tage Streak</span>
+                            </div>
+                        </div>
+                        <div class="demo-progress-stats">
+                            <div class="demo-stat-item">
+                                <div class="demo-stat-value text-blue" x-text="progressAnswered">0</div>
+                                <div class="demo-stat-label">Beantwortet</div>
+                            </div>
+                            <div class="demo-stat-item">
+                                <div class="demo-stat-value text-green" x-text="progressCorrectPct + '%'">0%</div>
+                                <div class="demo-stat-label">Richtig</div>
+                            </div>
+                            <div class="demo-stat-item">
+                                <div class="demo-stat-value text-blue" x-text="progressXP">0</div>
+                                <div class="demo-stat-label">XP</div>
+                            </div>
+                        </div>
+                        <div class="demo-progress-bar-wrap">
+                            <div class="demo-progress-bar-label">
+                                <span>Grundausbildung</span>
+                                <span x-text="progressPct + '%'">0%</span>
+                            </div>
+                            <div class="demo-progress-track">
+                                <div class="demo-progress-fill" :style="'width: ' + progressPct + '%'"></div>
+                            </div>
+                        </div>
+                        <template x-for="xp in floatingXPs" :key="xp.id">
+                            <div class="demo-xp-float" :style="'top: ' + xp.top + 'px'" x-text="'+' + xp.value + ' XP'"></div>
+                        </template>
+                    </div>
+                </div>
 
-    .auth-left::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-image: url('/images/bauhaus-pattern.svg');
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        opacity: 0.05;
-        pointer-events: none;
-        z-index: 0;
-    }
-
-    .auth-left::after {
-        content: '';
-        position: absolute;
-        bottom: -20%;
-        left: -20%;
-        width: 60%;
-        height: 60%;
-        background: radial-gradient(circle, rgba(255,255,255,0.02) 0%, transparent 60%);
-        pointer-events: none;
-    }
-
-    .auth-left-content {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        position: relative;
-        z-index: 1;
-    }
-
-    .auth-brand {
-        margin-bottom: 3rem;
-    }
-
-    .auth-brand-text {
-        font-size: 1.2rem;
-        font-weight: 700;
-        letter-spacing: 2px;
-        text-transform: uppercase;
-        opacity: 0.9;
-    }
-
-    .auth-headline {
-        margin-bottom: 2rem;
-    }
-
-    .auth-headline h1 {
-        font-size: 3.5rem;
-        font-weight: 800;
-        line-height: 1.1;
-        margin-bottom: 1.5rem;
-    }
-
-    .auth-headline h1 span {
-        display: block;
-        background: linear-gradient(90deg, #fbbf24, #f59e0b);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-    }
-
-    .auth-headline p {
-        font-size: 1.15rem;
-        opacity: 0.85;
-        line-height: 1.7;
-        max-width: 400px;
-    }
-
-    .auth-stats {
-        display: flex;
-        gap: 3rem;
-        margin-top: 2rem;
-    }
-
-    .auth-stat {
-        text-align: left;
-    }
-
-    .auth-stat-number {
-        font-size: 2.5rem;
-        font-weight: 800;
-        line-height: 1;
-        margin-bottom: 0.3rem;
-        font-variant-numeric: tabular-nums;
-    }
-
-    .auth-stat-label {
-        font-size: 0.85rem;
-        opacity: 0.7;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
-
-    .auth-footer {
-        position: relative;
-        z-index: 1;
-        padding-top: 2rem;
-        font-size: 0.85rem;
-        opacity: 0.6;
-    }
-
-    .auth-footer a {
-        color: white;
-        text-decoration: none;
-        transition: opacity 0.2s ease;
-    }
-
-    .auth-footer a:hover {
-        opacity: 1;
-    }
-
-    .auth-footer-divider {
-        display: inline-block;
-        margin: 0 0.75rem;
-    }
-
-    .auth-right {
-        flex: 1;
-        background: #f3f4f6;
-        padding: 3rem;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        overflow-y: auto;
-    }
-
-    .auth-form-container {
-        width: 100%;
-        max-width: 450px;
-    }
-
-    .auth-form-container h2 {
-        font-size: 1.8rem;
-        font-weight: 800;
-        color: #00337F;
-        margin-bottom: 0.5rem;
-        text-align: left;
-    }
-
-    .auth-form-container > p {
-        text-align: left;
-        color: #666;
-        margin-bottom: 2rem;
-        font-size: 0.95rem;
-    }
-
-    .error-box {
-        background: rgba(239, 68, 68, 0.1);
-        border: 2px solid rgba(239, 68, 68, 0.3);
-        border-radius: 1rem;
-        padding: 1rem;
-        margin-bottom: 1.5rem;
-        box-shadow: 0 0 20px rgba(239, 68, 68, 0.2);
-    }
-
-    .error-box h3 {
-        color: #991b1b;
-        font-weight: 600;
-        margin-bottom: 0.5rem;
-        display: flex;
-        align-items: center;
-        font-size: 0.95rem;
-    }
-
-    .error-box ul {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-    }
-
-    .error-box li {
-        color: #7f1d1d;
-        font-size: 0.9rem;
-        margin-bottom: 0.25rem;
-    }
-
-    .form-group {
-        margin-bottom: 1.5rem;
-    }
-
-    .form-group label {
-        display: block;
-        font-size: 0.85rem;
-        font-weight: 700;
-        color: #1f2937;
-        margin-bottom: 0.5rem;
-    }
-
-    .form-row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1rem;
-        margin-bottom: 1.5rem;
-    }
-
-    .form-row .form-group {
-        margin-bottom: 0;
-    }
-
-    .form-input {
-        width: 100%;
-        padding: 1rem 1.2rem;
-        border: 1px solid #e5e7eb;
-        border-radius: 0.75rem;
-        font-size: 1rem;
-        background: white !important;
-        color: #1f2937 !important;
-        transition: all 0.2s ease;
-        font-family: inherit;
-    }
-
-    .form-input:focus {
-        outline: none;
-        border-color: #00337F;
-        box-shadow: 0 0 0 3px rgba(0, 51, 127, 0.1);
-        background: white !important;
-        color: #1f2937 !important;
-    }
-
-    .form-input::placeholder {
-        color: #9ca3af;
-    }
-
-    /* Autofill-Styling überschreiben */
-    .form-input:-webkit-autofill,
-    .form-input:-webkit-autofill:hover,
-    .form-input:-webkit-autofill:focus,
-    .form-input:-webkit-autofill:active {
-        -webkit-box-shadow: 0 0 0 1000px white inset !important;
-        -webkit-text-fill-color: #1f2937 !important;
-        box-shadow: 0 0 0 1000px white inset !important;
-        background-color: white !important;
-        color: #1f2937 !important;
-    }
-
-    .consent-box {
-        background: white;
-        border: 1px solid #e5e7eb;
-        border-radius: 0.75rem;
-        padding: 1rem 1.2rem;
-        margin-bottom: 1.5rem;
-    }
-
-    .consent-checkbox {
-        display: flex;
-        align-items: flex-start;
-        gap: 0.75rem;
-    }
-
-    .consent-checkbox input[type="checkbox"] {
-        width: 1.2rem;
-        height: 1.2rem;
-        cursor: pointer;
-        margin-top: 0.1rem;
-        accent-color: #00337F;
-        flex-shrink: 0;
-    }
-
-    .consent-checkbox-content {
-        flex: 1;
-    }
-
-    .consent-checkbox label {
-        cursor: pointer;
-        margin: 0;
-        font-weight: 600;
-        color: #1f2937;
-        font-size: 0.9rem;
-        display: block;
-        margin-bottom: 0.25rem;
-    }
-
-    .consent-description {
-        font-size: 0.8rem;
-        color: #6b7280;
-        line-height: 1.4;
-        margin: 0;
-    }
-
-    .auth-btn {
-        width: 100%;
-        padding: 0.9rem 1rem;
-        background: linear-gradient(135deg, #00337F 0%, #002a66 100%);
-        color: white;
-        border: none;
-        border-radius: 0.8rem;
-        font-size: 1rem;
-        font-weight: 700;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(0, 51, 127, 0.3);
-        margin-bottom: 1rem;
-    }
-
-    .auth-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(0, 51, 127, 0.4);
-    }
-
-    .auth-btn:active {
-        transform: translateY(0);
-    }
-
-    .auth-secondary-btn {
-        display: block;
-        width: 100%;
-        padding: 0.9rem 1rem;
-        background: white;
-        color: #00337F;
-        border: 2px solid #00337F;
-        border-radius: 0.8rem;
-        font-size: 1rem;
-        font-weight: 700;
-        text-decoration: none;
-        text-align: center;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        margin-bottom: 1rem;
-    }
-
-    .auth-secondary-btn:hover {
-        background: #00337F;
-        color: white;
-    }
-
-    .auth-divider {
-        border-top: 2px solid #e5e7eb;
-        margin: 1.5rem 0;
-    }
-
-    .auth-signup-link {
-        text-align: center;
-        font-size: 0.95rem;
-        color: #666;
-        margin-bottom: 1rem;
-    }
-
-    .auth-signup-link a {
-        color: #00337F;
-        font-weight: 600;
-        text-decoration: none;
-        transition: color 0.3s ease;
-    }
-
-    @media (max-width: 768px) {
-        .auth-container {
-            flex-direction: column;
-        }
-
-        .auth-left {
-            display: none;
-        }
-
-        .auth-right {
-            flex: 1;
-            padding: 2rem;
-            min-height: 100vh;
-        }
-
-        .auth-form-container {
-            max-width: 100%;
-        }
-    }
-
-    @media (max-width: 480px) {
-        .auth-left {
-            padding: 1.5rem;
-        }
-
-        .auth-headline h1 {
-            font-size: 2rem;
-        }
-
-        .auth-headline p {
-            font-size: 0.9rem;
-        }
-
-        .auth-stats {
-            flex-direction: column;
-            gap: 1rem;
-            align-items: flex-start;
-        }
-
-        .auth-stat-number {
-            font-size: 1.8rem;
-        }
-
-        .auth-right {
-            padding: 1.5rem;
-        }
-
-        .auth-form-container h2 {
-            font-size: 1.5rem;
-        }
-
-        .form-input,
-        .auth-btn,
-        .auth-secondary-btn {
-            font-size: 0.95rem;
-            padding: 0.8rem 0.9rem;
-        }
-    }
-</style>
-
-<div class="auth-container">
-    <!-- Left Panel: Brand & Info -->
-    <div class="auth-left">
-        <div class="auth-left-content">
-            <div class="auth-brand">
-                <div class="auth-brand-text">THW-Trainer</div>
+                <!-- Demo 3: Stats -->
+                <div class="auth-demo-panel" x-show="active === 2"
+                     x-transition:enter="transition ease-out duration-500"
+                     x-transition:enter-start="opacity-0"
+                     x-transition:enter-end="opacity-100"
+                     x-transition:leave="transition ease-in duration-300"
+                     x-transition:leave-start="opacity-100"
+                     x-transition:leave-end="opacity-0"
+                     style="position: absolute; inset: 0;">
+                    <div class="demo-stats-grid">
+                        <div class="demo-stats-card">
+                            <div class="demo-stats-number blue" x-text="statUsers">0</div>
+                            <div class="demo-stats-label">Aktive User</div>
+                        </div>
+                        <div class="demo-stats-card">
+                            <div class="demo-stats-number blue" x-text="statQuestions">0</div>
+                            <div class="demo-stats-label">Fragen</div>
+                        </div>
+                        <div class="demo-stats-card wide">
+                            <div class="demo-stats-number green" x-text="statFree">0%</div>
+                            <div class="demo-stats-label">Kostenlos nutzbar</div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div class="auth-headline">
-                <h1>Lerne smarter.<br><span>Werde besser.</span></h1>
-                <p>Bereite dich optimal auf deine THW-Prüfung vor – mit intelligenten Lernmethoden und Fortschrittstracking.</p>
-            </div>
-
-            <div class="auth-stats">
-                <div class="auth-stat">
-                    <div class="auth-stat-number">0</div>
-                    <div class="auth-stat-label">User</div>
-                </div>
-                <div class="auth-stat">
-                    <div class="auth-stat-number">0</div>
-                    <div class="auth-stat-label">Fragen</div>
-                </div>
-                <div class="auth-stat">
-                    <div class="auth-stat-number">0</div>
-                    <div class="auth-stat-label">Kostenlos</div>
-                </div>
+            <div class="auth-demo-indicators">
+                <div class="auth-demo-dot" :class="{ 'active': active === 0 }" @click="goTo(0)"></div>
+                <div class="auth-demo-dot" :class="{ 'active': active === 1 }" @click="goTo(1)"></div>
+                <div class="auth-demo-dot" :class="{ 'active': active === 2 }" @click="goTo(2)"></div>
             </div>
         </div>
 
-        <!-- Footer -->
-        <div class="auth-footer">
-            © 2026 THW-Trainer
-            <span class="auth-footer-divider">•</span>
+        <div class="auth-showcase-footer">
+            &copy; 2026 THW-Trainer
+            <span class="auth-showcase-footer-divider">&middot;</span>
             <a href="{{ route('landing.datenschutz') }}">Datenschutz</a>
-            <span class="auth-footer-divider">•</span>
+            <span class="auth-showcase-footer-divider">&middot;</span>
             <a href="{{ route('landing.impressum') }}">Impressum</a>
         </div>
     </div>
 
-    <!-- Right Panel: Registration Form -->
-    <div class="auth-right">
-        <div class="auth-form-container">
-            <h2>Konto erstellen</h2>
-            <p>Starte jetzt mit dem THW-Trainer.</p>
+    <!-- Right: Register Form -->
+    <div class="auth-form-panel">
+        <div class="auth-form-card">
+            <a href="{{ url('/') }}" class="auth-form-brand">THW-Trainer</a>
+            <h2 class="auth-form-title">Konto erstellen</h2>
+            <p class="auth-form-subtitle">Starte jetzt mit dem THW-Trainer.</p>
 
-@php
+            @php
             $inviteCode = request('code') ?? request('invite');
             $inviteInfo = null;
             if ($inviteCode) {
@@ -493,26 +146,21 @@
             @endphp
 
             @if($inviteInfo && $inviteInfo->isValid())
-            <div style="background: linear-gradient(135deg, #00337F 0%, #0047b3 100%); color: white; padding: 0.75rem 1rem; border-radius: 0.75rem; margin-bottom: 1rem; font-size: 0.9rem;">
-                <div style="display: flex; align-items: center; gap: 0.75rem;">
-                    <span style="font-size: 1.25rem;">🚨</span>
-                    <div>
-                        <strong>Einladung:</strong> {{ $inviteInfo->ortsverband->name }}
-                        <span style="opacity: 0.8; font-size: 0.8rem;">• Du trittst automatisch bei</span>
-                    </div>
-                </div>
+            <div class="auth-invite-banner">
+                <strong>Einladung:</strong> {{ $inviteInfo->ortsverband->name }}
+                <span style="opacity: 0.7; font-size: 0.75rem;">&middot; Du trittst automatisch bei</span>
             </div>
             @endif
 
             @if(session('error'))
-            <div class="error-box">
-                <h3>❌ {{ session('error') }}</h3>
+            <div class="auth-error-box">
+                <strong>{{ session('error') }}</strong>
             </div>
             @endif
 
             @if ($errors->any())
-                <div class="error-box">
-                    <h3>❌ Fehler bei der Registrierung</h3>
+                <div class="auth-error-box">
+                    <strong>Fehler bei der Registrierung</strong>
                     <ul>
                         @foreach ($errors->all() as $error)
                             <li>{{ $error }}</li>
@@ -524,163 +172,169 @@
             <form method="POST" action="{{ route('register') }}">
                 @csrf
 
-                <!-- Name Field -->
-                <div class="form-group">
-                    <label for="name">Vollständiger Name</label>
-                    <input id="name"
-                           type="text"
-                           name="name"
-                           value="{{ old('name') }}"
-                           required
-                           autofocus
-                           class="form-input"
-                           placeholder="Max Mustermann">
+                <div class="auth-field">
+                    <label for="name" class="auth-label">Vollständiger Name</label>
+                    <input id="name" type="text" name="name" value="{{ old('name') }}" required autofocus class="auth-input" placeholder="Max Mustermann">
                 </div>
 
-                <!-- Email Field -->
-                <div class="form-group">
-                    <label for="email">E-Mail-Adresse</label>
-                    <input id="email"
-                           type="email"
-                           name="email"
-                           value="{{ old('email') }}"
-                           required
-                           class="form-input"
-                           placeholder="max@beispiel.de">
+                <div class="auth-field">
+                    <label for="email" class="auth-label">E-Mail-Adresse</label>
+                    <input id="email" type="email" name="email" value="{{ old('email') }}" required class="auth-input" placeholder="max@beispiel.de">
                 </div>
 
-                <!-- Password Fields - Side by Side -->
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="password">Passwort</label>
-                        <input id="password"
-                               type="password"
-                               name="password"
-                               required
-                               class="form-input"
-                               placeholder="Mindestens 8 Zeichen">
+                <div class="auth-row">
+                    <div class="auth-field">
+                        <label for="password" class="auth-label">Passwort</label>
+                        <input id="password" type="password" name="password" required class="auth-input" placeholder="Mind. 8 Zeichen">
                     </div>
-
-                    <div class="form-group">
-                        <label for="password_confirmation">Bestätigen</label>
-                        <input id="password_confirmation"
-                               type="password"
-                               name="password_confirmation"
-                               required
-                               class="form-input"
-                               placeholder="Passwort wiederholen">
+                    <div class="auth-field">
+                        <label for="password_confirmation" class="auth-label">Bestätigen</label>
+                        <input id="password_confirmation" type="password" name="password_confirmation" required class="auth-input" placeholder="Wiederholen">
                     </div>
                 </div>
 
-                <!-- OV-Code (Optional) - nur anzeigen wenn kein gültiger Code in URL -->
                 @if(!($inviteInfo && $inviteInfo->isValid()))
-                <div class="form-group">
-                    <label for="invitation_code">OV-Code (optional)</label>
-                    <input id="invitation_code"
-                           type="text"
-                           name="invitation_code"
-                           value="{{ old('invitation_code', request('code') ?? request('invite') ?? '') }}"
-                           class="form-input"
-                           placeholder="z.B. THW-XXXXXXXX">
-                    <p style="font-size: 0.8rem; color: #6b7280; margin-top: 0.5rem;">Hast du einen Einladungscode von deinem Ortsverband erhalten?</p>
+                <div class="auth-field">
+                    <label for="invitation_code" class="auth-label">OV-Code (optional)</label>
+                    <input id="invitation_code" type="text" name="invitation_code" value="{{ old('invitation_code', request('code') ?? request('invite') ?? '') }}" class="auth-input" placeholder="z.B. THW-XXXXXXXX">
+                    <p class="auth-helper">Hast du einen Einladungscode von deinem Ortsverband erhalten?</p>
                 </div>
                 @else
                 <input type="hidden" name="invitation_code" value="{{ $inviteInfo->code }}">
                 @endif
 
-                <!-- Email Consent -->
-                <div class="consent-box">
-                    <div class="consent-checkbox">
-                        <input type="checkbox" name="email_consent" id="email_consent" value="1"
-                               {{ old('email_consent') ? 'checked' : '' }}>
-                        <div class="consent-checkbox-content">
-                            <label for="email_consent">E-Mail-Benachrichtigungen</label>
-                            <p class="consent-description">Erhalte Mails zu deinem Lernfortschritt und neuen Features</p>
+                <div class="auth-consent-box">
+                    <div class="auth-consent-inner">
+                        <input type="checkbox" name="email_consent" id="email_consent" value="1" {{ old('email_consent') ? 'checked' : '' }}>
+                        <div>
+                            <label for="email_consent" class="auth-consent-label">E-Mail-Benachrichtigungen</label>
+                            <p class="auth-consent-desc">Erhalte Mails zu deinem Lernfortschritt und neuen Features</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Register Button -->
-                <button type="submit" class="auth-btn">Account erstellen</button>
+                <button type="submit" class="auth-submit-btn">Account erstellen</button>
             </form>
 
-            <!-- Guest Access Button -->
-            <a href="{{ route('landing.guest.practice.menu') }}" class="auth-secondary-btn">Als Gast üben</a>
+            <a href="{{ route('landing.guest.practice.menu') }}" class="auth-ghost-btn">Als Gast üben</a>
 
-            <!-- Divider -->
-            <div class="auth-divider"></div>
+            <div class="auth-divider"><span>oder</span></div>
 
-            <!-- Login Link -->
-            <div class="auth-signup-link">
-                Bereits registriert? <a href="{{ route('login') }}">Jetzt anmelden →</a>
+            <div class="auth-switch-link">
+                Bereits registriert? <a href="{{ route('login') }}">Jetzt anmelden</a>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    (function() {
-        'use strict';
+document.addEventListener('alpine:init', () => {
+    Alpine.data('authShowcase', () => ({
+        active: 0,
+        interval: null,
+        currentQ: 0,
+        displayQ: 0,
+        questions: @json($demoQuestions),
+        dbUsers: {{ $authStats['users'] }},
+        dbQuestions: {{ $authStats['questions'] }},
 
-        function animateCounter(element, target, duration) {
-            if (!element) return;
+        quizStep: 0,
+        quizSelectedIdx: -1,
 
-            const isPercentage = target === 100;
-            const startTime = performance.now();
+        progressAnswered: 0,
+        progressCorrectPct: 0,
+        progressXP: 0,
+        progressPct: 0,
+        floatingXPs: [],
+        xpCounter: 0,
 
-            function update(currentTime) {
-                const elapsed = currentTime - startTime;
+        statUsers: 0,
+        statQuestions: 0,
+        statFree: 0,
+
+        start() {
+            if (this.questions.length === 0) return;
+            this.runDemo(0);
+            this.interval = setInterval(() => {
+                const next = (this.active + 1) % 3;
+                this.active = next;
+                this.$nextTick(() => this.runDemo(next));
+            }, 7000);
+        },
+
+        goTo(idx) {
+            clearInterval(this.interval);
+            this.active = idx;
+            this.$nextTick(() => this.runDemo(idx));
+            this.interval = setInterval(() => {
+                const next = (this.active + 1) % 3;
+                this.active = next;
+                this.$nextTick(() => this.runDemo(next));
+            }, 7000);
+        },
+
+        runDemo(idx) {
+            if (idx === 0) this.runQuiz();
+            if (idx === 1) this.runProgress();
+            if (idx === 2) this.runStats();
+        },
+
+        runQuiz() {
+            this.displayQ = this.currentQ;
+            this.quizStep = 0;
+            this.quizSelectedIdx = this.questions[this.displayQ].correctIdxs[0];
+
+            setTimeout(() => { this.quizStep = 1; }, 1200);
+            setTimeout(() => { this.quizStep = 2; }, 3000);
+        },
+
+        runProgress() {
+            this.progressAnswered = 0;
+            this.progressCorrectPct = 0;
+            this.progressXP = 0;
+            this.progressPct = 0;
+            this.floatingXPs = [];
+            this.animateValue('progressAnswered', 0, 147, 1800);
+            this.animateValue('progressCorrectPct', 0, 82, 1800);
+            this.animateValue('progressXP', 0, 1240, 2000);
+            this.animateValue('progressPct', 0, 68, 2000);
+
+            setTimeout(() => this.addXP(25, 60), 800);
+            setTimeout(() => this.addXP(10, 30), 1600);
+            setTimeout(() => this.addXP(50, 80), 2800);
+        },
+
+        addXP(value, top) {
+            const id = ++this.xpCounter;
+            this.floatingXPs.push({ id, value, top });
+            setTimeout(() => {
+                this.floatingXPs = this.floatingXPs.filter(x => x.id !== id);
+            }, 1500);
+        },
+
+        runStats() {
+            this.statUsers = 0;
+            this.statQuestions = 0;
+            this.statFree = 0;
+            this.currentQ = (this.currentQ + 1) % this.questions.length;
+            this.animateValue('statUsers', 0, this.dbUsers, 2000, v => v.toLocaleString('de-DE') + '+');
+            this.animateValue('statQuestions', 0, this.dbQuestions, 2000, v => v.toLocaleString('de-DE') + '+');
+            this.animateValue('statFree', 0, 100, 1800);
+        },
+
+        animateValue(prop, from, to, duration, format) {
+            const start = performance.now();
+            const step = (now) => {
+                const elapsed = now - start;
                 const progress = Math.min(elapsed / duration, 1);
-
-                // Easing function
-                const eased = 1 - Math.pow(1 - progress, 2);
-                const currentValue = Math.round(eased * target);
-
-                // Update display
-                try {
-                    if (isPercentage) {
-                        element.textContent = currentValue + '%';
-                    } else if (currentValue >= 1000) {
-                        // Format für >= 1000: "1.000+"
-                        element.textContent = currentValue.toLocaleString('de-DE') + '+';
-                    } else {
-                        // Format für < 1000: "200+"
-                        element.textContent = currentValue + '+';
-                    }
-                } catch (e) {
-                    console.error('Counter update error:', e);
-                    element.textContent = target + (isPercentage ? '%' : '+');
-                }
-
-                if (progress < 1) {
-                    requestAnimationFrame(update);
-                }
-            }
-
-            requestAnimationFrame(update);
+                const eased = 1 - Math.pow(1 - progress, 3);
+                const raw = Math.round(from + (to - from) * eased);
+                this[prop] = format ? format(raw) : raw;
+                if (progress < 1) requestAnimationFrame(step);
+            };
+            requestAnimationFrame(step);
         }
-
-        // Initialize on page load
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', init);
-        } else {
-            init();
-        }
-
-        function init() {
-            const stats = document.querySelectorAll('.auth-stat-number');
-            const targets = [200, 1000, 100];
-
-            if (stats.length !== 3) {
-                console.warn('Expected 3 stat elements, found:', stats.length);
-            }
-
-            stats.forEach(function(stat, index) {
-                if (targets[index] !== undefined) {
-                    animateCounter(stat, targets[index], 2000);
-                }
-            });
-        }
-    })();
+    }));
+});
 </script>
 @endsection
