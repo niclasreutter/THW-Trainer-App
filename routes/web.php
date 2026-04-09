@@ -326,6 +326,15 @@ Route::get('/dashboard', function () {
         $user->daily_streak_goal ?? $gamificationService->calculateDailyStreakGoal($user)
     );
 
+    // Umfrage-Nudge (3+ Wochen registriert, noch nicht teilgenommen)
+    $showSurveyNudge = false;
+    $activeSurvey = \App\Models\Survey::active()->first();
+    if ($activeSurvey && $user->created_at <= now()->subWeeks(3)) {
+        $showSurveyNudge = !$activeSurvey->responses()
+            ->where('user_id', $user->id)
+            ->exists();
+    }
+
     return view('dashboard', compact(
         'user', 'recentExams', 'totalQuestions', 'spacedRepetitionDue',
         'weeklyActivity', 'sectionStats', 'streakFreezeStatus',
@@ -334,7 +343,8 @@ Route::get('/dashboard', function () {
         'masteryPercent', 'solvedPercent', 'solvedTotal',
         'canStartExam', 'exams', 'hasFailedQuestions',
         'levelProgress', 'nextLevelPoints', 'unopenedLootboxes',
-        'todayAnswered', 'todayCorrect', 'dailyStreakGoal'
+        'todayAnswered', 'todayCorrect', 'dailyStreakGoal',
+        'showSurveyNudge', 'activeSurvey'
     ));
 })->middleware(['auth', 'verified'])->name('dashboard');
 
