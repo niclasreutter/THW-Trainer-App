@@ -6750,3 +6750,111 @@ html.light-mode .smart-action--info {
     .auth-helper { color: #94a3b8; }
 
 }
+
+/* ============================================
+   SURVEY - Emoji Rating & Chips
+   ============================================ */
+.emoji-rating {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.emoji-btn {
+    font-size: 2rem;
+    padding: 0.5rem;
+    border-radius: 0.75rem;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.03);
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    line-height: 1;
+}
+
+.emoji-btn:hover {
+    border-color: rgba(251, 191, 36, 0.4);
+    background: rgba(251, 191, 36, 0.08);
+    transform: scale(1.15);
+}
+
+.emoji-btn.selected {
+    border-color: var(--gold-start);
+    background: rgba(251, 191, 36, 0.15);
+    box-shadow: 0 0 12px rgba(251, 191, 36, 0.3);
+    transform: scale(1.15);
+}
+
+.chip-btn {
+    padding: 0.5rem 1rem;
+    border-radius: 2rem;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-muted);
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-normal);
+}
+
+.chip-btn:hover {
+    border-color: rgba(0, 51, 127, 0.5);
+    background: rgba(0, 51, 127, 0.15);
+    color: var(--text-primary);
+}
+
+.chip-btn.selected {
+    border-color: var(--thw-blue);
+    background: linear-gradient(135deg, rgba(0, 51, 127, 0.3), rgba(0, 77, 179, 0.2));
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.radio-glass {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem 1rem;
+    border-radius: 0.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.03);
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    font-size: 0.875rem;
+    color: var(--text-muted);
+}
+
+.radio-glass:hover {
+    border-color: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.radio-glass.selected {
+    border-color: var(--gold-start);
+    background: rgba(251, 191, 36, 0.08);
+    color: var(--text-primary);
+}
+
+.radio-dot {
+    width: 1.1rem;
+    height: 1.1rem;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    flex-shrink: 0;
+    position: relative;
+    transition: all var(--transition-normal);
+}
+
+.radio-glass.selected .radio-dot {
+    border-color: var(--gold-start);
+}
+
+.radio-glass.selected .radio-dot::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: var(--gold-start);
+}

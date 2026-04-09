@@ -174,6 +174,16 @@ Schedule::command('exam:send-feedback-requests')
     ->description('Sendet Feedback-Anfragen an User deren Prüfung vor einer Woche war')
     ->emailOutputOnFailure($adminEmail);
 
+// Umfrage-Erinnerung (3+ Wochen registriert, noch nicht teilgenommen)
+// Läuft täglich um 10:00 Uhr
+Schedule::command('survey:send-reminders')
+    ->dailyAt('10:00')
+    ->timezone('Europe/Berlin')
+    ->appendOutputTo($schedulerLog)
+    ->onFailure($onFail('survey:send-reminders'))
+    ->description('Sendet Umfrage-Erinnerungen an User die 3+ Wochen registriert sind')
+    ->emailOutputOnFailure($adminEmail);
+
 // Prüfungs-Viel-Erfolg-Mail (einen Tag vor der Prüfung)
 // Läuft täglich um 17:00 Uhr
 Schedule::command('exam:send-goodluck')

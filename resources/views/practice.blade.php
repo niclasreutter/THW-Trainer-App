@@ -1051,15 +1051,15 @@
         {{-- Fullscreen Registration Interstitial --}}
         <div style="position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:1.5rem;">
             <div style="position:absolute;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);"></div>
-            <div class="glass-featured" style="position:relative;z-index:1;max-width:420px;width:100%;padding:2.5rem 2rem;text-align:center;">
-                <div style="width:64px;height:64px;border-radius:50%;background:var(--gradient-gold-135);display:inline-flex;align-items:center;justify-content:center;margin-bottom:1.5rem;font-size:1.75rem;color:#1a1a2e;">
+            <div class="glass-blue" style="position:relative;z-index:1;max-width:420px;width:100%;padding:2.5rem 2rem;text-align:center;">
+                <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#00337F,#0055cc);display:inline-flex;align-items:center;justify-content:center;margin-bottom:1.5rem;font-size:1.75rem;color:#fff;">
                     <i class="bi {{ $registrationPrompt['icon'] }}"></i>
                 </div>
                 <h2 style="font-size:1.5rem;font-weight:800;color:var(--text-primary);margin-bottom:0.75rem;font-family:'Barlow Condensed',sans-serif;">{{ $registrationPrompt['title'] }}</h2>
                 <p style="font-size:0.875rem;color:var(--text-secondary);line-height:1.6;margin-bottom:1rem;">{{ $registrationPrompt['description'] }}</p>
-                <span style="display:inline-block;background:rgba(251,191,36,0.12);color:#f59e0b;font-size:0.6875rem;font-weight:700;padding:0.3rem 0.75rem;border-radius:2rem;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:1.5rem;">{{ $registrationPrompt['benefit'] }}</span>
+                <span style="display:inline-block;background:rgba(0,85,204,0.15);color:#5b9aff;font-size:0.6875rem;font-weight:700;padding:0.3rem 0.75rem;border-radius:2rem;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:1.5rem;">{{ $registrationPrompt['benefit'] }}</span>
                 <p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:1.5rem;">{{ $questionsAnswered ?? 0 }} Fragen beantwortet</p>
-                <a href="{{ route('register') }}" class="action-submit action-submit--gold" style="display:block;margin-bottom:0.75rem;">Kostenlos registrieren</a>
+                <a href="{{ route('register') }}" class="action-submit action-submit--primary" style="display:block;margin-bottom:0.75rem;">Kostenlos registrieren</a>
                 <a href="{{ ($showUrl ?? route('landing.guest.practice.index')) . '?continue=1' }}" class="action-submit" style="display:block;background:transparent;color:var(--text-muted);font-size:0.8125rem;">Weiter üben</a>
             </div>
         </div>

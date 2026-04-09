@@ -326,6 +326,15 @@ Route::get('/dashboard', function () {
         $user->daily_streak_goal ?? $gamificationService->calculateDailyStreakGoal($user)
     );
 
+    // Umfrage-Nudge (3+ Wochen registriert, noch nicht teilgenommen)
+    $showSurveyNudge = false;
+    $activeSurvey = \App\Models\Survey::active()->first();
+    if ($activeSurvey && $user->created_at <= now()->subWeeks(3)) {
+        $showSurveyNudge = !$activeSurvey->responses()
+            ->where('user_id', $user->id)
+            ->exists();
+    }
+
     return view('dashboard', compact(
         'user', 'recentExams', 'totalQuestions', 'spacedRepetitionDue',
         'weeklyActivity', 'sectionStats', 'streakFreezeStatus',
@@ -334,7 +343,8 @@ Route::get('/dashboard', function () {
         'masteryPercent', 'solvedPercent', 'solvedTotal',
         'canStartExam', 'exams', 'hasFailedQuestions',
         'levelProgress', 'nextLevelPoints', 'unopenedLootboxes',
-        'todayAnswered', 'todayCorrect', 'dailyStreakGoal'
+        'todayAnswered', 'todayCorrect', 'dailyStreakGoal',
+        'showSurveyNudge', 'activeSurvey'
     ));
 })->middleware(['auth', 'verified'])->name('dashboard');
 
@@ -381,6 +391,13 @@ Route::middleware('auth')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::get('/kontakt', [\App\Http\Controllers\ContactController::class, 'index'])->name('contact.index');
     Route::post('/kontakt', [\App\Http\Controllers\ContactController::class, 'store'])->name('contact.submit');
+});
+
+// Nutzerumfrage
+Route::middleware('auth')->group(function () {
+    Route::get('/umfrage', [\App\Http\Controllers\SurveyController::class, 'index'])->name('umfrage.index');
+    Route::post('/umfrage', [\App\Http\Controllers\SurveyController::class, 'store'])->name('umfrage.store');
+    Route::delete('/umfrage/{survey_response}', [\App\Http\Controllers\SurveyController::class, 'destroy'])->name('umfrage.destroy');
 });
 
 Route::middleware('auth')->group(function () {
@@ -581,6 +598,12 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix
     // Prüfungs-Feedback
     Route::get('exam-feedback', [\App\Http\Controllers\Admin\ExamFeedbackController::class, 'index'])->name('exam-feedback.index');
     Route::delete('exam-feedback/{examFeedback}', [\App\Http\Controllers\Admin\ExamFeedbackController::class, 'destroy'])->name('exam-feedback.destroy');
+
+    // Nutzerumfragen
+    Route::get('umfragen', [\App\Http\Controllers\Admin\SurveyController::class, 'index'])->name('umfragen.index');
+    Route::get('umfragen/export', [\App\Http\Controllers\Admin\SurveyController::class, 'export'])->name('umfragen.export');
+    Route::post('umfragen', [\App\Http\Controllers\Admin\SurveyController::class, 'store'])->name('umfragen.store');
+    Route::patch('umfragen/{survey}/toggle', [\App\Http\Controllers\Admin\SurveyController::class, 'toggle'])->name('umfragen.toggle');
 
     // Push Notifications (Admin)
     Route::get('push', [\App\Http\Controllers\Admin\PushController::class, 'index'])->name('push.index');
