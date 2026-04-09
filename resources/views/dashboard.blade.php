@@ -764,6 +764,24 @@
                 </div>
             </div>
 
+            {{-- Umfrage-Nudge (mobil, zwischen Dein Fortschritt und Diese Woche) --}}
+            @if($showSurveyNudge)
+            <div class="lg:hidden">
+                <a href="{{ route('umfrage.index') }}" class="survey-nudge">
+                    <div style="display:flex;align-items:center;gap:0.625rem;">
+                        <div class="survey-nudge__icon">
+                            <i class="bi bi-chat-square-text-fill" style="font-size:0.875rem;"></i>
+                        </div>
+                        <div>
+                            <div class="survey-nudge__title">Deine Meinung zählt</div>
+                            <div class="survey-nudge__desc">Kurze Umfrage (2 Min.)</div>
+                        </div>
+                    </div>
+                    <i class="bi bi-arrow-right" style="color:#a78bfa;font-size:0.75rem;"></i>
+                </a>
+            </div>
+            @endif
+
             {{-- 3. Wochenaktivität --}}
             <div class="glass" style="padding:1rem;" data-tour-step="stats">
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.875rem;">
@@ -1207,22 +1225,6 @@
             <a href="{{ route('gamification.leaderboard') }}" class="dash-quick-link"><i class="bi bi-trophy" style="font-size:0.875rem;"></i> Rang</a>
             <a href="{{ route('shop.index') }}" class="dash-quick-link"><i class="bi bi-bag" style="font-size:0.875rem;"></i> Shop</a>
         </div>
-
-        {{-- Umfrage-Nudge (mobil) --}}
-        @if($showSurveyNudge)
-        <a href="{{ route('umfrage.index') }}" class="survey-nudge">
-            <div style="display:flex;align-items:center;gap:0.625rem;">
-                <div class="survey-nudge__icon">
-                    <i class="bi bi-chat-square-text-fill" style="font-size:0.875rem;"></i>
-                </div>
-                <div>
-                    <div class="survey-nudge__title">Deine Meinung zählt</div>
-                    <div class="survey-nudge__desc">Kurze Umfrage (2 Min.)</div>
-                </div>
-            </div>
-            <i class="bi bi-arrow-right" style="color:#a78bfa;font-size:0.75rem;"></i>
-        </a>
-        @endif
 
     </div>
 
