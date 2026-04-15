@@ -145,6 +145,28 @@
         gap: 0.375rem;
     }
 
+    /* ── Mobile Fortschritts-Stufen ──────────────── */
+    .practice-mobile-progress {
+        display: none;
+    }
+
+    @media (max-width: 640px) {
+        .practice-mobile-progress {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.375rem 0.5rem;
+            align-items: center;
+            padding: 0.5rem 1rem 0.25rem;
+            font-size: 0.6875rem;
+            font-weight: 600;
+            color: #5b9aff;
+        }
+        html.light-mode .practice-mobile-progress { color: #00337F; }
+        .practice-mobile-progress .pmp-item { opacity: 0.75; }
+        .practice-mobile-progress .pmp-mastered { opacity: 1; }
+        .practice-mobile-progress .pmp-sep { opacity: 0.35; }
+    }
+
     /* ── Desktop Header ──────────────────────────── */
     .practice-header {
         margin-bottom: 1.25rem;
@@ -1129,6 +1151,19 @@
             </div>
         </div>
 
+        <!-- Mobile Fortschritts-Stufen -->
+        <div class="practice-mobile-progress">
+            @if(($progressOnce ?? 0) > 0)
+                <span class="pmp-item">1× richtig: {{ $progressOnce }}</span>
+                <span class="pmp-sep">&middot;</span>
+            @endif
+            @if(($progressTwice ?? 0) > 0)
+                <span class="pmp-item">2× richtig: {{ $progressTwice }}</span>
+                <span class="pmp-sep">&middot;</span>
+            @endif
+            <span class="pmp-mastered">{{ $progress ?? 0 }}/{{ $total ?? 0 }} gemeistert</span>
+        </div>
+
         <!-- Desktop Header -->
         <div class="practice-header">
             <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;">
@@ -1155,10 +1190,14 @@
                     <div class="practice-title">{{ $contextLabel ?? 'Theorie üben' }}</div>
                     <div class="practice-level-line">
                         <span>
-                            <span style="opacity:0.75;">1× richtig: {{ $progressOnce ?? 0 }}</span>
-                            &middot;
-                            <span style="opacity:0.75;">2× richtig: {{ $progressTwice ?? 0 }}</span>
-                            &middot;
+                            @if(($progressOnce ?? 0) > 0)
+                                <span style="opacity:0.75;">1× richtig: {{ $progressOnce }}</span>
+                                &middot;
+                            @endif
+                            @if(($progressTwice ?? 0) > 0)
+                                <span style="opacity:0.75;">2× richtig: {{ $progressTwice }}</span>
+                                &middot;
+                            @endif
                             {{ $progress }}/{{ $total }} gemeistert
                             &middot;
                             {{ $progressPercent ?? 0 }}%
