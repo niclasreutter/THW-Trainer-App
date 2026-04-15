@@ -981,7 +981,7 @@
                 <div class="journey journey--vertical">
 
                     {{-- Step 1 --}}
-                    <div class="journey__step">
+                    <div class="journey__step {{ $solvedPercent >= 100 ? 'journey__step--line-done' : '' }}">
                         <div>
                             <div class="journey__circle {{ $solvedPercent >= 100 ? 'journey__circle--done' : 'journey__circle--active' }}">
                                 @if($solvedPercent >= 100)
@@ -1005,7 +1005,7 @@
                     <div class="journey__line {{ $solvedPercent >= 100 ? 'journey__line--done' : '' }}"></div>
 
                     {{-- Step 2 --}}
-                    <div class="journey__step">
+                    <div class="journey__step {{ $masteryPercent >= 100 ? 'journey__step--line-done' : '' }}">
                         <div>
                             <div class="journey__circle {{ $masteryPercent >= 100 ? 'journey__circle--done' : ($masteryPercent > 0 ? 'journey__circle--active' : 'journey__circle--locked') }}">
                                 @if($masteryPercent >= 100)

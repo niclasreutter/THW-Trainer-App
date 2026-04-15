@@ -9,8 +9,10 @@
 <style>
     /* ─── Trend Chart ─── */
     .eh-trend-chart {
+        --chart-h: 160px;
         position: relative;
-        height: 160px;
+        box-sizing: content-box;
+        height: var(--chart-h);
         display: flex;
         align-items: flex-end;
         gap: 6px;
@@ -259,7 +261,7 @@
 
     @media (max-width: 480px) {
         .eh-compare-row { gap: 1rem; }
-        .eh-trend-chart { height: 120px; gap: 4px; }
+        .eh-trend-chart { --chart-h: 120px; gap: 4px; }
         .eh-trend-bar { min-width: 18px; }
         .eh-trend-bar__value { font-size: 0.5625rem; }
     }
@@ -355,17 +357,16 @@
             {{-- ── Trend Chart ── --}}
             <div class="glass p-4" style="border-radius:0.75rem;">
                 <div class="text-xs uppercase tracking-wider" style="color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:0.5625rem;font-weight:700;margin-bottom:0.75rem;">Verbesserungs-Trend</div>
-                <div class="eh-trend-chart" style="margin-bottom: 2rem;">
-                    <div class="eh-trend-threshold" style="bottom: {{ (80 / 100) * 160 }}px;">
+                <div class="eh-trend-chart">
+                    <div class="eh-trend-threshold" style="bottom: calc(0.8 * var(--chart-h) + 1.5rem);">
                         <span class="eh-trend-threshold__label">80%</span>
                     </div>
                     @foreach($trend as $exam)
                         @php
                             $pct = round(($exam->correct_answers / 40) * 100);
-                            $height = max(10, ($pct / 100) * 160);
                         @endphp
                         <div class="eh-trend-bar eh-trend-bar--{{ $exam->is_passed ? 'passed' : 'failed' }}"
-                             style="height: {{ $height }}px;">
+                             style="height: max(10px, calc({{ $pct }} * var(--chart-h) / 100));">
                             <span class="eh-trend-bar__value">{{ $pct }}%</span>
                             <span class="eh-trend-bar__date">{{ $exam->created_at->format('d.m.') }}</span>
                         </div>
