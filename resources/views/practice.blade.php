@@ -1092,7 +1092,8 @@
             </a>
 
             <div class="topbar-center">
-                <span class="topbar-progress-text">{{ $progress }}/{{ $total }}</span>
+                <span class="topbar-progress-text"
+                      title="Gemeisterte Fragen: 3× in Folge richtig beantwortet. Der Fortschrittsring wächst bereits bei der ersten richtigen Antwort.">{{ $progress }}/{{ $total }}</span>
                 <svg class="topbar-progress-ring" viewBox="0 0 36 36">
                     <circle class="ring-track" cx="18" cy="18" r="14" fill="none" stroke-width="3"/>
                     <circle class="ring-fill" cx="18" cy="18" r="14" fill="none"
@@ -1153,7 +1154,12 @@
                     </div>
                     <div class="practice-title">{{ $contextLabel ?? 'Theorie üben' }}</div>
                     <div class="practice-level-line">
-                        <span>{{ $progress }}/{{ $total }} gemeistert &middot; {{ $progressPercent ?? 0 }}%</span>
+                        <span>
+                            {{ $progress }}/{{ $total }} gemeistert &middot; {{ $progressPercent ?? 0 }}%
+                            <i class="bi bi-info-circle"
+                               style="font-size:0.85rem; color: rgba(255,255,255,0.5); cursor: help; margin-left: 0.25rem;"
+                               title="Eine Frage gilt als gemeistert, wenn du sie 3× hintereinander richtig beantwortet hast. Der Prozentbalken steigt bereits bei der ersten richtigen Antwort."></i>
+                        </span>
                         <div class="practice-xp-bar">
                             <div class="practice-xp-fill" style="width: {{ $progressPercent ?? 0 }}%;"></div>
                         </div>
