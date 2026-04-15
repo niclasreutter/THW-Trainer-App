@@ -1493,6 +1493,49 @@ html.light-mode .logo-for-dark { display: none; }
         border: 1px solid rgba(239, 68, 68, 0.30);
     }
 
+    /* --- Compact Alert (layout only — color comes from .glass-success/error/warning) --- */
+
+    .alert-compact {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        padding: 0.875rem 1rem;
+        border-radius: 0.75rem;
+    }
+
+    .alert-compact-icon {
+        font-size: 1.25rem;
+        line-height: 1.4;
+        flex-shrink: 0;
+    }
+
+    .alert-compact-content {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .alert-compact-title {
+        font-weight: 600;
+        font-size: 0.9375rem;
+        color: var(--text-primary);
+        line-height: 1.4;
+    }
+
+    .alert-compact-desc {
+        font-size: 0.8125rem;
+        color: var(--text-secondary);
+        line-height: 1.5;
+        margin-top: 0.125rem;
+    }
+
+    .alert-compact ul {
+        margin: 0.25rem 0 0;
+        padding-left: 1.125rem;
+        font-size: 0.8125rem;
+        color: var(--text-secondary);
+        line-height: 1.5;
+    }
+
     /* --- Modal Glass --- */
 
     .modal-overlay-glass {
@@ -5311,6 +5354,25 @@ html.light-mode .smart-action--info {
     align-items: flex-start;
     gap: 0.75rem;
     padding-bottom: 1.5rem;
+    position: relative;
+}
+
+.journey--vertical .journey__step:not(:last-child)::before {
+    content: '';
+    position: absolute;
+    left: 0.9375rem;
+    top: 2rem;
+    bottom: 0;
+    width: 3px;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.light-mode .journey--vertical .journey__step:not(:last-child)::before {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.journey--vertical .journey__step--line-done:not(:last-child)::before {
+    background: #0055cc;
 }
 
 .journey__circle {
@@ -5366,10 +5428,12 @@ html.light-mode .smart-action--info {
 }
 
 .journey--vertical .journey__line {
-    width: 3px;
-    height: 1.5rem;
-    margin-left: 0.9375rem;
-    flex: none;
+    display: none;
+}
+
+.journey--horizontal .journey__line {
+    align-self: flex-start;
+    margin-top: calc(1rem - 1.5px);
 }
 
 .journey__label {
