@@ -74,7 +74,7 @@
   {
     "lernabschnitt": "1",
     "nummer": "9",
-    "frage": "Wer vertritt die Interessen der Helferschaft gegenüber demder/Ortsbeauftragten?",
+    "frage": "Wer vertritt die Interessen der Helferschaft gegenüber dem/der Ortsbeauftragten?",
     "antwort_a": "Der/die Beauftragte für Öffentlichkeitsarbeit",
     "antwort_b": "Der/die Verwaltungsbeauftragte",
     "antwort_c": "Der/die Helfersprecher/in",
@@ -272,7 +272,7 @@
   {
     "lernabschnitt": "1",
     "nummer": "31",
-    "frage": "Zu welcher (Teil-) Einheit gehört der GKW?",
+    "frage": "Zu welcher (Teil-)Einheit gehört der GKW?",
     "antwort_a": "Zugtrupp",
     "antwort_b": "Bergungsgruppe",
     "antwort_c": "Fachgruppe Sprengen",
@@ -290,7 +290,7 @@
   {
     "lernabschnitt": "1",
     "nummer": "33",
-    "frage": "Zu welcher (Teil-) Einheit des Technischen Zuges gehört der MTW?",
+    "frage": "Zu welcher (Teil-)Einheit des Technischen Zuges gehört der MTW?",
     "antwort_a": "Zugtrupp",
     "antwort_b": "Bergungsgruppe",
     "antwort_c": "Fachgruppe Wassergefahren",
@@ -362,7 +362,7 @@
   {
     "lernabschnitt": "1",
     "nummer": "41",
-    "frage": "Welche (Teil-) Einheiten des Technischen Zuges sind mit Umluft unabhängigen Atemschutzgeräten ausgestattet?",
+    "frage": "Welche (Teil-)Einheiten des Technischen Zuges sind mit umluftunabhängigen Atemschutzgeräten ausgestattet?",
     "antwort_a": "Fachgruppe Ortung",
     "antwort_b": "Fachgruppe Wassergefahren",
     "antwort_c": "Bergungsgruppe",
@@ -599,7 +599,7 @@
     "frage": "Wie sind Erste-Hilfe-Leistungen zu dokumentieren?",
     "antwort_a": "Meldeblock bzw. Verbandbuch",
     "antwort_b": "Einsatzsofortmeldung",
-    "antwort_c": "Nur mündlich gegenüber demder /OB",
+    "antwort_c": "Nur mündlich gegenüber dem/der OB",
     "loesung": "A"
   },
   {
@@ -1253,7 +1253,7 @@
   {
     "lernabschnitt": "7",
     "nummer": "6",
-    "frage": "Welche Werkzeuge der Ber- gungsgruppe eignen sich be sonders gut zur Rettung ver schütteter Personen?",
+    "frage": "Welche Werkzeuge der Bergungsgruppe eignen sich besonders gut zur Rettung verschütteter Personen?",
     "antwort_a": "Der hydraulische Spreizer",
     "antwort_b": "Der Fäustel",
     "antwort_c": "Der Stemmhammer",
@@ -1318,7 +1318,7 @@
     "nummer": "13",
     "frage": "Was versteht man unter Räumen?",
     "antwort_a": "Wegschieben von Trümmern und Steinen",
-    "antwort_b": "Wegräumen von Hindernissen, um Zugang zu verschaff en",
+    "antwort_b": "Wegräumen von Hindernissen, um Zugang zu verschaffen",
     "antwort_c": "Wegschaffen von Hindernissen und Trümmern",
     "loesung": "C"
   },
