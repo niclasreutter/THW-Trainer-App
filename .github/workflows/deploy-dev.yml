@@ -18,15 +18,17 @@ jobs:
             set -e
             cd /home/thw-trainer-dev/htdocs/dev.thw-trainer.de
 
+            # 0. Trap: Bei Fehler Wartungsmodus wieder deaktivieren
+            trap 'php artisan up || true' ERR
+
             # 1. Wartungsmodus aktivieren
             php artisan down
 
-            # 2. Lokale Änderungen verwerfen (npm run build erzeugt Diffs in public/build/)
-            git checkout -- .
+            # 2. Remote holen und hart auf origin/dev resetten
+            #    (ersetzt git checkout -- . + git clean + git pull - robuster, hängt nicht)
+            git fetch origin dev
+            git reset --hard origin/dev
             git clean -fd public/build/assets/ temp/
-
-            # 3. Code updaten
-            git pull origin dev
             
             # 3. Composer Dependencies
             composer install --no-dev --optimize-autoloader
