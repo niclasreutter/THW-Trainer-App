@@ -606,7 +606,9 @@ class PracticeController extends Controller
         $totalQuestions = Question::count();
         $total = $totalQuestions;
         $progress = UserQuestionProgress::countMastered($user->id);
-        
+        $progressOnce = UserQuestionProgress::countAtLevel($user->id, 1);
+        $progressTwice = UserQuestionProgress::countAtLevel($user->id, 2);
+
         // Neue Fortschrittsbalken-Logik: Berücksichtigt auch 1x richtige Antworten
         $threshold = UserQuestionProgress::MASTERY_THRESHOLD;
         $progressData = UserQuestionProgress::where('user_id', $user->id)->get();
@@ -637,7 +639,7 @@ class PracticeController extends Controller
         $srDueIds = $srService->getDueQuestions($user->id);
         $isSpacedRepetition = in_array($question->id, $srDueIds);
 
-        return view('practice', compact('question', 'progress', 'total', 'mode', 'progressPercent', 'totalInMode', 'currentInMode', 'difficultyInfo', 'isSpacedRepetition'));
+        return view('practice', compact('question', 'progress', 'progressOnce', 'progressTwice', 'total', 'mode', 'progressPercent', 'totalInMode', 'currentInMode', 'difficultyInfo', 'isSpacedRepetition'));
     }
 
     public function show(Request $request)
@@ -705,6 +707,8 @@ class PracticeController extends Controller
 
             $total = Question::count();
             $progress = UserQuestionProgress::countMastered($user->id);
+            $progressOnce = UserQuestionProgress::countAtLevel($user->id, 1);
+            $progressTwice = UserQuestionProgress::countAtLevel($user->id, 2);
 
             // Neue Fortschrittsbalken-Logik: Berücksichtigt auch 1x richtige Antworten
             $threshold = UserQuestionProgress::MASTERY_THRESHOLD;
@@ -736,7 +740,7 @@ class PracticeController extends Controller
         $serviceProgress = $this->practiceService->getProgress('global', null);
 
         return view('practice', compact(
-            'question', 'progress', 'total', 'mode', 'progressPercent',
+            'question', 'progress', 'progressOnce', 'progressTwice', 'total', 'mode', 'progressPercent',
             'totalInMode', 'currentInMode', 'difficultyInfo', 'isSpacedRepetition',
             'answerResult', 'gamificationResult'
         ) + [

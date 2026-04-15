@@ -119,5 +119,15 @@ class UserQuestionProgress extends Model
             ->where('consecutive_correct', '>=', self::MASTERY_THRESHOLD)
             ->count();
     }
+
+    /**
+     * Zähle Fragen mit genau X aufeinanderfolgenden richtigen Antworten
+     */
+    public static function countAtLevel(int $userId, int $level): int
+    {
+        return self::where('user_id', $userId)
+            ->where('consecutive_correct', $level)
+            ->count();
+    }
 }
 

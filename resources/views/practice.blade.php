@@ -1155,10 +1155,16 @@
                     <div class="practice-title">{{ $contextLabel ?? 'Theorie üben' }}</div>
                     <div class="practice-level-line">
                         <span>
-                            {{ $progress }}/{{ $total }} gemeistert &middot; {{ $progressPercent ?? 0 }}%
+                            <span style="opacity:0.75;">1× richtig: {{ $progressOnce ?? 0 }}</span>
+                            &middot;
+                            <span style="opacity:0.75;">2× richtig: {{ $progressTwice ?? 0 }}</span>
+                            &middot;
+                            {{ $progress }}/{{ $total }} gemeistert
+                            &middot;
+                            {{ $progressPercent ?? 0 }}%
                             <i class="bi bi-info-circle"
                                style="font-size:0.85rem; color: rgba(255,255,255,0.5); cursor: help; margin-left: 0.25rem;"
-                               title="Eine Frage gilt als gemeistert, wenn du sie 3× hintereinander richtig beantwortet hast. Der Prozentbalken steigt bereits bei der ersten richtigen Antwort."></i>
+                               title="Gemeistert = 3× hintereinander richtig beantwortet. Eine falsche Antwort setzt den Zähler zurück auf 0."></i>
                         </span>
                         <div class="practice-xp-bar">
                             <div class="practice-xp-fill" style="width: {{ $progressPercent ?? 0 }}%;"></div>
