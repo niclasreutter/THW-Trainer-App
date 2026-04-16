@@ -11,13 +11,17 @@
    Mobile-First, Fullscreen, Sliding Bubbles
    ============================================ */
 
+/* ── Footer während Prüfung ausblenden (alle Breakpoints) ─── */
+.exam-active-mode footer {
+    display: none !important;
+}
+
 /* ── Mobile: Fullscreen Takeover ─────────────── */
 @media (max-width: 640px) {
     html, body {
         height: 100dvh !important;
         overflow: hidden !important;
     }
-    .exam-active-mode footer,
     .exam-active-mode nav,
     .exam-active-mode header {
         display: none !important;
@@ -35,6 +39,17 @@
     max-width: 900px;
     margin: 0 auto;
     padding: 1.5rem;
+}
+
+@media (min-width: 641px) {
+    .exam-shell {
+        display: flex;
+        flex-direction: column;
+        min-height: calc(100vh - 4rem);
+    }
+    .exam-content {
+        flex: 1 0 auto;
+    }
 }
 
 @media (max-width: 640px) {
@@ -560,16 +575,23 @@ html.light-mode .exam-bottom-bar {
 }
 
 @media (min-width: 641px) {
+    .exam-shell {
+        padding-bottom: 0;
+    }
     .exam-bottom-bar {
-        background: transparent;
-        border-top: none;
-        padding: 0;
-        margin-top: 1rem;
+        position: sticky;
+        bottom: 0;
+        z-index: 50;
+        background: rgba(10, 10, 11, 0.75);
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
+        backdrop-filter: blur(20px) saturate(180%);
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 0.875rem 1.5rem;
+        margin: 1rem -1.5rem 0;
     }
     html.light-mode .exam-bottom-bar {
-        background: transparent;
-        border-top: none;
-        backdrop-filter: none;
+        background: rgba(243, 244, 246, 0.75);
+        border-top-color: rgba(0, 51, 127, 0.1);
     }
 }
 
