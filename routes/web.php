@@ -40,6 +40,37 @@ Route::get('/health', function () {
     ], $status === 'ok' ? 200 : 503);
 })->name('health');
 
+// Dev-Tool: Alle Cookies + Session leeren (nur Non-Production)
+if (!app()->environment('production')) {
+    Route::get('/dev/clear-cookies', function (Request $request) {
+        if (auth()->check()) {
+            auth()->logout();
+        }
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        $response = redirect()->route('login');
+
+        // Alle eingehenden Cookies mit verschiedenen Domain-Varianten löschen
+        $domains = [
+            config('session.domain'),           // z.B. .thw-trainer.de
+            ltrim(config('session.domain'), '.'), // z.B. thw-trainer.de
+            $request->getHost(),                // z.B. dev.thw-trainer.de
+            null,                               // ohne Domain
+        ];
+
+        foreach ($request->cookies->all() as $name => $value) {
+            foreach (array_unique($domains) as $domain) {
+                $response->headers->setCookie(
+                    \Symfony\Component\HttpFoundation\Cookie::create($name, '', 1, '/', $domain, false, false, false, 'Lax')
+                );
+            }
+        }
+
+        return $response;
+    })->name('dev.clear-cookies');
+}
+
 // robots.txt für App-Subdomain (blockiert Crawler)
 Route::get('/robots.txt', function () {
     $robotsContent = "User-agent: *
