@@ -64,6 +64,48 @@ class BookmarkController extends Controller
     }
     
     /**
+     * Mehrere Fragen auf einmal zu Lesezeichen hinzufügen
+     */
+    public function addMany(Request $request)
+    {
+        $user = Auth::user();
+        $questionIds = $request->input('question_ids', []);
+
+        if (!is_array($questionIds)) {
+            $questionIds = [];
+        }
+
+        $questionIds = array_values(array_unique(array_map('intval', $questionIds)));
+
+        $bookmarked = is_array($user->bookmarked_questions ?? null)
+            ? $user->bookmarked_questions
+            : json_decode($user->bookmarked_questions ?? '[]', true);
+
+        $before = count($bookmarked);
+        $merged = array_values(array_unique(array_merge($bookmarked, $questionIds)));
+        $added = count($merged) - $before;
+
+        $user->bookmarked_questions = $merged;
+        $user->save();
+
+        $message = $added > 0
+            ? ($added . ' Frage' . ($added === 1 ? '' : 'n') . ' zu Lesezeichen hinzugefügt')
+            : 'Alle Fragen bereits gespeichert';
+
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => $message,
+                'added' => $added,
+                'count' => count($merged),
+                'bookmarked_ids' => $merged,
+            ]);
+        }
+
+        return back()->with('success', $message);
+    }
+
+    /**
      * Gespeicherte Fragen üben
      */
     public function practice()
