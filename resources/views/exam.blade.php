@@ -1066,6 +1066,121 @@ html.light-mode .exam-result-btn--close {
 .exam-result-badge.correct { color: #22c55e; }
 .exam-result-badge.wrong { color: #ef4444; }
 
+/* ── Bookmark Button in Exam Review ─────────── */
+.exam-bookmark-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 0.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: all 0.2s ease;
+    cursor: pointer;
+    flex-shrink: 0;
+    padding: 0;
+}
+
+.exam-bookmark-btn svg {
+    width: 0.95rem;
+    height: 0.95rem;
+}
+
+.exam-bookmark-btn svg path {
+    stroke: rgba(255, 255, 255, 0.4);
+    fill: none;
+    transition: stroke 0.2s ease, fill 0.2s ease;
+}
+
+.exam-bookmark-btn:hover {
+    background: rgba(251, 191, 36, 0.1);
+    border-color: rgba(251, 191, 36, 0.3);
+}
+
+.exam-bookmark-btn:hover svg path {
+    stroke: #fbbf24;
+}
+
+.exam-bookmark-btn.active {
+    background: rgba(251, 191, 36, 0.15);
+    border-color: #fbbf24;
+}
+
+.exam-bookmark-btn.active svg path {
+    stroke: #fbbf24;
+    fill: #fbbf24;
+}
+
+.exam-bookmark-btn:disabled {
+    opacity: 0.5;
+    cursor: wait;
+}
+
+html.light-mode .exam-bookmark-btn {
+    background: rgba(0, 51, 127, 0.04);
+    border-color: rgba(0, 51, 127, 0.1);
+}
+
+html.light-mode .exam-bookmark-btn svg path {
+    stroke: rgba(0, 51, 127, 0.45);
+}
+
+html.light-mode .exam-bookmark-btn:hover {
+    background: rgba(217, 119, 6, 0.08);
+    border-color: rgba(217, 119, 6, 0.25);
+}
+
+html.light-mode .exam-bookmark-btn:hover svg path {
+    stroke: #d97706;
+}
+
+html.light-mode .exam-bookmark-btn.active {
+    background: rgba(217, 119, 6, 0.12);
+    border-color: #d97706;
+}
+
+html.light-mode .exam-bookmark-btn.active svg path {
+    stroke: #d97706;
+    fill: #d97706;
+}
+
+/* ── "Alle falschen Fragen merken" Button ───── */
+.exam-result-btn--save-wrong {
+    background: rgba(251, 191, 36, 0.08);
+    border: 1px solid rgba(251, 191, 36, 0.25);
+    color: #fbbf24;
+}
+
+.exam-result-btn--save-wrong:hover:not(.is-done):not(:disabled) {
+    background: rgba(251, 191, 36, 0.14);
+    border-color: rgba(251, 191, 36, 0.4);
+}
+
+.exam-result-btn--save-wrong.is-done {
+    background: rgba(34, 197, 94, 0.08);
+    border: 1px solid rgba(34, 197, 94, 0.2);
+    color: #22c55e;
+    cursor: default;
+}
+
+.exam-result-btn--save-wrong:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+html.light-mode .exam-result-btn--save-wrong {
+    background: rgba(217, 119, 6, 0.08);
+    border-color: rgba(217, 119, 6, 0.25);
+    color: #d97706;
+}
+
+html.light-mode .exam-result-btn--save-wrong.is-done {
+    background: rgba(22, 163, 74, 0.08);
+    border-color: rgba(22, 163, 74, 0.25);
+    color: #16a34a;
+}
+
 .exam-answer.result-correct {
     background: rgba(34, 197, 94, 0.12);
     border-color: rgba(34, 197, 94, 0.3);
@@ -1482,6 +1597,20 @@ updateTimer();
 {{-- ============================================
      RESULT MODE
      ============================================ --}}
+@php
+    $examUser = Auth::user();
+    $examBookmarked = $examUser
+        ? (is_array($examUser->bookmarked_questions ?? null)
+            ? $examUser->bookmarked_questions
+            : json_decode($examUser->bookmarked_questions ?? '[]', true))
+        : [];
+    $wrongQuestionIds = collect($results)
+        ->filter(fn($r) => !$r['isCorrect'])
+        ->map(fn($r) => $r['frage']->id)
+        ->values()
+        ->all();
+    $wrongNotYetBookmarked = array_values(array_diff($wrongQuestionIds, $examBookmarked));
+@endphp
 <div class="exam-shell exam-rise" id="exam-result-container">
     {{-- ── Result Topbar (Mobile — via CSS class statt inline style) --}}
     <div class="exam-topbar exam-topbar--result">
@@ -1597,6 +1726,20 @@ updateTimer();
                         <button class="exam-result-btn exam-result-btn--wrong" onclick="startReview('wrong')">
                             Nur falsche Fragen ({{ $total - $correctCount }})
                         </button>
+                        @auth
+                            @if(count($wrongNotYetBookmarked) > 0)
+                                <button type="button"
+                                        class="exam-result-btn exam-result-btn--save-wrong"
+                                        id="save-wrong-btn"
+                                        onclick="saveAllWrongQuestions(this)">
+                                    <span id="save-wrong-btn-label">Alle falschen Fragen merken ({{ count($wrongNotYetBookmarked) }})</span>
+                                </button>
+                            @else
+                                <div class="exam-result-btn exam-result-btn--save-wrong is-done" id="save-wrong-btn">
+                                    <span id="save-wrong-btn-label">Alle falschen Fragen sind gemerkt</span>
+                                </div>
+                            @endif
+                        @endauth
                     @endif
                     <a href="{{ route('exam.history') }}" class="exam-result-btn exam-result-btn--close">
                         Zur Prüfungshistorie
@@ -1608,12 +1751,31 @@ updateTimer();
         {{-- ── Review View (hidden initially) ───── --}}
         <div id="result-review" style="display: none;">
             @foreach($results as $index => $result)
+                @php
+                    $reviewQuestionId = $result['frage']->id;
+                    $reviewIsBookmarked = in_array($reviewQuestionId, $examBookmarked);
+                @endphp
                 <div class="exam-slide" data-review="{{ $index }}">
                     <div class="exam-question-card {{ $result['isCorrect'] ? 'result-correct' : 'result-wrong' }}">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem; gap: 0.5rem;">
                             <div class="exam-question-la">LA {{ $result['frage']->lernabschnitt ?? '-' }}.{{ $result['frage']->nummer ?? '-' }}</div>
-                            <div class="exam-result-badge {{ $result['isCorrect'] ? 'correct' : 'wrong' }}">
-                                {{ $result['isCorrect'] ? 'RICHTIG' : 'FALSCH' }}
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <div class="exam-result-badge {{ $result['isCorrect'] ? 'correct' : 'wrong' }}">
+                                    {{ $result['isCorrect'] ? 'RICHTIG' : 'FALSCH' }}
+                                </div>
+                                @auth
+                                <button type="button"
+                                        class="exam-bookmark-btn {{ $reviewIsBookmarked ? 'active' : '' }}"
+                                        data-bookmark-btn="{{ $reviewQuestionId }}"
+                                        data-bookmarked="{{ $reviewIsBookmarked ? 'true' : 'false' }}"
+                                        onclick="toggleExamBookmark({{ $reviewQuestionId }}, this)"
+                                        title="Frage merken">
+                                    <svg viewBox="0 0 20 20" aria-hidden="true">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                              d="M5 5a2 2 0 012-2h6a2 2 0 012 2v10l-5-3-5 3V5z"></path>
+                                    </svg>
+                                </button>
+                                @endauth
                             </div>
                         </div>
                         <div class="exam-question-text">{{ $result['frage']->frage }}</div>
@@ -1809,6 +1971,127 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 100);
     }
 });
+
+// ── Bookmark Handling in Result Review ───────
+@auth
+(function() {
+    var csrfToken = document.querySelector('meta[name="csrf-token"]');
+    csrfToken = csrfToken ? csrfToken.getAttribute('content') : '';
+
+    // IDs der falschen Fragen für Bulk-Action
+    var wrongQuestionIds = @json($wrongQuestionIds);
+
+    window.toggleExamBookmark = function(questionId, btn) {
+        if (!btn || btn.disabled) return;
+
+        var formData = new FormData();
+        formData.append('question_id', questionId);
+        formData.append('_token', csrfToken);
+
+        btn.disabled = true;
+
+        fetch('{{ route("bookmarks.toggle") }}', {
+            method: 'POST',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            body: formData
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (!data || !data.success) return;
+            updateBookmarkButtons(questionId, data.is_bookmarked);
+            refreshSaveWrongButton();
+        })
+        .catch(function(err) { console.error('Bookmark error:', err); })
+        .finally(function() { btn.disabled = false; });
+    };
+
+    window.saveAllWrongQuestions = function(btn) {
+        if (!btn || btn.disabled || btn.classList.contains('is-done')) return;
+
+        // Finde alle noch nicht gespeicherten falschen Fragen aus dem aktuellen DOM-Status
+        var pending = wrongQuestionIds.filter(function(id) {
+            var el = document.querySelector('[data-bookmark-btn="' + id + '"]');
+            return el && el.getAttribute('data-bookmarked') !== 'true';
+        });
+
+        if (pending.length === 0) {
+            markSaveWrongDone(0);
+            return;
+        }
+
+        var formData = new FormData();
+        pending.forEach(function(id) { formData.append('question_ids[]', id); });
+        formData.append('_token', csrfToken);
+
+        btn.disabled = true;
+        var label = document.getElementById('save-wrong-btn-label');
+        var originalText = label ? label.textContent : '';
+        if (label) label.textContent = 'Speichere \u2026';
+
+        fetch('{{ route("bookmarks.addMany") }}', {
+            method: 'POST',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            body: formData
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (!data || !data.success) {
+                if (label) label.textContent = originalText;
+                btn.disabled = false;
+                return;
+            }
+            pending.forEach(function(id) { updateBookmarkButtons(id, true); });
+            markSaveWrongDone(data.added || pending.length);
+        })
+        .catch(function(err) {
+            console.error('Bulk bookmark error:', err);
+            if (label) label.textContent = originalText;
+            btn.disabled = false;
+        });
+    };
+
+    function updateBookmarkButtons(questionId, isBookmarked) {
+        var buttons = document.querySelectorAll('[data-bookmark-btn="' + questionId + '"]');
+        buttons.forEach(function(b) {
+            b.setAttribute('data-bookmarked', isBookmarked ? 'true' : 'false');
+            b.classList.toggle('active', !!isBookmarked);
+        });
+    }
+
+    function refreshSaveWrongButton() {
+        var btn = document.getElementById('save-wrong-btn');
+        if (!btn) return;
+        var label = document.getElementById('save-wrong-btn-label');
+        if (!label) return;
+
+        var pending = wrongQuestionIds.filter(function(id) {
+            var el = document.querySelector('[data-bookmark-btn="' + id + '"]');
+            return el && el.getAttribute('data-bookmarked') !== 'true';
+        });
+
+        if (pending.length === 0) {
+            markSaveWrongDone(0);
+        } else {
+            btn.classList.remove('is-done');
+            btn.disabled = false;
+            label.textContent = 'Alle falschen Fragen merken (' + pending.length + ')';
+        }
+    }
+
+    function markSaveWrongDone(addedCount) {
+        var btn = document.getElementById('save-wrong-btn');
+        if (!btn) return;
+        var label = document.getElementById('save-wrong-btn-label');
+        btn.classList.add('is-done');
+        btn.disabled = true;
+        if (label) {
+            label.textContent = addedCount > 0
+                ? 'Gespeichert (' + addedCount + ')'
+                : 'Alle falschen Fragen sind gemerkt';
+        }
+    }
+})();
+@endauth
 </script>
 @endpush
 

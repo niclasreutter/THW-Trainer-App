@@ -496,6 +496,7 @@ Route::middleware('auth')->group(function () {
     // Bookmark Routes
     Route::get('/bookmarks', [\App\Http\Controllers\BookmarkController::class, 'index'])->name('bookmarks.index');
     Route::post('/bookmarks/toggle', [\App\Http\Controllers\BookmarkController::class, 'toggle'])->name('bookmarks.toggle');
+    Route::post('/bookmarks/add-many', [\App\Http\Controllers\BookmarkController::class, 'addMany'])->name('bookmarks.addMany');
     Route::get('/bookmarks/practice', [\App\Http\Controllers\BookmarkController::class, 'practice'])->name('bookmarks.practice');
     
     // Gamification Routes
