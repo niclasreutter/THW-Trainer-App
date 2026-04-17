@@ -7,6 +7,12 @@ Versionierung: [Semantic Versioning](https://semver.org/lang/de/)
 
 ## [Unreleased]
 
+## [1.0.2] - 2026-04-17
+
+### Intern
+
+- Dev (#459, @niclasreutter)
+
 ## [1.0.1] - 2026-04-17
 
 ### Intern
@@ -108,5 +114,6 @@ Erste offizielle Version. Bündelt die bisherige Entwicklungshistorie
 
 (~15 sonstige PRs zusammengefasst)
 
+[1.0.2]: https://github.com/niclasreutter/THW-Trainer-App/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/niclasreutter/THW-Trainer-App/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/niclasreutter/THW-Trainer-App/commits/main
