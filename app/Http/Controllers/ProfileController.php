@@ -136,6 +136,23 @@ class ProfileController extends Controller
     }
 
     /**
+     * Update the user's extras_enabled setting (toggle for Zusatz-Fragen).
+     */
+    public function updateExtrasEnabled(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'extras_enabled' => ['nullable', 'boolean'],
+        ]);
+
+        $user = $request->user();
+        $user->extras_enabled = $request->boolean('extras_enabled');
+        $user->save();
+
+        return Redirect::route('profile')
+            ->with('status', 'extras-enabled-updated');
+    }
+
+    /**
      * Dismiss the leaderboard banner and optionally opt-in.
      */
     public function dismissLeaderboardBanner(Request $request): RedirectResponse
