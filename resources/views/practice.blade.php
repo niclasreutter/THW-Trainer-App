@@ -1267,6 +1267,7 @@
             <form method="POST" action="{{ $submitUrl ?? route('practice.submit') }}" id="practiceForm">
                 @csrf
                 <input type="hidden" name="question_id" value="{{ $question->id }}">
+                <input type="hidden" name="question_kind" value="{{ ($question instanceof \App\Models\ExtraQuestion) ? 'extra' : 'official' }}">
                 <input type="hidden" name="answer_time_ms" id="answerTimeMs" value="0">
 
                 @if(!isset($question->typ) || $question->typ === 'multiple_choice' || !($question instanceof \App\Models\ExtraQuestion))

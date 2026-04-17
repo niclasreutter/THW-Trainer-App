@@ -8,6 +8,8 @@ use App\Models\QuestionIssue;
 use App\Models\QuestionIssueReport;
 use App\Models\QuestionStatistic;
 use App\Models\UserQuestionProgress;
+use App\Models\ExtraQuestion;
+use App\Services\ExtraQuestionService;
 use App\Services\GamificationService;
 use App\Services\PracticeSessionService;
 use App\Services\ProgressResolvers\GlobalProgressResolver;
@@ -777,6 +779,13 @@ class PracticeController extends Controller
 
     public function submit(Request $request)
     {
+        // Zusatz-Fragen (matching, image_name, image_select) haben einen eigenen
+        // Submit-Pfad. Detektion: explizites Hidden-Field `question_kind` = "extra".
+        // (Existiert kein Field oder Wert "official", greift der klassische MC-Flow.)
+        if ($request->input('question_kind') === 'extra') {
+            return $this->submitExtra($request);
+        }
+
         $question = Question::findOrFail($request->question_id);
 
         // Hole das Mapping aus dem Hidden Field
@@ -883,6 +892,139 @@ class PracticeController extends Controller
 
         // WICHTIG: Immer redirect machen (Post/Redirect/Get Pattern)
         return redirect()->route('practice.index');
+    }
+
+    /**
+     * Submit-Handler für Zusatz-Fragen (matching, image_name, image_select).
+     *
+     * Detektion erfolgt in submit() via Hidden-Field `question_kind=extra`.
+     * Progress + SR werden via ExtraQuestionService::updateProgress aktualisiert.
+     * Korrektheits-Regel (strict):
+     *  - matching: ALLE Items müssen korrekt zugeordnet sein
+     *  - image_name / image_select: Submitted-Set === Korrekt-Set
+     */
+    public function submitExtra(Request $request)
+    {
+        // Basis-Validierung
+        $validated = $request->validate([
+            'question_id' => ['required', 'integer', 'exists:extra_questions,id'],
+        ]);
+
+        $extra = ExtraQuestion::with(['options', 'matchItems', 'matchCategories'])
+            ->findOrFail($validated['question_id']);
+
+        // Typ-spezifische Validierung + Correctness
+        $submittedAssignments = null;
+        $userAnswerIds = null;
+
+        if ($extra->typ === ExtraQuestion::TYP_MATCHING) {
+            $request->validate([
+                'assignments' => ['required', 'string', 'json'],
+            ]);
+            $submittedAssignments = json_decode($request->input('assignments'), true) ?: [];
+            $isCorrect = $this->validateMatching($extra, $submittedAssignments);
+        } else {
+            // image_name + image_select
+            $request->validate([
+                'answer' => ['required', 'array', 'min:1'],
+                'answer.*' => ['integer', 'exists:extra_question_options,id'],
+            ]);
+            $userAnswerIds = array_map('intval', (array) $request->input('answer', []));
+            $isCorrect = $this->validateOptionIds($extra, $userAnswerIds);
+        }
+
+        $user = $request->user();
+
+        // Progress + SR via Service
+        $extraService = app(ExtraQuestionService::class);
+        $progress = $extraService->updateProgress($user, $extra, $isCorrect);
+
+        // AnswerResult für das Result-Rendering im Partial bereitstellen
+        $answerResult = [
+            'question_id' => $extra->id,
+            'question_kind' => 'extra',
+            'question_typ' => $extra->typ,
+            'is_correct' => $isCorrect,
+            'consecutive_correct' => $progress->consecutive_correct,
+            'mastered' => $progress->isMastered(),
+        ];
+
+        if ($submittedAssignments !== null) {
+            $answerResult['assignments'] = $submittedAssignments;
+        }
+        if ($userAnswerIds !== null) {
+            $answerResult['user_answer'] = $userAnswerIds;
+        }
+
+        // In Session ablegen (analog zum MC-Flow, gleicher Prefix "practice_")
+        session([
+            'practice_answer_result' => $answerResult,
+        ]);
+
+        // Lernsession-Tracking (XP: 0, Service hat für Extras noch kein eigenes Gamification-Hook)
+        $lernsessionService = app(\App\Services\LernsessionService::class);
+        $sessionParticipant = $lernsessionService->isUserInActiveSession($user);
+        if ($sessionParticipant) {
+            $answerTimeMs = (int) $request->input('answer_time_ms', 0);
+            $lernsessionService->recordAnswer($sessionParticipant, $isCorrect, $answerTimeMs, 0);
+        }
+
+        return redirect()->route('practice.index');
+    }
+
+    /**
+     * Validiert eine Matching-Frage (strict: alle Items müssen korrekt sein).
+     *
+     * @param array<int|string, int|string|null> $submitted  [itemId => categoryId, ...]
+     */
+    private function validateMatching(ExtraQuestion $extra, array $submitted): bool
+    {
+        $items = $extra->matchItems;
+        if ($items->isEmpty()) {
+            return false;
+        }
+
+        foreach ($items as $item) {
+            $submittedCat = $submitted[$item->id] ?? $submitted[(string) $item->id] ?? null;
+            if ($submittedCat === null) {
+                return false;
+            }
+            if ((int) $submittedCat !== (int) $item->correct_category_id) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Validiert eine Option-basierte Frage (image_name, image_select).
+     * Strict-Match: Submitted-Set muss exakt dem Korrekt-Set entsprechen.
+     *
+     * @param array<int> $submittedIds
+     */
+    private function validateOptionIds(ExtraQuestion $extra, array $submittedIds): bool
+    {
+        $correctIds = $extra->options
+            ->where('is_correct', true)
+            ->pluck('id')
+            ->map(fn ($id) => (int) $id)
+            ->sort()
+            ->values()
+            ->toArray();
+
+        if (empty($correctIds)) {
+            return false;
+        }
+
+        $submitted = collect($submittedIds)
+            ->map(fn ($id) => (int) $id)
+            ->unique()
+            ->sort()
+            ->values()
+            ->toArray();
+
+        return $submitted === $correctIds;
     }
 
     /**
