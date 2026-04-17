@@ -762,14 +762,12 @@ html.light-mode .exam-btn--mark {
 /* ── Animations ──────────────────────────── */
 .exam-rise {
     opacity: 0;
-    transform: translateY(12px);
     animation: examRise 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 @keyframes examRise {
     to {
         opacity: 1;
-        transform: translateY(0);
     }
 }
 
