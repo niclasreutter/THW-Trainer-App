@@ -43,12 +43,7 @@
 
 @media (min-width: 641px) {
     .exam-shell {
-        display: flex;
-        flex-direction: column;
-        min-height: calc(100vh - 4rem);
-    }
-    .exam-content {
-        flex: 1 0 auto;
+        padding-bottom: 9rem;
     }
 }
 
@@ -575,23 +570,30 @@ html.light-mode .exam-bottom-bar {
 }
 
 @media (min-width: 641px) {
-    .exam-shell {
-        padding-bottom: 0;
-    }
     .exam-bottom-bar {
-        position: sticky;
+        position: fixed;
         bottom: 0;
+        left: 0;
+        right: 0;
         z-index: 50;
-        background: rgba(10, 10, 11, 0.75);
+        background: rgba(10, 10, 11, 0.85);
         -webkit-backdrop-filter: blur(20px) saturate(180%);
         backdrop-filter: blur(20px) saturate(180%);
         border-top: 1px solid rgba(255, 255, 255, 0.08);
         padding: 0.875rem 1.5rem;
-        margin: 1rem -1.5rem 0;
     }
     html.light-mode .exam-bottom-bar {
-        background: rgba(243, 244, 246, 0.75);
+        background: rgba(243, 244, 246, 0.85);
         border-top-color: rgba(0, 51, 127, 0.1);
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
+        backdrop-filter: blur(20px) saturate(180%);
+    }
+}
+
+/* Sidebar ist ab lg: (1024px) aktiv → left anpassen */
+@media (min-width: 1024px) {
+    .exam-bottom-bar {
+        left: 264px;
     }
 }
 
@@ -760,14 +762,12 @@ html.light-mode .exam-btn--mark {
 /* ── Animations ──────────────────────────── */
 .exam-rise {
     opacity: 0;
-    transform: translateY(12px);
     animation: examRise 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 @keyframes examRise {
     to {
         opacity: 1;
-        transform: translateY(0);
     }
 }
 
