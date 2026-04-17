@@ -1281,6 +1281,32 @@
                         'isGuest' => $isGuest ?? false,
                         'questionProgress' => $questionProgress ?? null,
                     ])
+                @elseif($question->typ === 'matching')
+                    @include('practice.partials.question-matching', [
+                        'question' => $question,
+                        'isCorrect' => $isCorrect ?? null,
+                        'answerResult' => $answerResult ?? null,
+                        'isSpacedRepetition' => $isSpacedRepetition ?? false,
+                        'difficultyInfo' => $difficultyInfo ?? null,
+                    ])
+                @elseif($question->typ === 'image_name')
+                    @include('practice.partials.question-image-name', [
+                        'question' => $question,
+                        'isCorrect' => $isCorrect ?? null,
+                        'answerResult' => $answerResult ?? null,
+                        'userAnswer' => $userAnswer ?? null,
+                        'isSpacedRepetition' => $isSpacedRepetition ?? false,
+                        'difficultyInfo' => $difficultyInfo ?? null,
+                    ])
+                @elseif($question->typ === 'image_select')
+                    @include('practice.partials.question-image-select', [
+                        'question' => $question,
+                        'isCorrect' => $isCorrect ?? null,
+                        'answerResult' => $answerResult ?? null,
+                        'userAnswer' => $userAnswer ?? null,
+                        'isSpacedRepetition' => $isSpacedRepetition ?? false,
+                        'difficultyInfo' => $difficultyInfo ?? null,
+                    ])
                 @endif
 
                 <!-- Actions -->
