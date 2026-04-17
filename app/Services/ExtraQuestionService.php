@@ -111,7 +111,8 @@ class ExtraQuestionService
         $interval = min($interval, 90);
 
         $progress->consecutive_correct = $consecutive;
-        $progress->easiness_factor = round($ef, 2);
+        // Auf 1 Nachkommastelle runden — analog zu SpacedRepetitionService (Konsistenz)
+        $progress->easiness_factor = round($ef, 1);
         $progress->review_interval = $interval;
         $progress->repetition_count = $repetition;
         $progress->last_answered_at = now();
@@ -153,8 +154,9 @@ class ExtraQuestionService
     }
 
     /**
-     * Merged zwei Queues (official + extras) im Verhältnis 4:1.
-     * Jede 5. Position ist ein Extra (falls vorhanden).
+     * Merged zwei Queues (official + extras) im Verhältnis 1:4 (≈20% Extras).
+     * Nach jeder 4. offiziellen Frage wird eine Extra-Frage eingeschoben — somit
+     * ist jede 5. Position insgesamt ein Extra.
      *
      * @param array<int> $officialIds  IDs aus questions-Tabelle
      * @param array<int> $extraIds     IDs aus extra_questions-Tabelle
@@ -202,10 +204,11 @@ class ExtraQuestionService
 
     private function getInProgressQuestionIds(User $user, $query): array
     {
+        // Alle nicht-gemeisterten Fragen mit Progress-Row (inkl. consecutive_correct=0
+        // nach falscher Antwort). Dedup via unique() in buildQueue() deckt Overlap mit Due ab.
         return $query->whereHas('userProgress', function ($q) use ($user) {
             $q->where('user_id', $user->id)
-              ->where('consecutive_correct', '<', UserExtraQuestionProgress::MASTERY_THRESHOLD)
-              ->where('consecutive_correct', '>', 0);
+              ->where('consecutive_correct', '<', UserExtraQuestionProgress::MASTERY_THRESHOLD);
         })->pluck('id')->toArray();
     }
 }
