@@ -40,6 +40,90 @@ Route::get('/health', function () {
     ], $status === 'ok' ? 200 : 503);
 })->name('health');
 
+// Dev-Tool: Alle Cookies + Session leeren (nur Non-Production)
+if (!app()->environment('production')) {
+    Route::get('/dev/clear-cookies', function (Request $request) {
+        $cookiesBefore = array_keys($request->cookies->all());
+
+        // Logout + Session komplett zerstören
+        if (auth()->check()) {
+            auth()->logout();
+        }
+        $request->session()->flush();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        // Alle möglichen Domain-Varianten aufbauen
+        // Ziel: Cookies für Parent-Domains (z.B. .thw-trainer.de von Landing)
+        // UND aktuelles Host löschen - browser matcht auf (name, domain, path)
+        $host = $request->getHost();
+        $parts = explode('.', $host);
+        $domains = [$host, null];
+
+        // Alle Parent-Domain-Varianten: app.dev.thw-trainer.de
+        //  -> dev.thw-trainer.de, .dev.thw-trainer.de
+        //  -> thw-trainer.de,     .thw-trainer.de
+        for ($i = 1; $i < count($parts) - 1; $i++) {
+            $parent = implode('.', array_slice($parts, $i));
+            $domains[] = $parent;
+            $domains[] = '.' . $parent;
+        }
+
+        // Aus Config/Env zusätzliche Varianten
+        if ($sd = config('session.domain')) {
+            $domains[] = $sd;
+            $domains[] = ltrim($sd, '.');
+            $domains[] = '.' . ltrim($sd, '.');
+        }
+        $ld = env('LANDING_DOMAIN', 'thw-trainer.de');
+        $domains[] = $ld;
+        $domains[] = '.' . $ld;
+
+        $domains = array_values(array_unique($domains));
+        $secure = $request->isSecure();
+        $paths = ['/', ''];
+
+        $headers = [];
+        foreach ($cookiesBefore as $name) {
+            foreach ($domains as $domain) {
+                foreach ($paths as $path) {
+                    // Zwei Varianten: secure + non-secure, da manche Browser
+                    // Secure-Cookies nur mit Secure-Set-Cookie überschreiben
+                    foreach ([$secure, false] as $sec) {
+                        $cookie = new \Symfony\Component\HttpFoundation\Cookie(
+                            $name, '', 1, $path ?: '/', $domain, $sec, false, false, 'Lax'
+                        );
+                        $headers[] = $cookie;
+                    }
+                }
+            }
+        }
+
+        // Debug-Modus: zeigt welche Cookies versucht wurden zu löschen
+        if ($request->boolean('debug')) {
+            $html = '<html><body style="font-family:monospace;background:#0a0a0b;color:#f5f5f5;padding:2rem;">';
+            $html .= '<h1>Cookie Clear Debug</h1>';
+            $html .= '<p><b>Host:</b> ' . e($host) . '</p>';
+            $html .= '<p><b>Secure:</b> ' . ($secure ? 'yes' : 'no') . '</p>';
+            $html .= '<p><b>session.domain:</b> ' . e(config('session.domain') ?? 'null') . '</p>';
+            $html .= '<p><b>Domains getestet:</b><br>' . implode('<br>', array_map(fn($d) => e($d ?? '(null)'), $domains)) . '</p>';
+            $html .= '<p><b>Cookies empfangen (' . count($cookiesBefore) . '):</b><br>' . implode('<br>', array_map('e', $cookiesBefore)) . '</p>';
+            $html .= '<p><b>Set-Cookie Headers:</b> ' . count($headers) . ' gesendet</p>';
+            $html .= '<p><a href="' . route('login') . '" style="color:#60a5fa;">&rarr; Weiter zu /login</a></p>';
+            $html .= '</body></html>';
+            $response = response($html);
+        } else {
+            $response = redirect()->route('login');
+        }
+
+        foreach ($headers as $c) {
+            $response->headers->setCookie($c);
+        }
+
+        return $response;
+    })->name('dev.clear-cookies');
+}
+
 // robots.txt für App-Subdomain (blockiert Crawler)
 Route::get('/robots.txt', function () {
     $robotsContent = "User-agent: *
@@ -412,6 +496,7 @@ Route::middleware('auth')->group(function () {
     // Bookmark Routes
     Route::get('/bookmarks', [\App\Http\Controllers\BookmarkController::class, 'index'])->name('bookmarks.index');
     Route::post('/bookmarks/toggle', [\App\Http\Controllers\BookmarkController::class, 'toggle'])->name('bookmarks.toggle');
+    Route::post('/bookmarks/add-many', [\App\Http\Controllers\BookmarkController::class, 'addMany'])->name('bookmarks.addMany');
     Route::get('/bookmarks/practice', [\App\Http\Controllers\BookmarkController::class, 'practice'])->name('bookmarks.practice');
     
     // Gamification Routes

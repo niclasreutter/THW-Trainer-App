@@ -177,6 +177,18 @@
             <div class="auth-switch-link">
                 Noch kein Konto? <a href="{{ route('register') }}">Jetzt registrieren</a>
             </div>
+
+            @if(!app()->isProduction())
+            <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid rgba(239,68,68,0.2); text-align: center;">
+                <span style="display: block; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.08em; color: rgba(239,68,68,0.5); text-transform: uppercase; margin-bottom: 0.5rem;">Dev-Tools</span>
+                <a href="{{ route('dev.clear-cookies') }}"
+                    style="display: inline-block; font-size: 0.78rem; padding: 0.35rem 0.9rem; background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25); color: rgba(239,68,68,0.7); border-radius: 6px; cursor: pointer; text-decoration: none; transition: all 0.2s;"
+                    onmouseover="this.style.background='rgba(239,68,68,0.15)'; this.style.color='rgba(239,68,68,0.95)'"
+                    onmouseout="this.style.background='rgba(239,68,68,0.08)'; this.style.color='rgba(239,68,68,0.7)'">
+                    Cookies leeren &amp; neu laden
+                </a>
+            </div>
+            @endif
         </div>
     </div>
 </div>

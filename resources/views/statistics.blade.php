@@ -103,9 +103,11 @@
                                 $isToday = $date === now()->format('Y-m-d');
                             @endphp
                             <div class="activity-bar__col">
-                                <span class="activity-bar__count">{{ $count ?: '' }}</span>
-                                <div class="activity-bar__fill {{ $isToday ? 'activity-bar__fill--today' : ($count === 0 ? 'activity-bar__fill--empty' : '') }}"
-                                     style="height: {{ $count > 0 ? $heightPct : 8 }}%;"></div>
+                                <div class="activity-bar__track">
+                                    <span class="activity-bar__count">{{ $count ?: '' }}</span>
+                                    <div class="activity-bar__fill {{ $isToday ? 'activity-bar__fill--today' : ($count === 0 ? 'activity-bar__fill--empty' : '') }}"
+                                         style="height: {{ $count > 0 ? $heightPct : 8 }}%;"></div>
+                                </div>
                                 <span class="activity-bar__day {{ $isToday ? 'activity-bar__day--today' : '' }}">
                                     {{ $days[$d] }}
                                 </span>

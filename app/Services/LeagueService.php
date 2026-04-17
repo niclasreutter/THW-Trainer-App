@@ -127,6 +127,10 @@ class LeagueService
      */
     public function getLeagueLeaderboard(string $league): \Illuminate\Support\Collection
     {
+        // Sicherheitsnetz: Stale weekly_points der Vorwoche auf 0 zuruecksetzen,
+        // falls der Weekly-Cron noch nicht gelaufen ist oder User nicht aktiv waren.
+        $this->resetStaleWeeklyPoints();
+
         return User::where('leaderboard_consent', true)
             ->where('league', $league)
             ->where('weekly_points', '>', 0)
@@ -139,6 +143,24 @@ class LeagueService
                 'profile_frame_until', 'profile_frame_type',
                 'rank_color', 'rank_color_until',
                 'active_title', 'active_title_until',
+            ]);
+    }
+
+    /**
+     * Setzt weekly_points aller User zurück, deren letzter Wochen-Reset
+     * vor Beginn der aktuellen Woche liegt (oder nie stattfand).
+     */
+    public function resetStaleWeeklyPoints(): int
+    {
+        $startOfWeek = Carbon::now()->startOfWeek(Carbon::MONDAY);
+
+        return User::where(function ($query) use ($startOfWeek) {
+                $query->whereNull('weekly_reset_at')
+                    ->orWhere('weekly_reset_at', '<', $startOfWeek);
+            })
+            ->update([
+                'weekly_points' => 0,
+                'weekly_reset_at' => $startOfWeek,
             ]);
     }
 
@@ -258,6 +280,14 @@ class LeagueService
                 }
             }
         }
+
+        // Nach Auf-/Abstiegen und Lootbox-Vergabe: weekly_points aller User zuruecksetzen,
+        // damit inaktive User in der neuen Woche nicht mit altem Score im Leaderboard stehen.
+        $startOfWeek = Carbon::now()->startOfWeek(Carbon::MONDAY);
+        User::query()->update([
+            'weekly_points' => 0,
+            'weekly_reset_at' => $startOfWeek,
+        ]);
 
         Log::info('Wöchentliche Liga-Verarbeitung abgeschlossen', $results);
 

@@ -145,6 +145,28 @@
         gap: 0.375rem;
     }
 
+    /* ── Mobile Fortschritts-Stufen ──────────────── */
+    .practice-mobile-progress {
+        display: none;
+    }
+
+    @media (max-width: 640px) {
+        .practice-mobile-progress {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.375rem 0.5rem;
+            align-items: center;
+            padding: 0.5rem 1rem 0.25rem;
+            font-size: 0.6875rem;
+            font-weight: 600;
+            color: #5b9aff;
+        }
+        html.light-mode .practice-mobile-progress { color: #00337F; }
+        .practice-mobile-progress .pmp-item { opacity: 0.75; }
+        .practice-mobile-progress .pmp-mastered { opacity: 1; }
+        .practice-mobile-progress .pmp-sep { opacity: 0.35; }
+    }
+
     /* ── Desktop Header ──────────────────────────── */
     .practice-header {
         margin-bottom: 1.25rem;
@@ -1092,7 +1114,8 @@
             </a>
 
             <div class="topbar-center">
-                <span class="topbar-progress-text">{{ $progress }}/{{ $total }}</span>
+                <span class="topbar-progress-text"
+                      title="Gemeisterte Fragen: 3× in Folge richtig beantwortet. Der Fortschrittsring wächst bereits bei der ersten richtigen Antwort.">{{ $progress }}/{{ $total }}</span>
                 <svg class="topbar-progress-ring" viewBox="0 0 36 36">
                     <circle class="ring-track" cx="18" cy="18" r="14" fill="none" stroke-width="3"/>
                     <circle class="ring-fill" cx="18" cy="18" r="14" fill="none"
@@ -1128,6 +1151,19 @@
             </div>
         </div>
 
+        <!-- Mobile Fortschritts-Stufen -->
+        <div class="practice-mobile-progress">
+            @if(($progressOnce ?? 0) > 0)
+                <span class="pmp-item">1× richtig: {{ $progressOnce }}</span>
+                <span class="pmp-sep">&middot;</span>
+            @endif
+            @if(($progressTwice ?? 0) > 0)
+                <span class="pmp-item">2× richtig: {{ $progressTwice }}</span>
+                <span class="pmp-sep">&middot;</span>
+            @endif
+            <span class="pmp-mastered">{{ $progress ?? 0 }}/{{ $total ?? 0 }} gemeistert</span>
+        </div>
+
         <!-- Desktop Header -->
         <div class="practice-header">
             <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;">
@@ -1153,7 +1189,22 @@
                     </div>
                     <div class="practice-title">{{ $contextLabel ?? 'Theorie üben' }}</div>
                     <div class="practice-level-line">
-                        <span>{{ $progress }}/{{ $total }} gemeistert &middot; {{ $progressPercent ?? 0 }}%</span>
+                        <span>
+                            @if(($progressOnce ?? 0) > 0)
+                                <span style="opacity:0.75;">1× richtig: {{ $progressOnce }}</span>
+                                &middot;
+                            @endif
+                            @if(($progressTwice ?? 0) > 0)
+                                <span style="opacity:0.75;">2× richtig: {{ $progressTwice }}</span>
+                                &middot;
+                            @endif
+                            {{ $progress }}/{{ $total }} gemeistert
+                            &middot;
+                            {{ $progressPercent ?? 0 }}%
+                            <i class="bi bi-info-circle"
+                               style="font-size:0.85rem; color: rgba(255,255,255,0.5); cursor: help; margin-left: 0.25rem;"
+                               title="Gemeistert = 3× hintereinander richtig beantwortet. Eine falsche Antwort setzt den Zähler zurück auf 0."></i>
+                        </span>
                         <div class="practice-xp-bar">
                             <div class="practice-xp-fill" style="width: {{ $progressPercent ?? 0 }}%;"></div>
                         </div>
