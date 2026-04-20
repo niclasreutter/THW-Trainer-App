@@ -10,6 +10,7 @@ class ExtraQuestionOption extends Model
         'extra_question_id',
         'text',
         'image_path',
+        'image_source',
         'is_correct',
         'sort_order',
     ];
