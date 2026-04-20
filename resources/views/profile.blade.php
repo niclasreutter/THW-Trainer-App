@@ -705,7 +705,7 @@
         </div>
 
         {{-- ── Zusatz-Fragen ── --}}
-        <div class="glass p-4" style="border-radius:0.75rem;">
+        <div id="extras-enabled" class="glass p-4" style="border-radius:0.75rem;scroll-margin-top:5rem;">
             <div style="margin-bottom:0.75rem;">
                 <span class="text-xs uppercase tracking-wider" style="color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:0.5625rem;font-weight:700;">Zusatz-Fragen</span>
             </div>
