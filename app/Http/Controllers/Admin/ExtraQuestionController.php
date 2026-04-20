@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\ExtraQuestion;
+use App\Models\Question;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -49,7 +50,9 @@ class ExtraQuestionController extends Controller
             $typ = null;
         }
 
-        return view('admin.extra-questions.create', compact('typ'));
+        $sections = $this->buildLernabschnitte();
+
+        return view('admin.extra-questions.create', compact('typ', 'sections'));
     }
 
     public function store(Request $request)
@@ -85,7 +88,12 @@ class ExtraQuestionController extends Controller
 
         $extra_question->load(['options', 'matchCategories', 'matchItems.correctCategory']);
 
-        return view('admin.extra-questions.edit', ['question' => $extra_question]);
+        $sections = $this->buildLernabschnitte($extra_question->lernabschnitt);
+
+        return view('admin.extra-questions.edit', [
+            'question' => $extra_question,
+            'sections' => $sections,
+        ]);
     }
 
     public function update(Request $request, ExtraQuestion $extra_question)
@@ -160,6 +168,80 @@ class ExtraQuestionController extends Controller
     }
 
     // ----------------- Helpers -----------------
+
+    /**
+     * Offizielle THW-Lernabschnittsnamen (2022).
+     */
+    private const SECTION_NAMES = [
+        1 => 'Das THW im Gefüge des Zivil- und Katastrophenschutzes',
+        2 => 'Arbeitssicherheit und Gesundheitsschutz',
+        3 => 'Arbeiten mit Leinen, Drahtseilen, Ketten, Rund- und Bandschlingen',
+        4 => 'Arbeiten mit Leitern',
+        5 => 'Stromerzeugung und Beleuchtung',
+        6 => 'Metall-, Holz- und Steinbearbeitung',
+        7 => 'Bewegen von Lasten',
+        8 => 'Arbeiten am und auf dem Wasser',
+        9 => 'Einsatzgrundlagen',
+        10 => 'Grundlagen der Rettung und Bergung',
+    ];
+
+    /**
+     * Baut die Lernabschnitt-Auswahl aus der DB:
+     * distinct-Werte aus questions + extra_questions, optional ergänzt um einen
+     * evtl. vorhandenen custom-Wert (z.B. beim Edit).
+     *
+     * @return array<string, string>  value → label
+     */
+    private function buildLernabschnitte(?string $includeValue = null): array
+    {
+        $fromQuestions = Question::query()
+            ->select('lernabschnitt')
+            ->distinct()
+            ->pluck('lernabschnitt');
+
+        $fromExtra = ExtraQuestion::query()
+            ->select('lernabschnitt')
+            ->distinct()
+            ->pluck('lernabschnitt');
+
+        $values = $fromQuestions->merge($fromExtra)
+            ->filter(fn ($v) => $v !== null && $v !== '')
+            ->map(fn ($v) => (string) $v)
+            ->unique()
+            ->values()
+            ->all();
+
+        if ($includeValue !== null && $includeValue !== '' && !in_array($includeValue, $values, true)) {
+            $values[] = $includeValue;
+        }
+
+        usort($values, function ($a, $b) {
+            $aNum = is_numeric($a);
+            $bNum = is_numeric($b);
+            if ($aNum && $bNum) {
+                return (int) $a <=> (int) $b;
+            }
+            if ($aNum !== $bNum) {
+                return $aNum ? -1 : 1;
+            }
+            return strcmp($a, $b);
+        });
+
+        $sections = [];
+        foreach ($values as $val) {
+            $sections[$val] = $this->formatLernabschnittLabel($val);
+        }
+
+        return $sections;
+    }
+
+    private function formatLernabschnittLabel(string $value): string
+    {
+        if (is_numeric($value) && isset(self::SECTION_NAMES[(int) $value])) {
+            return $value . ' – ' . self::SECTION_NAMES[(int) $value];
+        }
+        return $value;
+    }
 
     /**
      * Validiert Request je nach Typ und gibt validierte Daten zurück.

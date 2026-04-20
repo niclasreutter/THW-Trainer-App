@@ -53,20 +53,7 @@
         'image_select' => 'bi-grid-3x3-gap-fill',
     ];
 
-    $sections = [
-        '1'  => '1 – Das THW im Gefüge',
-        '2'  => '2 – Persönliche Ausrüstung',
-        '3'  => '3 – UVV und Rettung',
-        '4'  => '4 – Stromerzeuger & Beleuchtung',
-        '5'  => '5 – Rettungs- und Bergungsarbeiten',
-        '6'  => '6 – Knoten und Stiche',
-        '7'  => '7 – Leitern',
-        '8'  => '8 – Transportieren von Lasten',
-        '9'  => '9 – Einfache Holzverbindungen',
-        '10' => '10 – Erste Hilfe',
-    ];
     $currentLern = (string) old('lernabschnitt', $question->lernabschnitt);
-    $hasPredefinedLern = isset($sections[$currentLern]);
 @endphp
 
 <div class="dash-container" style="max-width: 52rem;">
@@ -120,7 +107,7 @@
                 <label class="zf-label" for="lernabschnitt">
                     Lernabschnitt <span class="zf-req">*</span>
                 </label>
-                @if($hasPredefinedLern)
+                @if(!empty($sections))
                     <select id="lernabschnitt" name="lernabschnitt" class="zf-select" required>
                         @foreach($sections as $val => $label)
                             <option value="{{ $val }}" {{ $currentLern === (string) $val ? 'selected' : '' }}>
