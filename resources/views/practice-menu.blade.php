@@ -439,6 +439,19 @@
             @endif
         </div>
 
+        @auth
+        @if(auth()->user()->extras_enabled)
+        {{-- ── Nur Zusatz-Fragen (Opt-in) ── --}}
+        <a href="{{ route('practice.extras-only') }}" class="glass p-3 block" style="border-radius:0.75rem;text-decoration:none;display:flex;align-items:center;gap:0.75rem;">
+            <div style="flex:1;">
+                <div style="font-size:0.9375rem;font-weight:700;color:var(--text-primary);font-family:'Barlow Condensed',sans-serif;">Nur Zusatz-Fragen</div>
+                <div style="font-size:0.75rem;color:var(--text-muted);margin-top:0.125rem;">Zuordnungen und Bild-Fragen üben</div>
+            </div>
+            <div style="font-size:0.6875rem;color:#5b9aff;font-weight:700;">Starten →</div>
+        </a>
+        @endif
+        @endauth
+
         {{-- ── Spaced Repetition + Fragensuche ── --}}
         <div class="grid grid-cols-1 gap-2" style="{{ ($spacedRepetitionDue > 0 || $nextSrLabel) ? 'grid-template-columns:1fr 1fr;' : '' }}">
             @if($spacedRepetitionDue > 0)

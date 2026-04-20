@@ -493,6 +493,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/practice/section/{section}', [\App\Http\Controllers\PracticeController::class, 'section'])->name('practice.section');
     Route::get('/practice/search', [\App\Http\Controllers\PracticeController::class, 'search'])->name('practice.search');
     Route::get('/practice/spaced-repetition', [\App\Http\Controllers\PracticeController::class, 'spacedRepetition'])->name('practice.spaced-repetition');
+    Route::get('/practice/extras-only', [\App\Http\Controllers\PracticeController::class, 'extrasOnly'])->name('practice.extras-only');
 
     // Bookmark Routes
     Route::get('/bookmarks', [\App\Http\Controllers\BookmarkController::class, 'index'])->name('bookmarks.index');
