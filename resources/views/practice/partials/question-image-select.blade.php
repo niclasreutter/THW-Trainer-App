@@ -9,6 +9,12 @@
         $raw = is_string($userAnswer) ? explode(',', $userAnswer) : (array) $userAnswer;
         $userAnswerIds = collect($raw)->map(fn($v) => (int) $v)->filter();
     }
+    $imageSources = $options
+        ->pluck('image_source')
+        ->filter(fn($v) => !empty($v))
+        ->map(fn($v) => trim($v))
+        ->unique()
+        ->values();
 @endphp
 
 <style>
@@ -25,7 +31,9 @@
 
     .isel-card {
         position: relative;
-        display: block;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         border-radius: 0.875rem;
         overflow: hidden;
         cursor: pointer;
@@ -34,6 +42,7 @@
         transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
         aspect-ratio: 4 / 3;
         min-height: 44px;
+        padding: 0.35rem;
     }
     html.light-mode .isel-card {
         background: #f8fafc;
@@ -51,9 +60,11 @@
     }
 
     .isel-card img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
+        max-width: 100%;
+        max-height: 100%;
+        width: auto;
+        height: auto;
+        object-fit: contain;
         display: block;
     }
 
@@ -137,6 +148,18 @@
         width: 0; height: 0;
         pointer-events: none;
     }
+
+    .img-source {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        font-family: var(--font-mono, 'IBM Plex Mono', monospace);
+        margin-top: -0.25rem;
+    }
+    .img-source strong {
+        color: var(--text-muted);
+        font-weight: 600;
+        margin-right: 0.25rem;
+    }
 </style>
 
 <div class="isel-wrap">
@@ -157,6 +180,10 @@
     </div>
 
     <p class="question-text">{{ $question->frage }}</p>
+
+    @if($imageSources->isNotEmpty())
+        <p class="img-source"><strong>Bildquelle:</strong> {{ $imageSources->join(', ') }}</p>
+    @endif
 
     {{-- Ergebnis-Banner --}}
     @if(isset($isCorrect))

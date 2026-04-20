@@ -63,8 +63,12 @@ class ExtraQuestionController extends Controller
 
         DB::transaction(function () use ($request, $validated) {
             $imagePath = null;
-            if ($validated['typ'] === ExtraQuestion::TYP_IMAGE_NAME && $request->hasFile('image')) {
-                $imagePath = $request->file('image')->store('extra-questions', 'public');
+            $imageSource = null;
+            if ($validated['typ'] === ExtraQuestion::TYP_IMAGE_NAME) {
+                if ($request->hasFile('image')) {
+                    $imagePath = $request->file('image')->store('extra-questions', 'public');
+                }
+                $imageSource = $validated['image_source'] ?? null;
             }
 
             $question = ExtraQuestion::create([
@@ -72,6 +76,7 @@ class ExtraQuestionController extends Controller
                 'lernabschnitt' => $validated['lernabschnitt'],
                 'frage' => $validated['frage'],
                 'image_path' => $imagePath,
+                'image_source' => $imageSource,
             ]);
 
             $this->persistRelations($question, $request, $validated);
@@ -111,11 +116,14 @@ class ExtraQuestionController extends Controller
             ];
 
             // Frage-Bild (image_name): ggf. ersetzen
-            if ($extra_question->typ === ExtraQuestion::TYP_IMAGE_NAME && $request->hasFile('image')) {
-                if ($extra_question->image_path) {
-                    Storage::disk('public')->delete($extra_question->image_path);
+            if ($extra_question->typ === ExtraQuestion::TYP_IMAGE_NAME) {
+                if ($request->hasFile('image')) {
+                    if ($extra_question->image_path) {
+                        Storage::disk('public')->delete($extra_question->image_path);
+                    }
+                    $updateData['image_path'] = $request->file('image')->store('extra-questions', 'public');
                 }
-                $updateData['image_path'] = $request->file('image')->store('extra-questions', 'public');
+                $updateData['image_source'] = $validated['image_source'] ?? null;
             }
 
             $extra_question->update($updateData);
@@ -261,6 +269,7 @@ class ExtraQuestionController extends Controller
             $imageRule = $existing ? 'nullable' : 'required';
             $rules = array_merge($rules, [
                 'image' => $imageRule . '|image|mimes:jpeg,png,jpg,webp|max:5120',
+                'image_source' => 'required|string|max:255',
                 'options' => 'required|array|min:2|max:6',
                 'options.*.text' => 'required|string',
                 'options.*.is_correct' => 'required|boolean',
@@ -271,6 +280,7 @@ class ExtraQuestionController extends Controller
             $rules = array_merge($rules, [
                 'options' => 'required|array|min:2|max:6',
                 'options.*.image' => 'required|image|mimes:jpeg,png,jpg,webp|max:5120',
+                'options.*.image_source' => 'required|string|max:255',
                 'options.*.is_correct' => 'required|boolean',
             ]);
         } elseif ($typ === ExtraQuestion::TYP_MATCHING) {
@@ -354,6 +364,7 @@ class ExtraQuestionController extends Controller
                 }
                 $question->options()->create([
                     'image_path' => $optImagePath,
+                    'image_source' => $optData['image_source'] ?? null,
                     'is_correct' => (bool) $optData['is_correct'],
                     'sort_order' => $i,
                 ]);

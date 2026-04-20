@@ -58,6 +58,18 @@
     .iname-options .answer-opt { /* nutzt bestehendes answer-opt */
         align-items: center;
     }
+
+    .img-source {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        font-family: var(--font-mono, 'IBM Plex Mono', monospace);
+        margin-top: -0.25rem;
+    }
+    .img-source strong {
+        color: var(--text-muted);
+        font-weight: 600;
+        margin-right: 0.25rem;
+    }
 </style>
 
 <div class="iname-wrap">
@@ -78,6 +90,10 @@
     </div>
 
     <p class="question-text">{{ $question->frage }}</p>
+
+    @if(!empty($question->image_source))
+        <p class="img-source"><strong>Bildquelle:</strong> {{ $question->image_source }}</p>
+    @endif
 
     {{-- Bild --}}
     <div class="iname-frame">

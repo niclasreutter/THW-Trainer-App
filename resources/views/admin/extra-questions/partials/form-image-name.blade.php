@@ -63,6 +63,17 @@
     </template>
 
     @error('image')<span class="zf-field-error">{{ $message }}</span>@enderror
+
+    <div class="zf-field" style="margin-top: 0.75rem;">
+        <label class="zf-label" for="image_source">
+            Bildquelle <span class="zf-req">*</span>
+        </label>
+        <input id="image_source" type="text" name="image_source" class="zf-input"
+               value="{{ old('image_source', $question->image_source ?? '') }}"
+               placeholder="z.B. THW / Fotograf / CC-BY 4.0" required>
+        <span class="zf-help">Urheber oder Quelle des Bildes – wird unter der Frage angezeigt.</span>
+        @error('image_source')<span class="zf-field-error">{{ $message }}</span>@enderror
+    </div>
 </div>
 
 {{-- Text-Optionen --}}

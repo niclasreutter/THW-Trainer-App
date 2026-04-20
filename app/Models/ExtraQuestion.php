@@ -14,6 +14,7 @@ class ExtraQuestion extends Model
         'lernabschnitt',
         'frage',
         'image_path',
+        'image_source',
     ];
 
     protected $casts = [

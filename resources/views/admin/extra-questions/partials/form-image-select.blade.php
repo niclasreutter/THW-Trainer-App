@@ -6,12 +6,14 @@
         foreach (old('options') as $o) {
             $initialOptions[] = [
                 'is_correct' => !empty($o['is_correct']),
+                'image_source' => $o['image_source'] ?? '',
             ];
         }
     } elseif (isset($question) && $question && $question->options->count()) {
         foreach ($question->options as $opt) {
             $initialOptions[] = [
                 'is_correct' => (bool) $opt->is_correct,
+                'image_source' => (string) ($opt->image_source ?? ''),
             ];
             $existingImageUrls[] = $opt->image_path
                 ? \Illuminate\Support\Facades\Storage::url($opt->image_path)
@@ -19,8 +21,8 @@
         }
     } else {
         $initialOptions = [
-            ['is_correct' => false],
-            ['is_correct' => false],
+            ['is_correct' => false, 'image_source' => ''],
+            ['is_correct' => false, 'image_source' => ''],
         ];
     }
 
@@ -36,7 +38,7 @@
         this.previews[i] = f ? URL.createObjectURL(f) : null;
     },
     addOption() {
-        if (this.options.length < 6) this.options.push({ is_correct: false });
+        if (this.options.length < 6) this.options.push({ is_correct: false, image_source: '' });
     },
     removeOption(i) {
         if (this.options.length > 2) {
@@ -112,6 +114,13 @@
                         </div>
                         <div class="zf-upload__sub">JPG, PNG oder WebP · max. 5 MB</div>
                     </label>
+                    <input type="text"
+                           class="zf-input"
+                           :name="`options[${i}][image_source]`"
+                           x-model="opt.image_source"
+                           placeholder="Bildquelle (z.B. THW / Fotograf)"
+                           required
+                           style="margin-top: 0.5rem;">
                 </div>
             </div>
         </template>
