@@ -469,6 +469,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/profile/dismiss-leaderboard-banner', [ProfileController::class, 'dismissLeaderboardBanner'])->name('profile.dismiss.leaderboard.banner');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::post('/profile/cancel-email-change', [ProfileController::class, 'cancelEmailChange'])->name('profile.cancel-email-change');
+    Route::post('/profile/extras-enabled', [ProfileController::class, 'updateExtrasEnabled'])->name('profile.extras-enabled');
 });
 
 // Contact Routes - für eingeloggte Nutzer
@@ -492,6 +493,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/practice/section/{section}', [\App\Http\Controllers\PracticeController::class, 'section'])->name('practice.section');
     Route::get('/practice/search', [\App\Http\Controllers\PracticeController::class, 'search'])->name('practice.search');
     Route::get('/practice/spaced-repetition', [\App\Http\Controllers\PracticeController::class, 'spacedRepetition'])->name('practice.spaced-repetition');
+    Route::get('/practice/extras-only', [\App\Http\Controllers\PracticeController::class, 'extrasOnly'])->name('practice.extras-only');
 
     // Bookmark Routes
     Route::get('/bookmarks', [\App\Http\Controllers\BookmarkController::class, 'index'])->name('bookmarks.index');
@@ -637,6 +639,7 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix
     Route::get('/shop-analytics', [\App\Http\Controllers\Admin\ShopAnalyticsController::class, 'index'])->name('shop-analytics');
     Route::resource('questions', \App\Http\Controllers\Admin\QuestionController::class);
     Route::post('questions/{question}/update-field', [\App\Http\Controllers\Admin\QuestionController::class, 'updateField'])->name('questions.update-field');
+    Route::resource('extra-questions', \App\Http\Controllers\Admin\ExtraQuestionController::class)->parameters(['extra-questions' => 'extra_question'])->except(['show']);
     Route::resource('lehrgaenge', \App\Http\Controllers\Admin\LehrgangController::class);
     Route::post('lehrgaenge/{lehrgang}/import-csv', [\App\Http\Controllers\Admin\LehrgangController::class, 'importCSV'])->name('lehrgaenge.import-csv');
     Route::patch('lehrgaenge/{lehrgang}/question/{question}', [\App\Http\Controllers\Admin\LehrgangController::class, 'updateQuestion'])->name('lehrgaenge.update-question');

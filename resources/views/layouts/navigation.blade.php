@@ -102,6 +102,9 @@
                                     <a href="/admin/questions" class="dropdown-item-glass">
                                         Fragen
                                     </a>
+                                    <a href="{{ route('admin.extra-questions.index') }}" class="dropdown-item-glass">
+                                        Zusatz-Fragen
+                                    </a>
                                     <a href="{{ route('admin.lehrgaenge.index') }}" class="dropdown-item-glass">
                                         Lehrgänge
                                     </a>
@@ -338,6 +341,9 @@
                         </a>
                         <a href="/admin/questions" class="block px-3 py-2 text-sm text-dark-secondary hover:text-gold hover:bg-glass-white-5 rounded-md transition-colors duration-200">
                             Fragen
+                        </a>
+                        <a href="{{ route('admin.extra-questions.index') }}" class="block px-3 py-2 text-sm text-dark-secondary hover:text-gold hover:bg-glass-white-5 rounded-md transition-colors duration-200">
+                            Zusatz-Fragen
                         </a>
                         <a href="{{ route('admin.lehrgaenge.index') }}" class="block px-3 py-2 text-sm text-dark-secondary hover:text-gold hover:bg-glass-white-5 rounded-md transition-colors duration-200">
                             Lehrgänge

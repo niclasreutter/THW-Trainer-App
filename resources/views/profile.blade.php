@@ -353,7 +353,7 @@
     </div>
 
     {{-- ── Status Messages ── --}}
-    @if (session('status') == 'profile-updated' || session('status') == 'password-updated' || session('status') == 'email-change-cancelled')
+    @if (session('status') == 'profile-updated' || session('status') == 'password-updated' || session('status') == 'email-change-cancelled' || session('status') == 'extras-enabled-updated')
     <div class="alert-compact glass-success" style="margin-bottom: 1rem;">
         <i class="bi bi-check-circle alert-compact-icon"></i>
         <div class="alert-compact-content">
@@ -361,6 +361,7 @@
                 @if(session('status') == 'profile-updated') Profil erfolgreich aktualisiert.
                 @elseif(session('status') == 'password-updated') Passwort erfolgreich geändert.
                 @elseif(session('status') == 'email-change-cancelled') E-Mail-Änderung abgebrochen.
+                @elseif(session('status') == 'extras-enabled-updated') Zusatz-Fragen-Einstellung gespeichert.
                 @endif
             </div>
         </div>
@@ -701,6 +702,43 @@
                     </span>
                 </div>
             </div>
+        </div>
+
+        {{-- ── Zusatz-Fragen ── --}}
+        <div id="extras-enabled" class="glass p-4" style="border-radius:0.75rem;scroll-margin-top:5rem;">
+            <div style="margin-bottom:0.75rem;">
+                <span class="text-xs uppercase tracking-wider" style="color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:0.5625rem;font-weight:700;">Zusatz-Fragen</span>
+            </div>
+
+            <form method="post" action="{{ route('profile.extras-enabled') }}">
+                @csrf
+
+                <div class="pf-consent">
+                    {{-- Hidden default ensures "0" is submitted when toggle is off --}}
+                    <input type="hidden" name="extras_enabled" value="0">
+
+                    <label class="pf-consent-label" for="extras_enabled" style="cursor:pointer;">
+                        <input
+                            id="extras_enabled"
+                            name="extras_enabled"
+                            type="checkbox"
+                            value="1"
+                            class="checkbox-glass"
+                            {{ old('extras_enabled', $user->extras_enabled) ? 'checked' : '' }}
+                        >
+                        <div class="pf-consent-body">
+                            <span class="pf-consent-title">Zusatz-Fragen aktivieren</span>
+                            <span class="pf-consent-desc">Zusatz-Fragen sind abwechslungsreiche Übungsformate (Zuordnung, Bilder) außerhalb der offiziellen THW-Prüfungsfragen. Sie erscheinen zusätzlich im Übungsmodus und beeinflussen nicht deine Prüfungsfreischaltung.</span>
+                        </div>
+                    </label>
+                </div>
+
+                @error('extras_enabled')
+                    <div class="pf-form-error" style="margin-bottom:0.5rem;">{{ $message }}</div>
+                @enderror
+
+                <button type="submit" class="btn-primary" style="width:100%;">Einstellung speichern</button>
+            </form>
         </div>
 
         {{-- ── Gefahrenzone ── --}}

@@ -36,6 +36,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'onboarding_completed',
         'onboarding_tour_completed',
         'exam_date',
+        'extras_enabled',
     ];
 
     /**
@@ -89,7 +90,16 @@ class User extends Authenticatable implements MustVerifyEmail
             'rank_color_until' => 'datetime',
             'active_title_until' => 'datetime',
             'active_accessories' => 'array',
+            'extras_enabled' => 'boolean',
         ];
+    }
+
+    /**
+     * User hat viele Zusatz-Fragen-Fortschritte
+     */
+    public function extraQuestionProgress()
+    {
+        return $this->hasMany(UserExtraQuestionProgress::class);
     }
     
     /**
