@@ -361,6 +361,21 @@
 
     <div class="space-y-4">
 
+        @auth
+        @if(!auth()->user()->extras_enabled)
+        {{-- ── Opt-in Hinweis: Zusatz-Fragen (nur wenn deaktiviert) ── --}}
+        <div class="glass" style="padding:1rem 1.25rem;border-left:3px solid var(--gold-start);border-radius:0.75rem;">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;">
+                <div style="flex:1;min-width:0;">
+                    <div style="font-weight:600;color:var(--gold-start);font-size:0.9375rem;">Mehr Lern-Methoden verfügbar</div>
+                    <div style="color:var(--text-muted);font-size:0.8125rem;margin-top:0.25rem;">Zuordnungs- und Bild-Fragen als Lern-Ergänzung — nicht Teil der Prüfung.</div>
+                </div>
+                <a href="{{ route('profile') }}#extras-enabled" class="btn-secondary" style="flex-shrink:0;">In Profil aktivieren</a>
+            </div>
+        </div>
+        @endif
+        @endauth
+
         {{-- ── Smart Action Card ── --}}
         @if(session('practice_unavailable'))
             @php $unavailable = session('practice_unavailable'); @endphp
