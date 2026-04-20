@@ -128,23 +128,39 @@ class ExtraQuestionController extends Controller
 
             $extra_question->update($updateData);
 
-            // Alte verwandte Daten löschen
+            // Alte image_paths sichern, um nach dem Persist Orphans zu identifizieren.
+            $oldImagePaths = [];
+            if ($extra_question->isImageSelect()) {
+                $oldImagePaths = $extra_question->options
+                    ->pluck('image_path')
+                    ->filter()
+                    ->values()
+                    ->all();
+            }
+
+            // Alte verwandte Daten löschen (Records, Bilder kommen unten dran)
             if ($extra_question->isMatching()) {
                 $extra_question->matchItems()->delete();
                 $extra_question->matchCategories()->delete();
             } else {
-                // Option-Bilder aus Storage entfernen (image_select)
-                if ($extra_question->isImageSelect()) {
-                    foreach ($extra_question->options as $opt) {
-                        if ($opt->image_path) {
-                            Storage::disk('public')->delete($opt->image_path);
-                        }
-                    }
-                }
                 $extra_question->options()->delete();
             }
 
             $this->persistRelations($extra_question->fresh(), $request, $validated);
+
+            // image_select: Orphan-Images aus Storage entfernen (alte Pfade, die in den
+            // neuen Options nicht mehr referenziert werden).
+            if ($extra_question->isImageSelect() && !empty($oldImagePaths)) {
+                $newImagePaths = $extra_question->fresh()->options
+                    ->pluck('image_path')
+                    ->filter()
+                    ->values()
+                    ->all();
+                $orphans = array_diff($oldImagePaths, $newImagePaths);
+                foreach ($orphans as $path) {
+                    Storage::disk('public')->delete($path);
+                }
+            }
         });
 
         return redirect()
@@ -275,11 +291,13 @@ class ExtraQuestionController extends Controller
                 'options.*.is_correct' => 'required|boolean',
             ]);
         } elseif ($typ === ExtraQuestion::TYP_IMAGE_SELECT) {
-            // Bei Update sind Option-Bilder optional — aber nur wenn wir alte behalten würden.
-            // Da update() alle Options ersetzt, verlangen wir beim Update ebenfalls alle Bilder.
+            // Beim Update sind Bilder optional: Wenn keine Datei hochgeladen wurde,
+            // wird der bestehende image_path via existing_image_path weitergereicht.
+            $imageRule = $existing ? 'nullable' : 'required';
             $rules = array_merge($rules, [
                 'options' => 'required|array|min:2|max:6',
-                'options.*.image' => 'required|image|mimes:jpeg,png,jpg,webp|max:5120',
+                'options.*.image' => $imageRule . '|image|mimes:jpeg,png,jpg,webp|max:5120',
+                'options.*.existing_image_path' => 'nullable|string|max:500',
                 'options.*.image_source' => 'required|string|max:255',
                 'options.*.is_correct' => 'required|boolean',
             ]);
@@ -294,6 +312,21 @@ class ExtraQuestionController extends Controller
         }
 
         $validated = $request->validate($rules);
+
+        // Custom Validierung: image_select Update braucht pro Option entweder neues File
+        // oder existing_image_path.
+        if ($typ === ExtraQuestion::TYP_IMAGE_SELECT && $existing !== null) {
+            $files = $request->file('options', []);
+            foreach ($validated['options'] as $i => $opt) {
+                $hasNewFile = isset($files[$i]['image']) && $files[$i]['image'];
+                $hasExisting = !empty($opt['existing_image_path']);
+                if (!$hasNewFile && !$hasExisting) {
+                    throw ValidationException::withMessages([
+                        "options.$i.image" => 'Bitte Bild hochladen oder bestehendes Bild beibehalten.',
+                    ]);
+                }
+            }
+        }
 
         // Custom Validierung: mindestens eine korrekte Option (image_name / image_select)
         if (in_array($typ, [ExtraQuestion::TYP_IMAGE_NAME, ExtraQuestion::TYP_IMAGE_SELECT], true)) {
@@ -361,6 +394,8 @@ class ExtraQuestionController extends Controller
                 $optImagePath = null;
                 if (isset($files[$i]['image']) && $files[$i]['image']) {
                     $optImagePath = $files[$i]['image']->store('extra-questions', 'public');
+                } elseif (!empty($optData['existing_image_path'])) {
+                    $optImagePath = $optData['existing_image_path'];
                 }
                 $question->options()->create([
                     'image_path' => $optImagePath,

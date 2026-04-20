@@ -7,6 +7,7 @@
             $initialOptions[] = [
                 'is_correct' => !empty($o['is_correct']),
                 'image_source' => $o['image_source'] ?? '',
+                'existing_image_path' => $o['existing_image_path'] ?? '',
             ];
         }
     } elseif (isset($question) && $question && $question->options->count()) {
@@ -14,6 +15,7 @@
             $initialOptions[] = [
                 'is_correct' => (bool) $opt->is_correct,
                 'image_source' => (string) ($opt->image_source ?? ''),
+                'existing_image_path' => (string) ($opt->image_path ?? ''),
             ];
             $existingImageUrls[] = $opt->image_path
                 ? \Illuminate\Support\Facades\Storage::url($opt->image_path)
@@ -21,8 +23,8 @@
         }
     } else {
         $initialOptions = [
-            ['is_correct' => false, 'image_source' => ''],
-            ['is_correct' => false, 'image_source' => ''],
+            ['is_correct' => false, 'image_source' => '', 'existing_image_path' => ''],
+            ['is_correct' => false, 'image_source' => '', 'existing_image_path' => ''],
         ];
     }
 
@@ -38,7 +40,7 @@
         this.previews[i] = f ? URL.createObjectURL(f) : null;
     },
     addOption() {
-        if (this.options.length < 6) this.options.push({ is_correct: false, image_source: '' });
+        if (this.options.length < 6) this.options.push({ is_correct: false, image_source: '', existing_image_path: '' });
     },
     removeOption(i) {
         if (this.options.length > 2) {
@@ -67,8 +69,7 @@
                 <i class="bi bi-info-circle-fill"></i>
                 <div>
                     <strong>Hinweis:</strong>
-                    Beim Bearbeiten einer „Bild auswählen"-Frage müssen alle Bilder neu hochgeladen werden.
-                    Die bisherigen Bilder werden zur Orientierung angezeigt.
+                    Bestehende Bilder bleiben erhalten. Lade nur neue Bilder hoch, wenn du sie ersetzen möchtest.
                 </div>
             </div>
         @endif
@@ -102,15 +103,20 @@
                 </div>
 
                 <div class="zf-image-tile__body">
+                    <input type="hidden"
+                           :name="`options[${i}][existing_image_path]`"
+                           :value="opt.existing_image_path">
                     <label class="zf-upload" style="display: block; position: relative; padding: 0.75rem;">
                         <input type="file"
                                :name="`options[${i}][image]`"
                                accept="image/jpeg,image/png,image/webp"
                                @change="onPick(i, $event)"
-                               required>
+                               :required="!opt.existing_image_path && !previews[i]">
                         <div class="zf-upload__title" style="margin-bottom: 0.15rem;">
                             <i class="bi bi-cloud-arrow-up-fill"></i>
-                            <span x-text="previews[i] ? 'Anderes Bild wählen' : 'Bild wählen'">Bild wählen</span>
+                            <span x-text="previews[i]
+                                ? 'Anderes Bild wählen'
+                                : (opt.existing_image_path ? 'Bild ersetzen' : 'Bild wählen')">Bild wählen</span>
                         </div>
                         <div class="zf-upload__sub">JPG, PNG oder WebP · max. 5 MB</div>
                     </label>
