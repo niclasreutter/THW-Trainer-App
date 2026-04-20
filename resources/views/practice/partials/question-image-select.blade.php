@@ -9,12 +9,6 @@
         $raw = is_string($userAnswer) ? explode(',', $userAnswer) : (array) $userAnswer;
         $userAnswerIds = collect($raw)->map(fn($v) => (int) $v)->filter();
     }
-    $imageSources = $options
-        ->pluck('image_source')
-        ->filter(fn($v) => !empty($v))
-        ->map(fn($v) => trim($v))
-        ->unique()
-        ->values();
 @endphp
 
 <style>
@@ -149,16 +143,27 @@
         pointer-events: none;
     }
 
-    .img-source {
-        font-size: 0.75rem;
+    .isel-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.375rem;
+    }
+    .isel-source {
+        font-size: 0.6875rem;
+        line-height: 1.25;
         color: var(--text-muted);
         font-family: var(--font-mono, 'IBM Plex Mono', monospace);
-        margin-top: -0.25rem;
+        letter-spacing: 0.02em;
+        padding: 0 0.125rem;
+        word-break: break-word;
     }
-    .img-source strong {
+    .isel-source strong {
         color: var(--text-muted);
         font-weight: 600;
-        margin-right: 0.25rem;
+        margin-right: 0.2rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-size: 0.625rem;
     }
 </style>
 
@@ -180,10 +185,6 @@
     </div>
 
     <p class="question-text">{{ $question->frage }}</p>
-
-    @if($imageSources->isNotEmpty())
-        <p class="img-source"><strong>Bildquelle:</strong> {{ $imageSources->join(', ') }}</p>
-    @endif
 
     {{-- Ergebnis-Banner --}}
     @if(isset($isCorrect))
@@ -223,6 +224,7 @@
                 }
             @endphp
 
+            <div class="isel-item">
             @if(isset($isCorrect))
                 <div class="isel-card {{ $stateClass }}" aria-label="Option">
                     @if($optImage)
@@ -231,7 +233,7 @@
                                 class="img-zoom-btn"
                                 data-lightbox-src="{{ $optImage }}"
                                 data-lightbox-alt="{{ $opt->text ?? 'Bildoption' }}"
-                                data-lightbox-caption="{{ $opt->text ?? '' }}"
+                                data-lightbox-caption="{{ trim(($opt->text ?? '') . (!empty($opt->image_source) ? ' · Quelle: ' . $opt->image_source : '')) }}"
                                 aria-label="Bild in Vollansicht öffnen"
                                 title="Vollansicht"
                                 onclick="event.stopPropagation(); event.preventDefault();">
@@ -260,7 +262,7 @@
                                 class="img-zoom-btn"
                                 data-lightbox-src="{{ $optImage }}"
                                 data-lightbox-alt="{{ $opt->text ?? 'Bildoption' }}"
-                                data-lightbox-caption="{{ $opt->text ?? '' }}"
+                                data-lightbox-caption="{{ trim(($opt->text ?? '') . (!empty($opt->image_source) ? ' · Quelle: ' . $opt->image_source : '')) }}"
                                 aria-label="Bild in Vollansicht öffnen"
                                 title="Vollansicht"
                                 onclick="event.stopPropagation(); event.preventDefault();">
@@ -275,6 +277,13 @@
                     @endif
                 </label>
             @endif
+
+                @if(!empty($opt->image_source))
+                    <div class="isel-source">
+                        <strong>Bildquelle</strong> {{ $opt->image_source }}
+                    </div>
+                @endif
+            </div>
         @endforeach
     </div>
 
