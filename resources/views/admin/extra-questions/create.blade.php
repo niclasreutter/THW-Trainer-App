@@ -27,19 +27,6 @@
             'desc'  => 'Textfrage mit 2–6 Bild-Optionen (ein oder mehrere korrekt)',
         ],
     ];
-
-    $sections = [
-        '1'  => '1 – Das THW im Gefüge',
-        '2'  => '2 – Persönliche Ausrüstung',
-        '3'  => '3 – UVV und Rettung',
-        '4'  => '4 – Stromerzeuger & Beleuchtung',
-        '5'  => '5 – Rettungs- und Bergungsarbeiten',
-        '6'  => '6 – Knoten und Stiche',
-        '7'  => '7 – Leitern',
-        '8'  => '8 – Transportieren von Lasten',
-        '9'  => '9 – Einfache Holzverbindungen',
-        '10' => '10 – Erste Hilfe',
-    ];
 @endphp
 
 <div class="dash-container" style="max-width: 52rem;">
@@ -104,13 +91,21 @@
                     <label class="zf-label" for="lernabschnitt">
                         Lernabschnitt <span class="zf-req">*</span>
                     </label>
-                    <select id="lernabschnitt" name="lernabschnitt" class="zf-select" required>
-                        @foreach($sections as $val => $label)
-                            <option value="{{ $val }}" {{ old('lernabschnitt') == $val ? 'selected' : '' }}>
-                                {{ $label }}
-                            </option>
-                        @endforeach
-                    </select>
+                    @if(!empty($sections))
+                        <select id="lernabschnitt" name="lernabschnitt" class="zf-select" required>
+                            @foreach($sections as $val => $label)
+                                <option value="{{ $val }}" {{ old('lernabschnitt') == $val ? 'selected' : '' }}>
+                                    {{ $label }}
+                                </option>
+                            @endforeach
+                        </select>
+                    @else
+                        <input id="lernabschnitt" type="text" name="lernabschnitt"
+                               value="{{ old('lernabschnitt') }}"
+                               class="zf-input" required
+                               placeholder="z.B. 1">
+                        <span class="zf-help">Noch keine Lernabschnitte in der Datenbank – bitte manuell eintragen.</span>
+                    @endif
                     @error('lernabschnitt')<span class="zf-field-error">{{ $message }}</span>@enderror
                 </div>
 
@@ -125,18 +120,25 @@
                 </div>
             </div>
 
-            {{-- Typ-spezifische Partials --}}
-            <div x-show="typ === 'matching'" x-cloak>
-                @include('admin.extra-questions.partials.form-matching', ['question' => null])
-            </div>
+            {{-- Typ-spezifische Partials: x-if statt x-show, damit inaktive `required`-Felder
+                 die Formular-Validierung im Browser nicht blockieren. --}}
+            <template x-if="typ === 'matching'">
+                <div>
+                    @include('admin.extra-questions.partials.form-matching', ['question' => null])
+                </div>
+            </template>
 
-            <div x-show="typ === 'image_name'" x-cloak>
-                @include('admin.extra-questions.partials.form-image-name', ['question' => null])
-            </div>
+            <template x-if="typ === 'image_name'">
+                <div>
+                    @include('admin.extra-questions.partials.form-image-name', ['question' => null])
+                </div>
+            </template>
 
-            <div x-show="typ === 'image_select'" x-cloak>
-                @include('admin.extra-questions.partials.form-image-select', ['question' => null])
-            </div>
+            <template x-if="typ === 'image_select'">
+                <div>
+                    @include('admin.extra-questions.partials.form-image-select', ['question' => null])
+                </div>
+            </template>
 
             <div class="zf-form-actions">
                 <a href="{{ route('admin.extra-questions.index') }}" class="btn-ghost">Abbrechen</a>
