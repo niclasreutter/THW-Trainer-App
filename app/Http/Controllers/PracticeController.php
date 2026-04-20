@@ -192,7 +192,7 @@ class PracticeController extends Controller
     public function all()
     {
         // Session zurücksetzen für neuen Modus
-        session()->forget(['practice_mode', 'practice_parameter', 'practice_ids', 'practice_skipped']);
+        session()->forget(['practice_mode', 'practice_parameter', 'practice_ids', 'practice_queue', 'practice_skipped']);
         
         // Debug: Prüfe ob Route erreicht wird
         $user = Auth::user();
@@ -219,7 +219,7 @@ class PracticeController extends Controller
      */
     public function unsolved()
     {
-        session()->forget(['practice_mode', 'practice_parameter', 'practice_ids', 'practice_skipped']);
+        session()->forget(['practice_mode', 'practice_parameter', 'practice_ids', 'practice_queue', 'practice_skipped']);
         return $this->practiceMode('unsolved');
     }
 
@@ -228,7 +228,7 @@ class PracticeController extends Controller
      */
     public function failed()
     {
-        session()->forget(['practice_mode', 'practice_parameter', 'practice_ids', 'practice_skipped']);
+        session()->forget(['practice_mode', 'practice_parameter', 'practice_ids', 'practice_queue', 'practice_skipped']);
         return $this->practiceMode('failed');
     }
 
@@ -237,8 +237,22 @@ class PracticeController extends Controller
      */
     public function section($section)
     {
-        session()->forget(['practice_mode', 'practice_parameter', 'practice_ids', 'practice_skipped']);
+        session()->forget(['practice_mode', 'practice_parameter', 'practice_ids', 'practice_queue', 'practice_skipped']);
         return $this->practiceMode('section', $section);
+    }
+
+    /**
+     * Nur Zusatz-Fragen üben (Opt-in via extras_enabled)
+     */
+    public function extrasOnly()
+    {
+        $user = Auth::user();
+        if (!$user || !$user->extras_enabled) {
+            return redirect()->route('profile')->with('error', 'Bitte aktiviere zuerst die Zusatz-Fragen im Profil.');
+        }
+
+        session()->forget(['practice_mode', 'practice_parameter', 'practice_ids', 'practice_queue', 'practice_skipped']);
+        return $this->practiceMode('extras_only');
     }
 
     /**
@@ -246,7 +260,7 @@ class PracticeController extends Controller
      */
     public function spacedRepetition()
     {
-        session()->forget(['practice_mode', 'practice_parameter', 'practice_ids', 'practice_skipped']);
+        session()->forget(['practice_mode', 'practice_parameter', 'practice_ids', 'practice_queue', 'practice_skipped']);
 
         $user = Auth::user();
         $srService = new SpacedRepetitionService();
@@ -269,7 +283,7 @@ class PracticeController extends Controller
             return redirect()->route('practice.menu')->with('error', 'Bitte gib einen Suchbegriff ein.');
         }
         
-        session()->forget(['practice_mode', 'practice_parameter', 'practice_ids', 'practice_skipped']);
+        session()->forget(['practice_mode', 'practice_parameter', 'practice_ids', 'practice_queue', 'practice_skipped']);
         return $this->practiceMode('search', $searchTerm);
     }
 
@@ -510,15 +524,42 @@ class PracticeController extends Controller
                 // Gespeicherte Fragen (bereits in richtiger Reihenfolge)
                 $idsToShow = $user->bookmarked_questions ?? [];
                 break;
-                
+
+            case 'extras_only':
+                // Nur Zusatz-Fragen — wird unten zu einer reinen Extra-Queue gemerged
+                $idsToShow = [];
+                break;
+
             default:
                 $idsToShow = [];
         }
         
         // Geskippte Fragen temporär entfernen
         $idsToShow = array_diff($idsToShow, $skipped);
-        
-        if (empty($idsToShow)) {
+
+        // --- Queue-Interleave mit Zusatz-Fragen (opt-in) ---
+        // Offizielle IDs in wrapped Form umwandeln, optional mit Extras interleaven.
+        // Exam-Modus wird hier NIE erreicht (eigener Controller, eigene Routes).
+        $extraQuestionService = app(\App\Services\ExtraQuestionService::class);
+        $officialIds = array_values(array_map('intval', $idsToShow));
+        $officialQueue = array_map(fn ($id) => ['type' => 'official', 'id' => (int) $id], $officialIds);
+        $lernabschnitt = ($mode === 'section') ? (string) $parameter : null;
+
+        if ($mode === 'extras_only') {
+            $extraIds = $extraQuestionService->buildQueue($user, 'extras_only', $lernabschnitt, 40);
+            $mergedQueue = array_map(
+                fn ($id) => ['type' => 'extra', 'id' => (int) $id],
+                array_values($extraIds)
+            );
+        } elseif ($user && $user->extras_enabled && !empty($officialIds)) {
+            $extrasCount = max(1, intdiv(count($officialIds), 4));
+            $extraIds = $extraQuestionService->buildQueue($user, 'mixed', $lernabschnitt, $extrasCount);
+            $mergedQueue = $extraQuestionService->mergeQueues($officialIds, $extraIds);
+        } else {
+            $mergedQueue = $officialQueue;
+        }
+
+        if (empty($idsToShow) && $mode !== 'extras_only') {
             \Log::info('No questions found after skipped removal', [
                 'mode' => $mode,
                 'parameter' => $parameter,
@@ -578,33 +619,43 @@ class PracticeController extends Controller
 
             return redirect()->route('practice.menu')->with('success', 'Keine Fragen gefunden.');
         }
-        
-        // Zusätzlicher Sicherheitscheck
-        if (!isset($idsToShow[0])) {
-            \Log::error('Practice IDs array issue after skipped', [
-                'ids_to_show' => $idsToShow,
-                'mode' => $mode
-            ]);
+
+        // Queue-Item wählen: kann 'official' oder 'extra' sein (abhängig von mergedQueue oben).
+        if (empty($mergedQueue)) {
+            \Log::info('Practice: no queue items', ['mode' => $mode]);
+            if ($mode === 'extras_only') {
+                return redirect()->route('practice.menu')
+                    ->with('info', 'Keine Zusatz-Fragen verfügbar.');
+            }
             return redirect()->route('practice.menu')->with('error', 'Fehler beim Laden der Fragen.');
         }
-        
-        $question = Question::find($idsToShow[0]);
-        
+
+        $firstItem = $mergedQueue[0];
+        if ($firstItem['type'] === 'extra') {
+            $question = ExtraQuestion::with([
+                'options', 'matchCategories', 'matchItems.correctCategory',
+            ])->find($firstItem['id']);
+        } else {
+            $question = Question::find($firstItem['id']);
+        }
+
         // Nochmals prüfen ob Frage existiert
         if (!$question) {
-            \Log::error('Question not found', [
-                'question_id' => $idsToShow[0],
-                'mode' => $mode
+            \Log::error('Practice start: first queue item not found', [
+                'item' => $firstItem,
+                'mode' => $mode,
             ]);
             return redirect()->route('practice.menu')->with('error', 'Die angeforderte Frage konnte nicht gefunden werden.');
         }
-        
+
         \Log::info('Practice session starting', [
             'mode' => $mode,
-            'question_id' => $question->id,
-            'total_ids' => count($idsToShow)
+            'first_type' => $firstItem['type'],
+            'first_id' => $firstItem['id'],
+            'total_ids' => count($mergedQueue),
+            'official_count' => count($officialIds),
         ]);
-        
+
         $totalQuestions = Question::count();
         $total = $totalQuestions;
         $progress = UserQuestionProgress::countMastered($user->id);
@@ -621,25 +672,34 @@ class PracticeController extends Controller
         $maxProgressPoints = $totalQuestions * $threshold;
         $progressPercent = $maxProgressPoints > 0 ? round(($totalProgressPoints / $maxProgressPoints) * 100) : 0;
 
-        // Session für aktuellen Modus speichern (via Service)
-        $totalInMode = count($idsToShow);
-        $this->practiceService->startSession('global', null, $idsToShow, $mode, 'remove');
+        // Session für aktuellen Modus speichern (via Service).
+        // practice_ids enthält NUR offizielle IDs (für backwards-compat).
+        $totalInMode = count($mergedQueue);
+        $this->practiceService->startSession('global', null, $officialIds, $mode, 'remove');
 
-        // Controller-managed session keys (not part of the service)
+        // Controller-managed session keys (not part of the service).
+        // practice_queue ist die neue Source-of-Truth für Queue-Order.
         session([
             'practice_parameter' => $parameter,
             'practice_total_in_mode' => $totalInMode,
+            'practice_queue' => $mergedQueue,
         ]);
 
         $currentInMode = 1;
 
-        // Schwierigkeitsindikator für aktuelle Frage
-        $difficultyInfo = $this->getQuestionDifficulty($question->id);
+        // Schwierigkeitsindikator nur für offizielle Fragen sinnvoll.
+        $difficultyInfo = ($firstItem['type'] === 'official')
+            ? $this->getQuestionDifficulty($question->id)
+            : null;
 
-        // Spaced Repetition: Prüfe ob diese Frage fällig ist
-        $srService = new SpacedRepetitionService();
-        $srDueIds = $srService->getDueQuestions($user->id);
-        $isSpacedRepetition = in_array($question->id, $srDueIds);
+        // Spaced Repetition-Badge: nur offizielle Fragen fallen in den SR-Flow.
+        if ($firstItem['type'] === 'official') {
+            $srService = new SpacedRepetitionService();
+            $srDueIds = $srService->getDueQuestions($user->id);
+            $isSpacedRepetition = in_array($question->id, $srDueIds);
+        } else {
+            $isSpacedRepetition = false;
+        }
 
         return view('practice', compact('question', 'progress', 'progressOnce', 'progressTwice', 'total', 'mode', 'progressPercent', 'totalInMode', 'currentInMode', 'difficultyInfo', 'isSpacedRepetition'));
     }
@@ -649,94 +709,137 @@ class PracticeController extends Controller
         $user = Auth::user();
         $solved = $this->ensureArray($user->solved_questions);
         $skipped = session('practice_skipped', []);
-        
+
         // Get answer/gamification results from service (peek, don't clear yet for showAnsweredQuestion check)
         $answerResult = $this->practiceService->getAndClearAnswerResult('global', null);
         $gamificationResult = $this->practiceService->getAndClearGamificationResult('global', null);
 
+        // Extras: answer_result wird direkt als Session-Key gespeichert (nicht via Service-Prefix)
+        if (!$answerResult) {
+            $extraAnswerResult = session('practice_answer_result');
+            if ($extraAnswerResult) {
+                $answerResult = $extraAnswerResult;
+                session()->forget('practice_answer_result');
+            }
+        }
+
         // Check if we're in a specific practice mode
         $practiceIds = session('practice_ids', []);
+        $practiceQueue = session('practice_queue', []);
         $mode = session('practice_mode', 'all');
+
+        // Falls nur Legacy-Daten vorhanden sind: Queue aus practice_ids rekonstruieren
+        if (empty($practiceQueue) && !empty($practiceIds)) {
+            $practiceQueue = array_map(
+                fn ($id) => ['type' => 'official', 'id' => (int) $id],
+                $practiceIds
+            );
+        }
 
         // WICHTIG: Wenn eine Frage gerade beantwortet wurde (answer_result),
         // zeige diese Frage nochmal (damit die Antwort angezeigt werden kann)
         $showAnsweredQuestion = $answerResult && isset($answerResult['question_id']);
+        $answeredKind = $answerResult['question_kind'] ?? 'official';
 
-        if (!empty($practiceIds)) {
-            // Continue with current practice session
-            $idsToShow = $practiceIds; // Alle IDs aus der Session
-
-            // KEIN SR-Filter mehr in show() — die Queue wurde beim Session-Start bereits
-            // korrekt gefiltert. Ein nachträglicher SR-Filter entfernt destruktiv Fragen
-            // aus der Queue und verursacht einen Loop-Bug (User sieht nur 1 Frage, dann Menü).
-
-            if ($showAnsweredQuestion) {
-                // Zeige die gerade beantwortete Frage nochmal
-                $questionId = $answerResult['question_id'];
-            } elseif ($request->has('skip_id')) {
-                $skipId = $request->input('skip_id');
-                // Entferne die geskippte Frage nur temporär von der Anzeige
-                $idsToShow = array_diff($idsToShow, [$skipId]);
-
-                // Füge zur geskippten Liste für diese Runde hinzu
-                $skipped = array_merge($skipped, [$skipId]);
-                session(['practice_skipped' => array_unique($skipped)]);
-
-                if (empty($idsToShow)) {
-                    return redirect()->route('practice.summary');
-                }
-
-                $questionId = reset($idsToShow);
-            } else {
-                // Normale Anzeige: entferne nur bereits verarbeitete Fragen
-                $idsToShow = array_diff($idsToShow, $skipped);
-
-                if (empty($idsToShow)) {
-                    return redirect()->route('practice.summary');
-                }
-
-                $questionId = reset($idsToShow);
-            }
-
-            $question = Question::find($questionId);
-
-            // Prüfe ob Frage existiert
-            if (!$question) {
-                $this->practiceService->cleanSession('global', null);
-                session()->forget(['practice_parameter', 'practice_skipped', 'practice_total_in_mode']);
-                return redirect()->route('practice.menu')->with('error', 'Die angeforderte Frage konnte nicht gefunden werden.');
-            }
-
-            $total = Question::count();
-            $progress = UserQuestionProgress::countMastered($user->id);
-            $progressOnce = UserQuestionProgress::countAtLevel($user->id, 1);
-            $progressTwice = UserQuestionProgress::countAtLevel($user->id, 2);
-
-            // Neue Fortschrittsbalken-Logik: Berücksichtigt auch 1x richtige Antworten
-            $threshold = UserQuestionProgress::MASTERY_THRESHOLD;
-            $progressData = UserQuestionProgress::where('user_id', $user->id)->get();
-            $totalProgressPoints = 0;
-            foreach ($progressData as $prog) {
-                $totalProgressPoints += min($prog->consecutive_correct, $threshold);
-            }
-            $maxProgressPoints = $total * $threshold;
-            $progressPercent = $maxProgressPoints > 0 ? round(($totalProgressPoints / $maxProgressPoints) * 100) : 0;
-
-        } else {
-            // Legacy mode - redirect to menu
+        if (empty($practiceQueue) && !$showAnsweredQuestion) {
+            // Legacy mode or no active session
             return redirect()->route('practice.menu');
         }
 
-        $totalInMode = session('practice_total_in_mode', count($practiceIds));
-        $answered = $totalInMode - count(array_diff($practiceIds, $skipped));
+        $currentItem = null;
+
+        if ($showAnsweredQuestion) {
+            // Zeige die gerade beantwortete Frage nochmal (mit Result)
+            $currentItem = ['type' => $answeredKind === 'extra' ? 'extra' : 'official', 'id' => (int) $answerResult['question_id']];
+        } elseif ($request->has('skip_id')) {
+            $skipId = (int) $request->input('skip_id');
+            // Skip nur für offizielle Fragen sinnvoll; trotzdem aus Queue entfernen
+            $practiceQueue = array_values(array_filter(
+                $practiceQueue,
+                fn ($it) => !(isset($it['id']) && (int) $it['id'] === $skipId && ($it['type'] ?? 'official') === 'official')
+            ));
+            session(['practice_queue' => $practiceQueue]);
+            // Sync practice_ids
+            session(['practice_ids' => array_values(array_map(
+                fn ($it) => (int) $it['id'],
+                array_filter($practiceQueue, fn ($it) => ($it['type'] ?? 'official') === 'official')
+            ))]);
+
+            $skipped = array_merge($skipped, [$skipId]);
+            session(['practice_skipped' => array_unique($skipped)]);
+
+            if (empty($practiceQueue)) {
+                return redirect()->route('practice.summary');
+            }
+            $currentItem = $practiceQueue[0];
+        } else {
+            // Normale Anzeige: erstes Item in der Queue
+            if (empty($practiceQueue)) {
+                return redirect()->route('practice.summary');
+            }
+            $currentItem = $practiceQueue[0];
+        }
+
+        // Lade die Frage aus der richtigen Tabelle
+        if (($currentItem['type'] ?? 'official') === 'extra') {
+            $question = ExtraQuestion::with([
+                'options', 'matchCategories', 'matchItems.correctCategory',
+            ])->find($currentItem['id']);
+        } else {
+            $question = Question::find($currentItem['id']);
+        }
+
+        // Prüfe ob Frage existiert; bei korruptem Eintrag: aus Queue entfernen und neu versuchen
+        if (!$question) {
+            \Log::warning('Practice: queue item not found, skipping', ['item' => $currentItem]);
+            $practiceQueue = array_values(array_filter(
+                $practiceQueue,
+                fn ($it) => !(isset($it['id']) && (int) $it['id'] === (int) $currentItem['id'] && ($it['type'] ?? 'official') === ($currentItem['type'] ?? 'official'))
+            ));
+            session(['practice_queue' => $practiceQueue]);
+            session(['practice_ids' => array_values(array_map(
+                fn ($it) => (int) $it['id'],
+                array_filter($practiceQueue, fn ($it) => ($it['type'] ?? 'official') === 'official')
+            ))]);
+
+            if (empty($practiceQueue)) {
+                $this->practiceService->cleanSession('global', null);
+                session()->forget(['practice_parameter', 'practice_skipped', 'practice_total_in_mode', 'practice_queue']);
+                return redirect()->route('practice.menu')->with('error', 'Die angeforderte Frage konnte nicht gefunden werden.');
+            }
+            return redirect()->route('practice.index');
+        }
+
+        $total = Question::count();
+        $progress = UserQuestionProgress::countMastered($user->id);
+        $progressOnce = UserQuestionProgress::countAtLevel($user->id, 1);
+        $progressTwice = UserQuestionProgress::countAtLevel($user->id, 2);
+
+        // Neue Fortschrittsbalken-Logik: Berücksichtigt auch 1x richtige Antworten
+        $threshold = UserQuestionProgress::MASTERY_THRESHOLD;
+        $progressData = UserQuestionProgress::where('user_id', $user->id)->get();
+        $totalProgressPoints = 0;
+        foreach ($progressData as $prog) {
+            $totalProgressPoints += min($prog->consecutive_correct, $threshold);
+        }
+        $maxProgressPoints = $total * $threshold;
+        $progressPercent = $maxProgressPoints > 0 ? round(($totalProgressPoints / $maxProgressPoints) * 100) : 0;
+
+        $totalInMode = session('practice_total_in_mode', count($practiceQueue));
+        $answered = $totalInMode - count($practiceQueue);
         $currentInMode = max(1, $answered + 1);
 
-        $difficultyInfo = $this->getQuestionDifficulty($question->id);
-
-        // Spaced Repetition: Prüfe ob diese Frage fällig ist
-        $srService = new SpacedRepetitionService();
-        $srDueIds = $srService->getDueQuestions($user->id);
-        $isSpacedRepetition = in_array($question->id, $srDueIds);
+        // Schwierigkeits-/SR-Info nur für offizielle Fragen
+        if (($currentItem['type'] ?? 'official') === 'official') {
+            $difficultyInfo = $this->getQuestionDifficulty($question->id);
+            $srService = new SpacedRepetitionService();
+            $srDueIds = $srService->getDueQuestions($user->id);
+            $isSpacedRepetition = in_array($question->id, $srDueIds);
+        } else {
+            $difficultyInfo = null;
+            $isSpacedRepetition = false;
+            $gamificationResult = null;
+        }
 
         // Service-based progress
         $serviceProgress = $this->practiceService->getProgress('global', null);
@@ -810,6 +913,10 @@ class PracticeController extends Controller
         // Delegate progress update, statistic creation, gamification, session stats + queue management to service
         $result = $this->practiceService->submitAnswer('global', null, $question->id, $userAnswer, $mapping);
         $isCorrect = $result['is_correct'];
+
+        // practice_queue mit practice_ids synchronisieren — nur verbleibende
+        // offizielle IDs bleiben; Extra-Items bleiben unverändert an ihrer Position.
+        $this->removeFromQueueAndSync($question->id, 'official');
 
         // Reload progress after service updated it
         $progressObj->refresh();
@@ -961,6 +1068,9 @@ class PracticeController extends Controller
             'practice_answer_result' => $answerResult,
         ]);
 
+        // Extra-Frage aus practice_queue entfernen
+        $this->removeFromQueueAndSync($extra->id, 'extra');
+
         // Lernsession-Tracking (XP: 0, Service hat für Extras noch kein eigenes Gamification-Hook)
         $lernsessionService = app(\App\Services\LernsessionService::class);
         $sessionParticipant = $lernsessionService->isUserInActiveSession($user);
@@ -1073,13 +1183,49 @@ class PracticeController extends Controller
         $streak = auth()->user()->streak_days ?? 0;
 
         // Clean up controller-managed session keys (service already cleaned its own)
-        session()->forget(['practice_parameter', 'practice_skipped', 'practice_total_in_mode']);
+        session()->forget(['practice_parameter', 'practice_skipped', 'practice_total_in_mode', 'practice_queue']);
 
         return view('practice-summary', compact('stats', 'totalAnswered', 'accuracy', 'durationMinutes', 'modeName', 'streak') + [
             'context' => 'global',
             'backUrl' => route('practice.menu'),
             'completed' => false,
         ]);
+    }
+
+    /**
+     * Entfernt das erste passende Item ({$type}, {$id}) aus practice_queue und
+     * synchronisiert practice_ids (nur offizielle IDs) als belt-and-suspenders
+     * für Legacy-Code, der noch practice_ids liest.
+     */
+    private function removeFromQueueAndSync(int $id, string $type): void
+    {
+        $queue = session('practice_queue', []);
+        if (!is_array($queue) || empty($queue)) {
+            return;
+        }
+
+        $removed = false;
+        $queue = array_values(array_filter($queue, function ($item) use ($id, $type, &$removed) {
+            if ($removed) {
+                return true;
+            }
+            $itemType = $item['type'] ?? 'official';
+            $itemId = (int) ($item['id'] ?? 0);
+            if ($itemType === $type && $itemId === $id) {
+                $removed = true;
+                return false;
+            }
+            return true;
+        }));
+
+        session(['practice_queue' => $queue]);
+
+        // practice_ids synchron halten — nur offizielle IDs
+        $officialOnly = array_values(array_map(
+            fn ($it) => (int) $it['id'],
+            array_filter($queue, fn ($it) => ($it['type'] ?? 'official') === 'official')
+        ));
+        session(['practice_ids' => $officialOnly]);
     }
 
     /**
