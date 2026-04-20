@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class ExtraQuestion extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'typ',
         'lernabschnitt',
