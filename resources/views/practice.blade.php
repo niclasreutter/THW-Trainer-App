@@ -16,7 +16,10 @@
 
     if ($hasAnswerResult) {
         $isCorrect = $answerResult['is_correct'];
-        $userAnswer = collect($answerResult['user_answer']);
+        // Bei Matching-Fragen liegt die Antwort unter 'assignments', sonst unter 'user_answer'.
+        $userAnswer = isset($answerResult['user_answer'])
+            ? collect($answerResult['user_answer'])
+            : null;
         $questionProgress = (object)['consecutive_correct' => $answerResult['question_progress'] ?? 0];
 
         // Lösche Sessions nur wenn alte Session-basierte Approach genutzt wird
