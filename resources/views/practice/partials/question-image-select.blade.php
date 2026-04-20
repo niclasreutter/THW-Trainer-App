@@ -200,6 +200,16 @@
                 <div class="isel-card {{ $stateClass }}" aria-label="Option">
                     @if($optImage)
                         <img src="{{ $optImage }}" alt="{{ $opt->text ?? 'Bildoption' }}" loading="lazy">
+                        <button type="button"
+                                class="img-zoom-btn"
+                                data-lightbox-src="{{ $optImage }}"
+                                data-lightbox-alt="{{ $opt->text ?? 'Bildoption' }}"
+                                data-lightbox-caption="{{ $opt->text ?? '' }}"
+                                aria-label="Bild in Vollansicht öffnen"
+                                title="Vollansicht"
+                                onclick="event.stopPropagation(); event.preventDefault();">
+                            <i class="bi bi-arrows-fullscreen"></i>
+                        </button>
                     @else
                         <div class="isel-card-missing">Kein Bild</div>
                     @endif
@@ -219,6 +229,16 @@
                     <input type="checkbox" name="answer[]" value="{{ $opt->id }}" onchange="updateSubmitButton()">
                     @if($optImage)
                         <img src="{{ $optImage }}" alt="{{ $opt->text ?? 'Bildoption' }}" loading="lazy">
+                        <button type="button"
+                                class="img-zoom-btn"
+                                data-lightbox-src="{{ $optImage }}"
+                                data-lightbox-alt="{{ $opt->text ?? 'Bildoption' }}"
+                                data-lightbox-caption="{{ $opt->text ?? '' }}"
+                                aria-label="Bild in Vollansicht öffnen"
+                                title="Vollansicht"
+                                onclick="event.stopPropagation(); event.preventDefault();">
+                            <i class="bi bi-arrows-fullscreen"></i>
+                        </button>
                     @else
                         <div class="isel-card-missing">Kein Bild</div>
                     @endif

@@ -82,7 +82,22 @@
     {{-- Bild --}}
     <div class="iname-frame">
         @if($imageUrl)
-            <img src="{{ $imageUrl }}" alt="Frage-Bild" loading="lazy">
+            <img src="{{ $imageUrl }}"
+                 alt="Frage-Bild"
+                 loading="lazy"
+                 class="img-zoom-trigger"
+                 data-lightbox-src="{{ $imageUrl }}"
+                 data-lightbox-alt="Frage-Bild"
+                 data-lightbox-caption="{{ $question->frage }}">
+            <button type="button"
+                    class="img-zoom-btn"
+                    data-lightbox-src="{{ $imageUrl }}"
+                    data-lightbox-alt="Frage-Bild"
+                    data-lightbox-caption="{{ $question->frage }}"
+                    aria-label="Bild in Vollansicht öffnen"
+                    title="Vollansicht">
+                <i class="bi bi-arrows-fullscreen"></i>
+            </button>
         @else
             <div class="iname-frame-missing">Kein Bild hinterlegt</div>
         @endif

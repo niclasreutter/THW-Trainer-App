@@ -1329,6 +1329,9 @@
             </form>
         </div>
 
+        {{-- Lightbox für Bild-Fragen (image_name + image_select) --}}
+        @include('practice.partials.image-lightbox')
+
         @auth
         <!-- Report Modal -->
         <div id="reportModal" class="report-overlay" onclick="if(event.target===this)closeReportModal()">
