@@ -27,34 +27,42 @@
 @endphp
 
 {{-- Frage-Bild --}}
-<div class="glass" style="padding: 1.5rem; margin-bottom: 1.25rem;">
-    <div class="section-header" style="padding-left: 1rem; border-left: 3px solid var(--gold-start); margin-bottom: 1rem;">
-        <h2 class="section-title" style="font-size: 1.05rem;">Frage-Bild</h2>
+<div class="zf-form-card" x-data="{
+    previewUrl: null,
+    hasFile: false,
+    onPick(ev) {
+        const f = ev.target.files[0];
+        this.previewUrl = f ? URL.createObjectURL(f) : null;
+        this.hasFile = !!f;
+    }
+}">
+    <div class="zf-form-card__label">
+        <span class="zf-section-label">Frage-Bild</span>
     </div>
 
     @if($existingImage)
-        <div class="hint" style="margin-bottom: 0.5rem;">Aktuelles Bild (wird bei neuem Upload ersetzt):</div>
-        <div class="image-preview" style="margin-bottom: 0.75rem;">
+        <div class="zf-help" style="margin-bottom: 0.5rem;">Aktuelles Bild (wird bei neuem Upload ersetzt):</div>
+        <div class="zf-image-preview" style="margin-bottom: 0.75rem;">
             <img src="{{ $existingImage }}" alt="Aktuelles Frage-Bild">
         </div>
     @endif
 
-    <div x-data="{ previewUrl: null, onPick(ev) { const f = ev.target.files[0]; this.previewUrl = f ? URL.createObjectURL(f) : null; } }">
-        <div class="file-field">
-            <input type="file" name="image" accept="image/jpeg,image/png,image/webp"
-                   @change="onPick($event)"
-                   {{ $existingImage ? '' : 'required' }}>
+    <label class="zf-upload" style="display: block; position: relative;">
+        <input type="file" name="image" accept="image/jpeg,image/png,image/webp"
+               @change="onPick($event)"
+               {{ $existingImage ? '' : 'required' }}>
+        <div class="zf-upload__icon"><i class="bi bi-cloud-arrow-up-fill"></i></div>
+        <div class="zf-upload__title" x-text="hasFile ? 'Anderes Bild wählen' : 'Bild hochladen'">Bild hochladen</div>
+        <div class="zf-upload__sub">JPG, PNG oder WebP · max. 5 MB</div>
+    </label>
+
+    <template x-if="previewUrl">
+        <div class="zf-image-preview">
+            <img :src="previewUrl" alt="Vorschau">
         </div>
-        <p class="hint">JPG, PNG oder WebP. Max. 5 MB.</p>
+    </template>
 
-        <template x-if="previewUrl">
-            <div class="image-preview">
-                <img :src="previewUrl" alt="Vorschau">
-            </div>
-        </template>
-
-        @error('image')<span class="field-error">{{ $message }}</span>@enderror
-    </div>
+    @error('image')<span class="zf-field-error">{{ $message }}</span>@enderror
 </div>
 
 {{-- Text-Optionen --}}
@@ -63,43 +71,42 @@
     addOption() { if (this.options.length < 6) this.options.push({ text: '', is_correct: false }); },
     removeOption(i) { if (this.options.length > 2) this.options.splice(i, 1); },
 }">
-    <div class="glass" style="padding: 1.5rem; margin-bottom: 1.25rem;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; gap: 1rem; flex-wrap: wrap;">
-            <div class="section-header" style="padding-left: 1rem; border-left: 3px solid var(--gold-start);">
-                <h2 class="section-title" style="font-size: 1.05rem;">Antwort-Optionen</h2>
-            </div>
-            <span class="hint" x-text="`${options.length} / 6 (min. 2, mind. 1 richtig)`"></span>
+    <div class="zf-form-card">
+        <div class="zf-form-card__label">
+            <span class="zf-section-label">Antwort-Optionen</span>
+            <span class="zf-hint" x-text="`${options.length} / 6 · mind. 1 richtig`"></span>
         </div>
 
         <template x-for="(opt, i) in options" :key="i">
-            <div class="dyn-row">
-                <span class="dyn-index" x-text="i + 1"></span>
-                <div class="dyn-body">
-                    <input type="text" class="field-input"
-                           :name="`options[${i}][text]`"
-                           x-model="opt.text"
-                           placeholder="Antwort-Text" required>
-                    <label class="checkbox-inline">
-                        {{-- Hidden-Value-Trick: stellt sicher, dass is_correct immer mit 0 oder 1 übermittelt wird --}}
+            <div class="zf-option-row">
+                <div class="zf-option-num" x-text="String.fromCharCode(65 + i)"></div>
+                <div class="zf-option-body">
+                    <label class="zf-correct-toggle" :class="{ 'is-correct': opt.is_correct }">
                         <input type="hidden" :name="`options[${i}][is_correct]`" :value="opt.is_correct ? 1 : 0">
                         <input type="checkbox" x-model="opt.is_correct">
-                        <span>Richtige Antwort</span>
+                        <span>Richtig</span>
                     </label>
+                    <input type="text" class="zf-input"
+                           :name="`options[${i}][text]`"
+                           x-model="opt.text"
+                           :placeholder="`Antwort ${i + 1}`" required>
                 </div>
-                <button type="button" class="btn-icon-remove"
+                <button type="button" class="zf-option-remove"
                         @click="removeOption(i)"
                         :disabled="options.length <= 2"
                         title="Option entfernen">
-                    <i class="bi bi-x-lg"></i>
+                    <i class="bi bi-trash"></i>
                 </button>
             </div>
         </template>
 
-        <button type="button" class="btn-add-row"
-                @click="addOption()"
-                :disabled="options.length >= 6">
-            <i class="bi bi-plus-lg"></i> Option hinzufügen
-        </button>
-        @error('options')<span class="field-error">{{ $message }}</span>@enderror
+        <div class="zf-add-row">
+            <button type="button" class="zf-add-btn"
+                    @click="addOption()"
+                    :disabled="options.length >= 6">
+                <i class="bi bi-plus-lg"></i> Option hinzufügen
+            </button>
+        </div>
+        @error('options')<span class="zf-field-error">{{ $message }}</span>@enderror
     </div>
 </div>

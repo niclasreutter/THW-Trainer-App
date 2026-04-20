@@ -3,102 +3,205 @@
 @section('description', 'Verwalte optionale Zusatz-Fragen (Zuordnung, Bild benennen, Bild auswählen).')
 
 @push('styles')
+@include('admin.extra-questions.partials._styles')
 <style>
-    .typ-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.35rem;
-        padding: 0.2rem 0.6rem;
-        font-size: 0.7rem;
-        font-weight: 700;
-        letter-spacing: 0.03em;
-        text-transform: uppercase;
+    .zf-empty {
+        padding: 3.25rem 1.5rem;
+        text-align: center;
+    }
+    .zf-empty__icon {
+        width: 64px;
+        height: 64px;
+        margin: 0 auto 1rem;
         border-radius: 999px;
-        border: 1px solid rgba(255,255,255,0.12);
-        background: rgba(255,255,255,0.04);
-        color: var(--text-secondary);
-    }
-    .typ-badge.typ-matching { color: #a5b4fc; border-color: rgba(165,180,252,0.35); background: rgba(99,102,241,0.08); }
-    .typ-badge.typ-image_name { color: #6ee7b7; border-color: rgba(110,231,183,0.35); background: rgba(16,185,129,0.08); }
-    .typ-badge.typ-image_select { color: #fcd34d; border-color: rgba(252,211,77,0.35); background: rgba(245,158,11,0.08); }
-
-    .lernabschnitt-badge {
-        display: inline-block;
-        padding: 0.2rem 0.55rem;
-        font-size: 0.72rem;
-        font-weight: 700;
-        border-radius: 0.375rem;
-        background: linear-gradient(135deg, var(--thw-blue-start) 0%, var(--thw-blue-end) 100%);
-        color: #fff;
-        letter-spacing: 0.02em;
-    }
-
-    .eq-row {
+        background: rgba(0, 51, 127, 0.08);
         display: grid;
-        grid-template-columns: auto auto 1fr auto;
-        gap: 1rem;
-        align-items: center;
-        padding: 0.9rem 1rem;
-        border-bottom: 1px solid rgba(255,255,255,0.05);
-        transition: background 0.15s;
+        place-items: center;
+        color: var(--thw-blue);
+        font-size: 1.75rem;
     }
-    .eq-row:last-child { border-bottom: none; }
-    .eq-row:hover { background: rgba(255,255,255,0.02); }
+    html:not(.light-mode) .zf-empty__icon {
+        background: rgba(91, 154, 255, 0.12);
+        color: #5b9aff;
+    }
+    .zf-empty__text {
+        font-size: 0.9375rem;
+        color: var(--text-secondary);
+        margin: 0 0 1.25rem;
+    }
 
-    .eq-frage {
+    .zf-section-group { padding: 0.25rem 0.75rem 0.75rem; }
+    .zf-section-group + .zf-section-group { margin-top: 1.25rem; }
+    .zf-section-group__head {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 0.75rem;
+        padding: 0.875rem 0.5rem;
+        border-bottom: 1px solid rgba(0, 51, 127, 0.06);
+        margin-bottom: 0.25rem;
+    }
+    html:not(.light-mode) .zf-section-group__head { border-bottom-color: rgba(255, 255, 255, 0.06); }
+    .zf-section-group__title {
+        font-family: var(--font-mono, 'IBM Plex Mono', monospace);
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--thw-blue);
+    }
+    html:not(.light-mode) .zf-section-group__title { color: #5b9aff; }
+    .zf-section-group__count {
+        font-family: var(--font-mono, 'IBM Plex Mono', monospace);
+        font-size: 0.6875rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+    }
+
+    .zf-list-row {
+        display: grid;
+        grid-template-columns: 2.5rem 1fr auto auto auto;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.875rem 0.75rem;
+        border-radius: 0.625rem;
+        transition: background 0.15s ease;
+    }
+    .zf-list-row + .zf-list-row { border-top: 1px solid rgba(0, 51, 127, 0.06); }
+    html:not(.light-mode) .zf-list-row + .zf-list-row { border-top-color: rgba(255, 255, 255, 0.05); }
+    .zf-list-row:hover { background: rgba(0, 51, 127, 0.04); }
+    html:not(.light-mode) .zf-list-row:hover { background: rgba(91, 154, 255, 0.06); }
+    .zf-list-num {
+        font-family: var(--font-mono, 'IBM Plex Mono', monospace);
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--text-muted);
+    }
+    .zf-list-title {
+        font-size: 0.9375rem;
+        font-weight: 600;
         color: var(--text-primary);
-        font-size: 0.92rem;
-        line-height: 1.45;
         display: -webkit-box;
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
+        line-height: 1.4;
+    }
+    .zf-list-meta {
+        font-family: var(--font-mono, 'IBM Plex Mono', monospace);
+        font-size: 0.6875rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--text-muted);
+        margin-top: 0.25rem;
     }
 
-    .eq-actions {
+    .zf-type-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.325rem;
+        padding: 0.2rem 0.55rem;
+        border-radius: 999px;
+        font-family: var(--font-mono, 'IBM Plex Mono', monospace);
+        font-size: 0.625rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        white-space: nowrap;
+    }
+    .zf-type-chip--matching     { background: rgba(0, 51, 127, 0.10);   color: var(--thw-blue); }
+    html:not(.light-mode) .zf-type-chip--matching { background: rgba(91, 154, 255, 0.14); color: #5b9aff; }
+    .zf-type-chip--image_name   { background: rgba(22, 163, 74, 0.12);  color: #16a34a; }
+    .zf-type-chip--image_select { background: rgba(139, 92, 246, 0.14); color: #8b5cf6; }
+
+    .zf-row-actions {
         display: flex;
-        gap: 0.4rem;
+        gap: 0.35rem;
         align-items: center;
     }
-
-    .eq-empty {
-        text-align: center;
-        padding: 3rem 1rem;
+    .zf-icon-btn {
+        width: 2rem;
+        height: 2rem;
+        border-radius: 0.5rem;
+        background: transparent;
+        border: 1px solid rgba(0, 51, 127, 0.10);
         color: var(--text-muted);
+        cursor: pointer;
+        display: grid;
+        place-items: center;
+        font-size: 0.85rem;
+        text-decoration: none;
+        transition: all 0.15s ease;
+    }
+    html:not(.light-mode) .zf-icon-btn { border-color: rgba(255, 255, 255, 0.10); }
+    .zf-icon-btn:hover {
+        border-color: var(--thw-blue);
+        color: var(--thw-blue);
+        background: rgba(0, 51, 127, 0.04);
+    }
+    html:not(.light-mode) .zf-icon-btn:hover {
+        border-color: #5b9aff;
+        color: #5b9aff;
+        background: rgba(91, 154, 255, 0.08);
+    }
+    .zf-icon-btn--danger:hover {
+        border-color: #ef4444;
+        color: #ef4444;
+        background: rgba(239, 68, 68, 0.06);
     }
 
-    .section-group + .section-group { margin-top: 1.5rem; }
-
     @media (max-width: 640px) {
-        .eq-row { grid-template-columns: 1fr; }
-        .eq-actions { justify-content: flex-start; }
+        .zf-list-row { grid-template-columns: 1fr; gap: 0.5rem; }
+        .zf-list-num { display: none; }
+        .zf-row-actions { justify-content: flex-start; }
     }
 </style>
 @endpush
 
 @section('content')
-<div class="dashboard-container">
-    <header class="dashboard-header">
-        <h1 class="page-title">Zusatz-<span>Fragen</span></h1>
-        <p class="page-subtitle">Optionale Lern-Ergänzung: Zuordnung, Bild benennen, Bild auswählen</p>
-    </header>
+@php
+    $total = $questions->count();
+    $byTyp = $questions->groupBy('typ');
+    $countMatching    = $byTyp->get('matching', collect())->count();
+    $countImageName   = $byTyp->get('image_name', collect())->count();
+    $countImageSelect = $byTyp->get('image_select', collect())->count();
+    $grouped = $questions->groupBy('lernabschnitt');
+
+    $typLabels = [
+        'matching'     => 'Zuordnung',
+        'image_name'   => 'Bild benennen',
+        'image_select' => 'Bild auswählen',
+    ];
+    $typIcons = [
+        'matching'     => 'bi-diagram-3-fill',
+        'image_name'   => 'bi-image-fill',
+        'image_select' => 'bi-grid-3x3-gap-fill',
+    ];
+@endphp
+
+<div class="dash-container">
+    <div class="zf-page-title">
+        <div class="zf-page-title__eyebrow">Admin · Fragen</div>
+        <h1 class="zf-page-title__h1">Zusatz-Fragen</h1>
+        <div class="zf-page-title__sub">Optionale Lern-Ergänzung: Zuordnung, Bild benennen, Bild auswählen</div>
+    </div>
 
     @if(session('success'))
-        <div class="glass-success" style="padding: 1.25rem; margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: flex-start;">
-            <i class="bi bi-check-circle" style="font-size: 1.25rem; flex-shrink: 0;"></i>
-            <div>
-                <strong>Erfolg!</strong>
-                <p style="margin: 0.25rem 0 0 0;">{{ session('success') }}</p>
-            </div>
+        <div class="zf-alert zf-alert--success">
+            <i class="bi bi-check-circle-fill"></i>
+            <div><strong>Erfolg!</strong>{{ session('success') }}</div>
         </div>
     @endif
 
     @if($errors->any())
-        <div class="glass-error" style="padding: 1.25rem; margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: flex-start;">
-            <i class="bi bi-x-circle" style="font-size: 1.25rem; flex-shrink: 0;"></i>
+        <div class="zf-alert zf-alert--error">
+            <i class="bi bi-x-circle-fill"></i>
             <div>
                 <strong>Fehler!</strong>
-                <ul style="margin: 0.25rem 0 0 0; padding-left: 1.25rem;">
+                <ul>
                     @foreach($errors->all() as $error)
                         <li>{{ $error }}</li>
                     @endforeach
@@ -107,123 +210,90 @@
         </div>
     @endif
 
-    @php
-        $total = $questions->count();
-        $byTyp = $questions->groupBy('typ');
-        $countMatching = $byTyp->get('matching', collect())->count();
-        $countImageName = $byTyp->get('image_name', collect())->count();
-        $countImageSelect = $byTyp->get('image_select', collect())->count();
-        $grouped = $questions->groupBy('lernabschnitt');
-
-        $typLabels = [
-            'matching' => 'Zuordnung',
-            'image_name' => 'Bild benennen',
-            'image_select' => 'Bild auswählen',
-        ];
-    @endphp
-
-    <div class="stats-row">
-        <div class="stat-pill">
-            <span class="stat-pill-icon text-gold"><i class="bi bi-collection"></i></span>
-            <div>
-                <div class="stat-pill-value">{{ $total }}</div>
-                <div class="stat-pill-label">Gesamt</div>
-            </div>
+    <div class="zf-stat-pills">
+        <div class="zf-stat-pill">
+            <div class="zf-stat-pill__value">{{ $total }}</div>
+            <div class="zf-stat-pill__label">Gesamt</div>
         </div>
-        <div class="stat-pill">
-            <span class="stat-pill-icon text-thw-blue"><i class="bi bi-diagram-3"></i></span>
-            <div>
-                <div class="stat-pill-value">{{ $countMatching }}</div>
-                <div class="stat-pill-label">Zuordnung</div>
-            </div>
+        <div class="zf-stat-pill">
+            <div class="zf-stat-pill__value zf-stat-pill__value--blue">{{ $countMatching }}</div>
+            <div class="zf-stat-pill__label">Zuordnung</div>
         </div>
-        <div class="stat-pill">
-            <span class="stat-pill-icon text-success"><i class="bi bi-image"></i></span>
-            <div>
-                <div class="stat-pill-value">{{ $countImageName }}</div>
-                <div class="stat-pill-label">Bild benennen</div>
-            </div>
+        <div class="zf-stat-pill">
+            <div class="zf-stat-pill__value zf-stat-pill__value--ok">{{ $countImageName }}</div>
+            <div class="zf-stat-pill__label">Bild benennen</div>
         </div>
-        <div class="stat-pill">
-            <span class="stat-pill-icon text-gold"><i class="bi bi-grid-3x3-gap"></i></span>
-            <div>
-                <div class="stat-pill-value">{{ $countImageSelect }}</div>
-                <div class="stat-pill-label">Bild auswählen</div>
-            </div>
+        <div class="zf-stat-pill">
+            <div class="zf-stat-pill__value zf-stat-pill__value--warn">{{ $countImageSelect }}</div>
+            <div class="zf-stat-pill__label">Bild auswählen</div>
         </div>
     </div>
 
-    <div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin: 1.5rem 0 1rem;">
-        <div class="section-header" style="padding-left: 1rem; border-left: 3px solid var(--gold-start);">
-            <h2 class="section-title">Alle Zusatz-Fragen</h2>
-        </div>
+    <div class="zf-action-row">
+        <span class="zf-section-label">
+            Alle Zusatz-Fragen{{ $total > 0 ? ' · '.$total : '' }}
+        </span>
         <a href="{{ route('admin.extra-questions.create') }}" class="btn-primary">
-            Neue Zusatz-Frage
+            <i class="bi bi-plus-lg"></i> Neue Zusatz-Frage
         </a>
     </div>
 
-    @if($total === 0)
-        <div class="glass eq-empty">
-            <div style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;">
-                <i class="bi bi-collection"></i>
+    <div class="zf-form-card" style="padding: 0.75rem; overflow: hidden;">
+        @if($total === 0)
+            <div class="zf-empty">
+                <div class="zf-empty__icon"><i class="bi bi-inboxes"></i></div>
+                <p class="zf-empty__text">Noch keine Zusatz-Fragen vorhanden.</p>
+                <a href="{{ route('admin.extra-questions.create') }}" class="btn-primary">
+                    <i class="bi bi-plus-lg"></i> Erste Zusatz-Frage anlegen
+                </a>
             </div>
-            <p style="margin: 0 0 1rem;">Noch keine Zusatz-Fragen vorhanden.</p>
-            <a href="{{ route('admin.extra-questions.create') }}" class="btn-primary">
-                Erste Zusatz-Frage anlegen
-            </a>
-        </div>
-    @else
-        <div class="bento-grid">
+        @else
             @foreach($grouped as $lernabschnitt => $group)
-                <div class="glass-tl bento-wide section-group" style="padding: 1.25rem 1.5rem;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; gap: 0.75rem; flex-wrap: wrap;">
-                        <h3 style="font-size: 1rem; font-weight: 700; margin: 0; display: flex; align-items: center; gap: 0.6rem;">
-                            <span class="lernabschnitt-badge">{{ $lernabschnitt }}</span>
-                            <span style="color: var(--text-muted); font-weight: 500; font-size: 0.85rem;">
-                                {{ $group->count() }} {{ $group->count() === 1 ? 'Frage' : 'Fragen' }}
-                            </span>
-                        </h3>
+                <div class="zf-section-group">
+                    <div class="zf-section-group__head">
+                        <span class="zf-section-group__title">Lernabschnitt {{ $lernabschnitt }}</span>
+                        <span class="zf-section-group__count">
+                            {{ $group->count() }} {{ $group->count() === 1 ? 'Frage' : 'Fragen' }}
+                        </span>
                     </div>
-
-                    <div>
-                        @foreach($group as $q)
-                            <div class="eq-row">
-                                <span class="typ-badge typ-{{ $q->typ }}">
+                    @foreach($group as $idx => $q)
+                        <div class="zf-list-row">
+                            <div class="zf-list-num">#{{ str_pad($q->id, 2, '0', STR_PAD_LEFT) }}</div>
+                            <div>
+                                <div class="zf-list-title">{{ $q->frage }}</div>
+                                <div class="zf-list-meta">
                                     @if($q->typ === 'matching')
-                                        <i class="bi bi-diagram-3"></i>
+                                        {{ $q->matchCategories->count() }} Kategorien · {{ $q->matchItems->count() }} Items
                                     @elseif($q->typ === 'image_name')
-                                        <i class="bi bi-image"></i>
-                                    @else
-                                        <i class="bi bi-grid-3x3-gap"></i>
+                                        {{ $q->options->count() }} Antworten
+                                    @elseif($q->typ === 'image_select')
+                                        {{ $q->options->count() }} Bilder
                                     @endif
-                                    {{ $typLabels[$q->typ] ?? $q->typ }}
-                                </span>
-
-                                <span style="color: var(--text-muted); font-size: 0.78rem; font-variant-numeric: tabular-nums;">
-                                    #{{ $q->id }}
-                                </span>
-
-                                <div class="eq-frage">{{ $q->frage }}</div>
-
-                                <div class="eq-actions">
-                                    <a href="{{ route('admin.extra-questions.edit', $q) }}" class="btn-secondary" style="padding: 0.4rem 0.75rem; font-size: 0.8rem;">
-                                        Bearbeiten
-                                    </a>
-                                    <form method="POST" action="{{ route('admin.extra-questions.destroy', $q) }}"
-                                          onsubmit="return confirm('Zusatz-Frage wirklich löschen?')" style="margin: 0;">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn-ghost" style="padding: 0.4rem 0.65rem; color: var(--error); font-size: 0.8rem;">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </form>
                                 </div>
                             </div>
-                        @endforeach
-                    </div>
+                            <span class="zf-type-chip zf-type-chip--{{ $q->typ }}">
+                                <i class="bi {{ $typIcons[$q->typ] ?? 'bi-question' }}"></i>
+                                {{ $typLabels[$q->typ] ?? $q->typ }}
+                            </span>
+                            <div class="zf-row-actions">
+                                <a href="{{ route('admin.extra-questions.edit', $q) }}" class="zf-icon-btn" title="Bearbeiten">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <form method="POST" action="{{ route('admin.extra-questions.destroy', $q) }}"
+                                      onsubmit="return confirm('Zusatz-Frage wirklich löschen?')" style="margin: 0;">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="zf-icon-btn zf-icon-btn--danger" title="Löschen">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                            <i class="bi bi-chevron-right" style="color: var(--text-muted); font-size: 0.85rem;"></i>
+                        </div>
+                    @endforeach
                 </div>
             @endforeach
-        </div>
-    @endif
+        @endif
+    </div>
 </div>
 @endsection
