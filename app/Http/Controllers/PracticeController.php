@@ -9,6 +9,7 @@ use App\Models\QuestionIssueReport;
 use App\Models\QuestionStatistic;
 use App\Models\UserQuestionProgress;
 use App\Models\ExtraQuestion;
+use App\Models\UserExtraQuestionProgress;
 use App\Services\ExtraQuestionService;
 use App\Services\GamificationService;
 use App\Services\PracticeSessionService;
@@ -43,6 +44,47 @@ class PracticeController extends Controller
         10 => 'Grundlagen der Rettung und Bergung'
     ];
 
+    /**
+     * Gesamtfortschritt (optional inkl. Zusatzfragen, falls aktiviert).
+     *
+     * @return array{total:int,mastered:int,once:int,twice:int,percent:int}
+     */
+    private function computeOverallProgress($user): array
+    {
+        $threshold = UserQuestionProgress::MASTERY_THRESHOLD;
+
+        $total = Question::count();
+        $mastered = UserQuestionProgress::countMastered($user->id);
+        $once = UserQuestionProgress::countAtLevel($user->id, 1);
+        $twice = UserQuestionProgress::countAtLevel($user->id, 2);
+
+        $totalPoints = 0;
+        foreach (UserQuestionProgress::where('user_id', $user->id)->get() as $prog) {
+            $totalPoints += min($prog->consecutive_correct, $threshold);
+        }
+
+        if ($user->extras_enabled) {
+            $total += ExtraQuestion::count();
+            $mastered += UserExtraQuestionProgress::countMastered($user->id);
+            $once += UserExtraQuestionProgress::countAtLevel($user->id, 1);
+            $twice += UserExtraQuestionProgress::countAtLevel($user->id, 2);
+
+            foreach (UserExtraQuestionProgress::where('user_id', $user->id)->get() as $prog) {
+                $totalPoints += min($prog->consecutive_correct, $threshold);
+            }
+        }
+
+        $max = $total * $threshold;
+        $percent = $max > 0 ? (int) round(($totalPoints / $max) * 100) : 0;
+
+        return [
+            'total' => $total,
+            'mastered' => $mastered,
+            'once' => $once,
+            'twice' => $twice,
+            'percent' => $percent,
+        ];
+    }
 
     /**
      * Zeige das Practice-Menü
@@ -60,19 +102,15 @@ class PracticeController extends Controller
 
         $totalQuestions = $questionsBySection->flatten()->count();
 
-        // Fortschritt basierend auf tatsächlichem Mastery-Status (consecutive_correct)
-        $threshold = UserQuestionProgress::MASTERY_THRESHOLD;
-        $progressData = UserQuestionProgress::where('user_id', $user->id)->get();
-        $totalProgressPoints = 0;
-        foreach ($progressData as $prog) {
-            $totalProgressPoints += min($prog->consecutive_correct, $threshold);
-        }
-        $maxProgressPoints = $totalQuestions * $threshold;
-        $progressPercentage = $maxProgressPoints > 0 ? round(($totalProgressPoints / $maxProgressPoints) * 100) : 0;
+        // Gesamt-Fortschritt (inkl. Zusatzfragen falls aktiviert)
+        $overall = $this->computeOverallProgress($user);
+        $totalQuestions = $overall['total'];
+        $progressPercentage = $overall['percent'];
 
-        // Gemeisterte Fragen basierend auf consecutive_correct >= MASTERY_THRESHOLD
+        // Gemeisterte offizielle Fragen (für Sync mit solved_questions)
+        $progressData = UserQuestionProgress::where('user_id', $user->id)->get();
         $masteredQuestionIds = $progressData->filter(fn($p) => $p->isMastered())->pluck('question_id')->toArray();
-        $solvedCount = count($masteredQuestionIds);
+        $solvedCount = $overall['mastered'];
         $failedCount = count($failed);
 
         $unsolvedCount = $totalQuestions - $solvedCount;
@@ -656,21 +694,12 @@ class PracticeController extends Controller
             'official_count' => count($officialIds),
         ]);
 
-        $totalQuestions = Question::count();
-        $total = $totalQuestions;
-        $progress = UserQuestionProgress::countMastered($user->id);
-        $progressOnce = UserQuestionProgress::countAtLevel($user->id, 1);
-        $progressTwice = UserQuestionProgress::countAtLevel($user->id, 2);
-
-        // Neue Fortschrittsbalken-Logik: Berücksichtigt auch 1x richtige Antworten
-        $threshold = UserQuestionProgress::MASTERY_THRESHOLD;
-        $progressData = UserQuestionProgress::where('user_id', $user->id)->get();
-        $totalProgressPoints = 0;
-        foreach ($progressData as $prog) {
-            $totalProgressPoints += min($prog->consecutive_correct, $threshold);
-        }
-        $maxProgressPoints = $totalQuestions * $threshold;
-        $progressPercent = $maxProgressPoints > 0 ? round(($totalProgressPoints / $maxProgressPoints) * 100) : 0;
+        $overall = $this->computeOverallProgress($user);
+        $total = $overall['total'];
+        $progress = $overall['mastered'];
+        $progressOnce = $overall['once'];
+        $progressTwice = $overall['twice'];
+        $progressPercent = $overall['percent'];
 
         // Session für aktuellen Modus speichern (via Service).
         // practice_ids enthält NUR offizielle IDs (für backwards-compat).
@@ -810,20 +839,12 @@ class PracticeController extends Controller
             return redirect()->route('practice.index');
         }
 
-        $total = Question::count();
-        $progress = UserQuestionProgress::countMastered($user->id);
-        $progressOnce = UserQuestionProgress::countAtLevel($user->id, 1);
-        $progressTwice = UserQuestionProgress::countAtLevel($user->id, 2);
-
-        // Neue Fortschrittsbalken-Logik: Berücksichtigt auch 1x richtige Antworten
-        $threshold = UserQuestionProgress::MASTERY_THRESHOLD;
-        $progressData = UserQuestionProgress::where('user_id', $user->id)->get();
-        $totalProgressPoints = 0;
-        foreach ($progressData as $prog) {
-            $totalProgressPoints += min($prog->consecutive_correct, $threshold);
-        }
-        $maxProgressPoints = $total * $threshold;
-        $progressPercent = $maxProgressPoints > 0 ? round(($totalProgressPoints / $maxProgressPoints) * 100) : 0;
+        $overall = $this->computeOverallProgress($user);
+        $total = $overall['total'];
+        $progress = $overall['mastered'];
+        $progressOnce = $overall['once'];
+        $progressTwice = $overall['twice'];
+        $progressPercent = $overall['percent'];
 
         $totalInMode = session('practice_total_in_mode', count($practiceQueue));
         $answered = $totalInMode - count($practiceQueue);
