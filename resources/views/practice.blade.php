@@ -1287,6 +1287,44 @@
             margin-top: 0;
         }
     }
+
+    /* =========================================================
+       NARROW DESKTOP (641-1279.98px) — Kompaktere Darstellung,
+       damit auf schmalen Viewports mit sichtbarer Sidebar alles
+       ohne Scroll sichtbar ist.
+       ========================================================= */
+    @media (min-width: 641px) and (max-width: 1279.98px) {
+        .practice-shell { padding: 1rem 1.25rem calc(92px + 0.75rem); }
+
+        .practice-header { margin-bottom: 0.5rem; }
+        .practice-header .practice-greeting { margin-bottom: 0.25rem; font-size: 0.625rem; }
+        .practice-header .practice-title { font-size: 1.75rem; margin-bottom: 0.2rem; }
+        .practice-header .practice-title .pt-of { font-size: 1rem; }
+        .practice-header .practice-subline { font-size: 0.875rem; }
+        .practice-header .bookmark-btn-lg { width: 34px; height: 34px; }
+
+        .practice-badges { gap: 0.375rem; margin-bottom: 0.625rem; }
+        .p-badge { padding: 0.15rem 0.5rem; font-size: 0.5625rem; }
+
+        .practice-exam-progress { gap: 0.5rem; margin-bottom: 0.625rem; }
+        .pep-row { padding: 0.4rem 0.75rem; gap: 0.5rem; }
+        .pep-label { font-size: 0.625rem; }
+        .pep-num { font-size: 0.875rem; }
+
+        .practice-card .question-meta { margin-bottom: 0.35rem; }
+        .practice-card .question-text {
+            font-size: 1.0625rem;
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.75rem;
+        }
+
+        .practice-actions {
+            padding: 0.55rem 1.25rem calc(0.55rem + env(safe-area-inset-bottom, 0px));
+            gap: 0.25rem;
+        }
+        .practice-actions .action-submit { padding: 0.65rem 1rem; font-size: 0.9375rem; }
+        .practice-actions .action-end { font-size: 0.75rem; }
+    }
 </style>
 @endpush
 
