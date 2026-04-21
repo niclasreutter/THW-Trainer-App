@@ -1261,11 +1261,11 @@ html.light-mode .exam-answer.result-missed {
 }
 
 /* =========================================================
-   NARROW DESKTOP (641-1439.98px) — Kompaktere Darstellung,
+   NARROW DESKTOP (641-1919.98px) — Kompaktere Darstellung,
    damit auf schmalen Viewports mit sichtbarer Sidebar alles
    ohne Scroll sichtbar ist.
    ========================================================= */
-@media (min-width: 641px) and (max-width: 1439.98px) {
+@media (min-width: 641px) and (max-width: 1919.98px) {
     .exam-header { margin-bottom: 0.5rem; }
     .exam-title { font-size: 1.125rem; margin: 0.15rem 0; }
     .exam-title .exam-qtotal { font-size: 0.875rem; }
