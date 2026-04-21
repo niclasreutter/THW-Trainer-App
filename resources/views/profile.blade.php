@@ -1,49 +1,86 @@
 @extends('layouts.app')
 
-@section('title', 'Profil bearbeiten - THW Trainer')
+@section('title', 'Profil - THW Trainer')
 @section('description', 'Bearbeite dein THW-Trainer Profil: Ändere deine persönlichen Daten, Passwort und verwalte deinen Account.')
 
 @push('styles')
 <link rel="preconnect" href="https://fonts.bunny.net">
 <link href="https://fonts.bunny.net/css2?family=Barlow+Condensed:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-    /* ─── Avatar ─── */
-    .pf-avatar-card {
+    /* ─── Layout ─── */
+    .pf-layout {
+        display: grid;
+        grid-template-columns: 300px 1fr;
+        gap: 1.5rem;
+        align-items: start;
+    }
+
+    @media (max-width: 860px) {
+        .pf-layout {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .pf-sidebar {
         display: flex;
-        align-items: center;
-        gap: 1.25rem;
+        flex-direction: column;
+        gap: 1rem;
+        position: sticky;
+        top: 5rem;
     }
 
-    .pf-avatar-wrap {
+    @media (max-width: 860px) {
+        .pf-sidebar { position: static; }
+    }
+
+    .pf-main {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    /* ─── Hero Card ─── */
+    .pf-hero {
+        border-radius: 1.25rem;
+        padding: 1.75rem 1.5rem;
+        text-align: center;
         position: relative;
-        flex-shrink: 0;
+        overflow: hidden;
     }
 
-    .pf-avatar {
-        width: 72px;
-        height: 72px;
+    .pf-hero-avatar-wrap {
+        position: relative;
+        display: inline-block;
+        margin-bottom: 1rem;
+    }
+
+    .pf-hero-avatar {
+        width: 120px;
+        height: 120px;
         border-radius: 50%;
-        border: 2px solid rgba(255, 255, 255, 0.1);
+        border: 3px solid rgba(255, 255, 255, 0.15);
         object-fit: cover;
         background: rgba(255, 255, 255, 0.05);
         display: block;
+        box-shadow: 0 0 0 6px rgba(91, 154, 255, 0.1), 0 8px 32px rgba(0, 51, 127, 0.35);
     }
 
-    html.light-mode .pf-avatar {
-        border-color: rgba(0, 51, 127, 0.12);
+    html.light-mode .pf-hero-avatar {
+        border-color: rgba(0, 51, 127, 0.2);
+        box-shadow: 0 0 0 6px rgba(0, 51, 127, 0.07), 0 8px 24px rgba(0, 51, 127, 0.15);
     }
 
-    .pf-avatar-regen {
+    .pf-hero-regen {
         position: absolute;
-        bottom: -2px;
-        right: -2px;
-        width: 26px;
-        height: 26px;
+        bottom: 2px;
+        right: 2px;
+        width: 32px;
+        height: 32px;
         border-radius: 50%;
         background: linear-gradient(135deg, #00337F, #0055cc);
-        border: 2px solid var(--bg-base);
+        border: 2.5px solid var(--bg-base);
         color: #fff;
-        font-size: 0.7rem;
+        font-size: 0.75rem;
         cursor: pointer;
         display: flex;
         align-items: center;
@@ -52,12 +89,12 @@
         padding: 0;
     }
 
-    .pf-avatar-regen:hover {
+    .pf-hero-regen:hover {
         transform: scale(1.15);
-        box-shadow: 0 4px 12px rgba(0, 51, 127, 0.35);
+        box-shadow: 0 4px 14px rgba(0, 51, 127, 0.45);
     }
 
-    .pf-avatar-regen.is-spinning i {
+    .pf-hero-regen.is-spinning i {
         animation: pf-spin 0.6s ease-in-out;
     }
 
@@ -66,34 +103,31 @@
         to   { transform: rotate(360deg); }
     }
 
-    html.light-mode .pf-avatar-regen {
+    html.light-mode .pf-hero-regen {
         border-color: var(--bg-elevated);
     }
 
-    .pf-avatar-info { flex: 1; min-width: 0; }
-
-    .pf-avatar-name {
-        font-size: 1.125rem;
+    .pf-hero-name {
+        font-size: 1.375rem;
         font-weight: 800;
-        color: var(--text-primary);
         font-family: 'Barlow Condensed', sans-serif;
+        color: var(--text-primary);
         line-height: 1.2;
-        margin-bottom: 0.15rem;
+        margin-bottom: 0.2rem;
     }
 
-    .pf-avatar-email {
-        font-size: 0.8125rem;
+    .pf-hero-email {
+        font-size: 0.8rem;
         color: var(--text-secondary);
-        margin-bottom: 0.4rem;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        margin-bottom: 0.75rem;
+        word-break: break-all;
     }
 
-    .pf-avatar-tags {
+    .pf-hero-tags {
         display: flex;
         gap: 0.4rem;
         flex-wrap: wrap;
+        justify-content: center;
     }
 
     .pf-tag {
@@ -101,7 +135,7 @@
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.06em;
-        padding: 0.15rem 0.4rem;
+        padding: 0.2rem 0.5rem;
         border-radius: 2rem;
         font-family: 'IBM Plex Mono', monospace;
     }
@@ -111,16 +145,140 @@
     .pf-tag--info { background: rgba(91, 154, 255, 0.1); color: #5b9aff; }
     html.light-mode .pf-tag--info { background: rgba(0, 51, 127, 0.08); color: #00337F; }
 
-    /* ─── Form ─── */
-    .pf-form-group { margin-bottom: 0.875rem; }
-    .pf-form-hint { color: var(--text-muted); font-size: 0.6875rem; margin-top: 0.25rem; }
-
-    .pf-form-error {
-        color: #ef4444;
-        font-size: 0.75rem;
-        margin-top: 0.3rem;
+    /* ─── Sidebar Stats ─── */
+    .pf-stat-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
     }
 
+    .pf-stat-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.6rem 0;
+    }
+
+    .pf-stat-row + .pf-stat-row {
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    html.light-mode .pf-stat-row + .pf-stat-row {
+        border-top-color: rgba(0, 51, 127, 0.07);
+    }
+
+    .pf-stat-label {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+
+    .pf-stat-label i { opacity: 0.7; font-size: 0.8rem; }
+
+    .pf-stat-value {
+        font-size: 0.8125rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        text-align: right;
+    }
+
+    .pf-stat-sub {
+        display: block;
+        font-size: 0.625rem;
+        color: var(--text-muted);
+        font-weight: 400;
+    }
+
+    /* ─── Active Effects ─── */
+    .pf-effect-chip {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.45rem 0.625rem;
+        border-radius: 0.625rem;
+        background: rgba(168, 85, 247, 0.08);
+        border: 1px solid rgba(168, 85, 247, 0.18);
+        margin-bottom: 0.4rem;
+        font-size: 0.75rem;
+    }
+
+    .pf-effect-chip i { color: #a855f7; font-size: 0.875rem; flex-shrink: 0; }
+    .pf-effect-chip-label { color: var(--text-primary); font-weight: 600; }
+    .pf-effect-chip-sub { color: var(--text-muted); font-size: 0.6875rem; }
+
+    .pf-effect-chip--gold {
+        background: rgba(251, 191, 36, 0.08);
+        border-color: rgba(251, 191, 36, 0.2);
+    }
+    .pf-effect-chip--gold i { color: #fbbf24; }
+
+    /* ─── Section Cards ─── */
+    .pf-section {
+        border-radius: 1rem;
+        padding: 1.25rem 1.375rem;
+        position: relative;
+    }
+
+    .pf-section-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+    }
+
+    .pf-section-title {
+        font-size: 0.5625rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        color: var(--text-muted);
+        font-family: 'IBM Plex Mono', monospace;
+    }
+
+    /* ─── Locked Sections ─── */
+    .pf-section--locked {
+        position: relative;
+        border: 1px dashed rgba(255, 255, 255, 0.08) !important;
+    }
+
+    html.light-mode .pf-section--locked {
+        border-color: rgba(0, 51, 127, 0.1) !important;
+    }
+
+    .pf-locked-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        background: rgba(91, 154, 255, 0.1);
+        color: #5b9aff;
+        border: 1px solid rgba(91, 154, 255, 0.2);
+        border-radius: 2rem;
+        font-size: 0.5625rem;
+        font-weight: 700;
+        font-family: 'IBM Plex Mono', monospace;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        padding: 0.15rem 0.5rem;
+    }
+
+    html.light-mode .pf-locked-badge {
+        background: rgba(0, 51, 127, 0.06);
+        color: #00337F;
+        border-color: rgba(0, 51, 127, 0.12);
+    }
+
+    .pf-locked-content {
+        opacity: 0.38;
+        pointer-events: none;
+        user-select: none;
+    }
+
+    /* ─── Form Elements ─── */
+    .pf-form-group { margin-bottom: 0.875rem; }
+    .pf-form-hint { color: var(--text-muted); font-size: 0.6875rem; margin-top: 0.25rem; }
+    .pf-form-error { color: #ef4444; font-size: 0.75rem; margin-top: 0.3rem; }
     .pf-input-error {
         border-color: #ef4444 !important;
         box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.15) !important;
@@ -129,7 +287,7 @@
     /* ─── Consent Items ─── */
     .pf-consent {
         padding: 0.75rem;
-        border-radius: 0.5rem;
+        border-radius: 0.625rem;
         background: rgba(255, 255, 255, 0.03);
         border: 1px solid rgba(255, 255, 255, 0.06);
         margin-bottom: 0.625rem;
@@ -174,38 +332,6 @@
         margin-top: 0.3rem;
     }
 
-    /* ─── Info Rows ─── */
-    .pf-info-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0.5rem 0;
-    }
-
-    .pf-info-row + .pf-info-row {
-        border-top: 1px solid rgba(255, 255, 255, 0.06);
-    }
-
-    html.light-mode .pf-info-row + .pf-info-row {
-        border-top-color: rgba(0, 51, 127, 0.08);
-    }
-
-    .pf-info-label { font-size: 0.75rem; color: var(--text-secondary); }
-
-    .pf-info-value {
-        font-size: 0.8125rem;
-        font-weight: 600;
-        color: var(--text-primary);
-        text-align: right;
-    }
-
-    .pf-info-sub {
-        display: block;
-        font-size: 0.625rem;
-        color: var(--text-muted);
-        font-weight: 400;
-    }
-
     /* ─── Password Match ─── */
     .pf-pw-msg {
         font-size: 0.75rem;
@@ -213,26 +339,6 @@
         display: none;
         align-items: center;
         gap: 0.3rem;
-    }
-
-    /* ─── Stagger Animation ─── */
-    @keyframes dash-rise {
-        from { opacity: 0; transform: translateY(10px); }
-        to   { opacity: 1; transform: translateY(0); }
-    }
-
-    .dash-container > .space-y-4 > * {
-        animation: dash-rise 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
-    }
-
-    .dash-container > .space-y-4 > *:nth-child(1) { animation-delay: 0.03s; }
-    .dash-container > .space-y-4 > *:nth-child(2) { animation-delay: 0.07s; }
-    .dash-container > .space-y-4 > *:nth-child(3) { animation-delay: 0.11s; }
-    .dash-container > .space-y-4 > *:nth-child(4) { animation-delay: 0.15s; }
-    .dash-container > .space-y-4 > *:nth-child(5) { animation-delay: 0.19s; }
-
-    @media (prefers-reduced-motion: reduce) {
-        .dash-container > .space-y-4 > * { animation: none; }
     }
 
     /* ─── Accessoire Chips ─── */
@@ -257,7 +363,7 @@
         display: inline-flex;
         align-items: center;
         gap: 0.35rem;
-        padding: 0.3rem 0.6rem;
+        padding: 0.3rem 0.625rem;
         border-radius: 2rem;
         font-size: 0.6875rem;
         font-weight: 600;
@@ -327,34 +433,147 @@
         text-decoration: none;
     }
 
-    .pf-acc-empty a:hover {
-        text-decoration: underline;
+    .pf-acc-empty a:hover { text-decoration: underline; }
+
+    /* ─── Info Rows (Konto-Details) ─── */
+    .pf-info-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 0;
     }
 
-    /* ─── Responsive ─── */
-    @media (max-width: 500px) {
-        .pf-avatar-card {
-            flex-direction: column;
-            text-align: center;
-        }
-        .pf-avatar-tags { justify-content: center; }
+    .pf-info-row + .pf-info-row {
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    html.light-mode .pf-info-row + .pf-info-row {
+        border-top-color: rgba(0, 51, 127, 0.08);
+    }
+
+    .pf-info-label { font-size: 0.75rem; color: var(--text-secondary); }
+
+    .pf-info-value {
+        font-size: 0.8125rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        text-align: right;
+    }
+
+    .pf-info-sub {
+        display: block;
+        font-size: 0.625rem;
+        color: var(--text-muted);
+        font-weight: 400;
+    }
+
+    /* ─── Locked toggle (placeholder) ─── */
+    .pf-toggle-row {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 0.625rem 0;
+    }
+
+    .pf-toggle-row + .pf-toggle-row {
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    html.light-mode .pf-toggle-row + .pf-toggle-row {
+        border-top-color: rgba(0, 51, 127, 0.07);
+    }
+
+    .pf-toggle-info { flex: 1; }
+
+    .pf-toggle-title {
+        font-size: 0.8125rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0.15rem;
+    }
+
+    .pf-toggle-desc {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        line-height: 1.4;
+    }
+
+    .pf-fake-toggle {
+        width: 38px;
+        height: 22px;
+        border-radius: 11px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        flex-shrink: 0;
+        position: relative;
+        margin-top: 0.1rem;
+    }
+
+    .pf-fake-toggle::after {
+        content: '';
+        position: absolute;
+        top: 3px;
+        left: 3px;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.35);
+    }
+
+    html.light-mode .pf-fake-toggle {
+        background: rgba(0, 51, 127, 0.08);
+        border-color: rgba(0, 51, 127, 0.1);
+    }
+
+    html.light-mode .pf-fake-toggle::after {
+        background: rgba(0, 51, 127, 0.3);
+    }
+
+    /* ─── Stagger Animation ─── */
+    @keyframes dash-rise {
+        from { opacity: 0; transform: translateY(12px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .pf-sidebar > * {
+        animation: dash-rise 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .pf-sidebar > *:nth-child(1) { animation-delay: 0.04s; }
+    .pf-sidebar > *:nth-child(2) { animation-delay: 0.09s; }
+    .pf-sidebar > *:nth-child(3) { animation-delay: 0.14s; }
+
+    .pf-main > * {
+        animation: dash-rise 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .pf-main > *:nth-child(1) { animation-delay: 0.06s; }
+    .pf-main > *:nth-child(2) { animation-delay: 0.11s; }
+    .pf-main > *:nth-child(3) { animation-delay: 0.16s; }
+    .pf-main > *:nth-child(4) { animation-delay: 0.21s; }
+    .pf-main > *:nth-child(5) { animation-delay: 0.26s; }
+    .pf-main > *:nth-child(6) { animation-delay: 0.31s; }
+    .pf-main > *:nth-child(7) { animation-delay: 0.36s; }
+
+    @media (prefers-reduced-motion: reduce) {
+        .pf-sidebar > *, .pf-main > * { animation: none; }
     }
 </style>
 @endpush
 
 @section('content')
-<div class="dash-container">
+<div class="dashboard-container">
 
     {{-- ── Header ── --}}
-    <div class="mb-6">
-        <p style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);font-weight:600;margin-bottom:0.25rem;">Einstellungen</p>
-        <h1 style="font-size:1.5rem;font-weight:800;line-height:1.2;font-family:'Barlow Condensed',sans-serif;background:linear-gradient(135deg,#5b9aff,#0055cc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Profil bearbeiten</h1>
-        <p class="text-sm" style="color: var(--text-muted);">Verwalte deine persönlichen Daten und Einstellungen</p>
-    </div>
+    <header class="dashboard-header">
+        <h1 class="page-title">Dein <span>Profil</span></h1>
+        <p class="page-subtitle">Verwalte deine persönlichen Daten und Einstellungen</p>
+    </header>
 
     {{-- ── Status Messages ── --}}
     @if (session('status') == 'profile-updated' || session('status') == 'password-updated' || session('status') == 'email-change-cancelled' || session('status') == 'extras-enabled-updated')
-    <div class="alert-compact glass-success" style="margin-bottom: 1rem;">
+    <div class="alert-compact glass-success" style="margin-bottom: 1.25rem;">
         <i class="bi bi-check-circle alert-compact-icon"></i>
         <div class="alert-compact-content">
             <div class="alert-compact-title">
@@ -370,7 +589,7 @@
     @endif
 
     @if ($user->pending_email)
-    <div class="alert-compact glass-warning" style="margin-bottom: 1rem;">
+    <div class="alert-compact glass-warning" style="margin-bottom: 1.25rem;">
         <i class="bi bi-clock-history alert-compact-icon"></i>
         <div class="alert-compact-content">
             <div class="alert-compact-title">E-Mail-Änderung ausstehend</div>
@@ -385,7 +604,7 @@
         </div>
     </div>
     @elseif (!$user->hasVerifiedEmail())
-    <div class="alert-compact glass-warning" style="margin-bottom: 1rem;">
+    <div class="alert-compact glass-warning" style="margin-bottom: 1.25rem;">
         <i class="bi bi-clock-history alert-compact-icon"></i>
         <div class="alert-compact-content">
             <div class="alert-compact-title">E-Mail-Bestätigung erforderlich</div>
@@ -399,381 +618,470 @@
     </div>
     @endif
 
-    {{-- ── Gami Pills ── --}}
-    <div class="flex gap-3 mb-6" style="flex-wrap: wrap;">
-        <div class="gami-pill">
-            <div class="gami-pill__value" style="color:var(--text-primary);">{{ floor($user->created_at->diffInDays(now())) }}</div>
-            <div class="gami-pill__label">Tage dabei</div>
-        </div>
-        <div class="gami-pill">
-            @if($user->pending_email)
-                <div class="gami-pill__value" style="color:var(--warning);-webkit-text-fill-color:var(--warning);">...</div>
-                <div class="gami-pill__label">Änderung</div>
-            @else
-                <div class="gami-pill__value" style="color:{{ $user->hasVerifiedEmail() ? 'var(--success)' : 'var(--warning)' }};-webkit-text-fill-color:{{ $user->hasVerifiedEmail() ? 'var(--success)' : 'var(--warning)' }};">{{ $user->hasVerifiedEmail() ? 'OK' : '---' }}</div>
-                <div class="gami-pill__label">E-Mail</div>
-            @endif
-        </div>
-        <div class="gami-pill">
-            <div class="gami-pill__value" style="color:#5b9aff;-webkit-text-fill-color:#5b9aff;">{{ $user->last_login_at ? $user->last_login_at->diffForHumans(null, true) : 'Jetzt' }}</div>
-            <div class="gami-pill__label">Letzter Login</div>
-        </div>
-    </div>
+    {{-- ── Two-Column Layout ── --}}
+    <div class="pf-layout">
 
-    <div class="space-y-4">
+        {{-- ──────────────────────────────────────────
+             SIDEBAR (Left)
+        ────────────────────────────────────────── --}}
+        <aside class="pf-sidebar">
 
-        {{-- ── Avatar Card ── --}}
-        <div class="glass p-4" style="border-radius:0.75rem;">
-            <div class="pf-avatar-card">
-                <div class="pf-avatar-wrap">
-                    <img src="{{ $user->avatar_url }}" alt="Avatar" class="pf-avatar" id="pf-avatar-img">
-                    <button type="button" class="pf-avatar-regen" id="pf-regen-btn" title="Avatar neu generieren">
+            {{-- Hero Card: Avatar + Name --}}
+            <div class="glass-blue pf-hero">
+                <div class="pf-hero-avatar-wrap">
+                    <img src="{{ $user->avatar_url }}" alt="Avatar" class="pf-hero-avatar" id="pf-avatar-img">
+                    <button type="button" class="pf-hero-regen" id="pf-regen-btn" title="Avatar neu generieren">
                         <i class="bi bi-arrow-repeat"></i>
                     </button>
                 </div>
-                <div class="pf-avatar-info">
-                    <div class="pf-avatar-name">{{ $user->name }}</div>
-                    <div class="pf-avatar-email">{{ $user->email }}</div>
-                    <div class="pf-avatar-tags">
-                        @if($user->pending_email)
-                            <span class="pf-tag pf-tag--warn">E-Mail-Änderung ausstehend</span>
-                        @elseif($user->hasVerifiedEmail())
-                            <span class="pf-tag pf-tag--ok">Verifiziert</span>
-                        @else
-                            <span class="pf-tag pf-tag--warn">Nicht verifiziert</span>
-                        @endif
-                        <span class="pf-tag pf-tag--info">Seit {{ $user->created_at->format('d.m.Y') }}</span>
-                    </div>
-                </div>
-            </div>
-        </div>
 
-        {{-- ── Avatar-Accessoires ── --}}
-        @php
-            $totalOwned = count($ownedAccessories['accessories'] ?? []) + count($ownedAccessories['top'] ?? []) + count($ownedAccessories['facialHair'] ?? []);
-        @endphp
-        <div class="glass p-4" style="border-radius:0.75rem;" x-data="accessoryManager()">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;">
-                <span class="text-xs uppercase tracking-wider" style="color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:0.5625rem;font-weight:700;">Avatar-Accessoires</span>
-                <span style="font-size:0.6875rem;color:var(--text-muted);">{{ $totalOwned }} besitzt</span>
-            </div>
+                <div class="pf-hero-name">{{ $user->name }}</div>
+                <div class="pf-hero-email">{{ $user->email }}</div>
 
-            @if($totalOwned > 0)
-                {{-- Brillen --}}
-                @if(count($ownedAccessories['accessories'] ?? []) > 0)
-                <div class="pf-acc-section-label">Brillen</div>
-                <div class="pf-acc-chips">
-                    @foreach($ownedAccessories['accessories'] as $slug => $acc)
-                    <button class="pf-acc-chip" :class="activeItems.accessories === '{{ $acc['accessory_value'] }}' && 'is-active'"
-                            @click="toggle('{{ $slug }}', '{{ $acc['accessory_value'] }}', 'accessories')" :disabled="toggling">
-                        <img src="https://dicebear.niclas-reutter.de/9.x/avataaars/svg?radius=50&seed=Preview&backgroundType=gradientLinear&backgroundColor=00337f,0055cc&backgroundRotation=135&accessories={{ $acc['accessory_value'] }}&accessoriesProbability=100&eyes=default&mouth=smile" alt="{{ $acc['name'] }}" class="pf-acc-chip__preview" loading="lazy">
-                        {{ $acc['name'] }}
-                    </button>
-                    @endforeach
-                </div>
-                {{-- Farben für aktive Brille --}}
-                <template x-if="activeItems.accessories">
-                    <div class="pf-acc-colors">
-                        @php $glassColors = ['000000', '4a312c', '5b9aff', 'fbbf24', 'ef4444']; @endphp
-                        @foreach($glassColors as $hex)
-                        <div class="pf-acc-color-dot" :class="activeItems.accessoriesColor === '{{ $hex }}' && 'selected'"
-                             style="background:#{{ $hex }};" @click="changeColor(activeSlug('accessories'), '{{ $hex }}')"></div>
-                        @endforeach
-                    </div>
-                </template>
-                @endif
-
-                {{-- Kopfbedeckungen --}}
-                @if(count($ownedAccessories['top'] ?? []) > 0)
-                <div class="pf-acc-section-label">Kopfbedeckungen</div>
-                <div class="pf-acc-chips">
-                    @foreach($ownedAccessories['top'] as $slug => $acc)
-                    <button class="pf-acc-chip" :class="activeItems.top === '{{ $acc['accessory_value'] }}' && 'is-active'"
-                            @click="toggle('{{ $slug }}', '{{ $acc['accessory_value'] }}', 'top')" :disabled="toggling">
-                        <img src="https://dicebear.niclas-reutter.de/9.x/avataaars/svg?radius=50&seed=Preview&backgroundType=gradientLinear&backgroundColor=00337f,0055cc&backgroundRotation=135&top={{ $acc['accessory_value'] }}&eyes=default&mouth=smile" alt="{{ $acc['name'] }}" class="pf-acc-chip__preview" loading="lazy">
-                        {{ $acc['name'] }}
-                    </button>
-                    @endforeach
-                </div>
-                @endif
-
-                {{-- Bärte --}}
-                @if(count($ownedAccessories['facialHair'] ?? []) > 0)
-                <div class="pf-acc-section-label">Bärte</div>
-                <div class="pf-acc-chips">
-                    @foreach($ownedAccessories['facialHair'] as $slug => $acc)
-                    <button class="pf-acc-chip" :class="activeItems.facialHair === '{{ $acc['accessory_value'] }}' && 'is-active'"
-                            @click="toggle('{{ $slug }}', '{{ $acc['accessory_value'] }}', 'facialHair')" :disabled="toggling">
-                        <img src="https://dicebear.niclas-reutter.de/9.x/avataaars/svg?radius=50&seed=Preview&backgroundType=gradientLinear&backgroundColor=00337f,0055cc&backgroundRotation=135&facialHair={{ $acc['accessory_value'] }}&facialHairProbability=100&eyes=default&mouth=smile" alt="{{ $acc['name'] }}" class="pf-acc-chip__preview" loading="lazy">
-                        {{ $acc['name'] }}
-                    </button>
-                    @endforeach
-                </div>
-                {{-- Farben für aktiven Bart --}}
-                <template x-if="activeItems.facialHair">
-                    <div class="pf-acc-colors">
-                        @php $beardColors = ['2c1b18', '4a312c', '724133', 'a55728', 'b58143', 'c93305', 'd6b370', '000000']; @endphp
-                        @foreach($beardColors as $hex)
-                        <div class="pf-acc-color-dot" :class="activeItems.facialHairColor === '{{ $hex }}' && 'selected'"
-                             style="background:#{{ $hex }};" @click="changeColor(activeSlug('facialHair'), '{{ $hex }}')"></div>
-                        @endforeach
-                    </div>
-                </template>
-                @endif
-            @else
-                <div class="pf-acc-empty">
-                    Noch keine Accessoires. <a href="{{ route('shop.index') }}">Besuche den Shop!</a>
-                </div>
-            @endif
-        </div>
-
-        {{-- ── Persönliche Daten ── --}}
-        <div class="glass p-4" style="border-radius:0.75rem;">
-            <div style="margin-bottom:0.75rem;">
-                <span class="text-xs uppercase tracking-wider" style="color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:0.5625rem;font-weight:700;">Persönliche Daten</span>
-            </div>
-
-            <form method="POST" action="{{ route('profile.update') }}">
-                @csrf
-                @method('PATCH')
-
-                <div class="pf-form-group">
-                    <label for="name" class="label-glass">Name</label>
-                    <input type="text" name="name" id="name" value="{{ old('name', $user->name) }}"
-                           class="input-glass @error('name') pf-input-error @enderror" required maxlength="255">
-                    @error('name')
-                        <div class="pf-form-error">{{ $message }}</div>
-                    @else
-                        <p class="pf-form-hint">Dieser Name erscheint im Leaderboard</p>
-                    @enderror
-                </div>
-
-                <div class="pf-form-group">
-                    <label for="email" class="label-glass">E-Mail-Adresse</label>
-                    <input type="email" name="email" id="email" value="{{ old('email', $user->email) }}"
-                           class="input-glass @error('email') pf-input-error @enderror" required>
-                    @error('email')
-                        <div class="pf-form-error">{{ $message }}</div>
-                    @enderror
+                <div class="pf-hero-tags">
                     @if($user->pending_email)
-                        <div style="margin-top:0.35rem;font-size:0.8rem;color:var(--warning);">
-                            Ausstehende Änderung zu: {{ $user->pending_email }}
-                        </div>
+                        <span class="pf-tag pf-tag--warn">E-Mail ausstehend</span>
+                    @elseif($user->hasVerifiedEmail())
+                        <span class="pf-tag pf-tag--ok">Verifiziert</span>
+                    @else
+                        <span class="pf-tag pf-tag--warn">Nicht verifiziert</span>
                     @endif
+                    <span class="pf-tag pf-tag--info">Seit {{ $user->created_at->format('d.m.Y') }}</span>
+                </div>
+            </div>
+
+            {{-- Stats Card --}}
+            <div class="glass" style="border-radius:1rem;padding:1rem 1.25rem;">
+                <div class="pf-section-title" style="margin-bottom:0.625rem;">Konto-Details</div>
+                <div class="pf-stat-list">
+                    <div class="pf-stat-row">
+                        <span class="pf-stat-label"><i class="bi bi-calendar3"></i> Dabei seit</span>
+                        <span class="pf-stat-value">
+                            {{ $user->created_at->format('d.m.Y') }}
+                            <span class="pf-stat-sub">{{ floor($user->created_at->diffInDays(now())) }} Tage</span>
+                        </span>
+                    </div>
+                    <div class="pf-stat-row">
+                        <span class="pf-stat-label"><i class="bi bi-shield-check"></i> Status</span>
+                        <span class="pf-stat-value">
+                            @if($user->pending_email)
+                                <span style="color:#f59e0b;">E-Mail-Änderung</span>
+                                <span class="pf-stat-sub">Bestätigung ausstehend</span>
+                            @elseif($user->hasVerifiedEmail())
+                                <span style="color:#22c55e;">Bestätigt</span>
+                                <span class="pf-stat-sub">E-Mail verifiziert</span>
+                            @else
+                                <span style="color:#f59e0b;">Ausstehend</span>
+                                <span class="pf-stat-sub">Nicht verifiziert</span>
+                            @endif
+                        </span>
+                    </div>
+                    <div class="pf-stat-row">
+                        <span class="pf-stat-label"><i class="bi bi-clock"></i> Letzter Login</span>
+                        <span class="pf-stat-value">
+                            {{ $user->last_login_at ? $user->last_login_at->format('d.m.Y') : 'Gerade eben' }}
+                            <span class="pf-stat-sub">{{ $user->last_login_at ? $user->last_login_at->diffForHumans() : 'Erste Anmeldung' }}</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Active Shop Effects (if any) --}}
+            @php
+                $hasActiveEffects = ($user->profile_frame_until && $user->profile_frame_until->isFuture())
+                    || ($user->glowing_name_until && $user->glowing_name_until->isFuture())
+                    || ($user->double_xp_until && $user->double_xp_until->isFuture())
+                    || $user->active_title;
+            @endphp
+            @if($hasActiveEffects)
+            <div class="glass" style="border-radius:1rem;padding:1rem 1.25rem;">
+                <div class="pf-section-title" style="margin-bottom:0.625rem;">Aktive Effekte</div>
+
+                @if($user->active_title)
+                <div class="pf-effect-chip pf-effect-chip--gold">
+                    <i class="bi bi-award"></i>
+                    <div>
+                        <div class="pf-effect-chip-label">{{ $user->active_title }}</div>
+                        <div class="pf-effect-chip-sub">Aktiver Titel</div>
+                    </div>
+                </div>
+                @endif
+
+                @if($user->profile_frame_until && $user->profile_frame_until->isFuture())
+                <div class="pf-effect-chip">
+                    <i class="bi bi-circle-square"></i>
+                    <div>
+                        <div class="pf-effect-chip-label">Profil-Rahmen</div>
+                        <div class="pf-effect-chip-sub">Bis {{ $user->profile_frame_until->format('d.m.Y') }}</div>
+                    </div>
+                </div>
+                @endif
+
+                @if($user->glowing_name_until && $user->glowing_name_until->isFuture())
+                <div class="pf-effect-chip">
+                    <i class="bi bi-stars"></i>
+                    <div>
+                        <div class="pf-effect-chip-label">Leuchtender Name</div>
+                        <div class="pf-effect-chip-sub">Bis {{ $user->glowing_name_until->format('d.m.Y') }}</div>
+                    </div>
+                </div>
+                @endif
+
+                @if($user->double_xp_until && $user->double_xp_until->isFuture())
+                <div class="pf-effect-chip pf-effect-chip--gold">
+                    <i class="bi bi-lightning-charge"></i>
+                    <div>
+                        <div class="pf-effect-chip-label">Doppel-XP</div>
+                        <div class="pf-effect-chip-sub">Bis {{ $user->double_xp_until->format('d.m.Y') }}</div>
+                    </div>
+                </div>
+                @endif
+            </div>
+            @endif
+
+        </aside>{{-- /pf-sidebar --}}
+
+        {{-- ──────────────────────────────────────────
+             MAIN (Right): Settings Sections
+        ────────────────────────────────────────── --}}
+        <main class="pf-main">
+
+            {{-- ── Persönliche Daten ── --}}
+            <div class="glass pf-section">
+                <div class="pf-section-header">
+                    <span class="pf-section-title">Persönliche Daten</span>
                 </div>
 
-                {{-- E-Mail Consent --}}
-                <div class="pf-consent">
-                    <label class="pf-consent-label">
-                        <input type="checkbox" name="email_consent" value="1"
-                               {{ old('email_consent', $user->email_consent) ? 'checked' : '' }}
-                               class="checkbox-glass">
-                        <div class="pf-consent-body">
-                            <span class="pf-consent-title">E-Mail-Benachrichtigungen</span>
-                            <span class="pf-consent-desc">Erhalte E-Mails zu Lernfortschritt, neuen Features und Systeminformationen.</span>
-                            @if($user->email_consent_at)
-                                <span class="pf-consent-ok">
-                                    <i class="bi bi-check-circle"></i> Zustimmung am {{ $user->email_consent_at->format('d.m.Y \u\m H:i') }} Uhr
-                                </span>
-                            @endif
+                <form method="POST" action="{{ route('profile.update') }}">
+                    @csrf
+                    @method('PATCH')
+
+                    <div class="pf-form-group">
+                        <label for="name" class="label-glass">Name</label>
+                        <input type="text" name="name" id="name" value="{{ old('name', $user->name) }}"
+                               class="input-glass @error('name') pf-input-error @enderror" required maxlength="255">
+                        @error('name')
+                            <div class="pf-form-error">{{ $message }}</div>
+                        @else
+                            <p class="pf-form-hint">Dieser Name erscheint im Leaderboard</p>
+                        @enderror
+                    </div>
+
+                    <div class="pf-form-group">
+                        <label for="email" class="label-glass">E-Mail-Adresse</label>
+                        <input type="email" name="email" id="email" value="{{ old('email', $user->email) }}"
+                               class="input-glass @error('email') pf-input-error @enderror" required>
+                        @error('email')
+                            <div class="pf-form-error">{{ $message }}</div>
+                        @enderror
+                        @if($user->pending_email)
+                            <div style="margin-top:0.35rem;font-size:0.8rem;color:var(--warning);">
+                                Ausstehende Änderung zu: {{ $user->pending_email }}
+                            </div>
+                        @endif
+                    </div>
+
+                    {{-- Prüfungsdatum --}}
+                    <div class="pf-consent">
+                        <div class="pf-consent-body" style="width:100%;">
+                            <span class="pf-consent-title">Prüfungsdatum (optional)</span>
+                            <span class="pf-consent-desc" style="margin-bottom:0.5rem;display:block;">Für eine personalisierte Lernempfehlung auf dem Dashboard.</span>
+                            <div style="display:flex;gap:0.5rem;align-items:center;">
+                                <input type="date" name="exam_date" id="exam_date"
+                                       value="{{ old('exam_date', $user->exam_date?->format('Y-m-d')) }}"
+                                       min="{{ date('Y-m-d', strtotime('+1 day')) }}"
+                                       class="input-glass" style="flex:1;">
+                                @if($user->exam_date)
+                                <button type="button" onclick="document.getElementById('exam_date').value=''"
+                                        class="btn-ghost btn-sm" style="flex-shrink:0;">Zurücksetzen</button>
+                                @endif
+                            </div>
+                            @error('exam_date')
+                                <div class="pf-form-error">{{ $message }}</div>
+                            @enderror
                         </div>
-                    </label>
+                    </div>
+
+                    {{-- E-Mail Consent --}}
+                    <div class="pf-consent">
+                        <label class="pf-consent-label">
+                            <input type="checkbox" name="email_consent" value="1"
+                                   {{ old('email_consent', $user->email_consent) ? 'checked' : '' }}
+                                   class="checkbox-glass">
+                            <div class="pf-consent-body">
+                                <span class="pf-consent-title">E-Mail-Benachrichtigungen</span>
+                                <span class="pf-consent-desc">Erhalte E-Mails zu Lernfortschritt, neuen Features und Systeminformationen.</span>
+                                @if($user->email_consent_at)
+                                    <span class="pf-consent-ok">
+                                        <i class="bi bi-check-circle"></i> Zustimmung am {{ $user->email_consent_at->format('d.m.Y \u\m H:i') }} Uhr
+                                    </span>
+                                @endif
+                            </div>
+                        </label>
+                    </div>
+
+                    {{-- Leaderboard Consent --}}
+                    <div class="pf-consent">
+                        <label class="pf-consent-label">
+                            <input type="checkbox" name="leaderboard_consent" value="1"
+                                   {{ $user->leaderboard_consent ? 'checked' : '' }}
+                                   class="checkbox-glass">
+                            <div class="pf-consent-body">
+                                <span class="pf-consent-title">Leaderboard-Teilnahme</span>
+                                <span class="pf-consent-desc">Dein Name erscheint im öffentlichen Leaderboard und andere Nutzer können deine Punkte sehen.</span>
+                                @if($user->leaderboard_consent)
+                                    <span class="pf-consent-ok">
+                                        <i class="bi bi-check-circle"></i> Zustimmung am {{ $user->leaderboard_consent_at->format('d.m.Y \u\m H:i') }} Uhr
+                                    </span>
+                                @endif
+                            </div>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn-primary" style="width:100%;">Profil speichern</button>
+                </form>
+            </div>
+
+            {{-- ── Avatar-Accessoires ── --}}
+            @php
+                $totalOwned = count($ownedAccessories['accessories'] ?? []) + count($ownedAccessories['top'] ?? []) + count($ownedAccessories['facialHair'] ?? []);
+            @endphp
+            <div class="glass pf-section" x-data="accessoryManager()">
+                <div class="pf-section-header">
+                    <span class="pf-section-title">Avatar-Accessoires</span>
+                    <span style="font-size:0.6875rem;color:var(--text-muted);">{{ $totalOwned }} besessen</span>
                 </div>
 
-                {{-- Leaderboard Consent --}}
-                <div class="pf-consent">
-                    <label class="pf-consent-label">
-                        <input type="checkbox" name="leaderboard_consent" value="1"
-                               {{ $user->leaderboard_consent ? 'checked' : '' }}
-                               class="checkbox-glass">
-                        <div class="pf-consent-body">
-                            <span class="pf-consent-title">Leaderboard-Teilnahme</span>
-                            <span class="pf-consent-desc">Dein Name erscheint im öffentlichen Leaderboard und andere Nutzer können deine Punkte sehen.</span>
-                            @if($user->leaderboard_consent)
-                                <span class="pf-consent-ok">
-                                    <i class="bi bi-check-circle"></i> Zustimmung am {{ $user->leaderboard_consent_at->format('d.m.Y \u\m H:i') }} Uhr
-                                </span>
-                            @endif
+                @if($totalOwned > 0)
+                    {{-- Brillen --}}
+                    @if(count($ownedAccessories['accessories'] ?? []) > 0)
+                    <div class="pf-acc-section-label">Brillen</div>
+                    <div class="pf-acc-chips">
+                        @foreach($ownedAccessories['accessories'] as $slug => $acc)
+                        <button class="pf-acc-chip" :class="activeItems.accessories === '{{ $acc['accessory_value'] }}' && 'is-active'"
+                                @click="toggle('{{ $slug }}', '{{ $acc['accessory_value'] }}', 'accessories')" :disabled="toggling">
+                            <img src="https://dicebear.niclas-reutter.de/9.x/avataaars/svg?radius=50&seed=Preview&backgroundType=gradientLinear&backgroundColor=00337f,0055cc&backgroundRotation=135&accessories={{ $acc['accessory_value'] }}&accessoriesProbability=100&eyes=default&mouth=smile" alt="{{ $acc['name'] }}" class="pf-acc-chip__preview" loading="lazy">
+                            {{ $acc['name'] }}
+                        </button>
+                        @endforeach
+                    </div>
+                    <template x-if="activeItems.accessories">
+                        <div class="pf-acc-colors">
+                            @php $glassColors = ['000000', '4a312c', '5b9aff', 'fbbf24', 'ef4444']; @endphp
+                            @foreach($glassColors as $hex)
+                            <div class="pf-acc-color-dot" :class="activeItems.accessoriesColor === '{{ $hex }}' && 'selected'"
+                                 style="background:#{{ $hex }};" @click="changeColor(activeSlug('accessories'), '{{ $hex }}')"></div>
+                            @endforeach
                         </div>
-                    </label>
+                    </template>
+                    @endif
+
+                    {{-- Kopfbedeckungen --}}
+                    @if(count($ownedAccessories['top'] ?? []) > 0)
+                    <div class="pf-acc-section-label">Kopfbedeckungen</div>
+                    <div class="pf-acc-chips">
+                        @foreach($ownedAccessories['top'] as $slug => $acc)
+                        <button class="pf-acc-chip" :class="activeItems.top === '{{ $acc['accessory_value'] }}' && 'is-active'"
+                                @click="toggle('{{ $slug }}', '{{ $acc['accessory_value'] }}', 'top')" :disabled="toggling">
+                            <img src="https://dicebear.niclas-reutter.de/9.x/avataaars/svg?radius=50&seed=Preview&backgroundType=gradientLinear&backgroundColor=00337f,0055cc&backgroundRotation=135&top={{ $acc['accessory_value'] }}&eyes=default&mouth=smile" alt="{{ $acc['name'] }}" class="pf-acc-chip__preview" loading="lazy">
+                            {{ $acc['name'] }}
+                        </button>
+                        @endforeach
+                    </div>
+                    @endif
+
+                    {{-- Bärte --}}
+                    @if(count($ownedAccessories['facialHair'] ?? []) > 0)
+                    <div class="pf-acc-section-label">Bärte</div>
+                    <div class="pf-acc-chips">
+                        @foreach($ownedAccessories['facialHair'] as $slug => $acc)
+                        <button class="pf-acc-chip" :class="activeItems.facialHair === '{{ $acc['accessory_value'] }}' && 'is-active'"
+                                @click="toggle('{{ $slug }}', '{{ $acc['accessory_value'] }}', 'facialHair')" :disabled="toggling">
+                            <img src="https://dicebear.niclas-reutter.de/9.x/avataaars/svg?radius=50&seed=Preview&backgroundType=gradientLinear&backgroundColor=00337f,0055cc&backgroundRotation=135&facialHair={{ $acc['accessory_value'] }}&facialHairProbability=100&eyes=default&mouth=smile" alt="{{ $acc['name'] }}" class="pf-acc-chip__preview" loading="lazy">
+                            {{ $acc['name'] }}
+                        </button>
+                        @endforeach
+                    </div>
+                    <template x-if="activeItems.facialHair">
+                        <div class="pf-acc-colors">
+                            @php $beardColors = ['2c1b18', '4a312c', '724133', 'a55728', 'b58143', 'c93305', 'd6b370', '000000']; @endphp
+                            @foreach($beardColors as $hex)
+                            <div class="pf-acc-color-dot" :class="activeItems.facialHairColor === '{{ $hex }}' && 'selected'"
+                                 style="background:#{{ $hex }};" @click="changeColor(activeSlug('facialHair'), '{{ $hex }}')"></div>
+                            @endforeach
+                        </div>
+                    </template>
+                    @endif
+                @else
+                    <div class="pf-acc-empty">
+                        Noch keine Accessoires. <a href="{{ route('shop.index') }}">Besuche den Shop!</a>
+                    </div>
+                @endif
+            </div>
+
+            {{-- ── Zusatz-Fragen ── --}}
+            <div class="glass pf-section" id="extras-enabled" style="scroll-margin-top:5rem;">
+                <div class="pf-section-header">
+                    <span class="pf-section-title">Zusatz-Fragen</span>
                 </div>
 
-                {{-- Prüfungsdatum --}}
-                <div class="pf-consent">
-                    <div class="pf-consent-body" style="width:100%;">
-                        <span class="pf-consent-title">Prüfungsdatum (optional)</span>
-                        <span class="pf-consent-desc" style="margin-bottom:0.5rem;display:block;">Für eine personalisierte Lernempfehlung auf dem Dashboard.</span>
-                        <div style="display:flex;gap:0.5rem;align-items:center;">
-                            <input type="date" name="exam_date" id="exam_date"
-                                   value="{{ old('exam_date', $user->exam_date?->format('Y-m-d')) }}"
-                                   min="{{ date('Y-m-d', strtotime('+1 day')) }}"
-                                   class="input-glass" style="flex:1;">
-                            @if($user->exam_date)
-                            <button type="button" onclick="document.getElementById('exam_date').value=''"
-                                    class="btn-ghost btn-sm" style="flex-shrink:0;">Zurücksetzen</button>
-                            @endif
-                        </div>
-                        @error('exam_date')
+                <form method="post" action="{{ route('profile.extras-enabled') }}">
+                    @csrf
+                    <input type="hidden" name="extras_enabled" value="0">
+
+                    <div class="pf-consent">
+                        <label class="pf-consent-label" for="extras_enabled" style="cursor:pointer;">
+                            <input id="extras_enabled" name="extras_enabled" type="checkbox" value="1"
+                                   class="checkbox-glass"
+                                   {{ old('extras_enabled', $user->extras_enabled) ? 'checked' : '' }}>
+                            <div class="pf-consent-body">
+                                <span class="pf-consent-title">Zusatz-Fragen aktivieren</span>
+                                <span class="pf-consent-desc">Zusatz-Fragen sind abwechslungsreiche Übungsformate (Zuordnung, Bilder) außerhalb der offiziellen THW-Prüfungsfragen. Sie erscheinen zusätzlich im Übungsmodus und beeinflussen nicht deine Prüfungsfreischaltung.</span>
+                            </div>
+                        </label>
+                    </div>
+
+                    @error('extras_enabled')
+                        <div class="pf-form-error" style="margin-bottom:0.5rem;">{{ $message }}</div>
+                    @enderror
+
+                    <button type="submit" class="btn-primary" style="width:100%;">Einstellung speichern</button>
+                </form>
+            </div>
+
+            {{-- ── Sicherheit ── --}}
+            <div class="glass pf-section">
+                <div class="pf-section-header">
+                    <span class="pf-section-title">Passwort ändern</span>
+                </div>
+
+                <form method="POST" action="{{ route('profile.password.update') }}">
+                    @csrf
+                    @method('PATCH')
+
+                    <div class="pf-form-group">
+                        <label for="current_password" class="label-glass">Aktuelles Passwort</label>
+                        <input type="password" name="current_password" id="current_password"
+                               class="input-glass @error('current_password') pf-input-error @enderror"
+                               placeholder="Aktuelles Passwort">
+                        @error('current_password')
                             <div class="pf-form-error">{{ $message }}</div>
                         @enderror
                     </div>
-                </div>
 
-                <button type="submit" class="btn-primary" style="width:100%;">Profil speichern</button>
-            </form>
-        </div>
+                    <div class="pf-form-group">
+                        <label for="password" class="label-glass">Neues Passwort</label>
+                        <input type="password" name="password" id="password"
+                               class="input-glass @error('password') pf-input-error @enderror"
+                               placeholder="Mindestens 8 Zeichen"
+                               oninput="checkPasswordMatch()">
+                        @error('password')
+                            <div class="pf-form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
 
-        {{-- ── Sicherheit + Konto-Details ── --}}
-        <div class="glass p-4" style="border-radius:0.75rem;">
-            <div style="margin-bottom:0.75rem;">
-                <span class="text-xs uppercase tracking-wider" style="color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:0.5625rem;font-weight:700;">Sicherheit</span>
+                    <div class="pf-form-group">
+                        <label for="password_confirmation" class="label-glass">Passwort bestätigen</label>
+                        <input type="password" name="password_confirmation" id="password_confirmation"
+                               class="input-glass"
+                               placeholder="Passwort wiederholen"
+                               oninput="checkPasswordMatch()">
+                        <div id="password-match-message" class="pf-pw-msg"></div>
+                    </div>
+
+                    <button type="submit" class="btn-secondary" style="width:100%;">Passwort ändern</button>
+                </form>
             </div>
 
-            <form method="POST" action="{{ route('profile.password.update') }}">
-                @csrf
-                @method('PATCH')
-
-                <div class="pf-form-group">
-                    <label for="current_password" class="label-glass">Aktuelles Passwort</label>
-                    <input type="password" name="current_password" id="current_password"
-                           class="input-glass @error('current_password') pf-input-error @enderror"
-                           placeholder="Aktuelles Passwort">
-                    @error('current_password')
-                        <div class="pf-form-error">{{ $message }}</div>
-                    @enderror
+            {{-- ── [GREYED OUT] Benachrichtigungen ── --}}
+            <div class="glass pf-section pf-section--locked">
+                <div class="pf-section-header">
+                    <span class="pf-section-title">Benachrichtigungen</span>
+                    <span class="pf-locked-badge"><i class="bi bi-lock"></i> Bald</span>
                 </div>
-
-                <div class="pf-form-group">
-                    <label for="password" class="label-glass">Neues Passwort</label>
-                    <input type="password" name="password" id="password"
-                           class="input-glass @error('password') pf-input-error @enderror"
-                           placeholder="Mindestens 8 Zeichen"
-                           oninput="checkPasswordMatch()">
-                    @error('password')
-                        <div class="pf-form-error">{{ $message }}</div>
-                    @enderror
-                </div>
-
-                <div class="pf-form-group">
-                    <label for="password_confirmation" class="label-glass">Passwort bestätigen</label>
-                    <input type="password" name="password_confirmation" id="password_confirmation"
-                           class="input-glass"
-                           placeholder="Passwort wiederholen"
-                           oninput="checkPasswordMatch()">
-                    <div id="password-match-message" class="pf-pw-msg"></div>
-                </div>
-
-                <button type="submit" class="btn-secondary" style="width:100%;margin-bottom:1.25rem;">Passwort ändern</button>
-            </form>
-
-            {{-- Konto-Details (integriert) --}}
-            <div style="padding-top:1rem;border-top:1px solid rgba(255,255,255,0.06);">
-                <div style="margin-bottom:0.5rem;">
-                    <span class="text-xs uppercase tracking-wider" style="color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:0.5625rem;font-weight:700;">Konto-Details</span>
-                </div>
-
-                <div class="pf-info-row">
-                    <span class="pf-info-label">Beitrittsdatum</span>
-                    <span class="pf-info-value">
-                        {{ $user->created_at->format('d.m.Y') }}
-                        <span class="pf-info-sub">vor {{ floor($user->created_at->diffInDays(now())) }} Tagen</span>
-                    </span>
-                </div>
-                <div class="pf-info-row">
-                    <span class="pf-info-label">Konto-Status</span>
-                    <span class="pf-info-value">
-                        @if($user->pending_email)
-                            <span style="color:#f59e0b;">E-Mail-Änderung</span>
-                            <span class="pf-info-sub">Bestätigung an {{ $user->pending_email }} gesendet</span>
-                        @elseif($user->hasVerifiedEmail())
-                            <span style="color:#22c55e;">Bestätigt</span>
-                            <span class="pf-info-sub">E-Mail verifiziert</span>
-                        @else
-                            <span style="color:#f59e0b;">Ausstehend</span>
-                            <span class="pf-info-sub">E-Mail nicht verifiziert</span>
-                        @endif
-                    </span>
-                </div>
-                <div class="pf-info-row">
-                    <span class="pf-info-label">Zuletzt angemeldet</span>
-                    <span class="pf-info-value">
-                        {{ $user->last_login_at ? $user->last_login_at->format('d.m.Y H:i') : 'Gerade eben' }}
-                        <span class="pf-info-sub">{{ $user->last_login_at ? $user->last_login_at->diffForHumans() : 'Erste Anmeldung' }}</span>
-                    </span>
-                </div>
-            </div>
-        </div>
-
-        {{-- ── Zusatz-Fragen ── --}}
-        <div id="extras-enabled" class="glass p-4" style="border-radius:0.75rem;scroll-margin-top:5rem;">
-            <div style="margin-bottom:0.75rem;">
-                <span class="text-xs uppercase tracking-wider" style="color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:0.5625rem;font-weight:700;">Zusatz-Fragen</span>
-            </div>
-
-            <form method="post" action="{{ route('profile.extras-enabled') }}">
-                @csrf
-
-                <div class="pf-consent">
-                    {{-- Hidden default ensures "0" is submitted when toggle is off --}}
-                    <input type="hidden" name="extras_enabled" value="0">
-
-                    <label class="pf-consent-label" for="extras_enabled" style="cursor:pointer;">
-                        <input
-                            id="extras_enabled"
-                            name="extras_enabled"
-                            type="checkbox"
-                            value="1"
-                            class="checkbox-glass"
-                            {{ old('extras_enabled', $user->extras_enabled) ? 'checked' : '' }}
-                        >
-                        <div class="pf-consent-body">
-                            <span class="pf-consent-title">Zusatz-Fragen aktivieren</span>
-                            <span class="pf-consent-desc">Zusatz-Fragen sind abwechslungsreiche Übungsformate (Zuordnung, Bilder) außerhalb der offiziellen THW-Prüfungsfragen. Sie erscheinen zusätzlich im Übungsmodus und beeinflussen nicht deine Prüfungsfreischaltung.</span>
+                <div class="pf-locked-content">
+                    <div class="pf-toggle-row">
+                        <div class="pf-toggle-info">
+                            <div class="pf-toggle-title">Push-Benachrichtigungen</div>
+                            <div class="pf-toggle-desc">Erhalte Erinnerungen und Lernhinweise direkt im Browser.</div>
                         </div>
-                    </label>
+                        <div class="pf-fake-toggle"></div>
+                    </div>
+                    <div class="pf-toggle-row">
+                        <div class="pf-toggle-info">
+                            <div class="pf-toggle-title">Lernstreak-Erinnerungen</div>
+                            <div class="pf-toggle-desc">Benachrichtigung, wenn dein Streak in Gefahr ist.</div>
+                        </div>
+                        <div class="pf-fake-toggle"></div>
+                    </div>
+                    <div class="pf-toggle-row">
+                        <div class="pf-toggle-info">
+                            <div class="pf-toggle-title">Prüfungsvorbereitungs-Tipps</div>
+                            <div class="pf-toggle-desc">Wöchentliche Tipps basierend auf deinem Lernfortschritt.</div>
+                        </div>
+                        <div class="pf-fake-toggle"></div>
+                    </div>
                 </div>
-
-                @error('extras_enabled')
-                    <div class="pf-form-error" style="margin-bottom:0.5rem;">{{ $message }}</div>
-                @enderror
-
-                <button type="submit" class="btn-primary" style="width:100%;">Einstellung speichern</button>
-            </form>
-        </div>
-
-        {{-- ── Gefahrenzone ── --}}
-        <div class="glass p-4" style="border-radius:0.75rem;border:1px solid rgba(239,68,68,0.15);">
-            <div style="margin-bottom:0.75rem;">
-                <span class="text-xs uppercase tracking-wider" style="color:rgba(239,68,68,0.6);font-family:'IBM Plex Mono',monospace;font-size:0.5625rem;font-weight:700;">Gefahrenzone</span>
             </div>
 
-            <p style="font-size:0.75rem;color:var(--text-secondary);margin-bottom:0.75rem;display:flex;align-items:flex-start;gap:0.4rem;line-height:1.5;">
-                <i class="bi bi-exclamation-triangle" style="color:#ef4444;flex-shrink:0;margin-top:0.1rem;"></i>
-                Diese Aktion kann nicht rückgängig gemacht werden. Alle deine Daten werden permanent gelöscht.
-            </p>
+            {{-- ── [GREYED OUT] Zwei-Faktor-Authentifizierung ── --}}
+            <div class="glass pf-section pf-section--locked">
+                <div class="pf-section-header">
+                    <span class="pf-section-title">Zwei-Faktor-Authentifizierung</span>
+                    <span class="pf-locked-badge"><i class="bi bi-lock"></i> Bald</span>
+                </div>
+                <div class="pf-locked-content">
+                    <div class="pf-toggle-row">
+                        <div class="pf-toggle-info">
+                            <div class="pf-toggle-title">2FA aktivieren</div>
+                            <div class="pf-toggle-desc">Schütze deinen Account mit einem zweiten Faktor (Authenticator-App oder SMS).</div>
+                        </div>
+                        <div class="pf-fake-toggle"></div>
+                    </div>
+                    <div style="margin-top: 0.75rem; padding: 0.75rem; border-radius: 0.5rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);">
+                        <div style="font-size:0.75rem;color:var(--text-secondary);display:flex;align-items:center;gap:0.4rem;">
+                            <i class="bi bi-qr-code" style="font-size:1rem;"></i>
+                            QR-Code-Setup mit Authenticator-App
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-            <form method="POST" action="{{ route('profile.destroy') }}"
-                  onsubmit="return confirm('Bist du dir absolut sicher? Alle deine Daten werden permanent gelöscht.')">
-                @csrf
-                @method('DELETE')
-
-                <div class="pf-form-group" style="margin-bottom:0.75rem;">
-                    <label for="password_delete" class="label-glass">Passwort zur Bestätigung</label>
-                    <input type="password" name="password" id="password_delete"
-                           class="input-glass @error('password', 'userDeletion') pf-input-error @enderror"
-                           placeholder="Passwort eingeben">
-                    @error('password', 'userDeletion')
-                        <div class="pf-form-error">{{ $message }}</div>
-                    @enderror
+            {{-- ── Gefahrenzone ── --}}
+            <div class="glass pf-section" style="border:1px solid rgba(239,68,68,0.15);">
+                <div class="pf-section-header">
+                    <span class="pf-section-title" style="color:rgba(239,68,68,0.7);">Gefahrenzone</span>
                 </div>
 
-                <button type="submit" class="btn-danger" style="width:100%;">Account permanent löschen</button>
-            </form>
-        </div>
+                <p style="font-size:0.75rem;color:var(--text-secondary);margin-bottom:0.875rem;display:flex;align-items:flex-start;gap:0.4rem;line-height:1.5;">
+                    <i class="bi bi-exclamation-triangle" style="color:#ef4444;flex-shrink:0;margin-top:0.1rem;"></i>
+                    Diese Aktion kann nicht rückgängig gemacht werden. Alle deine Daten werden permanent gelöscht.
+                </p>
 
-    </div>{{-- /space-y-4 --}}
+                <form method="POST" action="{{ route('profile.destroy') }}"
+                      onsubmit="return confirm('Bist du dir absolut sicher? Alle deine Daten werden permanent gelöscht.')">
+                    @csrf
+                    @method('DELETE')
 
-</div>{{-- /dash-container --}}
+                    <div class="pf-form-group" style="margin-bottom:0.75rem;">
+                        <label for="password_delete" class="label-glass">Passwort zur Bestätigung</label>
+                        <input type="password" name="password" id="password_delete"
+                               class="input-glass @error('password', 'userDeletion') pf-input-error @enderror"
+                               placeholder="Passwort eingeben">
+                        @error('password', 'userDeletion')
+                            <div class="pf-form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <button type="submit" class="btn-danger" style="width:100%;">Account permanent löschen</button>
+                </form>
+            </div>
+
+        </main>{{-- /pf-main --}}
+
+    </div>{{-- /pf-layout --}}
+
+</div>{{-- /dashboard-container --}}
 
 <script>
     function checkPasswordMatch() {
@@ -825,7 +1133,6 @@
 
                     var data = await response.json();
                     if (data.success) {
-                        // Rebuild active state from response
                         var active = {};
                         ['accessories', 'top', 'facialHair'].forEach(function(type) {
                             var items = data.owned_accessories[type] || {};
@@ -835,7 +1142,6 @@
                                 }
                             });
                         });
-                        // Preserve color keys from response avatar URL
                         if (data.avatar_url) {
                             var url = new URL(data.avatar_url);
                             var accColor = url.searchParams.get('accessoriesColor');
@@ -871,7 +1177,6 @@
 
                     var data = await response.json();
                     if (data.success) {
-                        // Update color in active items
                         var url = new URL(data.avatar_url);
                         var accColor = url.searchParams.get('accessoriesColor');
                         var fhColor = url.searchParams.get('facialHairColor');
