@@ -1270,7 +1270,8 @@
         /* Sidebar (lg:fixed, 264px) Offset für die Bottom-Bar */
         @media (min-width: 1024px) {
             .practice-actions {
-                padding-left: calc(264px + 1.5rem);
+                left: 264px;
+                padding-left: 1.5rem;
             }
         }
         .practice-actions > * {
