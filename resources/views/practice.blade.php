@@ -1067,6 +1067,225 @@
             transition: none !important;
         }
     }
+
+    /* Neue Desktop-Exam-Progress standardmäßig verborgen (Mobile-First) */
+    .practice-exam-progress { display: none; }
+
+    /* =========================================================
+       DESKTOP C-MINIMAL (Claude Design) — ab 641px
+       Überschreibt Look & Feel ohne Mobile anzutasten
+       ========================================================= */
+    @media (min-width: 641px) {
+        .practice-shell {
+            padding: 1.5rem 1.5rem calc(120px + 1.5rem);
+        }
+
+        /* Header: Eyebrow + großer "Frage N/M" Titel + Sub */
+        .practice-header {
+            margin-bottom: 1rem;
+        }
+        .practice-header .practice-greeting {
+            font-size: 0.6875rem;
+            letter-spacing: 0.12em;
+            color: var(--thw-blue);
+            margin-bottom: 0.5rem;
+        }
+        html:not(.light-mode) .practice-header .practice-greeting {
+            color: #5b9aff;
+        }
+        .practice-header .practice-title {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 800;
+            font-size: 2.25rem;
+            line-height: 1.1;
+            letter-spacing: -0.02em;
+            margin: 0 0 0.35rem;
+            display: inline-flex;
+            align-items: baseline;
+            gap: 0.35rem;
+        }
+        .practice-header .practice-title .pt-of {
+            font-weight: 500;
+            font-size: 1.125rem;
+            color: var(--text-muted);
+            letter-spacing: 0;
+        }
+        .practice-header .practice-subline {
+            font-size: 0.9375rem;
+            color: var(--text-secondary);
+            margin: 0;
+        }
+        .practice-header .practice-subline .dot {
+            color: var(--text-muted);
+            margin: 0 0.35rem;
+        }
+        .practice-header .practice-xp-bar,
+        .practice-header .practice-level-line { display: none; }
+
+        /* Two-column progress bars (1× / 2× richtig) */
+        .practice-progress-bar { display: none; }
+        .practice-exam-progress {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        .pep-row {
+            display: flex;
+            align-items: center;
+            gap: 0.625rem;
+            padding: 0.625rem 0.875rem;
+            border-radius: 0.625rem;
+            background: rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(0, 51, 127, 0.08);
+        }
+        html:not(.light-mode) .pep-row {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(255, 255, 255, 0.08);
+        }
+        .pep-label {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.6875rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+        .pep-track {
+            flex: 1;
+            height: 4px;
+            border-radius: 999px;
+            background: rgba(0, 51, 127, 0.08);
+            overflow: hidden;
+        }
+        html:not(.light-mode) .pep-track { background: rgba(255, 255, 255, 0.08); }
+        .pep-fill {
+            height: 100%;
+            background: var(--thw-blue);
+            border-radius: 999px;
+            transition: width 0.4s ease-out;
+        }
+        html:not(.light-mode) .pep-fill { background: #5b9aff; }
+        .pep-fill--gold { background: var(--gold); }
+        .pep-num {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 800;
+            font-size: 0.9375rem;
+            color: var(--text-primary);
+            min-width: 2rem;
+            text-align: right;
+        }
+
+        /* C-Minimal: Card transparent, kein Rand, kein Schatten */
+        .practice-card {
+            background: transparent !important;
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+            border: 0 !important;
+            border-radius: 0;
+            box-shadow: none !important;
+            padding: 0 !important;
+            overflow: visible;
+            animation: none;
+        }
+        html.light-mode .practice-card { box-shadow: none !important; }
+        .practice-card::before { display: none; }
+
+        /* Question-Block: transparent mit Trennlinie unten */
+        .practice-card .question-meta {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.625rem;
+            letter-spacing: 0.14em;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            padding-bottom: 0;
+            border: 0;
+        }
+        .practice-card .question-text {
+            font-size: 1.125rem;
+            font-weight: 600;
+            line-height: 1.45;
+            margin: 0 0 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(0, 51, 127, 0.08);
+        }
+        html:not(.light-mode) .practice-card .question-text {
+            border-bottom-color: rgba(255, 255, 255, 0.08);
+        }
+
+        /* Answer-Options: cleaner, kein Transform beim Hover */
+        .answer-opt {
+            background: #ffffff;
+            border: 1px solid rgba(0, 51, 127, 0.10);
+            border-radius: 0.625rem;
+            padding: 0.875rem 1rem;
+            box-shadow: 0 1px 2px rgba(0, 51, 127, 0.03);
+            transition: border-color 0.15s, background 0.15s;
+        }
+        .answer-opt:hover {
+            transform: none;
+            background: rgba(91, 154, 255, 0.05);
+            border-color: var(--thw-blue);
+        }
+        html:not(.light-mode) .answer-opt {
+            background: rgba(255, 255, 255, 0.03);
+            border-color: rgba(255, 255, 255, 0.08);
+            box-shadow: none;
+        }
+        html:not(.light-mode) .answer-opt:hover {
+            background: rgba(91, 154, 255, 0.08);
+            border-color: #5b9aff;
+        }
+
+        /* Icon-Buttons im Header (Fehler melden / Merken) */
+        .practice-header .bookmark-btn-lg {
+            width: 40px;
+            height: 40px;
+            border-radius: 0.5rem;
+        }
+
+        /* Fixed Bottom Bar (Submit-CTA + Lernen beenden) */
+        .practice-actions {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 30;
+            margin: 0;
+            padding: 0.875rem 1.5rem calc(0.875rem + env(safe-area-inset-bottom, 0px));
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border-top: 1px solid rgba(0, 51, 127, 0.08);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        html:not(.light-mode) .practice-actions {
+            background: rgba(15, 15, 20, 0.78);
+            border-top-color: rgba(255, 255, 255, 0.06);
+        }
+        /* Sidebar (lg:fixed, 264px) Offset für die Bottom-Bar */
+        @media (min-width: 1024px) {
+            .practice-actions {
+                padding-left: calc(264px + 1.5rem);
+            }
+        }
+        .practice-actions > * {
+            width: 100%;
+            max-width: 1100px;
+        }
+        .practice-actions .action-submit {
+            padding: 0.9rem 1.25rem;
+            border-radius: 0.75rem;
+            font-size: 1rem;
+        }
+        .practice-actions .action-end {
+            margin-top: 0;
+        }
+    }
 </style>
 @endpush
 
@@ -1168,46 +1387,48 @@
         </div>
 
         <!-- Desktop Header -->
+        @php
+            $eyebrowText = $isGuest
+                ? 'Anonym üben'
+                : (isset($mode)
+                    ? [
+                        'unsolved' => 'Ungelöste Fragen',
+                        'failed' => 'Fehlerwiederholung',
+                        'section' => 'Lernabschnitt ' . session('practice_parameter'),
+                        'search' => 'Suche: "' . session('practice_parameter') . '"',
+                        'bookmarked' => 'Gespeicherte Fragen',
+                        'spaced_repetition' => 'Wiederholung',
+                    ][$mode] ?? 'Alle Fragen'
+                    : ($contextLabel ?? 'Theorie üben'));
+            $qCurrent = $currentInMode ?? (($progress ?? 0) + 1);
+            $qTotal   = $totalInMode   ?? ($total ?? 0);
+            $laStr = ($question->lernabschnitt ?? '-') . '.' . ($question->nummer ?? '-');
+        @endphp
         <div class="practice-header">
             <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;">
                 <div style="flex:1;">
-                    <div class="practice-greeting">
-                        @if($isGuest)
-                            Anonym üben
-                        @elseif(($context ?? 'global') === 'global')
-                            @if(isset($mode))
-                                @switch($mode)
-                                    @case('unsolved') Ungelöste Fragen @break
-                                    @case('failed') Fehlerwiederholung @break
-                                    @case('section') Lernabschnitt {{ session('practice_parameter') }} @break
-                                    @case('search') Suche: "{{ session('practice_parameter') }}" @break
-                                    @case('bookmarked') Gespeicherte Fragen @break
-                                    @case('spaced_repetition') Wiederholung @break
-                                    @default Alle Fragen
-                                @endswitch
-                            @endif
-                        @else
-                            {{ $contextLabel ?? 'Übungsmodus' }}
+                    <div class="practice-greeting">{{ $eyebrowText }}</div>
+                    <h1 class="practice-title">
+                        Frage <span>{{ $qCurrent }}</span><span class="pt-of">/{{ $qTotal }}</span>
+                    </h1>
+                    <p class="practice-subline">
+                        <span>LA {{ $laStr }}</span>
+                        @if(isset($difficultyInfo) && $difficultyInfo['level'] !== 'unknown')
+                            <span class="dot">·</span>
+                            <span>{{ $difficultyInfo['label'] }}@if($difficultyInfo['percent'] !== null) · {{ $difficultyInfo['percent'] }} % Fehlerquote @endif</span>
                         @endif
-                    </div>
-                    <div class="practice-title">{{ $contextLabel ?? 'Theorie üben' }}</div>
-                    <div class="practice-level-line">
-                        <span>
-                            @if(($progressOnce ?? 0) > 0)
-                                <span style="opacity:0.75;">1× richtig: {{ $progressOnce }}</span>
-                                &middot;
-                            @endif
-                            @if(($progressTwice ?? 0) > 0)
-                                <span style="opacity:0.75;">2× richtig: {{ $progressTwice }}</span>
-                                &middot;
-                            @endif
-                            {{ $progress }}/{{ $total }} gemeistert
-                            &middot;
-                            {{ $progressPercent ?? 0 }}%
-                            <i class="bi bi-info-circle"
-                               style="font-size:0.85rem; color: rgba(255,255,255,0.5); cursor: help; margin-left: 0.25rem;"
-                               title="Gemeistert = 3× hintereinander richtig beantwortet. Eine falsche Antwort setzt den Zähler zurück auf 0."></i>
+                        @if(isset($isSpacedRepetition) && $isSpacedRepetition)
+                            <span class="dot">·</span>
+                            <span>Wiederholung</span>
+                        @endif
+                        <span class="dot">·</span>
+                        <span title="Gemeistert = 3× hintereinander richtig beantwortet">
+                            {{ $progress ?? 0 }}/{{ $total ?? 0 }} gemeistert · {{ $progressPercent ?? 0 }} %
                         </span>
+                    </p>
+                    {{-- Legacy level-line bleibt für <=640px erhalten, wird per CSS auf Desktop ausgeblendet --}}
+                    <div class="practice-level-line">
+                        <span>{{ $progress }}/{{ $total }} gemeistert · {{ $progressPercent ?? 0 }}%</span>
                         <div class="practice-xp-bar">
                             <div class="practice-xp-fill" style="width: {{ $progressPercent ?? 0 }}%;"></div>
                         </div>
@@ -1258,10 +1479,29 @@
             @endif
         </div>
 
-        <!-- Desktop Progress Bar -->
+        <!-- Desktop Progress Bar (Legacy, nur Mobile) -->
         <div class="practice-progress-bar">
             <div class="ppb-track">
                 <div class="ppb-fill" style="width: {{ $progressPercent ?? 0 }}%;"></div>
+            </div>
+        </div>
+
+        <!-- Desktop Exam-Progress (1× richtig / 2× richtig) -->
+        @php
+            $total = max(1, (int)($total ?? 1));
+            $oncePct  = round((($progressOnce  ?? 0) / $total) * 100);
+            $twicePct = round((($progressTwice ?? 0) / $total) * 100);
+        @endphp
+        <div class="practice-exam-progress">
+            <div class="pep-row">
+                <span class="pep-label">1× richtig</span>
+                <div class="pep-track"><div class="pep-fill" style="width: {{ $oncePct }}%;"></div></div>
+                <span class="pep-num">{{ $progressOnce ?? 0 }}</span>
+            </div>
+            <div class="pep-row">
+                <span class="pep-label">2× richtig</span>
+                <div class="pep-track"><div class="pep-fill pep-fill--gold" style="width: {{ $twicePct }}%;"></div></div>
+                <span class="pep-num">{{ $progressTwice ?? 0 }}</span>
             </div>
         </div>
 
