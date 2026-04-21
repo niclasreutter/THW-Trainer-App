@@ -1303,10 +1303,17 @@
         .practice-header .practice-subline { font-size: 0.875rem; }
         .practice-header .bookmark-btn-lg { width: 34px; height: 34px; }
 
-        .practice-badges { gap: 0.375rem; margin-bottom: 0.625rem; }
+        /* Badges + Exam-Progress in einer Zeile */
+        .practice-meta-row {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.625rem;
+        }
+        .practice-badges { gap: 0.375rem; margin-bottom: 0; flex-shrink: 0; }
         .p-badge { padding: 0.15rem 0.5rem; font-size: 0.5625rem; }
 
-        .practice-exam-progress { gap: 0.5rem; margin-bottom: 0.625rem; }
+        .practice-exam-progress { gap: 0.5rem; margin-bottom: 0; flex: 1; min-width: 0; }
         .pep-row { padding: 0.4rem 0.75rem; gap: 0.5rem; }
         .pep-label { font-size: 0.625rem; }
         .pep-num { font-size: 0.875rem; }
@@ -1498,49 +1505,51 @@
             </div>
         </div>
 
-        <!-- Desktop Badge Row -->
-        <div class="practice-badges">
-            @if(isset($isSpacedRepetition) && $isSpacedRepetition)
-                <span class="p-badge p-badge--sr"><i class="bi bi-arrow-repeat"></i> Wiederholung</span>
-            @endif
+        <!-- Desktop Badge Row + Exam-Progress (auf schmalem Desktop in einer Zeile) -->
+        <div class="practice-meta-row">
+            <div class="practice-badges">
+                @if(isset($isSpacedRepetition) && $isSpacedRepetition)
+                    <span class="p-badge p-badge--sr"><i class="bi bi-arrow-repeat"></i> Wiederholung</span>
+                @endif
 
-            @if(isset($difficultyInfo) && $difficultyInfo['level'] !== 'unknown')
-                <span class="p-badge p-badge--{{ $difficultyInfo['level'] }}">
-                    {{ $difficultyInfo['label'] }}
-                    @if($difficultyInfo['percent'] !== null)
-                        &middot; {{ $difficultyInfo['percent'] }}%
-                    @endif
-                </span>
-            @endif
+                @if(isset($difficultyInfo) && $difficultyInfo['level'] !== 'unknown')
+                    <span class="p-badge p-badge--{{ $difficultyInfo['level'] }}">
+                        {{ $difficultyInfo['label'] }}
+                        @if($difficultyInfo['percent'] !== null)
+                            &middot; {{ $difficultyInfo['percent'] }}%
+                        @endif
+                    </span>
+                @endif
 
-            @if(isset($totalInMode) && $totalInMode > 0)
-                <span class="p-badge p-badge--progress">Frage {{ $currentInMode ?? 1 }}/{{ $totalInMode }}</span>
-            @endif
-        </div>
-
-        <!-- Desktop Progress Bar (Legacy, nur Mobile) -->
-        <div class="practice-progress-bar">
-            <div class="ppb-track">
-                <div class="ppb-fill" style="width: {{ $progressPercent ?? 0 }}%;"></div>
+                @if(isset($totalInMode) && $totalInMode > 0)
+                    <span class="p-badge p-badge--progress">Frage {{ $currentInMode ?? 1 }}/{{ $totalInMode }}</span>
+                @endif
             </div>
-        </div>
 
-        <!-- Desktop Exam-Progress (1× richtig / 2× richtig) -->
-        @php
-            $total = max(1, (int)($total ?? 1));
-            $oncePct  = round((($progressOnce  ?? 0) / $total) * 100);
-            $twicePct = round((($progressTwice ?? 0) / $total) * 100);
-        @endphp
-        <div class="practice-exam-progress">
-            <div class="pep-row">
-                <span class="pep-label">1× richtig</span>
-                <div class="pep-track"><div class="pep-fill" style="width: {{ $oncePct }}%;"></div></div>
-                <span class="pep-num">{{ $progressOnce ?? 0 }}</span>
+            <!-- Desktop Progress Bar (Legacy, nur Mobile) -->
+            <div class="practice-progress-bar">
+                <div class="ppb-track">
+                    <div class="ppb-fill" style="width: {{ $progressPercent ?? 0 }}%;"></div>
+                </div>
             </div>
-            <div class="pep-row">
-                <span class="pep-label">2× richtig</span>
-                <div class="pep-track"><div class="pep-fill pep-fill--gold" style="width: {{ $twicePct }}%;"></div></div>
-                <span class="pep-num">{{ $progressTwice ?? 0 }}</span>
+
+            <!-- Desktop Exam-Progress (1× richtig / 2× richtig) -->
+            @php
+                $total = max(1, (int)($total ?? 1));
+                $oncePct  = round((($progressOnce  ?? 0) / $total) * 100);
+                $twicePct = round((($progressTwice ?? 0) / $total) * 100);
+            @endphp
+            <div class="practice-exam-progress">
+                <div class="pep-row">
+                    <span class="pep-label">1× richtig</span>
+                    <div class="pep-track"><div class="pep-fill" style="width: {{ $oncePct }}%;"></div></div>
+                    <span class="pep-num">{{ $progressOnce ?? 0 }}</span>
+                </div>
+                <div class="pep-row">
+                    <span class="pep-label">2× richtig</span>
+                    <div class="pep-track"><div class="pep-fill pep-fill--gold" style="width: {{ $twicePct }}%;"></div></div>
+                    <span class="pep-num">{{ $progressTwice ?? 0 }}</span>
+                </div>
             </div>
         </div>
 
