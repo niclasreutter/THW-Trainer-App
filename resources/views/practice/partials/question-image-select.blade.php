@@ -286,14 +286,6 @@
             </div>
         @endforeach
     </div>
-
-    @if(isset($isCorrect))
-        <div class="result-summary">
-            <span class="{{ $isCorrect ? 'result-label--correct' : 'result-label--wrong' }}">
-                {{ $isCorrect ? 'Richtig beantwortet' : 'Falsch beantwortet' }}
-            </span>
-        </div>
-    @endif
 </div>
 
 <script>
