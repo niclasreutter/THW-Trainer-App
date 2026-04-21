@@ -458,7 +458,59 @@ Route::middleware('auth')->group(function () {
         $nextLevelPoints = $gamification->getNextLevelPoints($user);
         $achievements = $gamification->getUserAchievements($user);
         $ortsverbande = $user->ortsverbande()->get();
-        return view('profile', compact('user', 'ownedAccessories', 'levelProgress', 'nextLevelPoints', 'achievements', 'ortsverbande'));
+
+        // Lernstatistik: Gesamt + Top-3 Lernabschnitte
+        $sectionNames = [
+            1 => 'Das THW im Gefüge des Zivil- und Katastrophenschutzes',
+            2 => 'Arbeitssicherheit und Gesundheitsschutz',
+            3 => 'Arbeiten mit Leinen, Drahtseilen, Ketten, Rund- und Bandschlingen',
+            4 => 'Arbeiten mit Leitern',
+            5 => 'Stromerzeugung und Beleuchtung',
+            6 => 'Metall-, Holz- und Steinbearbeitung',
+            7 => 'Bewegen von Lasten',
+            8 => 'Arbeiten am und auf dem Wasser',
+            9 => 'Einsatzgrundlagen',
+            10 => 'Grundlagen der Rettung und Bergung',
+        ];
+        $questionsBySection = \App\Models\Question::select('id', 'lernabschnitt')->get()->groupBy('lernabschnitt');
+        $totalQuestions = $questionsBySection->flatten()->count();
+        $solvedIds = is_array($user->solved_questions) ? $user->solved_questions : [];
+        $sectionStats = [];
+        foreach ($sectionNames as $nr => $name) {
+            $sectionQuestionIds = $questionsBySection->get((string)$nr, $questionsBySection->get($nr, collect()))->pluck('id')->toArray();
+            $total = count($sectionQuestionIds);
+            if ($total === 0) continue;
+            $solved = count(array_intersect($solvedIds, $sectionQuestionIds));
+            $sectionStats[] = [
+                'nr' => $nr,
+                'name' => $name,
+                'total' => $total,
+                'solved' => $solved,
+                'percent' => $total > 0 ? (int) round(($solved / $total) * 100) : 0,
+            ];
+        }
+        $sectionsStarted = collect($sectionStats)->where('solved', '>', 0)->count();
+        $sectionsTotal = count($sectionStats);
+        $topSections = collect($sectionStats)->sortByDesc('solved')->take(3)->values()->all();
+
+        // Heatmap: beantwortete Fragen pro Tag (letzte 28 Tage) — aus user_question_progress.last_answered_at
+        $heatmapStart = now()->subDays(27)->startOfDay();
+        $dailyCounts = \DB::table('user_question_progress')
+            ->where('user_id', $user->id)
+            ->where('last_answered_at', '>=', $heatmapStart)
+            ->selectRaw('DATE(last_answered_at) as d, COUNT(*) as c')
+            ->groupBy('d')
+            ->pluck('c', 'd')
+            ->toArray();
+        $heatPattern = [];
+        for ($i = 0; $i < 28; $i++) {
+            $date = now()->subDays(27 - $i)->format('Y-m-d');
+            $count = (int) ($dailyCounts[$date] ?? 0);
+            $intensity = $count === 0 ? 0 : ($count >= 20 ? 4 : ($count >= 10 ? 3 : ($count >= 5 ? 2 : 1)));
+            $heatPattern[] = $intensity;
+        }
+
+        return view('profile', compact('user', 'ownedAccessories', 'levelProgress', 'nextLevelPoints', 'achievements', 'ortsverbande', 'totalQuestions', 'topSections', 'sectionsStarted', 'sectionsTotal', 'heatPattern'));
     })->name('profile');
     Route::patch('/profile', function(Request $request) {
         \Log::info('Profile route reached via PATCH');

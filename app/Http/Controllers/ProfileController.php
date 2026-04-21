@@ -65,12 +65,12 @@ class ProfileController extends Controller
         }
         
         // E-Mail-Zustimmung verarbeiten
-        $emailConsent = $request->has('email_consent');
+        $emailConsent = $request->boolean('email_consent');
         $user->email_consent = $emailConsent;
         $user->email_consent_at = $emailConsent ? now() : null;
-        
+
         // Leaderboard-Zustimmung verarbeiten
-        $leaderboardConsent = $request->has('leaderboard_consent');
+        $leaderboardConsent = $request->boolean('leaderboard_consent');
         $user->leaderboard_consent = $leaderboardConsent;
         $user->leaderboard_consent_at = $leaderboardConsent ? now() : null;
 
