@@ -323,6 +323,48 @@
 
     /* ─── Achievements preview ─── */
     .ach-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.625rem; }
+
+    /* Lernabschnitte-Liste */
+    .section-list { display: flex; flex-direction: column; }
+    .section-row {
+        display: grid;
+        grid-template-columns: 32px 1fr auto 14px;
+        gap: 0.75rem;
+        align-items: center;
+        padding: 0.625rem 0;
+        border-top: 1px solid rgba(0,51,127,0.08);
+        text-decoration: none;
+        color: inherit;
+        transition: background 0.15s;
+    }
+    .section-row:hover { background: rgba(0,51,127,0.03); }
+    .section-row__rank {
+        display: flex; align-items: center; justify-content: center;
+        width: 28px; height: 28px; border-radius: 7px;
+        background: var(--thw-blue); color: #fff;
+        font-size: 0.8125rem; font-weight: 700;
+    }
+    .section-row--empty .section-row__rank { background: rgba(0,51,127,0.12); color: var(--text-muted); }
+    .section-row__body { min-width: 0; }
+    .section-row__name {
+        font-size: 0.875rem; color: var(--text-primary); font-weight: 500;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        margin-bottom: 0.375rem;
+    }
+    .section-row--empty .section-row__name { color: var(--text-muted); }
+    .section-row__bar {
+        height: 3px; border-radius: 2px; background: rgba(0,51,127,0.08); overflow: hidden;
+    }
+    .section-row__fill {
+        height: 100%; background: var(--thw-blue); border-radius: 2px;
+        transition: width 0.4s ease;
+    }
+    .section-row__pct {
+        font-size: 0.8125rem; font-weight: 600; color: var(--thw-blue);
+        min-width: 36px; text-align: right;
+    }
+    .section-row--empty .section-row__pct { color: var(--text-muted); font-weight: 500; }
+    .section-row__chev { color: var(--text-muted); font-size: 0.75rem; }
     .ach {
         aspect-ratio: 1;
         border-radius: 0.625rem;
@@ -658,31 +700,18 @@
     $nextPts = $nextLevelPoints ?? 0;
     $streakDays = $user->streak_days ?? 0;
 
-    // 28-Tage Heat-Pattern: Zellen auf Basis der aktuellen Streak setzen
-    // (heute = Index 27). Fehlt granulare Historie → Streak wird als durchgängige Serie interpretiert.
-    $heatPattern = array_fill(0, 28, 0);
-    $activeDaysBack = 0;
-    if ($user->last_activity_date) {
-        $lastActDate = \Illuminate\Support\Carbon::parse($user->last_activity_date)->startOfDay();
-        $daysAgo = (int) $lastActDate->diffInDays(now()->startOfDay());
-        if ($daysAgo < 28) {
-            $intensity = $streakDays >= 7 ? 4 : ($streakDays >= 3 ? 3 : ($streakDays >= 1 ? 2 : 1));
-            $span = min(28, max(1, $streakDays ?: 1));
-            for ($i = 0; $i < $span; $i++) {
-                $idx = 27 - $daysAgo - $i;
-                if ($idx >= 0 && $idx < 28) {
-                    $heatPattern[$idx] = $intensity;
-                }
-            }
-            $activeDaysBack = $span;
-        }
-    }
+    // Heatmap & Lernstatistik kommen aus der Route ($heatPattern, $totalQuestions, $topSections, $sectionsStarted, $sectionsTotal)
+    $heatPattern = $heatPattern ?? array_fill(0, 28, 0);
 
     // Lernstatistik
     $solvedCount = is_array($user->solved_questions) ? count($user->solved_questions) : 0;
     $wrongCount = (int) ($user->wrong_answers ?? 0);
     $totalAnswered = $solvedCount + $wrongCount;
     $accuracy = $totalAnswered > 0 ? round(($solvedCount / $totalAnswered) * 100) : null;
+    $totalQuestions = $totalQuestions ?? 0;
+    $topSections = $topSections ?? [];
+    $sectionsStarted = $sectionsStarted ?? 0;
+    $sectionsTotal = $sectionsTotal ?? 10;
 
     $daysSince = (int) floor($user->created_at->diffInDays(now()));
     $lastActive = $user->last_activity_at
@@ -797,11 +826,12 @@
              LEARNING STATS (span 8)
         ══════════════════════════════════════════ --}}
         <div class="glass card-learning card">
-            <div class="card-head">
+            <div class="card-head" style="display:flex;align-items:center;justify-content:space-between;">
                 <span class="section-label">Lernstatistik · Gesamtübersicht</span>
+                <a href="{{ route('practice.menu') }}" style="font-size:0.8125rem;color:var(--thw-blue);text-decoration:none;font-weight:500;">Detail-Statistiken →</a>
             </div>
             <div>
-                <div class="stat-pills" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem;">
+                <div class="stat-pills" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; margin-bottom: 1.25rem;">
                     <div class="stat-pill">
                         <div class="stat-pill__value stat-pill__value--ok">{{ $solvedCount }}</div>
                         <div class="stat-pill__label">Gelöst</div>
@@ -815,9 +845,34 @@
                         <div class="stat-pill__label">Fehler</div>
                     </div>
                     <div class="stat-pill">
-                        <div class="stat-pill__value">{{ $points }}</div>
-                        <div class="stat-pill__label">XP gesamt</div>
+                        <div class="stat-pill__value">{{ $totalQuestions }}</div>
+                        <div class="stat-pill__label">Gesamt</div>
                     </div>
+                </div>
+
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem;padding-top:0.25rem;">
+                    <span class="section-label" style="font-size:0.6875rem;">Lernabschnitte · Top 3</span>
+                    <span style="font-size:0.75rem;color:var(--text-muted);">{{ $sectionsStarted }} / {{ $sectionsTotal }} begonnen</span>
+                </div>
+
+                <div class="section-list">
+                    @forelse($topSections as $idx => $sec)
+                        @php
+                            $rank = $idx + 1;
+                            $isEmpty = $sec['solved'] === 0;
+                        @endphp
+                        <a href="{{ route('practice.menu') }}" class="section-row {{ $isEmpty ? 'section-row--empty' : '' }}">
+                            <div class="section-row__rank">{{ $rank }}</div>
+                            <div class="section-row__body">
+                                <div class="section-row__name">{{ $sec['name'] }}</div>
+                                <div class="section-row__bar"><div class="section-row__fill" style="width: {{ $sec['percent'] }}%;"></div></div>
+                            </div>
+                            <div class="section-row__pct">{{ $isEmpty ? '—' : $sec['percent'].'%' }}</div>
+                            <i class="bi bi-chevron-right section-row__chev"></i>
+                        </a>
+                    @empty
+                        <div style="padding:0.75rem;text-align:center;color:var(--text-muted);font-size:0.8125rem;">Noch keine Lernabschnitte begonnen.</div>
+                    @endforelse
                 </div>
             </div>
         </div>
