@@ -854,29 +854,24 @@
         </div>
 
         {{-- ══════════════════════════════════════════
-             ACHIEVEMENTS (span 6) — teilweise [GREYED]
+             ACHIEVEMENTS (span 6)
         ══════════════════════════════════════════ --}}
         @php
-            $achievements = is_array($user->achievements) ? $user->achievements : [];
-            $unlockedCount = count($achievements);
+            $achievementsList = $achievements ?? [];
+            $unlockedCount = collect($achievementsList)->where('unlocked', true)->count();
+            $totalAchievements = count($achievementsList);
         @endphp
-        <div class="glass card-achievements card is-locked">
+        <div class="glass card-achievements card">
             <div class="card-head">
-                <span class="section-label">Achievements · {{ $unlockedCount }} / 24 freigeschaltet</span>
-                <span class="locked-badge"><i class="bi bi-lock"></i> Bald</span>
+                <span class="section-label">Achievements · {{ $unlockedCount }} / {{ $totalAchievements }} freigeschaltet</span>
             </div>
-            <div class="card-body-locked">
+            <div>
                 <div class="ach-grid">
-                    <div class="ach {{ $unlockedCount > 0 ? 'ach--unlocked' : 'ach--locked' }}" title="Erste Frage"><i class="bi bi-lightning-charge-fill"></i></div>
-                    <div class="ach ach--unlocked" title="Willkommen"><i class="bi bi-flag-fill"></i></div>
-                    <div class="ach ach--locked" title="7-Tage-Streak"><i class="bi bi-fire"></i></div>
-                    <div class="ach ach--locked" title="Erste Prüfung"><i class="bi bi-mortarboard-fill"></i></div>
-                    <div class="ach ach--locked" title="100 gelöst"><i class="bi bi-stack"></i></div>
-                    <div class="ach ach--locked" title="Silber-Liga"><i class="bi bi-award-fill"></i></div>
-                    <div class="ach ach--locked" title="Abschnitt gemeistert"><i class="bi bi-check-circle-fill"></i></div>
-                    <div class="ach ach--locked" title="Nachteule"><i class="bi bi-moon-stars-fill"></i></div>
-                    <div class="ach ach--locked" title="Perfekter Tag"><i class="bi bi-gem"></i></div>
-                    <div class="ach ach--locked" title="Mehr…"><i class="bi bi-three-dots"></i></div>
+                    @foreach($achievementsList as $ach)
+                        <div class="ach {{ $ach['unlocked'] ? 'ach--unlocked' : 'ach--locked' }}" title="{{ $ach['title'] }} – {{ $ach['description'] }}">
+                            <i class="bi {{ $ach['icon'] }}"></i>
+                        </div>
+                    @endforeach
                 </div>
             </div>
         </div>
@@ -969,15 +964,35 @@
                     @enderror
                 </div>
 
-                <div class="field is-locked" style="opacity: 0.5;">
-                    <label class="field__label" for="ov" style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;">
-                        Ortsverband
-                        <span class="locked-badge"><i class="bi bi-lock"></i> Bald</span>
-                    </label>
-                    <select class="select" id="ov" disabled>
-                        <option>Kein Ortsverband zugeordnet</option>
-                    </select>
-                    <div class="field__help">Dein Ortsverband erscheint auf deinem Profil und in der OV-Rangliste.</div>
+                <div class="field">
+                    <label class="field__label">Ortsverband</label>
+                    @if(($ortsverbande ?? collect())->isNotEmpty())
+                        <div style="display:flex;flex-direction:column;gap:0.5rem;">
+                            @foreach($ortsverbande as $ov)
+                                <a href="{{ route('ortsverband.show', $ov) }}" style="display:flex;align-items:center;gap:0.75rem;padding:0.625rem 0.875rem;border:1px solid rgba(0,51,127,0.15);border-radius:10px;background:rgba(0,51,127,0.04);text-decoration:none;color:var(--text-primary);transition:background 0.15s;">
+                                    <i class="bi bi-building" style="color:var(--thw-blue);font-size:1.125rem;"></i>
+                                    <div style="flex:1;">
+                                        <div style="font-weight:600;font-size:0.9375rem;">{{ $ov->name }}</div>
+                                        @if($ov->pivot->role ?? null)
+                                            <div style="font-size:0.75rem;color:var(--text-muted);">{{ ucfirst($ov->pivot->role) }}</div>
+                                        @endif
+                                    </div>
+                                    <i class="bi bi-chevron-right" style="color:var(--text-muted);font-size:0.875rem;"></i>
+                                </a>
+                            @endforeach
+                        </div>
+                        <div class="field__help">Mitgliedschaften verwalten auf der Ortsverband-Seite.</div>
+                    @else
+                        <div style="padding:1rem;border:1px dashed rgba(0,51,127,0.2);border-radius:10px;background:rgba(0,51,127,0.03);text-align:center;">
+                            <div style="font-size:0.875rem;color:var(--text-secondary);margin-bottom:0.75rem;">
+                                Du bist noch keinem Ortsverband beigetreten.
+                            </div>
+                            <a href="{{ route('ortsverband.index') }}" class="btn-pf-primary" style="display:inline-flex;align-items:center;gap:0.5rem;">
+                                <i class="bi bi-plus-circle"></i> Ortsverband beitreten
+                            </a>
+                        </div>
+                        <div class="field__help">Tritt deinem Ortsverband bei, um Fortschritt und Ranking zu teilen.</div>
+                    @endif
                 </div>
 
                 <input type="hidden" name="email_consent" value="{{ $user->email_consent ? 1 : 0 }}">
