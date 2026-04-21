@@ -38,6 +38,9 @@ class ExtraQuestionService
             $baseQuery->where('lernabschnitt', $lernabschnitt);
         }
 
+        // SR-Gating: Fragen mit zukünftigem next_review_at sind gesperrt
+        $futureSrIds = $this->getFutureSrQuestionIds($user, (clone $baseQuery));
+
         $dueIds = $this->getDueQuestionIds($user, (clone $baseQuery));
         $unsolvedIds = $this->getUnsolvedQuestionIds($user, (clone $baseQuery));
         $inProgressIds = $this->getInProgressQuestionIds($user, (clone $baseQuery));
@@ -46,14 +49,15 @@ class ExtraQuestionService
             ->merge($unsolvedIds)
             ->merge($inProgressIds)
             ->unique()
+            ->diff($futureSrIds)
             ->take($limit)
             ->values()
             ->toArray();
 
-        // Falls nicht voll: mit zufälligen (gemeisterten) auffüllen
+        // Falls nicht voll: mit zufälligen Fragen auffüllen (aber keine gesperrten SR)
         if (count($queue) < $limit) {
             $fill = (clone $baseQuery)
-                ->whereNotIn('id', $queue)
+                ->whereNotIn('id', array_merge($queue, $futureSrIds))
                 ->inRandomOrder()
                 ->limit($limit - count($queue))
                 ->pluck('id')
@@ -209,6 +213,15 @@ class ExtraQuestionService
         return $query->whereHas('userProgress', function ($q) use ($user) {
             $q->where('user_id', $user->id)
               ->where('consecutive_correct', '<', UserExtraQuestionProgress::MASTERY_THRESHOLD);
+        })->pluck('id')->toArray();
+    }
+
+    private function getFutureSrQuestionIds(User $user, $query): array
+    {
+        return $query->whereHas('userProgress', function ($q) use ($user) {
+            $q->where('user_id', $user->id)
+              ->whereNotNull('next_review_at')
+              ->where('next_review_at', '>', now());
         })->pluck('id')->toArray();
     }
 }

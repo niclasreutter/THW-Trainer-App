@@ -51,4 +51,24 @@ class UserExtraQuestionProgress extends Model
     {
         return $this->consecutive_correct >= self::MASTERY_THRESHOLD;
     }
+
+    /**
+     * Zähle gemeisterte Zusatzfragen für einen User
+     */
+    public static function countMastered(int $userId): int
+    {
+        return self::where('user_id', $userId)
+            ->where('consecutive_correct', '>=', self::MASTERY_THRESHOLD)
+            ->count();
+    }
+
+    /**
+     * Zähle Zusatzfragen mit genau X aufeinanderfolgenden richtigen Antworten
+     */
+    public static function countAtLevel(int $userId, int $level): int
+    {
+        return self::where('user_id', $userId)
+            ->where('consecutive_correct', $level)
+            ->count();
+    }
 }
