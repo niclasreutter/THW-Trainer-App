@@ -453,7 +453,10 @@ Route::middleware('auth')->group(function () {
         $user = auth()->user()->fresh(); // Fresh reload from database
         $shopService = new \App\Services\ShopService();
         $ownedAccessories = $shopService->getOwnedAccessories($user);
-        return view('profile', compact('user', 'ownedAccessories'));
+        $gamification = new \App\Services\GamificationService();
+        $levelProgress = $gamification->getLevelProgress($user);
+        $nextLevelPoints = $gamification->getNextLevelPoints($user);
+        return view('profile', compact('user', 'ownedAccessories', 'levelProgress', 'nextLevelPoints'));
     })->name('profile');
     Route::patch('/profile', function(Request $request) {
         \Log::info('Profile route reached via PATCH');
