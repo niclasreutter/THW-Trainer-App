@@ -1289,11 +1289,11 @@
     }
 
     /* =========================================================
-       NARROW DESKTOP (641-1279.98px) — Kompaktere Darstellung,
+       NARROW DESKTOP (641-1439.98px) — Kompaktere Darstellung,
        damit auf schmalen Viewports mit sichtbarer Sidebar alles
        ohne Scroll sichtbar ist.
        ========================================================= */
-    @media (min-width: 641px) and (max-width: 1279.98px) {
+    @media (min-width: 641px) and (max-width: 1439.98px) {
         .practice-shell { padding: 1rem 1.25rem calc(92px + 0.75rem); }
 
         .practice-header { margin-bottom: 0.5rem; }
