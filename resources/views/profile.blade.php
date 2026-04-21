@@ -658,11 +658,31 @@
     $nextPts = $nextLevelPoints ?? 0;
     $streakDays = $user->streak_days ?? 0;
 
-    // 28-Tage Heat-Pattern (falls Daten fehlen → leer)
+    // 28-Tage Heat-Pattern: Zellen auf Basis der aktuellen Streak setzen
+    // (heute = Index 27). Fehlt granulare Historie → Streak wird als durchgängige Serie interpretiert.
     $heatPattern = array_fill(0, 28, 0);
-    if ($user->last_activity_date && $user->last_activity_date->diffInDays(now()) < 28) {
-        $heatPattern[27] = min(4, max(1, (int) ceil($streakDays / 2)));
+    $activeDaysBack = 0;
+    if ($user->last_activity_date) {
+        $lastActDate = \Illuminate\Support\Carbon::parse($user->last_activity_date)->startOfDay();
+        $daysAgo = (int) $lastActDate->diffInDays(now()->startOfDay());
+        if ($daysAgo < 28) {
+            $intensity = $streakDays >= 7 ? 4 : ($streakDays >= 3 ? 3 : ($streakDays >= 1 ? 2 : 1));
+            $span = min(28, max(1, $streakDays ?: 1));
+            for ($i = 0; $i < $span; $i++) {
+                $idx = 27 - $daysAgo - $i;
+                if ($idx >= 0 && $idx < 28) {
+                    $heatPattern[$idx] = $intensity;
+                }
+            }
+            $activeDaysBack = $span;
+        }
     }
+
+    // Lernstatistik
+    $solvedCount = is_array($user->solved_questions) ? count($user->solved_questions) : 0;
+    $wrongCount = (int) ($user->wrong_answers ?? 0);
+    $totalAnswered = $solvedCount + $wrongCount;
+    $accuracy = $totalAnswered > 0 ? round(($solvedCount / $totalAnswered) * 100) : null;
 
     $daysSince = (int) floor($user->created_at->diffInDays(now()));
     $lastActive = $user->last_activity_at
@@ -719,26 +739,6 @@
     </div>
     @endif
 
-    {{-- ── Top stat pills ── --}}
-    <div class="profile-stats">
-        <div class="stat-pill">
-            <div class="stat-pill__value">{{ $daysSince }}</div>
-            <div class="stat-pill__label">Tage dabei</div>
-        </div>
-        <div class="stat-pill">
-            <div class="stat-pill__value {{ $user->hasVerifiedEmail() ? 'stat-pill__value--ok' : 'stat-pill__value--warn' }}">
-                {{ $user->hasVerifiedEmail() ? 'OK' : '---' }}
-            </div>
-            <div class="stat-pill__label">E-Mail verifiziert</div>
-        </div>
-        <div class="stat-pill">
-            <div class="stat-pill__value" style="font-size: 1.25rem;">
-                {{ $lastActive ? $lastActive->diffForHumans() : 'Gerade eben' }}
-            </div>
-            <div class="stat-pill__label">Zuletzt aktiv</div>
-        </div>
-    </div>
-
     {{-- ── Bento Grid ── --}}
     <div class="bento">
 
@@ -794,25 +794,24 @@
         </div>
 
         {{-- ══════════════════════════════════════════
-             LEARNING STATS (span 8) — [GREYED]
+             LEARNING STATS (span 8)
         ══════════════════════════════════════════ --}}
-        <div class="glass card-learning card is-locked">
+        <div class="glass card-learning card">
             <div class="card-head">
                 <span class="section-label">Lernstatistik · Gesamtübersicht</span>
-                <span class="locked-badge"><i class="bi bi-lock"></i> Bald</span>
             </div>
-            <div class="card-body-locked">
-                <div class="stat-pills" style="margin-bottom: 1rem; display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem;">
+            <div>
+                <div class="stat-pills" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem;">
                     <div class="stat-pill">
-                        <div class="stat-pill__value stat-pill__value--ok">{{ is_array($user->solved_questions) ? count($user->solved_questions) : 0 }}</div>
+                        <div class="stat-pill__value stat-pill__value--ok">{{ $solvedCount }}</div>
                         <div class="stat-pill__label">Gelöst</div>
                     </div>
                     <div class="stat-pill">
-                        <div class="stat-pill__value">—</div>
+                        <div class="stat-pill__value">{{ $accuracy !== null ? $accuracy.'%' : '—' }}</div>
                         <div class="stat-pill__label">Genauigkeit</div>
                     </div>
                     <div class="stat-pill">
-                        <div class="stat-pill__value stat-pill__value--err">{{ $user->wrong_answers ?? 0 }}</div>
+                        <div class="stat-pill__value stat-pill__value--err">{{ $wrongCount }}</div>
                         <div class="stat-pill__label">Fehler</div>
                     </div>
                     <div class="stat-pill">
@@ -820,23 +819,17 @@
                         <div class="stat-pill__label">XP gesamt</div>
                     </div>
                 </div>
-                <div style="font-size: 0.8125rem; color: var(--text-muted); text-align: center; padding: 0.75rem 0;">
-                    Detail-Übersicht pro Lernabschnitt folgt.
-                </div>
             </div>
         </div>
 
         {{-- ══════════════════════════════════════════
              STREAK HEATMAP (span 4)
         ══════════════════════════════════════════ --}}
-        <div class="glass card-streak card {{ $streakDays === 0 ? 'is-locked' : '' }}">
+        <div class="glass card-streak card">
             <div class="card-head">
                 <span class="section-label">Streak · Letzte 28 Tage</span>
-                @if($streakDays === 0)
-                    <span class="locked-badge"><i class="bi bi-lock"></i> Bald</span>
-                @endif
             </div>
-            <div class="{{ $streakDays === 0 ? 'card-body-locked' : '' }}">
+            <div>
                 <div class="streak-hero">
                     <div class="streak-num">{{ $streakDays }}</div>
                     <div class="streak-label">Aktuelle Serie</div>
