@@ -178,15 +178,4 @@
             @endif
         @endforeach
     </div>
-
-    @if(isset($isCorrect))
-        <div class="result-summary">
-            <span class="{{ $isCorrect ? 'result-label--correct' : 'result-label--wrong' }}">
-                {{ $isCorrect ? 'Richtig beantwortet' : 'Falsch beantwortet' }}
-            </span>
-            <span style="font-size:0.75rem;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;">
-                {{ $options->where('is_correct', true)->pluck('text')->join(', ') }}
-            </span>
-        </div>
-    @endif
 </div>

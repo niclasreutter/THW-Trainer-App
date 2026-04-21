@@ -42,6 +42,11 @@
        Mobile-First, Fullscreen, No Scroll
        ============================================ */
 
+    /* ── Footer während Übungs-Session ausblenden (alle Breakpoints) ─── */
+    footer {
+        display: none !important;
+    }
+
     /* ── Mobile: Fullscreen Takeover ─────────────── */
     @media (max-width: 640px) {
         html, body {
