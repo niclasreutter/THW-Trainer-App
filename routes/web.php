@@ -528,8 +528,6 @@ Route::middleware('auth')->group(function () {
             $inStreak = $streakStart && $streakEnd && $d->gte($streakStart) && $d->lte($streakEnd);
             if ($inStreak) {
                 $state = in_array($dStr, $freezeDates, true) ? 'freeze' : 'learned';
-            } elseif (in_array($dStr, $freezeDates, true)) {
-                $state = 'freeze';
             }
             $streakDaysArr[] = [
                 'date' => $dStr,
