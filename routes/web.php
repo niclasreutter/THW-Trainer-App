@@ -504,25 +504,30 @@ Route::middleware('auth')->group(function () {
         $sectionsTotal = count($sectionStats);
         $topSections = collect($sectionStats)->sortByDesc('solved')->take(3)->values()->all();
 
-        // 14-Tage Streak-Timeline (Kreise): gelernt / Freeze / leer, nur ab erstem Lerntag
+        // 14-Tage Streak-Timeline: Flame NUR für Tage der aktuellen Streak, ❄️ für eingesetzte Freezes
         $firstProgress = \App\Models\UserQuestionProgress::where('user_id', $user->id)
             ->min('last_answered_at');
         $firstLearnDate = $firstProgress ? \Illuminate\Support\Carbon::parse($firstProgress)->startOfDay() : null;
-        $dailyLearned = \App\Models\UserQuestionProgress::where('user_id', $user->id)
-            ->where('last_answered_at', '>=', now()->subDays(13)->startOfDay())
-            ->selectRaw('DATE(last_answered_at) as d, COUNT(*) as c')
-            ->groupBy('d')->pluck('c', 'd')->toArray();
+        $currentStreak = (int) ($user->streak_days ?? 0);
+        $lastActivityDate = $user->last_activity_date
+            ? \Illuminate\Support\Carbon::parse($user->last_activity_date)->startOfDay()
+            : null;
+        // Aktuelle Streak endet am last_activity_date (oder heute, falls identisch)
+        $streakEnd = $lastActivityDate;
+        $streakStart = ($streakEnd && $currentStreak > 0)
+            ? $streakEnd->copy()->subDays($currentStreak - 1)
+            : null;
         $freezeLog = is_array($user->streak_freeze_log) ? $user->streak_freeze_log : [];
         $freezeDates = collect($freezeLog)->pluck('date')->filter()->unique()->all();
         $streakDaysArr = [];
         for ($i = 13; $i >= 0; $i--) {
             $d = now()->subDays($i)->startOfDay();
             $dStr = $d->format('Y-m-d');
-            $isBeforeFirst = $firstLearnDate && $d->lt($firstLearnDate);
-            if ($isBeforeFirst) continue;
+            if ($firstLearnDate && $d->lt($firstLearnDate)) continue;
             $state = 'empty';
-            if (isset($dailyLearned[$dStr]) && $dailyLearned[$dStr] > 0) {
-                $state = 'learned';
+            $inStreak = $streakStart && $streakEnd && $d->gte($streakStart) && $d->lte($streakEnd);
+            if ($inStreak) {
+                $state = in_array($dStr, $freezeDates, true) ? 'freeze' : 'learned';
             } elseif (in_array($dStr, $freezeDates, true)) {
                 $state = 'freeze';
             }
