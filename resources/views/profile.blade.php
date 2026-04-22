@@ -323,6 +323,72 @@
 
     /* ─── Achievements preview ─── */
     .ach-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.625rem; }
+    .ach-grid--seven { grid-template-columns: repeat(7, 1fr); }
+    .ach--more {
+        background: rgba(0,51,127,0.08) !important;
+        color: var(--thw-blue) !important;
+        text-decoration: none;
+        border: 1px dashed rgba(0,51,127,0.25) !important;
+    }
+    .ach--more:hover { background: rgba(0,51,127,0.14) !important; }
+
+    /* 14-Tage Streak-Dots */
+    .streak-dots {
+        display: flex; flex-wrap: wrap; gap: 0.375rem; margin-top: 0.5rem;
+    }
+    .streak-dot {
+        width: 22px; height: 22px; border-radius: 50%;
+        display: inline-flex; align-items: center; justify-content: center;
+        font-size: 0.6875rem;
+        background: rgba(0,51,127,0.06);
+        border: 1px solid rgba(0,51,127,0.12);
+        color: transparent;
+        transition: transform 0.15s;
+    }
+    html:not(.light-mode) .streak-dot {
+        background: rgba(255,255,255,0.04);
+        border-color: rgba(255,255,255,0.1);
+    }
+    .streak-dot:hover { transform: scale(1.15); }
+    .streak-dot--learned {
+        background: linear-gradient(135deg, #f59e0b, #f97316);
+        border-color: #f59e0b;
+        color: #fff;
+        box-shadow: 0 2px 6px rgba(245,158,11,0.35);
+    }
+    .streak-dot--freeze {
+        background: linear-gradient(135deg, #3b82f6, #60a5fa);
+        border-color: #3b82f6;
+        color: #fff;
+        box-shadow: 0 2px 6px rgba(59,130,246,0.35);
+    }
+    .streak-dots__empty {
+        font-size: 0.75rem; color: var(--text-muted); font-style: italic;
+    }
+
+    /* Lernstatistik-Kacheln (eckig) */
+    .card-learning .stat-pills .stat-pill {
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        gap: 0.25rem;
+        padding: 1rem 0.75rem;
+        background: rgba(255,255,255,0.6);
+        border: 1px solid rgba(0,51,127,0.12);
+        border-radius: 10px;
+        transition: border-color 0.15s;
+    }
+    html:not(.light-mode) .card-learning .stat-pills .stat-pill {
+        background: rgba(255,255,255,0.04);
+        border-color: rgba(255,255,255,0.08);
+    }
+    .card-learning .stat-pills .stat-pill:hover { transform: none; border-color: rgba(0,51,127,0.25); }
+    .card-learning .stat-pill__value {
+        font-size: 1.75rem; font-weight: 700; line-height: 1; color: var(--text-primary);
+    }
+    .card-learning .stat-pill__value--ok { color: #10b981; }
+    .card-learning .stat-pill__value--err { color: #ef4444; }
+    .card-learning .stat-pill__label {
+        font-size: 0.75rem; color: var(--text-muted); margin-top: 0.125rem;
+    }
 
     /* Lernabschnitte-Liste */
     .section-list { display: flex; flex-direction: column; }
@@ -700,18 +766,16 @@
     $nextPts = $nextLevelPoints ?? 0;
     $streakDays = $user->streak_days ?? 0;
 
-    // Heatmap & Lernstatistik kommen aus der Route ($heatPattern, $totalQuestions, $topSections, $sectionsStarted, $sectionsTotal)
+    // Alle Stats kommen aus der Route
     $heatPattern = $heatPattern ?? array_fill(0, 28, 0);
-
-    // Lernstatistik
-    $solvedCount = is_array($user->solved_questions) ? count($user->solved_questions) : 0;
-    $wrongCount = (int) ($user->wrong_answers ?? 0);
-    $totalAnswered = $solvedCount + $wrongCount;
-    $accuracy = $totalAnswered > 0 ? round(($solvedCount / $totalAnswered) * 100) : null;
+    $solvedCount = $solvedTotal ?? 0;
+    $wrongCount = $wrongTotal ?? 0;
+    $accuracy = $hitRate ?? null;
     $totalQuestions = $totalQuestions ?? 0;
     $topSections = $topSections ?? [];
     $sectionsStarted = $sectionsStarted ?? 0;
     $sectionsTotal = $sectionsTotal ?? 10;
+    $streakDaysArr = $streakDaysArr ?? [];
 
     $daysSince = (int) floor($user->created_at->diffInDays(now()));
     $lastActive = $user->last_activity_at
@@ -808,7 +872,7 @@
 
             <div class="hero-xp">
                 <div class="hero-xp__row">
-                    <span class="hero-xp__label">Level-Fortschritt</span>
+                    <span class="hero-xp__label">Letzte 14 Tage</span>
                     <span class="hero-xp__values">
                         <strong>{{ $points }}</strong> XP
                         @if($nextPts > 0)
@@ -818,7 +882,19 @@
                         @endif
                     </span>
                 </div>
-                <div class="pf-xp-bar"><div class="pf-xp-bar__fill" style="width: {{ $ringPct }}%;"></div></div>
+                <div class="streak-dots" role="list" aria-label="Letzte 14 Tage Lernaktivität">
+                    @forelse($streakDaysArr as $day)
+                        <span class="streak-dot streak-dot--{{ $day['state'] }}" role="listitem" title="{{ $day['label'] }} · @if($day['state']==='learned')Gelernt @elseif($day['state']==='freeze')Freeze @else Nicht gelernt @endif">
+                            @if($day['state'] === 'learned')
+                                <i class="bi bi-fire"></i>
+                            @elseif($day['state'] === 'freeze')
+                                <i class="bi bi-snow"></i>
+                            @endif
+                        </span>
+                    @empty
+                        <span class="streak-dots__empty">Starte dein erstes Training, um hier deine Aktivität zu sehen.</span>
+                    @endforelse
+                </div>
             </div>
         </div>
 
@@ -915,18 +991,23 @@
             $achievementsList = $achievements ?? [];
             $unlockedCount = collect($achievementsList)->where('unlocked', true)->count();
             $totalAchievements = count($achievementsList);
+            $achSorted = collect($achievementsList)->sortByDesc('unlocked')->values();
+            $achVisible = $achSorted->take(6);
         @endphp
         <div class="glass card-achievements card">
             <div class="card-head">
                 <span class="section-label">Achievements · {{ $unlockedCount }} / {{ $totalAchievements }} freigeschaltet</span>
             </div>
             <div>
-                <div class="ach-grid">
-                    @foreach($achievementsList as $ach)
+                <div class="ach-grid ach-grid--seven">
+                    @foreach($achVisible as $ach)
                         <div class="ach {{ $ach['unlocked'] ? 'ach--unlocked' : 'ach--locked' }}" title="{{ $ach['title'] }} – {{ $ach['description'] }}">
                             <i class="bi {{ $ach['icon'] }}"></i>
                         </div>
                     @endforeach
+                    <a href="{{ route('statistics') }}" class="ach ach--more" title="Alle Achievements ansehen">
+                        <i class="bi bi-three-dots"></i>
+                    </a>
                 </div>
             </div>
         </div>
