@@ -506,15 +506,22 @@ class GamificationService
      */
     private function buildWeekCalendarData(User $user): array
     {
-        $today = Carbon::today();
-        $sevenDaysAgo = $today->copy()->subDays(6);
+        return $this->buildStreakCalendarData($user, 7);
+    }
 
-        $dayLabels = ['Mo' => 1, 'Di' => 2, 'Mi' => 3, 'Do' => 4, 'Fr' => 5, 'Sa' => 6, 'So' => 7];
+    /**
+     * Baut Kalender-Daten für die Streak-Anzeige (variabel, z.B. 7 oder 14 Tage).
+     */
+    public function buildStreakCalendarData(User $user, int $days = 7): array
+    {
+        $today = Carbon::today();
+        $startDate = $today->copy()->subDays($days - 1);
+
         $carbonToLabel = [1 => 'Mo', 2 => 'Di', 3 => 'Mi', 4 => 'Do', 5 => 'Fr', 6 => 'Sa', 0 => 'So'];
 
-        // Aktive Tage aus XP-History (letzte 7 Tage)
+        // Aktive Tage aus XP-History
         $activeDates = XpHistory::where('user_id', $user->id)
-            ->where('created_at', '>=', $sevenDaysAgo->startOfDay())
+            ->where('created_at', '>=', $startDate->copy()->startOfDay())
             ->selectRaw('DATE(created_at) as activity_date')
             ->distinct()
             ->pluck('activity_date')
@@ -526,12 +533,12 @@ class GamificationService
         $freezeDates = array_column($freezeLog, 'date');
 
         $calendar = [];
-        for ($i = 6; $i >= 0; $i--) {
+        for ($i = $days - 1; $i >= 0; $i--) {
             $date = $today->copy()->subDays($i);
             $dateStr = $date->toDateString();
             $isToday = $i === 0;
 
-            if ($isToday || in_array($dateStr, $activeDates)) {
+            if (in_array($dateStr, $activeDates)) {
                 $status = 'active';
             } elseif (in_array($dateStr, $freezeDates)) {
                 $status = 'frozen';

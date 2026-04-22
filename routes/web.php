@@ -504,37 +504,19 @@ Route::middleware('auth')->group(function () {
         $sectionsTotal = count($sectionStats);
         $topSections = collect($sectionStats)->sortByDesc('solved')->take(3)->values()->all();
 
-        // 14-Tage Streak-Timeline: Flame NUR für Tage der aktuellen Streak, ❄️ für eingesetzte Freezes
-        $firstProgress = \App\Models\UserQuestionProgress::where('user_id', $user->id)
-            ->min('last_answered_at');
-        $firstLearnDate = $firstProgress ? \Illuminate\Support\Carbon::parse($firstProgress)->startOfDay() : null;
-        $currentStreak = (int) ($user->streak_days ?? 0);
-        $lastActivityDate = $user->last_activity_date
-            ? \Illuminate\Support\Carbon::parse($user->last_activity_date)->startOfDay()
-            : null;
-        // Aktuelle Streak endet am last_activity_date (oder heute, falls identisch)
-        $streakEnd = $lastActivityDate;
-        $streakStart = ($streakEnd && $currentStreak > 0)
-            ? $streakEnd->copy()->subDays($currentStreak - 1)
-            : null;
-        $freezeLog = is_array($user->streak_freeze_log) ? $user->streak_freeze_log : [];
-        $freezeDates = collect($freezeLog)->pluck('date')->filter()->unique()->all();
+        // 14-Tage Streak-Timeline: gleiche Logik wie Duolingo-Celebration (XP-History + Freeze-Log)
+        $firstXp = \App\Models\XpHistory::where('user_id', $user->id)->min('created_at');
+        $firstLearnDate = $firstXp ? \Illuminate\Support\Carbon::parse($firstXp)->startOfDay() : null;
+        $streakCalendar = app(\App\Services\GamificationService::class)->buildStreakCalendarData($user, 14);
+        $stateMap = ['active' => 'learned', 'frozen' => 'freeze', 'missed' => 'empty'];
         $streakDaysArr = [];
-        for ($i = 13; $i >= 0; $i--) {
-            $d = now()->subDays($i)->startOfDay();
-            $dStr = $d->format('Y-m-d');
+        foreach ($streakCalendar as $day) {
+            $d = \Illuminate\Support\Carbon::parse($day['date'])->startOfDay();
             if ($firstLearnDate && $d->lt($firstLearnDate)) continue;
-            $state = 'empty';
-            $inStreak = $streakStart && $streakEnd && $d->gte($streakStart) && $d->lte($streakEnd);
-            if ($inStreak) {
-                $state = in_array($dStr, $freezeDates, true) ? 'freeze' : 'learned';
-            } elseif (in_array($dStr, $freezeDates, true)) {
-                $state = 'freeze';
-            }
             $streakDaysArr[] = [
-                'date' => $dStr,
+                'date' => $day['date'],
                 'label' => $d->translatedFormat('d.m.'),
-                'state' => $state,
+                'state' => $stateMap[$day['status']] ?? 'empty',
             ];
         }
 
