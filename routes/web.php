@@ -472,15 +472,26 @@ Route::middleware('auth')->group(function () {
             9 => 'Einsatzgrundlagen',
             10 => 'Grundlagen der Rettung und Bergung',
         ];
-        $questionsBySection = \App\Models\Question::select('id', 'lernabschnitt')->get()->groupBy('lernabschnitt');
-        $totalQuestions = $questionsBySection->flatten()->count();
-        $solvedIds = is_array($user->solved_questions) ? $user->solved_questions : [];
+        // Lernstatistik — gleiche Datenquellen wie /user-statistik
+        $totalQuestions = \Illuminate\Support\Facades\Cache::remember('total_questions_count', 3600, fn () => \App\Models\Question::count());
+        $solvedTotal = \App\Models\UserQuestionProgress::where('user_id', $user->id)->count();
+        $totalAnswered = \App\Models\QuestionStatistic::where('user_id', $user->id)->count();
+        $totalCorrect = \App\Models\QuestionStatistic::where('user_id', $user->id)->where('is_correct', true)->count();
+        $hitRate = $totalAnswered > 0 ? (int) round(($totalCorrect / $totalAnswered) * 100) : null;
+        $wrongTotal = max(0, $totalAnswered - $totalCorrect);
+
+        // Section-Fortschritt: gelöste (alle mit Progress) je Lernabschnitt
+        $questionsBySection = \App\Models\Question::selectRaw('lernabschnitt, COUNT(*) as total')
+            ->groupBy('lernabschnitt')->pluck('total', 'lernabschnitt');
+        $solvedBySection = \App\Models\UserQuestionProgress::where('user_id', $user->id)
+            ->join('questions', 'user_question_progress.question_id', '=', 'questions.id')
+            ->selectRaw('questions.lernabschnitt, COUNT(*) as cnt')
+            ->groupBy('questions.lernabschnitt')->pluck('cnt', 'lernabschnitt');
         $sectionStats = [];
         foreach ($sectionNames as $nr => $name) {
-            $sectionQuestionIds = $questionsBySection->get((string)$nr, $questionsBySection->get($nr, collect()))->pluck('id')->toArray();
-            $total = count($sectionQuestionIds);
+            $total = (int) ($questionsBySection[$nr] ?? 0);
             if ($total === 0) continue;
-            $solved = count(array_intersect($solvedIds, $sectionQuestionIds));
+            $solved = (int) ($solvedBySection[$nr] ?? 0);
             $sectionStats[] = [
                 'nr' => $nr,
                 'name' => $name,
@@ -493,15 +504,42 @@ Route::middleware('auth')->group(function () {
         $sectionsTotal = count($sectionStats);
         $topSections = collect($sectionStats)->sortByDesc('solved')->take(3)->values()->all();
 
-        // Heatmap: beantwortete Fragen pro Tag (letzte 28 Tage) — aus user_question_progress.last_answered_at
+        // 14-Tage Streak-Timeline (Kreise): gelernt / Freeze / leer, nur ab erstem Lerntag
+        $firstProgress = \App\Models\UserQuestionProgress::where('user_id', $user->id)
+            ->min('last_answered_at');
+        $firstLearnDate = $firstProgress ? \Illuminate\Support\Carbon::parse($firstProgress)->startOfDay() : null;
+        $dailyLearned = \App\Models\UserQuestionProgress::where('user_id', $user->id)
+            ->where('last_answered_at', '>=', now()->subDays(13)->startOfDay())
+            ->selectRaw('DATE(last_answered_at) as d, COUNT(*) as c')
+            ->groupBy('d')->pluck('c', 'd')->toArray();
+        $freezeLog = is_array($user->streak_freeze_log) ? $user->streak_freeze_log : [];
+        $freezeDates = collect($freezeLog)->pluck('date')->filter()->unique()->all();
+        $streakDaysArr = [];
+        for ($i = 13; $i >= 0; $i--) {
+            $d = now()->subDays($i)->startOfDay();
+            $dStr = $d->format('Y-m-d');
+            $isBeforeFirst = $firstLearnDate && $d->lt($firstLearnDate);
+            if ($isBeforeFirst) continue;
+            $state = 'empty';
+            if (isset($dailyLearned[$dStr]) && $dailyLearned[$dStr] > 0) {
+                $state = 'learned';
+            } elseif (in_array($dStr, $freezeDates, true)) {
+                $state = 'freeze';
+            }
+            $streakDaysArr[] = [
+                'date' => $dStr,
+                'label' => $d->translatedFormat('d.m.'),
+                'state' => $state,
+            ];
+        }
+
+        // Heatmap (alter Code — bleibt für Streak-Card unten)
         $heatmapStart = now()->subDays(27)->startOfDay();
         $dailyCounts = \DB::table('user_question_progress')
             ->where('user_id', $user->id)
             ->where('last_answered_at', '>=', $heatmapStart)
             ->selectRaw('DATE(last_answered_at) as d, COUNT(*) as c')
-            ->groupBy('d')
-            ->pluck('c', 'd')
-            ->toArray();
+            ->groupBy('d')->pluck('c', 'd')->toArray();
         $heatPattern = [];
         for ($i = 0; $i < 28; $i++) {
             $date = now()->subDays(27 - $i)->format('Y-m-d');
@@ -510,7 +548,12 @@ Route::middleware('auth')->group(function () {
             $heatPattern[] = $intensity;
         }
 
-        return view('profile', compact('user', 'ownedAccessories', 'levelProgress', 'nextLevelPoints', 'achievements', 'ortsverbande', 'totalQuestions', 'topSections', 'sectionsStarted', 'sectionsTotal', 'heatPattern'));
+        return view('profile', compact(
+            'user', 'ownedAccessories', 'levelProgress', 'nextLevelPoints', 'achievements', 'ortsverbande',
+            'totalQuestions', 'solvedTotal', 'wrongTotal', 'hitRate',
+            'topSections', 'sectionsStarted', 'sectionsTotal',
+            'streakDaysArr', 'heatPattern'
+        ));
     })->name('profile');
     Route::patch('/profile', function(Request $request) {
         \Log::info('Profile route reached via PATCH');
