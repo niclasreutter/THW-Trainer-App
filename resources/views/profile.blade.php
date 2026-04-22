@@ -323,7 +323,11 @@
 
     /* ─── Achievements preview ─── */
     .ach-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.625rem; }
-    .ach-grid--seven { grid-template-columns: repeat(7, 1fr); }
+    .ach-grid--seven {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0.75rem;
+    }
+    .ach-grid--seven .ach { aspect-ratio: 1 / 1; font-size: 1.5rem; }
     .ach--more {
         background: rgba(0,51,127,0.08) !important;
         color: var(--thw-blue) !important;
@@ -992,7 +996,7 @@
             $unlockedCount = collect($achievementsList)->where('unlocked', true)->count();
             $totalAchievements = count($achievementsList);
             $achSorted = collect($achievementsList)->sortByDesc('unlocked')->values();
-            $achVisible = $achSorted->take(6);
+            $achVisible = $achSorted->take(7);
         @endphp
         <div class="glass card-achievements card">
             <div class="card-head">
