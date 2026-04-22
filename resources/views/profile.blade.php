@@ -1540,7 +1540,10 @@
                             if (accColor) active.accessoriesColor = accColor;
                             if (fhColor) active.facialHairColor = fhColor;
                         }
-                        this.activeItems = active;
+                        // Bestehendes reactive Object mutieren statt ersetzen (Alpine-Reaktivität)
+                        var self = this;
+                        Object.keys(self.activeItems).forEach(function(k) { delete self.activeItems[k]; });
+                        Object.keys(active).forEach(function(k) { self.activeItems[k] = active[k]; });
                         document.getElementById('pf-avatar-img').src = data.avatar_url + '&_t=' + Date.now();
                     }
                 } catch (e) { console.error('Accessory toggle error:', e); }
