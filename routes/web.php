@@ -12,6 +12,7 @@
 */
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\TrainingProgressController;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
@@ -535,11 +536,18 @@ Route::middleware('auth')->group(function () {
             $heatPattern[] = $intensity;
         }
 
+        // Ausbildungsfortschritt (Issue #442)
+        $trainingService = new \App\Services\TrainingProgressService();
+        $trainingOverview = $trainingService->overview($user);
+        $trainingLehrabschnitte = \App\Services\TrainingProgressService::LEHRABSCHNITTE;
+        $trainingZusatzausbildungen = \App\Services\TrainingProgressService::ZUSATZAUSBILDUNGEN;
+
         return view('profile', compact(
             'user', 'ownedAccessories', 'levelProgress', 'nextLevelPoints', 'achievements', 'ortsverbande',
             'totalQuestions', 'solvedTotal', 'wrongTotal', 'hitRate',
             'topSections', 'sectionsStarted', 'sectionsTotal',
-            'streakDaysArr', 'heatPattern'
+            'streakDaysArr', 'heatPattern',
+            'trainingOverview', 'trainingLehrabschnitte', 'trainingZusatzausbildungen'
         ));
     })->name('profile');
     Route::patch('/profile', function(Request $request) {
@@ -557,6 +565,10 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::post('/profile/cancel-email-change', [ProfileController::class, 'cancelEmailChange'])->name('profile.cancel-email-change');
     Route::post('/profile/extras-enabled', [ProfileController::class, 'updateExtrasEnabled'])->name('profile.extras-enabled');
+
+    // Ausbildungsfortschritt (Issue #442)
+    Route::post('/profile/training-progress/item', [TrainingProgressController::class, 'toggleItem'])->name('profile.training-progress.item');
+    Route::post('/profile/training-progress/section', [TrainingProgressController::class, 'toggleSection'])->name('profile.training-progress.section');
 });
 
 // Contact Routes - für eingeloggte Nutzer
