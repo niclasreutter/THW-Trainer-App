@@ -16,7 +16,10 @@ class SendMorningPush extends Command
     {
         $this->info('Sending morning push notifications...');
 
-        $users = User::whereHas('pushSubscriptions')->get();
+        $users = User::whereHas('pushSubscriptions')
+            ->where('push_consent', true)
+            ->where('notify_daily_reminder_push', true)
+            ->get();
 
         $sent = 0;
         foreach ($users as $user) {

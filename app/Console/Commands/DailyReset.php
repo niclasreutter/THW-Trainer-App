@@ -81,7 +81,7 @@ class DailyReset extends Command
                                 $this->info("  Streak Freeze auto-eingesetzt: {$user->name} (Streak: {$user->streak_days}, Remaining: {$freezeResult['remaining']})");
 
                                 // E-Mail-Benachrichtigung senden
-                                if ($user->email_consent) {
+                                if ($user->wantsEmailFor('daily_reminder')) {
                                     try {
                                         Mail::to($user->email)->send(new StreakFreezeActivatedMail(
                                             $user,
@@ -93,7 +93,7 @@ class DailyReset extends Command
                                     }
                                 }
 
-                                if ($user->pushSubscriptions()->exists()) {
+                                if ($user->wantsPushFor('daily_reminder') && $user->pushSubscriptions()->exists()) {
                                     $user->notify(new \App\Notifications\PushNotification(
                                         'Streak-Freeze aktiviert',
                                         'Ein Streak-Freeze wurde automatisch eingesetzt — dein Streak ist sicher!',
@@ -110,7 +110,7 @@ class DailyReset extends Command
 
                                 $this->sendStreakLostMail($user, $oldStreak);
 
-                                if ($user->pushSubscriptions()->exists()) {
+                                if ($user->wantsPushFor('daily_reminder') && $user->pushSubscriptions()->exists()) {
                                     $user->notify(new \App\Notifications\PushNotification(
                                         'Streak verloren',
                                         'Dein Streak wurde zurueckgesetzt. Starte heute einen neuen!',
@@ -129,7 +129,7 @@ class DailyReset extends Command
 
                             $this->sendStreakLostMail($user, $oldStreak);
 
-                            if ($user->pushSubscriptions()->exists()) {
+                            if ($user->wantsPushFor('daily_reminder') && $user->pushSubscriptions()->exists()) {
                                 $user->notify(new \App\Notifications\PushNotification(
                                     'Streak verloren',
                                     'Dein Streak wurde zurueckgesetzt. Starte heute einen neuen!',
@@ -165,12 +165,13 @@ class DailyReset extends Command
      */
     private function sendStreakLostMail(User $user, int $oldStreak): void
     {
-        if ($user->email_consent) {
-            try {
-                Mail::to($user->email)->send(new StreakLostMail($user, $oldStreak));
-            } catch (\Exception $mailError) {
-                $this->warn("  Mail-Fehler ({$user->email}): " . $mailError->getMessage());
-            }
+        if (!$user->wantsEmailFor('daily_reminder')) {
+            return;
+        }
+        try {
+            Mail::to($user->email)->send(new StreakLostMail($user, $oldStreak));
+        } catch (\Exception $mailError) {
+            $this->warn("  Mail-Fehler ({$user->email}): " . $mailError->getMessage());
         }
     }
 }

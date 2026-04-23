@@ -978,7 +978,9 @@ class GamificationService
             'data' => $data['data'] ?? null,
         ]);
 
-        if ($user->pushSubscriptions()->exists()) {
+        // Push nur senden, wenn User league_updates aktiviert hat
+        // (Level-Ups und Achievements fallen unter "Liga- & Achievement-Updates")
+        if ($user->wantsPushFor('league_updates') && $user->pushSubscriptions()->exists()) {
             $user->notify(new \App\Notifications\PushNotification(
                 $data['title'],
                 $data['message'],
