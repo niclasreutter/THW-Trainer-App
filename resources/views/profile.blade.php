@@ -1281,7 +1281,7 @@
         <div class="glass card-training card" x-data="trainingProgress({
             completed: @js($trainingOverview['completed_keys']),
             overview: @js($trainingOverview),
-            lehrabschnitte: @js($trainingLehrabschnitte),
+            lernabschnitte: @js($trainingLernabschnitte),
             zusatz: @js($trainingZusatzausbildungen),
             csrfToken: @js(csrf_token()),
             itemUrl: @js(route('profile.training-progress.item')),
@@ -1293,12 +1293,12 @@
             </div>
 
             <p style="font-size: 0.8125rem; color: var(--text-muted); margin-bottom: 1rem;">
-                Halte deinen Fortschritt durch die THW-Grundausbildung fest. Ganze Lehrabschnitte können über die Überschrift auf einmal abgehakt werden.
+                Halte deinen Fortschritt durch die THW-Grundausbildung fest. Ganze Lernabschnitte können über die Überschrift auf einmal abgehakt werden.
             </p>
 
             <div class="tp-summary">
                 <div class="tp-summary__pill">
-                    <span class="tp-summary__label">Lehrabschnitte</span>
+                    <span class="tp-summary__label">Lernabschnitte</span>
                     <span class="tp-summary__value"><span x-text="overview.la_done"></span> / <span x-text="overview.la_total"></span></span>
                     <div class="tp-summary__bar"><div class="tp-summary__fill" :style="'width: ' + overview.la_percent + '%'"></div></div>
                 </div>
@@ -1314,8 +1314,8 @@
                 </div>
             </div>
 
-            <div class="tp-subhead">Lehrabschnitte</div>
-            <template x-for="la in lehrabschnitte" :key="la.key">
+            <div class="tp-subhead">Lernabschnitte</div>
+            <template x-for="la in lernabschnitte" :key="la.key">
                 <div class="tp-section" :class="{ 'is-open': openSections[la.key] }">
                     <div class="tp-section__head" @click="openSections[la.key] = !openSections[la.key]">
                         <label class="tp-check" style="padding: 0; margin: 0;" @click.stop>
@@ -1903,7 +1903,7 @@
         return {
             completedSet: (config.completed || []).reduce(function(acc, k) { acc[k] = true; return acc; }, {}),
             overview: config.overview,
-            lehrabschnitte: config.lehrabschnitte,
+            lernabschnitte: config.lernabschnitte,
             zusatz: config.zusatz,
             csrfToken: config.csrfToken,
             itemUrl: config.itemUrl,

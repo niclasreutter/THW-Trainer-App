@@ -539,7 +539,7 @@ Route::middleware('auth')->group(function () {
         // Ausbildungsfortschritt (Issue #442)
         $trainingService = new \App\Services\TrainingProgressService();
         $trainingOverview = $trainingService->overview($user);
-        $trainingLehrabschnitte = \App\Services\TrainingProgressService::LEHRABSCHNITTE;
+        $trainingLernabschnitte = \App\Services\TrainingProgressService::LERNABSCHNITTE;
         $trainingZusatzausbildungen = \App\Services\TrainingProgressService::ZUSATZAUSBILDUNGEN;
 
         return view('profile', compact(
@@ -547,7 +547,7 @@ Route::middleware('auth')->group(function () {
             'totalQuestions', 'solvedTotal', 'wrongTotal', 'hitRate',
             'topSections', 'sectionsStarted', 'sectionsTotal',
             'streakDaysArr', 'heatPattern',
-            'trainingOverview', 'trainingLehrabschnitte', 'trainingZusatzausbildungen'
+            'trainingOverview', 'trainingLernabschnitte', 'trainingZusatzausbildungen'
         ));
     })->name('profile');
     Route::patch('/profile', function(Request $request) {

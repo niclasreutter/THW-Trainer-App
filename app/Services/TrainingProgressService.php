@@ -10,10 +10,10 @@ class TrainingProgressService
 {
     /**
      * Structure of all trackable training items.
-     * Lehrabschnitte (LA) have nested sub-items and can be bulk-toggled.
+     * Lernabschnitte (LA) have nested sub-items and can be bulk-toggled.
      * Zusatzausbildungen are single items only.
      */
-    public const LEHRABSCHNITTE = [
+    public const LERNABSCHNITTE = [
         [
             'key' => 'la01',
             'nr' => 'LA 01',
@@ -151,7 +151,7 @@ class TrainingProgressService
     public static function validItemKeys(): array
     {
         $keys = [];
-        foreach (self::LEHRABSCHNITTE as $la) {
+        foreach (self::LERNABSCHNITTE as $la) {
             foreach ($la['items'] as $item) {
                 $keys[] = $item['key'];
             }
@@ -167,7 +167,7 @@ class TrainingProgressService
      */
     public static function validSectionKeys(): array
     {
-        return array_column(self::LEHRABSCHNITTE, 'key');
+        return array_column(self::LERNABSCHNITTE, 'key');
     }
 
     /**
@@ -175,7 +175,7 @@ class TrainingProgressService
      */
     public static function itemKeysForSection(string $sectionKey): array
     {
-        foreach (self::LEHRABSCHNITTE as $la) {
+        foreach (self::LERNABSCHNITTE as $la) {
             if ($la['key'] === $sectionKey) {
                 return array_column($la['items'], 'key');
             }
@@ -203,7 +203,7 @@ class TrainingProgressService
 
         $laItemTotal = 0;
         $laItemDone = 0;
-        foreach (self::LEHRABSCHNITTE as $la) {
+        foreach (self::LERNABSCHNITTE as $la) {
             foreach ($la['items'] as $item) {
                 $laItemTotal++;
                 if (isset($completedSet[$item['key']])) {
