@@ -219,9 +219,6 @@
                         <a href="{{ route('profile') }}" class="dropdown-item-glass">
                             Profil
                         </a>
-                        <a href="{{ route('training-progress.index') }}" class="dropdown-item-glass">
-                            Ausbildungsfortschritt
-                        </a>
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
                             <button type="submit" class="w-full dropdown-item-glass text-left">
@@ -435,11 +432,6 @@
                 <a href="{{ route('profile') }}"
                    class="block px-3 py-2 text-base font-medium text-dark-primary hover:text-gold hover:bg-glass-white-5 rounded-md transition-colors duration-200">
                     Profil
-                </a>
-
-                <a href="{{ route('training-progress.index') }}"
-                   class="block px-3 py-2 text-base font-medium text-dark-primary hover:text-gold hover:bg-glass-white-5 rounded-md transition-colors duration-200">
-                    Ausbildungsfortschritt
                 </a>
 
                 <!-- Theme Toggle Mobile -->

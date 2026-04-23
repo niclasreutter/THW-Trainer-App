@@ -185,6 +185,9 @@
                     <a href="{{ route('lehrgaenge.index') }}" class="sidebar-link {{ request()->routeIs('lehrgaenge.*') ? 'active' : '' }}">
                         <i class="bi bi-mortarboard"></i> Lehrgänge
                     </a>
+                    <a href="{{ route('training-progress.index') }}" class="sidebar-link {{ request()->routeIs('training-progress.*') ? 'active' : '' }}">
+                        <i class="bi bi-journal-check"></i> Ausbildungsfortschritt
+                    </a>
                     <a href="{{ route('contact.index') }}" class="sidebar-link {{ request()->routeIs('contact.*') ? 'active' : '' }}">
                         <i class="bi bi-envelope"></i> Kontakt
                     </a>
@@ -458,6 +461,9 @@
                 </a>
                 <a href="{{ route('lehrgaenge.index') }}" class="sidebar-link {{ request()->routeIs('lehrgaenge.*') ? 'active' : '' }}">
                     <i class="bi bi-mortarboard"></i> Lehrgänge
+                </a>
+                <a href="{{ route('training-progress.index') }}" class="sidebar-link {{ request()->routeIs('training-progress.*') ? 'active' : '' }}">
+                    <i class="bi bi-journal-check"></i> Ausbildungsfortschritt
                 </a>
                 <a href="{{ route('contact.index') }}" class="sidebar-link {{ request()->routeIs('contact.*') ? 'active' : '' }}">
                     <i class="bi bi-envelope"></i> Kontakt
