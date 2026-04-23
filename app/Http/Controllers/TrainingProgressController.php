@@ -7,9 +7,22 @@ use App\Services\TrainingProgressService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\View\View;
 
 class TrainingProgressController extends Controller
 {
+    public function index(Request $request): View
+    {
+        $user = $request->user();
+        $service = new TrainingProgressService();
+
+        return view('training-progress', [
+            'trainingOverview' => $service->overview($user),
+            'trainingLernabschnitte' => TrainingProgressService::LERNABSCHNITTE,
+            'trainingZusatzausbildungen' => TrainingProgressService::ZUSATZAUSBILDUNGEN,
+        ]);
+    }
+
     /**
      * Toggle a single training item (LA sub-item or Zusatzausbildung).
      */

@@ -420,6 +420,27 @@ Route::get('/dashboard', function () {
             ->exists();
     }
 
+    // Ausbildungsfortschritt (Issue #442) — kompakte LA-Übersicht fürs Dashboard
+    $trainingService = new \App\Services\TrainingProgressService();
+    $trainingOverview = $trainingService->overview($user);
+    $completedSet = array_flip($trainingOverview['completed_keys']);
+    $trainingLaSummary = [];
+    foreach (\App\Services\TrainingProgressService::LERNABSCHNITTE as $la) {
+        $done = 0;
+        foreach ($la['items'] as $item) {
+            if (isset($completedSet[$item['key']])) {
+                $done++;
+            }
+        }
+        $total = count($la['items']);
+        $trainingLaSummary[] = [
+            'nr' => $la['nr'],
+            'done' => $done,
+            'total' => $total,
+            'percent' => $total > 0 ? (int) round(($done / $total) * 100) : 0,
+        ];
+    }
+
     return view('dashboard', compact(
         'user', 'recentExams', 'totalQuestions', 'spacedRepetitionDue',
         'weeklyActivity', 'sectionStats', 'streakFreezeStatus',
@@ -429,7 +450,8 @@ Route::get('/dashboard', function () {
         'canStartExam', 'exams', 'hasFailedQuestions',
         'levelProgress', 'nextLevelPoints', 'unopenedLootboxes',
         'todayAnswered', 'todayCorrect', 'dailyStreakGoal',
-        'showSurveyNudge', 'activeSurvey'
+        'showSurveyNudge', 'activeSurvey',
+        'trainingOverview', 'trainingLaSummary'
     ));
 })->middleware(['auth', 'verified'])->name('dashboard');
 
@@ -536,18 +558,11 @@ Route::middleware('auth')->group(function () {
             $heatPattern[] = $intensity;
         }
 
-        // Ausbildungsfortschritt (Issue #442)
-        $trainingService = new \App\Services\TrainingProgressService();
-        $trainingOverview = $trainingService->overview($user);
-        $trainingLernabschnitte = \App\Services\TrainingProgressService::LERNABSCHNITTE;
-        $trainingZusatzausbildungen = \App\Services\TrainingProgressService::ZUSATZAUSBILDUNGEN;
-
         return view('profile', compact(
             'user', 'ownedAccessories', 'levelProgress', 'nextLevelPoints', 'achievements', 'ortsverbande',
             'totalQuestions', 'solvedTotal', 'wrongTotal', 'hitRate',
             'topSections', 'sectionsStarted', 'sectionsTotal',
-            'streakDaysArr', 'heatPattern',
-            'trainingOverview', 'trainingLernabschnitte', 'trainingZusatzausbildungen'
+            'streakDaysArr', 'heatPattern'
         ));
     })->name('profile');
     Route::patch('/profile', function(Request $request) {
@@ -567,8 +582,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/profile/extras-enabled', [ProfileController::class, 'updateExtrasEnabled'])->name('profile.extras-enabled');
 
     // Ausbildungsfortschritt (Issue #442)
-    Route::post('/profile/training-progress/item', [TrainingProgressController::class, 'toggleItem'])->name('profile.training-progress.item');
-    Route::post('/profile/training-progress/section', [TrainingProgressController::class, 'toggleSection'])->name('profile.training-progress.section');
+    Route::get('/ausbildungsfortschritt', [TrainingProgressController::class, 'index'])->name('training-progress.index');
+    Route::post('/ausbildungsfortschritt/item', [TrainingProgressController::class, 'toggleItem'])->name('training-progress.item');
+    Route::post('/ausbildungsfortschritt/section', [TrainingProgressController::class, 'toggleSection'])->name('training-progress.section');
 });
 
 // Contact Routes - für eingeloggte Nutzer
