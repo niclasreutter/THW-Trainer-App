@@ -114,6 +114,85 @@ class ProfileController extends Controller
     }
 
     /**
+     * Update notification preferences (master toggles + per-category toggles).
+     * Toggling a master ON aktiviert alle Sub-Preferences für diesen Kanal.
+     * Toggling OFF setzt nur den Master, Sub-Preferences bleiben gespeichert.
+     */
+    public function updateNotificationPreferences(Request $request): JsonResponse
+    {
+        $categories = \App\Models\User::NOTIFICATION_CATEGORIES;
+        $rules = [
+            'channel' => ['nullable', 'in:email,push'],
+            'category' => ['nullable', 'in:' . implode(',', $categories)],
+            'enabled' => ['required', 'boolean'],
+            'master' => ['nullable', 'in:email,push'],
+        ];
+
+        $validated = $request->validate($rules);
+        $user = $request->user();
+        $enabled = (bool) $validated['enabled'];
+
+        // Master-Toggle (E-Mail oder Push gesamt)
+        if (!empty($validated['master'])) {
+            $master = $validated['master'];
+
+            if ($master === 'email') {
+                $user->email_consent = $enabled;
+                $user->email_consent_at = $enabled ? now() : null;
+                if ($enabled) {
+                    foreach ($categories as $cat) {
+                        $user->{"notify_{$cat}_email"} = true;
+                    }
+                }
+            } else {
+                $user->push_consent = $enabled;
+                $user->push_consent_at = $enabled ? now() : null;
+                if ($enabled) {
+                    foreach ($categories as $cat) {
+                        $user->{"notify_{$cat}_push"} = true;
+                    }
+                }
+            }
+
+            $user->save();
+
+            return response()->json([
+                'success' => true,
+                'master' => $master,
+                'enabled' => $enabled,
+                'consent_at' => $master === 'email'
+                    ? $user->email_consent_at?->format('d.m.Y')
+                    : $user->push_consent_at?->format('d.m.Y'),
+                'categories' => collect($categories)->mapWithKeys(fn($c) => [
+                    $c => [
+                        'email' => (bool) $user->{"notify_{$c}_email"},
+                        'push' => (bool) $user->{"notify_{$c}_push"},
+                    ],
+                ]),
+            ]);
+        }
+
+        // Einzelner Sub-Toggle
+        if (empty($validated['channel']) || empty($validated['category'])) {
+            return response()->json([
+                'success' => false,
+                'message' => 'channel und category werden benötigt.',
+            ], 422);
+        }
+
+        $column = "notify_{$validated['category']}_{$validated['channel']}";
+        $user->{$column} = $enabled;
+        $user->save();
+
+        return response()->json([
+            'success' => true,
+            'channel' => $validated['channel'],
+            'category' => $validated['category'],
+            'enabled' => $enabled,
+        ]);
+    }
+
+    /**
      * Update the user's password.
      */
     public function updatePassword(Request $request): RedirectResponse

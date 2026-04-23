@@ -557,6 +557,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::post('/profile/cancel-email-change', [ProfileController::class, 'cancelEmailChange'])->name('profile.cancel-email-change');
     Route::post('/profile/extras-enabled', [ProfileController::class, 'updateExtrasEnabled'])->name('profile.extras-enabled');
+    Route::patch('/profile/notification-preferences', [ProfileController::class, 'updateNotificationPreferences'])->name('profile.notification-preferences');
 });
 
 // Contact Routes - für eingeloggte Nutzer
