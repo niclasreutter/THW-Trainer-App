@@ -281,7 +281,7 @@
                         <input type="checkbox"
                                :checked="sectionState(la).allDone"
                                x-effect="$el.indeterminate = sectionState(la).someDone && !sectionState(la).allDone"
-                               :disabled="busy[la.key]"
+                               :disabled="!!busy[la.key]"
                                @change="toggleSection(la, $event.target.checked)">
                     </label>
                     <span class="tp-section__nr" x-text="la.nr"></span>
@@ -294,7 +294,7 @@
                         <label class="tp-check" :class="{ 'is-done': isDone(item.key) }">
                             <input type="checkbox"
                                    :checked="isDone(item.key)"
-                                   :disabled="busy[item.key]"
+                                   :disabled="!!busy[item.key]"
                                    @change="toggleItem(item.key, $event.target.checked)">
                             <span class="tp-check__label" x-text="item.label"></span>
                         </label>
@@ -309,7 +309,7 @@
                 <label class="tp-check" :class="{ 'is-done': isDone(item.key) }">
                     <input type="checkbox"
                            :checked="isDone(item.key)"
-                           :disabled="busy[item.key]"
+                           :disabled="!!busy[item.key]"
                            @change="toggleItem(item.key, $event.target.checked)">
                     <span class="tp-check__label" x-text="item.label"></span>
                 </label>
