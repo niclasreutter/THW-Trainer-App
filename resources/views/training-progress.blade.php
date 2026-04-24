@@ -242,7 +242,7 @@
         <div class="tp-page-title__eyebrow">Profil</div>
         <h1 class="tp-page-title__h1">Ausbildungsfortschritt</h1>
         <div class="tp-page-title__sub">
-            Halte deinen Fortschritt durch die THW-Grundausbildung fest. Ganze Lernabschnitte lassen sich über die Überschrift auf einmal abhaken.
+            Halte neben den Theoriefragen hier auch deinen Fortschritt durch die THW-Grundausbildung im Ortsverband fest. Ganze Module lassen sich über den Haken neben der Überschrift auf einmal abhaken, wenn aber mal nicht alle Bestandteile in einem Dienst vorkommen, kannst du die fehlenden auch markieren. So verlierst du nie den Überblick, was dir auf dem Weg zur Abschlussprüfung noch fehlt.
         </div>
     </div>
 
