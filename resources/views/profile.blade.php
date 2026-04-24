@@ -175,26 +175,12 @@
     }
     .bento > .card-identity      { grid-column: span 12; }
     .bento > .card-learning      { grid-column: span 8; }
-    .bento > .card-streak        { grid-column: span 4; }
-    .bento > .card-achievements  { grid-column: span 6; }
-    .bento > .card-exam          { grid-column: span 6; }
-    .bento > .card-account       { grid-column: span 6; }
-    .bento > .card-security      { grid-column: span 6; }
-    .bento > .card-notifications { grid-column: span 6; }
-    .bento > .card-privacy       { grid-column: span 6; }
+    .bento > .card-achievements  { grid-column: span 4; }
     .bento > .card-accessories   { grid-column: span 12; }
-    .bento > .card-meta          { grid-column: span 12; }
-    .bento > .card-danger        { grid-column: span 12; }
 
     @media (max-width: 1024px) {
         .bento > .card-learning,
-        .bento > .card-streak,
-        .bento > .card-achievements,
-        .bento > .card-exam,
-        .bento > .card-account,
-        .bento > .card-security,
-        .bento > .card-notifications,
-        .bento > .card-privacy { grid-column: span 12; }
+        .bento > .card-achievements { grid-column: span 12; }
     }
 
     .card { padding: 1.25rem; border-radius: 0.75rem; }
@@ -234,6 +220,33 @@
     }
     html.light-mode .pf-page-title__h1 { color: var(--thw-blue, #00337F); }
     .pf-page-title__sub { font-size: 0.875rem; color: var(--text-secondary); }
+
+    .pf-settings-gear {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: var(--glass-bg, rgba(255,255,255,0.05));
+        border: 1px solid var(--glass-border, rgba(0,51,127,0.15));
+        color: var(--text-secondary);
+        font-size: 1.125rem;
+        text-decoration: none;
+        transition: transform 200ms ease, background 200ms ease, color 200ms ease, border-color 200ms ease;
+        flex-shrink: 0;
+    }
+    .pf-settings-gear:hover {
+        background: rgba(0,51,127,0.1);
+        border-color: rgba(0,51,127,0.4);
+        color: var(--thw-blue);
+        transform: rotate(45deg);
+    }
+    html:not(.light-mode) .pf-settings-gear:hover {
+        background: rgba(91,154,255,0.15);
+        border-color: rgba(91,154,255,0.4);
+        color: #5b9aff;
+    }
 
     /* ─── Form primitives ─── */
     .field { display: block; margin-bottom: 1rem; }
@@ -792,28 +805,17 @@
 
 @section('content')
 @php
-    // Gamification-Daten
     $level = $user->level ?? 1;
     $points = $user->points ?? 0;
     $ringPct = isset($levelProgress) ? max(0, min(100, (int) $levelProgress)) : 0;
     $nextPts = $nextLevelPoints ?? 0;
     $streakDays = $user->streak_days ?? 0;
 
-    // Alle Stats kommen aus der Route
-    $heatPattern = $heatPattern ?? array_fill(0, 28, 0);
     $solvedCount = $solvedTotal ?? 0;
     $wrongCount = $wrongTotal ?? 0;
     $accuracy = $hitRate ?? null;
     $totalQuestions = $totalQuestions ?? 0;
-    $topSections = $topSections ?? [];
-    $sectionsStarted = $sectionsStarted ?? 0;
-    $sectionsTotal = $sectionsTotal ?? 10;
     $streakDaysArr = $streakDaysArr ?? [];
-
-    $daysSince = (int) floor($user->created_at->diffInDays(now()));
-    $lastActive = $user->last_activity_at
-        ? (\Illuminate\Support\Carbon::parse($user->last_activity_at))
-        : ($user->last_login_at ?? null);
 
     $totalOwnedAccessories = count($ownedAccessories['accessories'] ?? [])
         + count($ownedAccessories['top'] ?? [])
@@ -822,46 +824,24 @@
 
 <div class="dash-container">
 
-    {{-- ── Page Title ── --}}
-    <div class="pf-page-title">
-        <div class="pf-page-title__eyebrow">Einstellungen</div>
-        <h1 class="pf-page-title__h1">Profil</h1>
-        <div class="pf-page-title__sub">Verwalte deine persönlichen Daten, Fortschritt und Datenschutz.</div>
+    <div class="pf-page-title" style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;">
+        <div>
+            <div class="pf-page-title__eyebrow">Dein Konto</div>
+            <h1 class="pf-page-title__h1">Profil</h1>
+            <div class="pf-page-title__sub">Avatar, Fortschritt und Achievements.</div>
+        </div>
+        <a href="{{ route('einstellungen') }}" class="pf-settings-gear" title="Einstellungen" aria-label="Einstellungen">
+            <i class="bi bi-gear-fill"></i>
+        </a>
     </div>
 
-    {{-- ── Status Messages ── --}}
-    @if (session('status'))
+    @if (session('status') && session('status') === 'avatar-updated')
     <div class="alert-compact glass-success" style="margin-bottom: 1rem;">
         <i class="bi bi-check-circle alert-compact-icon"></i>
         <div class="alert-compact-content">
-            <div class="alert-compact-title">
-                @if(session('status') == 'profile-updated') Profil erfolgreich aktualisiert.
-                @elseif(session('status') == 'password-updated') Passwort erfolgreich geändert.
-                @elseif(session('status') == 'email-change-cancelled') E-Mail-Änderung abgebrochen.
-                @elseif(session('status') == 'extras-enabled-updated') Zusatz-Fragen-Einstellung gespeichert.
-                @elseif(session('status') == 'avatar-updated') Avatar aktualisiert.
-                @else {{ session('status') }}
-                @endif
-            </div>
+            <div class="alert-compact-title">Avatar aktualisiert.</div>
         </div>
         <button style="background:none;border:none;cursor:pointer;font-size:1.25rem;color:var(--text-secondary);" onclick="this.parentElement.remove()">&times;</button>
-    </div>
-    @endif
-
-    @if ($user->pending_email)
-    <div class="alert-compact glass-warning" style="margin-bottom: 1rem;">
-        <i class="bi bi-clock-history alert-compact-icon"></i>
-        <div class="alert-compact-content">
-            <div class="alert-compact-title">E-Mail-Änderung ausstehend</div>
-            <div class="alert-compact-desc">
-                Bestätigungscode gesendet an <strong>{{ $user->pending_email }}</strong>.
-                <a href="{{ route('verification.notice') }}" style="color:var(--gold);text-decoration:underline;">Jetzt bestätigen</a>
-                <form method="POST" action="{{ route('profile.cancel-email-change') }}" style="display:inline;">
-                    @csrf
-                    <button type="submit" style="background:none;border:none;color:var(--text-secondary);text-decoration:underline;cursor:pointer;padding:0;font-size:inherit;">Abbrechen</button>
-                </form>
-            </div>
-        </div>
     </div>
     @endif
 
@@ -959,61 +939,6 @@
                     </div>
                 </div>
 
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem;padding-top:0.25rem;">
-                    <span class="section-label" style="font-size:0.6875rem;">Lernabschnitte · Top 3</span>
-                    <span style="font-size:0.75rem;color:var(--text-muted);">{{ $sectionsStarted }} / {{ $sectionsTotal }} begonnen</span>
-                </div>
-
-                <div class="section-list">
-                    @forelse($topSections as $idx => $sec)
-                        @php
-                            $rank = $idx + 1;
-                            $isEmpty = $sec['solved'] === 0;
-                        @endphp
-                        <a href="{{ route('practice.menu') }}" class="section-row {{ $isEmpty ? 'section-row--empty' : '' }}">
-                            <div class="section-row__rank">{{ $rank }}</div>
-                            <div class="section-row__body">
-                                <div class="section-row__name">{{ $sec['name'] }}</div>
-                                <div class="section-row__bar"><div class="section-row__fill" style="width: {{ $sec['percent'] }}%;"></div></div>
-                            </div>
-                            <div class="section-row__pct">{{ $isEmpty ? '—' : $sec['percent'].'%' }}</div>
-                            <i class="bi bi-chevron-right section-row__chev"></i>
-                        </a>
-                    @empty
-                        <div style="padding:0.75rem;text-align:center;color:var(--text-muted);font-size:0.8125rem;">Noch keine Lernabschnitte begonnen.</div>
-                    @endforelse
-                </div>
-            </div>
-        </div>
-
-        {{-- ══════════════════════════════════════════
-             STREAK HEATMAP (span 4)
-        ══════════════════════════════════════════ --}}
-        <div class="glass card-streak card">
-            <div class="card-head">
-                <span class="section-label">Streak · Letzte 28 Tage</span>
-            </div>
-            <div>
-                <div class="streak-hero">
-                    <div class="streak-num">{{ $streakDays }}</div>
-                    <div class="streak-label">Aktuelle Serie</div>
-                </div>
-                <div class="heat-grid">
-                    @foreach($heatPattern as $v)
-                        <div class="heat-cell" data-v="{{ $v }}"></div>
-                    @endforeach
-                </div>
-                <div class="heat-legend">
-                    <span>Weniger</span>
-                    <div class="heat-legend__scale">
-                        <div class="heat-legend__swatch heat-cell" data-v="0"></div>
-                        <div class="heat-legend__swatch heat-cell" data-v="1"></div>
-                        <div class="heat-legend__swatch heat-cell" data-v="2"></div>
-                        <div class="heat-legend__swatch heat-cell" data-v="3"></div>
-                        <div class="heat-legend__swatch heat-cell" data-v="4"></div>
-                    </div>
-                    <span>Mehr</span>
-                </div>
             </div>
         </div>
 
@@ -1045,370 +970,11 @@
             </div>
         </div>
 
-        {{-- ══════════════════════════════════════════
-             EXAM / ZUSATZ-FRAGEN (span 6) — REAL
-        ══════════════════════════════════════════ --}}
-        <div class="glass card-exam card">
-            <div class="card-head">
-                <span class="section-label">Prüfung & Zusatz-Fragen</span>
-            </div>
+        {{-- Account-Verwaltung (entfernt - siehe /einstellungen) --}}
 
-            <form method="POST" action="{{ route('profile.update') }}" id="exam-date-form">
-                @csrf
-                @method('PATCH')
-                {{-- Nur exam_date wird hier aktualisiert; name/email werden aus dem Haupt-Formular gespeichert --}}
-                <input type="hidden" name="name" value="{{ $user->name }}">
-                <input type="hidden" name="email" value="{{ $user->email }}">
-                <input type="hidden" name="email_consent" value="{{ $user->email_consent ? 1 : 0 }}">
-                <input type="hidden" name="leaderboard_consent" value="{{ $user->leaderboard_consent ? 1 : 0 }}">
+        {{-- Sicherheit (entfernt - siehe /einstellungen) --}}
 
-                <div class="field">
-                    <label class="field__label" for="exam-date">Prüfungsdatum (optional)</label>
-                    <div class="field__row">
-                        <input class="input @error('exam_date') input--error @enderror" type="date" id="exam-date" name="exam_date"
-                               value="{{ old('exam_date', $user->exam_date?->format('Y-m-d')) }}"
-                               min="{{ date('Y-m-d', strtotime('+1 day')) }}">
-                        <button class="btn-pf-ghost" type="button" onclick="document.getElementById('exam-date').value=''">Zurücksetzen</button>
-                    </div>
-                    @error('exam_date')
-                        <div class="field__error">{{ $message }}</div>
-                    @else
-                        <div class="field__help">Für eine personalisierte Lernempfehlung auf dem Dashboard.</div>
-                    @enderror
-                </div>
-            </form>
-
-            <form method="POST" action="{{ route('profile.extras-enabled') }}">
-                @csrf
-                <input type="hidden" name="extras_enabled" value="0">
-                <div class="toggle-row">
-                    <div class="toggle-row__body">
-                        <div class="toggle-row__title">Zusatz-Fragen aktivieren</div>
-                        <div class="toggle-row__desc">Zusätzliche außerhalb-der-Prüfung Übungsfragen. Erscheinen im Übungsmodus und beeinflussen nicht deine Prüfungsauswertung.</div>
-                    </div>
-                    <label class="switch">
-                        <input type="checkbox" name="extras_enabled" value="1" onchange="this.form.submit()" {{ $user->extras_enabled ? 'checked' : '' }}>
-                        <span class="switch__slider"></span>
-                    </label>
-                </div>
-            </form>
-
-            <div class="card-foot">
-                <span class="card-foot__note">Änderungen am Prüfungsdatum nach dem Speichern aktiv.</span>
-                <button class="btn-pf-primary" type="button" onclick="document.getElementById('exam-date-form').submit()">Speichern</button>
-            </div>
-        </div>
-
-        {{-- ══════════════════════════════════════════
-             PERSÖNLICHE DATEN (span 6) — REAL
-        ══════════════════════════════════════════ --}}
-        <div class="glass card-account card">
-            <div class="card-head">
-                <span class="section-label">Persönliche Daten</span>
-            </div>
-
-            <form method="POST" action="{{ route('profile.update') }}" id="profile-main-form">
-                @csrf
-                @method('PATCH')
-
-                <div class="field">
-                    <label class="field__label" for="name">Name</label>
-                    <input class="input @error('name') input--error @enderror" type="text" id="name" name="name"
-                           value="{{ old('name', $user->name) }}" required maxlength="255">
-                    @error('name')
-                        <div class="field__error">{{ $message }}</div>
-                    @else
-                        <div class="field__help">Dieser Name erscheint im Leaderboard.</div>
-                    @enderror
-                </div>
-
-                <div class="field">
-                    <label class="field__label" for="email">E-Mail-Adresse</label>
-                    <input class="input @error('email') input--error @enderror" type="email" id="email" name="email"
-                           value="{{ old('email', $user->email) }}" required>
-                    @error('email')
-                        <div class="field__error">{{ $message }}</div>
-                    @else
-                        <div class="field__help">Änderungen erfordern eine Bestätigung per E-Mail.</div>
-                    @enderror
-                </div>
-
-                <div class="field">
-                    <label class="field__label">Ortsverband</label>
-                    @if(($ortsverbande ?? collect())->isNotEmpty())
-                        <div style="display:flex;flex-direction:column;gap:0.5rem;">
-                            @foreach($ortsverbande as $ov)
-                                <a href="{{ route('ortsverband.show', $ov) }}" style="display:flex;align-items:center;gap:0.75rem;padding:0.625rem 0.875rem;border:1px solid rgba(0,51,127,0.15);border-radius:10px;background:rgba(0,51,127,0.04);text-decoration:none;color:var(--text-primary);transition:background 0.15s;">
-                                    <i class="bi bi-building" style="color:var(--thw-blue);font-size:1.125rem;"></i>
-                                    <div style="flex:1;">
-                                        <div style="font-weight:600;font-size:0.9375rem;">{{ $ov->name }}</div>
-                                        @if($ov->pivot->role ?? null)
-                                            <div style="font-size:0.75rem;color:var(--text-muted);">{{ ucfirst($ov->pivot->role) }}</div>
-                                        @endif
-                                    </div>
-                                    <i class="bi bi-chevron-right" style="color:var(--text-muted);font-size:0.875rem;"></i>
-                                </a>
-                            @endforeach
-                        </div>
-                        <div class="field__help">Mitgliedschaften verwalten auf der Ortsverband-Seite.</div>
-                    @else
-                        <div style="padding:1rem;border:1px dashed rgba(0,51,127,0.2);border-radius:10px;background:rgba(0,51,127,0.03);text-align:center;">
-                            <div style="font-size:0.875rem;color:var(--text-secondary);margin-bottom:0.75rem;">
-                                Du bist noch keinem Ortsverband beigetreten.
-                            </div>
-                            <a href="{{ route('ortsverband.index') }}" class="btn-pf-primary" style="display:inline-flex;align-items:center;gap:0.5rem;">
-                                <i class="bi bi-plus-circle"></i> Ortsverband beitreten
-                            </a>
-                        </div>
-                        <div class="field__help">Tritt deinem Ortsverband bei, um Fortschritt und Ranking zu teilen.</div>
-                    @endif
-                </div>
-
-                <input type="hidden" name="email_consent" value="{{ $user->email_consent ? 1 : 0 }}">
-                <input type="hidden" name="leaderboard_consent" value="{{ $user->leaderboard_consent ? 1 : 0 }}">
-                <input type="hidden" name="exam_date" value="{{ $user->exam_date?->format('Y-m-d') }}">
-
-                <div class="card-foot">
-                    <span class="card-foot__note">Änderungen werden nach dem Speichern aktiv.</span>
-                    <button class="btn-pf-primary" type="submit">Profil speichern</button>
-                </div>
-            </form>
-        </div>
-
-        {{-- ══════════════════════════════════════════
-             SECURITY (span 6) — Passwort REAL, 2FA [GREYED]
-        ══════════════════════════════════════════ --}}
-        <div class="glass card-security card">
-            <div class="card-head">
-                <span class="section-label">Sicherheit</span>
-            </div>
-
-            <form method="POST" action="{{ route('profile.password.update') }}">
-                @csrf
-                @method('PATCH')
-
-                <div class="field">
-                    <label class="field__label" for="current_password">Aktuelles Passwort</label>
-                    <input class="input @error('current_password') input--error @enderror" type="password"
-                           id="current_password" name="current_password" placeholder="Aktuelles Passwort">
-                    @error('current_password')<div class="field__error">{{ $message }}</div>@enderror
-                </div>
-
-                <div class="field">
-                    <label class="field__label" for="password">Neues Passwort</label>
-                    <input class="input @error('password') input--error @enderror" type="password"
-                           id="password" name="password" placeholder="Mindestens 8 Zeichen"
-                           oninput="checkPasswordMatch()">
-                    @error('password')<div class="field__error">{{ $message }}</div>@enderror
-                </div>
-
-                <div class="field">
-                    <label class="field__label" for="password_confirmation">Passwort bestätigen</label>
-                    <input class="input" type="password" id="password_confirmation" name="password_confirmation"
-                           placeholder="Passwort wiederholen" oninput="checkPasswordMatch()">
-                    <div id="password-match-message" class="pf-pw-msg"></div>
-                </div>
-
-                <div class="toggle-row is-locked">
-                    <div class="toggle-row__body card-body-locked">
-                        <div class="toggle-row__title">
-                            Zwei-Faktor-Authentifizierung (2FA)
-                            <span class="locked-badge"><i class="bi bi-lock"></i> Bald</span>
-                        </div>
-                        <div class="toggle-row__desc">Zusätzlicher Schutz per TOTP-App (z. B. Aegis, Authy). Empfohlen für Admin-Accounts.</div>
-                    </div>
-                    <label class="switch">
-                        <input type="checkbox" disabled>
-                        <span class="switch__slider"></span>
-                    </label>
-                </div>
-
-                <div class="card-foot">
-                    <span class="card-foot__note">Nach Passwortänderung bleibst du angemeldet.</span>
-                    <button class="btn-pf-primary" type="submit">Passwort ändern</button>
-                </div>
-            </form>
-        </div>
-
-        {{-- ══════════════════════════════════════════
-             NOTIFICATIONS (span 6) — Master + Per-Kategorie (E-Mail + Push)
-        ══════════════════════════════════════════ --}}
-        @php
-            $notifCategories = [
-                'daily_reminder' => [
-                    'title' => 'Tägliche Lernerinnerung',
-                    'desc'  => 'Eine kurze Erinnerung, wenn du deinen Streak zu verlieren drohst.',
-                ],
-                'spaced_repetition' => [
-                    'title' => 'Spaced-Repetition-Reviews',
-                    'desc'  => 'Benachrichtigung, sobald Fragen zur Wiederholung fällig sind.',
-                ],
-                'league_updates' => [
-                    'title' => 'Liga- & Achievement-Updates',
-                    'desc'  => 'Wenn du aufsteigst, fällst oder ein neues Achievement freischaltest.',
-                ],
-            ];
-        @endphp
-        <div class="glass card-notifications card" id="notif-card">
-            <div class="card-head">
-                <span class="section-label">Benachrichtigungen</span>
-                <span class="card-head__hint" id="notif-consent-hint">
-                    @if($user->email_consent_at && $user->push_consent_at)
-                        E-Mail seit {{ $user->email_consent_at->format('d.m.Y') }} · Push seit {{ $user->push_consent_at->format('d.m.Y') }}
-                    @elseif($user->email_consent_at)
-                        E-Mail seit {{ $user->email_consent_at->format('d.m.Y') }}
-                    @elseif($user->push_consent_at)
-                        Push seit {{ $user->push_consent_at->format('d.m.Y') }}
-                    @else
-                        Noch nicht aktiviert
-                    @endif
-                </span>
-            </div>
-
-            {{-- Master-Toggles: E-Mail + Push --}}
-            <div class="notif-master">
-                <div class="toggle-row notif-master-row">
-                    <div class="toggle-row__body">
-                        <div class="toggle-row__title">
-                            <i class="bi bi-envelope-fill" style="color: var(--thw-blue, #00337F);"></i>
-                            E-Mail-Benachrichtigungen
-                        </div>
-                        <div class="toggle-row__desc">Erhalte E-Mails zu Lernfortschritt, neuen Features und Systeminformationen.</div>
-                    </div>
-                    <label class="switch">
-                        <input type="checkbox"
-                               data-notif-master="email"
-                               {{ $user->email_consent ? 'checked' : '' }}>
-                        <span class="switch__slider"></span>
-                    </label>
-                </div>
-
-                <div class="toggle-row notif-master-row">
-                    <div class="toggle-row__body">
-                        <div class="toggle-row__title">
-                            <i class="bi bi-bell-fill" style="color: var(--thw-blue, #00337F);"></i>
-                            Push-Benachrichtigungen
-                        </div>
-                        <div class="toggle-row__desc">Browser- und App-Push für wichtige Updates direkt auf dein Gerät.</div>
-                    </div>
-                    <label class="switch">
-                        <input type="checkbox"
-                               data-notif-master="push"
-                               {{ $user->push_consent ? 'checked' : '' }}>
-                        <span class="switch__slider"></span>
-                    </label>
-                </div>
-            </div>
-
-            {{-- Per-Kategorie: E-Mail + Push --}}
-            <div class="notif-categories">
-                <div class="notif-categories__header">
-                    <span class="notif-categories__label">Einzelne Benachrichtigungen</span>
-                    <div class="notif-categories__legend">
-                        <span title="E-Mail"><i class="bi bi-envelope"></i></span>
-                        <span title="Push"><i class="bi bi-bell"></i></span>
-                    </div>
-                </div>
-
-                @foreach($notifCategories as $key => $cat)
-                    <div class="toggle-row notif-cat-row">
-                        <div class="toggle-row__body">
-                            <div class="toggle-row__title">{{ $cat['title'] }}</div>
-                            <div class="toggle-row__desc">{{ $cat['desc'] }}</div>
-                        </div>
-                        <div class="notif-cat-switches">
-                            <label class="switch switch--mini" title="E-Mail">
-                                <input type="checkbox"
-                                       data-notif-channel="email"
-                                       data-notif-category="{{ $key }}"
-                                       {{ $user->{"notify_{$key}_email"} ? 'checked' : '' }}
-                                       {{ $user->email_consent ? '' : 'disabled' }}>
-                                <span class="switch__slider"></span>
-                            </label>
-                            <label class="switch switch--mini" title="Push">
-                                <input type="checkbox"
-                                       data-notif-channel="push"
-                                       data-notif-category="{{ $key }}"
-                                       {{ $user->{"notify_{$key}_push"} ? 'checked' : '' }}
-                                       {{ $user->push_consent ? '' : 'disabled' }}>
-                                <span class="switch__slider"></span>
-                            </label>
-                        </div>
-                    </div>
-                @endforeach
-            </div>
-        </div>
-
-        {{-- ══════════════════════════════════════════
-             PRIVACY (span 6) — Leaderboard REAL, Rest teilweise [GREYED]
-        ══════════════════════════════════════════ --}}
-        <div class="glass card-privacy card">
-            <div class="card-head">
-                <span class="section-label">Privatsphäre & Datenschutz</span>
-                <a href="/datenschutz" class="card-head__hint" style="color: var(--thw-blue, #00337F); text-decoration: none; font-weight: 600;">Datenschutzerklärung →</a>
-            </div>
-
-            <form method="POST" action="{{ route('profile.update') }}" id="privacy-form">
-                @csrf
-                @method('PATCH')
-                <input type="hidden" name="name" value="{{ $user->name }}">
-                <input type="hidden" name="email" value="{{ $user->email }}">
-                <input type="hidden" name="email_consent" value="{{ $user->email_consent ? 1 : 0 }}">
-                <input type="hidden" name="exam_date" value="{{ $user->exam_date?->format('Y-m-d') }}">
-                <input type="hidden" name="leaderboard_consent" value="0">
-
-                <div class="toggle-row">
-                    <div class="toggle-row__body">
-                        <div class="toggle-row__title">Leaderboard-Teilnahme</div>
-                        <div class="toggle-row__desc">Dein Name erscheint im öffentlichen Leaderboard. Deaktivieren macht dein Konto anonym.</div>
-                    </div>
-                    <label class="switch">
-                        <input type="checkbox" name="leaderboard_consent" value="1" onchange="this.form.submit()" {{ $user->leaderboard_consent ? 'checked' : '' }}>
-                        <span class="switch__slider"></span>
-                    </label>
-                </div>
-            </form>
-
-            <div class="toggle-row is-locked">
-                <div class="toggle-row__body card-body-locked">
-                    <div class="toggle-row__title">
-                        OV-Ranking sichtbar
-                        <span class="locked-badge"><i class="bi bi-lock"></i> Bald</span>
-                    </div>
-                    <div class="toggle-row__desc">Mitglieder deines Ortsverbandes sehen deinen Fortschritt im OV-Dashboard.</div>
-                </div>
-                <label class="switch"><input type="checkbox" disabled><span class="switch__slider"></span></label>
-            </div>
-
-            <div class="info-row">
-                <div class="info-row__icon"><i class="bi bi-info-circle-fill"></i></div>
-                <div class="info-row__body">
-                    <div class="info-row__title">Aggregierte Nutzungsstatistik</div>
-                    <div class="info-row__desc">
-                        Zur Produktverbesserung erheben wir ausschließlich <strong>aggregierte, anonyme Statistiken</strong>. Keine personenbezogenen Daten, keine Weitergabe an Dritte, kein externes Tracking.
-                    </div>
-                </div>
-            </div>
-
-            <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(0,51,127,0.06);" class="is-locked">
-                <div class="card-body-locked">
-                    <a class="link-row" href="#" onclick="event.preventDefault()">
-                        <div>
-                            <div class="link-row__title"><i class="bi bi-download" style="margin-right: 0.4rem;"></i> Datenexport anfordern (Art. 20 DSGVO) <span class="locked-badge" style="margin-left:0.5rem;"><i class="bi bi-lock"></i> Bald</span></div>
-                            <div class="link-row__sub">JSON-Export deiner Lerndaten, Antworten und Profilfelder — per E-Mail binnen 72 Std.</div>
-                        </div>
-                        <i class="bi bi-chevron-right"></i>
-                    </a>
-                    <a class="link-row" href="#" onclick="event.preventDefault()">
-                        <div>
-                            <div class="link-row__title"><i class="bi bi-shield-lock" style="margin-right: 0.4rem;"></i> Aktive Sessions & Geräte <span class="locked-badge" style="margin-left:0.5rem;"><i class="bi bi-lock"></i> Bald</span></div>
-                            <div class="link-row__sub">Aktive Geräte und letzte Anmeldungen verwalten.</div>
-                        </div>
-                        <i class="bi bi-chevron-right"></i>
-                    </a>
-                </div>
-            </div>
-        </div>
+        {{-- Benachrichtigungen, Privatsphäre (entfernt - siehe /einstellungen) --}}
 
         {{-- ══════════════════════════════════════════
              AVATAR-ACCESSOIRES (span 12) — REAL
@@ -1483,94 +1049,10 @@
             @endif
         </div>
 
-        {{-- ══════════════════════════════════════════
-             KONTO-META (span 12) — REAL
-        ══════════════════════════════════════════ --}}
-        <div class="glass card-meta card">
-            <div class="card-head">
-                <span class="section-label">Konto-Details</span>
-            </div>
-            <div class="meta-grid">
-                <div class="meta-item">
-                    <div class="meta-item__label">Beitrittsdatum</div>
-                    <div class="meta-item__value">{{ $user->created_at->format('d.m.Y') }}</div>
-                    <div class="meta-item__sub">vor {{ $daysSince }} {{ $daysSince === 1 ? 'Tag' : 'Tagen' }}</div>
-                </div>
-                <div class="meta-item">
-                    <div class="meta-item__label">Konto-Status</div>
-                    @if($user->pending_email)
-                        <div class="meta-item__value" style="color: #f59e0b;">E-Mail-Änderung</div>
-                        <div class="meta-item__sub">Bestätigung an {{ $user->pending_email }}</div>
-                    @elseif($user->hasVerifiedEmail())
-                        <div class="meta-item__value" style="color: #22c55e;">Bestätigt</div>
-                        <div class="meta-item__sub">E-Mail verifiziert</div>
-                    @else
-                        <div class="meta-item__value" style="color: #f59e0b;">Ausstehend</div>
-                        <div class="meta-item__sub">E-Mail nicht verifiziert</div>
-                    @endif
-                </div>
-                <div class="meta-item">
-                    <div class="meta-item__label">Zuletzt aktiv</div>
-                    <div class="meta-item__value">{{ $lastActive ? $lastActive->diffForHumans() : 'Gerade eben' }}</div>
-                    <div class="meta-item__sub">{{ $lastActive ? $lastActive->format('d.m.Y H:i') : 'Erste Anmeldung' }}</div>
-                </div>
-            </div>
-        </div>
-
-        {{-- ══════════════════════════════════════════
-             DANGER ZONE (span 12) — REAL
-        ══════════════════════════════════════════ --}}
-        <div class="card-danger">
-            <div class="danger-card">
-                <div class="danger-head">
-                    <div class="danger-icon"><i class="bi bi-exclamation-triangle-fill"></i></div>
-                    <div>
-                        <span class="section-label">Danger Zone</span>
-                        <div class="danger-title">Account permanent löschen</div>
-                    </div>
-                </div>
-                <div class="danger-desc">
-                    Diese Aktion kann <strong>nicht rückgängig</strong> gemacht werden. Alle deine Daten — Antworten, Fortschritt, Achievements — werden unwiderruflich gelöscht (Art. 17 DSGVO · Recht auf Löschung).
-                </div>
-                <form method="POST" action="{{ route('profile.destroy') }}"
-                      onsubmit="return confirm('Bist du dir absolut sicher? Alle deine Daten werden permanent gelöscht.')">
-                    @csrf
-                    @method('DELETE')
-                    <div class="field">
-                        <label class="field__label" for="password_delete">Passwort zur Bestätigung</label>
-                        <input class="input @error('password', 'userDeletion') input--error @enderror" type="password"
-                               id="password_delete" name="password" placeholder="Passwort eingeben" style="max-width: 320px;">
-                        @error('password', 'userDeletion')<div class="field__error">{{ $message }}</div>@enderror
-                    </div>
-                    <div style="display: flex; gap: 0.75rem; align-items: center; margin-top: 1rem; flex-wrap: wrap;">
-                        <button class="btn-danger-inline" type="submit"><i class="bi bi-trash3-fill"></i> Account permanent löschen</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
     </div>{{-- /.bento --}}
 </div>{{-- /.dash-container --}}
 
 <script>
-    function checkPasswordMatch() {
-        var pw = document.getElementById('password').value;
-        var confirm = document.getElementById('password_confirmation').value;
-        var msg = document.getElementById('password-match-message');
-        if (pw && confirm) {
-            var match = pw === confirm;
-            document.getElementById('password').classList.toggle('input--error', !match);
-            document.getElementById('password_confirmation').classList.toggle('input--error', !match);
-            msg.style.display = 'flex';
-            msg.style.color = match ? '#22c55e' : '#ef4444';
-            msg.innerHTML = '<i class="bi bi-' + (match ? 'check' : 'x') + '-circle"></i> Passwörter stimmen ' + (match ? 'überein' : 'nicht überein');
-        } else {
-            document.getElementById('password').classList.remove('input--error');
-            document.getElementById('password_confirmation').classList.remove('input--error');
-            msg.style.display = 'none';
-        }
-    }
-
     function accessoryManager() {
         return {
             activeItems: @json($user->active_accessories ?? (object)[]),
@@ -1650,191 +1132,6 @@
             }
         };
     }
-
-    // ─── Notification preferences (Master + Per-Channel/Per-Category) ───
-    (function () {
-        var card = document.getElementById('notif-card');
-        if (!card) return;
-
-        var csrf = document.querySelector('meta[name="csrf-token"]').content;
-        var endpoint = '{{ route("profile.notification-preferences") }}';
-        var vapidPublicKey = @json(config('services.webpush.public_key'));
-
-        function setRowSaving(input, saving) {
-            var row = input.closest('.toggle-row');
-            if (row) row.classList.toggle('is-saving', saving);
-        }
-
-        function showToast(msg, type) {
-            var toast = document.createElement('div');
-            var bg = type === 'error' ? '#ef4444' : '#22c55e';
-            toast.style.cssText = 'position:fixed;bottom:1rem;right:1rem;background:' + bg + ';color:#fff;padding:0.75rem 1rem;border-radius:0.5rem;box-shadow:0 4px 12px rgba(0,0,0,0.2);z-index:9999;font-size:0.875rem;max-width:320px;';
-            toast.textContent = msg;
-            document.body.appendChild(toast);
-            setTimeout(function () { toast.remove(); }, 3500);
-        }
-
-        async function patch(payload) {
-            var res = await fetch(endpoint, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrf,
-                    'Accept': 'application/json',
-                },
-                body: JSON.stringify(payload),
-                cache: 'no-store',
-            });
-            if (!res.ok) throw new Error('HTTP ' + res.status);
-            return res.json();
-        }
-
-        function syncSubToggles(channel, masterEnabled, forceCheckAll) {
-            card.querySelectorAll('input[data-notif-channel="' + channel + '"]').forEach(function (input) {
-                input.disabled = !masterEnabled;
-                if (forceCheckAll && masterEnabled) {
-                    input.checked = true;
-                }
-            });
-        }
-
-        function updateConsentHint() {
-            var hint = document.getElementById('notif-consent-hint');
-            if (!hint) return;
-            var emailMaster = card.querySelector('input[data-notif-master="email"]');
-            var pushMaster = card.querySelector('input[data-notif-master="push"]');
-            var parts = [];
-            if (emailMaster && emailMaster.checked) parts.push('E-Mail aktiv');
-            if (pushMaster && pushMaster.checked) parts.push('Push aktiv');
-            hint.textContent = parts.length ? parts.join(' · ') : 'Noch nicht aktiviert';
-        }
-
-        function urlBase64ToUint8Array(base64String) {
-            var padding = '='.repeat((4 - base64String.length % 4) % 4);
-            var base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
-            var raw = atob(base64);
-            var arr = new Uint8Array(raw.length);
-            for (var i = 0; i < raw.length; ++i) arr[i] = raw.charCodeAt(i);
-            return arr;
-        }
-
-        async function enableBrowserPush() {
-            if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-                throw new Error('Push wird in diesem Browser nicht unterstützt.');
-            }
-            if (!vapidPublicKey) {
-                throw new Error('Push-Konfiguration fehlt (VAPID).');
-            }
-
-            var permission = await Notification.requestPermission();
-            if (permission !== 'granted') {
-                throw new Error('Du hast Push-Benachrichtigungen im Browser nicht erlaubt.');
-            }
-
-            var registration = await navigator.serviceWorker.register('/sw.js');
-            await navigator.serviceWorker.ready;
-
-            var subscription = await registration.pushManager.getSubscription();
-            if (!subscription) {
-                subscription = await registration.pushManager.subscribe({
-                    userVisibleOnly: true,
-                    applicationServerKey: urlBase64ToUint8Array(vapidPublicKey),
-                });
-            }
-
-            var sub = subscription.toJSON();
-            await fetch('{{ route("push.subscribe") }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrf,
-                },
-                body: JSON.stringify({
-                    endpoint: sub.endpoint,
-                    keys: sub.keys,
-                    content_encoding: 'aes128gcm',
-                }),
-            });
-        }
-
-        async function disableBrowserPush() {
-            if (!('serviceWorker' in navigator)) return;
-            var registration = await navigator.serviceWorker.getRegistration();
-            if (!registration) return;
-            var subscription = await registration.pushManager.getSubscription();
-            if (!subscription) return;
-
-            var endpointUrl = subscription.endpoint;
-            try { await subscription.unsubscribe(); } catch (e) { console.warn(e); }
-
-            await fetch('{{ route("push.unsubscribe") }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrf,
-                },
-                body: JSON.stringify({ endpoint: endpointUrl }),
-            });
-        }
-
-        // ─── Master-Toggles (E-Mail / Push) ───
-        card.querySelectorAll('input[data-notif-master]').forEach(function (input) {
-            input.addEventListener('change', async function () {
-                var master = input.getAttribute('data-notif-master');
-                var enabled = input.checked;
-                setRowSaving(input, true);
-
-                try {
-                    if (master === 'push') {
-                        if (enabled) {
-                            await enableBrowserPush();
-                        } else {
-                            await disableBrowserPush();
-                        }
-                    }
-
-                    var data = await patch({ master: master, enabled: enabled });
-                    if (!data.success) throw new Error(data.message || 'Speichern fehlgeschlagen');
-
-                    syncSubToggles(master, enabled, enabled);
-                    updateConsentHint();
-                    showToast(
-                        master === 'email'
-                            ? (enabled ? 'E-Mail-Benachrichtigungen aktiviert.' : 'E-Mail-Benachrichtigungen deaktiviert.')
-                            : (enabled ? 'Push-Benachrichtigungen aktiviert.' : 'Push-Benachrichtigungen deaktiviert.'),
-                        'success'
-                    );
-                } catch (err) {
-                    console.error(err);
-                    input.checked = !enabled;
-                    showToast(err.message || 'Aktion fehlgeschlagen.', 'error');
-                } finally {
-                    setRowSaving(input, false);
-                }
-            });
-        });
-
-        // ─── Sub-Toggles (Per-Kategorie x Kanal) ───
-        card.querySelectorAll('input[data-notif-category]').forEach(function (input) {
-            input.addEventListener('change', async function () {
-                var channel = input.getAttribute('data-notif-channel');
-                var category = input.getAttribute('data-notif-category');
-                var enabled = input.checked;
-                setRowSaving(input, true);
-
-                try {
-                    var data = await patch({ channel: channel, category: category, enabled: enabled });
-                    if (!data.success) throw new Error(data.message || 'Speichern fehlgeschlagen');
-                } catch (err) {
-                    console.error(err);
-                    input.checked = !enabled;
-                    showToast(err.message || 'Speichern fehlgeschlagen.', 'error');
-                } finally {
-                    setRowSaving(input, false);
-                }
-            });
-        });
-    })();
 
     // Avatar regeneration
     var regenBtn = document.getElementById('pf-regen-btn');

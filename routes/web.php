@@ -473,29 +473,15 @@ Route::post('/streak/freeze', [\App\Http\Controllers\GamificationController::cla
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', function() {
-        $user = auth()->user()->fresh(); // Fresh reload from database
+        $user = auth()->user()->fresh();
         $shopService = new \App\Services\ShopService();
         $ownedAccessories = $shopService->getOwnedAccessories($user);
         $gamification = new \App\Services\GamificationService();
         $levelProgress = $gamification->getLevelProgress($user);
         $nextLevelPoints = $gamification->getNextLevelPoints($user);
         $achievements = $gamification->getUserAchievements($user);
-        $ortsverbande = $user->ortsverbande()->get();
 
-        // Lernstatistik: Gesamt + Top-3 Lernabschnitte
-        $sectionNames = [
-            1 => 'Das THW im Gefüge des Zivil- und Katastrophenschutzes',
-            2 => 'Arbeitssicherheit und Gesundheitsschutz',
-            3 => 'Arbeiten mit Leinen, Drahtseilen, Ketten, Rund- und Bandschlingen',
-            4 => 'Arbeiten mit Leitern',
-            5 => 'Stromerzeugung und Beleuchtung',
-            6 => 'Metall-, Holz- und Steinbearbeitung',
-            7 => 'Bewegen von Lasten',
-            8 => 'Arbeiten am und auf dem Wasser',
-            9 => 'Einsatzgrundlagen',
-            10 => 'Grundlagen der Rettung und Bergung',
-        ];
-        // Lernstatistik — gleiche Datenquellen wie /user-statistik
+        // Stat-Pills: Gesamt-Übersicht
         $totalQuestions = \Illuminate\Support\Facades\Cache::remember('total_questions_count', 3600, fn () => \App\Models\Question::count());
         $solvedTotal = \App\Models\UserQuestionProgress::where('user_id', $user->id)->count();
         $totalAnswered = \App\Models\QuestionStatistic::where('user_id', $user->id)->count();
@@ -503,31 +489,7 @@ Route::middleware('auth')->group(function () {
         $hitRate = $totalAnswered > 0 ? (int) round(($totalCorrect / $totalAnswered) * 100) : null;
         $wrongTotal = max(0, $totalAnswered - $totalCorrect);
 
-        // Section-Fortschritt: gelöste (alle mit Progress) je Lernabschnitt
-        $questionsBySection = \App\Models\Question::selectRaw('lernabschnitt, COUNT(*) as total')
-            ->groupBy('lernabschnitt')->pluck('total', 'lernabschnitt');
-        $solvedBySection = \App\Models\UserQuestionProgress::where('user_id', $user->id)
-            ->join('questions', 'user_question_progress.question_id', '=', 'questions.id')
-            ->selectRaw('questions.lernabschnitt, COUNT(*) as cnt')
-            ->groupBy('questions.lernabschnitt')->pluck('cnt', 'lernabschnitt');
-        $sectionStats = [];
-        foreach ($sectionNames as $nr => $name) {
-            $total = (int) ($questionsBySection[$nr] ?? 0);
-            if ($total === 0) continue;
-            $solved = (int) ($solvedBySection[$nr] ?? 0);
-            $sectionStats[] = [
-                'nr' => $nr,
-                'name' => $name,
-                'total' => $total,
-                'solved' => $solved,
-                'percent' => $total > 0 ? (int) round(($solved / $total) * 100) : 0,
-            ];
-        }
-        $sectionsStarted = collect($sectionStats)->where('solved', '>', 0)->count();
-        $sectionsTotal = count($sectionStats);
-        $topSections = collect($sectionStats)->sortByDesc('solved')->take(3)->values()->all();
-
-        // 14-Tage Streak-Timeline: gleiche Logik wie Duolingo-Celebration (XP-History + Freeze-Log)
+        // 14-Tage Streak-Timeline für Hero-Card
         $firstXp = \App\Models\XpHistory::where('user_id', $user->id)->min('created_at');
         $firstLearnDate = $firstXp ? \Illuminate\Support\Carbon::parse($firstXp)->startOfDay() : null;
         $streakCalendar = app(\App\Services\GamificationService::class)->buildStreakCalendarData($user, 14);
@@ -543,26 +505,9 @@ Route::middleware('auth')->group(function () {
             ];
         }
 
-        // Heatmap (alter Code — bleibt für Streak-Card unten)
-        $heatmapStart = now()->subDays(27)->startOfDay();
-        $dailyCounts = \DB::table('user_question_progress')
-            ->where('user_id', $user->id)
-            ->where('last_answered_at', '>=', $heatmapStart)
-            ->selectRaw('DATE(last_answered_at) as d, COUNT(*) as c')
-            ->groupBy('d')->pluck('c', 'd')->toArray();
-        $heatPattern = [];
-        for ($i = 0; $i < 28; $i++) {
-            $date = now()->subDays(27 - $i)->format('Y-m-d');
-            $count = (int) ($dailyCounts[$date] ?? 0);
-            $intensity = $count === 0 ? 0 : ($count >= 20 ? 4 : ($count >= 10 ? 3 : ($count >= 5 ? 2 : 1)));
-            $heatPattern[] = $intensity;
-        }
-
         return view('profile', compact(
-            'user', 'ownedAccessories', 'levelProgress', 'nextLevelPoints', 'achievements', 'ortsverbande',
-            'totalQuestions', 'solvedTotal', 'wrongTotal', 'hitRate',
-            'topSections', 'sectionsStarted', 'sectionsTotal',
-            'streakDaysArr', 'heatPattern'
+            'user', 'ownedAccessories', 'levelProgress', 'nextLevelPoints', 'achievements',
+            'totalQuestions', 'solvedTotal', 'wrongTotal', 'hitRate', 'streakDaysArr'
         ));
     })->name('profile');
     // Profile-eigene Actions (Avatar, Accessoires, Dashboard-Banner) bleiben unter /profile
