@@ -521,8 +521,8 @@
     .activity-bar__col:nth-child(7) .activity-bar__fill { animation-delay: 0.6s; }
 
     /* ── Ausbildungsfortschritt mini widget (Issue #442) ── */
-    .tp-mini { transition: border-color 0.15s, transform 0.15s; }
-    .tp-mini:hover { border-color: rgba(91,154,255,0.35); transform: translateY(-1px); }
+    .tp-mini__link { transition: color 0.15s; }
+    .tp-mini__link:hover { color: #8fbcff; }
     .tp-mini__bars {
         display: grid;
         grid-template-columns: repeat(10, 1fr);
@@ -539,6 +539,12 @@
         overflow: hidden;
         display: flex;
         align-items: flex-end;
+        text-decoration: none;
+        transition: border-color 0.15s, transform 0.15s;
+    }
+    .tp-mini__bar:hover {
+        border-color: rgba(91, 154, 255, 0.5);
+        transform: translateY(-2px);
     }
     html:not(.light-mode) .tp-mini__bar {
         background: rgba(91, 154, 255, 0.05);
@@ -893,10 +899,10 @@
             </div>
 
             {{-- 3b. Ausbildungsfortschritt (kompakt, Issue #442) --}}
-            <a href="{{ route('training-progress.index') }}" class="glass tp-mini" style="display:block;padding:1rem;text-decoration:none;">
+            <div class="glass tp-mini" style="padding:1rem;">
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;">
                     <span class="section-label">Ausbildungsfortschritt</span>
-                    <span style="font-size:0.75rem;color:#5b9aff;font-weight:600;">Details &rarr;</span>
+                    <a href="{{ route('training-progress.index') }}" class="tp-mini__link" style="font-size:0.75rem;color:#5b9aff;font-weight:600;text-decoration:none;">Module ansehen &rarr;</a>
                 </div>
                 <div style="display:flex;align-items:baseline;gap:0.5rem;margin-bottom:0.625rem;">
                     <span style="font-size:1.5rem;font-weight:800;font-family:'Barlow Condensed',sans-serif;line-height:1;color:var(--text-primary);">{{ $trainingOverview['percent'] }}%</span>
@@ -907,18 +913,19 @@
                         @php
                             $tpState = $la['percent'] >= 100 ? 'done' : ($la['percent'] > 0 ? 'partial' : 'empty');
                         @endphp
-                        <div class="tp-mini__bar tp-mini__bar--{{ $tpState }}"
-                             title="{{ $la['nr'] }} · {{ $la['done'] }}/{{ $la['total'] }}">
+                        <a href="{{ route('training-progress.index', ['open' => $la['key']]) }}"
+                           class="tp-mini__bar tp-mini__bar--{{ $tpState }}"
+                           title="{{ $la['nr'] }} · {{ $la['title'] }} · {{ $la['done'] }}/{{ $la['total'] }}">
                             <div class="tp-mini__fill" style="height:{{ $la['percent'] }}%;"></div>
                             <span class="tp-mini__label">{{ \Illuminate\Support\Str::after($la['nr'], 'LA ') }}</span>
-                        </div>
+                        </a>
                     @endforeach
                 </div>
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-top:0.625rem;font-size:0.6875rem;color:var(--text-muted);">
                     <span>Lernabschnitte {{ $trainingOverview['la_done'] }}/{{ $trainingOverview['la_total'] }}</span>
                     <span>Zusatz {{ $trainingOverview['zusatz_done'] }}/{{ $trainingOverview['zusatz_total'] }}</span>
                 </div>
-            </a>
+            </div>
 
             {{-- 4. Lehrgänge --}}
             <div class="glass" style="padding:1rem;">

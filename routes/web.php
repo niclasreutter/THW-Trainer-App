@@ -434,7 +434,9 @@ Route::get('/dashboard', function () {
         }
         $total = count($la['items']);
         $trainingLaSummary[] = [
+            'key' => $la['key'],
             'nr' => $la['nr'],
+            'title' => $la['title'],
             'done' => $done,
             'total' => $total,
             'percent' => $total > 0 ? (int) round(($done / $total) * 100) : 0,

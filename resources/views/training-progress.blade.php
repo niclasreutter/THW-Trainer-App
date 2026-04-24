@@ -275,7 +275,7 @@
 
         <div class="tp-subhead">Lernabschnitte</div>
         <template x-for="la in lernabschnitte" :key="la.key">
-            <div class="tp-section" :class="{ 'is-open': openSections[la.key] }">
+            <div class="tp-section" :id="la.key" :class="{ 'is-open': openSections[la.key] }">
                 <div class="tp-section__head" @click="openSections[la.key] = !openSections[la.key]">
                     <label class="tp-check" style="padding: 0; margin: 0;" @click.stop>
                         <input type="checkbox"
@@ -330,6 +330,31 @@
             sectionUrl: config.sectionUrl,
             openSections: {},
             busy: {},
+
+            init() {
+                var params = new URLSearchParams(window.location.search);
+                var openKey = params.get('open');
+                if (!openKey) return;
+                var valid = this.lernabschnitte.some(function(la) { return la.key === openKey; });
+                if (!valid) return;
+                this.openSections[openKey] = true;
+                var attempts = 0;
+                var tryScroll = function() {
+                    var el = document.getElementById(openKey);
+                    if (!el) {
+                        if (attempts++ < 20) setTimeout(tryScroll, 50);
+                        return;
+                    }
+                    // Wait for x-for + expand animation to settle, then scroll.
+                    setTimeout(function() {
+                        var header = document.querySelector('header.sticky, header.fixed');
+                        var headerH = header && getComputedStyle(header).display !== 'none' ? header.getBoundingClientRect().height : 0;
+                        var top = el.getBoundingClientRect().top + window.scrollY - headerH - 16;
+                        window.scrollTo({ top: Math.max(top, 0), behavior: 'smooth' });
+                    }, 400);
+                };
+                setTimeout(tryScroll, 50);
+            },
 
             isDone(key) {
                 return !!this.completedSet[key];
