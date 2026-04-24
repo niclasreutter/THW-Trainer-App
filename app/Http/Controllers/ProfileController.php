@@ -104,13 +104,13 @@ class ProfileController extends Controller
                 \Log::error('Failed to send email verification: ' . $e->getMessage());
             }
 
-            return Redirect::route('profile')->with('status', 'email-verification-sent');
+            return Redirect::route('einstellungen')->with('status', 'email-verification-sent');
         }
 
         $user->save();
         \Log::info('User profile updated successfully');
 
-        return Redirect::route('profile')->with('status', 'profile-updated');
+        return Redirect::route('einstellungen')->with('status', 'profile-updated');
     }
 
     /**
@@ -211,7 +211,7 @@ class ProfileController extends Controller
 
         \Log::info('Password updated for user: ' . $user->id);
 
-        return Redirect::route('profile')->with('status', 'password-updated');
+        return Redirect::route('einstellungen')->with('status', 'password-updated');
     }
 
     /**
@@ -227,7 +227,7 @@ class ProfileController extends Controller
         $user->extras_enabled = $request->boolean('extras_enabled');
         $user->save();
 
-        return Redirect::route('profile')
+        return Redirect::route('einstellungen')
             ->with('status', 'extras-enabled-updated');
     }
 
@@ -420,7 +420,7 @@ class ProfileController extends Controller
             $user->save();
         }
 
-        return Redirect::route('profile')->with('status', 'email-change-cancelled');
+        return Redirect::route('einstellungen')->with('status', 'email-change-cancelled');
     }
 
     /**

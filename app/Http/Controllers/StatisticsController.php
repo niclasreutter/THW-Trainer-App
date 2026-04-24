@@ -43,6 +43,19 @@ class StatisticsController extends Controller
             ->selectRaw('questions.lernabschnitt, COUNT(*) as cnt, SUM(question_statistics.is_correct) as correct_cnt')
             ->groupBy('questions.lernabschnitt')->get()->keyBy('lernabschnitt');
 
+        $sectionNames = [
+            1 => 'Das THW im Gefüge des Zivil- und Katastrophenschutzes',
+            2 => 'Arbeitssicherheit und Gesundheitsschutz',
+            3 => 'Arbeiten mit Leinen, Drahtseilen, Ketten, Rund- und Bandschlingen',
+            4 => 'Arbeiten mit Leitern',
+            5 => 'Stromerzeugung und Beleuchtung',
+            6 => 'Metall-, Holz- und Steinbearbeitung',
+            7 => 'Bewegen von Lasten',
+            8 => 'Arbeiten am und auf dem Wasser',
+            9 => 'Einsatzgrundlagen',
+            10 => 'Grundlagen der Rettung und Bergung',
+        ];
+
         $sectionStats = [];
         for ($s = 1; $s <= 10; $s++) {
             $total = $questionsBySection[$s] ?? 0;
@@ -52,12 +65,15 @@ class StatisticsController extends Controller
 
             $sectionStats[] = [
                 'section' => $s,
+                'name' => $sectionNames[$s] ?? "Abschnitt {$s}",
                 'total' => $total,
                 'mastered' => $mastered,
                 'percent' => $total > 0 ? round(($mastered / $total) * 100) : 0,
                 'hit_rate' => $answered > 0 ? round(($correct / $answered) * 100) : 0,
             ];
         }
+
+        $topSections = collect($sectionStats)->sortByDesc('mastered')->take(3)->values()->all();
 
         // Activity (last 30 days)
         $activity = QuestionStatistic::where('user_id', $user->id)
@@ -92,11 +108,23 @@ class StatisticsController extends Controller
             ->orderBy('review_interval')
             ->get();
 
+        // 28-Tage Intensity-Heatmap (für Streak-Card)
+        $heatPattern = [];
+        for ($i = 0; $i < 28; $i++) {
+            $date = now()->subDays(27 - $i)->format('Y-m-d');
+            $dayData = $activity->get($date);
+            $count = (int) ($dayData->count ?? 0);
+            $intensity = $count === 0 ? 0 : ($count >= 20 ? 4 : ($count >= 10 ? 3 : ($count >= 5 ? 2 : 1)));
+            $heatPattern[] = $intensity;
+        }
+        $streakDays = $user->streak_days ?? 0;
+
         return view('statistics', compact(
             'totalQuestions', 'solvedTotal', 'masteredTotal',
             'progressPercent', 'masteryPercent', 'hitRate',
-            'sectionStats', 'activity', 'weeklyActivity',
-            'examHistory', 'srStats', 'intervalDistribution'
+            'sectionStats', 'topSections', 'activity', 'weeklyActivity',
+            'examHistory', 'srStats', 'intervalDistribution',
+            'heatPattern', 'streakDays'
         ));
     }
 }
