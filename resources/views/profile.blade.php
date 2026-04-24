@@ -46,7 +46,7 @@
         position: relative;
     }
     html:not(.light-mode) .avatar-ring {
-        background: conic-gradient(var(--thw-blue-glow) calc(var(--ring-pct) * 1%), rgba(91,154,255,0.15) 0);
+        background: conic-gradient(var(--thw-blue-glow, #5b9aff) calc(var(--ring-pct) * 1%), rgba(91,154,255,0.15) 0);
     }
     .avatar-ring__inner {
         width: 100%; height: 100%;
@@ -1863,5 +1863,6 @@
             });
         });
     }
+
 </script>
 @endsection

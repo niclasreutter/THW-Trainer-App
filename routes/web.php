@@ -12,6 +12,7 @@
 */
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\TrainingProgressController;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
@@ -419,6 +420,27 @@ Route::get('/dashboard', function () {
             ->exists();
     }
 
+    // Ausbildungsfortschritt (Issue #442) — kompakte LA-Übersicht fürs Dashboard
+    $trainingService = new \App\Services\TrainingProgressService();
+    $trainingOverview = $trainingService->overview($user);
+    $completedSet = array_flip($trainingOverview['completed_keys']);
+    $trainingLaSummary = [];
+    foreach (\App\Services\TrainingProgressService::LERNABSCHNITTE as $la) {
+        $done = 0;
+        foreach ($la['items'] as $item) {
+            if (isset($completedSet[$item['key']])) {
+                $done++;
+            }
+        }
+        $total = count($la['items']);
+        $trainingLaSummary[] = [
+            'nr' => $la['nr'],
+            'done' => $done,
+            'total' => $total,
+            'percent' => $total > 0 ? (int) round(($done / $total) * 100) : 0,
+        ];
+    }
+
     return view('dashboard', compact(
         'user', 'recentExams', 'totalQuestions', 'spacedRepetitionDue',
         'weeklyActivity', 'sectionStats', 'streakFreezeStatus',
@@ -428,7 +450,8 @@ Route::get('/dashboard', function () {
         'canStartExam', 'exams', 'hasFailedQuestions',
         'levelProgress', 'nextLevelPoints', 'unopenedLootboxes',
         'todayAnswered', 'todayCorrect', 'dailyStreakGoal',
-        'showSurveyNudge', 'activeSurvey'
+        'showSurveyNudge', 'activeSurvey',
+        'trainingOverview', 'trainingLaSummary'
     ));
 })->middleware(['auth', 'verified'])->name('dashboard');
 
@@ -558,6 +581,11 @@ Route::middleware('auth')->group(function () {
     Route::post('/profile/cancel-email-change', [ProfileController::class, 'cancelEmailChange'])->name('profile.cancel-email-change');
     Route::post('/profile/extras-enabled', [ProfileController::class, 'updateExtrasEnabled'])->name('profile.extras-enabled');
     Route::patch('/profile/notification-preferences', [ProfileController::class, 'updateNotificationPreferences'])->name('profile.notification-preferences');
+
+    // Ausbildungsfortschritt (Issue #442)
+    Route::get('/ausbildungsfortschritt', [TrainingProgressController::class, 'index'])->name('training-progress.index');
+    Route::post('/ausbildungsfortschritt/item', [TrainingProgressController::class, 'toggleItem'])->name('training-progress.item');
+    Route::post('/ausbildungsfortschritt/section', [TrainingProgressController::class, 'toggleSection'])->name('training-progress.section');
 });
 
 // Contact Routes - für eingeloggte Nutzer

@@ -519,6 +519,63 @@
     .activity-bar__col:nth-child(5) .activity-bar__fill { animation-delay: 0.5s; }
     .activity-bar__col:nth-child(6) .activity-bar__fill { animation-delay: 0.55s; }
     .activity-bar__col:nth-child(7) .activity-bar__fill { animation-delay: 0.6s; }
+
+    /* ── Ausbildungsfortschritt mini widget (Issue #442) ── */
+    .tp-mini { transition: border-color 0.15s, transform 0.15s; }
+    .tp-mini:hover { border-color: rgba(91,154,255,0.35); transform: translateY(-1px); }
+    .tp-mini__bars {
+        display: grid;
+        grid-template-columns: repeat(10, 1fr);
+        gap: 0.3rem;
+        align-items: end;
+        height: 64px;
+    }
+    .tp-mini__bar {
+        position: relative;
+        height: 100%;
+        border-radius: 0.3rem;
+        background: rgba(0, 51, 127, 0.06);
+        border: 1px solid rgba(0, 51, 127, 0.1);
+        overflow: hidden;
+        display: flex;
+        align-items: flex-end;
+    }
+    html:not(.light-mode) .tp-mini__bar {
+        background: rgba(91, 154, 255, 0.05);
+        border-color: rgba(91, 154, 255, 0.12);
+    }
+    .tp-mini__fill {
+        width: 100%;
+        background: linear-gradient(180deg, #5b9aff, #00337F);
+        transition: height 400ms cubic-bezier(0.22, 1, 0.36, 1);
+        min-height: 0;
+    }
+    .tp-mini__bar--done .tp-mini__fill {
+        background: linear-gradient(180deg, #22c55e, #15803d);
+    }
+    .tp-mini__bar--empty .tp-mini__fill { background: transparent; }
+    .tp-mini__label {
+        position: absolute;
+        bottom: 0.2rem;
+        left: 0;
+        right: 0;
+        text-align: center;
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 0.5625rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        letter-spacing: 0.02em;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+        pointer-events: none;
+    }
+    html.light-mode .tp-mini__label {
+        color: #fff;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    }
+    .tp-mini__bar--empty .tp-mini__label {
+        color: var(--text-muted);
+        text-shadow: none;
+    }
 </style>
 @endpush
 
@@ -834,6 +891,34 @@
                     </div>
                 @endif
             </div>
+
+            {{-- 3b. Ausbildungsfortschritt (kompakt, Issue #442) --}}
+            <a href="{{ route('training-progress.index') }}" class="glass tp-mini" style="display:block;padding:1rem;text-decoration:none;">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;">
+                    <span class="section-label">Ausbildungsfortschritt</span>
+                    <span style="font-size:0.75rem;color:#5b9aff;font-weight:600;">Details &rarr;</span>
+                </div>
+                <div style="display:flex;align-items:baseline;gap:0.5rem;margin-bottom:0.625rem;">
+                    <span style="font-size:1.5rem;font-weight:800;font-family:'Barlow Condensed',sans-serif;line-height:1;color:var(--text-primary);">{{ $trainingOverview['percent'] }}%</span>
+                    <span style="font-size:0.6875rem;color:var(--text-muted);">{{ $trainingOverview['done'] }} / {{ $trainingOverview['total'] }} Module erledigt</span>
+                </div>
+                <div class="tp-mini__bars">
+                    @foreach($trainingLaSummary as $la)
+                        @php
+                            $tpState = $la['percent'] >= 100 ? 'done' : ($la['percent'] > 0 ? 'partial' : 'empty');
+                        @endphp
+                        <div class="tp-mini__bar tp-mini__bar--{{ $tpState }}"
+                             title="{{ $la['nr'] }} · {{ $la['done'] }}/{{ $la['total'] }}">
+                            <div class="tp-mini__fill" style="height:{{ $la['percent'] }}%;"></div>
+                            <span class="tp-mini__label">{{ \Illuminate\Support\Str::after($la['nr'], 'LA ') }}</span>
+                        </div>
+                    @endforeach
+                </div>
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-top:0.625rem;font-size:0.6875rem;color:var(--text-muted);">
+                    <span>Lernabschnitte {{ $trainingOverview['la_done'] }}/{{ $trainingOverview['la_total'] }}</span>
+                    <span>Zusatz {{ $trainingOverview['zusatz_done'] }}/{{ $trainingOverview['zusatz_total'] }}</span>
+                </div>
+            </a>
 
             {{-- 4. Lehrgänge --}}
             <div class="glass" style="padding:1rem;">
