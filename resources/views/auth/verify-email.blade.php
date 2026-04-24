@@ -44,7 +44,7 @@
                 </form>
 
                 @if(isset($pendingEmail))
-                    <form method="POST" action="{{ route('profile.cancel-email-change') }}">
+                    <form method="POST" action="{{ route('einstellungen.cancel-email-change') }}">
                         @csrf
                         <button type="submit" class="auth-ghost-btn">Abbrechen</button>
                     </form>

@@ -565,22 +565,24 @@ Route::middleware('auth')->group(function () {
             'streakDaysArr', 'heatPattern'
         ));
     })->name('profile');
-    Route::patch('/profile', function(Request $request) {
-        \Log::info('Profile route reached via PATCH');
-        return app(ProfileController::class)->update($request);
-    })->name('profile.update');
-    Route::patch('/profile/password', function(Request $request) {
-        \Log::info('Password update route reached via PATCH');
-        return app(ProfileController::class)->updatePassword($request);
-    })->name('profile.password.update');
+    // Profile-eigene Actions (Avatar, Accessoires, Dashboard-Banner) bleiben unter /profile
     Route::post('/profile/avatar/regenerate', [ProfileController::class, 'regenerateAvatar'])->name('profile.avatar.regenerate');
     Route::post('/profile/accessory/toggle', [ProfileController::class, 'toggleAccessory'])->name('profile.accessory.toggle');
     Route::post('/profile/accessory/color', [ProfileController::class, 'updateAccessoryColor'])->name('profile.accessory.color');
     Route::post('/profile/dismiss-leaderboard-banner', [ProfileController::class, 'dismissLeaderboardBanner'])->name('profile.dismiss.leaderboard.banner');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    Route::post('/profile/cancel-email-change', [ProfileController::class, 'cancelEmailChange'])->name('profile.cancel-email-change');
-    Route::post('/profile/extras-enabled', [ProfileController::class, 'updateExtrasEnabled'])->name('profile.extras-enabled');
-    Route::patch('/profile/notification-preferences', [ProfileController::class, 'updateNotificationPreferences'])->name('profile.notification-preferences');
+
+    // Einstellungen (Account-Verwaltung): Persönliche Daten, Passwort, Benachrichtigungen, Consents, Prüfungsdatum, Account löschen
+    Route::get('/einstellungen', function() {
+        $user = auth()->user()->fresh();
+        $ortsverbande = $user->ortsverbande()->get();
+        return view('einstellungen', compact('user', 'ortsverbande'));
+    })->name('einstellungen');
+    Route::patch('/einstellungen', [ProfileController::class, 'update'])->name('einstellungen.update');
+    Route::patch('/einstellungen/password', [ProfileController::class, 'updatePassword'])->name('einstellungen.password.update');
+    Route::delete('/einstellungen', [ProfileController::class, 'destroy'])->name('einstellungen.destroy');
+    Route::post('/einstellungen/cancel-email-change', [ProfileController::class, 'cancelEmailChange'])->name('einstellungen.cancel-email-change');
+    Route::post('/einstellungen/extras-enabled', [ProfileController::class, 'updateExtrasEnabled'])->name('einstellungen.extras-enabled');
+    Route::patch('/einstellungen/notification-preferences', [ProfileController::class, 'updateNotificationPreferences'])->name('einstellungen.notification-preferences');
 
     // Ausbildungsfortschritt (Issue #442)
     Route::get('/ausbildungsfortschritt', [TrainingProgressController::class, 'index'])->name('training-progress.index');
