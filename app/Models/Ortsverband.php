@@ -95,18 +95,19 @@ class Ortsverband extends Model
     public function getMemberProgress()
     {
         $totalQuestions = \App\Models\Question::count();
-        
-        return $this->members->map(function($member) use ($totalQuestions) {
+        $trainingService = new \App\Services\TrainingProgressService();
+
+        return $this->members->map(function($member) use ($totalQuestions, $trainingService) {
             // Theorie-Fortschritt
             $solvedQuestions = \App\Models\UserQuestionProgress::where('user_id', $member->id)
                               ->where('consecutive_correct', '>=', \App\Models\UserQuestionProgress::MASTERY_THRESHOLD)
                               ->count();
-            
+
             // Prüfungs-Streak
             $allExams = \App\Models\ExamStatistic::where('user_id', $member->id)
                 ->orderBy('created_at', 'desc')
                 ->get();
-            
+
             $examStreak = 0;
             foreach ($allExams as $exam) {
                 if ($exam->is_passed) {
@@ -115,11 +116,17 @@ class Ortsverband extends Model
                     break;
                 }
             }
-            
+
+            $trainingOverview = $trainingService->overview($member);
+
             return [
                 'user' => $member,
                 'theory_progress_percent' => $totalQuestions > 0 ? round(($solvedQuestions / $totalQuestions) * 100) : 0,
                 'theory_progress_count' => $solvedQuestions,
+                'theory_progress_total' => $totalQuestions,
+                'training_progress_percent' => $trainingOverview['percent'],
+                'training_progress_done' => $trainingOverview['done'],
+                'training_progress_total' => $trainingOverview['total'],
                 'exams_passed' => $examStreak,
                 'streak' => $member->streak_days ?? 0,
                 'level' => $member->level ?? 1,
