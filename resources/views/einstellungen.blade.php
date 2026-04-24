@@ -415,6 +415,16 @@
                     </label>
                 </div>
             </form>
+            <div class="toggle-row is-locked">
+                <div class="toggle-row__body card-body-locked">
+                    <div class="toggle-row__title">
+                        OV-Ranking sichtbar
+                        <span class="locked-badge"><i class="bi bi-lock"></i> Bald</span>
+                    </div>
+                    <div class="toggle-row__desc">Mitglieder deines Ortsverbandes sehen deinen Fortschritt im OV-Dashboard.</div>
+                </div>
+                <label class="switch"><input type="checkbox" disabled><span class="switch__slider"></span></label>
+            </div>
             <div class="info-row">
                 <div class="info-row__icon"><i class="bi bi-info-circle-fill"></i></div>
                 <div class="info-row__body">
@@ -422,6 +432,24 @@
                     <div class="info-row__desc">
                         Zur Produktverbesserung erheben wir ausschließlich <strong>aggregierte, anonyme Statistiken</strong>. Keine personenbezogenen Daten, keine Weitergabe an Dritte, kein externes Tracking.
                     </div>
+                </div>
+            </div>
+            <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(0,51,127,0.06);" class="is-locked">
+                <div class="card-body-locked">
+                    <a class="link-row" href="#" onclick="event.preventDefault()">
+                        <div>
+                            <div class="link-row__title"><i class="bi bi-download" style="margin-right: 0.4rem;"></i> Datenexport anfordern (Art. 20 DSGVO) <span class="locked-badge" style="margin-left:0.5rem;"><i class="bi bi-lock"></i> Bald</span></div>
+                            <div class="link-row__sub">JSON-Export deiner Lerndaten, Antworten und Profilfelder — per E-Mail binnen 72 Std.</div>
+                        </div>
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                    <a class="link-row" href="#" onclick="event.preventDefault()">
+                        <div>
+                            <div class="link-row__title"><i class="bi bi-shield-lock" style="margin-right: 0.4rem;"></i> Aktive Sessions & Geräte <span class="locked-badge" style="margin-left:0.5rem;"><i class="bi bi-lock"></i> Bald</span></div>
+                            <div class="link-row__sub">Aktive Geräte und letzte Anmeldungen verwalten.</div>
+                        </div>
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
                 </div>
             </div>
         </div>
