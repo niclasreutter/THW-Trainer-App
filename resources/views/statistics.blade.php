@@ -1,6 +1,73 @@
 @extends('layouts.app')
 @section('title', 'Statistiken')
 
+@push('styles')
+<style>
+    .stat-top-list { display: flex; flex-direction: column; }
+    .stat-top-row {
+        display: grid;
+        grid-template-columns: 28px 1fr auto 14px;
+        gap: 0.75rem;
+        align-items: center;
+        padding: 0.625rem 0;
+        border-top: 1px solid rgba(0,51,127,0.08);
+        text-decoration: none;
+        color: inherit;
+        transition: background 0.15s;
+    }
+    .stat-top-row:first-child { border-top: 0; }
+    .stat-top-row:hover { background: rgba(0,51,127,0.03); }
+    .stat-top-row__rank {
+        display: flex; align-items: center; justify-content: center;
+        width: 28px; height: 28px; border-radius: 7px;
+        background: var(--thw-blue); color: #fff;
+        font-size: 0.8125rem; font-weight: 700;
+    }
+    .stat-top-row__body { min-width: 0; }
+    .stat-top-row__name {
+        font-size: 0.875rem; color: var(--text-primary); font-weight: 500;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        margin-bottom: 0.375rem;
+    }
+    .stat-top-row__bar { height: 3px; border-radius: 2px; background: rgba(0,51,127,0.08); overflow: hidden; }
+    .stat-top-row__fill { height: 100%; background: var(--thw-blue); border-radius: 2px; transition: width 0.4s ease; }
+    .stat-top-row__pct { font-size: 0.8125rem; font-weight: 600; color: var(--thw-blue); min-width: 36px; text-align: right; }
+    .stat-top-row__chev { color: var(--text-muted); font-size: 0.75rem; }
+
+    .stat-streak-hero { text-align: center; padding: 0.5rem 0 1rem; }
+    .stat-streak-num {
+        font-family: 'Barlow Condensed', 'Figtree', sans-serif;
+        font-weight: 800; font-size: 2.5rem; line-height: 1;
+        color: #fbbf24; letter-spacing: -0.03em;
+    }
+    html.light-mode .stat-streak-num { color: #f59e0b; }
+    .stat-streak-label {
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 0.6875rem; font-weight: 600;
+        text-transform: uppercase; letter-spacing: 0.1em;
+        color: var(--text-muted); margin-top: 0.25rem;
+    }
+    .stat-heat-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+    .stat-heat-cell { aspect-ratio: 1; border-radius: 3px; background: rgba(255,255,255,0.06); }
+    .stat-heat-cell[data-v="1"] { background: rgba(91,154,255,0.25); }
+    .stat-heat-cell[data-v="2"] { background: rgba(91,154,255,0.5); }
+    .stat-heat-cell[data-v="3"] { background: rgba(91,154,255,0.75); }
+    .stat-heat-cell[data-v="4"] { background: #00337F; }
+    html.light-mode .stat-heat-cell[data-v="0"] { background: rgba(0,51,127,0.06); }
+    html.light-mode .stat-heat-cell[data-v="1"] { background: rgba(0,51,127,0.22); }
+    html.light-mode .stat-heat-cell[data-v="2"] { background: rgba(0,51,127,0.45); }
+    html.light-mode .stat-heat-cell[data-v="3"] { background: rgba(0,51,127,0.7); }
+    html.light-mode .stat-heat-cell[data-v="4"] { background: #00337F; }
+    .stat-heat-legend {
+        display: flex; align-items: center; justify-content: space-between;
+        margin-top: 0.625rem; font-size: 0.6875rem; color: var(--text-muted);
+        font-family: 'IBM Plex Mono', monospace;
+    }
+    .stat-heat-legend__scale { display: flex; gap: 3px; align-items: center; }
+    .stat-heat-legend__swatch { width: 10px; height: 10px; border-radius: 2px; }
+</style>
+@endpush
+
 @section('content')
 <div class="dash-container">
 
@@ -31,6 +98,29 @@
     <div class="dash-grid">
         {{-- Main: Section Analysis --}}
         <div class="space-y-4">
+            {{-- Top-3 Lernabschnitte --}}
+            <div class="glass p-4" style="border-radius: 0.75rem;">
+                <div class="text-xs uppercase tracking-wider mb-3" style="color: var(--text-muted);">
+                    Top 3 Lernabschnitte
+                </div>
+                <div class="stat-top-list">
+                    @forelse($topSections as $idx => $sec)
+                        @php $rank = $idx + 1; $isEmpty = $sec['mastered'] === 0; @endphp
+                        <a href="{{ route('practice.section', $sec['section']) }}" class="stat-top-row">
+                            <div class="stat-top-row__rank">{{ $rank }}</div>
+                            <div class="stat-top-row__body">
+                                <div class="stat-top-row__name">{{ $sec['name'] }}</div>
+                                <div class="stat-top-row__bar"><div class="stat-top-row__fill" style="width: {{ $sec['percent'] }}%;"></div></div>
+                            </div>
+                            <div class="stat-top-row__pct">{{ $isEmpty ? '—' : $sec['percent'].'%' }}</div>
+                            <i class="bi bi-chevron-right stat-top-row__chev"></i>
+                        </a>
+                    @empty
+                        <div style="padding:0.75rem;text-align:center;color:var(--text-muted);font-size:0.8125rem;">Noch keine Lernabschnitte begonnen.</div>
+                    @endforelse
+                </div>
+            </div>
+
             <div class="glass p-4" style="border-radius: 0.75rem;">
                 <div class="text-xs uppercase tracking-wider mb-3" style="color: var(--text-muted);">
                     Lernabschnitte
@@ -67,6 +157,33 @@
 
         {{-- Sidebar --}}
         <div class="space-y-4">
+            {{-- 28-Tage Streak-Heatmap --}}
+            <div class="glass p-4" style="border-radius: 0.75rem;">
+                <div class="text-xs uppercase tracking-wider mb-3" style="color: var(--text-muted);">
+                    Streak · Letzte 28 Tage
+                </div>
+                <div class="stat-streak-hero">
+                    <div class="stat-streak-num">{{ $streakDays }}</div>
+                    <div class="stat-streak-label">Aktuelle Serie</div>
+                </div>
+                <div class="stat-heat-grid">
+                    @foreach($heatPattern as $v)
+                        <div class="stat-heat-cell" data-v="{{ $v }}"></div>
+                    @endforeach
+                </div>
+                <div class="stat-heat-legend">
+                    <span>Weniger</span>
+                    <div class="stat-heat-legend__scale">
+                        <div class="stat-heat-legend__swatch stat-heat-cell" data-v="0"></div>
+                        <div class="stat-heat-legend__swatch stat-heat-cell" data-v="1"></div>
+                        <div class="stat-heat-legend__swatch stat-heat-cell" data-v="2"></div>
+                        <div class="stat-heat-legend__swatch stat-heat-cell" data-v="3"></div>
+                        <div class="stat-heat-legend__swatch stat-heat-cell" data-v="4"></div>
+                    </div>
+                    <span>Mehr</span>
+                </div>
+            </div>
+
             {{-- Activity Chart --}}
             <div class="glass p-4" style="border-radius: 0.75rem;" x-data="{ view: 'week' }">
                 <div class="flex justify-between items-center mb-3">
