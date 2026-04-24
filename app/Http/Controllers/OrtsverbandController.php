@@ -4,8 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Ortsverband;
 use App\Models\User;
+use App\Models\UserTrainingProgress;
+use App\Services\TrainingProgressService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 class OrtsverbandController extends Controller
 {
@@ -198,6 +202,136 @@ class OrtsverbandController extends Controller
         $ausbilderProgress = $allMemberProgress->filter(fn($m) => $m['role'] === 'ausbildungsbeauftragter');
         
         return view('ortsverband.members', compact('ortsverband', 'memberProgress', 'ausbilderProgress'));
+    }
+
+    /**
+     * Zeigt die Prüfling-Verwalten-Seite mit Ausbildungsfortschritt
+     */
+    public function manageMember(Ortsverband $ortsverband, User $user)
+    {
+        $this->authorizeManageMember($ortsverband, $user);
+
+        $service = new TrainingProgressService();
+
+        $totalQuestions = \App\Models\Question::count();
+        $masteredCount = \App\Models\UserQuestionProgress::where('user_id', $user->id)
+            ->where('consecutive_correct', '>=', \App\Models\UserQuestionProgress::MASTERY_THRESHOLD)
+            ->count();
+
+        $answeredTotal = \App\Models\QuestionStatistic::where('user_id', $user->id)->count();
+        $answeredCorrect = \App\Models\QuestionStatistic::where('user_id', $user->id)->where('is_correct', true)->count();
+        $accuracyPercent = $answeredTotal > 0 ? (int) round(($answeredCorrect / $answeredTotal) * 100) : 0;
+
+        $examsTotal = \App\Models\ExamStatistic::where('user_id', $user->id)->count();
+        $examsPassed = \App\Models\ExamStatistic::where('user_id', $user->id)->where('is_passed', true)->count();
+        $lastExam = \App\Models\ExamStatistic::where('user_id', $user->id)->latest()->first();
+
+        $examStreak = 0;
+        foreach (\App\Models\ExamStatistic::where('user_id', $user->id)->orderBy('created_at', 'desc')->get() as $exam) {
+            if ($exam->is_passed) {
+                $examStreak++;
+            } else {
+                break;
+            }
+        }
+
+        $stats = [
+            'total_questions' => $totalQuestions,
+            'mastered_count' => $masteredCount,
+            'mastered_percent' => $totalQuestions > 0 ? (int) round(($masteredCount / $totalQuestions) * 100) : 0,
+            'answered_total' => $answeredTotal,
+            'answered_correct' => $answeredCorrect,
+            'accuracy_percent' => $accuracyPercent,
+            'exams_total' => $examsTotal,
+            'exams_passed' => $examsPassed,
+            'exam_streak' => $examStreak,
+            'last_exam' => $lastExam,
+        ];
+
+        return view('ortsverband.members.manage', [
+            'ortsverband' => $ortsverband,
+            'member' => $user,
+            'stats' => $stats,
+            'trainingOverview' => $service->overview($user),
+            'trainingLernabschnitte' => TrainingProgressService::LERNABSCHNITTE,
+            'trainingZusatzausbildungen' => TrainingProgressService::ZUSATZAUSBILDUNGEN,
+        ]);
+    }
+
+    /**
+     * Toggle eines einzelnen Ausbildungsfortschritt-Eintrags für ein Mitglied
+     */
+    public function toggleMemberTrainingItem(Request $request, Ortsverband $ortsverband, User $user): JsonResponse
+    {
+        $this->authorizeManageMember($ortsverband, $user);
+
+        $data = $request->validate([
+            'item_key' => ['required', 'string', Rule::in(TrainingProgressService::validItemKeys())],
+            'completed' => ['required', 'boolean'],
+        ]);
+
+        if ($data['completed']) {
+            UserTrainingProgress::firstOrCreate(
+                ['user_id' => $user->id, 'item_key' => $data['item_key']],
+                ['completed_at' => now()],
+            );
+        } else {
+            UserTrainingProgress::where('user_id', $user->id)
+                ->where('item_key', $data['item_key'])
+                ->delete();
+        }
+
+        return response()->json([
+            'success' => true,
+            'overview' => (new TrainingProgressService())->overview($user),
+        ]);
+    }
+
+    /**
+     * Toggle eines ganzen Lernabschnitts für ein Mitglied
+     */
+    public function toggleMemberTrainingSection(Request $request, Ortsverband $ortsverband, User $user): JsonResponse
+    {
+        $this->authorizeManageMember($ortsverband, $user);
+
+        $data = $request->validate([
+            'section_key' => ['required', 'string', Rule::in(TrainingProgressService::validSectionKeys())],
+            'completed' => ['required', 'boolean'],
+        ]);
+
+        $itemKeys = TrainingProgressService::itemKeysForSection($data['section_key']);
+
+        if ($data['completed']) {
+            $now = now();
+            $rows = array_map(fn ($key) => [
+                'user_id' => $user->id,
+                'item_key' => $key,
+                'completed_at' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ], $itemKeys);
+            UserTrainingProgress::upsert($rows, ['user_id', 'item_key'], ['completed_at', 'updated_at']);
+        } else {
+            UserTrainingProgress::where('user_id', $user->id)
+                ->whereIn('item_key', $itemKeys)
+                ->delete();
+        }
+
+        return response()->json([
+            'success' => true,
+            'overview' => (new TrainingProgressService())->overview($user),
+        ]);
+    }
+
+    private function authorizeManageMember(Ortsverband $ortsverband, User $user): void
+    {
+        if (!$ortsverband->isAusbildungsbeauftragter(Auth::user())) {
+            abort(403, 'Keine Berechtigung.');
+        }
+
+        if (!$ortsverband->isMember($user)) {
+            abort(404, 'Mitglied nicht in diesem Ortsverband.');
+        }
     }
 
     /**

@@ -321,6 +321,9 @@
                         <div style="font-weight:600;font-size:0.8125rem;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ $member->name }}</div>
                         <div style="font-size:0.625rem;color:var(--text-muted);">{{ $member->pivot->role === 'ausbildungsbeauftragter' ? 'Ausbilder' : 'Mitglied' }}</div>
                     </div>
+                    @if($member->id !== auth()->id())
+                        <a href="{{ route('ortsverband.members.manage', [$ortsverband, $member]) }}" class="btn-ghost btn-sm" style="text-decoration:none;flex-shrink:0;">Verwalten</a>
+                    @endif
                 </div>
                 @endforeach
             @else
@@ -381,7 +384,7 @@
             </div>
             <div style="font-size:0.875rem;font-weight:600;color:var(--text-primary);margin-bottom:0.375rem;">Was sehen Ausbilder?</div>
             <p style="font-size:0.75rem;color:var(--text-muted);margin:0;line-height:1.5;">
-                Theorie-Fortschritt, Prüfungs-Streak, Lern-Streak, Level & Punkte, letzte Aktivität und Schwachstellen.
+                Ausbildungsfortschritt, Theorie-Fortschritt, Prüfungs-Streak, Lern-Streak, Level & Punkte, letzte Aktivität und Schwachstellen.
             </p>
         </div>
 

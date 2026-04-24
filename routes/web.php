@@ -725,6 +725,9 @@ Route::middleware('auth')->group(function () {
 
             // Mitglieder verwalten
             Route::get('/{ortsverband}/members', [\App\Http\Controllers\OrtsverbandController::class, 'members'])->name('members');
+            Route::get('/{ortsverband}/members/{user}/manage', [\App\Http\Controllers\OrtsverbandController::class, 'manageMember'])->name('members.manage');
+            Route::post('/{ortsverband}/members/{user}/training-item', [\App\Http\Controllers\OrtsverbandController::class, 'toggleMemberTrainingItem'])->name('members.training.item');
+            Route::post('/{ortsverband}/members/{user}/training-section', [\App\Http\Controllers\OrtsverbandController::class, 'toggleMemberTrainingSection'])->name('members.training.section');
             Route::delete('/{ortsverband}/members/{user}', [\App\Http\Controllers\OrtsverbandController::class, 'removeMember'])->name('members.remove');
             Route::put('/{ortsverband}/members/{user}/role', [\App\Http\Controllers\OrtsverbandController::class, 'changeRole'])->name('members.role');
 
