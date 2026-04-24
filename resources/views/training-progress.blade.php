@@ -242,7 +242,7 @@
         <div class="tp-page-title__eyebrow">Profil</div>
         <h1 class="tp-page-title__h1">Ausbildungsfortschritt</h1>
         <div class="tp-page-title__sub">
-            Halte deinen Fortschritt durch die THW-Grundausbildung fest. Ganze Lernabschnitte lassen sich über die Überschrift auf einmal abhaken.
+            Halte neben den Theoriefragen hier auch deinen Fortschritt durch die THW-Grundausbildung im Ortsverband fest. Ganze Module lassen sich über den Haken neben der Überschrift auf einmal abhaken, wenn aber mal nicht alle Bestandteile in einem Dienst vorkommen, kannst du die fehlenden auch markieren. So verlierst du nie den Überblick, was dir auf dem Weg zur Abschlussprüfung noch fehlt.
         </div>
     </div>
 
@@ -275,7 +275,7 @@
 
         <div class="tp-subhead">Lernabschnitte</div>
         <template x-for="la in lernabschnitte" :key="la.key">
-            <div class="tp-section" :class="{ 'is-open': openSections[la.key] }">
+            <div class="tp-section" :id="la.key" :class="{ 'is-open': openSections[la.key] }">
                 <div class="tp-section__head" @click="openSections[la.key] = !openSections[la.key]">
                     <label class="tp-check" style="padding: 0; margin: 0;" @click.stop>
                         <input type="checkbox"
@@ -330,6 +330,31 @@
             sectionUrl: config.sectionUrl,
             openSections: {},
             busy: {},
+
+            init() {
+                var params = new URLSearchParams(window.location.search);
+                var openKey = params.get('open');
+                if (!openKey) return;
+                var valid = this.lernabschnitte.some(function(la) { return la.key === openKey; });
+                if (!valid) return;
+                this.openSections[openKey] = true;
+                var attempts = 0;
+                var tryScroll = function() {
+                    var el = document.getElementById(openKey);
+                    if (!el) {
+                        if (attempts++ < 20) setTimeout(tryScroll, 50);
+                        return;
+                    }
+                    // Wait for x-for + expand animation to settle, then scroll.
+                    setTimeout(function() {
+                        var header = document.querySelector('header.sticky, header.fixed');
+                        var headerH = header && getComputedStyle(header).display !== 'none' ? header.getBoundingClientRect().height : 0;
+                        var top = el.getBoundingClientRect().top + window.scrollY - headerH - 16;
+                        window.scrollTo({ top: Math.max(top, 0), behavior: 'smooth' });
+                    }, 400);
+                };
+                setTimeout(tryScroll, 50);
+            },
 
             isDone(key) {
                 return !!this.completedSet[key];
