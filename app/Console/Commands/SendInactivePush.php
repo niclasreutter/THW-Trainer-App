@@ -20,6 +20,8 @@ class SendInactivePush extends Command
         $sevenDaysAgo = Carbon::today()->subDays(7);
 
         $users = User::whereHas('pushSubscriptions')
+            ->where('push_consent', true)
+            ->where('notify_daily_reminder_push', true)
             ->where(function ($query) use ($sevenDaysAgo) {
                 $query->where('last_activity_at', '<=', $sevenDaysAgo)
                       ->orWhereNull('last_activity_at');

@@ -36,11 +36,12 @@ class SendStreakReminders extends Command
         $errors = 0;
         
         // Finde alle Benutzer die:
-        // 1. E-Mail-Zustimmung haben (email_consent = true)
+        // 1. E-Mail-Zustimmung + Sub-Pref "daily_reminder" aktiv
         // 2. Einen Streak > 1 haben
         // 3. Heute noch nicht gelernt haben (last_activity_date != heute)
         // WICHTIG: Verwendet last_activity_date (konsistent mit GamificationService)
         $users = User::where('email_consent', true)
+            ->where('notify_daily_reminder_email', true)
             ->where('streak_days', '>', 1)
             ->where(function($query) use ($today) {
                 $query->whereNull('last_activity_date')

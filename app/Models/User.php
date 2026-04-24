@@ -30,6 +30,14 @@ class User extends Authenticatable implements MustVerifyEmail
         'last_activity_at',
         'email_consent',
         'email_consent_at',
+        'push_consent',
+        'push_consent_at',
+        'notify_daily_reminder_email',
+        'notify_daily_reminder_push',
+        'notify_spaced_repetition_email',
+        'notify_spaced_repetition_push',
+        'notify_league_updates_email',
+        'notify_league_updates_push',
         'leaderboard_consent',
         'leaderboard_consent_at',
         'leaderboard_banner_dismissed',
@@ -37,6 +45,12 @@ class User extends Authenticatable implements MustVerifyEmail
         'onboarding_tour_completed',
         'exam_date',
         'extras_enabled',
+    ];
+
+    public const NOTIFICATION_CATEGORIES = [
+        'daily_reminder',
+        'spaced_repetition',
+        'league_updates',
     ];
 
     /**
@@ -74,7 +88,17 @@ class User extends Authenticatable implements MustVerifyEmail
             'verification_code_expires_at' => 'datetime',
             'password' => 'hashed',
             'deletion_warning_sent_at' => 'datetime',
+            'email_consent' => 'boolean',
             'email_consent_at' => 'datetime',
+            'push_consent' => 'boolean',
+            'push_consent_at' => 'datetime',
+            'notify_daily_reminder_email' => 'boolean',
+            'notify_daily_reminder_push' => 'boolean',
+            'notify_spaced_repetition_email' => 'boolean',
+            'notify_spaced_repetition_push' => 'boolean',
+            'notify_league_updates_email' => 'boolean',
+            'notify_league_updates_push' => 'boolean',
+            'leaderboard_consent' => 'boolean',
             'leaderboard_consent_at' => 'datetime',
             'weekly_reset_at' => 'datetime',
             'solved_questions' => 'array',
@@ -340,5 +364,23 @@ class User extends Authenticatable implements MustVerifyEmail
     public function surveyResponses()
     {
         return $this->hasMany(SurveyResponse::class);
+    }
+
+    public function wantsEmailFor(string $category): bool
+    {
+        if (!$this->email_consent) {
+            return false;
+        }
+        $column = "notify_{$category}_email";
+        return (bool) ($this->{$column} ?? false);
+    }
+
+    public function wantsPushFor(string $category): bool
+    {
+        if (!$this->push_consent) {
+            return false;
+        }
+        $column = "notify_{$category}_push";
+        return (bool) ($this->{$column} ?? false);
     }
 }

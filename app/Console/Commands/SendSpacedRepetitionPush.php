@@ -23,6 +23,8 @@ class SendSpacedRepetitionPush extends Command
         $srService = new SpacedRepetitionService();
 
         $users = User::whereHas('pushSubscriptions')
+            ->where('push_consent', true)
+            ->where('notify_spaced_repetition_push', true)
             ->whereHas('questionProgress', function ($query) use ($today) {
                 $query->whereNotNull('next_review_at')
                     ->where('next_review_at', '<=', $today);

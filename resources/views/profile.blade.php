@@ -319,7 +319,36 @@
     .switch input:checked + .switch__slider { background: #00337F; }
     html:not(.light-mode) .switch input:checked + .switch__slider { background: #5b9aff; }
     .switch input:checked + .switch__slider::before { transform: translateX(18px); }
-    .switch input:disabled + .switch__slider { cursor: not-allowed; }
+    .switch input:disabled + .switch__slider { cursor: not-allowed; opacity: 0.45; }
+
+    /* ─── Mini-Switch (für Per-Kategorie Email/Push) ─── */
+    .switch--mini { width: 32px; height: 18px; }
+    .switch--mini .switch__slider::before { height: 12px; width: 12px; left: 3px; top: 3px; }
+    .switch--mini input:checked + .switch__slider::before { transform: translateX(14px); }
+
+    /* ─── Notification card layout ─── */
+    .notif-master { display: flex; flex-direction: column; }
+    .notif-categories {
+        margin-top: 1rem;
+        padding-top: 0.75rem;
+        border-top: 1px solid rgba(0,51,127,0.08);
+    }
+    html:not(.light-mode) .notif-categories { border-top-color: rgba(255,255,255,0.08); }
+    .notif-categories__header {
+        display: flex; align-items: center; justify-content: space-between;
+        margin-bottom: 0.25rem;
+    }
+    .notif-categories__label {
+        font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em;
+        text-transform: uppercase; color: var(--text-muted);
+    }
+    .notif-categories__legend {
+        display: flex; gap: 0.875rem; font-size: 0.85rem; color: var(--text-muted);
+        padding-right: 0.25rem;
+    }
+    .notif-categories__legend span { display: inline-flex; align-items: center; justify-content: center; width: 32px; }
+    .notif-cat-switches { display: flex; gap: 0.625rem; align-items: center; }
+    .notif-cat-row.is-saving { opacity: 0.6; pointer-events: none; }
 
     /* ─── Achievements preview ─── */
     .ach-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.625rem; }
@@ -1202,72 +1231,111 @@
         </div>
 
         {{-- ══════════════════════════════════════════
-             NOTIFICATIONS (span 6) — E-Mail REAL, Rest [GREYED]
+             NOTIFICATIONS (span 6) — Master + Per-Kategorie (E-Mail + Push)
         ══════════════════════════════════════════ --}}
-        <div class="glass card-notifications card">
+        @php
+            $notifCategories = [
+                'daily_reminder' => [
+                    'title' => 'Tägliche Lernerinnerung',
+                    'desc'  => 'Eine kurze Erinnerung, wenn du deinen Streak zu verlieren drohst.',
+                ],
+                'spaced_repetition' => [
+                    'title' => 'Spaced-Repetition-Reviews',
+                    'desc'  => 'Benachrichtigung, sobald Fragen zur Wiederholung fällig sind.',
+                ],
+                'league_updates' => [
+                    'title' => 'Liga- & Achievement-Updates',
+                    'desc'  => 'Wenn du aufsteigst, fällst oder ein neues Achievement freischaltest.',
+                ],
+            ];
+        @endphp
+        <div class="glass card-notifications card" id="notif-card">
             <div class="card-head">
                 <span class="section-label">Benachrichtigungen</span>
-                <span class="card-head__hint">
-                    @if($user->email_consent_at)
-                        Zustimmung: {{ $user->email_consent_at->format('d.m.Y') }}
+                <span class="card-head__hint" id="notif-consent-hint">
+                    @if($user->email_consent_at && $user->push_consent_at)
+                        E-Mail seit {{ $user->email_consent_at->format('d.m.Y') }} · Push seit {{ $user->push_consent_at->format('d.m.Y') }}
+                    @elseif($user->email_consent_at)
+                        E-Mail seit {{ $user->email_consent_at->format('d.m.Y') }}
+                    @elseif($user->push_consent_at)
+                        Push seit {{ $user->push_consent_at->format('d.m.Y') }}
                     @else
                         Noch nicht aktiviert
                     @endif
                 </span>
             </div>
 
-            <form method="POST" action="{{ route('profile.update') }}" id="notif-form">
-                @csrf
-                @method('PATCH')
-                <input type="hidden" name="name" value="{{ $user->name }}">
-                <input type="hidden" name="email" value="{{ $user->email }}">
-                <input type="hidden" name="leaderboard_consent" value="{{ $user->leaderboard_consent ? 1 : 0 }}">
-                <input type="hidden" name="exam_date" value="{{ $user->exam_date?->format('Y-m-d') }}">
-                <input type="hidden" name="email_consent" value="0">
-
-                <div class="toggle-row">
+            {{-- Master-Toggles: E-Mail + Push --}}
+            <div class="notif-master">
+                <div class="toggle-row notif-master-row">
                     <div class="toggle-row__body">
-                        <div class="toggle-row__title">E-Mail-Benachrichtigungen</div>
+                        <div class="toggle-row__title">
+                            <i class="bi bi-envelope-fill" style="color: var(--thw-blue, #00337F);"></i>
+                            E-Mail-Benachrichtigungen
+                        </div>
                         <div class="toggle-row__desc">Erhalte E-Mails zu Lernfortschritt, neuen Features und Systeminformationen.</div>
                     </div>
                     <label class="switch">
-                        <input type="checkbox" name="email_consent" value="1" onchange="this.form.submit()" {{ $user->email_consent ? 'checked' : '' }}>
+                        <input type="checkbox"
+                               data-notif-master="email"
+                               {{ $user->email_consent ? 'checked' : '' }}>
                         <span class="switch__slider"></span>
                     </label>
                 </div>
-            </form>
 
-            <div class="toggle-row is-locked">
-                <div class="toggle-row__body card-body-locked">
-                    <div class="toggle-row__title">
-                        Tägliche Lernerinnerung
-                        <span class="locked-badge"><i class="bi bi-lock"></i> Bald</span>
+                <div class="toggle-row notif-master-row">
+                    <div class="toggle-row__body">
+                        <div class="toggle-row__title">
+                            <i class="bi bi-bell-fill" style="color: var(--thw-blue, #00337F);"></i>
+                            Push-Benachrichtigungen
+                        </div>
+                        <div class="toggle-row__desc">Browser- und App-Push für wichtige Updates direkt auf dein Gerät.</div>
                     </div>
-                    <div class="toggle-row__desc">Eine kurze Push-/E-Mail-Erinnerung, wenn du deinen Streak zu verlieren drohst.</div>
+                    <label class="switch">
+                        <input type="checkbox"
+                               data-notif-master="push"
+                               {{ $user->push_consent ? 'checked' : '' }}>
+                        <span class="switch__slider"></span>
+                    </label>
                 </div>
-                <label class="switch"><input type="checkbox" disabled><span class="switch__slider"></span></label>
             </div>
 
-            <div class="toggle-row is-locked">
-                <div class="toggle-row__body card-body-locked">
-                    <div class="toggle-row__title">
-                        Spaced-Repetition-Reviews
-                        <span class="locked-badge"><i class="bi bi-lock"></i> Bald</span>
+            {{-- Per-Kategorie: E-Mail + Push --}}
+            <div class="notif-categories">
+                <div class="notif-categories__header">
+                    <span class="notif-categories__label">Einzelne Benachrichtigungen</span>
+                    <div class="notif-categories__legend">
+                        <span title="E-Mail"><i class="bi bi-envelope"></i></span>
+                        <span title="Push"><i class="bi bi-bell"></i></span>
                     </div>
-                    <div class="toggle-row__desc">Benachrichtigung, sobald Fragen zur Wiederholung fällig sind.</div>
                 </div>
-                <label class="switch"><input type="checkbox" disabled><span class="switch__slider"></span></label>
-            </div>
 
-            <div class="toggle-row is-locked">
-                <div class="toggle-row__body card-body-locked">
-                    <div class="toggle-row__title">
-                        Liga- & Achievement-Updates
-                        <span class="locked-badge"><i class="bi bi-lock"></i> Bald</span>
+                @foreach($notifCategories as $key => $cat)
+                    <div class="toggle-row notif-cat-row">
+                        <div class="toggle-row__body">
+                            <div class="toggle-row__title">{{ $cat['title'] }}</div>
+                            <div class="toggle-row__desc">{{ $cat['desc'] }}</div>
+                        </div>
+                        <div class="notif-cat-switches">
+                            <label class="switch switch--mini" title="E-Mail">
+                                <input type="checkbox"
+                                       data-notif-channel="email"
+                                       data-notif-category="{{ $key }}"
+                                       {{ $user->{"notify_{$key}_email"} ? 'checked' : '' }}
+                                       {{ $user->email_consent ? '' : 'disabled' }}>
+                                <span class="switch__slider"></span>
+                            </label>
+                            <label class="switch switch--mini" title="Push">
+                                <input type="checkbox"
+                                       data-notif-channel="push"
+                                       data-notif-category="{{ $key }}"
+                                       {{ $user->{"notify_{$key}_push"} ? 'checked' : '' }}
+                                       {{ $user->push_consent ? '' : 'disabled' }}>
+                                <span class="switch__slider"></span>
+                            </label>
+                        </div>
                     </div>
-                    <div class="toggle-row__desc">Wenn du aufsteigst, fällst oder ein neues Achievement freischaltest.</div>
-                </div>
-                <label class="switch"><input type="checkbox" disabled><span class="switch__slider"></span></label>
+                @endforeach
             </div>
         </div>
 
@@ -1582,6 +1650,191 @@
             }
         };
     }
+
+    // ─── Notification preferences (Master + Per-Channel/Per-Category) ───
+    (function () {
+        var card = document.getElementById('notif-card');
+        if (!card) return;
+
+        var csrf = document.querySelector('meta[name="csrf-token"]').content;
+        var endpoint = '{{ route("profile.notification-preferences") }}';
+        var vapidPublicKey = @json(config('services.webpush.public_key'));
+
+        function setRowSaving(input, saving) {
+            var row = input.closest('.toggle-row');
+            if (row) row.classList.toggle('is-saving', saving);
+        }
+
+        function showToast(msg, type) {
+            var toast = document.createElement('div');
+            var bg = type === 'error' ? '#ef4444' : '#22c55e';
+            toast.style.cssText = 'position:fixed;bottom:1rem;right:1rem;background:' + bg + ';color:#fff;padding:0.75rem 1rem;border-radius:0.5rem;box-shadow:0 4px 12px rgba(0,0,0,0.2);z-index:9999;font-size:0.875rem;max-width:320px;';
+            toast.textContent = msg;
+            document.body.appendChild(toast);
+            setTimeout(function () { toast.remove(); }, 3500);
+        }
+
+        async function patch(payload) {
+            var res = await fetch(endpoint, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrf,
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify(payload),
+                cache: 'no-store',
+            });
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            return res.json();
+        }
+
+        function syncSubToggles(channel, masterEnabled, forceCheckAll) {
+            card.querySelectorAll('input[data-notif-channel="' + channel + '"]').forEach(function (input) {
+                input.disabled = !masterEnabled;
+                if (forceCheckAll && masterEnabled) {
+                    input.checked = true;
+                }
+            });
+        }
+
+        function updateConsentHint() {
+            var hint = document.getElementById('notif-consent-hint');
+            if (!hint) return;
+            var emailMaster = card.querySelector('input[data-notif-master="email"]');
+            var pushMaster = card.querySelector('input[data-notif-master="push"]');
+            var parts = [];
+            if (emailMaster && emailMaster.checked) parts.push('E-Mail aktiv');
+            if (pushMaster && pushMaster.checked) parts.push('Push aktiv');
+            hint.textContent = parts.length ? parts.join(' · ') : 'Noch nicht aktiviert';
+        }
+
+        function urlBase64ToUint8Array(base64String) {
+            var padding = '='.repeat((4 - base64String.length % 4) % 4);
+            var base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+            var raw = atob(base64);
+            var arr = new Uint8Array(raw.length);
+            for (var i = 0; i < raw.length; ++i) arr[i] = raw.charCodeAt(i);
+            return arr;
+        }
+
+        async function enableBrowserPush() {
+            if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+                throw new Error('Push wird in diesem Browser nicht unterstützt.');
+            }
+            if (!vapidPublicKey) {
+                throw new Error('Push-Konfiguration fehlt (VAPID).');
+            }
+
+            var permission = await Notification.requestPermission();
+            if (permission !== 'granted') {
+                throw new Error('Du hast Push-Benachrichtigungen im Browser nicht erlaubt.');
+            }
+
+            var registration = await navigator.serviceWorker.register('/sw.js');
+            await navigator.serviceWorker.ready;
+
+            var subscription = await registration.pushManager.getSubscription();
+            if (!subscription) {
+                subscription = await registration.pushManager.subscribe({
+                    userVisibleOnly: true,
+                    applicationServerKey: urlBase64ToUint8Array(vapidPublicKey),
+                });
+            }
+
+            var sub = subscription.toJSON();
+            await fetch('{{ route("push.subscribe") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrf,
+                },
+                body: JSON.stringify({
+                    endpoint: sub.endpoint,
+                    keys: sub.keys,
+                    content_encoding: 'aes128gcm',
+                }),
+            });
+        }
+
+        async function disableBrowserPush() {
+            if (!('serviceWorker' in navigator)) return;
+            var registration = await navigator.serviceWorker.getRegistration();
+            if (!registration) return;
+            var subscription = await registration.pushManager.getSubscription();
+            if (!subscription) return;
+
+            var endpointUrl = subscription.endpoint;
+            try { await subscription.unsubscribe(); } catch (e) { console.warn(e); }
+
+            await fetch('{{ route("push.unsubscribe") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrf,
+                },
+                body: JSON.stringify({ endpoint: endpointUrl }),
+            });
+        }
+
+        // ─── Master-Toggles (E-Mail / Push) ───
+        card.querySelectorAll('input[data-notif-master]').forEach(function (input) {
+            input.addEventListener('change', async function () {
+                var master = input.getAttribute('data-notif-master');
+                var enabled = input.checked;
+                setRowSaving(input, true);
+
+                try {
+                    if (master === 'push') {
+                        if (enabled) {
+                            await enableBrowserPush();
+                        } else {
+                            await disableBrowserPush();
+                        }
+                    }
+
+                    var data = await patch({ master: master, enabled: enabled });
+                    if (!data.success) throw new Error(data.message || 'Speichern fehlgeschlagen');
+
+                    syncSubToggles(master, enabled, enabled);
+                    updateConsentHint();
+                    showToast(
+                        master === 'email'
+                            ? (enabled ? 'E-Mail-Benachrichtigungen aktiviert.' : 'E-Mail-Benachrichtigungen deaktiviert.')
+                            : (enabled ? 'Push-Benachrichtigungen aktiviert.' : 'Push-Benachrichtigungen deaktiviert.'),
+                        'success'
+                    );
+                } catch (err) {
+                    console.error(err);
+                    input.checked = !enabled;
+                    showToast(err.message || 'Aktion fehlgeschlagen.', 'error');
+                } finally {
+                    setRowSaving(input, false);
+                }
+            });
+        });
+
+        // ─── Sub-Toggles (Per-Kategorie x Kanal) ───
+        card.querySelectorAll('input[data-notif-category]').forEach(function (input) {
+            input.addEventListener('change', async function () {
+                var channel = input.getAttribute('data-notif-channel');
+                var category = input.getAttribute('data-notif-category');
+                var enabled = input.checked;
+                setRowSaving(input, true);
+
+                try {
+                    var data = await patch({ channel: channel, category: category, enabled: enabled });
+                    if (!data.success) throw new Error(data.message || 'Speichern fehlgeschlagen');
+                } catch (err) {
+                    console.error(err);
+                    input.checked = !enabled;
+                    showToast(err.message || 'Speichern fehlgeschlagen.', 'error');
+                } finally {
+                    setRowSaving(input, false);
+                }
+            });
+        });
+    })();
 
     // Avatar regeneration
     var regenBtn = document.getElementById('pf-regen-btn');

@@ -43,6 +43,7 @@ class SendInactiveReminders extends Command
         // 3. Noch keine Inaktivitäts-Mail bekommen haben (inactive_reminder_sent_at IS NULL)
         //    ODER die letzte Mail ist länger als 30 Tage her (um nicht zu spammen)
         $users = User::where('email_consent', true)
+            ->where('notify_daily_reminder_email', true)
             ->whereNotNull('last_activity_date')
             ->where('last_activity_date', '<', $inactiveThreshold)
             ->where(function($query) {
