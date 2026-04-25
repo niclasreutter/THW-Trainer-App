@@ -301,37 +301,6 @@ html.light-mode .admin-root .sr-dist { background: rgba(0,51,127,0.08); }
 .admin-root .sr-dist-legend > div { display: inline-flex; align-items: center; gap: 0.35rem; }
 .admin-root .sr-dist-legend .swatch { width: 8px; height: 8px; border-radius: 2px; }
 
-/* Tweaks panel */
-.admin-root .tweaks-panel {
-    position: fixed; bottom: 5rem; right: 1rem; width: 280px; z-index: 50;
-    background: var(--bg-elevated); border: 1px solid var(--glass-border);
-    border-radius: 0.875rem; box-shadow: var(--shadow-float, 0 15px 40px rgba(0,0,0,0.4));
-    padding: 1rem; display: none;
-}
-.admin-root .tweaks-panel.open { display: block; }
-.admin-root .tweaks-panel h4 {
-    font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; font-weight: 700;
-    text-transform: uppercase; letter-spacing: 0.1em; margin: 0 0 0.75rem;
-    color: var(--text-muted);
-}
-.admin-root .tweak-row { margin-bottom: 0.75rem; }
-.admin-root .tweak-row label {
-    display: block; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.375rem;
-}
-.admin-root .tweak-choices { display: flex; gap: 0.375rem; flex-wrap: wrap; }
-.admin-root .tweak-choices button {
-    flex: 1; padding: 0.4rem 0.5rem; border-radius: 0.5rem;
-    border: 1px solid var(--glass-border); background: var(--glass-bg);
-    color: var(--text-secondary); font-size: 0.75rem; font-weight: 600; cursor: pointer;
-}
-.admin-root .tweak-choices button.on { background: var(--thw-blue); color: #fff; border-color: var(--thw-blue); }
-
-/* Density */
-.admin-root.compact .kpi { padding: 0.75rem 0.875rem; }
-.admin-root.compact .kpi__value { font-size: 1.5rem; }
-.admin-root.compact .card { padding: 0.875rem; }
-.admin-root.compact .chart-wrap { height: 150px; }
-
 /* Responsive */
 @media (max-width: 1100px) {
     .admin-root .kpi-grid { grid-template-columns: repeat(3, 1fr); }
@@ -389,9 +358,6 @@ html.light-mode .admin-root .sr-dist { background: rgba(0,51,127,0.08); }
             <button class="icon-btn-outline" id="refresh-btn" type="button" title="Aktualisieren">
                 <i class="bi bi-arrow-clockwise"></i> Aktualisieren
             </button>
-            <button class="icon-btn-outline" id="tweaks-btn" type="button" title="Ansicht">
-                <i class="bi bi-sliders"></i> Ansicht
-            </button>
         </div>
     </div>
 
@@ -436,60 +402,63 @@ html.light-mode .admin-root .sr-dist { background: rgba(0,51,127,0.08); }
     {{-- ── ROW 1: CHARTS + HANDLUNGSBEDARF ───── --}}
     <div class="admin-grid admin-grid--wide">
 
+        @php $rangeLabel = ['24h' => '24 h', '7d' => '7 T', '30d' => '30 T', '90d' => '90 T'][$range] ?? '7 T'; @endphp
+        @php $perUnit = $range === '24h' ? 'Stunde' : 'Tag'; @endphp
+
         {{-- Charts --}}
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
             <div class="card">
                 <div class="card-h">
-                    <span class="section-label">Aktive Nutzer · 14 T</span>
-                    <span style="font-family:'IBM Plex Mono',monospace;font-size:0.6875rem;color:var(--text-muted);">Ø {{ number_format($chart14d['avgActive'], 1, ',', '.') }} / Tag</span>
+                    <span class="section-label">Aktive Nutzer · {{ $rangeLabel }}</span>
+                    <span style="font-family:'IBM Plex Mono',monospace;font-size:0.6875rem;color:var(--text-muted);">Ø {{ number_format($activityChart['avgActive'], 1, ',', '.') }} / {{ $perUnit }}</span>
                 </div>
                 <div class="chart-wrap">
                     <canvas id="chart-active"
-                            data-series="{{ json_encode($chart14d['active']) }}"
-                            data-labels="{{ json_encode($chart14d['labels']) }}"
+                            data-series="{{ json_encode($activityChart['active']) }}"
+                            data-labels="{{ json_encode($activityChart['labels']) }}"
                             data-color="#5b9aff"
                             data-fill="rgba(91,154,255,0.28)"></canvas>
                 </div>
                 <div class="chart-meta">
                     <div>
                         <span class="chart-meta__label">Spitze</span>
-                        <span class="chart-meta__value">{{ $chart14d['peakActive'] }} · {{ $chart14d['peakActiveLabel'] }}</span>
+                        <span class="chart-meta__value">{{ $activityChart['peakActive'] }} · {{ $activityChart['peakActiveLabel'] }}</span>
                     </div>
                     <div>
-                        <span class="chart-meta__label">Neue (14 T)</span>
-                        <span class="chart-meta__value">+{{ $chart14d['newUsers14'] }}</span>
+                        <span class="chart-meta__label">Neue ({{ $rangeLabel }})</span>
+                        <span class="chart-meta__value">+{{ $activityChart['newUsers'] }}</span>
                     </div>
                     <div>
                         <span class="chart-meta__label">Retention</span>
-                        <span class="chart-meta__value" style="color:#22c55e;">{{ $chart14d['retention'] }} %</span>
+                        <span class="chart-meta__value" style="color:#22c55e;">{{ $activityChart['retention'] }} %</span>
                     </div>
                 </div>
             </div>
 
             <div class="card">
                 <div class="card-h">
-                    <span class="section-label">Beantwortete Fragen · 14 T</span>
-                    <span style="font-family:'IBM Plex Mono',monospace;font-size:0.6875rem;color:var(--text-muted);">Ø {{ number_format($chart14d['avgAnswered'], 0, ',', '.') }} / Tag</span>
+                    <span class="section-label">Beantwortete Fragen · {{ $rangeLabel }}</span>
+                    <span style="font-family:'IBM Plex Mono',monospace;font-size:0.6875rem;color:var(--text-muted);">Ø {{ number_format($activityChart['avgAnswered'], 0, ',', '.') }} / {{ $perUnit }}</span>
                 </div>
                 <div class="chart-wrap">
                     <canvas id="chart-answered"
-                            data-series="{{ json_encode($chart14d['answered']) }}"
-                            data-labels="{{ json_encode($chart14d['labels']) }}"
+                            data-series="{{ json_encode($activityChart['answered']) }}"
+                            data-labels="{{ json_encode($activityChart['labels']) }}"
                             data-color="#22c55e"
                             data-fill="rgba(34,197,94,0.24)"></canvas>
                 </div>
                 <div class="chart-meta">
                     <div>
                         <span class="chart-meta__label">Spitze</span>
-                        <span class="chart-meta__value">{{ $chart14d['peakAnswered'] }} · {{ $chart14d['peakAnsweredLabel'] }}</span>
+                        <span class="chart-meta__value">{{ $activityChart['peakAnswered'] }} · {{ $activityChart['peakAnsweredLabel'] }}</span>
                     </div>
                     <div>
                         <span class="chart-meta__label">Richtig</span>
-                        <span class="chart-meta__value" style="color:#22c55e;">{{ number_format($chart14d['totalCorrect'], 0, ',', '.') }}</span>
+                        <span class="chart-meta__value" style="color:#22c55e;">{{ number_format($activityChart['totalCorrect'], 0, ',', '.') }}</span>
                     </div>
                     <div>
                         <span class="chart-meta__label">Falsch</span>
-                        <span class="chart-meta__value" style="color:#ef4444;">{{ number_format($chart14d['totalWrong'], 0, ',', '.') }}</span>
+                        <span class="chart-meta__value" style="color:#ef4444;">{{ number_format($activityChart['totalWrong'], 0, ',', '.') }}</span>
                     </div>
                 </div>
             </div>
@@ -759,21 +728,6 @@ html.light-mode .admin-root .sr-dist { background: rgba(0,51,127,0.08); }
 
     </div>
 
-    {{-- ── TWEAKS PANEL ─────────────────────────── --}}
-    <div class="tweaks-panel" id="tweaks-panel">
-        <h4>Ansicht</h4>
-        <div class="tweak-row">
-            <label>Dichte</label>
-            <div class="tweak-choices" id="density-choices">
-                <button type="button" data-density="cozy" class="on">Cozy</button>
-                <button type="button" data-density="compact">Kompakt</button>
-            </div>
-        </div>
-        <div style="font-size:0.6875rem;color:var(--text-muted);margin-top:0.5rem;">
-            Theme-Wechsel über die Sidebar unten.
-        </div>
-    </div>
-
 </div>
 @endsection
 
@@ -813,10 +767,30 @@ html.light-mode .admin-root .sr-dist { background: rgba(0,51,127,0.08); }
         const range = (max - min) || 1;
         const stepX = w / (data.length - 1);
         const y = i => h - 4 - ((data[i] - min) / range) * (h - 8);
+        const pts = data.map((_, i) => [i * stepX, y(i)]);
+
+        // Smoothing helper (Catmull-Rom → Bezier)
+        function smoothPath(ctx, points) {
+            if (points.length < 2) return;
+            ctx.moveTo(points[0][0], points[0][1]);
+            if (points.length === 2) { ctx.lineTo(points[1][0], points[1][1]); return; }
+            for (let i = 0; i < points.length - 1; i++) {
+                const p0 = points[i - 1] || points[i];
+                const p1 = points[i];
+                const p2 = points[i + 1];
+                const p3 = points[i + 2] || p2;
+                const cp1x = p1[0] + (p2[0] - p0[0]) / 6;
+                const cp1y = p1[1] + (p2[1] - p0[1]) / 6;
+                const cp2x = p2[0] - (p3[0] - p1[0]) / 6;
+                const cp2y = p2[1] - (p3[1] - p1[1]) / 6;
+                ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, p2[0], p2[1]);
+            }
+        }
 
         ctx.beginPath();
         ctx.moveTo(0, h);
-        for (let i = 0; i < data.length; i++) ctx.lineTo(i * stepX, y(i));
+        ctx.lineTo(pts[0][0], pts[0][1]);
+        smoothPath(ctx, pts);
         ctx.lineTo(w, h); ctx.closePath();
         const grad = ctx.createLinearGradient(0, 0, 0, h);
         grad.addColorStop(0, color + '55');
@@ -824,11 +798,11 @@ html.light-mode .admin-root .sr-dist { background: rgba(0,51,127,0.08); }
         ctx.fillStyle = grad; ctx.fill();
 
         ctx.beginPath();
-        ctx.moveTo(0, y(0));
-        for (let i = 1; i < data.length; i++) ctx.lineTo(i * stepX, y(i));
+        smoothPath(ctx, pts);
         ctx.lineWidth = 1.75;
         ctx.strokeStyle = color;
         ctx.lineJoin = 'round';
+        ctx.lineCap = 'round';
         ctx.stroke();
     }
 
@@ -884,10 +858,29 @@ html.light-mode .admin-root .sr-dist { background: rgba(0,51,127,0.08); }
 
         const mapY = v => padT + plotH - (v / top) * plotH;
         const mapX = i => padL + i * stepX;
+        const pts = series.map((v, i) => [mapX(i), mapY(v)]);
+
+        function smoothPath(ctx, points) {
+            if (points.length < 2) return;
+            ctx.moveTo(points[0][0], points[0][1]);
+            if (points.length === 2) { ctx.lineTo(points[1][0], points[1][1]); return; }
+            for (let i = 0; i < points.length - 1; i++) {
+                const p0 = points[i - 1] || points[i];
+                const p1 = points[i];
+                const p2 = points[i + 1];
+                const p3 = points[i + 2] || p2;
+                const cp1x = p1[0] + (p2[0] - p0[0]) / 6;
+                const cp1y = p1[1] + (p2[1] - p0[1]) / 6;
+                const cp2x = p2[0] - (p3[0] - p1[0]) / 6;
+                const cp2y = p2[1] - (p3[1] - p1[1]) / 6;
+                ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, p2[0], p2[1]);
+            }
+        }
 
         ctx.beginPath();
         ctx.moveTo(mapX(0), padT + plotH);
-        series.forEach((v, i) => ctx.lineTo(mapX(i), mapY(v)));
+        ctx.lineTo(pts[0][0], pts[0][1]);
+        smoothPath(ctx, pts);
         ctx.lineTo(mapX(series.length - 1), padT + plotH);
         ctx.closePath();
         const g = ctx.createLinearGradient(0, padT, 0, padT + plotH);
@@ -896,15 +889,18 @@ html.light-mode .admin-root .sr-dist { background: rgba(0,51,127,0.08); }
         ctx.fillStyle = g; ctx.fill();
 
         ctx.beginPath();
-        series.forEach((v, i) => i === 0 ? ctx.moveTo(mapX(i), mapY(v)) : ctx.lineTo(mapX(i), mapY(v)));
+        smoothPath(ctx, pts);
         ctx.lineWidth = 2; ctx.strokeStyle = stroke;
-        ctx.lineJoin = 'round'; ctx.stroke();
+        ctx.lineJoin = 'round'; ctx.lineCap = 'round'; ctx.stroke();
 
-        series.forEach((v, i) => {
-            ctx.beginPath();
-            ctx.arc(mapX(i), mapY(v), 2.5, 0, Math.PI * 2);
-            ctx.fillStyle = stroke; ctx.fill();
-        });
+        // Bei wenigen Punkten: kleine Datenpunkte zeigen, sonst zu unruhig.
+        if (series.length <= 14) {
+            series.forEach((v, i) => {
+                ctx.beginPath();
+                ctx.arc(mapX(i), mapY(v), 2.5, 0, Math.PI * 2);
+                ctx.fillStyle = stroke; ctx.fill();
+            });
+        }
     }
 
     function renderCharts() {
@@ -924,29 +920,6 @@ html.light-mode .admin-root .sr-dist { background: rgba(0,51,127,0.08); }
     // ------- Refresh -------
     document.getElementById('refresh-btn')?.addEventListener('click', () => {
         window.location.reload();
-    });
-
-    // ------- Tweaks panel -------
-    const panel = document.getElementById('tweaks-panel');
-    document.getElementById('tweaks-btn')?.addEventListener('click', () => {
-        panel.classList.toggle('open');
-    });
-
-    // Density
-    const densityStored = localStorage.getItem('admin-density') || 'cozy';
-    if (densityStored === 'compact') root.classList.add('compact');
-    root.querySelectorAll('#density-choices button').forEach(b => {
-        const isOn = b.getAttribute('data-density') === densityStored;
-        b.classList.toggle('on', isOn);
-        b.addEventListener('click', () => {
-            root.querySelectorAll('#density-choices button').forEach(x => x.classList.remove('on'));
-            b.classList.add('on');
-            const mode = b.getAttribute('data-density');
-            root.classList.toggle('compact', mode === 'compact');
-            localStorage.setItem('admin-density', mode);
-            renderSparks();
-            renderCharts();
-        });
     });
 
     // ------- Init -------

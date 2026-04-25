@@ -42,7 +42,7 @@ class DashboardController extends Controller
 
         $systemPulse    = $this->getSystemPulse();
         $kpis           = $this->getKpis($days);
-        $chart14d       = $this->getChart14d();
+        $activityChart  = $this->getActivityChart($days);
         $handlungsbedarf = $this->getHandlungsbedarf();
         $fragenQualitaet = $this->getFragenQualitaet($days);
         $ortsverbaende  = $this->getOrtsverbaende();
@@ -53,7 +53,7 @@ class DashboardController extends Controller
             'range',
             'systemPulse',
             'kpis',
-            'chart14d',
+            'activityChart',
             'handlungsbedarf',
             'fragenQualitaet',
             'ortsverbaende',
@@ -368,9 +368,9 @@ class DashboardController extends Controller
     }
 
     /* =========================================================
-       ACTIVITY CHARTS (14 d)
+       ACTIVITY CHARTS — abhängig vom gewählten Zeitraum
        ========================================================= */
-    private function getChart14d(): array
+    private function getActivityChart(int $days): array
     {
         $labels = [];
         $active = [];
@@ -378,20 +378,55 @@ class DashboardController extends Controller
         $correct = [];
         $wrong = [];
 
-        for ($i = 13; $i >= 0; $i--) {
-            $d = now()->subDays($i);
-            $labels[] = $d->format('d.m');
-            $dayStart = $d->copy()->startOfDay();
-            $dayEnd   = $d->copy()->endOfDay();
+        $statTables = [
+            'question_statistics',
+            'lehrgang_question_statistics',
+            'ortsverband_lernpool_question_statistics',
+        ];
 
-            $active[] = QuestionStatistic::whereBetween('created_at', [$dayStart, $dayEnd])
-                ->distinct('user_id')
-                ->count('user_id');
-            $total = QuestionStatistic::whereBetween('created_at', [$dayStart, $dayEnd])->count();
-            $answered[] = $total;
-            $correctDay = QuestionStatistic::whereBetween('created_at', [$dayStart, $dayEnd])->where('is_correct', true)->count();
-            $correct[] = $correctDay;
-            $wrong[] = $total - $correctDay;
+        $countAnswers = function ($from, $to) use ($statTables) {
+            $total = 0;
+            $correct = 0;
+            $userIds = collect();
+            foreach ($statTables as $t) {
+                $rows = DB::table($t)
+                    ->whereBetween('created_at', [$from, $to])
+                    ->selectRaw('COUNT(*) AS total, SUM(CASE WHEN is_correct = 1 THEN 1 ELSE 0 END) AS correct')
+                    ->first();
+                $total   += (int) ($rows->total ?? 0);
+                $correct += (int) ($rows->correct ?? 0);
+                $userIds = $userIds->merge(
+                    DB::table($t)->whereBetween('created_at', [$from, $to])->pluck('user_id')
+                );
+            }
+            return [
+                'total'   => $total,
+                'correct' => $correct,
+                'active'  => $userIds->filter()->unique()->count(),
+            ];
+        };
+
+        // Bei 24h zeigen wir Stunden, sonst Tage.
+        if ($days <= 1) {
+            for ($i = 23; $i >= 0; $i--) {
+                $h = now()->subHours($i);
+                $labels[] = $h->format('H') . ':00';
+                $r = $countAnswers($h->copy()->startOfHour(), $h->copy()->endOfHour());
+                $active[]   = $r['active'];
+                $answered[] = $r['total'];
+                $correct[]  = $r['correct'];
+                $wrong[]    = $r['total'] - $r['correct'];
+            }
+        } else {
+            for ($i = $days - 1; $i >= 0; $i--) {
+                $d = now()->subDays($i);
+                $labels[] = $d->format('d.m');
+                $r = $countAnswers($d->copy()->startOfDay(), $d->copy()->endOfDay());
+                $active[]   = $r['active'];
+                $answered[] = $r['total'];
+                $correct[]  = $r['correct'];
+                $wrong[]    = $r['total'] - $r['correct'];
+            }
         }
 
         $count = max(count($active), 1);
@@ -401,22 +436,30 @@ class DashboardController extends Controller
         $peakAnswered = max($answered);
         $peakActiveIndex = array_search($peakActive, $active, true);
         $peakAnsweredIndex = array_search($peakAnswered, $answered, true);
-        $newUsers14 = User::where('created_at', '>=', now()->subDays(14))->count();
+
+        $newUsersInRange = User::where('created_at', '>=', now()->subDays($days))->count();
 
         $totalCorrect = array_sum($correct);
         $totalWrong = array_sum($wrong);
         $totalAnswered = $totalCorrect + $totalWrong;
 
-        // Retention 7-Tage: % der Nutzer, die Woche-2 aktiv waren und Woche-1 wieder.
-        $weekTwoUsers = QuestionStatistic::whereBetween('created_at', [now()->subDays(14), now()->subDays(7)])
-            ->distinct('user_id')
-            ->pluck('user_id');
-        $weekOneActive = QuestionStatistic::where('created_at', '>=', now()->subDays(7))
-            ->whereIn('user_id', $weekTwoUsers)
-            ->distinct('user_id')
-            ->count('user_id');
-        $retention = $weekTwoUsers->count() > 0
-            ? round(($weekOneActive / $weekTwoUsers->count()) * 100)
+        // Retention im Zeitraum: Nutzer, die in der ersten Hälfte aktiv waren und in der zweiten wieder.
+        $half = max(1, intdiv($days, 2));
+        $firstHalfUsers = collect();
+        $secondHalfUsers = collect();
+        foreach ($statTables as $t) {
+            $firstHalfUsers = $firstHalfUsers->merge(
+                DB::table($t)->whereBetween('created_at', [now()->subDays($days), now()->subDays($half)])->pluck('user_id')
+            );
+            $secondHalfUsers = $secondHalfUsers->merge(
+                DB::table($t)->where('created_at', '>=', now()->subDays($half))->pluck('user_id')
+            );
+        }
+        $firstHalfUsers = $firstHalfUsers->filter()->unique();
+        $secondHalfUsers = $secondHalfUsers->filter()->unique();
+        $retained = $firstHalfUsers->intersect($secondHalfUsers)->count();
+        $retention = $firstHalfUsers->count() > 0
+            ? round(($retained / $firstHalfUsers->count()) * 100)
             : 0;
 
         return [
@@ -429,7 +472,7 @@ class DashboardController extends Controller
             'peakActiveLabel'   => $labels[$peakActiveIndex] ?? '',
             'peakAnswered' => $peakAnswered,
             'peakAnsweredLabel' => $labels[$peakAnsweredIndex] ?? '',
-            'newUsers14'   => $newUsers14,
+            'newUsers'     => $newUsersInRange,
             'retention'    => $retention,
             'totalCorrect' => $totalCorrect,
             'totalWrong'   => $totalWrong,
@@ -529,15 +572,27 @@ class DashboardController extends Controller
     {
         $from = now()->subDays($days);
 
-        $totalAnswered = QuestionStatistic::where('created_at', '>=', $from)->count();
-        $correct = QuestionStatistic::where('created_at', '>=', $from)->where('is_correct', true)->count();
+        // Antworten aus ALLEN Quellen: Practice/Exam global + Lehrgang + Lernpool
+        $sources = [
+            ['table' => 'question_statistics'],
+            ['table' => 'lehrgang_question_statistics'],
+            ['table' => 'ortsverband_lernpool_question_statistics'],
+        ];
+
+        $totalAnswered = 0;
+        $correct = 0;
+        foreach ($sources as $src) {
+            $totalAnswered += DB::table($src['table'])->where('created_at', '>=', $from)->count();
+            $correct       += DB::table($src['table'])->where('created_at', '>=', $from)->where('is_correct', true)->count();
+        }
         $wrong = $totalAnswered - $correct;
         $successRate = $totalAnswered > 0 ? round(($correct / $totalAnswered) * 100, 1) : 0;
 
         $totalFragen = Question::count();
         $entwuerfe = Question::whereNull('loesung')->orWhere('loesung', '')->count();
 
-        // Top 3 "am häufigsten richtig" (nur Fragen mit >=20 Antworten, sortiert nach Erfolgsquote dann Volumen)
+        // Top 3 "am häufigsten richtig" (nur Fragen mit >=10 Antworten, sortiert nach Erfolgsquote dann Volumen)
+        // Bezieht sich auf die globale Fragen-Tabelle (Practice/Exam) – Lehrgang/Lernpool haben eigene Fragen-IDs.
         $topRichtig = $this->topQuestions('correct', $from);
         $topFalsch  = $this->topQuestions('wrong', $from);
 
