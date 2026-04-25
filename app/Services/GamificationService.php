@@ -878,11 +878,13 @@ class GamificationService
     }
 
     /**
-     * Setzt manuell einen Streak Freeze für heute ein (Dashboard-Aktion).
+     * Setzt manuell einen Streak Freeze ein (Dashboard-Aktion).
+     * Schützt rückwirkend den verpassten Tag (i.d.R. gestern), sonst heute.
      */
     public function applyManualFreeze(User $user): array
     {
         $today = Carbon::today();
+        $yesterday = $today->copy()->subDay();
 
         if (($user->streak_days ?? 0) === 0) {
             return ['success' => false, 'message' => 'Kein aktiver Streak vorhanden.'];
@@ -891,6 +893,14 @@ class GamificationService
         $lastActivity = $user->last_activity_date ? Carbon::parse($user->last_activity_date) : null;
         if ($lastActivity && $lastActivity->isSameDay($today)) {
             return ['success' => false, 'message' => 'Du hast heute bereits gelernt – der Streak ist sicher.'];
+        }
+
+        // Wenn der User gestern (oder früher) einen Tag verpasst hat, schützen wir
+        // den ersten verpassten Tag nach der letzten Aktivität – ansonsten heute (preemptiv).
+        if ($lastActivity && $lastActivity->lt($yesterday)) {
+            $freezeDate = $lastActivity->copy()->addDay();
+        } else {
+            $freezeDate = $today;
         }
 
         $this->resetWeeklyFreezesIfNeeded($user);
@@ -903,14 +913,14 @@ class GamificationService
         }
 
         $log = $this->ensureArray($user->streak_freeze_log);
-        $alreadyFrozenToday = array_filter($log, fn($entry) => ($entry['date'] ?? '') === $today->toDateString());
-        if (!empty($alreadyFrozenToday)) {
-            return ['success' => false, 'message' => 'Heute wurde bereits ein Freeze eingesetzt.'];
+        $alreadyFrozen = array_filter($log, fn($entry) => ($entry['date'] ?? '') === $freezeDate->toDateString());
+        if (!empty($alreadyFrozen)) {
+            return ['success' => false, 'message' => 'Dieser Tag wurde bereits durch einen Freeze geschützt.'];
         }
 
         $user->streak_freezes_used = $used + 1;
         $log[] = [
-            'date'    => $today->toDateString(),
+            'date'    => $freezeDate->toDateString(),
             'used_at' => Carbon::now()->toDateTimeString(),
             'manual'  => true,
         ];
@@ -920,13 +930,15 @@ class GamificationService
 
         \Log::info('Manueller Streak Freeze eingesetzt', [
             'user_id'           => $user->id,
-            'date'              => $today->toDateString(),
+            'freeze_date'       => $freezeDate->toDateString(),
             'freezes_remaining' => max(0, $available - $user->streak_freezes_used),
         ]);
 
+        $protectedLabel = $freezeDate->isSameDay($today) ? 'heute' : 'für ' . $freezeDate->format('d.m.');
+
         return [
             'success'   => true,
-            'message'   => 'Streak Freeze eingesetzt! Dein Streak ist heute geschützt.',
+            'message'   => 'Streak Freeze eingesetzt! Dein Streak ist ' . $protectedLabel . ' geschützt.',
             'remaining' => max(0, $available - $user->streak_freezes_used),
         ];
     }

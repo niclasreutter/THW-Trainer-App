@@ -28,8 +28,10 @@
     .hero-card > * { position: relative; }
 
     @media (max-width: 640px) {
-        .hero-card { grid-template-columns: 1fr; text-align: center; }
+        .hero-card { grid-template-columns: 1fr; text-align: center; justify-items: center; }
         .hero-meta, .hero-actions { justify-content: center; }
+        .hero-card .streak-dots { justify-content: center; }
+        .hero-card .hero-xp { width: 100%; }
     }
 
     .avatar-ring {
