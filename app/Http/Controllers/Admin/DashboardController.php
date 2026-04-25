@@ -3,482 +3,850 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
-use App\Models\Question;
-use App\Models\QuestionStatistic;
-use App\Models\ExamStatistic;
 use App\Models\ContactMessage;
+use App\Models\ExamFeedback;
+use App\Models\ExamStatistic;
 use App\Models\LehrgangQuestionIssue;
+use App\Models\Ortsverband;
+use App\Models\Question;
 use App\Models\QuestionIssue;
+use App\Models\QuestionStatistic;
+use App\Models\User;
 use App\Models\UserQuestionProgress;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
-    public function index()
+    /**
+     * Supported ranges for delta/sparkline calculations.
+     *
+     * Value = number of days for the "current window".
+     */
+    private const RANGES = [
+        '24h' => 1,
+        '7d'  => 7,
+        '30d' => 30,
+        '90d' => 90,
+    ];
+
+    public function index(Request $request)
     {
-        // System Status
-        $systemStatus = $this->getSystemStatus();
-        
-        // Benutzer Statistiken
-        $totalUsers = User::count();
-        $newUsersToday = User::whereDate('created_at', today())->count();
-        $verifiedUsers = User::whereNotNull('email_verified_at')->count();
-        $verificationRate = $totalUsers > 0 ? round(($verifiedUsers / $totalUsers) * 100, 1) : 0;
-        
-        // Fragen Statistiken
-        $totalQuestions = Question::count();
-        $learningSections = Question::distinct('lernabschnitt')->count();
-        
-        // Statistiken aus question_statistics Tabelle
-        $totalAnsweredQuestions = QuestionStatistic::count();
-        $totalCorrectAnswers = QuestionStatistic::where('is_correct', true)->count();
-        $totalWrongAnswers = QuestionStatistic::where('is_correct', false)->count();
-        $wrongAnswerRate = $totalAnsweredQuestions > 0 ? round(($totalWrongAnswers / $totalAnsweredQuestions) * 100, 1) : 0;
-        
-        // Benutzer Aktivität (30 Tage)
-        $userActivity = $this->getUserActivity();
-        
-        // Lernfortschritt
-        $learningProgress = $this->getLearningProgress();
-        
-        // Leaderboard Top-10
-        $leaderboard = $this->getLeaderboard();
+        $range = $request->query('range', '7d');
+        if (! array_key_exists($range, self::RANGES)) {
+            $range = '7d';
+        }
+        $days = self::RANGES[$range];
 
-        // Chart-Daten für 30 Tage
-        $chartData = $this->getChartData();
-
-        // Aktivitäts-Feed
-        $activityFeed = $this->getActivityFeed();
-
-        // Quick Stats für Admin
-        $openIssues = LehrgangQuestionIssue::where('status', 'open')->count()
-                    + QuestionIssue::where('status', 'open')->count();
-        $unreadMessages = ContactMessage::where('is_read', false)->count();
-
-        $srStats = $this->getSpacedRepetitionStats();
-
-        // Push-Statistiken
-        $pushStats = $this->getPushStats();
+        $systemPulse    = $this->getSystemPulse();
+        $kpis           = $this->getKpis($days);
+        $chart14d       = $this->getChart14d();
+        $handlungsbedarf = $this->getHandlungsbedarf();
+        $fragenQualitaet = $this->getFragenQualitaet($days);
+        $ortsverbaende  = $this->getOrtsverbaende();
+        $srStats        = $this->getSpacedRepetitionStats();
+        $liveFeed       = $this->getLiveFeed();
 
         return view('admin.dashboard', compact(
-            'systemStatus',
-            'totalUsers',
-            'newUsersToday',
-            'verifiedUsers',
-            'verificationRate',
-            'totalQuestions',
-            'learningSections',
-            'totalAnsweredQuestions',
-            'totalCorrectAnswers',
-            'totalWrongAnswers',
-            'wrongAnswerRate',
-            'userActivity',
-            'learningProgress',
-            'leaderboard',
-            'chartData',
-            'activityFeed',
-            'openIssues',
-            'unreadMessages',
+            'range',
+            'systemPulse',
+            'kpis',
+            'chart14d',
+            'handlungsbedarf',
+            'fragenQualitaet',
+            'ortsverbaende',
             'srStats',
-            'pushStats'
+            'liveFeed'
         ));
     }
-    
-    private function getSystemStatus()
+
+    /* =========================================================
+       SYSTEM PULSE — DB / Cache / Worker / Issues
+       ========================================================= */
+    private function getSystemPulse(): array
     {
         return [
-            'database' => $this->checkDatabase(),
-            'cache' => $this->checkCache(),
-            'storage' => $this->checkStorage(),
-            'online_users' => $this->getOnlineUsers()
+            'database' => $this->pulseDatabase(),
+            'cache'    => $this->pulseCache(),
+            'worker'   => $this->pulseWorker(),
+            'issues'   => $this->pulseIssues(),
         ];
     }
-    
-    private function checkDatabase()
+
+    private function pulseDatabase(): array
     {
         try {
+            $startedAt = microtime(true);
             DB::connection()->getPdo();
-            
-            // Datenbankgröße abrufen
-            $databaseName = config('database.connections.mysql.database');
-            $result = DB::select("
-                SELECT 
+            $database = config('database.connections.mysql.database');
+            $row = DB::select("
+                SELECT
                     ROUND(SUM(data_length + index_length) / 1024 / 1024, 2) AS size_mb
                 FROM information_schema.TABLES
                 WHERE table_schema = ?
-            ", [$databaseName]);
-            
-            $sizeMB = $result[0]->size_mb ?? 0;
-            
-            return ['status' => 'ok', 'message' => $sizeMB . ' MB'];
-        } catch (\Exception $e) {
-            return ['status' => 'error', 'message' => 'Fehler'];
-        }
-    }
-    
-    private function checkCache()
-    {
-        try {
-            Cache::put('test_key', 'test_value', 1);
-            $value = Cache::get('test_key');
-            Cache::forget('test_key');
-            return ['status' => $value === 'test_value' ? 'ok' : 'error', 'message' => $value === 'test_value' ? 'Funktioniert' : 'Fehler'];
-        } catch (\Exception $e) {
-            return ['status' => 'error', 'message' => 'Fehler'];
-        }
-    }
-    
-    private function checkStorage()
-    {
-        try {
-            $disk = Storage::disk('local');
-            $disk->put('test.txt', 'test');
-            $exists = $disk->exists('test.txt');
-            $disk->delete('test.txt');
-            return ['status' => $exists ? 'ok' : 'error', 'message' => $exists ? 'Verfügbar' : 'Nicht verfügbar'];
-        } catch (\Exception $e) {
-            return ['status' => 'error', 'message' => 'Fehler'];
-        }
-    }
-    
-    private function getOnlineUsers()
-    {
-        // Zähle Nutzer, die in den letzten 5 Minuten aktiv waren
-        // Nutze updated_at als Proxy für Aktivität (wird bei jeder Aktion aktualisiert)
-        $onlineCount = User::where('updated_at', '>=', now()->subMinutes(5))->count();
+            ", [$database]);
+            $sizeMb = $row[0]->size_mb ?? 0;
+            $latencyMs = (int) round((microtime(true) - $startedAt) * 1000);
 
-        return [
-            'count' => $onlineCount,
-            'status' => $onlineCount > 0 ? 'ok' : 'warning',
-            'message' => $onlineCount . ($onlineCount === 1 ? ' Nutzer' : ' Nutzer') . ' (letzte 5 Min)'
-        ];
+            return [
+                'status' => 'ok',
+                'label'  => 'Datenbank',
+                'value'  => number_format((float) $sizeMb, 0, ',', '.') . ' MB',
+                'sub'    => 'MySQL · ' . $latencyMs . ' ms',
+            ];
+        } catch (\Throwable $e) {
+            return [
+                'status' => 'err',
+                'label'  => 'Datenbank',
+                'value'  => 'offline',
+                'sub'    => 'Verbindung fehlgeschlagen',
+            ];
+        }
     }
-    
-    private function getUserActivity()
+
+    private function pulseCache(): array
     {
-        // Verwende last_activity_date für echte Benutzer-Aktivität (auch falsche Antworten)
-        // Das vermeidet Verfälschung durch Cronjob-Updates
-        $today = User::whereDate('last_activity_date', today())->count();
-        $thisWeek = User::whereBetween('last_activity_date', [now()->startOfWeek(), now()->endOfWeek()])->count();
-        $thisMonth = User::whereBetween('last_activity_date', [now()->startOfMonth(), now()->endOfMonth()])->count();
-        
-        return [
-            'today' => $today,
-            'this_week' => $thisWeek,
-            'this_month' => $thisMonth
-        ];
+        try {
+            $probe = 'pulse_' . bin2hex(random_bytes(3));
+            Cache::put($probe, '1', 2);
+            $ok = Cache::get($probe) === '1';
+            Cache::forget($probe);
+            $driver = config('cache.default');
+
+            return [
+                'status' => $ok ? 'ok' : 'err',
+                'label'  => 'Cache',
+                'value'  => $ok ? 'Online' : 'Fehler',
+                'sub'    => strtoupper($driver) . ' · Hit-Rate',
+            ];
+        } catch (\Throwable $e) {
+            return [
+                'status' => 'err',
+                'label'  => 'Cache',
+                'value'  => 'offline',
+                'sub'    => 'Probe fehlgeschlagen',
+            ];
+        }
     }
-    
-    private function getLearningProgress()
+
+    private function pulseWorker(): array
     {
-        $totalPoints = User::sum(DB::raw("JSON_LENGTH(achievements) * 100")); // Beispiel-Berechnung
-        $usersWithAchievements = User::whereRaw("JSON_LENGTH(achievements) > 0")->count();
-        
-        // Durchschnittlicher Fortschritt basierend auf gelösten Fragen
-        $totalPossibleQuestions = Question::count();
-        $averageProgress = 0;
-        
-        if ($totalPossibleQuestions > 0) {
-            $totalSolvedQuestions = User::sum(DB::raw("JSON_LENGTH(solved_questions)"));
-            $totalUsers = User::count();
-            if ($totalUsers > 0) {
-                $averageSolvedPerUser = $totalSolvedQuestions / $totalUsers;
-                $averageProgress = round(($averageSolvedPerUser / $totalPossibleQuestions) * 100, 1);
+        try {
+            $pending = DB::table('jobs')->count();
+            $failed  = DB::table('failed_jobs')->count();
+
+            if ($failed > 0) {
+                $status = 'warn';
+                $value  = $failed . ' ' . ($failed === 1 ? 'Fehler' : 'Fehler');
+            } elseif ($pending > 0) {
+                $status = 'ok';
+                $value  = $pending . ' Queue';
+            } else {
+                $status = 'ok';
+                $value  = 'Bereit';
             }
+
+            return [
+                'status' => $status,
+                'label'  => 'Worker',
+                'value'  => $value,
+                'sub'    => 'Queue: ' . $pending . ' · Failed: ' . $failed,
+            ];
+        } catch (\Throwable $e) {
+            return [
+                'status' => 'err',
+                'label'  => 'Worker',
+                'value'  => 'n/a',
+                'sub'    => 'Queue nicht erreichbar',
+            ];
         }
-        
+    }
+
+    private function pulseIssues(): array
+    {
+        $openIssues   = QuestionIssue::where('status', 'open')->count()
+                      + LehrgangQuestionIssue::where('status', 'open')->count();
+        $unreadContact = ContactMessage::where('is_read', false)->count();
+        $totalOpen = $openIssues + $unreadContact;
+
+        if ($totalOpen === 0) {
+            $status = 'ok';
+            $value  = 'Keine offen';
+        } elseif ($totalOpen >= 5) {
+            $status = 'err';
+            $value  = $totalOpen . ' offen';
+        } else {
+            $status = 'warn';
+            $value  = $totalOpen . ' offen';
+        }
+
         return [
-            'total_points' => $totalPoints,
-            'users_with_achievements' => $usersWithAchievements,
-            'average_progress' => $averageProgress
+            'status' => $status,
+            'label'  => 'Issues',
+            'value'  => $value,
+            'sub'    => $openIssues . ' Bugs · ' . $unreadContact . ' Kontakt',
         ];
     }
-    
-    private function getLeaderboard()
+
+    /* =========================================================
+       KPI CARDS — value, delta, sparkline
+       ========================================================= */
+    private function getKpis(int $days): array
     {
-        // Hole Top-10 Benutzer nach Punkten und gelösten Fragen
-        $users = User::select('id', 'name', 'email', 'avatar_path', 'solved_questions', 'exam_passed_count', 'points', 'level', 'streak_days')
-            ->whereNotNull('solved_questions')
-            ->get()
-            ->map(function ($user) {
-                $solvedCount = is_array($user->solved_questions) 
-                    ? count($user->solved_questions) 
-                    : (is_string($user->solved_questions) ? count(json_decode($user->solved_questions, true) ?? []) : 0);
-                
-                // Score berechnen: Punkte + (gelöste Fragen * 10) + (Prüfungen bestanden * 50) + (Streak * 5)
-                $score = ($user->points ?? 0) + 
-                        ($solvedCount * 10) + 
-                        (($user->exam_passed_count ?? 0) * 50) + 
-                        (($user->streak_days ?? 0) * 5);
-                
-                return [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'avatar_url' => $user->avatar_url,
-                    'points' => $user->points ?? 0,
-                    'solved_questions' => $solvedCount,
-                    'exam_passed' => $user->exam_passed_count ?? 0,
-                    'level' => $user->level ?? 1,
-                    'streak_days' => $user->streak_days ?? 0,
-                    'score' => $score
-                ];
-            })
-            ->sortByDesc('score')
-            ->take(10)
-            ->values();
-        
-        return $users;
+        return [
+            'users'     => $this->kpiUsers($days),
+            'wau'       => $this->kpiWau($days),
+            'answers'   => $this->kpiAnswers($days),
+            'success'   => $this->kpiSuccessRate($days),
+            'verified'  => $this->kpiVerified($days),
+        ];
     }
 
-    private function getChartData()
+    private function kpiUsers(int $days): array
     {
-        $labels = [];
-        $activeData = [];
-        $registrationsData = [];
-        $questionsTotal = [];
-        $questionsCorrect = [];
-        $questionsWrong = [];
-        $userCountData = [];
-        $unverifiedCountData = [];
-        $examsPassed = [];
-        $examsFailed = [];
+        $total = User::count();
+        $before = User::where('created_at', '<', now()->subDays($days))->count();
+        $delta = $total - $before;
 
-        // Sammle Daten für die letzten 30 Tage (inkl. heute)
-        for ($i = 29; $i >= 0; $i--) {
-            $day = now()->subDays($i)->startOfDay();
-            $dayEnd = now()->subDays($i)->endOfDay();
+        $spark = [];
+        for ($i = 13; $i >= 0; $i--) {
+            $spark[] = User::where('created_at', '<=', now()->subDays($i)->endOfDay())->count();
+        }
 
-            // Label (nur Tag.Monat)
-            $labels[] = $day->format('d.m');
+        return [
+            'label' => 'Nutzer gesamt',
+            'value' => number_format($total, 0, ',', '.'),
+            'delta' => $this->formatDelta($delta, 'abs', $days),
+            'spark' => $spark,
+            'color' => 'blue',
+        ];
+    }
 
-            // Chart 1: Aktive Benutzer + Neue Registrierungen (kombiniert)
-            $activeData[] = QuestionStatistic::whereBetween('created_at', [$day, $dayEnd])
+    private function kpiWau(int $days): array
+    {
+        $current = QuestionStatistic::where('created_at', '>=', now()->subDays($days))
+            ->distinct('user_id')
+            ->count('user_id');
+        $previous = QuestionStatistic::whereBetween('created_at', [now()->subDays($days * 2), now()->subDays($days)])
+            ->distinct('user_id')
+            ->count('user_id');
+
+        $spark = [];
+        for ($i = 13; $i >= 0; $i--) {
+            $day = now()->subDays($i);
+            $spark[] = QuestionStatistic::whereBetween('created_at', [$day->copy()->startOfDay(), $day->copy()->endOfDay()])
                 ->distinct('user_id')
                 ->count('user_id');
-            $registrationsData[] = User::whereBetween('created_at', [$day, $dayEnd])->count();
-
-            // Chart 2: Beantwortete Fragen (Total, Richtig, Falsch)
-            $totalQuestions = QuestionStatistic::whereBetween('created_at', [$day, $dayEnd])->count();
-            $correctQuestions = QuestionStatistic::whereBetween('created_at', [$day, $dayEnd])->where('is_correct', true)->count();
-            $wrongQuestions = $totalQuestions - $correctQuestions;
-
-            $questionsTotal[] = $totalQuestions;
-            $questionsCorrect[] = $correctQuestions;
-            $questionsWrong[] = $wrongQuestions;
-
-            // Chart 3: Prüfungen
-            $examsPassed[] = ExamStatistic::whereBetween('created_at', [$day, $dayEnd])->where('is_passed', true)->count();
-            $examsFailed[] = ExamStatistic::whereBetween('created_at', [$day, $dayEnd])->where('is_passed', false)->count();
-
-            // Chart 4: User-Verlauf (aus user_count_history Tabelle)
-            $userCount = \App\Models\UserCountHistory::whereDate('date', $day->format('Y-m-d'))->first();
-
-            if ($userCount) {
-                // Historische Daten vorhanden
-                $userCountData[] = $userCount->total_users;
-                $unverifiedCountData[] = $userCount->total_users - $userCount->verified_users;
-            } else {
-                // Für heute (noch kein History-Eintrag): Live-Daten verwenden
-                $totalUsers = User::where('created_at', '<=', $dayEnd)->count();
-                $verifiedUsers = User::whereNotNull('email_verified_at')->where('created_at', '<=', $dayEnd)->count();
-                $userCountData[] = $totalUsers;
-                $unverifiedCountData[] = $totalUsers - $verifiedUsers;
-            }
         }
 
         return [
-            'labels' => $labels,
-            'active' => $activeData,
-            'registrations' => $registrationsData,
-            'questionsTotal' => $questionsTotal,
-            'questionsCorrect' => $questionsCorrect,
-            'questionsWrong' => $questionsWrong,
-            'userCount' => $userCountData,
-            'unverifiedCount' => $unverifiedCountData,
-            'examsPassed' => $examsPassed,
-            'examsFailed' => $examsFailed,
+            'label' => $this->activeLabel($days),
+            'value' => number_format($current, 0, ',', '.'),
+            'delta' => $this->formatDelta($current - $previous, 'abs', $days),
+            'spark' => $spark,
         ];
     }
 
-    private function getActivityFeed()
+    private function kpiAnswers(int $days): array
     {
-        $activities = collect();
+        $current = QuestionStatistic::where('created_at', '>=', now()->subDays($days))->count();
+        $previous = QuestionStatistic::whereBetween('created_at', [now()->subDays($days * 2), now()->subDays($days)])->count();
 
-        // Neue Benutzer (letzte 24h)
-        $newUsers = User::where('created_at', '>=', now()->subDay())
-            ->orderBy('created_at', 'desc')
-            ->limit(10)
-            ->get()
-            ->map(function ($user) {
-                return [
-                    'type' => 'user_registered',
-                    'icon' => 'person-plus',
-                    'color' => 'success',
-                    'title' => 'Neuer Benutzer',
-                    'description' => $user->name . ' hat sich registriert',
-                    'time' => $user->created_at,
-                    'link' => route('admin.users.edit', $user->id),
-                ];
-            });
-        $activities = $activities->merge($newUsers);
-
-        // Bestandene Prüfungen (letzte 24h)
-        $passedExams = ExamStatistic::with('user')
-            ->where('is_passed', true)
-            ->where('created_at', '>=', now()->subDay())
-            ->orderBy('created_at', 'desc')
-            ->limit(10)
-            ->get()
-            ->map(function ($exam) {
-                $percentage = round(($exam->correct_answers / 40) * 100);
-                return [
-                    'type' => 'exam_passed',
-                    'icon' => 'award',
-                    'color' => 'gold',
-                    'title' => 'Prüfung bestanden',
-                    'description' => ($exam->user->name ?? 'Unbekannt') . ' mit ' . $percentage . '%',
-                    'time' => $exam->created_at,
-                    'link' => $exam->user ? route('admin.users.edit', $exam->user->id) : null,
-                ];
-            });
-        $activities = $activities->merge($passedExams);
-
-        // Nicht bestandene Prüfungen (letzte 24h)
-        $failedExams = ExamStatistic::with('user')
-            ->where('is_passed', false)
-            ->where('created_at', '>=', now()->subDay())
-            ->orderBy('created_at', 'desc')
-            ->limit(5)
-            ->get()
-            ->map(function ($exam) {
-                $percentage = round(($exam->correct_answers / 40) * 100);
-                return [
-                    'type' => 'exam_failed',
-                    'icon' => 'x-circle',
-                    'color' => 'error',
-                    'title' => 'Prüfung nicht bestanden',
-                    'description' => ($exam->user->name ?? 'Unbekannt') . ' mit ' . $percentage . '%',
-                    'time' => $exam->created_at,
-                    'link' => $exam->user ? route('admin.users.edit', $exam->user->id) : null,
-                ];
-            });
-        $activities = $activities->merge($failedExams);
-
-        // Neue Kontaktanfragen (letzte 48h)
-        $contactMessages = ContactMessage::where('created_at', '>=', now()->subDays(2))
-            ->orderBy('created_at', 'desc')
-            ->limit(5)
-            ->get()
-            ->map(function ($message) {
-                return [
-                    'type' => 'contact_message',
-                    'icon' => 'envelope',
-                    'color' => 'info',
-                    'title' => 'Kontaktanfrage',
-                    'description' => $message->subject ?? 'Neue Nachricht von ' . $message->name,
-                    'time' => $message->created_at,
-                    'link' => route('admin.contact-messages.show', $message->id),
-                    'unread' => !$message->is_read,
-                ];
-            });
-        $activities = $activities->merge($contactMessages);
-
-        // Neue Fehlermeldungen (letzte 48h) - Lehrgänge
-        $lehrgangIssues = LehrgangQuestionIssue::with('reportedByUser')
-            ->where('created_at', '>=', now()->subDays(2))
-            ->orderBy('created_at', 'desc')
-            ->limit(5)
-            ->get()
-            ->map(function ($issue) {
-                return [
-                    'type' => 'issue_reported',
-                    'icon' => 'exclamation-triangle',
-                    'color' => 'warning',
-                    'title' => 'Fehlermeldung (Lehrgang)',
-                    'description' => 'Von ' . ($issue->reportedByUser->name ?? 'Unbekannt'),
-                    'time' => $issue->created_at,
-                    'link' => route('admin.issues.show', ['issue' => $issue->id, 'type' => 'lehrgang']),
-                    'open' => $issue->status === 'open',
-                ];
-            });
-        $activities = $activities->merge($lehrgangIssues);
-
-        // Neue Fehlermeldungen (letzte 48h) - Grundausbildung
-        $questionIssues = QuestionIssue::with('reportedByUser')
-            ->where('created_at', '>=', now()->subDays(2))
-            ->orderBy('created_at', 'desc')
-            ->limit(5)
-            ->get()
-            ->map(function ($issue) {
-                return [
-                    'type' => 'issue_reported',
-                    'icon' => 'exclamation-triangle',
-                    'color' => 'warning',
-                    'title' => 'Fehlermeldung (Grundausbildung)',
-                    'description' => 'Von ' . ($issue->reportedByUser->name ?? 'Unbekannt'),
-                    'time' => $issue->created_at,
-                    'link' => route('admin.issues.show', ['issue' => $issue->id, 'type' => 'question']),
-                    'open' => $issue->status === 'open',
-                ];
-            });
-        $activities = $activities->merge($questionIssues);
-
-        // Nach Zeit sortieren und limitieren
-        return $activities->sortByDesc('time')->take(15)->values();
-    }
-
-    private function getPushStats()
-    {
-        $totalSubscriptions = DB::table('push_subscriptions')->count();
-        $uniqueUsers = DB::table('push_subscriptions')->distinct('subscribable_id')->count('subscribable_id');
+        $spark = [];
+        for ($i = 13; $i >= 0; $i--) {
+            $day = now()->subDays($i);
+            $spark[] = QuestionStatistic::whereBetween('created_at', [$day->copy()->startOfDay(), $day->copy()->endOfDay()])->count();
+        }
 
         return [
-            'total_devices' => $totalSubscriptions,
-            'unique_users' => $uniqueUsers,
+            'label' => 'Beantwortete Fragen',
+            'value' => number_format($current, 0, ',', '.'),
+            'delta' => $this->formatDelta($current - $previous, 'abs', $days),
+            'spark' => $spark,
         ];
     }
 
-    private function getSpacedRepetitionStats()
+    private function kpiSuccessRate(int $days): array
+    {
+        [$current, $currentRate] = $this->successRate(now()->subDays($days), now());
+        [$previous, $previousRate] = $this->successRate(now()->subDays($days * 2), now()->subDays($days));
+        $deltaPp = round($currentRate - $previousRate, 1);
+
+        $spark = [];
+        for ($i = 13; $i >= 0; $i--) {
+            $day = now()->subDays($i);
+            [, $rate] = $this->successRate($day->copy()->startOfDay(), $day->copy()->endOfDay());
+            $spark[] = $rate;
+        }
+
+        return [
+            'label' => 'Erfolgsrate',
+            'value' => number_format($currentRate, 1, ',', '.') . ' %',
+            'delta' => $this->formatDelta($deltaPp, 'pp', $days),
+            'spark' => $spark,
+            'color' => $currentRate >= 50 ? 'ok' : null,
+        ];
+    }
+
+    /** @return array{0:int,1:float} [total, rate] */
+    private function successRate(Carbon $from, Carbon $to): array
+    {
+        $total = QuestionStatistic::whereBetween('created_at', [$from, $to])->count();
+        if ($total === 0) {
+            return [0, 0.0];
+        }
+        $correct = QuestionStatistic::whereBetween('created_at', [$from, $to])->where('is_correct', true)->count();
+        return [$total, round(($correct / $total) * 100, 1)];
+    }
+
+    private function kpiVerified(int $days): array
+    {
+        $total = max(User::count(), 1);
+        $verified = User::whereNotNull('email_verified_at')->count();
+        $rate = round(($verified / $total) * 100, 1);
+
+        $previousTotal = max(User::where('created_at', '<', now()->subDays($days))->count(), 1);
+        $previousVerified = User::whereNotNull('email_verified_at')
+            ->where('email_verified_at', '<', now()->subDays($days))
+            ->count();
+        $previousRate = round(($previousVerified / $previousTotal) * 100, 1);
+        $deltaPp = round($rate - $previousRate, 1);
+
+        $spark = [];
+        for ($i = 13; $i >= 0; $i--) {
+            $dayEnd = now()->subDays($i)->endOfDay();
+            $tot = max(User::where('created_at', '<=', $dayEnd)->count(), 1);
+            $ver = User::whereNotNull('email_verified_at')
+                ->where('email_verified_at', '<=', $dayEnd)
+                ->count();
+            $spark[] = round(($ver / $tot) * 100, 1);
+        }
+
+        return [
+            'label' => 'Verifiziert',
+            'value' => number_format($rate, 1, ',', '.') . ' %',
+            'delta' => $this->formatDelta($deltaPp, 'pp', $days),
+            'spark' => $spark,
+        ];
+    }
+
+    private function activeLabel(int $days): string
+    {
+        return match ($days) {
+            1 => 'Aktiv 24 h',
+            7 => 'Aktive Woche',
+            30 => 'Aktiv 30 T',
+            90 => 'Aktiv 90 T',
+            default => 'Aktiv',
+        };
+    }
+
+    /**
+     * @param int|float $value
+     * @param 'abs'|'pp' $type
+     */
+    private function formatDelta($value, string $type, int $days): array
+    {
+        $sign = $value > 0 ? '+' : ($value < 0 ? '−' : '');
+        $abs = abs($value);
+
+        if ($type === 'pp') {
+            $label = $sign . number_format($abs, 1, ',', '.') . ' pp';
+        } else {
+            $label = $sign . number_format($abs, 0, ',', '.');
+        }
+
+        $direction = $value > 0 ? 'up' : ($value < 0 ? 'down' : 'flat');
+        $suffix = $days === 1 ? ' · 24 h' : ($days === 7 ? ' · 7 T' : ($days === 30 ? ' · 30 T' : ' · 90 T'));
+
+        return [
+            'direction' => $direction,
+            'text'      => $direction === 'flat' ? 'unverändert' : $label . $suffix,
+        ];
+    }
+
+    /* =========================================================
+       ACTIVITY CHARTS (14 d)
+       ========================================================= */
+    private function getChart14d(): array
+    {
+        $labels = [];
+        $active = [];
+        $answered = [];
+        $correct = [];
+        $wrong = [];
+
+        for ($i = 13; $i >= 0; $i--) {
+            $d = now()->subDays($i);
+            $labels[] = $d->format('d.m');
+            $dayStart = $d->copy()->startOfDay();
+            $dayEnd   = $d->copy()->endOfDay();
+
+            $active[] = QuestionStatistic::whereBetween('created_at', [$dayStart, $dayEnd])
+                ->distinct('user_id')
+                ->count('user_id');
+            $total = QuestionStatistic::whereBetween('created_at', [$dayStart, $dayEnd])->count();
+            $answered[] = $total;
+            $correctDay = QuestionStatistic::whereBetween('created_at', [$dayStart, $dayEnd])->where('is_correct', true)->count();
+            $correct[] = $correctDay;
+            $wrong[] = $total - $correctDay;
+        }
+
+        $count = max(count($active), 1);
+        $avgActive = round(array_sum($active) / $count, 1);
+        $avgAnswered = round(array_sum($answered) / $count);
+        $peakActive = max($active);
+        $peakAnswered = max($answered);
+        $peakActiveIndex = array_search($peakActive, $active, true);
+        $peakAnsweredIndex = array_search($peakAnswered, $answered, true);
+        $newUsers14 = User::where('created_at', '>=', now()->subDays(14))->count();
+
+        $totalCorrect = array_sum($correct);
+        $totalWrong = array_sum($wrong);
+        $totalAnswered = $totalCorrect + $totalWrong;
+
+        // Retention 7-Tage: % der Nutzer, die Woche-2 aktiv waren und Woche-1 wieder.
+        $weekTwoUsers = QuestionStatistic::whereBetween('created_at', [now()->subDays(14), now()->subDays(7)])
+            ->distinct('user_id')
+            ->pluck('user_id');
+        $weekOneActive = QuestionStatistic::where('created_at', '>=', now()->subDays(7))
+            ->whereIn('user_id', $weekTwoUsers)
+            ->distinct('user_id')
+            ->count('user_id');
+        $retention = $weekTwoUsers->count() > 0
+            ? round(($weekOneActive / $weekTwoUsers->count()) * 100)
+            : 0;
+
+        return [
+            'labels'       => $labels,
+            'active'       => $active,
+            'answered'     => $answered,
+            'avgActive'    => $avgActive,
+            'avgAnswered'  => $avgAnswered,
+            'peakActive'   => $peakActive,
+            'peakActiveLabel'   => $labels[$peakActiveIndex] ?? '',
+            'peakAnswered' => $peakAnswered,
+            'peakAnsweredLabel' => $labels[$peakAnsweredIndex] ?? '',
+            'newUsers14'   => $newUsers14,
+            'retention'    => $retention,
+            'totalCorrect' => $totalCorrect,
+            'totalWrong'   => $totalWrong,
+            'totalAnswered' => $totalAnswered,
+        ];
+    }
+
+    /* =========================================================
+       HANDLUNGSBEDARF — priorisierte Queue
+       ========================================================= */
+    private function getHandlungsbedarf(): array
+    {
+        $queue = [];
+
+        $openBugs = QuestionIssue::where('status', 'open')->count()
+                  + LehrgangQuestionIssue::where('status', 'open')->count();
+        if ($openBugs > 0) {
+            $newest = max(
+                optional(QuestionIssue::where('status', 'open')->latest()->first())->created_at,
+                optional(LehrgangQuestionIssue::where('status', 'open')->latest()->first())->created_at,
+            );
+            $oldest = min(
+                optional(QuestionIssue::where('status', 'open')->oldest()->first())->created_at ?: now(),
+                optional(LehrgangQuestionIssue::where('status', 'open')->oldest()->first())->created_at ?: now(),
+            );
+            $queue[] = [
+                'count'  => $openBugs,
+                'title'  => 'Fehlermeldungen',
+                'sub'    => 'neueste ' . ($newest ? $newest->diffForHumans() : 'unbekannt')
+                          . ' · älteste ' . ($oldest ? $oldest->diffForHumans() : 'unbekannt'),
+                'link'   => route('admin.issues.index'),
+                'variant' => 'red',
+                'urgent' => $openBugs >= 3,
+            ];
+        }
+
+        $unreadMessages = ContactMessage::where('is_read', false)->count();
+        if ($unreadMessages > 0) {
+            $newest = ContactMessage::where('is_read', false)->latest()->first();
+            $queue[] = [
+                'count'  => $unreadMessages,
+                'title'  => 'Kontaktanfragen',
+                'sub'    => 'unbeantwortet · neueste ' . ($newest ? $newest->created_at->diffForHumans() : ''),
+                'link'   => route('admin.contact-messages.index'),
+                'variant' => 'blue',
+                'urgent' => false,
+            ];
+        }
+
+        $feedback = ExamFeedback::whereNotNull('feedback')
+            ->where('created_at', '>=', now()->subDays(14))
+            ->count();
+        if ($feedback > 0) {
+            $queue[] = [
+                'count'  => $feedback,
+                'title'  => 'Prüfungs-Feedback',
+                'sub'    => 'letzte 14 Tage · zur Sichtung',
+                'link'   => route('admin.exam-feedback.index'),
+                'variant' => 'gold',
+                'urgent' => false,
+            ];
+        }
+
+        $unverified = User::whereNull('email_verified_at')
+            ->where('created_at', '>=', now()->subDays(7))
+            ->count();
+        if ($unverified > 0) {
+            $queue[] = [
+                'count'  => $unverified,
+                'title'  => 'Nutzer-Verifizierung',
+                'sub'    => 'E-Mail nicht bestätigt · letzte 7 T',
+                'link'   => route('admin.users.index') . '?filter=unverified',
+                'variant' => 'green',
+                'urgent' => false,
+            ];
+        }
+
+        $pendingQuestions = Question::whereNull('loesung')->orWhere('loesung', '')->count();
+        if ($pendingQuestions > 0) {
+            $queue[] = [
+                'count'  => $pendingQuestions,
+                'title'  => 'Fragen ohne Lösung',
+                'sub'    => 'Entwurf · warten auf Freigabe',
+                'link'   => route('admin.questions.index'),
+                'variant' => 'purp',
+                'urgent' => false,
+            ];
+        }
+
+        return $queue;
+    }
+
+    /* =========================================================
+       FRAGEN-QUALITÄT
+       ========================================================= */
+    private function getFragenQualitaet(int $days): array
+    {
+        $from = now()->subDays($days);
+
+        $totalAnswered = QuestionStatistic::where('created_at', '>=', $from)->count();
+        $correct = QuestionStatistic::where('created_at', '>=', $from)->where('is_correct', true)->count();
+        $wrong = $totalAnswered - $correct;
+        $successRate = $totalAnswered > 0 ? round(($correct / $totalAnswered) * 100, 1) : 0;
+
+        $totalFragen = Question::count();
+        $entwuerfe = Question::whereNull('loesung')->orWhere('loesung', '')->count();
+
+        // Top 3 "am häufigsten richtig" (nur Fragen mit >=20 Antworten, sortiert nach Erfolgsquote dann Volumen)
+        $topRichtig = $this->topQuestions('correct', $from);
+        $topFalsch  = $this->topQuestions('wrong', $from);
+
+        return [
+            'correct'      => $correct,
+            'wrong'        => $wrong,
+            'totalAnswered' => $totalAnswered,
+            'successRate'  => $successRate,
+            'totalFragen'  => $totalFragen,
+            'entwuerfe'    => $entwuerfe,
+            'topRichtig'   => $topRichtig,
+            'topFalsch'    => $topFalsch,
+        ];
+    }
+
+    /**
+     * @param 'correct'|'wrong' $mode
+     */
+    private function topQuestions(string $mode, Carbon $from): array
+    {
+        $rows = DB::table('question_statistics')
+            ->join('questions', 'question_statistics.question_id', '=', 'questions.id')
+            ->where('question_statistics.created_at', '>=', $from)
+            ->select(
+                'questions.id',
+                'questions.nummer',
+                'questions.frage',
+                'questions.lernabschnitt',
+                DB::raw('COUNT(*) as attempts'),
+                DB::raw('SUM(CASE WHEN question_statistics.is_correct = 1 THEN 1 ELSE 0 END) as correct')
+            )
+            ->groupBy('questions.id', 'questions.nummer', 'questions.frage', 'questions.lernabschnitt')
+            ->having('attempts', '>=', 10)
+            ->get();
+
+        $mapped = $rows->map(function ($r) {
+            $rate = $r->attempts > 0 ? round(($r->correct / $r->attempts) * 100, 1) : 0;
+            return [
+                'id'            => $r->id,
+                'nummer'        => $r->nummer,
+                'frage'         => $this->shortenFrage($r->frage),
+                'lernabschnitt' => $r->lernabschnitt,
+                'attempts'      => (int) $r->attempts,
+                'correct_rate'  => $rate,
+                'wrong_rate'    => round(100 - $rate, 1),
+            ];
+        });
+
+        if ($mode === 'correct') {
+            return $mapped->sortByDesc('correct_rate')->take(3)->values()->all();
+        }
+
+        return $mapped->sortByDesc('wrong_rate')->take(3)->values()->all();
+    }
+
+    private function shortenFrage(?string $text): string
+    {
+        $text = trim(strip_tags($text ?? ''));
+        if (mb_strlen($text) <= 40) {
+            return $text;
+        }
+        return mb_substr($text, 0, 37) . '…';
+    }
+
+    /* =========================================================
+       ORTSVERBÄNDE
+       ========================================================= */
+    private function getOrtsverbaende(): array
+    {
+        try {
+            $rows = DB::table('ortsverbände')
+                ->leftJoin('ortsverband_members', 'ortsverbände.id', '=', 'ortsverband_members.ortsverband_id')
+                ->leftJoin('users', 'ortsverband_members.user_id', '=', 'users.id')
+                ->select(
+                    'ortsverbände.id',
+                    'ortsverbände.name',
+                    DB::raw('COUNT(DISTINCT ortsverband_members.user_id) as member_count'),
+                    DB::raw('MAX(users.last_activity_date) as last_activity')
+                )
+                ->groupBy('ortsverbände.id', 'ortsverbände.name')
+                ->having('member_count', '>', 0)
+                ->orderByDesc('member_count')
+                ->orderBy('ortsverbände.name')
+                ->limit(5)
+                ->get();
+        } catch (\Throwable $e) {
+            $rows = collect();
+        }
+
+        $list = $rows->map(function ($row) {
+            $lastActivity = $row->last_activity
+                ? Carbon::parse($row->last_activity)->diffForHumans()
+                : 'noch keine Aktivität';
+            return [
+                'name'         => $row->name,
+                'members'      => (int) $row->member_count,
+                'last_activity' => $lastActivity,
+            ];
+        })->all();
+
+        $activeOvCount = Ortsverband::query()
+            ->whereHas('members')
+            ->count();
+        $totalOvMembers = DB::table('ortsverband_members')->distinct('user_id')->count('user_id');
+        $avgPerOv = $activeOvCount > 0 ? round($totalOvMembers / $activeOvCount, 1) : 0;
+
+        return [
+            'summary' => [
+                'active' => $activeOvCount,
+                'users'  => $totalOvMembers,
+                'avg'    => number_format($avgPerOv, 1, ',', '.'),
+            ],
+            'list' => $list,
+        ];
+    }
+
+    /* =========================================================
+       SPACED REPETITION (gleiche Daten wie zuvor)
+       ========================================================= */
+    private function getSpacedRepetitionStats(): array
     {
         $totalInSr = UserQuestionProgress::where('review_interval', '>', 0)->count();
-
         $mastered = UserQuestionProgress::whereNull('next_review_at')
             ->where('consecutive_correct', '>=', 3)
             ->count();
 
-        return [
-            'active_users' => UserQuestionProgress::whereNotNull('next_review_at')
-                ->distinct('user_id')
-                ->count('user_id'),
-            'total_in_sr' => $totalInSr,
-            'mastered' => $mastered,
-            'mastery_rate' => $totalInSr > 0 ? round(($mastered / ($totalInSr + $mastered)) * 100, 1) : 0,
-            'due_today' => UserQuestionProgress::whereNotNull('next_review_at')
-                ->where('next_review_at', '<=', now())
-                ->count(),
-            'due_tomorrow' => UserQuestionProgress::whereNotNull('next_review_at')
-                ->whereBetween('next_review_at', [now()->endOfDay(), now()->addDay()->endOfDay()])
-                ->count(),
-            'due_this_week' => UserQuestionProgress::whereNotNull('next_review_at')
-                ->whereBetween('next_review_at', [now(), now()->endOfWeek()])
-                ->count(),
-            'overdue' => UserQuestionProgress::whereNotNull('next_review_at')
-                ->where('next_review_at', '<', now()->startOfDay())
-                ->count(),
-            'avg_interval' => round(UserQuestionProgress::where('review_interval', '>', 0)
-                ->avg('review_interval') ?? 0, 1),
-            'avg_easiness' => round(UserQuestionProgress::where('review_interval', '>', 0)
-                ->avg('easiness_factor') ?? 0, 2),
-            'interval_distribution' => [
-                '1_3' => UserQuestionProgress::whereBetween('review_interval', [1, 3])->count(),
-                '4_7' => UserQuestionProgress::whereBetween('review_interval', [4, 7])->count(),
-                '8_14' => UserQuestionProgress::whereBetween('review_interval', [8, 14])->count(),
-                '15_plus' => UserQuestionProgress::where('review_interval', '>', 14)->count(),
-            ],
+        $dueToday = UserQuestionProgress::whereNotNull('next_review_at')
+            ->where('next_review_at', '<=', now()->endOfDay())
+            ->count();
+
+        $activeUsers = UserQuestionProgress::whereNotNull('next_review_at')
+            ->distinct('user_id')
+            ->count('user_id');
+
+        $dueTomorrow = UserQuestionProgress::whereNotNull('next_review_at')
+            ->whereBetween('next_review_at', [now()->addDay()->startOfDay(), now()->addDay()->endOfDay()])
+            ->count();
+
+        $dueThisWeek = UserQuestionProgress::whereNotNull('next_review_at')
+            ->whereBetween('next_review_at', [now(), now()->endOfWeek()])
+            ->count();
+
+        $masteryTotal = $totalInSr + $mastered;
+        $masteryRate = $masteryTotal > 0 ? round(($mastered / $masteryTotal) * 100, 1) : 0;
+
+        $avgEasiness = round((float) UserQuestionProgress::where('review_interval', '>', 0)->avg('easiness_factor'), 2);
+
+        $dist = [
+            '1_3'     => UserQuestionProgress::whereBetween('review_interval', [1, 3])->count(),
+            '4_7'     => UserQuestionProgress::whereBetween('review_interval', [4, 7])->count(),
+            '8_14'    => UserQuestionProgress::whereBetween('review_interval', [8, 14])->count(),
+            '15_plus' => UserQuestionProgress::where('review_interval', '>', 14)->count(),
         ];
+        $distSum = max(array_sum($dist), 1);
+        $distPct = [
+            '1_3'     => round(($dist['1_3'] / $distSum) * 100),
+            '4_7'     => round(($dist['4_7'] / $distSum) * 100),
+            '8_14'    => round(($dist['8_14'] / $distSum) * 100),
+            '15_plus' => round(($dist['15_plus'] / $distSum) * 100),
+        ];
+
+        return [
+            'active_users'  => $activeUsers,
+            'mastered'      => $mastered,
+            'due_today'     => $dueToday,
+            'due_tomorrow'  => $dueTomorrow,
+            'due_this_week' => $dueThisWeek,
+            'total_in_sr'   => $totalInSr,
+            'mastery_rate'  => $masteryRate,
+            'avg_easiness'  => $avgEasiness,
+            'dist'          => $dist,
+            'dist_pct'      => $distPct,
+            'cards_total'   => $distSum,
+        ];
+    }
+
+    /* =========================================================
+       LIVE-FEED — DSGVO-konform anonymisiert
+       ========================================================= */
+    private function getLiveFeed(): array
+    {
+        $events = collect();
+
+        // 1. Neue Registrierungen (anonymisiert: nur OV oder Region)
+        User::where('created_at', '>=', now()->subDays(2))
+            ->latest()
+            ->limit(8)
+            ->get(['id', 'created_at'])
+            ->each(function ($u) use (&$events) {
+                $ov = DB::table('ortsverband_members')
+                    ->join('ortsverbände', 'ortsverband_members.ortsverband_id', '=', 'ortsverbände.id')
+                    ->where('ortsverband_members.user_id', $u->id)
+                    ->value('ortsverbände.name');
+
+                $events->push([
+                    'icon'  => 'bi-person-plus-fill',
+                    'color' => 'green',
+                    'text'  => '<strong>Neue Registrierung</strong>'
+                              . ($ov ? ' <span class="muted">· OV ' . e($ov) . '</span>' : ''),
+                    'time'  => $u->created_at,
+                    'tag'   => 'Nutzer',
+                ]);
+            });
+
+        // 2. Bestandene Prüfungen (anonymisiert: nur Ergebnis)
+        ExamStatistic::where('is_passed', true)
+            ->where('created_at', '>=', now()->subDay())
+            ->latest()
+            ->limit(5)
+            ->get()
+            ->each(function ($e) use (&$events) {
+                $events->push([
+                    'icon'  => 'bi-check-circle-fill',
+                    'color' => 'blue',
+                    'text'  => '<strong>Prüfung bestanden</strong> <span class="muted">· '
+                              . ($e->correct_answers ?? 0) . '/40 Fragen</span>',
+                    'time'  => $e->created_at,
+                    'tag'   => 'Prüfung',
+                ]);
+            });
+
+        // 3. Nicht bestandene Prüfungen
+        ExamStatistic::where('is_passed', false)
+            ->where('created_at', '>=', now()->subDay())
+            ->latest()
+            ->limit(3)
+            ->get()
+            ->each(function ($e) use (&$events) {
+                $events->push([
+                    'icon'  => 'bi-x-circle-fill',
+                    'color' => 'red',
+                    'text'  => '<span class="muted">Prüfung</span> <strong>nicht bestanden</strong> <span class="muted">· '
+                              . ($e->correct_answers ?? 0) . '/40</span>',
+                    'time'  => $e->created_at,
+                    'tag'   => 'Prüfung',
+                ]);
+            });
+
+        // 4. Bug-Reports (Betreff ohne Autor)
+        QuestionIssue::where('created_at', '>=', now()->subDays(3))
+            ->latest()
+            ->limit(3)
+            ->get()
+            ->each(function ($i) use (&$events) {
+                $events->push([
+                    'icon'  => 'bi-bug-fill',
+                    'color' => 'red',
+                    'text'  => '<span class="muted">Neue Fehlermeldung:</span> <strong>Frage #'
+                              . ($i->question_id ?? '–') . '</strong>',
+                    'time'  => $i->created_at,
+                    'tag'   => 'Bug',
+                ]);
+            });
+
+        LehrgangQuestionIssue::where('created_at', '>=', now()->subDays(3))
+            ->latest()
+            ->limit(3)
+            ->get()
+            ->each(function ($i) use (&$events) {
+                $events->push([
+                    'icon'  => 'bi-bug-fill',
+                    'color' => 'red',
+                    'text'  => '<span class="muted">Lehrgang-Fehler:</span> <strong>Issue #' . $i->id . '</strong>',
+                    'time'  => $i->created_at,
+                    'tag'   => 'Bug',
+                ]);
+            });
+
+        // 5. Prüfungs-Feedback
+        ExamFeedback::whereNotNull('feedback')
+            ->where('created_at', '>=', now()->subDays(3))
+            ->latest()
+            ->limit(3)
+            ->get()
+            ->each(function ($f) use (&$events) {
+                $mode = $f->publish_mode === 'named' ? 'namentlich' : 'anonym';
+                $events->push([
+                    'icon'  => 'bi-chat-square-text-fill',
+                    'color' => 'purple',
+                    'text'  => '<strong>Prüfungs-Feedback</strong> <span class="muted">· ' . $mode . '</span>',
+                    'time'  => $f->created_at,
+                    'tag'   => 'Feedback',
+                ]);
+            });
+
+        // 6. Kontaktanfragen (Betreff, ohne Autor-Namen)
+        ContactMessage::where('created_at', '>=', now()->subDays(3))
+            ->latest()
+            ->limit(3)
+            ->get()
+            ->each(function ($m) use (&$events) {
+                $subject = $m->subject ?? 'Kontaktanfrage';
+                $events->push([
+                    'icon'  => 'bi-envelope-open-fill',
+                    'color' => 'blue',
+                    'text'  => '<span class="muted">Kontaktanfrage:</span> <strong>' . e(mb_strimwidth($subject, 0, 48, '…')) . '</strong>',
+                    'time'  => $m->created_at,
+                    'tag'   => 'Kontakt',
+                ]);
+            });
+
+        return $events
+            ->sortByDesc('time')
+            ->take(12)
+            ->values()
+            ->map(function ($e) {
+                $e['time_human'] = Carbon::parse($e['time'])->diffForHumans(null, true, true);
+                return $e;
+            })
+            ->all();
     }
 }
