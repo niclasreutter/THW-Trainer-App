@@ -406,7 +406,7 @@ html.light-mode .admin-root .sr-dist { background: rgba(0,51,127,0.08); }
         @php $perUnit = $range === '24h' ? 'Stunde' : 'Tag'; @endphp
 
         {{-- Charts --}}
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div class="admin-grid">
             <div class="card">
                 <div class="card-h">
                     <span class="section-label">Aktive Nutzer · {{ $rangeLabel }}</span>
