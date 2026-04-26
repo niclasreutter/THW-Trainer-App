@@ -4,7 +4,7 @@
         {{-- Logo und Beschreibung --}}
         <div class="landing-footer-brand">
             <div class="flex items-center gap-3 mb-4">
-                <img src="{{ asset('logo-thwtrainer_w.png') . '?v=' . filemtime(public_path('logo-thwtrainer_w.png')) }}" alt="THW-Trainer" class="h-8 w-auto">
+                <img src="{{ asset('logo-thw-trainer_w.png') . '?v=' . filemtime(public_path('logo-thw-trainer_w.png')) }}" alt="THW-Trainer" class="h-8 w-auto">
                 <span class="font-bold text-xl text-white">THW-Trainer</span>
             </div>
             <p class="text-blue-100 text-sm max-w-xs">
