@@ -16,16 +16,16 @@ class OrtsverbandInvitationController extends Controller
     public function index(Ortsverband $ortsverband)
     {
         $user = Auth::user();
-        
+
         if (!$ortsverband->isAusbildungsbeauftragter($user)) {
             abort(403, 'Keine Berechtigung.');
         }
-        
+
         $invitations = $ortsverband->invitations()
                                    ->with('creator', 'logs.user')
                                    ->orderBy('created_at', 'desc')
                                    ->get();
-        
+
         return view('ortsverband.invitations.index', compact('ortsverband', 'invitations'));
     }
 
@@ -35,17 +35,17 @@ class OrtsverbandInvitationController extends Controller
     public function store(Request $request, Ortsverband $ortsverband)
     {
         $user = Auth::user();
-        
+
         if (!$ortsverband->isAusbildungsbeauftragter($user)) {
             abort(403, 'Keine Berechtigung.');
         }
-        
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'max_uses' => 'nullable|integer|min:1|max:100',
             'expires_at' => 'nullable|date|after:now|before:' . now()->addYears(10)->format('Y-m-d'),
         ]);
-        
+
         $invitation = OrtsverbandInvitation::create([
             'ortsverband_id' => $ortsverband->id,
             'code' => OrtsverbandInvitation::generateCode(),
@@ -54,7 +54,7 @@ class OrtsverbandInvitationController extends Controller
             'max_uses' => $validated['max_uses'] ?? null,
             'expires_at' => $validated['expires_at'] ?? null,
         ]);
-        
+
         return back()->with('success', 'Einladung erstellt! Code: ' . $invitation->code);
     }
 
@@ -64,13 +64,13 @@ class OrtsverbandInvitationController extends Controller
     public function destroy(Ortsverband $ortsverband, OrtsverbandInvitation $invitation)
     {
         $user = Auth::user();
-        
+
         if (!$invitation->ortsverband->isAusbildungsbeauftragter($user)) {
             abort(403, 'Keine Berechtigung.');
         }
-        
+
         $invitation->delete();
-        
+
         return back()->with('success', 'Einladung gelöscht.');
     }
 
@@ -80,17 +80,17 @@ class OrtsverbandInvitationController extends Controller
     public function toggle(Ortsverband $ortsverband, OrtsverbandInvitation $invitation)
     {
         $user = Auth::user();
-        
+
         if (!$invitation->ortsverband->isAusbildungsbeauftragter($user)) {
             abort(403, 'Keine Berechtigung.');
         }
-        
+
         $invitation->update([
             'is_active' => !$invitation->is_active
         ]);
-        
+
         $status = $invitation->is_active ? 'aktiviert' : 'deaktiviert';
-        
+
         return back()->with('success', "Einladung {$status}.");
     }
 
@@ -100,27 +100,27 @@ class OrtsverbandInvitationController extends Controller
     public function join(string $code)
     {
         $invitation = OrtsverbandInvitation::findByCode($code);
-        
+
         if (!$invitation) {
             return redirect()->route('dashboard')
                            ->with('error', 'Einladungscode ungültig.');
         }
-        
+
         if (!$invitation->isValid()) {
             return redirect()->route('dashboard')
                            ->with('error', 'Diese Einladung ist nicht mehr gültig.');
         }
-        
+
         $user = Auth::user();
-        
+
         // Wenn nicht eingeloggt, zur Registrierung mit Code
         if (!$user) {
             return redirect()->route('register', ['code' => $code]);
         }
-        
+
         try {
             $invitation->use($user);
-            
+
             return redirect()->route('ortsverband.show', $invitation->ortsverband)
                            ->with('success', 'Erfolgreich dem Ortsverband beigetreten!');
         } catch (\Exception $e) {
@@ -176,7 +176,7 @@ class OrtsverbandInvitationController extends Controller
         $url = route('register', ['code' => $invitation->code]);
 
         // Logo-Pfad
-        $logoPath = public_path('logo-thwtrainer.png');
+        $logoPath = public_path('logo-thw-trainer.png');
 
         // QR-Code generieren mit höherer Fehlerkorrektur
         $qrCodeBase = QrCode::format('png')

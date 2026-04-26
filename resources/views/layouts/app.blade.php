@@ -32,7 +32,7 @@
         <meta property="og:url" content="{{ url()->current() }}">
         <meta property="og:title" content="@hasSection('title')@yield('title') - THW-Trainer @else THW-Trainer - Dein digitaler Begleiter für THW-Theorie @endif">
         <meta property="og:description" content="@hasSection('description')@yield('description')@else THW-Trainer: Bereite dich optimal auf deine THW-Prüfung vor. Kostenlose Theoriefragen, Prüfungssimulation und Lernfortschritt. @endif">
-        <meta property="og:image" content="{{ asset('logo-thwtrainer.png') . '?v=' . filemtime(public_path('logo-thwtrainer.png')) }}">
+        <meta property="og:image" content="{{ asset('logo-thw-trainer.png') . '?v=' . filemtime(public_path('logo-thw-trainer.png')) }}">
         <meta property="og:locale" content="de_DE">
 
         <!-- Twitter -->
@@ -40,7 +40,7 @@
         <meta property="twitter:url" content="{{ url()->current() }}">
         <meta property="twitter:title" content="@hasSection('title')@yield('title') - THW-Trainer @else THW-Trainer - Dein digitaler Begleiter für THW-Theorie @endif">
         <meta property="twitter:description" content="@hasSection('description')@yield('description')@else THW-Trainer: Bereite dich optimal auf deine THW-Prüfung vor. Kostenlose Theoriefragen, Prüfungssimulation und Lernfortschritt. @endif">
-        <meta property="twitter:image" content="{{ asset('logo-thwtrainer.png') . '?v=' . filemtime(public_path('logo-thwtrainer.png')) }}">
+        <meta property="twitter:image" content="{{ asset('logo-thw-trainer.png') . '?v=' . filemtime(public_path('logo-thw-trainer.png')) }}">
 
         <!-- Favicons -->
         <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}?v={{ filemtime(public_path('favicon.ico')) }}">
@@ -75,7 +75,7 @@
             "@@type": "Organization",
             "name": "THW-Trainer",
             "url": "{{ url('/') }}",
-            "logo": "{{ asset('logo-thwtrainer.png') . '?v=' . filemtime(public_path('logo-thwtrainer.png')) }}",
+            "logo": "{{ asset('logo-thw-trainer.png') . '?v=' . filemtime(public_path('logo-thw-trainer.png')) }}",
             "description": "Kostenlose THW Theorie Prüfungsvorbereitung für Grundausbildung, FüUF26 und weitere Lehrgänge. Lernen im Ortsverband mit eigenen Fragen möglich.",
             "areaServed": {
                 "@@type": "Country",
@@ -123,11 +123,6 @@
         @stack('styles')
     </head>
     <body class="font-sans antialiased" x-data="{ sidebarOpen: false }">
-        <!-- PWA Splash Screen -->
-        <div id="pwa-splash" style="position:fixed;inset:0;z-index:99999;background:#fff;display:flex;align-items:center;justify-content:center;flex-direction:column;transition:opacity .3s ease">
-            <img src="{{ asset('logo-thwtrainer.png') }}" alt="THW-Trainer" style="width:80px;height:80px">
-            <span style="margin-top:16px;font-family:Figtree,system-ui,sans-serif;font-size:18px;font-weight:700;color:#003d7a;letter-spacing:-.02em">THW-Trainer</span>
-        </div>
         <script>
             window.addEventListener('DOMContentLoaded', function() {
                 var s = document.getElementById('pwa-splash');
@@ -154,8 +149,8 @@
                 <!-- Logo -->
                 <div class="sidebar-header">
                     <div class="sidebar-logo-mark">
-                        <img src="{{ asset('logo-thwtrainer.png') . '?v=' . filemtime(public_path('logo-thwtrainer.png')) }}" alt="THW" class="w-8 h-8 relative logo-for-light" style="z-index:1;">
-                        <img src="{{ asset('logo-thwtrainer_w.png') . '?v=' . filemtime(public_path('logo-thwtrainer_w.png')) }}" alt="THW" class="w-8 h-8 relative logo-for-dark" style="z-index:1;">
+                        <img src="{{ asset('logo-thw-trainer.png') . '?v=' . filemtime(public_path('logo-thw-trainer.png')) }}" alt="THW" class="w-8 h-8 relative logo-for-light" style="z-index:1;">
+                        <img src="{{ asset('logo-thw-trainer_w.png') . '?v=' . filemtime(public_path('logo-thw-trainer_w.png')) }}" alt="THW" class="w-8 h-8 relative logo-for-dark" style="z-index:1;">
                     </div>
                     <span class="sidebar-brand">THW-Trainer</span>
                 </div>
@@ -337,8 +332,8 @@
                     <div class="flex items-center justify-between px-4 py-3">
                         <div class="flex items-center gap-2">
                             <div class="w-8 h-8 flex items-center justify-center">
-                                <img src="{{ asset('logo-thwtrainer.png') . '?v=' . filemtime(public_path('logo-thwtrainer.png')) }}" alt="THW" class="w-8 h-8 logo-for-light">
-                                <img src="{{ asset('logo-thwtrainer_w.png') . '?v=' . filemtime(public_path('logo-thwtrainer_w.png')) }}" alt="THW" class="w-8 h-8 logo-for-dark">
+                                <img src="{{ asset('logo-thw-trainer.png') . '?v=' . filemtime(public_path('logo-thw-trainer.png')) }}" alt="THW" class="w-8 h-8 logo-for-light">
+                                <img src="{{ asset('logo-thw-trainer_w.png') . '?v=' . filemtime(public_path('logo-thw-trainer_w.png')) }}" alt="THW" class="w-8 h-8 logo-for-dark">
                             </div>
                             <span class="font-semibold text-dark-primary">THW-Trainer</span>
                         </div>
