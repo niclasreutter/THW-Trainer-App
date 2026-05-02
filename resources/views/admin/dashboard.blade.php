@@ -1,808 +1,937 @@
 @extends('layouts.app')
 
 @section('title', 'Admin Dashboard')
-@section('description', 'Übersicht über System-Status, Benutzerstatistiken und Lernfortschritt')
+@section('description', 'System-Puls, KPI und Handlungsbedarf auf einen Blick')
 
 @push('styles')
-<link rel="preconnect" href="https://fonts.bunny.net">
-<link href="https://fonts.bunny.net/css2?family=Barlow+Condensed:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-    /* ── System Pills ── */
-    .sys-pill {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.375rem;
-        padding: 0.3rem 0.625rem;
-        background: var(--glass-bg);
-        border: 1px solid var(--glass-border);
-        border-radius: 2rem;
-        font-size: 0.6875rem;
-        font-family: 'IBM Plex Mono', monospace;
-        color: var(--text-secondary);
-        text-decoration: none;
-        transition: all var(--transition-fast);
-    }
-    .sys-pill:hover { border-color: rgba(91, 154, 255, 0.3); }
+/* =========================================================
+   ADMIN DASHBOARD — Design 2026-04
+   Scope: nur /admin Hauptseite. Nutzt vorhandene Tokens aus
+   app.css (var(--thw-blue-glow), --glass-bg, --gold, …).
+   ========================================================= */
 
-    .status-dot {
-        width: 6px;
-        height: 6px;
-        border-radius: 50%;
-        display: inline-block;
-    }
-    .status-dot.ok { background: #22c55e; box-shadow: 0 0 4px rgba(34, 197, 94, 0.4); }
-    .status-dot.err { background: #ef4444; box-shadow: 0 0 4px rgba(239, 68, 68, 0.4); }
+/* Container */
+.admin-root { width: 100%; max-width: 1280px; margin: 0 auto; }
 
-    /* ── Card Label ── */
-    .card-label {
-        font-size: 0.5625rem;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        color: var(--text-muted);
-        font-weight: 700;
-        margin-bottom: 0.75rem;
-        font-family: 'IBM Plex Mono', monospace;
-    }
+/* Header */
+.admin-root .admin-header {
+    display: flex; align-items: flex-end; justify-content: space-between;
+    gap: 1.5rem; flex-wrap: wrap; margin-bottom: 1.5rem;
+}
+.admin-root .admin-header__right { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
 
-    /* ── Activity Feed ── */
-    .activity-item {
-        display: flex;
-        align-items: flex-start;
-        gap: 0.75rem;
-        padding: 0.625rem;
-        border-radius: 0.5rem;
-        margin-bottom: 0.375rem;
-        background: rgba(255, 255, 255, 0.02);
-        border: 1px solid rgba(255, 255, 255, 0.04);
-        transition: all var(--transition-fast);
-        text-decoration: none;
-        color: inherit;
-    }
-    .activity-item:hover {
-        background: rgba(255, 255, 255, 0.04);
-        border-color: rgba(255, 255, 255, 0.08);
-    }
-    .activity-icon {
-        width: 30px;
-        height: 30px;
-        border-radius: 0.375rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.8rem;
-        flex-shrink: 0;
-    }
-    .activity-icon.success { background: rgba(34, 197, 94, 0.12); color: #22c55e; }
-    .activity-icon.error { background: rgba(239, 68, 68, 0.12); color: #ef4444; }
-    .activity-icon.warning { background: rgba(245, 158, 11, 0.12); color: #f59e0b; }
-    .activity-icon.info { background: rgba(59, 130, 246, 0.12); color: #3b82f6; }
-    .activity-icon.gold { background: rgba(251, 191, 36, 0.12); color: #fbbf24; }
-    .activity-icon.purple { background: rgba(139, 92, 246, 0.12); color: #8b5cf6; }
-    .activity-content { flex: 1; min-width: 0; }
-    .activity-title {
-        font-size: 0.775rem;
-        font-weight: 600;
-        color: var(--text-primary);
-        margin-bottom: 0.1rem;
-    }
-    .activity-desc {
-        font-size: 0.7rem;
-        color: var(--text-secondary);
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-    .activity-time {
-        font-size: 0.6rem;
-        color: var(--text-muted);
-        font-family: 'IBM Plex Mono', monospace;
-        white-space: nowrap;
-        margin-left: auto;
-        flex-shrink: 0;
-    }
+.admin-root .admin-page-title { margin: 0; }
+.admin-root .admin-page-title__eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.1em;
+    color: var(--text-muted); margin-bottom: 0.35rem;
+}
+.admin-root .admin-page-title__h1 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800; font-size: 2rem; line-height: 1.1;
+    letter-spacing: -0.015em;
+    color: #5b9aff; margin: 0 0 0.25rem;
+}
+html.light-mode .admin-root .admin-page-title__h1 { color: var(--thw-blue); }
+.admin-root .admin-page-title__sub { font-size: 0.9375rem; color: var(--text-secondary); margin: 0; }
 
-    /* ── Stat Rows ── */
-    .stat-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0.5rem 0;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-    }
-    .stat-row:last-child { border-bottom: none; }
-    .stat-row-label { font-size: 0.8125rem; color: var(--text-secondary); }
-    .stat-row-value {
-        font-size: 0.875rem;
-        font-weight: 700;
-        font-family: 'Barlow Condensed', sans-serif;
-    }
+/* Segmented time range */
+.admin-root .seg {
+    display: inline-flex; padding: 3px; border-radius: 999px;
+    background: var(--glass-bg); border: 1px solid rgba(255,255,255,0.06);
+}
+html.light-mode .admin-root .seg { border-color: rgba(0,51,127,0.08); background: #fff; }
+.admin-root .seg button {
+    padding: 0.375rem 0.75rem; border-radius: 999px; border: 0;
+    background: transparent; color: var(--text-secondary);
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.6875rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.08em; cursor: pointer;
+    transition: background var(--transition-fast), color var(--transition-fast);
+}
+.admin-root .seg button.active { background: #5b9aff; color: #fff; }
+html.light-mode .admin-root .seg button.active { background: var(--thw-blue); }
 
-    /* ── Leaderboard ── */
-    .lb-item {
-        display: flex;
-        align-items: center;
-        gap: 0.625rem;
-        padding: 0.5rem 0.625rem;
-        border-radius: 0.5rem;
-        margin-bottom: 0.3rem;
-        background: rgba(255, 255, 255, 0.02);
-        border: 1px solid rgba(255, 255, 255, 0.04);
-        transition: all var(--transition-fast);
-    }
-    .lb-item:hover { background: rgba(255, 255, 255, 0.04); }
-    .lb-item.top-1 {
-        background: linear-gradient(135deg, rgba(251, 191, 36, 0.08), rgba(245, 158, 11, 0.03));
-        border-color: rgba(251, 191, 36, 0.15);
-    }
-    .lb-item.top-2 {
-        background: linear-gradient(135deg, rgba(156, 163, 175, 0.06), rgba(107, 114, 128, 0.03));
-        border-color: rgba(156, 163, 175, 0.12);
-    }
-    .lb-item.top-3 {
-        background: linear-gradient(135deg, rgba(217, 119, 6, 0.06), rgba(180, 83, 9, 0.03));
-        border-color: rgba(217, 119, 6, 0.1);
-    }
-    .lb-rank {
-        width: 24px;
-        height: 24px;
-        border-radius: 0.375rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 700;
-        font-size: 0.7rem;
-        flex-shrink: 0;
-        font-family: 'IBM Plex Mono', monospace;
-    }
-    .lb-rank.gold-r { background: rgba(251, 191, 36, 0.15); color: #fbbf24; }
-    .lb-rank.silver-r { background: rgba(156, 163, 175, 0.15); color: #9ca3af; }
-    .lb-rank.bronze-r { background: rgba(217, 119, 6, 0.15); color: #d97706; }
-    .lb-rank.default-r { background: rgba(255, 255, 255, 0.05); color: var(--text-muted); }
-    .lb-avatar {
-        width: 28px;
-        height: 28px;
-        border-radius: 50%;
-        border: 1.5px solid rgba(255, 255, 255, 0.1);
-        flex-shrink: 0;
-        object-fit: cover;
-        background: rgba(255, 255, 255, 0.05);
-    }
-    .lb-info { flex: 1; min-width: 0; }
-    .lb-name {
-        font-size: 0.775rem;
-        font-weight: 600;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-    .lb-level {
-        font-size: 0.6rem;
-        color: var(--text-muted);
-        font-family: 'IBM Plex Mono', monospace;
-    }
-    .lb-score { text-align: right; flex-shrink: 0; }
-    .lb-points {
-        font-size: 0.8rem;
-        font-weight: 700;
-        font-family: 'Barlow Condensed', sans-serif;
-    }
-    .lb-details {
-        font-size: 0.575rem;
-        color: var(--text-muted);
-        font-family: 'IBM Plex Mono', monospace;
-    }
+.admin-root .icon-btn-outline {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    padding: 0.5rem 0.875rem; border-radius: 0.5rem;
+    background: var(--glass-bg); border: 1px solid var(--glass-border);
+    color: var(--text-secondary); font-size: 0.8125rem; font-weight: 600;
+    text-decoration: none; cursor: pointer;
+    transition: border-color var(--transition-fast), color var(--transition-fast);
+}
+.admin-root .icon-btn-outline:hover { border-color: #5b9aff; color: var(--text-primary); }
+.admin-root .icon-btn-outline .bi { color: #5b9aff; }
+html.light-mode .admin-root .icon-btn-outline .bi { color: var(--thw-blue); }
 
-    /* ── Badges ── */
-    .badge-sm {
-        font-size: 0.5rem;
-        font-weight: 700;
-        padding: 0.1rem 0.3rem;
-        border-radius: 0.25rem;
-        text-transform: uppercase;
-        letter-spacing: 0.03em;
-        font-family: 'IBM Plex Mono', monospace;
-        vertical-align: middle;
-        margin-left: 0.2rem;
-    }
+/* System-Pulse bar */
+.admin-root .sys-pulse {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem;
+    padding: 0.875rem 1rem; border-radius: 0.875rem;
+    background: var(--glass-bg); border: 1px solid var(--glass-border);
+    margin-bottom: 1.25rem;
+}
+.admin-root .pulse-item { display: flex; align-items: center; gap: 0.75rem; min-width: 0; }
+.admin-root .pulse-item + .pulse-item { border-left: 1px solid rgba(255,255,255,0.06); padding-left: 0.875rem; }
+html.light-mode .admin-root .pulse-item + .pulse-item { border-left-color: rgba(0,51,127,0.08); }
+.admin-root .pulse-dot {
+    width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+    box-shadow: 0 0 0 3px rgba(34,197,94,0.2);
+}
+.admin-root .pulse-dot--ok   { background: #22c55e; box-shadow: 0 0 0 3px rgba(34,197,94,0.25); animation: pulseDot 2.4s ease-in-out infinite; }
+.admin-root .pulse-dot--warn { background: #f59e0b; box-shadow: 0 0 0 3px rgba(245,158,11,0.25); }
+.admin-root .pulse-dot--err  { background: #ef4444; box-shadow: 0 0 0 3px rgba(239,68,68,0.25); }
+@keyframes pulseDot {
+    0%, 100% { box-shadow: 0 0 0 3px rgba(34,197,94,0.25); }
+    50%      { box-shadow: 0 0 0 6px rgba(34,197,94,0); }
+}
+.admin-root .pulse-meta { min-width: 0; line-height: 1.2; }
+.admin-root .pulse-label {
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.625rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted);
+    margin-bottom: 0.15rem;
+}
+.admin-root .pulse-value {
+    font-family: 'Figtree', sans-serif; font-weight: 700; font-size: 0.875rem;
+    color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.admin-root .pulse-sub { font-size: 0.6875rem; color: var(--text-muted); }
 
-    /* ── Chart Grid ── */
-    .chart-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1rem;
-    }
-    @media (max-width: 600px) {
-        .chart-grid { grid-template-columns: 1fr; }
-    }
+/* KPI row */
+.admin-root .kpi-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.75rem; margin-bottom: 1.25rem; }
+.admin-root .kpi {
+    position: relative; padding: 1rem 1.125rem;
+    border-radius: 0.875rem;
+    background: var(--glass-bg); border: 1px solid var(--glass-border);
+    overflow: hidden;
+}
+html.light-mode .admin-root .kpi { background: #fff; box-shadow: 0 1px 3px rgba(0,51,127,0.04); }
+.admin-root .kpi__label {
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.625rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted);
+    margin-bottom: 0.375rem;
+}
+.admin-root .kpi__value {
+    font-family: 'Figtree', sans-serif; font-weight: 800; font-size: 1.875rem;
+    line-height: 1.05; letter-spacing: -0.015em; color: var(--text-primary);
+}
+.admin-root .kpi__value--blue { color: #5b9aff; }
+html.light-mode .admin-root .kpi__value--blue { color: var(--thw-blue); }
+.admin-root .kpi__value--ok { color: #22c55e; }
+.admin-root .kpi__delta {
+    margin-top: 0.5rem; display: inline-flex; align-items: center; gap: 0.25rem;
+    padding: 0.1rem 0.5rem 0.12rem; border-radius: 999px;
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.625rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.08em;
+}
+.admin-root .kpi__delta--up   { color: #22c55e; background: rgba(34,197,94,0.12); }
+.admin-root .kpi__delta--down { color: #ef4444; background: rgba(239,68,68,0.12); }
+.admin-root .kpi__delta--flat { color: var(--text-muted); background: var(--glass-bg); border: 1px solid rgba(255,255,255,0.06); }
+html.light-mode .admin-root .kpi__delta--flat { border-color: rgba(0,51,127,0.08); }
+.admin-root .kpi__spark { position: absolute; right: 0.6rem; bottom: 0.6rem; width: 74px; height: 28px; opacity: 0.85; }
 
-    /* ── Chart ── */
-    .chart-container {
-        height: 200px;
-        position: relative;
-    }
-    .chart-container canvas {
-        max-width: 100% !important;
-        height: auto !important;
-    }
+/* Two-column bento */
+.admin-root .admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+.admin-root .admin-grid--wide  { grid-template-columns: minmax(0,1.5fr) minmax(0,1fr); }
 
-    /* ── Stagger Animation ── */
-    @keyframes dash-rise {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-    .space-y-4 > * {
-        opacity: 0;
-        animation: dash-rise 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-    }
-    .space-y-4 > *:nth-child(1) { animation-delay: 0.03s; }
-    .space-y-4 > *:nth-child(2) { animation-delay: 0.07s; }
-    .space-y-4 > *:nth-child(3) { animation-delay: 0.11s; }
-    .space-y-4 > *:nth-child(4) { animation-delay: 0.15s; }
-    .space-y-4 > *:nth-child(5) { animation-delay: 0.19s; }
-    .space-y-4 > *:nth-child(6) { animation-delay: 0.23s; }
-    .space-y-4 > *:nth-child(7) { animation-delay: 0.27s; }
-    .space-y-4 > *:nth-child(8) { animation-delay: 0.31s; }
-    .space-y-4 > *:nth-child(9) { animation-delay: 0.35s; }
-    .space-y-4 > * + * { margin-top: 1rem; }
+.admin-root .card {
+    background: var(--glass-bg); border: 1px solid var(--glass-border);
+    border-radius: 0.875rem; padding: 1.25rem;
+}
+html.light-mode .admin-root .card { background: #fff; box-shadow: 0 1px 3px rgba(0,51,127,0.04); }
 
-    /* ── Reduced Motion ── */
-    @media (prefers-reduced-motion: reduce) {
-        .space-y-4 > * {
-            opacity: 1;
-            animation: none;
-        }
-        .hover-lift:hover { transform: none; }
-        .activity-item,
-        .lb-item,
-        .sys-pill { transition: none; }
-    }
+.admin-root .card-h {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 0.75rem; margin-bottom: 1rem; flex-wrap: wrap;
+}
+.admin-root .card-h-actions { display: flex; gap: 0.5rem; align-items: center; }
+.admin-root .card-h-link {
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.6875rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.08em; color: #5b9aff;
+    text-decoration: none;
+}
+html.light-mode .admin-root .card-h-link { color: var(--thw-blue); }
+.admin-root .card-h-link:hover { color: var(--gold); }
 
-    /* ── Responsive ── */
-    @media (max-width: 600px) {
-        .dash-container { padding: 1rem; }
-        .lb-2col,
-        .feed-2col { grid-template-columns: 1fr !important; }
-    }
+.admin-root .section-label {
+    display: inline-block; font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.1em; color: var(--text-muted);
+}
+html.light-mode .admin-root .section-label { color: #6b7280; }
 
-    /* ── Light Mode ── */
-    html.light-mode .sys-pill {
-        background: #ffffff;
-        border-color: rgba(0, 51, 127, 0.1);
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+/* Chart */
+.admin-root .chart-wrap { position: relative; height: 180px; margin: 0 -0.25rem; }
+.admin-root .chart-wrap canvas { display: block; width: 100%; height: 100%; }
+.admin-root .chart-meta {
+    display: flex; gap: 1.5rem; margin-top: 0.5rem; padding-top: 0.625rem;
+    border-top: 1px solid rgba(255,255,255,0.06); flex-wrap: wrap;
+}
+html.light-mode .admin-root .chart-meta { border-top-color: rgba(0,51,127,0.08); }
+.admin-root .chart-meta > div { display: flex; flex-direction: column; gap: 0.125rem; }
+.admin-root .chart-meta__label {
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.625rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted);
+}
+.admin-root .chart-meta__value {
+    font-family: 'Figtree', sans-serif; font-weight: 700; font-size: 0.875rem;
+    color: var(--text-primary);
+}
+
+/* Live feed */
+.admin-root .feed {
+    display: flex; flex-direction: column; max-height: 340px; overflow-y: auto;
+    margin: -0.25rem; padding: 0 0.25rem;
+}
+.admin-root .feed-item {
+    display: flex; gap: 0.75rem; align-items: flex-start;
+    padding: 0.625rem 0.25rem;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+html.light-mode .admin-root .feed-item { border-bottom-color: rgba(0,51,127,0.08); }
+.admin-root .feed-item:last-child { border-bottom: 0; }
+.admin-root .feed-icon {
+    width: 28px; height: 28px; border-radius: 8px;
+    display: grid; place-items: center; font-size: 0.8125rem; flex-shrink: 0;
+}
+.admin-root .feed-icon--blue  { background: rgba(91,154,255,0.14); color: #5b9aff; }
+.admin-root .feed-icon--green { background: rgba(34,197,94,0.14);  color: #22c55e; }
+.admin-root .feed-icon--gold  { background: rgba(251,191,36,0.14); color: #fbbf24; }
+.admin-root .feed-icon--red   { background: rgba(239,68,68,0.14);  color: #ef4444; }
+.admin-root .feed-icon--purple{ background: rgba(167,139,250,0.14); color: #a78bfa; }
+html.light-mode .admin-root .feed-icon--blue { color: var(--thw-blue); }
+.admin-root .feed-body { flex: 1; min-width: 0; }
+.admin-root .feed-text { font-size: 0.8125rem; color: var(--text-primary); line-height: 1.4; }
+.admin-root .feed-text strong { font-weight: 700; color: var(--text-primary); }
+.admin-root .feed-text .muted { color: var(--text-muted); }
+.admin-root .feed-meta { display: flex; gap: 0.625rem; margin-top: 0.25rem; align-items: center; }
+.admin-root .feed-time {
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.625rem; font-weight: 600;
+    color: var(--text-muted); letter-spacing: 0.03em;
+}
+.admin-root .feed-tag {
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.625rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    padding: 0.05rem 0.45rem; border-radius: 999px;
+    background: var(--glass-bg); color: var(--text-muted);
+    border: 1px solid rgba(255,255,255,0.06);
+}
+html.light-mode .admin-root .feed-tag { border-color: rgba(0,51,127,0.08); }
+
+/* Handlungsbedarf queue */
+.admin-root .queue-list { display: flex; flex-direction: column; gap: 0.5rem; }
+.admin-root .queue-row {
+    display: flex; align-items: center; gap: 0.875rem;
+    padding: 0.75rem 0.875rem; border-radius: 0.625rem;
+    border: 1px solid rgba(255,255,255,0.06);
+    background: transparent; text-decoration: none; color: inherit;
+    transition: border-color 150ms ease, background 150ms ease, transform 150ms ease;
+}
+html.light-mode .admin-root .queue-row { border-color: rgba(0,51,127,0.08); }
+.admin-root .queue-row:hover {
+    border-color: rgba(91,154,255,0.35);
+    background: rgba(255,255,255,0.04);
+    transform: translateX(2px);
+}
+html.light-mode .admin-root .queue-row:hover { background: rgba(0,51,127,0.03); }
+.admin-root .queue-row--urgent { border-color: rgba(239,68,68,0.30); }
+.admin-root .queue-row--urgent:hover { border-color: rgba(239,68,68,0.50); }
+.admin-root .queue-count {
+    width: 40px; height: 40px; flex-shrink: 0; border-radius: 10px;
+    display: grid; place-items: center;
+    font-family: 'Figtree', sans-serif; font-weight: 800; font-size: 1.125rem;
+    letter-spacing: -0.02em;
+}
+.admin-root .queue-count--red   { background: rgba(239,68,68,0.14);  color: #ef4444; }
+.admin-root .queue-count--blue  { background: rgba(91,154,255,0.14); color: #5b9aff; }
+.admin-root .queue-count--gold  { background: rgba(251,191,36,0.14); color: #fbbf24; }
+.admin-root .queue-count--purp  { background: rgba(167,139,250,0.14); color: #a78bfa; }
+.admin-root .queue-count--green { background: rgba(34,197,94,0.14);  color: #22c55e; }
+html.light-mode .admin-root .queue-count--blue { color: var(--thw-blue); }
+.admin-root .queue-body { flex: 1; min-width: 0; }
+.admin-root .queue-title { font-size: 0.9375rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.125rem; }
+.admin-root .queue-sub { font-size: 0.75rem; color: var(--text-muted); }
+.admin-root .queue-arrow { color: var(--text-muted); font-size: 0.875rem; flex-shrink: 0; }
+
+/* Ortsverband list */
+.admin-root .ov-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.625rem 0; }
+.admin-root .ov-item + .ov-item { border-top: 1px solid rgba(255,255,255,0.06); }
+html.light-mode .admin-root .ov-item + .ov-item { border-top-color: rgba(0,51,127,0.08); }
+.admin-root .ov-icon {
+    width: 34px; height: 34px; border-radius: 8px;
+    background: rgba(91,154,255,0.10); color: #5b9aff;
+    display: grid; place-items: center; flex-shrink: 0;
+}
+html.light-mode .admin-root .ov-icon { color: var(--thw-blue); background: rgba(0,51,127,0.08); }
+.admin-root .ov-body { flex: 1; min-width: 0; }
+.admin-root .ov-name { font-size: 0.8125rem; font-weight: 600; color: var(--text-primary); }
+.admin-root .ov-sub  { font-size: 0.6875rem; color: var(--text-muted); }
+.admin-root .ov-count { font-family: 'Figtree', sans-serif; font-weight: 700; font-size: 0.9375rem; color: var(--text-primary); }
+
+/* SR tiles & distribution */
+.admin-root .sr-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.625rem; margin-bottom: 1rem; }
+.admin-root .sr-tile {
+    padding: 0.75rem; border-radius: 0.625rem;
+    background: var(--glass-bg); border: 1px solid rgba(255,255,255,0.06);
+    text-align: center;
+}
+html.light-mode .admin-root .sr-tile { border-color: rgba(0,51,127,0.08); background: rgba(255,255,255,0.8); }
+.admin-root .sr-tile__val {
+    font-family: 'Figtree', sans-serif; font-weight: 800; font-size: 1.375rem;
+    line-height: 1; color: var(--text-primary); margin-bottom: 0.25rem;
+}
+.admin-root .sr-tile__val--gold  { color: #fbbf24; }
+.admin-root .sr-tile__val--green { color: #22c55e; }
+.admin-root .sr-tile__val--purp  { color: #a78bfa; }
+.admin-root .sr-tile__lbl {
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.625rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted);
+}
+.admin-root .sr-dist {
+    display: flex; height: 12px; border-radius: 999px; overflow: hidden;
+    margin-bottom: 0.625rem; background: rgba(255,255,255,0.06);
+}
+html.light-mode .admin-root .sr-dist { background: rgba(0,51,127,0.08); }
+.admin-root .sr-dist > div { height: 100%; }
+.admin-root .sr-dist-legend {
+    display: flex; flex-wrap: wrap; gap: 0.875rem;
+    font-size: 0.6875rem; color: var(--text-muted);
+}
+.admin-root .sr-dist-legend > div { display: inline-flex; align-items: center; gap: 0.35rem; }
+.admin-root .sr-dist-legend .swatch { width: 8px; height: 8px; border-radius: 2px; }
+
+/* Responsive */
+@media (max-width: 1100px) {
+    .admin-root .kpi-grid { grid-template-columns: repeat(3, 1fr); }
+    .admin-root .sys-pulse { grid-template-columns: repeat(2, 1fr); }
+    .admin-root .pulse-item + .pulse-item:nth-child(3) { border-left: 0; padding-left: 0; }
+    .admin-root .admin-grid, .admin-root .admin-grid--wide { grid-template-columns: 1fr; }
+}
+@media (max-width: 700px) {
+    .admin-root .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .admin-root .sys-pulse { grid-template-columns: 1fr; }
+    .admin-root .pulse-item + .pulse-item {
+        border-left: 0; padding-left: 0;
+        border-top: 1px solid rgba(255,255,255,0.06); padding-top: 0.5rem;
     }
-    html.light-mode .activity-item {
-        background: rgba(0, 51, 127, 0.02);
-        border-color: rgba(0, 51, 127, 0.06);
-    }
-    html.light-mode .activity-item:hover {
-        background: rgba(0, 51, 127, 0.04);
-    }
-    html.light-mode .lb-item {
-        background: rgba(0, 51, 127, 0.02);
-        border-color: rgba(0, 51, 127, 0.06);
-    }
-    html.light-mode .lb-item:hover {
-        background: rgba(0, 51, 127, 0.04);
-    }
-    html.light-mode .lb-item.top-1 {
-        background: linear-gradient(135deg, rgba(251, 191, 36, 0.06), rgba(245, 158, 11, 0.02));
-        border-color: rgba(251, 191, 36, 0.12);
-    }
-    html.light-mode .lb-avatar {
-        border-color: rgba(0, 51, 127, 0.12);
-    }
-    html.light-mode .stat-row {
-        border-bottom-color: rgba(0, 0, 0, 0.06);
-    }
+    html.light-mode .admin-root .pulse-item + .pulse-item { border-top-color: rgba(0,51,127,0.08); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .admin-root .pulse-dot--ok { animation: none; }
+    .admin-root .queue-row { transition: none; }
+}
 </style>
 @endpush
 
 @section('content')
-<div class="dash-container">
-<div class="space-y-4">
+@php
+    $ranges = ['24h' => '24 h', '7d' => '7 T', '30d' => '30 T', '90d' => '90 T'];
+    $deltaClass = fn(string $dir) => match ($dir) {
+        'up' => 'kpi__delta--up',
+        'down' => 'kpi__delta--down',
+        default => 'kpi__delta--flat',
+    };
+    $deltaIcon = fn(string $dir) => match ($dir) {
+        'up' => 'bi-arrow-up',
+        'down' => 'bi-arrow-down',
+        default => '',
+    };
+@endphp
 
-    {{-- ── 1. Header + System Status ── --}}
-    <div>
-        <p style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);font-weight:600;margin-bottom:0.25rem;">Administration</p>
-        <h1 style="font-size:1.5rem;font-weight:800;line-height:1.2;font-family:'Barlow Condensed',sans-serif;background:linear-gradient(135deg,#5b9aff,#0055cc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">System Dashboard</h1>
-        <p style="font-size:0.875rem;color:var(--text-muted);margin-top:0.125rem;">Benutzer, Aktivitäten und Systemstatus</p>
-        <div style="display:flex;gap:0.375rem;flex-wrap:wrap;margin-top:0.75rem;">
-            <span class="sys-pill">
-                <span class="status-dot {{ $systemStatus['database']['status'] === 'ok' ? 'ok' : 'err' }}"></span> DB
-            </span>
-            <span class="sys-pill">
-                <span class="status-dot {{ $systemStatus['cache']['status'] === 'ok' ? 'ok' : 'err' }}"></span> Cache
-            </span>
-            <span class="sys-pill" style="border-color:rgba(91,154,255,0.2);">
-                <span style="font-weight:700;color:#5b9aff;">{{ $systemStatus['online_users']['count'] }}</span>&nbsp;Online
-            </span>
-            @if($openIssues > 0)
-                <a href="{{ route('admin.issues.index') }}" class="sys-pill" style="border-color:rgba(245,158,11,0.2);">
-                    <span style="font-weight:700;color:#f59e0b;">{{ $openIssues }}</span>&nbsp;Issues
-                </a>
-            @endif
-            @if($unreadMessages > 0)
-                <a href="{{ route('admin.contact-messages.index') }}" class="sys-pill" style="border-color:rgba(59,130,246,0.2);">
-                    <span style="font-weight:700;color:#5b9aff;">{{ $unreadMessages }}</span>&nbsp;Ungelesen
-                </a>
-            @endif
+<div class="admin-root" id="admin-root" data-range="{{ $range }}">
+
+    {{-- ── HEADER ───────────────────────────────── --}}
+    <div class="admin-header">
+        <div>
+            <div class="admin-page-title__eyebrow">Administration</div>
+            <h1 class="admin-page-title__h1">System Dashboard</h1>
+            <p class="admin-page-title__sub">Übersicht über Nutzer, Inhalte und Systemzustand</p>
+        </div>
+        <div class="admin-header__right">
+            <div class="seg" id="range-seg" role="tablist" aria-label="Zeitraum">
+                @foreach($ranges as $key => $label)
+                    <button type="button" data-range="{{ $key }}" class="{{ $range === $key ? 'active' : '' }}">{{ $label }}</button>
+                @endforeach
+            </div>
+            <button class="icon-btn-outline" id="refresh-btn" type="button" title="Aktualisieren">
+                <i class="bi bi-arrow-clockwise"></i> Aktualisieren
+            </button>
         </div>
     </div>
 
-    {{-- ── 2. Gami Pills ── --}}
-    @php
-        $successRate = $totalAnsweredQuestions > 0
-            ? round(($totalCorrectAnswers / $totalAnsweredQuestions) * 100, 1)
-            : 0;
-    @endphp
-    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
-        <div class="gami-pill">
-            <div class="gami-pill__value gami-pill__value--blue">{{ number_format($totalUsers, 0, ',', '.') }}</div>
-            <div class="gami-pill__label">Benutzer</div>
-        </div>
-        <div class="gami-pill">
-            <div class="gami-pill__value" style="color:var(--success);">{{ $verificationRate }}%</div>
-            <div class="gami-pill__label">Verifiziert</div>
-        </div>
-        <div class="gami-pill">
-            <div class="gami-pill__value">{{ number_format($totalAnsweredQuestions, 0, ',', '.') }}</div>
-            <div class="gami-pill__label">Beantwortet</div>
-        </div>
-        <div class="gami-pill">
-            <div class="gami-pill__value" style="color:var(--success);">{{ $successRate }}%</div>
-            <div class="gami-pill__label">Erfolgsrate</div>
-        </div>
-        <div class="gami-pill">
-            <div class="gami-pill__value gami-pill__value--gold">+{{ $newUsersToday }}</div>
-            <div class="gami-pill__label">Heute neu</div>
-        </div>
+    {{-- ── SYSTEM-PULS ─────────────────────────── --}}
+    <div class="sys-pulse" role="status" aria-label="System-Status">
+        @foreach($systemPulse as $item)
+            <div class="pulse-item">
+                <span class="pulse-dot pulse-dot--{{ $item['status'] }}"></span>
+                <div class="pulse-meta">
+                    <div class="pulse-label">{{ $item['label'] }}</div>
+                    <div class="pulse-value">{{ $item['value'] }}</div>
+                    <div class="pulse-sub">{{ $item['sub'] }}</div>
+                </div>
+            </div>
+        @endforeach
     </div>
 
-    {{-- ── 3. Push & Engagement ── --}}
-    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
-        <div class="gami-pill">
-            <div class="gami-pill__value gami-pill__value--blue">{{ number_format($pushStats['total_devices'], 0, ',', '.') }}</div>
-            <div class="gami-pill__label">Push-Geräte</div>
-        </div>
-        <div class="gami-pill">
-            <div class="gami-pill__value" style="color:#8b5cf6;">{{ number_format($pushStats['unique_users'], 0, ',', '.') }}</div>
-            <div class="gami-pill__label">Push-Nutzer</div>
-        </div>
-        <div class="gami-pill">
-            <div class="gami-pill__value" style="color:var(--success);">{{ number_format($totalCorrectAnswers, 0, ',', '.') }}</div>
-            <div class="gami-pill__label">Richtig</div>
-        </div>
-        <div class="gami-pill">
-            <div class="gami-pill__value" style="color:var(--error);">{{ number_format($totalWrongAnswers, 0, ',', '.') }}</div>
-            <div class="gami-pill__label">Falsch</div>
-        </div>
+    {{-- ── KPI GRID ─────────────────────────────── --}}
+    <div class="kpi-grid">
+        @foreach($kpis as $key => $kpi)
+            @php
+                $valueColorClass = match($kpi['color'] ?? null) {
+                    'blue' => 'kpi__value--blue',
+                    'ok'   => 'kpi__value--ok',
+                    default => '',
+                };
+            @endphp
+            <div class="kpi">
+                <div class="kpi__label">{{ $kpi['label'] }}</div>
+                <div class="kpi__value {{ $valueColorClass }}">{{ $kpi['value'] }}</div>
+                <span class="kpi__delta {{ $deltaClass($kpi['delta']['direction']) }}">
+                    @if($deltaIcon($kpi['delta']['direction']))
+                        <i class="bi {{ $deltaIcon($kpi['delta']['direction']) }}"></i>
+                    @endif
+                    {{ $kpi['delta']['text'] }}
+                </span>
+                <canvas class="kpi__spark" data-spark="{{ $key }}" data-points="{{ json_encode($kpi['spark']) }}"></canvas>
+            </div>
+        @endforeach
     </div>
 
-    {{-- ── 4. Activity Feed ── --}}
-    <div class="glass" style="padding:1rem;">
-        <div class="card-label">Aktivitäts-Feed (24h)</div>
-        <div style="display:flex;flex-direction:column;gap:0.25rem;">
-            @forelse($activityFeed as $activity)
-                @if($activity['link'])
-                    <a href="{{ $activity['link'] }}" class="activity-item" style="cursor:pointer;">
-                @else
-                    <div class="activity-item">
-                @endif
-                    <div class="activity-icon {{ $activity['color'] }}">
-                        <i class="bi bi-{{ $activity['icon'] }}"></i>
+    {{-- ── ROW 1: CHARTS + HANDLUNGSBEDARF ───── --}}
+    <div class="admin-grid admin-grid--wide">
+
+        @php $rangeLabel = ['24h' => '24 h', '7d' => '7 T', '30d' => '30 T', '90d' => '90 T'][$range] ?? '7 T'; @endphp
+        @php $perUnit = $range === '24h' ? 'Stunde' : 'Tag'; @endphp
+
+        {{-- Charts --}}
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="card">
+                <div class="card-h">
+                    <span class="section-label">Aktive Nutzer · {{ $rangeLabel }}</span>
+                    <span style="font-family:'IBM Plex Mono',monospace;font-size:0.6875rem;color:var(--text-muted);">Ø {{ number_format($activityChart['avgActive'], 1, ',', '.') }} / {{ $perUnit }}</span>
+                </div>
+                <div class="chart-wrap">
+                    <canvas id="chart-active"
+                            data-series="{{ json_encode($activityChart['active']) }}"
+                            data-labels="{{ json_encode($activityChart['labels']) }}"
+                            data-color="#5b9aff"
+                            data-fill="rgba(91,154,255,0.28)"></canvas>
+                </div>
+                <div class="chart-meta">
+                    <div>
+                        <span class="chart-meta__label">Spitze</span>
+                        <span class="chart-meta__value">{{ $activityChart['peakActive'] }} · {{ $activityChart['peakActiveLabel'] }}</span>
                     </div>
-                    <div class="activity-content">
-                        <div class="activity-title">
-                            {{ $activity['title'] }}
-                            @if(!empty($activity['unread']))
-                                <span class="badge-sm badge-error">NEU</span>
-                            @endif
-                            @if(!empty($activity['open']))
-                                <span class="badge-sm badge-warning">OFFEN</span>
-                            @endif
+                    <div>
+                        <span class="chart-meta__label">Neue ({{ $rangeLabel }})</span>
+                        <span class="chart-meta__value">+{{ $activityChart['newUsers'] }}</span>
+                    </div>
+                    <div>
+                        <span class="chart-meta__label">Retention</span>
+                        <span class="chart-meta__value" style="color:#22c55e;">{{ $activityChart['retention'] }} %</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-h">
+                    <span class="section-label">Beantwortete Fragen · {{ $rangeLabel }}</span>
+                    <span style="font-family:'IBM Plex Mono',monospace;font-size:0.6875rem;color:var(--text-muted);">Ø {{ number_format($activityChart['avgAnswered'], 0, ',', '.') }} / {{ $perUnit }}</span>
+                </div>
+                <div class="chart-wrap">
+                    <canvas id="chart-answered"
+                            data-series="{{ json_encode($activityChart['answered']) }}"
+                            data-labels="{{ json_encode($activityChart['labels']) }}"
+                            data-color="#22c55e"
+                            data-fill="rgba(34,197,94,0.24)"></canvas>
+                </div>
+                <div class="chart-meta">
+                    <div>
+                        <span class="chart-meta__label">Spitze</span>
+                        <span class="chart-meta__value">{{ $activityChart['peakAnswered'] }} · {{ $activityChart['peakAnsweredLabel'] }}</span>
+                    </div>
+                    <div>
+                        <span class="chart-meta__label">Richtig</span>
+                        <span class="chart-meta__value" style="color:#22c55e;">{{ number_format($activityChart['totalCorrect'], 0, ',', '.') }}</span>
+                    </div>
+                    <div>
+                        <span class="chart-meta__label">Falsch</span>
+                        <span class="chart-meta__value" style="color:#ef4444;">{{ number_format($activityChart['totalWrong'], 0, ',', '.') }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Handlungsbedarf --}}
+        <div class="card">
+            <div class="card-h">
+                <span class="section-label">Handlungsbedarf</span>
+                <div class="card-h-actions">
+                    @php $totalQueue = array_sum(array_column($handlungsbedarf, 'count')); @endphp
+                    @if($totalQueue > 0)
+                        <span class="feed-tag" style="color:#ef4444;border-color:rgba(239,68,68,0.3);background:rgba(239,68,68,0.08);">
+                            {{ $totalQueue }} offen
+                        </span>
+                    @else
+                        <span class="feed-tag" style="color:#22c55e;border-color:rgba(34,197,94,0.3);background:rgba(34,197,94,0.08);">Alles erledigt</span>
+                    @endif
+                </div>
+            </div>
+            <div class="queue-list">
+                @forelse($handlungsbedarf as $row)
+                    <a class="queue-row {{ $row['urgent'] ? 'queue-row--urgent' : '' }}" href="{{ $row['link'] }}">
+                        <div class="queue-count queue-count--{{ $row['variant'] }}">{{ $row['count'] }}</div>
+                        <div class="queue-body">
+                            <div class="queue-title">{{ $row['title'] }}</div>
+                            <div class="queue-sub">{{ $row['sub'] }}</div>
                         </div>
-                        <div class="activity-desc">{{ $activity['description'] }}</div>
-                    </div>
-                    <span class="activity-time">{{ $activity['time']->diffForHumans(null, true, true) }}</span>
-                @if($activity['link'])
+                        <i class="bi bi-chevron-right queue-arrow"></i>
                     </a>
-                @else
+                @empty
+                    <div style="text-align:center;padding:1.5rem;color:var(--text-muted);font-size:0.875rem;">
+                        Keine offenen Aufgaben
                     </div>
-                @endif
-            @empty
-                <div style="text-align:center;padding:1.5rem;color:var(--text-muted);">
-                    Keine Aktivitäten in den letzten 24h
-                </div>
-            @endforelse
-        </div>
-    </div>
-
-    {{-- ── 4. Übersicht ── --}}
-    <div class="glass" style="padding:1rem;">
-        <div class="card-label">Übersicht</div>
-        <div class="stat-row">
-            <span class="stat-row-label">Aktiv heute</span>
-            <span class="stat-row-value" style="color:#5b9aff;">{{ $userActivity['today'] }}</span>
-        </div>
-        <div class="stat-row">
-            <span class="stat-row-label">Aktiv Woche</span>
-            <span class="stat-row-value">{{ $userActivity['this_week'] }}</span>
-        </div>
-        <div class="stat-row">
-            <span class="stat-row-label">Aktiv Monat</span>
-            <span class="stat-row-value">{{ $userActivity['this_month'] }}</span>
-        </div>
-        <div class="stat-row">
-            <span class="stat-row-label">Ø Fortschritt</span>
-            <span class="stat-row-value" style="color:#5b9aff;">{{ $learningProgress['average_progress'] }}%</span>
-        </div>
-        <div class="stat-row">
-            <span class="stat-row-label">Richtig</span>
-            <span class="stat-row-value" style="color:var(--success);">{{ number_format($totalCorrectAnswers, 0, ',', '.') }}</span>
-        </div>
-        <div class="stat-row">
-            <span class="stat-row-label">Falsch</span>
-            <span class="stat-row-value" style="color:var(--error);">{{ number_format($totalWrongAnswers, 0, ',', '.') }}</span>
-        </div>
-    </div>
-
-    {{-- ── 5. Spaced Repetition ── --}}
-    <div class="card-label" style="margin-bottom:0;">Spaced Repetition</div>
-
-    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
-        <div class="gami-pill">
-            <div class="gami-pill__value" style="color:#8b5cf6;">{{ number_format($srStats['active_users'], 0, ',', '.') }}</div>
-            <div class="gami-pill__label">User aktiv</div>
-        </div>
-        <div class="gami-pill">
-            <div class="gami-pill__value gami-pill__value--blue">{{ number_format($srStats['total_in_sr'], 0, ',', '.') }}</div>
-            <div class="gami-pill__label">Fragen im SR</div>
-        </div>
-        <div class="gami-pill">
-            <div class="gami-pill__value" style="color:var(--success);">{{ number_format($srStats['mastered'], 0, ',', '.') }}</div>
-            <div class="gami-pill__label">Gemeistert</div>
-        </div>
-        <div class="gami-pill">
-            <div class="gami-pill__value" style="color:#8b5cf6;">{{ number_format($srStats['due_today'], 0, ',', '.') }}</div>
-            <div class="gami-pill__label">Fällig heute</div>
-        </div>
-        <div class="gami-pill">
-            <div class="gami-pill__value" style="color:var(--warning);">{{ number_format($srStats['overdue'], 0, ',', '.') }}</div>
-            <div class="gami-pill__label">Überfällig</div>
-        </div>
-    </div>
-
-    <div class="glass" style="padding:1rem;">
-        <div class="card-label">SR Details</div>
-        <div class="stat-row">
-            <span class="stat-row-label">Ø Intervall</span>
-            <span class="stat-row-value" style="color:#5b9aff;">{{ $srStats['avg_interval'] }} Tage</span>
-        </div>
-        <div class="stat-row">
-            <span class="stat-row-label">Ø Easiness Factor</span>
-            <span class="stat-row-value">{{ $srStats['avg_easiness'] }}</span>
-        </div>
-        <div class="stat-row">
-            <span class="stat-row-label">Mastery-Rate</span>
-            <span class="stat-row-value" style="color:var(--success);">{{ $srStats['mastery_rate'] }}%</span>
-        </div>
-        <div class="stat-row">
-            <span class="stat-row-label">Fällig morgen</span>
-            <span class="stat-row-value">{{ number_format($srStats['due_tomorrow'], 0, ',', '.') }}</span>
-        </div>
-        <div class="stat-row">
-            <span class="stat-row-label">Fällig diese Woche</span>
-            <span class="stat-row-value">{{ number_format($srStats['due_this_week'], 0, ',', '.') }}</span>
-        </div>
-
-        {{-- Interval distribution bar --}}
-        @php
-            $dist = $srStats['interval_distribution'];
-            $distTotal = max(array_sum($dist), 1);
-        @endphp
-        <div style="margin-top:0.75rem;">
-            <div style="font-size:0.5625rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;font-family:'IBM Plex Mono',monospace;margin-bottom:0.375rem;">Intervall-Verteilung</div>
-            <div style="display:flex;gap:2px;height:20px;border-radius:0.25rem;overflow:hidden;">
-                <div style="flex:{{ max($dist['1_3'], 1) }};background:rgba(139,92,246,0.4);display:flex;align-items:center;justify-content:center;font-size:0.5rem;font-weight:600;color:white;">1-3d</div>
-                <div style="flex:{{ max($dist['4_7'], 1) }};background:rgba(91,154,255,0.4);display:flex;align-items:center;justify-content:center;font-size:0.5rem;font-weight:600;color:white;">4-7d</div>
-                <div style="flex:{{ max($dist['8_14'], 1) }};background:rgba(34,197,94,0.4);display:flex;align-items:center;justify-content:center;font-size:0.5rem;font-weight:600;color:white;">8-14d</div>
-                <div style="flex:{{ max($dist['15_plus'], 1) }};background:rgba(251,191,36,0.4);display:flex;align-items:center;justify-content:center;font-size:0.5rem;font-weight:600;color:white;">15d+</div>
+                @endforelse
             </div>
         </div>
     </div>
 
-    {{-- ── 6. Leaderboard ── --}}
-    <div class="card-label" style="margin-bottom:0;">Leaderboard</div>
+    {{-- ── ROW 2: LIVE FEED + FRAGEN-QUALITÄT ── --}}
+    <div class="admin-grid">
 
-    <div class="glass" style="padding:1rem;">
-        <div class="card-label">Top 10</div>
-        <div style="display:flex;flex-direction:column;gap:0.25rem;">
-            @forelse($leaderboard as $index => $user)
+        {{-- Live Feed --}}
+        <div class="card">
+            <div class="card-h">
+                <span class="section-label">Aktivitäts-Feed · DSGVO-konform</span>
+                <div class="card-h-actions">
+                    <span class="feed-tag">
+                        <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#22c55e;margin-right:4px;"></span> Anonym
+                    </span>
+                </div>
+            </div>
+            <div class="feed" id="live-feed">
+                @forelse($liveFeed as $event)
+                    <div class="feed-item">
+                        <div class="feed-icon feed-icon--{{ $event['color'] }}">
+                            <i class="bi {{ $event['icon'] }}"></i>
+                        </div>
+                        <div class="feed-body">
+                            <div class="feed-text">{!! $event['text'] !!}</div>
+                            <div class="feed-meta">
+                                <span class="feed-time">vor {{ $event['time_human'] }}</span>
+                                <span class="feed-tag">{{ $event['tag'] }}</span>
+                            </div>
+                        </div>
+                    </div>
+                @empty
+                    <div style="text-align:center;padding:2rem;color:var(--text-muted);font-size:0.875rem;">
+                        Keine Aktivitäten in den letzten 72 Stunden
+                    </div>
+                @endforelse
+            </div>
+        </div>
+
+        {{-- Fragen-Qualität --}}
+        <div class="card">
+            <div class="card-h">
+                <span class="section-label">Fragen-Qualität</span>
+                <a href="{{ route('admin.questions.index') }}" class="card-h-link">Fragen →</a>
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+                <div style="display:flex;justify-content:space-between;align-items:baseline;gap:0.5rem;margin-bottom:0.625rem;flex-wrap:nowrap;">
+                    <div style="min-width: 0;">
+                        <span style="font-family:'Figtree',sans-serif;font-weight:800;font-size:1.5rem;color:#22c55e;line-height:1;">{{ number_format($fragenQualitaet['correct'], 0, ',', '.') }}</span>
+                        <span style="font-family:'IBM Plex Mono',monospace;font-size:0.6875rem;color:var(--text-muted);margin-left:0.375rem;white-space:nowrap;">RICHTIG</span>
+                    </div>
+                    <div style="text-align:right;min-width:0;">
+                        <span style="font-family:'IBM Plex Mono',monospace;font-size:0.6875rem;color:var(--text-muted);margin-right:0.375rem;white-space:nowrap;">FALSCH</span>
+                        <span style="font-family:'Figtree',sans-serif;font-weight:800;font-size:1.5rem;color:#ef4444;line-height:1;">{{ number_format($fragenQualitaet['wrong'], 0, ',', '.') }}</span>
+                    </div>
+                </div>
                 @php
-                    $position = $index + 1;
-                    $rankClass = match($position) {
-                        1 => 'top-1',
-                        2 => 'top-2',
-                        3 => 'top-3',
-                        default => '',
-                    };
-                    $badgeClass = match($position) {
-                        1 => 'gold-r',
-                        2 => 'silver-r',
-                        3 => 'bronze-r',
-                        default => 'default-r',
-                    };
+                    $sr = max($fragenQualitaet['totalAnswered'], 1);
+                    $correctPct = ($fragenQualitaet['correct'] / $sr) * 100;
+                    $wrongPct = 100 - $correctPct;
                 @endphp
-                <div class="lb-item {{ $rankClass }}">
-                    <div class="lb-rank {{ $badgeClass }}">
-                        @if($position <= 3)
-                            <i class="bi bi-trophy-fill"></i>
-                        @else
-                            {{ $position }}
-                        @endif
+                <div style="display:flex;height:10px;border-radius:999px;overflow:hidden;background:rgba(255,255,255,0.06);margin-bottom:0.375rem;">
+                    <div style="width:{{ $correctPct }}%;background:#22c55e;"></div>
+                    <div style="width:{{ $wrongPct }}%;background:#ef4444;"></div>
+                </div>
+                <div style="font-family:'IBM Plex Mono',monospace;font-size:0.6875rem;color:var(--text-muted);text-align:center;">
+                    {{ number_format($fragenQualitaet['successRate'], 1, ',', '.') }} % Erfolgsrate
+                </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.5rem;margin-bottom:1.25rem;">
+                <div class="sr-tile">
+                    <div class="sr-tile__val">{{ number_format($fragenQualitaet['totalFragen'], 0, ',', '.') }}</div>
+                    <div class="sr-tile__lbl">Fragen gesamt</div>
+                </div>
+                <div class="sr-tile">
+                    <div class="sr-tile__val sr-tile__val--purp">{{ number_format($fragenQualitaet['totalAnswered'], 0, ',', '.') }}</div>
+                    <div class="sr-tile__lbl">Antworten (Zeitraum)</div>
+                </div>
+                <div class="sr-tile">
+                    <div class="sr-tile__val" style="color:#fbbf24;">{{ $fragenQualitaet['entwuerfe'] }}</div>
+                    <div class="sr-tile__lbl">Entwürfe</div>
+                </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+                <div>
+                    <div style="display:flex;align-items:center;gap:0.375rem;margin-bottom:0.625rem;">
+                        <i class="bi bi-check-circle-fill" style="color:#22c55e;font-size:0.8125rem;"></i>
+                        <span class="section-label" style="font-size:0.625rem;">Top 3 · am häufigsten richtig</span>
                     </div>
-                    <img class="lb-avatar"
-                         src="{{ $user['avatar_url'] ?? 'https://api.dicebear.com/9.x/avataaars/svg?seed=' . urlencode($user['name']) . '&radius=50&backgroundColor=00337f' }}"
-                         alt=""
-                         loading="lazy">
-                    <div class="lb-info">
-                        <div class="lb-name">{{ $user['name'] }}</div>
-                        <div class="lb-level">Level {{ $user['level'] }}</div>
+                    @forelse($fragenQualitaet['topRichtig'] as $q)
+                        <div class="queue-row" style="padding:0.5rem 0.625rem;margin-bottom:0.375rem;">
+                            <div style="font-family:'IBM Plex Mono',monospace;font-size:0.75rem;color:var(--text-muted);min-width:2.5rem;">#{{ $q['nummer'] ?? $q['id'] }}</div>
+                            <div class="queue-body">
+                                <div style="font-size:0.75rem;color:var(--text-primary);font-weight:600;">{{ $q['frage'] }}</div>
+                                <div style="font-size:0.625rem;color:var(--text-muted);">{{ $q['lernabschnitt'] ? 'Abschnitt ' . $q['lernabschnitt'] . ' · ' : '' }}{{ $q['attempts'] }}×</div>
+                            </div>
+                            <div style="font-family:'IBM Plex Mono',monospace;font-weight:700;color:#22c55e;font-size:0.8125rem;">{{ number_format($q['correct_rate'], 0, ',', '.') }} %</div>
+                        </div>
+                    @empty
+                        <div style="color:var(--text-muted);font-size:0.75rem;padding:0.75rem 0;">Noch nicht genug Daten</div>
+                    @endforelse
+                </div>
+
+                <div>
+                    <div style="display:flex;align-items:center;gap:0.375rem;margin-bottom:0.625rem;">
+                        <i class="bi bi-x-circle-fill" style="color:#ef4444;font-size:0.8125rem;"></i>
+                        <span class="section-label" style="font-size:0.625rem;">Top 3 · am häufigsten falsch</span>
                     </div>
-                    <div class="lb-score">
-                        <div class="lb-points {{ $position === 1 ? 'text-gradient-gold' : '' }}">{{ number_format($user['score'], 0, ',', '.') }}</div>
-                        <div class="lb-details">{{ number_format($user['solved_questions'], 0, ',', '.') }} Fragen</div>
+                    @forelse($fragenQualitaet['topFalsch'] as $q)
+                        @php
+                            $rateColor = $q['wrong_rate'] >= 80 ? '#ef4444' : ($q['wrong_rate'] >= 60 ? '#f59e0b' : '#fbbf24');
+                            $rowClass  = $q['wrong_rate'] >= 70 ? 'queue-row queue-row--urgent' : 'queue-row';
+                        @endphp
+                        <div class="{{ $rowClass }}" style="padding:0.5rem 0.625rem;margin-bottom:0.375rem;">
+                            <div style="font-family:'IBM Plex Mono',monospace;font-size:0.75rem;color:var(--text-muted);min-width:2.5rem;">#{{ $q['nummer'] ?? $q['id'] }}</div>
+                            <div class="queue-body">
+                                <div style="font-size:0.75rem;color:var(--text-primary);font-weight:600;">{{ $q['frage'] }}</div>
+                                <div style="font-size:0.625rem;color:var(--text-muted);">{{ $q['lernabschnitt'] ? 'Abschnitt ' . $q['lernabschnitt'] . ' · ' : '' }}{{ $q['attempts'] }}×</div>
+                            </div>
+                            <div style="font-family:'IBM Plex Mono',monospace;font-weight:700;color:{{ $rateColor }};font-size:0.8125rem;">{{ number_format($q['wrong_rate'], 0, ',', '.') }} %</div>
+                        </div>
+                    @empty
+                        <div style="color:var(--text-muted);font-size:0.75rem;padding:0.75rem 0;">Noch nicht genug Daten</div>
+                    @endforelse
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    {{-- ── ROW 3: ORTSVERBÄNDE + SR ─────────── --}}
+    <div class="admin-grid">
+
+        {{-- Ortsverbände --}}
+        <div class="card">
+            <div class="card-h">
+                <span class="section-label">Ortsverbände</span>
+                <a href="{{ route('admin.ortsverband.index') }}" class="card-h-link">Alle →</a>
+            </div>
+            <div class="kpi" style="padding:0.75rem 0.875rem;margin-bottom:0.75rem;background:rgba(255,255,255,0.04);">
+                <div style="display:flex;gap:1.25rem;align-items:baseline;">
+                    <div>
+                        <div class="pulse-label">Aktiv</div>
+                        <div style="font-family:'Figtree',sans-serif;font-weight:800;font-size:1.375rem;color:var(--text-primary);">{{ $ortsverbaende['summary']['active'] }}</div>
+                    </div>
+                    <div>
+                        <div class="pulse-label">Nutzer</div>
+                        <div style="font-family:'Figtree',sans-serif;font-weight:800;font-size:1.375rem;color:#5b9aff;">{{ $ortsverbaende['summary']['users'] }}</div>
+                    </div>
+                    <div>
+                        <div class="pulse-label">Ø Nutzer / OV</div>
+                        <div style="font-family:'Figtree',sans-serif;font-weight:800;font-size:1.375rem;color:var(--text-primary);">{{ $ortsverbaende['summary']['avg'] }}</div>
                     </div>
                 </div>
+            </div>
+            @forelse($ortsverbaende['list'] as $ov)
+                <div class="ov-item">
+                    <div class="ov-icon"><i class="bi bi-building"></i></div>
+                    <div class="ov-body">
+                        <div class="ov-name">{{ $ov['name'] }}</div>
+                        <div class="ov-sub">{{ $ov['members'] }} Nutzer · zuletzt aktiv {{ $ov['last_activity'] }}</div>
+                    </div>
+                    <div class="ov-count">{{ $ov['members'] }}</div>
+                </div>
             @empty
-                <div style="text-align:center;padding:1.5rem;color:var(--text-muted);">
-                    Keine Daten vorhanden
+                <div style="text-align:center;padding:1.5rem;color:var(--text-muted);font-size:0.875rem;">
+                    Noch keine Ortsverbände mit Mitgliedern
                 </div>
             @endforelse
         </div>
+
+        {{-- Spaced Repetition --}}
+        <div class="card">
+            <div class="card-h">
+                <span class="section-label">Spaced Repetition</span>
+                <a href="{{ route('admin.statistics') }}" class="card-h-link">Details →</a>
+            </div>
+            <div class="sr-stats">
+                <div class="sr-tile">
+                    <div class="sr-tile__val">{{ $srStats['active_users'] }}</div>
+                    <div class="sr-tile__lbl">User aktiv</div>
+                </div>
+                <div class="sr-tile">
+                    <div class="sr-tile__val sr-tile__val--green">{{ number_format($srStats['mastered'], 0, ',', '.') }}</div>
+                    <div class="sr-tile__lbl">Gemeistert</div>
+                </div>
+                <div class="sr-tile">
+                    <div class="sr-tile__val sr-tile__val--gold">{{ number_format($srStats['due_today'], 0, ',', '.') }}</div>
+                    <div class="sr-tile__lbl">Fällig heute</div>
+                </div>
+            </div>
+
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.375rem;">
+                <span class="section-label" style="font-size:0.625rem;">Intervall-Verteilung</span>
+                <span style="font-family:'IBM Plex Mono',monospace;font-size:0.6875rem;color:var(--text-muted);">{{ number_format($srStats['cards_total'], 0, ',', '.') }} Karten</span>
+            </div>
+            <div class="sr-dist">
+                <div style="width:{{ $srStats['dist_pct']['1_3'] }}%;background:#5b9aff;"></div>
+                <div style="width:{{ $srStats['dist_pct']['4_7'] }}%;background:#22c55e;"></div>
+                <div style="width:{{ $srStats['dist_pct']['8_14'] }}%;background:#fbbf24;"></div>
+                <div style="width:{{ $srStats['dist_pct']['15_plus'] }}%;background:#a78bfa;"></div>
+            </div>
+            <div class="sr-dist-legend">
+                <div><span class="swatch" style="background:#5b9aff;"></span>1–3 T · {{ $srStats['dist_pct']['1_3'] }}%</div>
+                <div><span class="swatch" style="background:#22c55e;"></span>4–7 T · {{ $srStats['dist_pct']['4_7'] }}%</div>
+                <div><span class="swatch" style="background:#fbbf24;"></span>8–14 T · {{ $srStats['dist_pct']['8_14'] }}%</div>
+                <div><span class="swatch" style="background:#a78bfa;"></span>15+ T · {{ $srStats['dist_pct']['15_plus'] }}%</div>
+            </div>
+
+            <div style="margin-top:1rem;padding-top:0.875rem;border-top:1px solid rgba(255,255,255,0.06);display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+                <div>
+                    <div class="pulse-label">Mastery-Rate</div>
+                    <div style="font-family:'Figtree',sans-serif;font-weight:700;font-size:1rem;color:#22c55e;">{{ number_format($srStats['mastery_rate'], 1, ',', '.') }} %</div>
+                </div>
+                <div>
+                    <div class="pulse-label">Ø Easiness</div>
+                    <div style="font-family:'Figtree',sans-serif;font-weight:700;font-size:1rem;color:var(--text-primary);">{{ number_format($srStats['avg_easiness'], 2, ',', '.') }}</div>
+                </div>
+                <div>
+                    <div class="pulse-label">Fällig morgen</div>
+                    <div style="font-family:'Figtree',sans-serif;font-weight:700;font-size:1rem;color:var(--text-primary);">{{ $srStats['due_tomorrow'] }}</div>
+                </div>
+                <div>
+                    <div class="pulse-label">Diese Woche</div>
+                    <div style="font-family:'Figtree',sans-serif;font-weight:700;font-size:1rem;color:var(--text-primary);">{{ $srStats['due_this_week'] }}</div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
-    {{-- ── 8. Charts ── --}}
-    <div class="card-label" style="margin-bottom:0;">Statistiken (30 Tage)</div>
-
-    <div class="chart-grid">
-        <div class="glass" style="padding:1rem;">
-            <div class="card-label">Benutzeraktivität</div>
-            <div class="chart-container">
-                <canvas id="userActivityChart"></canvas>
-            </div>
-        </div>
-
-        <div class="glass" style="padding:1rem;">
-            <div class="card-label">Beantwortete Fragen</div>
-            <div class="chart-container">
-                <canvas id="questionsChart"></canvas>
-            </div>
-        </div>
-
-        <div class="glass" style="padding:1rem;">
-            <div class="card-label">Prüfungen</div>
-            <div class="chart-container">
-                <canvas id="examsChart"></canvas>
-            </div>
-        </div>
-
-        <div class="glass" style="padding:1rem;">
-            <div class="card-label">Benutzer-Wachstum</div>
-            <div class="chart-container">
-                <canvas id="userGrowthChart"></canvas>
-            </div>
-        </div>
-    </div>
-
-</div>
 </div>
 @endsection
 
 @push('scripts')
-@vite('resources/js/admin.js')
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    if (typeof Chart === 'undefined') {
-        console.error('Chart.js konnte nicht geladen werden');
-        return;
-    }
+(function() {
+    const root = document.getElementById('admin-root');
+    if (!root) return;
 
-    const isLightMode = document.documentElement.classList.contains('light-mode');
-    const gridColor = isLightMode ? 'rgba(0, 0, 0, 0.06)' : 'rgba(255, 255, 255, 0.06)';
-    const textColor = isLightMode ? '#374151' : '#a1a1aa';
+    // ------- Sparklines -------
+    function drawSpark(canvas) {
+        const raw = canvas.getAttribute('data-points');
+        if (!raw) return;
+        let data;
+        try { data = JSON.parse(raw); } catch (e) { return; }
+        if (!Array.isArray(data) || data.length < 2) return;
 
-    Chart.defaults.font.family = "'Figtree', -apple-system, BlinkMacSystemFont, sans-serif";
-    Chart.defaults.color = textColor;
+        const key = canvas.getAttribute('data-spark');
+        const colors = {
+            users: '#5b9aff',
+            wau: '#22c55e',
+            answers: '#a78bfa',
+            success: '#fbbf24',
+            verified: '#5b9aff',
+        };
+        const color = colors[key] || '#5b9aff';
 
-    const commonOptions = {
-        responsive: true,
-        maintainAspectRatio: false,
-        interaction: { mode: 'index', intersect: false },
-        plugins: {
-            legend: {
-                display: true,
-                position: 'top',
-                labels: { usePointStyle: true, padding: 10, font: { size: 9 } }
-            },
-            tooltip: {
-                backgroundColor: isLightMode ? 'rgba(255, 255, 255, 0.95)' : 'rgba(0, 0, 0, 0.9)',
-                titleColor: isLightMode ? '#1f2937' : '#f5f5f5',
-                bodyColor: isLightMode ? '#374151' : '#a1a1aa',
-                borderColor: isLightMode ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.1)',
-                borderWidth: 1,
-                padding: 8,
-                cornerRadius: 6,
+        const dpr = window.devicePixelRatio || 1;
+        const w = canvas.offsetWidth, h = canvas.offsetHeight;
+        if (w === 0 || h === 0) return;
+        canvas.width = w * dpr; canvas.height = h * dpr;
+        const ctx = canvas.getContext('2d');
+        ctx.scale(dpr, dpr);
+        ctx.clearRect(0, 0, w, h);
+
+        const min = Math.min(...data), max = Math.max(...data);
+        const range = (max - min) || 1;
+        const stepX = w / (data.length - 1);
+        const y = i => h - 4 - ((data[i] - min) / range) * (h - 8);
+        const pts = data.map((_, i) => [i * stepX, y(i)]);
+
+        // Smoothing helper (Catmull-Rom → Bezier)
+        function smoothPath(ctx, points) {
+            if (points.length < 2) return;
+            ctx.moveTo(points[0][0], points[0][1]);
+            if (points.length === 2) { ctx.lineTo(points[1][0], points[1][1]); return; }
+            for (let i = 0; i < points.length - 1; i++) {
+                const p0 = points[i - 1] || points[i];
+                const p1 = points[i];
+                const p2 = points[i + 1];
+                const p3 = points[i + 2] || p2;
+                const cp1x = p1[0] + (p2[0] - p0[0]) / 6;
+                const cp1y = p1[1] + (p2[1] - p0[1]) / 6;
+                const cp2x = p2[0] - (p3[0] - p1[0]) / 6;
+                const cp2y = p2[1] - (p3[1] - p1[1]) / 6;
+                ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, p2[0], p2[1]);
             }
-        },
-        scales: {
-            y: { beginAtZero: true, grid: { color: gridColor }, ticks: { font: { size: 9 } } },
-            x: { grid: { display: false }, ticks: { font: { size: 8 }, maxRotation: 45, minRotation: 45 } }
         }
-    };
 
-    // Chart 1: Benutzeraktivität
-    new Chart(document.getElementById('userActivityChart'), {
-        type: 'line',
-        data: {
-            labels: {!! json_encode($chartData['labels']) !!},
-            datasets: [
-                {
-                    label: 'Aktive Benutzer',
-                    data: {!! json_encode($chartData['active']) !!},
-                    borderColor: '#0055cc',
-                    backgroundColor: 'rgba(0, 85, 204, 0.1)',
-                    borderWidth: 2,
-                    fill: true,
-                    tension: 0.4,
-                    pointRadius: 1,
-                    pointHoverRadius: 4
-                },
-                {
-                    label: 'Registrierungen',
-                    data: {!! json_encode($chartData['registrations']) !!},
-                    borderColor: '#22c55e',
-                    backgroundColor: 'rgba(34, 197, 94, 0.1)',
-                    borderWidth: 2,
-                    fill: true,
-                    tension: 0.4,
-                    pointRadius: 1,
-                    pointHoverRadius: 4
-                }
-            ]
-        },
-        options: commonOptions
-    });
+        ctx.beginPath();
+        ctx.moveTo(0, h);
+        ctx.lineTo(pts[0][0], pts[0][1]);
+        smoothPath(ctx, pts);
+        ctx.lineTo(w, h); ctx.closePath();
+        const grad = ctx.createLinearGradient(0, 0, 0, h);
+        grad.addColorStop(0, color + '55');
+        grad.addColorStop(1, color + '00');
+        ctx.fillStyle = grad; ctx.fill();
 
-    // Lineare Regression für Trendlinie
-    function linearRegression(data) {
-        const n = data.length;
-        let sumX = 0, sumY = 0, sumXY = 0, sumXX = 0;
-        for (let i = 0; i < n; i++) {
-            sumX += i; sumY += data[i];
-            sumXY += i * data[i]; sumXX += i * i;
-        }
-        const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
-        const intercept = (sumY - slope * sumX) / n;
-        return data.map((_, i) => Math.max(0, Math.round(intercept + slope * i)));
+        ctx.beginPath();
+        smoothPath(ctx, pts);
+        ctx.lineWidth = 1.75;
+        ctx.strokeStyle = color;
+        ctx.lineJoin = 'round';
+        ctx.lineCap = 'round';
+        ctx.stroke();
     }
 
-    const questionsTotal = {!! json_encode($chartData['questionsTotal']) !!};
+    function renderSparks() {
+        root.querySelectorAll('.kpi__spark').forEach(drawSpark);
+    }
 
-    // Chart 2: Beantwortete Fragen
-    new Chart(document.getElementById('questionsChart'), {
-        type: 'line',
-        data: {
-            labels: {!! json_encode($chartData['labels']) !!},
-            datasets: [
-                {
-                    label: 'Gesamt',
-                    data: questionsTotal,
-                    borderColor: '#5b9aff',
-                    backgroundColor: 'rgba(91, 154, 255, 0.1)',
-                    borderWidth: 2,
-                    fill: true,
-                    tension: 0.4,
-                    pointRadius: 1,
-                    pointHoverRadius: 4
-                },
-                {
-                    label: 'Richtig',
-                    data: {!! json_encode($chartData['questionsCorrect']) !!},
-                    borderColor: '#22c55e',
-                    backgroundColor: 'rgba(34, 197, 94, 0.1)',
-                    borderWidth: 2,
-                    fill: true,
-                    tension: 0.4,
-                    pointRadius: 1,
-                    pointHoverRadius: 4
-                },
-                {
-                    label: 'Falsch',
-                    data: {!! json_encode($chartData['questionsWrong']) !!},
-                    borderColor: '#ef4444',
-                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                    borderWidth: 2,
-                    fill: true,
-                    tension: 0.4,
-                    pointRadius: 1,
-                    pointHoverRadius: 4
-                },
-                {
-                    label: 'Trend (Gesamt)',
-                    data: linearRegression(questionsTotal),
-                    borderColor: '#fbbf24',
-                    borderWidth: 2,
-                    borderDash: [6, 4],
-                    fill: false,
-                    tension: 0,
-                    pointRadius: 0,
-                    pointHoverRadius: 0
-                }
-            ]
-        },
-        options: commonOptions
+    // ------- Activity line charts -------
+    function drawLineChart(canvas) {
+        const series = JSON.parse(canvas.getAttribute('data-series') || '[]');
+        const labels = JSON.parse(canvas.getAttribute('data-labels') || '[]');
+        const stroke = canvas.getAttribute('data-color') || '#5b9aff';
+        const fill   = canvas.getAttribute('data-fill')  || 'rgba(91,154,255,0.2)';
+        if (!series.length) return;
+
+        const dpr = window.devicePixelRatio || 1;
+        const w = canvas.offsetWidth, h = canvas.offsetHeight;
+        if (w === 0 || h === 0) return;
+        canvas.width = w * dpr; canvas.height = h * dpr;
+        const ctx = canvas.getContext('2d');
+        ctx.scale(dpr, dpr);
+        ctx.clearRect(0, 0, w, h);
+
+        const isLight = document.documentElement.classList.contains('light-mode');
+        const gridColor = isLight ? 'rgba(0,51,127,0.08)' : 'rgba(255,255,255,0.06)';
+        const axisText  = isLight ? '#64748b' : '#71717a';
+
+        const padL = 34, padR = 12, padT = 12, padB = 22;
+        const plotW = w - padL - padR, plotH = h - padT - padB;
+
+        const maxV = Math.max(...series);
+        const yStep = Math.max(1, Math.ceil((maxV * 1.15) / 4));
+        const top = yStep * 4;
+
+        ctx.font = '10px "IBM Plex Mono", monospace';
+        ctx.fillStyle = axisText;
+        ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+        for (let i = 0; i <= 4; i++) {
+            const y = padT + plotH - (i / 4) * plotH;
+            ctx.strokeStyle = gridColor;
+            ctx.beginPath();
+            ctx.moveTo(padL, y); ctx.lineTo(w - padR, y); ctx.stroke();
+            ctx.fillText(String(i * yStep), padL - 6, y);
+        }
+
+        ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+        const stepX = plotW / Math.max(labels.length - 1, 1);
+        labels.forEach((lab, i) => {
+            if (i % 3 === 0 || i === labels.length - 1) {
+                ctx.fillText(lab, padL + i * stepX, padT + plotH + 6);
+            }
+        });
+
+        const mapY = v => padT + plotH - (v / top) * plotH;
+        const mapX = i => padL + i * stepX;
+        const pts = series.map((v, i) => [mapX(i), mapY(v)]);
+
+        function smoothPath(ctx, points) {
+            if (points.length < 2) return;
+            ctx.moveTo(points[0][0], points[0][1]);
+            if (points.length === 2) { ctx.lineTo(points[1][0], points[1][1]); return; }
+            for (let i = 0; i < points.length - 1; i++) {
+                const p0 = points[i - 1] || points[i];
+                const p1 = points[i];
+                const p2 = points[i + 1];
+                const p3 = points[i + 2] || p2;
+                const cp1x = p1[0] + (p2[0] - p0[0]) / 6;
+                const cp1y = p1[1] + (p2[1] - p0[1]) / 6;
+                const cp2x = p2[0] - (p3[0] - p1[0]) / 6;
+                const cp2y = p2[1] - (p3[1] - p1[1]) / 6;
+                ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, p2[0], p2[1]);
+            }
+        }
+
+        ctx.beginPath();
+        ctx.moveTo(mapX(0), padT + plotH);
+        ctx.lineTo(pts[0][0], pts[0][1]);
+        smoothPath(ctx, pts);
+        ctx.lineTo(mapX(series.length - 1), padT + plotH);
+        ctx.closePath();
+        const g = ctx.createLinearGradient(0, padT, 0, padT + plotH);
+        g.addColorStop(0, fill);
+        g.addColorStop(1, fill.replace(/[\d.]+\)$/, '0)'));
+        ctx.fillStyle = g; ctx.fill();
+
+        ctx.beginPath();
+        smoothPath(ctx, pts);
+        ctx.lineWidth = 2; ctx.strokeStyle = stroke;
+        ctx.lineJoin = 'round'; ctx.lineCap = 'round'; ctx.stroke();
+
+        // Bei wenigen Punkten: kleine Datenpunkte zeigen, sonst zu unruhig.
+        if (series.length <= 14) {
+            series.forEach((v, i) => {
+                ctx.beginPath();
+                ctx.arc(mapX(i), mapY(v), 2.5, 0, Math.PI * 2);
+                ctx.fillStyle = stroke; ctx.fill();
+            });
+        }
+    }
+
+    function renderCharts() {
+        root.querySelectorAll('#chart-active, #chart-answered').forEach(drawLineChart);
+    }
+
+    // ------- Range segmented (reload with query) -------
+    root.querySelectorAll('#range-seg button').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const range = btn.getAttribute('data-range');
+            const url = new URL(window.location.href);
+            url.searchParams.set('range', range);
+            window.location.href = url.toString();
+        });
     });
 
-    // Chart 3: Prüfungen
-    new Chart(document.getElementById('examsChart'), {
-        type: 'bar',
-        data: {
-            labels: {!! json_encode($chartData['labels']) !!},
-            datasets: [
-                {
-                    label: 'Bestanden',
-                    data: {!! json_encode($chartData['examsPassed']) !!},
-                    backgroundColor: 'rgba(34, 197, 94, 0.6)',
-                    borderColor: '#22c55e',
-                    borderWidth: 1,
-                    borderRadius: 3
-                },
-                {
-                    label: 'Nicht bestanden',
-                    data: {!! json_encode($chartData['examsFailed']) !!},
-                    backgroundColor: 'rgba(239, 68, 68, 0.6)',
-                    borderColor: '#ef4444',
-                    borderWidth: 1,
-                    borderRadius: 3
-                }
-            ]
-        },
-        options: { ...commonOptions, scales: { ...commonOptions.scales, x: { ...commonOptions.scales.x, stacked: true }, y: { ...commonOptions.scales.y, stacked: true } } }
+    // ------- Refresh -------
+    document.getElementById('refresh-btn')?.addEventListener('click', () => {
+        window.location.reload();
     });
 
-    // Chart 4: User-Wachstum
-    new Chart(document.getElementById('userGrowthChart'), {
-        type: 'line',
-        data: {
-            labels: {!! json_encode($chartData['labels']) !!},
-            datasets: [
-                {
-                    label: 'Gesamtanzahl',
-                    data: {!! json_encode($chartData['userCount']) !!},
-                    borderColor: '#00337F',
-                    backgroundColor: 'rgba(0, 51, 127, 0.1)',
-                    borderWidth: 2,
-                    fill: true,
-                    tension: 0.4,
-                    pointRadius: 1,
-                    pointHoverRadius: 4
-                },
-                {
-                    label: 'Unbestätigt',
-                    data: {!! json_encode($chartData['unverifiedCount']) !!},
-                    borderColor: '#f59e0b',
-                    backgroundColor: 'rgba(245, 158, 11, 0.1)',
-                    borderWidth: 2,
-                    fill: true,
-                    tension: 0.4,
-                    pointRadius: 1,
-                    pointHoverRadius: 4
-                }
-            ]
-        },
-        options: commonOptions
+    // ------- Init -------
+    function initAll() { renderSparks(); renderCharts(); }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initAll);
+    } else {
+        initAll();
+    }
+    window.addEventListener('resize', () => {
+        requestAnimationFrame(() => { renderSparks(); renderCharts(); });
     });
-});
+})();
 </script>
 @endpush

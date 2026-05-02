@@ -460,7 +460,7 @@ class LeagueService
             'data' => $data,
         ]);
 
-        if ($user->pushSubscriptions()->exists()) {
+        if ($user->wantsPushFor('league_updates') && $user->pushSubscriptions()->exists()) {
             $user->notify(new \App\Notifications\PushNotification(
                 $title,
                 $message,

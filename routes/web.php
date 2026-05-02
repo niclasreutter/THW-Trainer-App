@@ -12,6 +12,7 @@
 */
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\TrainingProgressController;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
@@ -419,6 +420,29 @@ Route::get('/dashboard', function () {
             ->exists();
     }
 
+    // Ausbildungsfortschritt (Issue #442) — kompakte LA-Übersicht fürs Dashboard
+    $trainingService = new \App\Services\TrainingProgressService();
+    $trainingOverview = $trainingService->overview($user);
+    $completedSet = array_flip($trainingOverview['completed_keys']);
+    $trainingLaSummary = [];
+    foreach (\App\Services\TrainingProgressService::LERNABSCHNITTE as $la) {
+        $done = 0;
+        foreach ($la['items'] as $item) {
+            if (isset($completedSet[$item['key']])) {
+                $done++;
+            }
+        }
+        $total = count($la['items']);
+        $trainingLaSummary[] = [
+            'key' => $la['key'],
+            'nr' => $la['nr'],
+            'title' => $la['title'],
+            'done' => $done,
+            'total' => $total,
+            'percent' => $total > 0 ? (int) round(($done / $total) * 100) : 0,
+        ];
+    }
+
     return view('dashboard', compact(
         'user', 'recentExams', 'totalQuestions', 'spacedRepetitionDue',
         'weeklyActivity', 'sectionStats', 'streakFreezeStatus',
@@ -428,7 +452,8 @@ Route::get('/dashboard', function () {
         'canStartExam', 'exams', 'hasFailedQuestions',
         'levelProgress', 'nextLevelPoints', 'unopenedLootboxes',
         'todayAnswered', 'todayCorrect', 'dailyStreakGoal',
-        'showSurveyNudge', 'activeSurvey'
+        'showSurveyNudge', 'activeSurvey',
+        'trainingOverview', 'trainingLaSummary'
     ));
 })->middleware(['auth', 'verified'])->name('dashboard');
 
@@ -450,25 +475,66 @@ Route::post('/streak/freeze', [\App\Http\Controllers\GamificationController::cla
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', function() {
-        $user = auth()->user()->fresh(); // Fresh reload from database
+        $user = auth()->user()->fresh();
         $shopService = new \App\Services\ShopService();
         $ownedAccessories = $shopService->getOwnedAccessories($user);
-        return view('profile', compact('user', 'ownedAccessories'));
+        $gamification = new \App\Services\GamificationService();
+        $levelProgress = $gamification->getLevelProgress($user);
+        $nextLevelPoints = $gamification->getNextLevelPoints($user);
+        $achievements = $gamification->getUserAchievements($user);
+
+        // Stat-Pills: Gesamt-Übersicht
+        $totalQuestions = \Illuminate\Support\Facades\Cache::remember('total_questions_count', 3600, fn () => \App\Models\Question::count());
+        $solvedTotal = \App\Models\UserQuestionProgress::where('user_id', $user->id)->count();
+        $totalAnswered = \App\Models\QuestionStatistic::where('user_id', $user->id)->count();
+        $totalCorrect = \App\Models\QuestionStatistic::where('user_id', $user->id)->where('is_correct', true)->count();
+        $hitRate = $totalAnswered > 0 ? (int) round(($totalCorrect / $totalAnswered) * 100) : null;
+        $wrongTotal = max(0, $totalAnswered - $totalCorrect);
+
+        // 14-Tage Streak-Timeline für Hero-Card
+        $firstXp = \App\Models\XpHistory::where('user_id', $user->id)->min('created_at');
+        $firstLearnDate = $firstXp ? \Illuminate\Support\Carbon::parse($firstXp)->startOfDay() : null;
+        $streakCalendar = app(\App\Services\GamificationService::class)->buildStreakCalendarData($user, 14);
+        $stateMap = ['active' => 'learned', 'frozen' => 'freeze', 'missed' => 'empty'];
+        $streakDaysArr = [];
+        foreach ($streakCalendar as $day) {
+            $d = \Illuminate\Support\Carbon::parse($day['date'])->startOfDay();
+            if ($firstLearnDate && $d->lt($firstLearnDate)) continue;
+            $streakDaysArr[] = [
+                'date' => $day['date'],
+                'label' => $d->translatedFormat('d.m.'),
+                'state' => $stateMap[$day['status']] ?? 'empty',
+            ];
+        }
+
+        return view('profile', compact(
+            'user', 'ownedAccessories', 'levelProgress', 'nextLevelPoints', 'achievements',
+            'totalQuestions', 'solvedTotal', 'wrongTotal', 'hitRate', 'streakDaysArr'
+        ));
     })->name('profile');
-    Route::patch('/profile', function(Request $request) {
-        \Log::info('Profile route reached via PATCH');
-        return app(ProfileController::class)->update($request);
-    })->name('profile.update');
-    Route::patch('/profile/password', function(Request $request) {
-        \Log::info('Password update route reached via PATCH');
-        return app(ProfileController::class)->updatePassword($request);
-    })->name('profile.password.update');
+    // Profile-eigene Actions (Avatar, Accessoires, Dashboard-Banner) bleiben unter /profile
     Route::post('/profile/avatar/regenerate', [ProfileController::class, 'regenerateAvatar'])->name('profile.avatar.regenerate');
     Route::post('/profile/accessory/toggle', [ProfileController::class, 'toggleAccessory'])->name('profile.accessory.toggle');
     Route::post('/profile/accessory/color', [ProfileController::class, 'updateAccessoryColor'])->name('profile.accessory.color');
     Route::post('/profile/dismiss-leaderboard-banner', [ProfileController::class, 'dismissLeaderboardBanner'])->name('profile.dismiss.leaderboard.banner');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    Route::post('/profile/cancel-email-change', [ProfileController::class, 'cancelEmailChange'])->name('profile.cancel-email-change');
+
+    // Einstellungen (Account-Verwaltung): Persönliche Daten, Passwort, Benachrichtigungen, Consents, Prüfungsdatum, Account löschen
+    Route::get('/einstellungen', function() {
+        $user = auth()->user()->fresh();
+        $ortsverbande = $user->ortsverbande()->get();
+        return view('einstellungen', compact('user', 'ortsverbande'));
+    })->name('einstellungen');
+    Route::patch('/einstellungen', [ProfileController::class, 'update'])->name('einstellungen.update');
+    Route::patch('/einstellungen/password', [ProfileController::class, 'updatePassword'])->name('einstellungen.password.update');
+    Route::delete('/einstellungen', [ProfileController::class, 'destroy'])->name('einstellungen.destroy');
+    Route::post('/einstellungen/cancel-email-change', [ProfileController::class, 'cancelEmailChange'])->name('einstellungen.cancel-email-change');
+    Route::post('/einstellungen/extras-enabled', [ProfileController::class, 'updateExtrasEnabled'])->name('einstellungen.extras-enabled');
+    Route::patch('/einstellungen/notification-preferences', [ProfileController::class, 'updateNotificationPreferences'])->name('einstellungen.notification-preferences');
+
+    // Ausbildungsfortschritt (Issue #442)
+    Route::get('/ausbildungsfortschritt', [TrainingProgressController::class, 'index'])->name('training-progress.index');
+    Route::post('/ausbildungsfortschritt/item', [TrainingProgressController::class, 'toggleItem'])->name('training-progress.item');
+    Route::post('/ausbildungsfortschritt/section', [TrainingProgressController::class, 'toggleSection'])->name('training-progress.section');
 });
 
 // Contact Routes - für eingeloggte Nutzer
@@ -492,6 +558,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/practice/section/{section}', [\App\Http\Controllers\PracticeController::class, 'section'])->name('practice.section');
     Route::get('/practice/search', [\App\Http\Controllers\PracticeController::class, 'search'])->name('practice.search');
     Route::get('/practice/spaced-repetition', [\App\Http\Controllers\PracticeController::class, 'spacedRepetition'])->name('practice.spaced-repetition');
+    Route::get('/practice/extras-only', [\App\Http\Controllers\PracticeController::class, 'extrasOnly'])->name('practice.extras-only');
 
     // Bookmark Routes
     Route::get('/bookmarks', [\App\Http\Controllers\BookmarkController::class, 'index'])->name('bookmarks.index');
@@ -606,6 +673,9 @@ Route::middleware('auth')->group(function () {
 
             // Mitglieder verwalten
             Route::get('/{ortsverband}/members', [\App\Http\Controllers\OrtsverbandController::class, 'members'])->name('members');
+            Route::get('/{ortsverband}/members/{user}/manage', [\App\Http\Controllers\OrtsverbandController::class, 'manageMember'])->name('members.manage');
+            Route::post('/{ortsverband}/members/{user}/training-item', [\App\Http\Controllers\OrtsverbandController::class, 'toggleMemberTrainingItem'])->name('members.training.item');
+            Route::post('/{ortsverband}/members/{user}/training-section', [\App\Http\Controllers\OrtsverbandController::class, 'toggleMemberTrainingSection'])->name('members.training.section');
             Route::delete('/{ortsverband}/members/{user}', [\App\Http\Controllers\OrtsverbandController::class, 'removeMember'])->name('members.remove');
             Route::put('/{ortsverband}/members/{user}/role', [\App\Http\Controllers\OrtsverbandController::class, 'changeRole'])->name('members.role');
 
@@ -637,6 +707,7 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix
     Route::get('/shop-analytics', [\App\Http\Controllers\Admin\ShopAnalyticsController::class, 'index'])->name('shop-analytics');
     Route::resource('questions', \App\Http\Controllers\Admin\QuestionController::class);
     Route::post('questions/{question}/update-field', [\App\Http\Controllers\Admin\QuestionController::class, 'updateField'])->name('questions.update-field');
+    Route::resource('extra-questions', \App\Http\Controllers\Admin\ExtraQuestionController::class)->parameters(['extra-questions' => 'extra_question'])->except(['show']);
     Route::resource('lehrgaenge', \App\Http\Controllers\Admin\LehrgangController::class);
     Route::post('lehrgaenge/{lehrgang}/import-csv', [\App\Http\Controllers\Admin\LehrgangController::class, 'importCSV'])->name('lehrgaenge.import-csv');
     Route::patch('lehrgaenge/{lehrgang}/question/{question}', [\App\Http\Controllers\Admin\LehrgangController::class, 'updateQuestion'])->name('lehrgaenge.update-question');

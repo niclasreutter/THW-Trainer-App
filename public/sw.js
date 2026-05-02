@@ -5,8 +5,8 @@ const RUNTIME_CACHE = `thw-trainer-runtime-${CACHE_VERSION}`;
 // Assets to precache
 const PRECACHE_ASSETS = [
   '/offline',
-  '/logo-thwtrainer.png',
-  '/logo-thwtrainer_w.png',
+  '/logo-thw-trainer.png',
+  '/logo-thw-trainer_w.png',
   '/manifest.json',
   '/favicon.ico'
 ];
@@ -37,8 +37,8 @@ self.addEventListener('activate', event => {
     caches.keys().then(cacheNames => {
       return Promise.all(
         cacheNames
-          .filter(cacheName => 
-            cacheName.startsWith('thw-trainer-') && 
+          .filter(cacheName =>
+            cacheName.startsWith('thw-trainer-') &&
             !cacheName.includes(CACHE_VERSION)
           )
           .map(cacheName => {
@@ -56,10 +56,10 @@ self.addEventListener('activate', event => {
 // Fetch event - Network first, offline page as fallback
 self.addEventListener('fetch', event => {
   const { request } = event;
-  
+
   // Skip non-GET requests
   if (request.method !== 'GET') return;
-  
+
   // Skip chrome extensions and other non-http(s) requests
   if (!request.url.startsWith('http')) return;
 
@@ -83,7 +83,7 @@ self.addEventListener('fetch', event => {
             if (cachedResponse) {
               return cachedResponse;
             }
-            
+
             // Fallback to offline page
             return caches.match('/offline');
           });
@@ -98,7 +98,7 @@ self.addEventListener('fetch', event => {
       if (cachedResponse) {
         return cachedResponse;
       }
-      
+
       return fetch(request).then(response => {
         // Cache successful responses
         if (response.status === 200) {
@@ -136,8 +136,8 @@ self.addEventListener('push', event => {
   const title = data.title || 'THW Trainer';
   const options = {
     body: data.body || '',
-    icon: data.icon || '/logo-thwtrainer.png',
-    badge: data.badge || '/logo-thwtrainer.png',
+    icon: data.icon || '/logo-thw-trainer.png',
+    badge: data.badge || '/logo-thw-trainer.png',
     tag: data.tag || 'thw-trainer-default',
     data: data.data || {},
     vibrate: [200, 100, 200]

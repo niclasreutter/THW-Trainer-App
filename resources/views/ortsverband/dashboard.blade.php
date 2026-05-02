@@ -202,9 +202,15 @@
                     <img src="{{ $mUser->avatar_url }}" alt="" style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0;">
                     <div style="flex:1;min-width:0;">
                         <div style="display:flex;align-items:center;gap:0.375rem;margin-bottom:0.15rem;">
-                            <span class="{{ trim($mNameClasses) }}" style="font-weight:700;font-size:0.8125rem;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-                                {{ $mUser->name }}
-                            </span>
+                            @if($mUser->id !== auth()->id())
+                                <a href="{{ route('ortsverband.members.manage', [$ortsverband, $mUser]) }}" class="{{ trim($mNameClasses) }}" style="font-weight:700;font-size:0.8125rem;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-decoration:none;">
+                                    {{ $mUser->name }}
+                                </a>
+                            @else
+                                <span class="{{ trim($mNameClasses) }}" style="font-weight:700;font-size:0.8125rem;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                                    {{ $mUser->name }}
+                                </span>
+                            @endif
                             @if($member['role'] === 'ausbildungsbeauftragter')
                                 <span style="font-size:0.5rem;padding:0.1rem 0.35rem;border-radius:2rem;background:rgba(91,154,255,0.12);color:#5b9aff;font-weight:700;font-family:'IBM Plex Mono',monospace;white-space:nowrap;">Ausbilder</span>
                             @endif
@@ -212,14 +218,20 @@
                         @if($mHasTitle)
                             <div class="user-title" style="font-size:0.625rem;margin-bottom:0.15rem;">{{ $mUser->active_title }}</div>
                         @endif
-                        <div style="display:flex;gap:0.75rem;font-size:0.6875rem;color:var(--text-muted);">
+                        <div style="display:flex;gap:0.75rem;font-size:0.6875rem;color:var(--text-muted);flex-wrap:wrap;">
                             <span>Theorie {{ $member['theory_progress_percent'] }}%</span>
+                            <span>Ausbildung {{ $member['training_progress_percent'] }}%</span>
                             <span>{{ $member['exams_passed'] }}/5 Prüf.</span>
                             <span>{{ $member['streak'] }}d Streak</span>
                             <span>Lvl {{ $member['level'] }}</span>
                         </div>
-                        <div class="ov-progress-track" style="margin-top:0.375rem;">
-                            <div style="height:100%;border-radius:2px;background:linear-gradient(90deg,#0055cc,#5b9aff);width:{{ $member['theory_progress_percent'] }}%;transition:width 0.6s ease-out;"></div>
+                        <div style="display:flex;gap:0.5rem;margin-top:0.375rem;">
+                            <div class="ov-progress-track" style="flex:1;" title="Theorie-Fortschritt">
+                                <div style="height:100%;border-radius:2px;background:linear-gradient(90deg,#0055cc,#5b9aff);width:{{ $member['theory_progress_percent'] }}%;transition:width 0.6s ease-out;"></div>
+                            </div>
+                            <div class="ov-progress-track" style="flex:1;" title="Ausbildungsfortschritt">
+                                <div style="height:100%;border-radius:2px;background:linear-gradient(90deg,#8a6d10,#d4a017);width:{{ $member['training_progress_percent'] }}%;transition:width 0.6s ease-out;"></div>
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -163,7 +163,7 @@
                     Alles über <strong>THW Grundausbildung</strong> und den THW-Trainer
                 </p>
             </header>
-            
+
             <div class="space-y-4">
                 <!-- FAQ Item 1 -->
                 <article class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
@@ -621,7 +621,7 @@ document.addEventListener('DOMContentLoaded', function() {
     "@@type": "Organization",
     "name": "THW-Trainer",
     "url": "{{ url('/') }}",
-    "logo": "{{ asset('logo-thwtrainer.png') . '?v=' . filemtime(public_path('logo-thwtrainer.png')) }}",
+    "logo": "{{ asset('logo-thw-trainer.png') . '?v=' . filemtime(public_path('logo-thw-trainer.png')) }}",
     "sameAs": [
         "https://github.com/niclasreutter"
     ],

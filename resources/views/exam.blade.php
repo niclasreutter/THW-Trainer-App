@@ -1259,6 +1259,28 @@ html.light-mode .exam-answer.result-missed {
     background: #ef4444;
     color: white;
 }
+
+/* =========================================================
+   NARROW DESKTOP (641-1919.98px) — Kompaktere Darstellung,
+   damit auf schmalen Viewports mit sichtbarer Sidebar alles
+   ohne Scroll sichtbar ist.
+   ========================================================= */
+@media (min-width: 641px) and (max-width: 1919.98px) {
+    .exam-header { margin-bottom: 0.5rem; }
+    .exam-title { font-size: 1.125rem; margin: 0.15rem 0; }
+    .exam-title .exam-qtotal { font-size: 0.875rem; }
+
+    .exam-stats-row { gap: 0.375rem; margin-bottom: 0.5rem; }
+    .exam-stat-pill { padding: 0.2rem 0.55rem; gap: 0.3rem; }
+    .exam-stat-pill .exam-stat-value { font-size: 0.8125rem; }
+
+    .exam-question-card {
+        padding: 1rem 1.125rem;
+        border-radius: 1rem 0.5rem 1rem 1rem;
+        margin-bottom: 0.5rem;
+    }
+    .exam-question-la { margin-bottom: 0.25rem; }
+}
 </style>
 @endpush
 

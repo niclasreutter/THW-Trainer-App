@@ -6,8 +6,8 @@
                 <!-- Logo/Text -->
                 <div class="shrink-0 flex items-center">
                     <a href="/">
-                        <img src="{{ asset('logo-thwtrainer.png') . '?v=' . filemtime(public_path('logo-thwtrainer.png')) }}" alt="THW-Trainer Logo" style="height:100%;max-height:2.5rem;width:auto;" class="mr-2 inline-block align-middle logo-for-light" />
-                        <img src="{{ asset('logo-thwtrainer_w.png') . '?v=' . filemtime(public_path('logo-thwtrainer_w.png')) }}" alt="THW-Trainer Logo" style="height:100%;max-height:2.5rem;width:auto;" class="mr-2 inline-block align-middle logo-for-dark" />
+                        <img src="{{ asset('logo-thw-trainer.png') . '?v=' . filemtime(public_path('logo-thw-trainer.png')) }}" alt="THW-Trainer Logo" style="height:100%;max-height:2.5rem;width:auto;" class="mr-2 inline-block align-middle logo-for-light" />
+                        <img src="{{ asset('logo-thw-trainer_w.png') . '?v=' . filemtime(public_path('logo-thw-trainer_w.png')) }}" alt="THW-Trainer Logo" style="height:100%;max-height:2.5rem;width:auto;" class="mr-2 inline-block align-middle logo-for-dark" />
                     </a>
                 </div>
 
@@ -101,6 +101,9 @@
                                     </a>
                                     <a href="/admin/questions" class="dropdown-item-glass">
                                         Fragen
+                                    </a>
+                                    <a href="{{ route('admin.extra-questions.index') }}" class="dropdown-item-glass">
+                                        Zusatz-Fragen
                                     </a>
                                     <a href="{{ route('admin.lehrgaenge.index') }}" class="dropdown-item-glass">
                                         Lehrgänge
@@ -338,6 +341,9 @@
                         </a>
                         <a href="/admin/questions" class="block px-3 py-2 text-sm text-dark-secondary hover:text-gold hover:bg-glass-white-5 rounded-md transition-colors duration-200">
                             Fragen
+                        </a>
+                        <a href="{{ route('admin.extra-questions.index') }}" class="block px-3 py-2 text-sm text-dark-secondary hover:text-gold hover:bg-glass-white-5 rounded-md transition-colors duration-200">
+                            Zusatz-Fragen
                         </a>
                         <a href="{{ route('admin.lehrgaenge.index') }}" class="block px-3 py-2 text-sm text-dark-secondary hover:text-gold hover:bg-glass-white-5 rounded-md transition-colors duration-200">
                             Lehrgänge

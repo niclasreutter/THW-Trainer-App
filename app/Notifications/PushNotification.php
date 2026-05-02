@@ -28,8 +28,8 @@ class PushNotification extends Notification implements ShouldQueue
         $message = (new WebPushMessage)
             ->title($this->title)
             ->body($this->body)
-            ->icon('/logo-thwtrainer.png')
-            ->badge('/logo-thwtrainer.png')
+            ->icon('/logo-thw-trainer.png')
+            ->badge('/logo-thw-trainer.png')
             ->tag('thw-trainer-' . substr(md5($this->title . now()), 0, 8));
 
         if ($this->url) {

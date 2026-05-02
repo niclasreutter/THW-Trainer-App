@@ -35,10 +35,12 @@ class SendSpacedRepetitionReminders extends Command
         $emailsSent = 0;
         $errors = 0;
 
-        // Finde alle Benutzer mit E-Mail-Zustimmung
-        $users = User::where('email_consent', true)->get();
+        // Finde alle Benutzer mit E-Mail-Zustimmung + aktivem Spaced-Repetition-Reminder
+        $users = User::where('email_consent', true)
+            ->where('notify_spaced_repetition_email', true)
+            ->get();
 
-        $this->info("Found {$users->count()} users with email consent.");
+        $this->info("Found {$users->count()} users with email consent + SR pref.");
 
         foreach ($users as $user) {
             try {

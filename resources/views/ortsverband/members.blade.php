@@ -88,10 +88,15 @@ html.light-mode .ov-progress-track-lg {
 @section('content')
 <div class="dash-container">
 
-    <div class="mb-6">
-        <p style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);font-weight:600;margin-bottom:0.25rem;">Verwaltung</p>
-        <h1 style="font-size:1.5rem;font-weight:800;line-height:1.2;font-family:'Barlow Condensed',sans-serif;background:linear-gradient(135deg,#5b9aff,#0055cc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Mitglieder verwalten</h1>
-        <p class="text-sm" style="color: var(--text-muted);">{{ $ortsverband->name }}</p>
+    <div class="mb-6" style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+        <div style="flex:1;min-width:0;">
+            <p style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);font-weight:600;margin-bottom:0.25rem;">Verwaltung</p>
+            <h1 style="font-size:1.5rem;font-weight:800;line-height:1.2;font-family:'Barlow Condensed',sans-serif;background:linear-gradient(135deg,#5b9aff,#0055cc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Mitglieder verwalten</h1>
+            <p class="text-sm" style="color: var(--text-muted);">{{ $ortsverband->name }}</p>
+        </div>
+        <a href="{{ route('ortsverband.invitations.index', $ortsverband) }}" class="btn-primary btn-sm" style="text-decoration:none;flex-shrink:0;">
+            Einladen
+        </a>
     </div>
 
     @if(session('success'))
@@ -119,9 +124,6 @@ html.light-mode .ov-progress-track-lg {
             <div class="gami-pill__value" style="color:#5b9aff;-webkit-text-fill-color:#5b9aff;">{{ $ausbilderProgress->count() }}</div>
             <div class="gami-pill__label">Ausbilder</div>
         </div>
-        <a href="{{ route('ortsverband.invitations.index', $ortsverband) }}" class="btn-primary btn-sm" style="margin-left: auto;">
-            Einladen
-        </a>
     </div>
 
     <div class="space-y-4">
@@ -184,6 +186,9 @@ html.light-mode .ov-progress-track-lg {
                             </div>
                         </div>
                         <div style="display: flex; gap: 0.5rem; flex-shrink: 0;">
+                            <a href="{{ route('ortsverband.members.manage', [$ortsverband, $member['user']]) }}" class="btn-primary btn-sm" style="text-decoration:none;">
+                                Verwalten
+                            </a>
                             <form action="{{ route('ortsverband.members.role', [$ortsverband, $member['user']]) }}" method="POST" style="display: inline;">
                                 @csrf
                                 @method('PUT')
@@ -201,13 +206,24 @@ html.light-mode .ov-progress-track-lg {
                     </div>
 
                     {{-- Progress --}}
-                    <div style="margin-bottom: 0.75rem;">
-                        <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.25rem;">
-                            <span>Theorie-Fortschritt</span>
-                            <span>{{ $member['theory_progress_count'] }}/268 ({{ $member['theory_progress_percent'] }}%)</span>
+                    <div style="display: flex; gap: 0.75rem; margin-bottom: 0.75rem;">
+                        <div style="flex: 1; min-width: 0;">
+                            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.25rem;">
+                                <span>Theorie</span>
+                                <span>{{ $member['theory_progress_count'] }}/{{ $member['theory_progress_total'] }} ({{ $member['theory_progress_percent'] }}%)</span>
+                            </div>
+                            <div class="ov-progress-track-lg">
+                                <div style="height: 100%; background: linear-gradient(135deg,#5b9aff,#0055cc); width: {{ $member['theory_progress_percent'] }}%; border-radius: 2px;"></div>
+                            </div>
                         </div>
-                        <div class="ov-progress-track-lg">
-                            <div style="height: 100%; background: linear-gradient(135deg,#5b9aff,#0055cc); width: {{ $member['theory_progress_percent'] }}%; border-radius: 2px;"></div>
+                        <div style="flex: 1; min-width: 0;">
+                            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.25rem;">
+                                <span>Ausbildung</span>
+                                <span>{{ $member['training_progress_done'] }}/{{ $member['training_progress_total'] }} ({{ $member['training_progress_percent'] }}%)</span>
+                            </div>
+                            <div class="ov-progress-track-lg">
+                                <div style="height: 100%; background: linear-gradient(135deg,#d4a017,#8a6d10); width: {{ $member['training_progress_percent'] }}%; border-radius: 2px;"></div>
+                            </div>
                         </div>
                     </div>
 

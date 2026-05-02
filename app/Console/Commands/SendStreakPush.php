@@ -42,6 +42,8 @@ class SendStreakPush extends Command
         $today = Carbon::today();
 
         $users = User::whereHas('pushSubscriptions')
+            ->where('push_consent', true)
+            ->where('notify_daily_reminder_push', true)
             ->where('streak_days', '>=', 1)
             ->where(function ($query) use ($today) {
                 $query->whereNull('last_activity_date')
