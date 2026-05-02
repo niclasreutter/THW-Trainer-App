@@ -134,6 +134,7 @@ html.light-mode .admin-root .kpi__delta--flat { border-color: rgba(0,51,127,0.08
 /* Two-column bento */
 .admin-root .admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
 .admin-root .admin-grid--wide  { grid-template-columns: minmax(0,1.5fr) minmax(0,1fr); }
+.admin-root .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
 
 .admin-root .card {
     background: var(--glass-bg); border: 1px solid var(--glass-border);
@@ -307,6 +308,7 @@ html.light-mode .admin-root .sr-dist { background: rgba(0,51,127,0.08); }
     .admin-root .sys-pulse { grid-template-columns: repeat(2, 1fr); }
     .admin-root .pulse-item + .pulse-item:nth-child(3) { border-left: 0; padding-left: 0; }
     .admin-root .admin-grid, .admin-root .admin-grid--wide { grid-template-columns: 1fr; }
+    .admin-root .charts-grid { grid-template-columns: 1fr; }
 }
 @media (max-width: 700px) {
     .admin-root .kpi-grid { grid-template-columns: repeat(2, 1fr); }
@@ -406,7 +408,7 @@ html.light-mode .admin-root .sr-dist { background: rgba(0,51,127,0.08); }
         @php $perUnit = $range === '24h' ? 'Stunde' : 'Tag'; @endphp
 
         {{-- Charts --}}
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div class="charts-grid">
             <div class="card">
                 <div class="card-h">
                     <span class="section-label">Aktive Nutzer · {{ $rangeLabel }}</span>
