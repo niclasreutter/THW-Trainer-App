@@ -370,7 +370,7 @@
                     <div style="font-weight:600;color:var(--gold-start);font-size:0.9375rem;">Mehr Lern-Methoden verfügbar</div>
                     <div style="color:var(--text-muted);font-size:0.8125rem;margin-top:0.25rem;">Zuordnungs- und Bild-Fragen als Lern-Ergänzung — nicht Teil der Prüfung.</div>
                 </div>
-                <a href="{{ route('profile') }}#extras-enabled" class="btn-secondary" style="flex-shrink:0;">In Profil aktivieren</a>
+                <a href="{{ route('einstellungen') }}#extras-enabled" class="btn-secondary" style="flex-shrink:0;">In Einstellungen aktivieren</a>
             </div>
         </div>
         @endif
