@@ -3,12 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Mail\DataExportMail;
+use App\Models\DataExport;
 use App\Models\UserAvatarAccessory;
+use App\Services\DataExportService;
 use App\Services\ShopService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -421,6 +425,72 @@ class ProfileController extends Controller
         }
 
         return Redirect::route('einstellungen')->with('status', 'email-change-cancelled');
+    }
+
+    /**
+     * Datenexport (Art. 20 DSGVO) anfordern.
+     * Limit: max. 1× pro Woche und 2× pro Monat. Versand per E-Mail mit CSV-Anhängen.
+     */
+    public function requestDataExport(Request $request, DataExportService $service): RedirectResponse
+    {
+        $user = $request->user();
+
+        $weekCount = DataExport::where('user_id', $user->id)
+            ->where('requested_at', '>=', now()->subDays(7))
+            ->count();
+
+        if ($weekCount >= 1) {
+            $nextAvailable = DataExport::where('user_id', $user->id)
+                ->where('requested_at', '>=', now()->subDays(7))
+                ->orderBy('requested_at')
+                ->value('requested_at');
+            $availableAt = $nextAvailable ? $nextAvailable->copy()->addDays(7) : now()->addDays(7);
+
+            return Redirect::route('einstellungen')
+                ->with('status', 'data-export-rate-limit')
+                ->with('data_export_message', 'Du hast bereits einen Datenexport in den letzten 7 Tagen angefordert. Nächster Export ab '
+                    . $availableAt->format('d.m.Y') . ' möglich.');
+        }
+
+        $monthCount = DataExport::where('user_id', $user->id)
+            ->where('requested_at', '>=', now()->subDays(30))
+            ->count();
+
+        if ($monthCount >= 2) {
+            return Redirect::route('einstellungen')
+                ->with('status', 'data-export-rate-limit')
+                ->with('data_export_message', 'Du hast das Monats-Limit von 2 Datenexporten erreicht. Bitte warte, bis 30 Tage seit deinem ersten Export vergangen sind.');
+        }
+
+        try {
+            $csvFiles = $service->buildCsvFiles($user);
+            $summary = $service->buildSummary($user);
+
+            DataExport::create([
+                'user_id' => $user->id,
+                'email' => $user->email,
+                'ip_address' => $request->ip(),
+                'requested_at' => now(),
+            ]);
+
+            Mail::to($user->email)->queue(new DataExportMail($user, $csvFiles, $summary));
+
+            \Log::info('Data export requested', [
+                'user_id' => $user->id,
+                'email' => $user->email,
+                'files' => count($csvFiles),
+            ]);
+        } catch (\Throwable $e) {
+            \Log::error('Data export failed', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return Redirect::route('einstellungen')
+                ->with('status', 'data-export-error');
+        }
+
+        return Redirect::route('einstellungen')->with('status', 'data-export-sent');
     }
 
     /**

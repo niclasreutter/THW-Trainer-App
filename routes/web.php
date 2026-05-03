@@ -530,6 +530,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/einstellungen/cancel-email-change', [ProfileController::class, 'cancelEmailChange'])->name('einstellungen.cancel-email-change');
     Route::post('/einstellungen/extras-enabled', [ProfileController::class, 'updateExtrasEnabled'])->name('einstellungen.extras-enabled');
     Route::patch('/einstellungen/notification-preferences', [ProfileController::class, 'updateNotificationPreferences'])->name('einstellungen.notification-preferences');
+    Route::post('/einstellungen/datenexport', [ProfileController::class, 'requestDataExport'])
+        ->middleware('throttle:5,60')
+        ->name('einstellungen.data-export');
 
     // Ausbildungsfortschritt (Issue #442)
     Route::get('/ausbildungsfortschritt', [TrainingProgressController::class, 'index'])->name('training-progress.index');
