@@ -149,3 +149,14 @@
                         @endif
                     @endforeach
                 </div>
+
+                {{-- Lösungsweg / Erklärung — sichtbar nach dem Auflösen --}}
+                @if(isset($isCorrect) && !empty(trim($question->loesungsweg ?? '')))
+                    <div class="explanation-card {{ $isCorrect ? 'explanation-card--correct' : 'explanation-card--wrong' }}">
+                        <div class="explanation-card-head">
+                            <i class="bi bi-lightbulb-fill"></i>
+                            <span>Lösungsweg</span>
+                        </div>
+                        <p class="explanation-card-body">{!! nl2br(e($question->loesungsweg)) !!}</p>
+                    </div>
+                @endif
