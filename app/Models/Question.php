@@ -13,5 +13,8 @@ class Question extends Model
         'antwort_b',
         'antwort_c',
         'loesung',
+        'difficulty',
+        'status',
+        'loesungsweg',
     ];
 }
