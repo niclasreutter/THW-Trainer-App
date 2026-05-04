@@ -559,9 +559,9 @@ html.light-mode .fq-shell {
 .fq-answer-row {
     display: grid;
     grid-template-columns: 44px 1fr auto;
-    align-items: stretch;
-    gap: 0.625rem;
-    padding: 0.625rem 0.75rem;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.625rem 0.875rem;
     background: var(--fq-surface);
     border: 1px solid var(--fq-border);
     border-radius: 0.875rem;
@@ -576,30 +576,32 @@ html.light-mode .fq-shell {
     display: grid;
     place-items: center;
     width: 44px;
-    align-self: stretch;
+    height: 44px;
     border-radius: 0.5rem;
     background: var(--fq-letter-bg);
     color: var(--fq-letter-fg);
-    font-family: var(--font-display, "Barlow Condensed");
-    font-weight: 800;
-    font-size: 1.5rem;
-    letter-spacing: -0.02em;
+    font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", sans-serif);
+    font-weight: 700;
+    font-size: 1rem;
+    letter-spacing: 0;
     transition: all 150ms ease;
 }
 .fq-answer-row.correct .fq-letter { background: var(--success, #22c55e); color: #fff; }
 .fq-answer-input {
     width: 100%;
-    align-self: center;
+    display: block;
     padding: 0.5rem 0;
+    margin: 0;
     background: transparent;
     border: 0;
     color: var(--text-primary);
     font-size: 0.9375rem;
-    line-height: 1.4;
+    line-height: 1.5;
     resize: none;
     outline: none;
-    min-height: 1.4em;
+    overflow: hidden;
     font-family: inherit;
+    box-sizing: border-box;
 }
 .fq-correct-toggle {
     display: inline-flex;
@@ -1270,15 +1272,16 @@ html.light-mode .fq-ai-suggestion__btn { color: #7c3aed; }
                                 <span class="fq-field__hint">Eine bis drei können richtig sein</span>
                             </div>
                             <div class="fq-answers">
-                                <template x-for="letter in ['A', 'B', 'C']" :key="letter">
+                                <template x-for="letter in ['A', 'B', 'C']" :key="letter + '-' + active.id">
                                     <div class="fq-answer-row" :class="{ correct: active.loesung.includes(letter) }">
                                         <div class="fq-letter" x-text="letter"></div>
                                         <textarea
                                             class="fq-answer-input"
+                                            x-ref="answerInput"
                                             :value="active['antwort_' + letter.toLowerCase()]"
                                             @input="active['antwort_' + letter.toLowerCase()] = $event.target.value; autoGrow($event.target);"
                                             @input.debounce.700ms="patch('antwort_' + letter.toLowerCase(), active['antwort_' + letter.toLowerCase()])"
-                                            x-init="autoGrow($el)"
+                                            x-init="$nextTick(() => autoGrow($el))"
                                             rows="1"
                                             :placeholder="'Antwort ' + letter + ' eingeben…'"
                                         ></textarea>
@@ -1595,6 +1598,8 @@ function fragenEditor() {
             }
 
             this.bindShortcuts();
+            this.$nextTick(() => this.autoGrowAll());
+            window.addEventListener('resize', () => this.autoGrowAll());
         },
 
         get active() {
@@ -1659,8 +1664,15 @@ function fragenEditor() {
 
         autoGrow(el) {
             if (!el) return;
-            el.style.height = 'auto';
-            el.style.height = el.scrollHeight + 'px';
+            el.style.height = '0px';
+            const next = Math.max(el.scrollHeight, 24);
+            el.style.height = next + 'px';
+        },
+
+        autoGrowAll() {
+            requestAnimationFrame(() => {
+                document.querySelectorAll('.fq-answer-input, .fq-question-input, .fq-explanation-input').forEach(el => this.autoGrow(el));
+            });
         },
 
         selectQuestion(id) {
@@ -1669,9 +1681,7 @@ function fragenEditor() {
             this.aiSuggestion = '';
             this.aiError = '';
             this.aiThinking = false;
-            this.$nextTick(() => {
-                document.querySelectorAll('.fq-answer-input').forEach(el => this.autoGrow(el));
-            });
+            this.$nextTick(() => this.autoGrowAll());
         },
 
         prev() {
