@@ -709,6 +709,76 @@
         font-weight: 700;
     }
 
+    /* ── Lösungsweg / Erklärung ─────────────────── */
+    .explanation-card {
+        position: relative;
+        margin-top: 1rem;
+        padding: 1rem 1.125rem;
+        border-radius: 0.875rem;
+        background: linear-gradient(135deg, rgba(251,191,36,0.10), rgba(245,158,11,0.06));
+        border: 1px solid rgba(251,191,36,0.25);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        box-shadow: 0 8px 32px rgba(0,0,0,0.20);
+        animation: explanation-rise 0.35s ease both;
+        overflow: hidden;
+    }
+    .explanation-card::before {
+        content: '';
+        position: absolute;
+        inset: 0 0 auto 0;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, var(--gold-start, #fbbf24), transparent);
+    }
+    .explanation-card--wrong {
+        background: linear-gradient(135deg, rgba(91,154,255,0.10), rgba(0,51,127,0.05));
+        border-color: rgba(91,154,255,0.25);
+    }
+    .explanation-card--wrong::before {
+        background: linear-gradient(90deg, transparent, var(--thw-blue-glow, #5b9aff), transparent);
+    }
+    html.light-mode .explanation-card {
+        background: linear-gradient(135deg, rgba(251,191,36,0.12), rgba(255,255,255,0.85));
+        border-color: rgba(245,158,11,0.30);
+        box-shadow: 0 4px 16px rgba(0,51,127,0.06);
+    }
+    html.light-mode .explanation-card--wrong {
+        background: linear-gradient(135deg, rgba(91,154,255,0.10), rgba(255,255,255,0.85));
+        border-color: rgba(0,51,127,0.20);
+    }
+    .explanation-card-head {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-family: 'IBM Plex Mono', ui-monospace, monospace;
+        font-size: 0.6875rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--text-muted);
+        margin-bottom: 0.5rem;
+    }
+    .explanation-card-head i {
+        font-size: 0.95rem;
+        color: var(--gold, #fbbf24);
+    }
+    .explanation-card--wrong .explanation-card-head i {
+        color: var(--thw-blue-glow, #5b9aff);
+    }
+    html.light-mode .explanation-card--wrong .explanation-card-head i {
+        color: var(--thw-blue, #00337F);
+    }
+    .explanation-card-body {
+        margin: 0;
+        font-size: 0.9375rem;
+        line-height: 1.55;
+        color: var(--text-primary);
+    }
+    @keyframes explanation-rise {
+        from { opacity: 0; transform: translateY(6px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+
     /* ── Desktop Progress Bar ────────────────────── */
     .practice-progress-bar {
         margin-bottom: 1.25rem;

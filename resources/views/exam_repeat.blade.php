@@ -38,6 +38,18 @@
             @elseif($isCorrect === false)
                 <div class="mt-4 text-red-600 font-bold">Leider falsch. Die richtigen Antworten sind markiert.</div>
             @endif
+
+            @if(isset($isCorrect) && !empty(trim($frage->loesungsweg ?? '')))
+                <div class="mt-4 p-4 rounded-lg border relative overflow-hidden"
+                     style="background: linear-gradient(135deg, rgba(251,191,36,0.10), rgba(255,255,255,0.85)); border-color: rgba(245,158,11,0.30); box-shadow: 0 4px 16px rgba(0,51,127,0.06);">
+                    <div style="position:absolute; top:0; left:0; right:0; height:2px; background: linear-gradient(90deg, transparent, #fbbf24, transparent);"></div>
+                    <div style="display:flex; align-items:center; gap:0.4rem; font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size:0.625rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:#6b7280; margin-bottom:0.4rem;">
+                        <i class="bi bi-lightbulb-fill" style="color:#f59e0b; font-size:0.875rem;"></i>
+                        <span>Lösungsweg</span>
+                    </div>
+                    <p style="margin:0; font-size:0.875rem; line-height:1.55; color:#1e293b;">{!! nl2br(e($frage->loesungsweg)) !!}</p>
+                </div>
+            @endif
         </form>
     @else
         <div class="text-center text-lg">Alle falsch beantworteten Fragen wurden wiederholt! Du kannst jetzt eine neue Prüfung starten.</div>

@@ -1,18 +1,18 @@
 {
+  "../../../node_modules/bootstrap-icons/font/fonts/bootstrap-icons.woff": {
+    "file": "assets/bootstrap-icons-BeopsB42.woff",
+    "src": "../../../node_modules/bootstrap-icons/font/fonts/bootstrap-icons.woff"
+  },
+  "../../../node_modules/bootstrap-icons/font/fonts/bootstrap-icons.woff2": {
+    "file": "assets/bootstrap-icons-mSm7cUeB.woff2",
+    "src": "../../../node_modules/bootstrap-icons/font/fonts/bootstrap-icons.woff2"
+  },
   "_auto-aF82oVy8.js": {
     "file": "assets/auto-aF82oVy8.js",
     "name": "auto"
   },
-  "node_modules/bootstrap-icons/font/fonts/bootstrap-icons.woff": {
-    "file": "assets/bootstrap-icons-BeopsB42.woff",
-    "src": "node_modules/bootstrap-icons/font/fonts/bootstrap-icons.woff"
-  },
-  "node_modules/bootstrap-icons/font/fonts/bootstrap-icons.woff2": {
-    "file": "assets/bootstrap-icons-mSm7cUeB.woff2",
-    "src": "node_modules/bootstrap-icons/font/fonts/bootstrap-icons.woff2"
-  },
   "resources/css/app.css": {
-    "file": "assets/app-DSTr2QwF.css",
+    "file": "assets/app-BbmXLOpo.css",
     "src": "resources/css/app.css",
     "isEntry": true,
     "names": [

@@ -530,6 +530,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/einstellungen/cancel-email-change', [ProfileController::class, 'cancelEmailChange'])->name('einstellungen.cancel-email-change');
     Route::post('/einstellungen/extras-enabled', [ProfileController::class, 'updateExtrasEnabled'])->name('einstellungen.extras-enabled');
     Route::patch('/einstellungen/notification-preferences', [ProfileController::class, 'updateNotificationPreferences'])->name('einstellungen.notification-preferences');
+    Route::post('/einstellungen/datenexport', [ProfileController::class, 'requestDataExport'])
+        ->middleware('throttle:5,60')
+        ->name('einstellungen.data-export');
 
     // Ausbildungsfortschritt (Issue #442)
     Route::get('/ausbildungsfortschritt', [TrainingProgressController::class, 'index'])->name('training-progress.index');
@@ -707,6 +710,7 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix
     Route::get('/shop-analytics', [\App\Http\Controllers\Admin\ShopAnalyticsController::class, 'index'])->name('shop-analytics');
     Route::resource('questions', \App\Http\Controllers\Admin\QuestionController::class);
     Route::post('questions/{question}/update-field', [\App\Http\Controllers\Admin\QuestionController::class, 'updateField'])->name('questions.update-field');
+    Route::post('questions/{question}/ai-suggest-explanation', [\App\Http\Controllers\Admin\QuestionController::class, 'aiSuggestExplanation'])->name('questions.ai-suggest-explanation');
     Route::resource('extra-questions', \App\Http\Controllers\Admin\ExtraQuestionController::class)->parameters(['extra-questions' => 'extra_question'])->except(['show']);
     Route::resource('lehrgaenge', \App\Http\Controllers\Admin\LehrgangController::class);
     Route::post('lehrgaenge/{lehrgang}/import-csv', [\App\Http\Controllers\Admin\LehrgangController::class, 'importCSV'])->name('lehrgaenge.import-csv');

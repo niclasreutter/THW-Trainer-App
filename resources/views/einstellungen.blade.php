@@ -167,8 +167,13 @@
     </div>
 
     @if (session('status'))
-    <div class="alert-compact glass-success" style="margin-bottom: 1rem;">
-        <i class="bi bi-check-circle alert-compact-icon"></i>
+    @php
+        $isError = in_array(session('status'), ['data-export-rate-limit', 'data-export-error']);
+        $alertClass = $isError ? 'glass-warning' : 'glass-success';
+        $alertIcon = $isError ? 'bi-exclamation-triangle' : 'bi-check-circle';
+    @endphp
+    <div class="alert-compact {{ $alertClass }}" style="margin-bottom: 1rem;">
+        <i class="bi {{ $alertIcon }} alert-compact-icon"></i>
         <div class="alert-compact-content">
             <div class="alert-compact-title">
                 @if(session('status') == 'profile-updated') Profil erfolgreich aktualisiert.
@@ -176,6 +181,9 @@
                 @elseif(session('status') == 'email-change-cancelled') E-Mail-Änderung abgebrochen.
                 @elseif(session('status') == 'extras-enabled-updated') Zusatz-Fragen-Einstellung gespeichert.
                 @elseif(session('status') == 'email-verification-sent') Bestätigungs-E-Mail wurde gesendet.
+                @elseif(session('status') == 'data-export-sent') Dein Datenexport wurde an {{ $user->email }} versendet.
+                @elseif(session('status') == 'data-export-rate-limit') {{ session('data_export_message', 'Datenexport derzeit nicht möglich.') }}
+                @elseif(session('status') == 'data-export-error') Beim Erstellen des Datenexports ist ein Fehler aufgetreten. Bitte versuche es später erneut.
                 @else {{ session('status') }}
                 @endif
             </div>
@@ -434,22 +442,28 @@
                     </div>
                 </div>
             </div>
-            <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(0,51,127,0.06);" class="is-locked">
-                <div class="card-body-locked">
-                    <a class="link-row" href="#" onclick="event.preventDefault()">
+            <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(0,51,127,0.06);">
+                <form method="POST" action="{{ route('einstellungen.data-export') }}" id="data-export-form"
+                      onsubmit="return confirm('Datenexport jetzt anfordern? Du erhältst die CSV-Dateien als Anhang an {{ $user->email }}.\n\nLimit: max. 1× pro Woche und 2× pro Monat.');">
+                    @csrf
+                    <button type="submit" class="link-row" style="width:100%;background:none;border:0;text-align:left;font:inherit;cursor:pointer;">
                         <div>
-                            <div class="link-row__title"><i class="bi bi-download" style="margin-right: 0.4rem;"></i> Datenexport anfordern (Art. 20 DSGVO) <span class="locked-badge" style="margin-left:0.5rem;"><i class="bi bi-lock"></i> Bald</span></div>
-                            <div class="link-row__sub">JSON-Export deiner Lerndaten, Antworten und Profilfelder — per E-Mail binnen 72 Std.</div>
+                            <div class="link-row__title"><i class="bi bi-download" style="margin-right: 0.4rem;"></i> Datenexport anfordern (Art. 20 DSGVO)</div>
+                            <div class="link-row__sub">CSV-Export deiner Lerndaten, Antworten und Profilfelder — per E-Mail an {{ $user->email }}. Max. 1× pro Woche, 2× pro Monat.</div>
                         </div>
                         <i class="bi bi-chevron-right"></i>
-                    </a>
-                    <a class="link-row" href="#" onclick="event.preventDefault()">
-                        <div>
-                            <div class="link-row__title"><i class="bi bi-shield-lock" style="margin-right: 0.4rem;"></i> Aktive Sessions & Geräte <span class="locked-badge" style="margin-left:0.5rem;"><i class="bi bi-lock"></i> Bald</span></div>
-                            <div class="link-row__sub">Aktive Geräte und letzte Anmeldungen verwalten.</div>
-                        </div>
-                        <i class="bi bi-chevron-right"></i>
-                    </a>
+                    </button>
+                </form>
+                <div class="is-locked">
+                    <div class="card-body-locked">
+                        <a class="link-row" href="#" onclick="event.preventDefault()">
+                            <div>
+                                <div class="link-row__title"><i class="bi bi-shield-lock" style="margin-right: 0.4rem;"></i> Aktive Sessions & Geräte <span class="locked-badge" style="margin-left:0.5rem;"><i class="bi bi-lock"></i> Bald</span></div>
+                                <div class="link-row__sub">Aktive Geräte und letzte Anmeldungen verwalten.</div>
+                            </div>
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>

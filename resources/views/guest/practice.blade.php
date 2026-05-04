@@ -518,6 +518,55 @@
             transform: translateX(0) !important;
         }
     }
+
+    /* Lösungsweg-Karte (auch im Guest-Kontext) */
+    .explanation-card {
+        position: relative;
+        padding: 0.875rem 1rem;
+        border-radius: 0.75rem;
+        background: linear-gradient(135deg, rgba(251,191,36,0.12), rgba(255,255,255,0.85));
+        border: 1px solid rgba(245,158,11,0.30);
+        box-shadow: 0 4px 16px rgba(0,51,127,0.06);
+        overflow: hidden;
+        animation: fadeIn 0.35s ease both;
+    }
+    .explanation-card::before {
+        content: '';
+        position: absolute;
+        inset: 0 0 auto 0;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, #fbbf24, transparent);
+    }
+    .explanation-card--wrong {
+        background: linear-gradient(135deg, rgba(91,154,255,0.10), rgba(255,255,255,0.85));
+        border-color: rgba(0,51,127,0.20);
+    }
+    .explanation-card--wrong::before {
+        background: linear-gradient(90deg, transparent, #5b9aff, transparent);
+    }
+    .explanation-card-head {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-family: 'IBM Plex Mono', ui-monospace, monospace;
+        font-size: 0.625rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: #6b7280;
+        margin-bottom: 0.4rem;
+    }
+    .explanation-card-head i {
+        font-size: 0.875rem;
+        color: #f59e0b;
+    }
+    .explanation-card--wrong .explanation-card-head i { color: #00337F; }
+    .explanation-card-body {
+        margin: 0;
+        font-size: 0.8125rem;
+        line-height: 1.5;
+        color: #1e293b;
+    }
 </style>
 
 <div class="max-w-xl mx-auto mt-0 sm:mt-4 p-3 sm:p-4 bg-white sm:rounded-lg sm:shadow-lg sm:hover:shadow-xl sm:transition-shadow sm:duration-300" 
@@ -770,6 +819,16 @@
                                 </span>
                             </div>
                         </div>
+
+                        @if(!empty(trim($question->loesungsweg ?? '')))
+                            <div class="mt-3 explanation-card {{ $isCorrect ? 'explanation-card--correct' : 'explanation-card--wrong' }}">
+                                <div class="explanation-card-head">
+                                    <i class="bi bi-lightbulb-fill"></i>
+                                    <span>Lösungsweg</span>
+                                </div>
+                                <p class="explanation-card-body">{!! nl2br(e($question->loesungsweg)) !!}</p>
+                            </div>
+                        @endif
                     @endif
                 </div>
             </div>
