@@ -292,6 +292,14 @@ html.light-mode .fq-shell {
 .fq-list-success.high { color: var(--success, #22c55e); }
 .fq-list-success.low  { color: var(--warning, #f59e0b); }
 .fq-list-success.crit { color: var(--error, #ef4444); }
+.fq-list-explanation {
+    display: inline-flex;
+    align-items: center;
+    color: var(--gold, #fbbf24);
+    font-size: 0.6875rem;
+    line-height: 1;
+}
+.fq-list-explanation i { display: inline-block; }
 
 /* difficulty mark */
 .fq-diff { display: inline-flex; align-items: center; gap: 1px; }
@@ -1181,6 +1189,14 @@ html.light-mode .fq-ai-suggestion__btn { color: #7c3aed; }
                             <span style="display: inline-flex; gap: 0.375rem; align-items: center;">
                                 <span class="dot"></span>
                                 <span x-text="q.stats.total + '×'"></span>
+                            </span>
+                        </template>
+                        <template x-if="(q.loesungsweg || '').trim().length > 0">
+                            <span style="display: inline-flex; gap: 0.375rem; align-items: center;">
+                                <span class="dot"></span>
+                                <span class="fq-list-explanation" title="Erklärung vorhanden">
+                                    <i class="bi bi-lightbulb-fill"></i>
+                                </span>
                             </span>
                         </template>
                     </div>
