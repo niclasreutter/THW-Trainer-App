@@ -833,9 +833,9 @@ if (config('app.debug')) {
 Route::get('/exam-feedback/{token}', [\App\Http\Controllers\ExamFeedbackController::class, 'show'])->name('exam-feedback.show');
 Route::post('/exam-feedback/{token}', [\App\Http\Controllers\ExamFeedbackController::class, 'store'])->name('exam-feedback.store');
 
-// Email Template Preview (nur lokal)
-if (app()->environment('local')) {
-    Route::prefix('dev/email-preview')->group(function () {
+// Email Template Preview (nur Non-Production, Admin-only)
+if (!app()->environment('production')) {
+    Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix('dev/email-preview')->group(function () {
         $templates = [
             'account-deleted', 'account-deletion-warning', 'admin-daily-report',
             'contact', 'data-export', 'exam-feedback-request', 'exam-goodluck',
