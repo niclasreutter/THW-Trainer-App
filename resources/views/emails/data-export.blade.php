@@ -65,7 +65,8 @@
                     <p style="margin:0 0 6px 0;font-size:13px;font-weight:700;color:#78350f;">Sicherheitshinweis</p>
                     <p style="margin:0;font-size:12px;color:#78350f;line-height:1.6;">
                         Diese E-Mail enthält persönliche Daten. Bewahre sie sicher auf und leite sie nicht an Dritte weiter.
-                        Falls du diesen Export nicht angefordert hast, melde dich bitte umgehend bei
+                        Falls du diesen Export <strong>nicht selbst angefordert</strong> hast, ändere bitte umgehend dein Passwort
+                        und informiere uns unter
                         <a href="mailto:protokolle@thw-trainer.de" style="color:#78350f;font-weight:700;">protokolle@thw-trainer.de</a>.
                     </p>
                 </div>
