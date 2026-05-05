@@ -67,7 +67,7 @@
                         Diese E-Mail enthält persönliche Daten. Bewahre sie sicher auf und leite sie nicht an Dritte weiter.
                         Falls du diesen Export <strong>nicht selbst angefordert</strong> hast, ändere bitte umgehend dein Passwort
                         und informiere uns unter
-                        <a href="mailto:protokolle@thw-trainer.de" style="color:#78350f;font-weight:700;">protokolle@thw-trainer.de</a>.
+                        <a href="mailto:kontakt@thw-trainer.de" style="color:#78350f;font-weight:700;">kontakt@thw-trainer.de</a>.
                     </p>
                 </div>
 
