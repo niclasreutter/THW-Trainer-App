@@ -142,7 +142,6 @@ class TrainingProgressService
         ['key' => 'zusatz.g26', 'label' => 'G26.1'],
         ['key' => 'zusatz.funk', 'label' => 'Funk'],
         ['key' => 'zusatz.knotenkunde', 'label' => 'Knotenkunde'],
-        ['key' => 'zusatz.sonder', 'label' => 'Sonderausbildung'],
     ];
 
     /**
