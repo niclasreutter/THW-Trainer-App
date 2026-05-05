@@ -19,28 +19,26 @@ class OpenAIService
 
         $solutions = array_filter(array_map('trim', explode(',', (string) $question->loesung)));
         $correctTexts = [];
-        $wrongTexts = [];
 
         foreach (['A', 'B', 'C'] as $letter) {
             $field = 'antwort_' . strtolower($letter);
             $text = (string) $question->{$field};
-            if ($text === '') {
+            if ($text === '' || !in_array($letter, $solutions, true)) {
                 continue;
             }
-            if (in_array($letter, $solutions, true)) {
-                $correctTexts[] = $letter . ': ' . $text;
-            } else {
-                $wrongTexts[] = $letter . ': ' . $text;
-            }
+            $correctTexts[] = $text;
         }
 
         $userPrompt = "Frage: {$question->frage}\n\n"
-            . "Richtige Antworten:\n" . (count($correctTexts) ? implode("\n", $correctTexts) : '(keine markiert)') . "\n\n"
-            . "Falsche Antworten:\n" . (count($wrongTexts) ? implode("\n", $wrongTexts) : '(keine)') . "\n\n"
+            . "Richtige Antwort(en):\n" . (count($correctTexts) ? implode("\n", $correctTexts) : '(keine markiert)') . "\n\n"
             . "Lernabschnitt: {$question->lernabschnitt}\n"
             . "Schwierigkeit: {$question->difficulty}\n\n"
-            . "Schreibe eine knappe, sachliche Erklärung (3-5 Sätze) auf Deutsch, warum die markierten Antworten richtig sind und die anderen nicht. "
-            . "Bezug zur THW-Dienstvorschrift, dem THW-Helferrechtsgesetz oder der Praxis im Grundausbildungs-Theorieteil ist erwünscht. "
+            . "Schreibe eine knappe, sachliche Erklärung (3-5 Sätze) auf Deutsch, warum die richtige Antwort zutrifft. "
+            . "Erkläre ausschließlich, warum die richtige Antwort korrekt ist – gehe NICHT auf falsche Antworten ein. "
+            . "Erwähne NIEMALS die Buchstaben A, B oder C. Formuliere stattdessen mit dem eigentlichen Antworttext (z. B. \"Der Helfer ist verpflichtet, ... weil ...\"). "
+            . "Ein Bezug zur THW-Dienstvorschrift oder zum THW-Gesetz (THW-G) ist erwünscht – aber NUR, wenn der genannte Inhalt dort tatsächlich verankert ist. "
+            . "Wenn du dir nicht sicher bist, ob ein Inhalt in der THW-Dienstvorschrift oder im THW-Gesetz steht, lasse den Bezug weg und bleibe bei einer sachlichen Erklärung aus der Praxis der Grundausbildung. "
+            . "Erfinde keine Paragraphen, Vorschriften-Nummern oder Quellen. "
             . "Keine Aufzählung, keine Floskeln, kein Markdown.";
 
         $response = Http::withToken($apiKey)
@@ -54,7 +52,7 @@ class OpenAIService
                 'messages' => [
                     [
                         'role' => 'system',
-                        'content' => 'Du bist ein Ausbilder im THW (Technisches Hilfswerk). Du verfasst präzise, lehrbuchhafte Erklärungen für Prüfungsfragen der Grundausbildung auf Deutsch.',
+                        'content' => 'Du bist ein Ausbilder im THW (Technisches Hilfswerk). Du verfasst präzise, lehrbuchhafte Erklärungen für Prüfungsfragen der Grundausbildung auf Deutsch. Du erklärst ausschließlich, warum die richtige Antwort korrekt ist, und gehst nicht auf falsche Antworten ein. Du nennst keine Antwort-Buchstaben (A/B/C), sondern formulierst mit dem eigentlichen Antworttext. Quellen wie die THW-Dienstvorschrift oder das THW-Gesetz (THW-G) erwähnst du nur, wenn der Inhalt dort nachweislich verankert ist; im Zweifel lässt du die Quelle weg, statt sie zu erfinden.',
                     ],
                     [
                         'role' => 'user',
