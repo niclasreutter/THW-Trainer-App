@@ -33,13 +33,15 @@ class OpenAIService
             . "Richtige Antwort(en):\n" . (count($correctTexts) ? implode("\n", $correctTexts) : '(keine markiert)') . "\n\n"
             . "Lernabschnitt: {$question->lernabschnitt}\n"
             . "Schwierigkeit: {$question->difficulty}\n\n"
-            . "Schreibe eine knappe, sachliche Erklärung (3-5 Sätze) auf Deutsch, warum die richtige Antwort zutrifft. "
+            . "Schreibe eine möglichst kurze, sachliche Erklärung auf Deutsch, warum die richtige Antwort zutrifft. "
+            . "1-3 Sätze sind ideal – nur so lang wie nötig, nicht künstlich strecken. Keine Wiederholungen, keine Füllsätze, keine Floskeln. "
             . "Erkläre ausschließlich, warum die richtige Antwort korrekt ist – gehe NICHT auf falsche Antworten ein. "
             . "Erwähne NIEMALS die Buchstaben A, B oder C. Formuliere stattdessen mit dem eigentlichen Antworttext (z. B. \"Der Helfer ist verpflichtet, ... weil ...\"). "
+            . "Verwende ausschließlich den Begriff \"Ortsverband\" – niemals \"Ortsgruppe\". "
             . "Ein Bezug zur THW-Dienstvorschrift oder zum THW-Gesetz (THW-G) ist erwünscht – aber NUR, wenn der genannte Inhalt dort tatsächlich verankert ist. "
             . "Wenn du dir nicht sicher bist, ob ein Inhalt in der THW-Dienstvorschrift oder im THW-Gesetz steht, lasse den Bezug weg und bleibe bei einer sachlichen Erklärung aus der Praxis der Grundausbildung. "
             . "Erfinde keine Paragraphen, Vorschriften-Nummern oder Quellen. "
-            . "Keine Aufzählung, keine Floskeln, kein Markdown.";
+            . "Keine Aufzählung, kein Markdown.";
 
         $response = Http::withToken($apiKey)
             ->timeout(30)
@@ -52,7 +54,7 @@ class OpenAIService
                 'messages' => [
                     [
                         'role' => 'system',
-                        'content' => 'Du bist ein Ausbilder im THW (Technisches Hilfswerk). Du verfasst präzise, lehrbuchhafte Erklärungen für Prüfungsfragen der Grundausbildung auf Deutsch. Du erklärst ausschließlich, warum die richtige Antwort korrekt ist, und gehst nicht auf falsche Antworten ein. Du nennst keine Antwort-Buchstaben (A/B/C), sondern formulierst mit dem eigentlichen Antworttext. Quellen wie die THW-Dienstvorschrift oder das THW-Gesetz (THW-G) erwähnst du nur, wenn der Inhalt dort nachweislich verankert ist; im Zweifel lässt du die Quelle weg, statt sie zu erfinden.',
+                        'content' => 'Du bist ein Ausbilder im THW (Technisches Hilfswerk). Du verfasst kurze, präzise Erklärungen für Prüfungsfragen der Grundausbildung auf Deutsch – so knapp wie möglich, ohne Füllsätze oder Wiederholungen. Du erklärst ausschließlich, warum die richtige Antwort korrekt ist, und gehst nicht auf falsche Antworten ein. Du nennst keine Antwort-Buchstaben (A/B/C), sondern formulierst mit dem eigentlichen Antworttext. Du verwendest ausschließlich den Begriff "Ortsverband", niemals "Ortsgruppe". Quellen wie die THW-Dienstvorschrift oder das THW-Gesetz (THW-G) erwähnst du nur, wenn der Inhalt dort nachweislich verankert ist; im Zweifel lässt du die Quelle weg, statt sie zu erfinden.',
                     ],
                     [
                         'role' => 'user',
