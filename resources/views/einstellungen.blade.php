@@ -170,10 +170,11 @@
     @php
         $isError = in_array(session('status'), ['data-export-rate-limit', 'data-export-error']);
         $alertClass = $isError ? 'glass-warning' : 'glass-success';
-        $alertIcon = $isError ? 'bi-exclamation-triangle' : 'bi-check-circle';
+        $alertIcon = $isError ? 'bi-exclamation-triangle-fill' : 'bi-check-circle-fill';
+        $iconColor = $isError ? 'text-warning' : 'text-success';
     @endphp
     <div class="alert-compact {{ $alertClass }}" style="margin-bottom: 1rem;">
-        <i class="bi {{ $alertIcon }} alert-compact-icon"></i>
+        <i class="bi {{ $alertIcon }} alert-compact-icon {{ $iconColor }}"></i>
         <div class="alert-compact-content">
             <div class="alert-compact-title">
                 @if(session('status') == 'profile-updated') Profil erfolgreich aktualisiert.

@@ -833,4 +833,189 @@ if (config('app.debug')) {
 Route::get('/exam-feedback/{token}', [\App\Http\Controllers\ExamFeedbackController::class, 'show'])->name('exam-feedback.show');
 Route::post('/exam-feedback/{token}', [\App\Http\Controllers\ExamFeedbackController::class, 'store'])->name('exam-feedback.store');
 
+// Email Template Preview (nur lokal)
+if (app()->environment('local')) {
+    Route::prefix('dev/email-preview')->group(function () {
+        $templates = [
+            'account-deleted', 'account-deletion-warning', 'admin-daily-report',
+            'contact', 'data-export', 'exam-feedback-request', 'exam-goodluck',
+            'exam-reminder', 'inactive-reminder', 'lernsession-ended',
+            'lernsession-started', 'newsletter', 'reset-password',
+            'spaced-repetition-reminder', 'streak-freeze-activated', 'streak-lost',
+            'streak-reminder', 'survey-reminder', 'verify-email', 'verify-registration',
+        ];
+
+        Route::get('/', function () use ($templates) {
+            $links = collect($templates)->map(fn($t) => '<li><a href="/dev/email-preview/'.$t.'" style="color:#00337F;">'.$t.'</a></li>')->implode('');
+            return '<!DOCTYPE html><html><head><title>Email Previews</title></head><body style="font-family:sans-serif;max-width:600px;margin:32px auto;"><h1>Email Template Previews</h1><ul style="line-height:2;">'.$links.'</ul></body></html>';
+        });
+
+        Route::get('/{template}', function ($template) use ($templates) {
+            abort_unless(in_array($template, $templates, true), 404);
+
+            $user = (object) [
+                'name' => 'Max Mustermann',
+                'email' => 'max@example.com',
+                'level' => 7,
+                'points' => 1234,
+                'daily_questions_date' => now()->toDateString(),
+                'daily_questions_solved' => 5,
+                'daily_streak_goal' => 10,
+            ];
+
+            $session = (object) [
+                'title' => 'Beispiel-Lernsession',
+                'description' => 'Eine Beispielbeschreibung für die Lernsession.',
+                'isGlobal' => false,
+            ];
+
+            $instance = (object) [
+                'ends_at' => now()->addHours(2),
+            ];
+
+            $participant = (object) [
+                'accuracy_percent' => 87,
+                'final_rank' => 3,
+                'questions_answered' => 25,
+                'questions_correct' => 22,
+                'xp_earned' => 150,
+            ];
+
+            $contactMessage = (object) [
+                'vorname' => 'Max',
+                'nachname' => 'Mustermann',
+                'email' => 'max@example.com',
+                'ortsverband' => 'Beispiel-OV',
+                'type' => 'frage',
+                'type_label' => 'Frage',
+                'message' => 'Dies ist eine Beispiel-Nachricht zum Testen des Templates.',
+                'error_location' => null,
+                'hermine_contact' => null,
+                'user' => $user,
+            ];
+
+            $sparkline = [3, 5, 4, 7, 6, 8, 9];
+
+            $data = match ($template) {
+                'account-deleted' => [
+                    'user' => $user,
+                    'accountCreatedAt' => now()->subYears(2),
+                ],
+                'account-deletion-warning' => [
+                    'user' => $user,
+                    'accountCreatedAt' => now()->subYears(2),
+                    'verificationUrl' => 'https://example.com/cancel-deletion',
+                ],
+                'admin-daily-report' => [
+                    'date' => now()->subDay(),
+                    'report_day' => now()->subDay()->format('d.m.Y'),
+                    'hasDanger' => false,
+                    'hasSuccess' => true,
+                    'warnings' => [
+                        ['type' => 'info', 'message' => 'Beispiel-Hinweis'],
+                    ],
+                    'users' => [
+                        'total' => 1234, 'verified' => 1100, 'verification_rate' => 89,
+                        'new_yesterday' => 12, 'new_last_7_days' => 78, 'new_sparkline' => $sparkline,
+                        'new_trend' => ['direction' => 'up', 'percentage' => 15],
+                        'active_yesterday' => 240, 'active_last_7_days' => 800, 'active_last_30_days' => 1100,
+                        'active_sparkline' => $sparkline,
+                        'active_trend' => ['direction' => 'up', 'percentage' => 8],
+                    ],
+                    'activity' => [
+                        'questions_answered_yesterday' => 5400, 'correct_answers_yesterday' => 4200,
+                        'success_rate_yesterday' => 78, 'total_questions_answered' => 1500000,
+                        'avg_questions_per_user' => 22,
+                        'questions_sparkline' => $sparkline,
+                        'questions_trend' => ['direction' => 'up', 'percentage' => 12],
+                        'success_rate_trend' => ['direction' => 'down', 'percentage' => 3],
+                    ],
+                    'gamification' => [
+                        'users_with_streak' => 320, 'avg_streak_length' => 14, 'longest_streak' => 89,
+                        'users_level_5_plus' => 145, 'avg_points_per_user' => 850,
+                    ],
+                    'system' => [
+                        'database_size' => '128 MB', 'total_questions' => 12500,
+                        'lehrgang_questions' => 8000, 'lernpool_questions' => 4500,
+                    ],
+                    'top_users' => [
+                        ['name' => 'Anna A.', 'points' => 4500, 'level' => 12, 'streak_days' => 45],
+                        ['name' => 'Ben B.', 'points' => 4100, 'level' => 11, 'streak_days' => 32],
+                        ['name' => 'Clara C.', 'points' => 3800, 'level' => 10, 'streak_days' => 28],
+                    ],
+                ],
+                'contact' => [
+                    'contactMessage' => $contactMessage,
+                    'badgeColor' => '#00337F',
+                ],
+                'data-export' => [
+                    'user' => $user,
+                    'requestedAt' => now(),
+                    'summary' => [
+                        'questionProgress' => 1234,
+                        'examStatistics' => 45,
+                        'lehrgangProgress' => 8,
+                        'extraQuestionProgress' => 56,
+                        'bookmarks' => 23,
+                        'xpHistory' => 450,
+                        'ortsverbaende' => 2,
+                    ],
+                ],
+                'exam-feedback-request' => [
+                    'user' => $user,
+                    'feedbackUrl' => 'https://example.com/exam-feedback/abc123',
+                ],
+                'exam-goodluck' => ['user' => $user],
+                'exam-reminder' => [
+                    'user' => $user, 'daysLeft' => 7, 'todayRemaining' => 5,
+                    'todayAnswered' => 3, 'dailyTarget' => 8, 'totalQuestions' => 100,
+                    'masteredCount' => 42, 'progressPercent' => 42,
+                ],
+                'inactive-reminder' => [
+                    'user' => $user, 'daysInactive' => 14, 'totalQuestions' => 100,
+                    'masteredQuestions' => 42, 'remainingQuestions' => 58, 'progressPercentage' => 42,
+                ],
+                'lernsession-ended' => [
+                    'user' => $user, 'session' => $session, 'participant' => $participant,
+                    'totalParticipants' => 12, 'isWinner' => false, 'hasLootbox' => true,
+                ],
+                'lernsession-started' => [
+                    'user' => $user, 'session' => $session, 'instance' => $instance,
+                ],
+                'newsletter' => [
+                    'subject' => 'THW-Trainer Newsletter',
+                    'htmlContent' => '<h2>Beispiel-Newsletter</h2><p>Dies ist ein Test-Newsletter mit etwas Inhalt.</p>',
+                ],
+                'reset-password' => [
+                    'resetUrl' => 'https://example.com/reset-password/token',
+                ],
+                'spaced-repetition-reminder' => [
+                    'user' => $user, 'dueCount' => 12,
+                ],
+                'streak-freeze-activated' => [
+                    'user' => $user, 'streakDays' => 21, 'freezesRemaining' => 2,
+                ],
+                'streak-lost' => [
+                    'user' => $user, 'lostStreakDays' => 14,
+                ],
+                'streak-reminder' => [
+                    'user' => $user, 'streakDays' => 7, 'solved' => 5,
+                    'goal' => 10, 'remaining' => 5, 'isToday' => true,
+                ],
+                'survey-reminder' => [
+                    'user' => $user, 'surveyUrl' => 'https://example.com/survey',
+                ],
+                'verify-email' => [
+                    'user' => $user, 'verificationUrl' => 'https://example.com/verify-email/token',
+                ],
+                'verify-registration' => [
+                    'verificationCode' => '123456',
+                ],
+            };
+
+            return view("emails.{$template}", $data);
+        });
+    });
+}
+
 require __DIR__.'/auth.php';
