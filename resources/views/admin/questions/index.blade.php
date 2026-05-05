@@ -3,6 +3,8 @@
 @section('description', 'Bearbeite alle Fragen des THW-Trainer im Live-Editor.')
 
 @push('styles')
+<link rel="preconnect" href="https://fonts.bunny.net">
+<link href="https://fonts.bunny.net/css2?family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 /* =========================================================
    FRAGEN-EDITOR · admin page
@@ -30,6 +32,10 @@ body.fq-fullbleed .min-h-screen { min-height: 100vh; }
     --fq-letter-fg:  var(--text-secondary);
     --fq-correct-bg: rgba(255,255,255,0.06);
     --fq-aside-bg:   var(--bg-elevated);
+
+    /* Cross-Platform Schriftarten — verhindert macOS↔Windows-Unterschiede */
+    --font-sans: 'Figtree', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --font-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, Consolas, monospace;
 }
 html.light-mode .fq-shell {
     --fq-surface:    #ffffff;
