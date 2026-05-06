@@ -3,224 +3,527 @@
 
 @push('styles')
 <style>
-    .answer-option {
-        padding: 1rem;
-        background: rgba(255, 255, 255, 0.03);
-        border-radius: 0.5rem;
-        border-left: 3px solid var(--thw-blue);
-        margin-bottom: 0.75rem;
-    }
-    .answer-option:last-child {
-        margin-bottom: 0;
-    }
-    .answer-letter {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 2rem;
-        height: 2rem;
-        background: var(--thw-blue);
-        color: white;
-        font-weight: 700;
-        border-radius: 50%;
-        margin-right: 1rem;
-        flex-shrink: 0;
-    }
-    .chat-message {
-        display: flex;
-        gap: 0.75rem;
-        margin-bottom: 1rem;
-    }
-    .chat-message:last-child {
-        margin-bottom: 0;
-    }
-    .chat-avatar {
-        width: 2.5rem;
-        height: 2.5rem;
-        border-radius: 50%;
-        background: var(--thw-blue);
-        color: white;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 700;
-        font-size: 0.875rem;
-        flex-shrink: 0;
-    }
-    .chat-bubble {
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 0.75rem;
-        border-top-left-radius: 0;
-        padding: 1rem;
-        flex: 1;
-    }
-    .status-badge {
-        display: inline-block;
-        padding: 0.35rem 0.75rem;
-        border-radius: 9999px;
-        font-size: 0.875rem;
-        font-weight: 600;
-    }
-    .status-open { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
-    .status-in_review { background: rgba(251, 191, 36, 0.2); color: #fbbf24; }
-    .status-resolved { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
-    .status-rejected { background: rgba(255, 255, 255, 0.1); color: var(--text-secondary); }
-    .source-badge-lehrgang { background: rgba(59, 130, 246, 0.15); color: #3b82f6; }
-    .source-badge-question { background: rgba(168, 85, 247, 0.15); color: #a855f7; }
+/* =========================================================
+   ADMIN ISSUE DETAIL — Design 2026-05
+   Aligned with /admin und /admin/extra-questions Look
+   ========================================================= */
+.iss-root { width: 100%; max-width: 1280px; margin: 0 auto; }
 
-    .issue-detail-grid {
-        display: grid;
-        grid-template-columns: 2fr 1fr;
-        gap: 1.5rem;
-    }
-    @media (max-width: 768px) {
-        .issue-detail-grid {
-            grid-template-columns: 1fr;
-        }
-        .issue-meta-row {
-            flex-direction: column !important;
-            align-items: flex-start !important;
-            gap: 0.25rem !important;
-        }
-    }
+/* Header */
+.iss-root .iss-header { margin-bottom: 1.25rem; }
+.iss-root .iss-eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.1em;
+    color: var(--text-muted); margin-bottom: 0.35rem;
+}
+.iss-root .iss-h1 {
+    font-family: 'Figtree', sans-serif;
+    font-weight: 800; font-size: 2rem; line-height: 1.15;
+    letter-spacing: -0.015em;
+    color: #5b9aff; margin: 0 0 0.25rem;
+}
+html.light-mode .iss-root .iss-h1 { color: var(--thw-blue); }
+.iss-root .iss-sub {
+    font-size: 0.9375rem; color: var(--text-secondary); margin: 0;
+    display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;
+}
+
+/* Back link */
+.iss-root .iss-back {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    padding: 0.4rem 0.7rem; border-radius: 0.5rem;
+    font-size: 0.8125rem; font-weight: 600;
+    color: var(--text-secondary); background: transparent;
+    border: 1px solid transparent; text-decoration: none;
+    transition: all 0.15s ease; margin-bottom: 1rem;
+}
+.iss-root .iss-back:hover {
+    color: #5b9aff; background: rgba(91,154,255,0.08);
+    border-color: rgba(91,154,255,0.20);
+}
+html.light-mode .iss-root .iss-back:hover { color: var(--thw-blue); background: rgba(0,51,127,0.06); }
+
+/* Layout grid */
+.iss-root .iss-grid {
+    display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    gap: 1rem; align-items: start;
+}
+.iss-root .iss-col { display: flex; flex-direction: column; gap: 1rem; min-width: 0; }
+
+/* Card */
+.iss-root .card {
+    background: var(--glass-bg); border: 1px solid var(--glass-border);
+    border-radius: 0.875rem; padding: 1.25rem;
+}
+html.light-mode .iss-root .card { background: #fff; box-shadow: 0 1px 3px rgba(0,51,127,0.04); }
+.iss-root .card-h {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 0.75rem; margin-bottom: 1rem; flex-wrap: wrap;
+}
+.iss-root .section-label {
+    display: inline-block; font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.1em; color: var(--text-muted);
+}
+
+/* Chip */
+.iss-root .chip {
+    display: inline-flex; align-items: center; gap: 0.3rem;
+    padding: 0.18rem 0.55rem; border-radius: 999px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.625rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    white-space: nowrap;
+}
+.iss-root .chip--lehrgang   { background: rgba(91,154,255,0.14); color: #5b9aff; }
+html.light-mode .iss-root .chip--lehrgang { color: var(--thw-blue); background: rgba(0,51,127,0.10); }
+.iss-root .chip--question   { background: rgba(167,139,250,0.14); color: #a78bfa; }
+.iss-root .chip--count      { background: rgba(91,154,255,0.18); color: #5b9aff; font-size: 0.7rem; }
+html.light-mode .iss-root .chip--count { color: var(--thw-blue); }
+.iss-root .chip--open       { background: rgba(239,68,68,0.18);  color: #ef4444; }
+.iss-root .chip--in_review  { background: rgba(251,191,36,0.18); color: #fbbf24; }
+.iss-root .chip--resolved   { background: rgba(34,197,94,0.18);  color: #22c55e; }
+.iss-root .chip--rejected   { background: rgba(255,255,255,0.10); color: var(--text-secondary); }
+
+/* Question display */
+.iss-root .q-display {
+    padding: 1rem 1.125rem;
+    border-radius: 0.625rem;
+    background: rgba(91,154,255,0.06);
+    border-left: 3px solid #5b9aff;
+    margin-bottom: 1rem;
+}
+html.light-mode .iss-root .q-display {
+    background: rgba(0,51,127,0.04); border-left-color: var(--thw-blue);
+}
+.iss-root .q-display__text {
+    font-size: 1rem; font-weight: 600;
+    color: var(--text-primary); line-height: 1.55; margin: 0;
+}
+
+.iss-root .answer-list { display: flex; flex-direction: column; gap: 0.5rem; }
+.iss-root .answer-item {
+    display: flex; gap: 0.75rem; align-items: flex-start;
+    padding: 0.75rem 0.875rem; border-radius: 0.625rem;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+}
+html.light-mode .iss-root .answer-item {
+    background: rgba(0,51,127,0.03); border-color: rgba(0,51,127,0.08);
+}
+.iss-root .answer-item.is-correct {
+    background: rgba(34,197,94,0.08); border-color: rgba(34,197,94,0.25);
+}
+.iss-root .answer-letter {
+    width: 1.875rem; height: 1.875rem; flex-shrink: 0;
+    border-radius: 0.5rem;
+    background: rgba(91,154,255,0.14); color: #5b9aff;
+    font-family: 'Figtree', sans-serif; font-weight: 800; font-size: 0.9375rem;
+    display: grid; place-items: center;
+}
+html.light-mode .iss-root .answer-letter { background: rgba(0,51,127,0.10); color: var(--thw-blue); }
+.iss-root .answer-item.is-correct .answer-letter {
+    background: rgba(34,197,94,0.18); color: #22c55e;
+}
+.iss-root .answer-text {
+    flex: 1; min-width: 0; font-size: 0.9rem; color: var(--text-secondary);
+    line-height: 1.5; margin: 0; padding-top: 0.2rem;
+}
+
+/* Inline form */
+.iss-root .field { margin-bottom: 0.875rem; }
+.iss-root .field:last-child { margin-bottom: 0; }
+.iss-root .label {
+    display: block; font-size: 0.8125rem; font-weight: 600;
+    color: var(--text-primary); margin-bottom: 0.375rem;
+}
+.iss-root .input,
+.iss-root .textarea,
+.iss-root .select {
+    width: 100%;
+    padding: 0.55rem 0.8rem;
+    font-family: inherit; font-size: 0.9rem;
+    color: var(--text-primary);
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 0.5rem; outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+html.light-mode .iss-root .input,
+html.light-mode .iss-root .textarea,
+html.light-mode .iss-root .select {
+    background: #fff; border-color: rgba(0,51,127,0.15);
+}
+.iss-root .input:focus,
+.iss-root .textarea:focus,
+.iss-root .select:focus {
+    border-color: #5b9aff; box-shadow: 0 0 0 3px rgba(91,154,255,0.18);
+}
+html.light-mode .iss-root .input:focus,
+html.light-mode .iss-root .textarea:focus,
+html.light-mode .iss-root .select:focus {
+    border-color: var(--thw-blue); box-shadow: 0 0 0 3px rgba(0,51,127,0.12);
+}
+.iss-root .textarea { min-height: 84px; resize: vertical; line-height: 1.5; }
+
+.iss-root .answer-row {
+    display: grid; grid-template-columns: auto 1fr auto; gap: 0.625rem;
+    align-items: center; padding: 0.5rem 0;
+}
+.iss-root .answer-row + .answer-row { border-top: 1px solid rgba(255,255,255,0.05); }
+html.light-mode .iss-root .answer-row + .answer-row { border-top-color: rgba(0,51,127,0.06); }
+.iss-root .answer-row__letter {
+    width: 1.75rem; height: 1.75rem;
+    border-radius: 0.5rem;
+    background: rgba(91,154,255,0.14); color: #5b9aff;
+    font-family: 'Figtree', sans-serif; font-weight: 800; font-size: 0.875rem;
+    display: grid; place-items: center;
+}
+html.light-mode .iss-root .answer-row__letter { background: rgba(0,51,127,0.10); color: var(--thw-blue); }
+.iss-root .answer-row__correct {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    font-size: 0.75rem; font-weight: 600; color: var(--text-muted);
+    cursor: pointer; user-select: none; white-space: nowrap;
+}
+.iss-root .answer-row__correct input { accent-color: #22c55e; }
+.iss-root .answer-row__correct.is-correct { color: #22c55e; }
+
+/* Buttons */
+.iss-root .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem;
+    padding: 0.55rem 1rem; border-radius: 0.5rem;
+    font-size: 0.875rem; font-weight: 600;
+    border: 1px solid transparent; cursor: pointer; text-decoration: none;
+    transition: all 0.15s ease; font-family: inherit;
+}
+.iss-root .btn--primary { background: #5b9aff; color: #fff; }
+.iss-root .btn--primary:hover { background: #3b82f6; }
+html.light-mode .iss-root .btn--primary { background: var(--thw-blue); }
+html.light-mode .iss-root .btn--primary:hover { background: #002a66; }
+.iss-root .btn--secondary {
+    background: var(--glass-bg); border-color: var(--glass-border);
+    color: var(--text-secondary);
+}
+.iss-root .btn--secondary:hover { color: var(--text-primary); border-color: #5b9aff; }
+.iss-root .btn--danger {
+    background: transparent; border-color: rgba(239,68,68,0.30); color: #ef4444;
+}
+.iss-root .btn--danger:hover { background: rgba(239,68,68,0.10); border-color: #ef4444; }
+.iss-root .btn--ghost {
+    background: transparent; color: var(--text-secondary);
+    border-color: rgba(255,255,255,0.10);
+}
+html.light-mode .iss-root .btn--ghost { border-color: rgba(0,51,127,0.10); }
+.iss-root .btn--ghost:hover { color: var(--text-primary); border-color: #5b9aff; }
+
+/* Edit toggle / pencil button */
+.iss-root .icon-btn {
+    width: 2rem; height: 2rem; border-radius: 0.5rem;
+    background: transparent; border: 1px solid var(--glass-border);
+    color: var(--text-muted); cursor: pointer;
+    display: grid; place-items: center; font-size: 0.85rem;
+    transition: all 0.15s ease;
+}
+.iss-root .icon-btn:hover { color: #5b9aff; border-color: #5b9aff; background: rgba(91,154,255,0.06); }
+html.light-mode .iss-root .icon-btn:hover { color: var(--thw-blue); border-color: var(--thw-blue); }
+
+.iss-root .form-actions {
+    display: flex; gap: 0.5rem; align-items: center;
+    margin-top: 1rem; padding-top: 0.75rem;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    flex-wrap: wrap;
+}
+html.light-mode .iss-root .form-actions { border-top-color: rgba(0,51,127,0.08); }
+
+/* Meta list */
+.iss-root .meta-list { display: grid; gap: 0.5rem; }
+.iss-root .meta-row {
+    display: flex; justify-content: space-between; align-items: center; gap: 0.5rem;
+    padding: 0.55rem 0.75rem; border-radius: 0.5rem;
+    background: rgba(255,255,255,0.03);
+    font-size: 0.8125rem;
+}
+html.light-mode .iss-root .meta-row { background: rgba(0,51,127,0.03); }
+.iss-root .meta-row__label { color: var(--text-muted); font-weight: 600; }
+.iss-root .meta-row__value { color: var(--text-primary); font-weight: 600; }
+
+/* Reports */
+.iss-root .reports {
+    max-height: 360px; overflow-y: auto;
+    padding: 0.25rem;
+}
+.iss-root .report {
+    display: flex; gap: 0.625rem; padding: 0.625rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+html.light-mode .iss-root .report { border-bottom-color: rgba(0,51,127,0.06); }
+.iss-root .report:last-child { border-bottom: 0; }
+.iss-root .report__avatar {
+    width: 2rem; height: 2rem; flex-shrink: 0;
+    border-radius: 50%;
+    background: #5b9aff; color: #fff;
+    display: grid; place-items: center;
+    font-weight: 700; font-size: 0.8125rem;
+}
+html.light-mode .iss-root .report__avatar { background: var(--thw-blue); }
+.iss-root .report__body { flex: 1; min-width: 0; }
+.iss-root .report__head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    gap: 0.5rem; margin-bottom: 0.25rem; flex-wrap: wrap;
+}
+.iss-root .report__name { font-weight: 700; font-size: 0.8125rem; color: var(--text-primary); }
+.iss-root .report__time {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.625rem; color: var(--text-muted);
+}
+.iss-root .report__msg { font-size: 0.875rem; color: var(--text-secondary); line-height: 1.5; margin: 0; }
+.iss-root .report__msg--empty { font-style: italic; color: var(--text-muted); }
+
+/* Alert */
+.iss-root .alert {
+    display: flex; gap: 0.75rem; align-items: flex-start;
+    padding: 0.875rem 1rem; border-radius: 0.625rem;
+    margin-bottom: 1rem; font-size: 0.875rem;
+}
+.iss-root .alert--success {
+    background: rgba(34,197,94,0.08);
+    border: 1px solid rgba(34,197,94,0.22);
+    color: #22c55e;
+}
+.iss-root .alert--error {
+    background: rgba(239,68,68,0.08);
+    border: 1px solid rgba(239,68,68,0.22);
+    color: #ef4444;
+}
+.iss-root .alert strong { display: block; }
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .iss-root .iss-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+    .iss-root .iss-h1 { font-size: 1.625rem; }
+    .iss-root .meta-row { flex-direction: column; align-items: flex-start; gap: 0.2rem; }
+}
+
+[x-cloak] { display: none !important; }
 </style>
 @endpush
 
 @section('content')
-<div class="dashboard-container">
-    <header class="dashboard-header">
-        <h1 class="page-title">Fehlermeldung <span>Details</span></h1>
+<div class="iss-root" x-data="{ editing: false }">
+
+    <a href="{{ route('admin.issues.index') }}" class="iss-back">
+        <i class="bi bi-arrow-left"></i> Zurück zur Übersicht
+    </a>
+
+    <div class="iss-header">
+        <div class="iss-eyebrow">Administration · Fehlermeldung #{{ $issue->id }}</div>
+        <h1 class="iss-h1">Fehlermeldung Details</h1>
         @if($question)
-            <p class="page-subtitle">
-                <span class="status-badge source-badge-{{ $type }}" style="font-size: 0.8rem; padding: 0.2rem 0.6rem; vertical-align: middle;">
-                    {{ $type === 'lehrgang' ? 'Lehrgang' : 'Grundausbildung' }}
-                </span>
-                {{ $contextLabel }}
+            <p class="iss-sub">
+                <span class="chip chip--{{ $type }}">{{ $type === 'lehrgang' ? 'Lehrgang' : 'Grundausbildung' }}</span>
+                @if($contextLabel)<span>{{ $contextLabel }}</span>@endif
             </p>
         @else
-            <p class="page-subtitle" style="color: var(--error);">Frage wurde gelöscht</p>
+            <p class="iss-sub" style="color: #ef4444;">Frage wurde gelöscht</p>
         @endif
-    </header>
-
-    <div style="margin-bottom: 2rem;">
-        <a href="{{ route('admin.issues.index') }}" class="btn-secondary" style="padding: 0.625rem 1.25rem;">
-            Zurück zur Übersicht
-        </a>
     </div>
 
     @if(session('success'))
-        <div class="glass-success" style="padding: 1.25rem; margin-bottom: 2rem; display: flex; gap: 1rem; align-items: flex-start;">
-            <i class="bi bi-check-circle" style="font-size: 1.25rem; flex-shrink: 0;"></i>
+        <div class="alert alert--success">
+            <i class="bi bi-check-circle-fill"></i>
             <div>
                 <strong>Erfolg!</strong>
-                <p style="margin: 0.25rem 0 0 0;">{{ session('success') }}</p>
+                <div>{{ session('success') }}</div>
             </div>
         </div>
     @endif
 
-    @if($question)
-        <div class="glass hover-lift" style="padding: 1.5rem; margin-bottom: 2rem;">
-            <h3 style="font-size: 1.1rem; font-weight: 700; margin: 0 0 1.5rem 0;">Frage</h3>
-
-            <div style="background: rgba(255, 255, 255, 0.03); padding: 1.25rem; border-radius: 0.75rem; border-left: 3px solid var(--gold-start); margin-bottom: 1.5rem;">
-                <p style="font-size: 1rem; font-weight: 600; color: var(--text-primary); line-height: 1.6; margin: 0;">
-                    {{ $question->frage }}
-                </p>
+    @if($errors->any())
+        <div class="alert alert--error">
+            <i class="bi bi-x-circle-fill"></i>
+            <div>
+                <strong>Fehler beim Speichern</strong>
+                <ul style="margin: 0.25rem 0 0 1.25rem; padding: 0;">
+                    @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
             </div>
-
-            <div style="margin-bottom: 1.5rem;">
-                <div class="answer-option">
-                    <div style="display: flex; align-items: flex-start;">
-                        <span class="answer-letter">A</span>
-                        <p style="margin: 0; color: var(--text-secondary); line-height: 1.5; padding-top: 0.25rem;">{{ $question->antwort_a }}</p>
-                    </div>
-                </div>
-
-                <div class="answer-option">
-                    <div style="display: flex; align-items: flex-start;">
-                        <span class="answer-letter">B</span>
-                        <p style="margin: 0; color: var(--text-secondary); line-height: 1.5; padding-top: 0.25rem;">{{ $question->antwort_b }}</p>
-                    </div>
-                </div>
-
-                <div class="answer-option">
-                    <div style="display: flex; align-items: flex-start;">
-                        <span class="answer-letter">C</span>
-                        <p style="margin: 0; color: var(--text-secondary); line-height: 1.5; padding-top: 0.25rem;">{{ $question->antwort_c }}</p>
-                    </div>
-                </div>
-            </div>
-
-            <div style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); padding: 1rem; border-radius: 0.5rem;">
-                <p style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin: 0 0 0.25rem 0;">Richtige Antwort(en):</p>
-                <p style="font-size: 1.25rem; font-weight: 700; color: #22c55e; margin: 0;">{{ $question->loesung }}</p>
-            </div>
-
-            <p style="font-size: 0.8rem; color: var(--text-muted); margin: 1rem 0 0 0;">Frage-ID: {{ $question->id }}</p>
-        </div>
-    @else
-        <div class="glass-error" style="padding: 1.5rem; margin-bottom: 2rem;">
-            <p style="font-weight: 600; margin: 0 0 0.5rem 0;">Diese Frage wurde gelöscht oder existiert nicht mehr.</p>
         </div>
     @endif
 
-    <div class="issue-detail-grid">
-        <div class="glass hover-lift" style="padding: 1.5rem;">
-            <h3 style="font-size: 1.1rem; font-weight: 700; margin: 0 0 1.5rem 0;">Meldungsdetails</h3>
+    <div class="iss-grid">
+        {{-- Linke Spalte: Frage + Meldungen --}}
+        <div class="iss-col">
 
-            <div style="display: grid; gap: 1rem; margin-bottom: 1.5rem;">
-                <div class="issue-meta-row" style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; background: rgba(255, 255, 255, 0.03); border-radius: 0.5rem;">
-                    <span style="color: var(--text-secondary); font-weight: 600;">Gesamtmeldungen:</span>
-                    <span style="background: rgba(59, 130, 246, 0.2); color: #3b82f6; padding: 0.35rem 0.75rem; border-radius: 9999px; font-weight: 700;">{{ $issue->report_count }}x</span>
-                </div>
+            @if($question)
+                <div class="card">
+                    <div class="card-h">
+                        <span class="section-label">Frage</span>
+                        @if($type === 'question')
+                            <button type="button"
+                                    class="icon-btn"
+                                    title="Frage bearbeiten"
+                                    @click="editing = !editing"
+                                    x-bind:class="{ 'is-active': editing }">
+                                <i class="bi" x-bind:class="editing ? 'bi-x-lg' : 'bi-pencil'"></i>
+                            </button>
+                        @endif
+                    </div>
 
-                <div class="issue-meta-row" style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; background: rgba(255, 255, 255, 0.03); border-radius: 0.5rem;">
-                    <span style="color: var(--text-secondary); font-weight: 600;">Zuletzt gemeldet von:</span>
-                    <span style="color: var(--text-primary); font-weight: 500;">{{ $issue->reportedByUser?->name ?? 'Anonym' }}</span>
-                </div>
+                    {{-- View-Modus --}}
+                    <div x-show="!editing" x-cloak>
+                        <div class="q-display">
+                            <p class="q-display__text">{{ $question->frage }}</p>
+                        </div>
 
-                <div class="issue-meta-row" style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; background: rgba(255, 255, 255, 0.03); border-radius: 0.5rem;">
-                    <span style="color: var(--text-secondary); font-weight: 600;">Zuletzt aktualisiert:</span>
-                    <span style="color: var(--text-primary); font-weight: 500;">{{ $issue->updated_at ? $issue->updated_at->format('d.m.Y H:i') : '-' }}</span>
-                </div>
-            </div>
+                        @php
+                            $solutions = collect(explode(',', (string) ($question->loesung ?? '')))
+                                ->map(fn ($s) => strtoupper(trim($s)))
+                                ->filter()
+                                ->all();
+                        @endphp
 
-            <div style="border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 1.5rem;">
-                <h4 style="font-size: 1rem; font-weight: 600; margin: 0 0 1rem 0; color: var(--text-primary);">Meldungen</h4>
+                        <div class="answer-list">
+                            @foreach(['A' => $question->antwort_a, 'B' => $question->antwort_b, 'C' => $question->antwort_c] as $letter => $text)
+                                <div class="answer-item {{ in_array($letter, $solutions, true) ? 'is-correct' : '' }}">
+                                    <div class="answer-letter">{{ $letter }}</div>
+                                    <p class="answer-text">{{ $text }}</p>
+                                </div>
+                            @endforeach
+                        </div>
 
-                <div style="max-height: 400px; overflow-y: auto; background: rgba(255, 255, 255, 0.02); border-radius: 0.5rem; padding: 1rem; border: 1px solid rgba(255, 255, 255, 0.06);">
-                    @forelse($issue->reports as $report)
-                        <div class="chat-message">
-                            <div class="chat-avatar">
-                                {{ substr($report->user?->name ?? 'A', 0, 1) }}
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid rgba(255,255,255,0.06); flex-wrap: wrap; gap: 0.5rem;">
+                            <span class="section-label">Lösung</span>
+                            <span style="font-family: 'Figtree', sans-serif; font-weight: 800; color: #22c55e; font-size: 1rem; letter-spacing: 0.1em;">
+                                {{ $question->loesung }}
+                            </span>
+                        </div>
+
+                        @if(!empty($question->loesungsweg ?? null))
+                            <div style="margin-top: 0.875rem; padding: 0.875rem 1rem; border-radius: 0.625rem; background: rgba(255,255,255,0.03); font-size: 0.875rem; color: var(--text-secondary); line-height: 1.55;">
+                                <div class="section-label" style="margin-bottom: 0.4rem;">Lösungsweg</div>
+                                {{ $question->loesungsweg }}
                             </div>
-                            <div class="chat-bubble">
-                                <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.5rem;">
-                                    <span style="font-weight: 600; color: var(--text-primary); font-size: 0.9rem;">{{ $report->user?->name ?? 'Anonym' }}</span>
-                                    <span style="font-size: 0.75rem; color: var(--text-muted);">{{ $report->created_at->format('d.m.Y H:i') }}</span>
+                        @endif
+
+                        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 0.625rem; color: var(--text-muted); margin-top: 0.875rem; text-transform: uppercase; letter-spacing: 0.08em;">
+                            Frage-ID #{{ $question->id }}
+                        </div>
+                    </div>
+
+                    {{-- Edit-Modus (nur für Grundausbildungsfragen) --}}
+                    @if($type === 'question')
+                        <div x-show="editing" x-cloak>
+                            <form id="iss-question-edit-form"
+                                  method="POST"
+                                  action="{{ route('admin.questions.update', $question) }}">
+                                @csrf
+                                @method('PUT')
+
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                                    <div class="field">
+                                        <label class="label">Lernabschnitt</label>
+                                        <input type="text" name="lernabschnitt" class="input" value="{{ old('lernabschnitt', $question->lernabschnitt) }}" required>
+                                    </div>
+                                    <div class="field">
+                                        <label class="label">Nummer</label>
+                                        <input type="number" name="nummer" class="input" value="{{ old('nummer', $question->nummer) }}" required>
+                                    </div>
+                                </div>
+
+                                <div class="field">
+                                    <label class="label">Frage</label>
+                                    <textarea name="frage" class="textarea" required>{{ old('frage', $question->frage) }}</textarea>
+                                </div>
+
+                                @php
+                                    $sol = collect(explode(',', (string) ($question->loesung ?? '')))
+                                        ->map(fn ($s) => strtoupper(trim($s)))
+                                        ->filter()
+                                        ->all();
+                                @endphp
+
+                                <div class="field">
+                                    <label class="label">Antworten · Richtige markieren</label>
+                                    @foreach(['A' => 'antwort_a', 'B' => 'antwort_b', 'C' => 'antwort_c'] as $letter => $field)
+                                        <div class="answer-row" x-data="{ correct: {{ in_array($letter, $sol, true) ? 'true' : 'false' }} }">
+                                            <div class="answer-row__letter">{{ $letter }}</div>
+                                            <input type="text" name="{{ $field }}" class="input"
+                                                   value="{{ old($field, $question->{$field}) }}" required>
+                                            <label class="answer-row__correct" x-bind:class="{ 'is-correct': correct }">
+                                                <input type="checkbox" name="loesung[]" value="{{ $letter }}"
+                                                       x-model="correct">
+                                                Richtig
+                                            </label>
+                                        </div>
+                                    @endforeach
+                                </div>
+
+                                <div class="field">
+                                    <label class="label">Lösungsweg <span style="color: var(--text-muted); font-weight: 500; font-size: 0.75rem;">(optional)</span></label>
+                                    <textarea name="loesungsweg" class="textarea">{{ old('loesungsweg', $question->loesungsweg ?? '') }}</textarea>
+                                </div>
+
+                                <div class="form-actions">
+                                    <button type="submit" class="btn btn--primary">
+                                        <i class="bi bi-check-lg"></i> Speichern
+                                    </button>
+                                    <button type="button" class="btn btn--ghost" @click="editing = false">
+                                        Abbrechen
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    @endif
+                </div>
+            @else
+                <div class="card alert alert--error" style="margin: 0;">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <div>
+                        <strong>Frage nicht gefunden</strong>
+                        <div>Diese Frage wurde gelöscht oder existiert nicht mehr.</div>
+                    </div>
+                </div>
+            @endif
+
+            <div class="card">
+                <div class="card-h">
+                    <span class="section-label">Meldungen · {{ $issue->reports->count() ?: 1 }}</span>
+                    <span class="chip chip--count">{{ $issue->report_count }}× gemeldet</span>
+                </div>
+
+                <div class="reports">
+                    @forelse($issue->reports as $report)
+                        <div class="report">
+                            <div class="report__avatar">{{ strtoupper(substr($report->user?->name ?? 'A', 0, 1)) }}</div>
+                            <div class="report__body">
+                                <div class="report__head">
+                                    <span class="report__name">{{ $report->user?->name ?? 'Anonym' }}</span>
+                                    <span class="report__time">{{ $report->created_at->format('d.m.Y H:i') }}</span>
                                 </div>
                                 @if($report->message)
-                                    <p style="margin: 0; color: var(--text-secondary); font-size: 0.95rem; line-height: 1.5;">{{ $report->message }}</p>
+                                    <p class="report__msg">{{ $report->message }}</p>
                                 @else
-                                    <p style="margin: 0; color: var(--text-muted); font-size: 0.9rem; font-style: italic;">Keine Nachricht</p>
+                                    <p class="report__msg report__msg--empty">Keine Nachricht</p>
                                 @endif
                             </div>
                         </div>
                     @empty
-                        <div class="chat-message">
-                            <div class="chat-avatar">
-                                {{ substr($issue->reportedByUser?->name ?? 'A', 0, 1) }}
-                            </div>
-                            <div class="chat-bubble">
-                                <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.5rem;">
-                                    <span style="font-weight: 600; color: var(--text-primary); font-size: 0.9rem;">{{ $issue->reportedByUser?->name ?? 'Anonym' }}</span>
-                                    <span style="font-size: 0.75rem; color: var(--text-muted);">{{ $issue->updated_at ? $issue->updated_at->format('d.m.Y H:i') : '' }}</span>
+                        <div class="report">
+                            <div class="report__avatar">{{ strtoupper(substr($issue->reportedByUser?->name ?? 'A', 0, 1)) }}</div>
+                            <div class="report__body">
+                                <div class="report__head">
+                                    <span class="report__name">{{ $issue->reportedByUser?->name ?? 'Anonym' }}</span>
+                                    <span class="report__time">{{ $issue->updated_at?->format('d.m.Y H:i') }}</span>
                                 </div>
                                 @if($issue->latest_message)
-                                    <p style="margin: 0; color: var(--text-secondary); font-size: 0.95rem; line-height: 1.5;">{{ $issue->latest_message }}</p>
+                                    <p class="report__msg">{{ $issue->latest_message }}</p>
                                 @else
-                                    <p style="margin: 0; color: var(--text-muted); font-size: 0.9rem; font-style: italic;">Keine Nachricht</p>
+                                    <p class="report__msg report__msg--empty">Keine Nachricht</p>
                                 @endif
                             </div>
                         </div>
@@ -229,34 +532,29 @@
             </div>
         </div>
 
-        <div style="display: flex; flex-direction: column; gap: 1.5rem;">
-            <div class="glass hover-lift" style="padding: 1.5rem;">
-                <h3 style="font-size: 1rem; font-weight: 700; margin: 0 0 1rem 0;">Informationen</h3>
+        {{-- Rechte Spalte: Info + Bearbeitung --}}
+        <div class="iss-col">
 
-                <div style="font-size: 0.9rem;">
-                    <div style="padding-bottom: 0.75rem; margin-bottom: 0.75rem; border-bottom: 1px solid rgba(255, 255, 255, 0.06);">
-                        <p style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin: 0 0 0.25rem 0;">Quelle</p>
-                        <span class="status-badge source-badge-{{ $type }}" style="font-size: 0.8rem;">
-                            {{ $type === 'lehrgang' ? 'Lehrgang' : 'Grundausbildung' }}
-                        </span>
+            <div class="card">
+                <div class="card-h">
+                    <span class="section-label">Information</span>
+                </div>
+                <div class="meta-list">
+                    <div class="meta-row">
+                        <span class="meta-row__label">Quelle</span>
+                        <span class="chip chip--{{ $type }}">{{ $type === 'lehrgang' ? 'Lehrgang' : 'Grundausbildung' }}</span>
                     </div>
-
                     @if($question)
                         @foreach($contextDetails as $label => $value)
-                            <div style="padding-bottom: 0.75rem; margin-bottom: 0.75rem; border-bottom: 1px solid rgba(255, 255, 255, 0.06);">
-                                <p style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin: 0 0 0.25rem 0;">{{ $label }}</p>
-                                <p style="color: var(--text-primary); font-weight: 600; margin: 0;">{{ $value }}</p>
+                            <div class="meta-row">
+                                <span class="meta-row__label">{{ $label }}</span>
+                                <span class="meta-row__value">{{ $value }}</span>
                             </div>
                         @endforeach
-                    @else
-                        <div style="background: rgba(239, 68, 68, 0.1); padding: 0.75rem; border-radius: 0.5rem; border: 1px solid rgba(239, 68, 68, 0.2); margin-bottom: 0.75rem;">
-                            <p style="color: var(--error); font-size: 0.8rem; font-weight: 600; margin: 0;">Frage wurde gelöscht</p>
-                        </div>
                     @endif
-
-                    <div>
-                        <p style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin: 0 0 0.5rem 0;">Status</p>
-                        <span class="status-badge status-{{ $issue->status }}">
+                    <div class="meta-row">
+                        <span class="meta-row__label">Status</span>
+                        <span class="chip chip--{{ $issue->status }}">
                             @if($issue->status === 'open') Offen
                             @elseif($issue->status === 'in_review') In Bearbeitung
                             @elseif($issue->status === 'resolved') Gelöst
@@ -264,19 +562,32 @@
                             @endif
                         </span>
                     </div>
+                    <div class="meta-row">
+                        <span class="meta-row__label">Meldungen</span>
+                        <span class="chip chip--count">{{ $issue->report_count }}×</span>
+                    </div>
+                    <div class="meta-row">
+                        <span class="meta-row__label">Zuletzt von</span>
+                        <span class="meta-row__value">{{ $issue->reportedByUser?->name ?? 'Anonym' }}</span>
+                    </div>
+                    <div class="meta-row">
+                        <span class="meta-row__label">Aktualisiert</span>
+                        <span class="meta-row__value">{{ $issue->updated_at?->format('d.m.Y H:i') ?? '-' }}</span>
+                    </div>
                 </div>
             </div>
 
-            <div class="glass hover-lift" style="padding: 1.5rem;">
-                <h3 style="font-size: 1rem; font-weight: 700; margin: 0 0 1rem 0;">Bearbeitung</h3>
-
+            <div class="card">
+                <div class="card-h">
+                    <span class="section-label">Bearbeitung</span>
+                </div>
                 <form method="POST" action="{{ route('admin.issues.update', ['issue' => $issue->id, 'type' => $type]) }}">
                     @csrf
                     @method('PUT')
 
-                    <div style="margin-bottom: 1rem;">
-                        <label class="label-glass" style="margin-bottom: 0.5rem; display: block; font-size: 0.85rem;">Status</label>
-                        <select name="status" class="select-glass" style="padding: 0.625rem 1rem;">
+                    <div class="field">
+                        <label class="label">Status</label>
+                        <select name="status" class="select">
                             <option value="open" {{ $issue->status === 'open' ? 'selected' : '' }}>Offen</option>
                             <option value="in_review" {{ $issue->status === 'in_review' ? 'selected' : '' }}>In Bearbeitung</option>
                             <option value="resolved" {{ $issue->status === 'resolved' ? 'selected' : '' }}>Gelöst</option>
@@ -284,29 +595,26 @@
                         </select>
                     </div>
 
-                    <div style="margin-bottom: 1rem;">
-                        <label class="label-glass" style="margin-bottom: 0.5rem; display: block; font-size: 0.85rem;">Notizen</label>
-                        <textarea name="admin_notes"
-                                  class="textarea-glass"
-                                  style="padding: 0.625rem 1rem; min-height: 100px; resize: vertical;"
-                                  maxlength="1000"
-                                  placeholder="Notizen...">{{ $issue->admin_notes ?? '' }}</textarea>
-                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">
+                    <div class="field">
+                        <label class="label">Notizen</label>
+                        <textarea name="admin_notes" class="textarea" maxlength="1000"
+                                  placeholder="Interne Notiz...">{{ $issue->admin_notes ?? '' }}</textarea>
+                        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 0.625rem; color: var(--text-muted); margin-top: 0.25rem; letter-spacing: 0.06em;">
                             <span id="noteCount">{{ strlen($issue->admin_notes ?? '') }}</span>/1000
                         </div>
                     </div>
 
-                    <div style="display: flex; gap: 0.5rem; padding-top: 0.5rem; border-top: 1px solid rgba(255, 255, 255, 0.06);">
-                        <button type="submit" class="btn-primary" style="flex: 1; padding: 0.625rem 1rem; font-size: 0.9rem;">
-                            Speichern
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn--primary" style="flex: 1;">
+                            <i class="bi bi-check-lg"></i> Speichern
                         </button>
-
-                        <button type="button" onclick="confirmDelete()" class="btn-danger" style="flex: 1; padding: 0.625rem 1rem; font-size: 0.9rem;">
-                            Löschen
+                        <button type="button" onclick="confirmIssueDelete()" class="btn btn--danger">
+                            <i class="bi bi-trash"></i> Löschen
                         </button>
                     </div>
                 </form>
             </div>
+
         </div>
     </div>
 </div>
@@ -317,14 +625,72 @@
 </form>
 
 <script>
-    function confirmDelete() {
+    function confirmIssueDelete() {
         if (confirm('Willst du diese Fehlermeldung wirklich löschen?')) {
             document.getElementById('deleteForm').submit();
         }
     }
 
-    document.querySelector('textarea[name="admin_notes"]').addEventListener('input', function() {
-        document.getElementById('noteCount').textContent = this.value.length;
+    document.querySelector('textarea[name="admin_notes"]')?.addEventListener('input', function () {
+        const c = document.getElementById('noteCount');
+        if (c) c.textContent = this.value.length;
     });
+
+    // Inline question edit form: submit via fetch & redirect zurück zur Issue-Seite
+    (function () {
+        const form = document.getElementById('iss-question-edit-form');
+        if (!form) return;
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const originalHtml = submitBtn?.innerHTML;
+            if (submitBtn) { submitBtn.disabled = true; submitBtn.innerHTML = '<i class="bi bi-arrow-clockwise"></i> Speichert...'; }
+
+            try {
+                const fd = new FormData(form);
+                const res = await fetch(form.action, {
+                    method: 'POST',
+                    body: fd,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                    },
+                    credentials: 'same-origin',
+                });
+                if (res.ok) {
+                    const url = new URL(window.location.href);
+                    url.searchParams.set('saved', '1');
+                    window.location.href = url.toString();
+                } else {
+                    let msg = 'Fehler beim Speichern.';
+                    try {
+                        const data = await res.json();
+                        if (data?.errors) msg = Object.values(data.errors).flat().join('\n');
+                        else if (data?.message) msg = data.message;
+                    } catch (_) {}
+                    alert(msg);
+                    if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = originalHtml; }
+                }
+            } catch (err) {
+                alert('Netzwerkfehler beim Speichern.');
+                if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = originalHtml; }
+            }
+        });
+
+        // Wenn nach Speichern zurückkommen: Erfolgshinweis zeigen
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('saved') === '1') {
+            const wrap = document.querySelector('.iss-root');
+            if (wrap) {
+                const a = document.createElement('div');
+                a.className = 'alert alert--success';
+                a.innerHTML = '<i class="bi bi-check-circle-fill"></i><div><strong>Frage aktualisiert</strong><div>Die Änderungen wurden gespeichert.</div></div>';
+                wrap.insertBefore(a, wrap.querySelector('.iss-grid'));
+            }
+            params.delete('saved');
+            const newUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
+            window.history.replaceState({}, '', newUrl);
+        }
+    })();
 </script>
 @endsection
