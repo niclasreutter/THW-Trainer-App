@@ -50,7 +50,7 @@ class NotificationController extends Controller
     /**
      * Markiert alle Notifications als gelesen
      */
-    public function markAllAsRead()
+    public function markAllAsRead(Request $request)
     {
         auth()->user()
             ->unreadNotifications()
@@ -59,7 +59,11 @@ class NotificationController extends Controller
                 'read_at' => now(),
             ]);
 
-        return response()->json(['success' => true]);
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json(['success' => true]);
+        }
+
+        return back()->with('success', 'Alle Mitteilungen wurden als gelesen markiert.');
     }
 
     /**
