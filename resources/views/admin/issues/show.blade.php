@@ -360,18 +360,27 @@ html.light-mode .iss-root .report__avatar { background: var(--thw-blue); }
         <div class="iss-col">
 
             @if($question)
+                @php
+                    $sol = collect(explode(',', (string) ($question->loesung ?? '')))
+                        ->map(fn ($s) => strtoupper(trim($s)))
+                        ->filter()
+                        ->all();
+                    $editAction = $type === 'lehrgang'
+                        ? route('admin.lehrgaenge.update-question', ['lehrgang' => $question->lehrgang_id, 'question' => $question->id])
+                        : route('admin.questions.update', $question);
+                    $editMethod = $type === 'lehrgang' ? 'PATCH' : 'PUT';
+                @endphp
+
                 <div class="card">
                     <div class="card-h">
                         <span class="section-label">Frage</span>
-                        @if($type === 'question')
-                            <button type="button"
-                                    class="icon-btn"
-                                    title="Frage bearbeiten"
-                                    @click="editing = !editing"
-                                    x-bind:class="{ 'is-active': editing }">
-                                <i class="bi" x-bind:class="editing ? 'bi-x-lg' : 'bi-pencil'"></i>
-                            </button>
-                        @endif
+                        <button type="button"
+                                class="icon-btn"
+                                title="Frage bearbeiten"
+                                @click="editing = !editing"
+                                x-bind:class="{ 'is-active': editing }">
+                            <i class="bi" x-bind:class="editing ? 'bi-x-lg' : 'bi-pencil'"></i>
+                        </button>
                     </div>
 
                     {{-- View-Modus --}}
@@ -415,70 +424,66 @@ html.light-mode .iss-root .report__avatar { background: var(--thw-blue); }
                         </div>
                     </div>
 
-                    {{-- Edit-Modus (nur für Grundausbildungsfragen) --}}
-                    @if($type === 'question')
-                        <div x-show="editing" x-cloak>
-                            <form id="iss-question-edit-form"
-                                  method="POST"
-                                  action="{{ route('admin.questions.update', $question) }}">
-                                @csrf
-                                @method('PUT')
+                    {{-- Edit-Modus (für alle Frage-Typen) --}}
+                    <div x-show="editing" x-cloak>
+                        <form id="iss-question-edit-form"
+                              method="POST"
+                              action="{{ $editAction }}"
+                              x-data="{ correct: @js($sol) }">
+                            @csrf
+                            @method($editMethod)
 
-                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
-                                    <div class="field">
-                                        <label class="label">Lernabschnitt</label>
-                                        <input type="text" name="lernabschnitt" class="input" value="{{ old('lernabschnitt', $question->lernabschnitt) }}" required>
-                                    </div>
-                                    <div class="field">
-                                        <label class="label">Nummer</label>
-                                        <input type="number" name="nummer" class="input" value="{{ old('nummer', $question->nummer) }}" required>
-                                    </div>
-                                </div>
-
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
                                 <div class="field">
-                                    <label class="label">Frage</label>
-                                    <textarea name="frage" class="textarea" required>{{ old('frage', $question->frage) }}</textarea>
+                                    <label class="label">Lernabschnitt</label>
+                                    <input type="{{ $type === 'lehrgang' ? 'number' : 'text' }}" name="lernabschnitt" class="input" value="{{ old('lernabschnitt', $question->lernabschnitt) }}" required>
                                 </div>
-
-                                @php
-                                    $sol = collect(explode(',', (string) ($question->loesung ?? '')))
-                                        ->map(fn ($s) => strtoupper(trim($s)))
-                                        ->filter()
-                                        ->all();
-                                @endphp
-
                                 <div class="field">
-                                    <label class="label">Antworten · Richtige markieren</label>
-                                    @foreach(['A' => 'antwort_a', 'B' => 'antwort_b', 'C' => 'antwort_c'] as $letter => $field)
-                                        <div class="answer-row" x-data="{ correct: {{ in_array($letter, $sol, true) ? 'true' : 'false' }} }">
-                                            <div class="answer-row__letter">{{ $letter }}</div>
-                                            <input type="text" name="{{ $field }}" class="input"
-                                                   value="{{ old($field, $question->{$field}) }}" required>
-                                            <label class="answer-row__correct" x-bind:class="{ 'is-correct': correct }">
-                                                <input type="checkbox" name="loesung[]" value="{{ $letter }}"
-                                                       x-model="correct">
-                                                Richtig
-                                            </label>
-                                        </div>
-                                    @endforeach
+                                    <label class="label">Nummer</label>
+                                    <input type="number" name="nummer" class="input" value="{{ old('nummer', $question->nummer) }}" required>
                                 </div>
+                            </div>
 
+                            <div class="field">
+                                <label class="label">Frage</label>
+                                <textarea name="frage" class="textarea" required>{{ old('frage', $question->frage) }}</textarea>
+                            </div>
+
+                            <div class="field">
+                                <label class="label">Antworten · Richtige markieren</label>
+                                @foreach(['A' => 'antwort_a', 'B' => 'antwort_b', 'C' => 'antwort_c'] as $letter => $field)
+                                    <div class="answer-row">
+                                        <div class="answer-row__letter">{{ $letter }}</div>
+                                        <input type="text" name="{{ $field }}" class="input"
+                                               value="{{ old($field, $question->{$field}) }}" required>
+                                        <label class="answer-row__correct" x-bind:class="{ 'is-correct': correct.includes('{{ $letter }}') }">
+                                            <input type="checkbox" value="{{ $letter }}" x-model="correct">
+                                            Richtig
+                                        </label>
+                                    </div>
+                                @endforeach
+                            </div>
+
+                            {{-- Hidden field: comma-separated solution string (works for both controllers) --}}
+                            <input type="hidden" name="loesung" x-bind:value="[...correct].sort().join(',')">
+
+                            @if($type === 'question')
                                 <div class="field">
                                     <label class="label">Lösungsweg <span style="color: var(--text-muted); font-weight: 500; font-size: 0.75rem;">(optional)</span></label>
                                     <textarea name="loesungsweg" class="textarea">{{ old('loesungsweg', $question->loesungsweg ?? '') }}</textarea>
                                 </div>
+                            @endif
 
-                                <div class="form-actions">
-                                    <button type="submit" class="btn btn--primary">
-                                        <i class="bi bi-check-lg"></i> Speichern
-                                    </button>
-                                    <button type="button" class="btn btn--ghost" @click="editing = false">
-                                        Abbrechen
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    @endif
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn--primary">
+                                    <i class="bi bi-check-lg"></i> Speichern
+                                </button>
+                                <button type="button" class="btn btn--ghost" @click="editing = false">
+                                    Abbrechen
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             @else
                 <div class="card alert alert--error" style="margin: 0;">
