@@ -73,6 +73,13 @@ html.light-mode .admin-root .icon-btn-outline .bi { color: var(--thw-blue); }
     margin-bottom: 1.25rem;
 }
 .admin-root .pulse-item { display: flex; align-items: center; gap: 0.75rem; min-width: 0; }
+.admin-root a.pulse-item { text-decoration: none; color: inherit; }
+.admin-root .pulse-item--link { cursor: pointer; transition: color var(--transition-fast); }
+.admin-root .pulse-item--link:hover .pulse-value { color: #5b9aff; }
+.admin-root .pulse-item--link:hover .pulse-chevron { color: #5b9aff; transform: translateX(2px); }
+html.light-mode .admin-root .pulse-item--link:hover .pulse-value { color: var(--thw-blue); }
+html.light-mode .admin-root .pulse-item--link:hover .pulse-chevron { color: var(--thw-blue); }
+.admin-root .pulse-chevron { margin-left: auto; color: var(--text-muted); font-size: 0.875rem; transition: transform var(--transition-fast), color var(--transition-fast); flex-shrink: 0; }
 .admin-root .pulse-item + .pulse-item { border-left: 1px solid rgba(255,255,255,0.06); padding-left: 0.875rem; }
 html.light-mode .admin-root .pulse-item + .pulse-item { border-left-color: rgba(0,51,127,0.08); }
 .admin-root .pulse-dot {
@@ -366,14 +373,27 @@ html.light-mode .admin-root .sr-dist { background: rgba(0,51,127,0.08); }
     {{-- ── SYSTEM-PULS ─────────────────────────── --}}
     <div class="sys-pulse" role="status" aria-label="System-Status">
         @foreach($systemPulse as $item)
-            <div class="pulse-item">
-                <span class="pulse-dot pulse-dot--{{ $item['status'] }}"></span>
-                <div class="pulse-meta">
-                    <div class="pulse-label">{{ $item['label'] }}</div>
-                    <div class="pulse-value">{{ $item['value'] }}</div>
-                    <div class="pulse-sub">{{ $item['sub'] }}</div>
+            @php $href = $item['link'] ?? null; @endphp
+            @if($href)
+                <a class="pulse-item pulse-item--link" href="{{ $href }}" title="Details öffnen">
+                    <span class="pulse-dot pulse-dot--{{ $item['status'] }}"></span>
+                    <div class="pulse-meta">
+                        <div class="pulse-label">{{ $item['label'] }}</div>
+                        <div class="pulse-value">{{ $item['value'] }}</div>
+                        <div class="pulse-sub">{{ $item['sub'] }}</div>
+                    </div>
+                    <i class="bi bi-chevron-right pulse-chevron" aria-hidden="true"></i>
+                </a>
+            @else
+                <div class="pulse-item">
+                    <span class="pulse-dot pulse-dot--{{ $item['status'] }}"></span>
+                    <div class="pulse-meta">
+                        <div class="pulse-label">{{ $item['label'] }}</div>
+                        <div class="pulse-value">{{ $item['value'] }}</div>
+                        <div class="pulse-sub">{{ $item['sub'] }}</div>
+                    </div>
                 </div>
-            </div>
+            @endif
         @endforeach
     </div>
 

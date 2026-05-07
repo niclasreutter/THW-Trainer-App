@@ -773,6 +773,13 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix
     Route::get('logs/{type}', [\App\Http\Controllers\Admin\SchedulerLogController::class, 'index'])->name('logs.index')->whereIn('type', ['scheduler', 'worker']);
     Route::delete('logs/{type}', [\App\Http\Controllers\Admin\SchedulerLogController::class, 'destroy'])->name('logs.destroy')->whereIn('type', ['scheduler', 'worker']);
 
+    // Failed Jobs (Worker-Fehler)
+    Route::get('failed-jobs', [\App\Http\Controllers\Admin\FailedJobController::class, 'index'])->name('failed-jobs.index');
+    Route::post('failed-jobs/retry-all', [\App\Http\Controllers\Admin\FailedJobController::class, 'retryAll'])->name('failed-jobs.retry-all');
+    Route::post('failed-jobs/flush', [\App\Http\Controllers\Admin\FailedJobController::class, 'flush'])->name('failed-jobs.flush');
+    Route::post('failed-jobs/{id}/retry', [\App\Http\Controllers\Admin\FailedJobController::class, 'retry'])->name('failed-jobs.retry');
+    Route::delete('failed-jobs/{id}', [\App\Http\Controllers\Admin\FailedJobController::class, 'destroy'])->name('failed-jobs.destroy');
+
     // Ortsverband Routes (Admin) - Nur View und Delete
     Route::get('ortsverband', [\App\Http\Controllers\Admin\OrtsverbandController::class, 'index'])->name('ortsverband.index');
     Route::post('ortsverband/{ortsverband}/view-as', [\App\Http\Controllers\Admin\OrtsverbandController::class, 'viewAs'])->name('ortsverband.view-as');
