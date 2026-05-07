@@ -153,6 +153,9 @@ class DashboardController extends Controller
                 'label'  => 'Worker',
                 'value'  => $value,
                 'sub'    => 'Queue: ' . $pending . ' · Failed: ' . $failed,
+                'link'   => $failed > 0
+                    ? route('admin.failed-jobs.index')
+                    : route('admin.logs.index', 'worker'),
             ];
         } catch (\Throwable $e) {
             return [
@@ -160,6 +163,7 @@ class DashboardController extends Controller
                 'label'  => 'Worker',
                 'value'  => 'n/a',
                 'sub'    => 'Queue nicht erreichbar',
+                'link'   => route('admin.logs.index', 'worker'),
             ];
         }
     }
@@ -187,6 +191,7 @@ class DashboardController extends Controller
             'label'  => 'Issues',
             'value'  => $value,
             'sub'    => $openIssues . ' Bugs · ' . $unreadContact . ' Kontakt',
+            'link'   => route('admin.issues.index'),
         ];
     }
 
