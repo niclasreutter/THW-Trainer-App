@@ -459,7 +459,9 @@ thw-trainer-app/
 | [`app/Http/Controllers/PracticeController.php`](app/Http/Controllers/PracticeController.php) | Übungsmodus-Controller |
 | [`resources/views/practice.blade.php`](resources/views/practice.blade.php) | Hauptansicht für Übungen |
 | [`database/migrations/`](database/migrations/) | Datenbankschema-Evolution |
-| [`CLAUDE.md`](CLAUDE.md) | KI-Entwickler-Anleitung |
+| [`CLAUDE.md`](CLAUDE.md) | KI-Entwickler-Anleitung (Claude Code) |
+| [`AGENTS.md`](AGENTS.md) | Allgemeine AI-Assistant-Anleitung |
+| [`LLM/`](LLM/) | KI-/LLM-spezifische Dokumente (Feature-Notes, Fix-Reports, Setup-Guides) |
 
 ## 🎮 Gamification im Detail
 
@@ -600,7 +602,17 @@ Für Anfragen zur Nutzung, Lizenzierung oder Zusammenarbeit:
 ### Dokumentation
 Die Projektdokumentation ist verfügbar unter:
 - [CLAUDE.md](CLAUDE.md) - Projekt-Kontext und Entwicklungsrichtlinien
+- [AGENTS.md](AGENTS.md) - Allgemeine AI-Assistant-Anleitung
+- [LLM/](LLM/) - Weitere KI-/LLM-spezifische Dokumente
 - [docs/](docs/) - Technische Dokumentation
+
+## 🤖 KI-/LLM-Anleitungen
+
+Die zentralen Einstiegspunkte für KI-Assistenten liegen — wie üblich — im Projekt-Root, damit sie automatisch gefunden werden:
+- **[`CLAUDE.md`](CLAUDE.md)** - Projekt-Kontext und Entwicklungsrichtlinien für Claude Code
+- **[`AGENTS.md`](AGENTS.md)** - Allgemeine Anleitung für AI Assistants
+
+Alle weiteren KI-/LLM-bezogenen Dokumente (Feature-Notes, Fix-Reports, Setup-Guides, TODO_AI etc.) liegen gebündelt im Ordner **[`LLM/`](LLM/)**.
 
 ## 📚 Dokumentation
 

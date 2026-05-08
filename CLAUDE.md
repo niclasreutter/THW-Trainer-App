@@ -1,6 +1,8 @@
 # CLAUDE.md - THW-Trainer-App
 
 > Kompakte Anleitung für AI Assistants. Details in `docs/*.md`.
+>
+> **Hinweis:** Alle weiteren KI-/LLM-spezifischen Dokumente (Feature-Notes, Fix-Reports, Setup-Guides, TODO_AI etc.) liegen im Ordner [`LLM/`](LLM/).
 
 ## Projekt-Kontext
 
@@ -140,7 +142,7 @@ fetch(url, { cache: 'no-store' });
 - **CloudPanel:** Nur 1 Cronjob nötig → `schedule:run` jede Minute
 - **Keine separaten PHP-Cronjob-Dateien** mehr nötig (Legacy: `cronjob-*.php`)
 - **Monitoring:** Fehler werden per Mail an `protokolle@thw-trainer.de` gesendet
-- **Details:** [CLOUDPANEL_CRONJOB_SETUP.md](CLOUDPANEL_CRONJOB_SETUP.md)
+- **Details:** [LLM/CLOUDPANEL_CRONJOB_SETUP.md](LLM/CLOUDPANEL_CRONJOB_SETUP.md)
 
 ## Bekannte Gotchas
 
