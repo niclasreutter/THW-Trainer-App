@@ -125,6 +125,7 @@
     @endif
 
     <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 2rem;">
+        @if(auth()->user()->isAdmin())
         <a href="{{ url('admin/lehrgaenge/' . request()->route('lehrgaenge') . '/edit') }}" class="btn-primary" style="padding: 0.75rem 1.5rem;">
             Bearbeiten
         </a>
@@ -135,11 +136,13 @@
                 Löschen
             </button>
         </form>
+        @endif
         <a href="{{ route('admin.lehrgaenge.index') }}" class="btn-secondary" style="padding: 0.75rem 1.5rem;">
             Zurück zur Liste
         </a>
     </div>
 
+    @if(auth()->user()->isAdmin())
     <div class="glass hover-lift" style="padding: 1.5rem; margin-bottom: 2rem; border-left: 3px solid var(--thw-blue);">
         <h3 style="font-size: 1.1rem; font-weight: 700; margin: 0 0 1rem 0;">CSV Import</h3>
 
@@ -176,6 +179,7 @@
             </button>
         </form>
     </div>
+    @endif
 
     <div class="glass hover-lift" style="padding: 1.5rem;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
@@ -251,9 +255,11 @@
                                     <button type="submit" class="btn-primary" style="padding: 0.5rem 1.25rem; font-size: 0.9rem;">
                                         Speichern
                                     </button>
+                                    @if(auth()->user()->isAdmin())
                                     <button type="button" onclick="deleteQuestion({{ $question->id }})" class="btn-danger" style="padding: 0.5rem 1.25rem; font-size: 0.9rem;">
                                         Loschen
                                     </button>
+                                    @endif
                                 </div>
                             </div>
                         </form>

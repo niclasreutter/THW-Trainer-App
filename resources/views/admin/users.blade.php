@@ -28,6 +28,14 @@
         </div>
 
         <div class="stat-pill">
+            <span class="stat-pill-icon text-gold"><i class="bi bi-pencil-square"></i></span>
+            <div>
+                <div class="stat-pill-value">{{ $users->where('useroll', 'contributor')->count() }}</div>
+                <div class="stat-pill-label">Contributors</div>
+            </div>
+        </div>
+
+        <div class="stat-pill">
             <span class="stat-pill-icon text-dark-secondary"><i class="bi bi-person"></i></span>
             <div>
                 <div class="stat-pill-value">{{ $users->where('useroll', 'user')->count() }}</div>
@@ -123,6 +131,8 @@
                         <td style="text-align: center;">
                             @if($user->useroll === 'admin')
                                 <span class="badge-gold" title="Administrator"><i class="bi bi-shield-check"></i> Admin</span>
+                            @elseif($user->useroll === 'contributor')
+                                <span class="badge-thw" title="Contributor"><i class="bi bi-pencil-square"></i> Contributor</span>
                             @else
                                 <span class="badge-glass" title="Benutzer"><i class="bi bi-person"></i> User</span>
                             @endif
@@ -204,6 +214,7 @@
                                             <label class="label-glass">Rolle</label>
                                             <select name="useroll" class="select-glass">
                                                 <option value="user" @if($user->useroll === 'user') selected @endif>Benutzer</option>
+                                                <option value="contributor" @if($user->useroll === 'contributor') selected @endif>Contributor</option>
                                                 <option value="admin" @if($user->useroll === 'admin') selected @endif>Administrator</option>
                                             </select>
                                         </div>
@@ -278,6 +289,8 @@
                         <span class="badge-thw">ID: {{ $user->id }}</span>
                         @if($user->useroll === 'admin')
                             <span class="badge-gold"><i class="bi bi-shield-check"></i></span>
+                        @elseif($user->useroll === 'contributor')
+                            <span class="badge-thw"><i class="bi bi-pencil-square"></i></span>
                         @endif
                         @if($user->is_online ?? false)
                             <span style="color: var(--success);"><i class="bi bi-circle-fill" style="font-size: 0.5rem;"></i></span>
@@ -326,6 +339,7 @@
                                     <label class="label-glass">Rolle</label>
                                     <select name="useroll" class="select-glass">
                                         <option value="user" @if($user->useroll === 'user') selected @endif>Benutzer</option>
+                                        <option value="contributor" @if($user->useroll === 'contributor') selected @endif>Contributor</option>
                                         <option value="admin" @if($user->useroll === 'admin') selected @endif>Administrator</option>
                                     </select>
                                 </div>

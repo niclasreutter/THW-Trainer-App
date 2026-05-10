@@ -4,8 +4,10 @@
             <a href="/" class="font-bold text-xl text-yellow-400">THW-Trainer</a>
             <a href="{{ route('dashboard') }}" class="hover:text-yellow-400">Dashboard</a>
             @auth
-                @if(auth()->user()->useroll === 'admin')
+                @if(auth()->user()->isAdmin())
                     <a href="{{ route('admin.index') }}" class="hover:text-yellow-400">Administration</a>
+                @elseif(auth()->user()->canEditQuestions())
+                    <a href="/admin/questions" class="hover:text-yellow-400">Fragen pflegen</a>
                 @endif
             @endauth
         </div>

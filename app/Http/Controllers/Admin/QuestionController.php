@@ -31,6 +31,16 @@ class QuestionController extends Controller
         'status',
     ];
 
+    private const TEXT_FIELDS = ['frage', 'antwort_a', 'antwort_b', 'antwort_c', 'loesungsweg'];
+
+    private function normalizeWhitespace(?string $value): ?string
+    {
+        if ($value === null) return null;
+        $value = preg_replace('/[ \t]+/u', ' ', $value);
+        $value = preg_replace('/[ \t]+$/m', '', $value);
+        return trim($value);
+    }
+
     private function abortIfNotAdmin(): void
     {
         if (!auth()->check() || auth()->user()->useroll !== 'admin') {
@@ -38,9 +48,16 @@ class QuestionController extends Controller
         }
     }
 
+    private function abortIfCannotEditQuestions(): void
+    {
+        if (!auth()->check() || !auth()->user()->canEditQuestions()) {
+            abort(403, 'Kein Zugriff');
+        }
+    }
+
     public function index()
     {
-        $this->abortIfNotAdmin();
+        $this->abortIfCannotEditQuestions();
 
         $questions = Question::orderBy('lernabschnitt')->orderBy('nummer')->get();
 
@@ -116,6 +133,12 @@ class QuestionController extends Controller
         $solutions = array_unique(array_map('strtoupper', $validated['loesung']));
         sort($solutions);
 
+        foreach (self::TEXT_FIELDS as $field) {
+            if (array_key_exists($field, $validated)) {
+                $validated[$field] = $this->normalizeWhitespace($validated[$field]);
+            }
+        }
+
         $question = Question::create([
             'lernabschnitt' => $validated['lernabschnitt'],
             'nummer' => $validated['nummer'],
@@ -142,13 +165,13 @@ class QuestionController extends Controller
 
     public function edit(Question $question)
     {
-        $this->abortIfNotAdmin();
+        $this->abortIfCannotEditQuestions();
         return redirect()->route('admin.questions.index', ['focus' => $question->id]);
     }
 
     public function update(Request $request, Question $question)
     {
-        $this->abortIfNotAdmin();
+        $this->abortIfCannotEditQuestions();
 
         $validated = $request->validate([
             'lernabschnitt' => 'sometimes|required|string',
@@ -167,6 +190,12 @@ class QuestionController extends Controller
             $solutions = array_unique(array_map('strtoupper', $validated['loesung']));
             sort($solutions);
             $validated['loesung'] = implode(',', $solutions);
+        }
+
+        foreach (self::TEXT_FIELDS as $field) {
+            if (array_key_exists($field, $validated)) {
+                $validated[$field] = $this->normalizeWhitespace($validated[$field]);
+            }
         }
 
         $question->update($validated);
@@ -192,7 +221,7 @@ class QuestionController extends Controller
 
     public function updateField(Request $request, Question $question): JsonResponse
     {
-        $this->abortIfNotAdmin();
+        $this->abortIfCannotEditQuestions();
 
         $field = $request->input('field');
         $value = $request->input('value');
@@ -238,12 +267,15 @@ class QuestionController extends Controller
                     break;
 
                 case 'loesungsweg':
-                    $value = (string) $value;
+                    $value = $this->normalizeWhitespace((string) $value);
                     break;
 
                 default:
                     if (!is_string($value) || trim($value) === '') {
                         return response()->json(['success' => false, 'message' => 'Wert darf nicht leer sein'], 422);
+                    }
+                    if (in_array($field, self::TEXT_FIELDS, true)) {
+                        $value = $this->normalizeWhitespace($value);
                     }
             }
 
@@ -263,7 +295,7 @@ class QuestionController extends Controller
 
     public function aiSuggestExplanation(Request $request, Question $question, OpenAIService $openAI): JsonResponse
     {
-        $this->abortIfNotAdmin();
+        $this->abortIfCannotEditQuestions();
 
         try {
             $suggestion = $openAI->suggestExplanation($question);

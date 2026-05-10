@@ -613,9 +613,11 @@ html.light-mode .iss-root .report__avatar { background: var(--thw-blue); }
                         <button type="submit" class="btn btn--primary" style="flex: 1;">
                             <i class="bi bi-check-lg"></i> Speichern
                         </button>
+                        @if(auth()->user()->isAdmin())
                         <button type="button" onclick="confirmIssueDelete()" class="btn btn--danger">
                             <i class="bi bi-trash"></i> Löschen
                         </button>
+                        @endif
                     </div>
                 </form>
             </div>

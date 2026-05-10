@@ -234,6 +234,16 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $ortsverband->isAusbildungsbeauftragter($this);
     }
+
+    public function isAdmin(): bool
+    {
+        return $this->useroll === 'admin';
+    }
+
+    public function canEditQuestions(): bool
+    {
+        return in_array($this->useroll, ['admin', 'contributor'], true);
+    }
     
     /**
      * Generiert einen 6-stelligen Zahlencode und speichert ihn (15 min Gültigkeit).

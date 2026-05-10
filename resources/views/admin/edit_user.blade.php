@@ -22,6 +22,7 @@
             <label class="block text-gray-700">Rolle</label>
             <select name="useroll" class="w-full border rounded px-3 py-2">
                 <option value="user" @if($user->useroll === 'user') selected @endif>User</option>
+                <option value="contributor" @if($user->useroll === 'contributor') selected @endif>Contributor</option>
                 <option value="admin" @if($user->useroll === 'admin') selected @endif>Admin</option>
             </select>
         </div>
