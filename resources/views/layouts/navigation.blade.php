@@ -105,6 +105,17 @@
                                     <a href="{{ route('admin.extra-questions.index') }}" class="dropdown-item-glass">
                                         Zusatz-Fragen
                                     </a>
+                                    <a href="{{ route('admin.extra-question-submissions.index') }}" class="dropdown-item-glass flex items-center justify-between">
+                                        <span>Zusatz-Frage-Vorschläge</span>
+                                        @php
+                                            $pendingSubmissionsCount = cache()->remember('admin_pending_extra_q_submissions_count', 300, function() {
+                                                return \App\Models\UserExtraQuestionSubmission::where('status', 'pending')->count();
+                                            });
+                                        @endphp
+                                        @if($pendingSubmissionsCount > 0)
+                                            <span class="badge-error text-xs">{{ $pendingSubmissionsCount }}</span>
+                                        @endif
+                                    </a>
                                     <a href="{{ route('admin.lehrgaenge.index') }}" class="dropdown-item-glass">
                                         Lehrgänge
                                     </a>
@@ -216,6 +227,9 @@
                             @endif
                         </a>
 
+                        <a href="{{ route('zusatzfragen-vorschlagen.index') }}" class="dropdown-item-glass">
+                            Zusatz-Frage vorschlagen
+                        </a>
                         <a href="{{ route('profile') }}" class="dropdown-item-glass">
                             Profil
                         </a>
@@ -312,6 +326,11 @@
                     @endif
                 </div>
 
+                <!-- Mitmachen Section -->
+                <a href="{{ route('zusatzfragen-vorschlagen.index') }}" class="block px-3 py-2 text-base font-medium text-dark-primary hover:text-gold hover:bg-glass-white-5 rounded-md transition-colors duration-200 {{ request()->routeIs('zusatzfragen-vorschlagen.*') ? 'text-gold bg-glass-white-5' : '' }}">
+                    Zusatz-Frage vorschlagen
+                </a>
+
                 <!-- Gamification Section -->
                 <div class="px-3 py-2 text-xs font-semibold text-dark-muted uppercase tracking-wide">
                     Gamification
@@ -344,6 +363,17 @@
                         </a>
                         <a href="{{ route('admin.extra-questions.index') }}" class="block px-3 py-2 text-sm text-dark-secondary hover:text-gold hover:bg-glass-white-5 rounded-md transition-colors duration-200">
                             Zusatz-Fragen
+                        </a>
+                        <a href="{{ route('admin.extra-question-submissions.index') }}" class="block px-3 py-2 text-sm text-dark-secondary hover:text-gold hover:bg-glass-white-5 rounded-md transition-colors duration-200 flex items-center justify-between">
+                            <span>Zusatz-Frage-Vorschläge</span>
+                            @php
+                                $pendingSubmissionsCountMobile = cache()->remember('admin_pending_extra_q_submissions_count', 300, function() {
+                                    return \App\Models\UserExtraQuestionSubmission::where('status', 'pending')->count();
+                                });
+                            @endphp
+                            @if($pendingSubmissionsCountMobile > 0)
+                                <span class="badge-error text-xs">{{ $pendingSubmissionsCountMobile }}</span>
+                            @endif
                         </a>
                         <a href="{{ route('admin.lehrgaenge.index') }}" class="block px-3 py-2 text-sm text-dark-secondary hover:text-gold hover:bg-glass-white-5 rounded-md transition-colors duration-200">
                             Lehrgänge
