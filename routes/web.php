@@ -553,6 +553,14 @@ Route::middleware('auth')->group(function () {
     Route::delete('/umfrage/{survey_response}', [\App\Http\Controllers\SurveyController::class, 'destroy'])->name('umfrage.destroy');
 });
 
+// Zusatz-Fragen vorschlagen (alle eingeloggten User)
+Route::middleware('auth')->prefix('zusatzfragen-vorschlagen')->name('zusatzfragen-vorschlagen.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\UserExtraQuestionSubmissionController::class, 'index'])->name('index');
+    Route::get('/neu', [\App\Http\Controllers\UserExtraQuestionSubmissionController::class, 'create'])->name('create');
+    Route::post('/', [\App\Http\Controllers\UserExtraQuestionSubmissionController::class, 'store'])->name('store');
+    Route::delete('/{submission}', [\App\Http\Controllers\UserExtraQuestionSubmissionController::class, 'destroy'])->name('destroy');
+});
+
 Route::middleware('auth')->group(function () {
     // Practice Menu und Modi
     Route::get('/practice-menu', [\App\Http\Controllers\PracticeController::class, 'menu'])->name('practice.menu');
@@ -712,6 +720,12 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix
     Route::post('questions/{question}/update-field', [\App\Http\Controllers\Admin\QuestionController::class, 'updateField'])->name('questions.update-field');
     Route::post('questions/{question}/ai-suggest-explanation', [\App\Http\Controllers\Admin\QuestionController::class, 'aiSuggestExplanation'])->name('questions.ai-suggest-explanation');
     Route::resource('extra-questions', \App\Http\Controllers\Admin\ExtraQuestionController::class)->parameters(['extra-questions' => 'extra_question'])->except(['show']);
+
+    // User-eingereichte Zusatz-Fragen verwalten
+    Route::get('extra-question-submissions', [\App\Http\Controllers\Admin\UserExtraQuestionSubmissionController::class, 'index'])->name('extra-question-submissions.index');
+    Route::get('extra-question-submissions/{submission}', [\App\Http\Controllers\Admin\UserExtraQuestionSubmissionController::class, 'show'])->name('extra-question-submissions.show');
+    Route::post('extra-question-submissions/{submission}/reject', [\App\Http\Controllers\Admin\UserExtraQuestionSubmissionController::class, 'reject'])->name('extra-question-submissions.reject');
+    Route::post('extra-question-submissions/{submission}/mark-changed', [\App\Http\Controllers\Admin\UserExtraQuestionSubmissionController::class, 'markChanged'])->name('extra-question-submissions.mark-changed');
     Route::resource('lehrgaenge', \App\Http\Controllers\Admin\LehrgangController::class);
     Route::post('lehrgaenge/{lehrgang}/import-csv', [\App\Http\Controllers\Admin\LehrgangController::class, 'importCSV'])->name('lehrgaenge.import-csv');
     Route::patch('lehrgaenge/{lehrgang}/question/{question}', [\App\Http\Controllers\Admin\LehrgangController::class, 'updateQuestion'])->name('lehrgaenge.update-question');
