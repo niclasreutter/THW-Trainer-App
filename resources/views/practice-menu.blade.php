@@ -465,6 +465,15 @@
             <div style="font-size:0.6875rem;color:#5b9aff;font-weight:700;">Starten →</div>
         </a>
         @endif
+
+        {{-- ── Zusatz-Frage vorschlagen (alle User) ── --}}
+        <a href="{{ route('zusatzfragen-vorschlagen.index') }}" class="glass p-3 block" style="border-radius:0.75rem;text-decoration:none;display:flex;align-items:center;gap:0.75rem;border-left:3px solid var(--gold-start);">
+            <div style="flex:1;">
+                <div style="font-size:0.9375rem;font-weight:700;color:var(--text-primary);font-family:'Barlow Condensed',sans-serif;">Zusatz-Frage vorschlagen</div>
+                <div style="font-size:0.75rem;color:var(--text-muted);margin-top:0.125rem;">Eigene Frage für den Katalog einreichen</div>
+            </div>
+            <div style="font-size:0.6875rem;color:var(--gold-start);font-weight:700;">Einreichen →</div>
+        </a>
         @endauth
 
         {{-- ── Spaced Repetition + Fragensuche ── --}}
