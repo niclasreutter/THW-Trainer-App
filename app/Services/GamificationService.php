@@ -506,7 +506,18 @@ class GamificationService
      */
     private function buildWeekCalendarData(User $user): array
     {
-        return $this->buildStreakCalendarData($user, 7);
+        $calendar = $this->buildStreakCalendarData($user, 7);
+
+        // Wird nur aus Celebration-Triggern aufgerufen — heute ist hier immer aktiv,
+        // auch wenn der XpHistory-Eintrag erst nach updateStreak() geschrieben wird.
+        foreach ($calendar as &$day) {
+            if ($day['is_today']) {
+                $day['status'] = 'active';
+                break;
+            }
+        }
+
+        return $calendar;
     }
 
     /**
