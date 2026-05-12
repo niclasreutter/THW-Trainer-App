@@ -112,6 +112,43 @@ class AvatarOptionsService
                 ['value' => 'f59797', 'label' => 'Pastell',     'swatch' => '#f59797'],
             ],
         ],
+        'clothing' => [
+            'label' => 'Kleidung',
+            'param' => 'clothing',
+            'type'  => 'select',
+            'options' => [
+                ['value' => 'shirtCrewNeck',    'label' => 'Crew-Neck'],
+                ['value' => 'shirtScoopNeck',   'label' => 'Scoop-Neck'],
+                ['value' => 'shirtVNeck',       'label' => 'V-Neck'],
+                ['value' => 'hoodie',           'label' => 'Hoodie'],
+                ['value' => 'collarAndSweater', 'label' => 'Pulli mit Kragen'],
+                ['value' => 'graphicShirt',     'label' => 'Print-Shirt'],
+                ['value' => 'blazerAndShirt',   'label' => 'Blazer & Hemd'],
+                ['value' => 'blazerAndSweater', 'label' => 'Blazer & Pulli'],
+                ['value' => 'overall',          'label' => 'Overall'],
+            ],
+        ],
+        'clothesColor' => [
+            'label' => 'Kleidungsfarbe',
+            'param' => 'clothesColor',
+            'type'  => 'color',
+            'options' => [
+                ['value' => '262e33', 'label' => 'Schwarz',  'swatch' => '#262e33'],
+                ['value' => '3c4f5c', 'label' => 'Anthrazit','swatch' => '#3c4f5c'],
+                ['value' => '929598', 'label' => 'Grau',     'swatch' => '#929598'],
+                ['value' => 'e6e6e6', 'label' => 'Hellgrau', 'swatch' => '#e6e6e6'],
+                ['value' => 'ffffff', 'label' => 'Weiß',     'swatch' => '#ffffff'],
+                ['value' => '25557c', 'label' => 'THW-Blau', 'swatch' => '#25557c'],
+                ['value' => '5199e4', 'label' => 'Blau',     'swatch' => '#5199e4'],
+                ['value' => '65c9ff', 'label' => 'Hellblau', 'swatch' => '#65c9ff'],
+                ['value' => 'b1e2ff', 'label' => 'Pastellblau','swatch' => '#b1e2ff'],
+                ['value' => 'a7ffc4', 'label' => 'Mint',     'swatch' => '#a7ffc4'],
+                ['value' => 'ffafb9', 'label' => 'Rosa',     'swatch' => '#ffafb9'],
+                ['value' => 'ff488e', 'label' => 'Pink',     'swatch' => '#ff488e'],
+                ['value' => 'ff5c5c', 'label' => 'Rot',      'swatch' => '#ff5c5c'],
+                ['value' => 'ffffb1', 'label' => 'Gelb',     'swatch' => '#ffffb1'],
+            ],
+        ],
     ];
 
     /**
@@ -191,29 +228,28 @@ class AvatarOptionsService
     {
         $extra = [];
 
-        if ($targetParam === 'hairColor') {
-            $extra['top'] = $currentParams['top'] ?? 'shortFlat';
+        // Übernehme aktuelle Werte, damit Thumbnails konsistent zum Avatar aussehen.
+        foreach (['top', 'hairColor', 'skinColor', 'clothing', 'clothesColor'] as $k) {
+            if ($k === $targetParam) continue;
+            if (!empty($currentParams[$k])) {
+                $extra[$k] = $currentParams[$k];
+            }
         }
-        if ($targetParam === 'skinColor') {
-            $extra['top'] = $currentParams['top'] ?? 'shortFlat';
-            $extra['hairColor'] = $currentParams['hairColor'] ?? '4a312c';
+
+        // Fallback-Defaults für gut sichtbare Thumbnails, falls noch nichts gesetzt:
+        if (in_array($targetParam, ['hairColor', 'skinColor', 'eyes', 'eyebrows', 'mouth'], true)
+            && empty($extra['top'])) {
+            $extra['top'] = 'shortFlat';
         }
-        if (in_array($targetParam, ['eyes', 'eyebrows', 'mouth'], true)) {
-            if (!empty($currentParams['skinColor'])) {
-                $extra['skinColor'] = $currentParams['skinColor'];
-            }
-            if (!empty($currentParams['hairColor'])) {
-                $extra['hairColor'] = $currentParams['hairColor'];
-            }
-            $extra['top'] = $currentParams['top'] ?? 'shortFlat';
+        if ($targetParam === 'skinColor' && empty($extra['hairColor'])) {
+            $extra['hairColor'] = '4a312c';
         }
-        if ($targetParam === 'top') {
-            if (!empty($currentParams['hairColor'])) {
-                $extra['hairColor'] = $currentParams['hairColor'];
-            }
-            if (!empty($currentParams['skinColor'])) {
-                $extra['skinColor'] = $currentParams['skinColor'];
-            }
+        if ($targetParam === 'clothesColor' && empty($extra['clothing'])) {
+            // Bei reinem Farb-Tab brauchen wir ein nicht-blazer-Outfit, damit die Farbe groß sichtbar wird
+            $extra['clothing'] = 'shirtCrewNeck';
+        }
+        if ($targetParam === 'clothing' && empty($extra['clothesColor'])) {
+            $extra['clothesColor'] = '25557c';
         }
 
         return $extra;
