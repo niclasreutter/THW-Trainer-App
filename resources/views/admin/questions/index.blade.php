@@ -1213,12 +1213,14 @@ html.light-mode .fq-ai-suggestion__btn { color: #7c3aed; }
             </template>
         </div>
 
+        @if(auth()->user()->isAdmin())
         <div class="fq-rail__foot">
             <button type="button" class="fq-newbtn" @click="createQuestion()">
                 <i class="bi bi-plus-lg"></i>
                 Neue Frage anlegen
             </button>
         </div>
+        @endif
     </div>
 
     {{-- ========== EDITOR ========== --}}
@@ -1260,9 +1262,11 @@ html.light-mode .fq-ai-suggestion__btn { color: #7c3aed; }
                             <button type="button" @click="prev()" title="Vorherige Frage (⌘+↑)"><i class="bi bi-chevron-up"></i></button>
                             <button type="button" @click="next()" title="Nächste Frage (⌘+↓)"><i class="bi bi-chevron-down"></i></button>
                         </div>
+                        @if(auth()->user()->isAdmin())
                         <button type="button" class="fq-iconbtn danger" title="Frage löschen" @click="deleteActive()">
                             <i class="bi bi-trash3"></i>
                         </button>
+                        @endif
                         <button type="button" class="fq-btn fq-btn--primary" @click="flushNow()">
                             <i class="bi bi-cloud-check"></i>
                             Speichern
@@ -1284,6 +1288,8 @@ html.light-mode .fq-ai-suggestion__btn { color: #7c3aed; }
                                 x-model="active.frage"
                                 @input.debounce.700ms="patch('frage', active.frage)"
                                 placeholder="Frage eingeben…"
+                                spellcheck="true"
+                                lang="de"
                             ></textarea>
                         </div>
 
@@ -1769,6 +1775,11 @@ function fragenEditor() {
                     const json = await res.json().catch(() => ({}));
                     if (!res.ok || !json.success) {
                         throw new Error(json.message || 'Speichern fehlgeschlagen');
+                    }
+                    if (this.active && this.active.id === id && json.field && Object.prototype.hasOwnProperty.call(json, 'value')) {
+                        if (this.pendingFields[json.field] === undefined && this.active[json.field] !== json.value) {
+                            this.active[json.field] = json.value;
+                        }
                     }
                 }
                 this.saveStatus = 'saved';

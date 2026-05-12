@@ -26,9 +26,16 @@ class ExtraQuestionController extends Controller
         }
     }
 
+    private function abortIfCannotEditQuestions(): void
+    {
+        if (!auth()->check() || !auth()->user()->canEditQuestions()) {
+            abort(403, 'Kein Zugriff');
+        }
+    }
+
     public function index()
     {
-        $this->abortIfNotAdmin();
+        $this->abortIfCannotEditQuestions();
 
         $questions = ExtraQuestion::with(['options', 'matchCategories', 'matchItems'])
             ->orderBy('lernabschnitt')
@@ -117,7 +124,7 @@ class ExtraQuestionController extends Controller
 
     public function edit(ExtraQuestion $extra_question)
     {
-        $this->abortIfNotAdmin();
+        $this->abortIfCannotEditQuestions();
 
         $extra_question->load(['options', 'matchCategories', 'matchItems.correctCategory']);
 
@@ -131,7 +138,7 @@ class ExtraQuestionController extends Controller
 
     public function update(Request $request, ExtraQuestion $extra_question)
     {
-        $this->abortIfNotAdmin();
+        $this->abortIfCannotEditQuestions();
 
         // Typ darf sich nicht ändern: force original
         $request->merge(['typ' => $extra_question->typ]);

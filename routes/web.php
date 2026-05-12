@@ -712,6 +712,37 @@ Route::middleware('auth')->group(function () {
     Route::get('/join/{code}', [\App\Http\Controllers\OrtsverbandInvitationController::class, 'join'])->name('ortsverband.join');
 });
 
+// Routen für Frage-Editoren (Admin + Contributor): Lesen + Bearbeiten von Fragen / Fehlermeldungen
+Route::middleware(['auth', \App\Http\Middleware\QuestionEditorMiddleware::class])->prefix('admin')->name('admin.')->group(function () {
+    Route::model('lehrgang_issue', \App\Models\LehrgangQuestionIssue::class);
+
+    // Globaler Fragenpool: nur Lesen + Bearbeiten
+    Route::get('questions', [\App\Http\Controllers\Admin\QuestionController::class, 'index'])->name('questions.index');
+    Route::get('questions/{question}/edit', [\App\Http\Controllers\Admin\QuestionController::class, 'edit'])->name('questions.edit');
+    Route::match(['put', 'patch'], 'questions/{question}', [\App\Http\Controllers\Admin\QuestionController::class, 'update'])->name('questions.update');
+    Route::post('questions/{question}/update-field', [\App\Http\Controllers\Admin\QuestionController::class, 'updateField'])->name('questions.update-field');
+    Route::post('questions/{question}/ai-suggest-explanation', [\App\Http\Controllers\Admin\QuestionController::class, 'aiSuggestExplanation'])->name('questions.ai-suggest-explanation');
+
+    // Zusatz-Fragen: nur Lesen + Bearbeiten
+    Route::get('extra-questions', [\App\Http\Controllers\Admin\ExtraQuestionController::class, 'index'])->name('extra-questions.index');
+    Route::get('extra-questions/{extra_question}/edit', [\App\Http\Controllers\Admin\ExtraQuestionController::class, 'edit'])->name('extra-questions.edit');
+    Route::match(['put', 'patch'], 'extra-questions/{extra_question}', [\App\Http\Controllers\Admin\ExtraQuestionController::class, 'update'])->name('extra-questions.update');
+
+    // Lehrgänge: Lesen + Bearbeiten einzelner Fragen
+    Route::get('lehrgaenge', [\App\Http\Controllers\Admin\LehrgangController::class, 'index'])->name('lehrgaenge.index');
+    Route::get('lehrgaenge/{lehrgang}', [\App\Http\Controllers\Admin\LehrgangController::class, 'show'])->name('lehrgaenge.show');
+    Route::patch('lehrgaenge/{lehrgang}/question/{question}', [\App\Http\Controllers\Admin\LehrgangController::class, 'updateQuestion'])->name('lehrgaenge.update-question');
+
+    // Fehlermeldungen (vereinheitlichte Issues + Lehrgang-Issues): Lesen + Status setzen
+    Route::get('issues', [\App\Http\Controllers\Admin\IssueController::class, 'index'])->name('issues.index');
+    Route::get('issues/{issue}', [\App\Http\Controllers\Admin\IssueController::class, 'show'])->name('issues.show');
+    Route::put('issues/{issue}', [\App\Http\Controllers\Admin\IssueController::class, 'update'])->name('issues.update');
+
+    Route::get('lehrgang-issues', [\App\Http\Controllers\Admin\LehrgangIssueController::class, 'index'])->name('lehrgang-issues.index');
+    Route::get('lehrgang-issues/{lehrgang_issue}', [\App\Http\Controllers\Admin\LehrgangIssueController::class, 'show'])->name('lehrgang-issues.show');
+    Route::match(['put', 'patch'], 'lehrgang-issues/{lehrgang_issue}', [\App\Http\Controllers\Admin\LehrgangIssueController::class, 'update'])->name('lehrgang-issues.update');
+});
+
 Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
     Route::get('/statistics', [\App\Http\Controllers\Admin\StatisticsController::class, 'index'])->name('statistics');
@@ -728,20 +759,15 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix
     Route::post('extra-question-submissions/{submission}/mark-changed', [\App\Http\Controllers\Admin\UserExtraQuestionSubmissionController::class, 'markChanged'])->name('extra-question-submissions.mark-changed');
     Route::resource('lehrgaenge', \App\Http\Controllers\Admin\LehrgangController::class);
     Route::post('lehrgaenge/{lehrgang}/import-csv', [\App\Http\Controllers\Admin\LehrgangController::class, 'importCSV'])->name('lehrgaenge.import-csv');
-    Route::patch('lehrgaenge/{lehrgang}/question/{question}', [\App\Http\Controllers\Admin\LehrgangController::class, 'updateQuestion'])->name('lehrgaenge.update-question');
     Route::delete('lehrgaenge/{question}/delete-question', [\App\Http\Controllers\Admin\LehrgangController::class, 'deleteQuestion'])->name('lehrgaenge.delete-question');
-    Route::resource('lehrgang-issues', \App\Http\Controllers\Admin\LehrgangIssueController::class)->only(['index', 'show', 'update', 'destroy']);
-    Route::model('lehrgang_issue', \App\Models\LehrgangQuestionIssue::class);
+
+    // Issues: Löschen (nur Admin)
+    Route::delete('issues/{issue}', [\App\Http\Controllers\Admin\IssueController::class, 'destroy'])->name('issues.destroy');
+    Route::delete('lehrgang-issues/{lehrgang_issue}', [\App\Http\Controllers\Admin\LehrgangIssueController::class, 'destroy'])->name('lehrgang-issues.destroy');
 
     // Ligen-Übersicht (Admin)
     Route::get('leagues', [\App\Http\Controllers\Admin\LeagueController::class, 'index'])->name('leagues.index');
     Route::get('leagues/{league}', [\App\Http\Controllers\Admin\LeagueController::class, 'show'])->name('leagues.show');
-
-    // Neue vereinheitlichte Issues-Verwaltung (Lehrgänge + Grundausbildung)
-    Route::get('issues', [\App\Http\Controllers\Admin\IssueController::class, 'index'])->name('issues.index');
-    Route::get('issues/{issue}', [\App\Http\Controllers\Admin\IssueController::class, 'show'])->name('issues.show');
-    Route::put('issues/{issue}', [\App\Http\Controllers\Admin\IssueController::class, 'update'])->name('issues.update');
-    Route::delete('issues/{issue}', [\App\Http\Controllers\Admin\IssueController::class, 'destroy'])->name('issues.destroy');
 
     Route::get('users', [\App\Http\Controllers\Admin\UserController::class, 'index'])->name('users.index');
     Route::get('users/{id}/edit', [\App\Http\Controllers\Admin\UserController::class, 'edit'])->name('users.edit');
