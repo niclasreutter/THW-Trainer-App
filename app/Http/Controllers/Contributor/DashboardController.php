@@ -9,8 +9,6 @@ use App\Models\LehrgangQuestionIssue;
 use App\Models\Question;
 use App\Models\QuestionIssue;
 use App\Models\UserExtraQuestionSubmission;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
@@ -22,7 +20,6 @@ class DashboardController extends Controller
             'handlungsbedarf'   => $this->getHandlungsbedarf(),
             'recentSubmissions' => $this->getRecentSubmissions(),
             'submissionStats'   => $this->getSubmissionStats(),
-            'fragenQualitaet'   => $this->getFragenQualitaet(),
             'recentIssues'      => $this->getRecentIssues(),
         ]);
     }
@@ -278,92 +275,6 @@ class DashboardController extends Controller
             'changed'  => UserExtraQuestionSubmission::where('status', 'changed')->count(),
             'rejected' => UserExtraQuestionSubmission::where('status', 'rejected')->count(),
         ];
-    }
-
-    /* =========================================================
-       FRAGEN-QUALITÄT — analog Admin Dashboard
-       ========================================================= */
-    private function getFragenQualitaet(): array
-    {
-        $from = now()->subDays(30);
-
-        $sources = [
-            'question_statistics',
-            'lehrgang_question_statistics',
-            'ortsverband_lernpool_question_statistics',
-        ];
-
-        $totalAnswered = 0;
-        $correct = 0;
-        foreach ($sources as $table) {
-            $totalAnswered += DB::table($table)->where('created_at', '>=', $from)->count();
-            $correct       += DB::table($table)->where('created_at', '>=', $from)->where('is_correct', true)->count();
-        }
-        $wrong = $totalAnswered - $correct;
-        $successRate = $totalAnswered > 0 ? round(($correct / $totalAnswered) * 100, 1) : 0;
-
-        $totalFragen = Question::count();
-        $entwuerfe = Question::whereNull('loesung')->orWhere('loesung', '')->count();
-
-        return [
-            'correct'      => $correct,
-            'wrong'        => $wrong,
-            'totalAnswered' => $totalAnswered,
-            'successRate'  => $successRate,
-            'totalFragen'  => $totalFragen,
-            'entwuerfe'    => $entwuerfe,
-            'topRichtig'   => $this->topQuestions('correct', $from),
-            'topFalsch'    => $this->topQuestions('wrong', $from),
-        ];
-    }
-
-    /**
-     * @param 'correct'|'wrong' $mode
-     */
-    private function topQuestions(string $mode, Carbon $from): array
-    {
-        $rows = DB::table('question_statistics')
-            ->join('questions', 'question_statistics.question_id', '=', 'questions.id')
-            ->where('question_statistics.created_at', '>=', $from)
-            ->select(
-                'questions.id',
-                'questions.nummer',
-                'questions.frage',
-                'questions.lernabschnitt',
-                DB::raw('COUNT(*) as attempts'),
-                DB::raw('SUM(CASE WHEN question_statistics.is_correct = 1 THEN 1 ELSE 0 END) as correct')
-            )
-            ->groupBy('questions.id', 'questions.nummer', 'questions.frage', 'questions.lernabschnitt')
-            ->having('attempts', '>=', 10)
-            ->get();
-
-        $mapped = $rows->map(function ($r) {
-            $rate = $r->attempts > 0 ? round(($r->correct / $r->attempts) * 100, 1) : 0;
-            return [
-                'id'            => $r->id,
-                'nummer'        => $r->nummer,
-                'frage'         => $this->shortenFrage($r->frage),
-                'lernabschnitt' => $r->lernabschnitt,
-                'attempts'      => (int) $r->attempts,
-                'correct_rate'  => $rate,
-                'wrong_rate'    => round(100 - $rate, 1),
-            ];
-        });
-
-        if ($mode === 'correct') {
-            return $mapped->sortByDesc('correct_rate')->take(3)->values()->all();
-        }
-
-        return $mapped->sortByDesc('wrong_rate')->take(3)->values()->all();
-    }
-
-    private function shortenFrage(?string $text): string
-    {
-        $text = trim(strip_tags($text ?? ''));
-        if (mb_strlen($text) <= 40) {
-            return $text;
-        }
-        return mb_substr($text, 0, 37) . '…';
     }
 
     /* =========================================================
