@@ -1,6 +1,8 @@
 # AGENTS.md - THW-Trainer-App
 
 > Kompakte Anleitung für AI Assistants. Details in `docs/*.md`.
+>
+> **Hinweis:** Alle weiteren KI-/LLM-spezifischen Dokumente (Feature-Notes, Fix-Reports, Setup-Guides, TODO_AI etc.) liegen im Ordner [`LLM/`](LLM/).
 
 ## Projekt-Kontext
 
