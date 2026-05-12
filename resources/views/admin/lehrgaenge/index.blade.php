@@ -86,12 +86,14 @@
         </div>
 
         <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
+            @if(auth()->user()->isAdmin())
             <a href="{{ route('admin.lehrgaenge.create') }}" class="btn-primary">
                 <i class="bi bi-plus-circle"></i> Neuer Lehrgang
             </a>
             <a href="{{ route('admin.dashboard') }}" class="btn-secondary">
                 <i class="bi bi-arrow-left"></i> Zurück
             </a>
+            @endif
         </div>
 
         @if($lehrgaenge->count() > 0)
@@ -116,6 +118,7 @@
                             <a href="{{ url('admin/lehrgaenge/' . $lehrgang->id) }}" class="btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
                                 <i class="bi bi-eye"></i> Details
                             </a>
+                            @if(auth()->user()->isAdmin())
                             <a href="{{ url('admin/lehrgaenge/' . $lehrgang->id . '/edit') }}" class="btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
                                 <i class="bi bi-pencil"></i> Bearbeiten
                             </a>
@@ -126,6 +129,7 @@
                                     <i class="bi bi-trash"></i> Löschen
                                 </button>
                             </form>
+                            @endif
                         </div>
                     </div>
                 @endforeach
@@ -138,9 +142,11 @@
             <div style="text-align: center; padding: 3rem 1rem; color: var(--text-muted);">
                 <div style="font-size: 3rem; margin-bottom: 1rem;"><i class="bi bi-inbox"></i></div>
                 <p>Noch keine Lehrgänge vorhanden. Erstelle deinen ersten Lehrgang!</p>
+                @if(auth()->user()->isAdmin())
                 <a href="{{ route('admin.lehrgaenge.create') }}" class="btn-primary" style="margin-top: 1rem; display: inline-block;">
                     <i class="bi bi-plus-circle"></i> Neuen Lehrgang erstellen
                 </a>
+                @endif
             </div>
         @endif
     </div>

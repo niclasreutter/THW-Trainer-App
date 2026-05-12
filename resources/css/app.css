@@ -6254,6 +6254,7 @@ html.light-mode .smart-action--info {
 .auth-ghost-btn {
     display: block;
     width: 100%;
+    margin-top: 0.75rem;
     padding: 0.75rem;
     background: transparent;
     color: rgba(255, 255, 255, 0.7);

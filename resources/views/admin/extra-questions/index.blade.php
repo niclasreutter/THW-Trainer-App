@@ -233,9 +233,11 @@
         <span class="zf-section-label">
             Alle Zusatz-Fragen{{ $total > 0 ? ' · '.$total : '' }}
         </span>
+        @if(auth()->user()->isAdmin())
         <a href="{{ route('admin.extra-questions.create') }}" class="btn-primary">
             <i class="bi bi-plus-lg"></i> Neue Zusatz-Frage
         </a>
+        @endif
     </div>
 
     <div class="zf-form-card" style="padding: 0.75rem; overflow: hidden;">
@@ -243,9 +245,11 @@
             <div class="zf-empty">
                 <div class="zf-empty__icon"><i class="bi bi-inboxes"></i></div>
                 <p class="zf-empty__text">Noch keine Zusatz-Fragen vorhanden.</p>
+                @if(auth()->user()->isAdmin())
                 <a href="{{ route('admin.extra-questions.create') }}" class="btn-primary">
                     <i class="bi bi-plus-lg"></i> Erste Zusatz-Frage anlegen
                 </a>
+                @endif
             </div>
         @else
             @foreach($grouped as $lernabschnitt => $group)
@@ -279,6 +283,7 @@
                                 <a href="{{ route('admin.extra-questions.edit', $q) }}" class="zf-icon-btn" title="Bearbeiten">
                                     <i class="bi bi-pencil"></i>
                                 </a>
+                                @if(auth()->user()->isAdmin())
                                 <form method="POST" action="{{ route('admin.extra-questions.destroy', $q) }}"
                                       onsubmit="return confirm('Zusatz-Frage wirklich löschen?')" style="margin: 0;">
                                     @csrf
@@ -287,6 +292,7 @@
                                         <i class="bi bi-trash"></i>
                                     </button>
                                 </form>
+                                @endif
                             </div>
                             <i class="bi bi-chevron-right" style="color: var(--text-muted); font-size: 0.85rem;"></i>
                         </div>

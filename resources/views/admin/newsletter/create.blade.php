@@ -295,10 +295,10 @@ function insertGlowButton() {
     const url = prompt('Link-URL (z.B. https://thw-trainer.de/dashboard):');
     if (url) {
         const html = `
-<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: 20px 0;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: 16px 0;">
     <tr>
         <td align="center">
-            <a href="${url}" target="_blank" class="glow-button" style="display: inline-block; background: linear-gradient(to right, #2563eb, #1d4ed8); background-color: #2563eb; color: #ffffff !important; padding: 15px 30px; text-decoration: none !important; border-radius: 8px; font-weight: bold; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4), 0 0 20px rgba(37, 99, 235, 0.3), 0 0 40px rgba(37, 99, 235, 0.1);">
+            <a href="${url}" target="_blank" class="glow-button" style="display: inline-block; background: linear-gradient(135deg, #00337F, #0055cc); background-color: #00337F; color: #ffffff !important; padding: 12px 32px; text-decoration: none !important; border-radius: 0.5rem; font-weight: 700; font-size: 13px; box-shadow: 0 4px 15px rgba(0, 51, 127, 0.3);">
                 <span style="color: #ffffff !important;">${text}</span>
             </a>
         </td>
@@ -319,21 +319,34 @@ function insertStatBox() {
     insertHTML(html);
 }
 
-// Vorschau aktualisieren
+// Vorschau aktualisieren - spiegelt das Mail-Layout aus emails/newsletter.blade.php wider
 function updatePreview() {
     const subject = document.getElementById('subject').value;
     const content = document.getElementById('editor').innerHTML;
-    
+
     // Hidden field aktualisieren
     document.getElementById('content').value = content;
-    
+
     // Vorschau aktualisieren
     document.getElementById('preview').innerHTML = `
-        <div style="border-bottom: 3px solid #2563eb; padding-bottom: 10px; margin-bottom: 20px;">
-            <div style="font-size: 24px; font-weight: bold; color: #2563eb; margin-bottom: 10px;">THW-Trainer</div>
-            <h2 style="margin: 0;">${subject || 'Kein Betreff'}</h2>
+        <div style="background:#f0f2f5;padding:16px;border-radius:0.5rem;">
+            <div style="max-width:560px;margin:0 auto;">
+                <div style="background:linear-gradient(135deg,#00337F,#0055cc);padding:20px 24px 16px;border-radius:1.5rem 0.5rem 0 0;">
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <div style="width:32px;height:32px;background:rgba(255,255,255,0.15);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:11px;">THW</div>
+                        <div style="color:#fff;font-weight:700;font-size:14px;letter-spacing:0.5px;">THW-TRAINER</div>
+                    </div>
+                </div>
+                <div style="background:#ffffff;padding:24px;border-left:3px solid #00337F;box-shadow:0 4px 20px rgba(0,0,0,0.08);">
+                    <div style="font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#64748b;margin-bottom:6px;">Newsletter</div>
+                    <div style="font-size:20px;font-weight:800;color:#0f172a;margin-bottom:16px;">${subject || 'Kein Betreff'}</div>
+                    <div class="newsletter-content" style="color:#475569;font-size:13px;line-height:1.6;">${content}</div>
+                </div>
+                <div style="background:#f8fafc;padding:16px 24px;border-radius:0 0 0.5rem 1.5rem;border-top:1px solid #e2e8f0;text-align:center;">
+                    <p style="margin:0;font-size:11px;color:#94a3b8;line-height:1.6;"><strong style="color:#64748b;">THW-Trainer</strong> &middot; Dein Lernbegleiter für die THW-Grundausbildung</p>
+                </div>
+            </div>
         </div>
-        ${content}
     `;
 }
 
@@ -486,59 +499,71 @@ function showMessage(message, type) {
     margin: 10px 0;
 }
 
-#editor h2 {
-    font-size: 24px;
-    font-weight: bold;
+#editor h2,
+.newsletter-content h2 {
+    font-size: 18px;
+    font-weight: 800;
     margin: 20px 0 10px 0;
-    color: #1e40af;
+    color: #0f172a;
+    line-height: 1.3;
 }
 
-#editor h3 {
-    font-size: 20px;
-    font-weight: bold;
+#editor h3,
+.newsletter-content h3 {
+    font-size: 15px;
+    font-weight: 700;
     margin: 16px 0 8px 0;
-    color: #1e40af;
+    color: #0f172a;
+    line-height: 1.3;
 }
 
-/* Custom Styles im Editor UND in der Vorschau */
+/* Custom Styles im Editor UND in der Vorschau - synchron mit emails/newsletter.blade.php */
 #editor .info-card,
 #preview .info-card {
-    background-color: #eff6ff;
-    border: 2px solid #3b82f6;
+    background: #f0f4ff;
+    border-left: 3px solid #3b82f6;
     border-radius: 8px;
-    padding: 15px;
-    margin: 20px 0;
-    box-shadow: 0 0 20px rgba(59, 130, 246, 0.3), 0 0 40px rgba(59, 130, 246, 0.1);
+    padding: 14px 16px;
+    margin: 16px 0;
+    color: #1e3a5f;
+    font-size: 13px;
+    line-height: 1.6;
 }
 
 #editor .warning-card,
 #preview .warning-card {
-    background-color: #fef3c7;
-    border: 2px solid #f59e0b;
+    background: #fffbeb;
+    border-left: 3px solid #f59e0b;
     border-radius: 8px;
-    padding: 15px;
-    margin: 20px 0;
-    box-shadow: 0 0 20px rgba(245, 158, 11, 0.3), 0 0 40px rgba(245, 158, 11, 0.1);
+    padding: 14px 16px;
+    margin: 16px 0;
+    color: #92400e;
+    font-size: 13px;
+    line-height: 1.6;
 }
 
 #editor .success-card,
 #preview .success-card {
-    background-color: #f0fdf4;
-    border: 2px solid #22c55e;
+    background: #f0fdf4;
+    border-left: 3px solid #22c55e;
     border-radius: 8px;
-    padding: 15px;
-    margin: 20px 0;
-    box-shadow: 0 0 20px rgba(34, 197, 94, 0.3), 0 0 40px rgba(34, 197, 94, 0.1);
+    padding: 14px 16px;
+    margin: 16px 0;
+    color: #166534;
+    font-size: 13px;
+    line-height: 1.6;
 }
 
 #editor .error-card,
 #preview .error-card {
-    background-color: #fef2f2;
-    border: 2px solid #ef4444;
+    background: #fef2f2;
+    border-left: 3px solid #ef4444;
     border-radius: 8px;
-    padding: 15px;
-    margin: 20px 0;
-    box-shadow: 0 0 20px rgba(239, 68, 68, 0.3), 0 0 40px rgba(239, 68, 68, 0.1);
+    padding: 14px 16px;
+    margin: 16px 0;
+    color: #991b1b;
+    font-size: 13px;
+    line-height: 1.6;
 }
 
 /* Links im Editor anklickbar machen */
@@ -547,54 +572,60 @@ function showMessage(message, type) {
     cursor: pointer;
 }
 
-/* Table-basierte Buttons im Editor */
+/* Table-basierte Buttons im Editor - synchron mit Standard-Mail-CTA */
 #editor table a,
 #preview table a {
     display: inline-block;
-    background: linear-gradient(to right, #2563eb, #1d4ed8);
-    color: white !important;
-    padding: 15px 30px;
+    background: linear-gradient(135deg, #00337F, #0055cc);
+    color: #ffffff !important;
+    padding: 12px 32px;
     text-decoration: none;
-    border-radius: 8px;
-    font-weight: bold;
-    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4), 0 0 20px rgba(37, 99, 235, 0.3), 0 0 40px rgba(37, 99, 235, 0.1);
+    border-radius: 0.5rem;
+    font-weight: 700;
+    font-size: 13px;
+    box-shadow: 0 4px 15px rgba(0, 51, 127, 0.3);
 }
 
-/* Glow-Button wird jetzt via Inline-Styles eingefügt, aber für Legacy-Kompatibilität: */
+/* Glow-Button: gleicher Look wie Standard-CTA der anderen Mails */
 #editor .glow-button,
 #preview .glow-button {
     display: inline-block;
-    background: linear-gradient(to right, #2563eb, #1d4ed8);
-    color: white;
-    padding: 15px 30px;
+    background: linear-gradient(135deg, #00337F, #0055cc);
+    color: #ffffff;
+    padding: 12px 32px;
     text-decoration: none;
-    border-radius: 8px;
-    font-weight: bold;
-    margin: 20px 0;
-    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4), 0 0 20px rgba(37, 99, 235, 0.3), 0 0 40px rgba(37, 99, 235, 0.1);
+    border-radius: 0.5rem;
+    font-weight: 700;
+    font-size: 13px;
+    margin: 16px 0;
+    box-shadow: 0 4px 15px rgba(0, 51, 127, 0.3);
 }
 
 #editor .stat-box,
 #preview .stat-box {
-    background-color: #f3f4f6;
-    padding: 15px;
-    border-radius: 8px;
-    margin: 10px 0;
-    /* text-align wird jetzt via Inline-Style gesetzt */
+    background: #f0f4ff;
+    border: 1px solid rgba(0, 51, 127, 0.12);
+    border-radius: 2rem;
+    padding: 14px 18px;
+    margin: 12px 0;
+    text-align: center;
 }
 
 #editor .stat-number,
 #preview .stat-number {
-    font-size: 32px;
-    font-weight: bold;
-    color: #2563eb;
-    margin: 10px 0;
+    font-size: 24px;
+    font-weight: 800;
+    color: #00337F;
+    margin: 4px 0;
 }
 
 #editor .stat-label,
 #preview .stat-label {
-    font-size: 14px;
-    color: #6b7280;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #64748b;
 }
 
 /* Preview Styles */

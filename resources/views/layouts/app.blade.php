@@ -219,7 +219,7 @@
                         </a>
                     @endif
 
-                    @if(auth()->user()->useroll === 'admin')
+                    @if(auth()->user()->isAdmin())
                     <div class="nav-section nav-section-admin">Admin</div>
 
                     <a href="{{ route('admin.dashboard') }}" class="sidebar-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
@@ -284,6 +284,26 @@
                         <i class="bi bi-clock-history"></i> Zeitsimulator
                     </a>
                     @endif
+                    @elseif(auth()->user()->canEditQuestions())
+                    <div class="nav-section nav-section-admin">Fragen pflegen</div>
+                    <a href="{{ route('admin.questions.index') }}" class="sidebar-link {{ request()->routeIs('admin.questions.*') ? 'active' : '' }}">
+                        <i class="bi bi-question-circle"></i> Fragen
+                    </a>
+                    <a href="{{ route('admin.extra-questions.index') }}" class="sidebar-link {{ request()->routeIs('admin.extra-questions.*') ? 'active' : '' }}">
+                        <i class="bi bi-collection"></i> Zusatz-Fragen
+                    </a>
+                    <a href="{{ route('admin.lehrgaenge.index') }}" class="sidebar-link {{ request()->routeIs('admin.lehrgaenge.*') ? 'active' : '' }}">
+                        <i class="bi bi-mortarboard"></i> Lehrgänge
+                    </a>
+                    <a href="{{ route('admin.issues.index') }}" class="sidebar-link {{ request()->routeIs('admin.issues.*') ? 'active' : '' }}">
+                        <i class="bi bi-exclamation-triangle"></i> Fehlermeldungen
+                        @php
+                            $openIssuesCount = cache()->remember('admin_open_issues_count', 300, fn() => \App\Models\LehrgangQuestionIssue::where('status', 'open')->count() + \App\Models\QuestionIssue::where('status', 'open')->count());
+                        @endphp
+                        @if($openIssuesCount > 0)
+                            <span class="badge-error text-xs ml-auto">{{ $openIssuesCount }}</span>
+                        @endif
+                    </a>
                     @endif
                 </nav>
 
@@ -490,7 +510,7 @@
                     </a>
                 @endif
 
-                @if(auth()->user()->useroll === 'admin')
+                @if(auth()->user()->isAdmin())
                 <div class="nav-section nav-section-admin">Admin</div>
 
                 <a href="{{ route('admin.dashboard') }}" class="sidebar-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
@@ -549,6 +569,23 @@
                     <i class="bi bi-clock-history"></i> Zeitsimulator
                 </a>
                 @endif
+                @elseif(auth()->user()->canEditQuestions())
+                <div class="nav-section nav-section-admin">Fragen pflegen</div>
+                <a href="{{ route('admin.questions.index') }}" class="sidebar-link {{ request()->routeIs('admin.questions.*') ? 'active' : '' }}">
+                    <i class="bi bi-question-circle"></i> Fragen
+                </a>
+                <a href="{{ route('admin.extra-questions.index') }}" class="sidebar-link {{ request()->routeIs('admin.extra-questions.*') ? 'active' : '' }}">
+                    <i class="bi bi-collection"></i> Zusatz-Fragen
+                </a>
+                <a href="{{ route('admin.lehrgaenge.index') }}" class="sidebar-link {{ request()->routeIs('admin.lehrgaenge.*') ? 'active' : '' }}">
+                    <i class="bi bi-mortarboard"></i> Lehrgänge
+                </a>
+                <a href="{{ route('admin.issues.index') }}" class="sidebar-link {{ request()->routeIs('admin.issues.*') ? 'active' : '' }}">
+                    <i class="bi bi-exclamation-triangle"></i> Fehlermeldungen
+                    @if($openIssuesCount > 0)
+                        <span class="badge-error text-xs ml-auto">{{ $openIssuesCount }}</span>
+                    @endif
+                </a>
                 @endif
             </nav>
 

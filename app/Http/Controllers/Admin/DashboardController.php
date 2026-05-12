@@ -12,6 +12,7 @@ use App\Models\Question;
 use App\Models\QuestionIssue;
 use App\Models\QuestionStatistic;
 use App\Models\User;
+use App\Models\UserExtraQuestionSubmission;
 use App\Models\UserQuestionProgress;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -563,6 +564,19 @@ class DashboardController extends Controller
                 'sub'    => 'Entwurf · warten auf Freigabe',
                 'link'   => route('admin.questions.index'),
                 'variant' => 'purp',
+                'urgent' => false,
+            ];
+        }
+
+        $pendingSubmissions = UserExtraQuestionSubmission::where('status', 'pending')->count();
+        if ($pendingSubmissions > 0) {
+            $newest = UserExtraQuestionSubmission::where('status', 'pending')->latest()->first();
+            $queue[] = [
+                'count'  => $pendingSubmissions,
+                'title'  => 'Zusatz-Frage-Vorschläge',
+                'sub'    => 'eingereicht · neueste ' . ($newest ? $newest->created_at->diffForHumans() : ''),
+                'link'   => route('admin.extra-question-submissions.index', ['status' => 'pending']),
+                'variant' => 'gold',
                 'urgent' => false,
             ];
         }

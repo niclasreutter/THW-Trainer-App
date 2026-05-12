@@ -291,7 +291,7 @@ class UserController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255',
-            'useroll' => 'required|in:user,admin',
+            'useroll' => 'required|in:user,admin,contributor',
             'points' => 'nullable|integer|min:0',
         ]);
         $user->name = $request->name;
