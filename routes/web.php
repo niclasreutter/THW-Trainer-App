@@ -747,17 +747,29 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix
     Route::get('/', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
     Route::get('/statistics', [\App\Http\Controllers\Admin\StatisticsController::class, 'index'])->name('statistics');
     Route::get('/shop-analytics', [\App\Http\Controllers\Admin\ShopAnalyticsController::class, 'index'])->name('shop-analytics');
-    Route::resource('questions', \App\Http\Controllers\Admin\QuestionController::class);
-    Route::post('questions/{question}/update-field', [\App\Http\Controllers\Admin\QuestionController::class, 'updateField'])->name('questions.update-field');
-    Route::post('questions/{question}/ai-suggest-explanation', [\App\Http\Controllers\Admin\QuestionController::class, 'aiSuggestExplanation'])->name('questions.ai-suggest-explanation');
-    Route::resource('extra-questions', \App\Http\Controllers\Admin\ExtraQuestionController::class)->parameters(['extra-questions' => 'extra_question'])->except(['show']);
+    // Globaler Fragenpool: Anlegen + Löschen (nur Admin)
+    Route::get('questions/create', [\App\Http\Controllers\Admin\QuestionController::class, 'create'])->name('questions.create');
+    Route::post('questions', [\App\Http\Controllers\Admin\QuestionController::class, 'store'])->name('questions.store');
+    Route::get('questions/{question}', [\App\Http\Controllers\Admin\QuestionController::class, 'show'])->name('questions.show');
+    Route::delete('questions/{question}', [\App\Http\Controllers\Admin\QuestionController::class, 'destroy'])->name('questions.destroy');
+
+    // Zusatz-Fragen: Anlegen + Löschen (nur Admin)
+    Route::get('extra-questions/create', [\App\Http\Controllers\Admin\ExtraQuestionController::class, 'create'])->name('extra-questions.create');
+    Route::post('extra-questions', [\App\Http\Controllers\Admin\ExtraQuestionController::class, 'store'])->name('extra-questions.store');
+    Route::delete('extra-questions/{extra_question}', [\App\Http\Controllers\Admin\ExtraQuestionController::class, 'destroy'])->name('extra-questions.destroy');
 
     // User-eingereichte Zusatz-Fragen verwalten
     Route::get('extra-question-submissions', [\App\Http\Controllers\Admin\UserExtraQuestionSubmissionController::class, 'index'])->name('extra-question-submissions.index');
     Route::get('extra-question-submissions/{submission}', [\App\Http\Controllers\Admin\UserExtraQuestionSubmissionController::class, 'show'])->name('extra-question-submissions.show');
     Route::post('extra-question-submissions/{submission}/reject', [\App\Http\Controllers\Admin\UserExtraQuestionSubmissionController::class, 'reject'])->name('extra-question-submissions.reject');
     Route::post('extra-question-submissions/{submission}/mark-changed', [\App\Http\Controllers\Admin\UserExtraQuestionSubmissionController::class, 'markChanged'])->name('extra-question-submissions.mark-changed');
-    Route::resource('lehrgaenge', \App\Http\Controllers\Admin\LehrgangController::class);
+
+    // Lehrgänge: CRUD auf Kursebene + CSV-Import + Frage löschen (nur Admin)
+    Route::get('lehrgaenge/create', [\App\Http\Controllers\Admin\LehrgangController::class, 'create'])->name('lehrgaenge.create');
+    Route::post('lehrgaenge', [\App\Http\Controllers\Admin\LehrgangController::class, 'store'])->name('lehrgaenge.store');
+    Route::get('lehrgaenge/{lehrgang}/edit', [\App\Http\Controllers\Admin\LehrgangController::class, 'edit'])->name('lehrgaenge.edit');
+    Route::match(['put', 'patch'], 'lehrgaenge/{lehrgang}', [\App\Http\Controllers\Admin\LehrgangController::class, 'update'])->name('lehrgaenge.update');
+    Route::delete('lehrgaenge/{lehrgang}', [\App\Http\Controllers\Admin\LehrgangController::class, 'destroy'])->name('lehrgaenge.destroy');
     Route::post('lehrgaenge/{lehrgang}/import-csv', [\App\Http\Controllers\Admin\LehrgangController::class, 'importCSV'])->name('lehrgaenge.import-csv');
     Route::delete('lehrgaenge/{question}/delete-question', [\App\Http\Controllers\Admin\LehrgangController::class, 'deleteQuestion'])->name('lehrgaenge.delete-question');
 
