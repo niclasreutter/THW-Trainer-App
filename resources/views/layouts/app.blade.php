@@ -286,11 +286,23 @@
                     @endif
                     @elseif(auth()->user()->canEditQuestions())
                     <div class="nav-section nav-section-admin">Fragen pflegen</div>
+                    <a href="{{ route('contributor.dashboard') }}" class="sidebar-link {{ request()->routeIs('contributor.dashboard') ? 'active' : '' }}">
+                        <i class="bi bi-speedometer2"></i> Dashboard
+                    </a>
                     <a href="{{ route('admin.questions.index') }}" class="sidebar-link {{ request()->routeIs('admin.questions.*') ? 'active' : '' }}">
                         <i class="bi bi-question-circle"></i> Fragen
                     </a>
                     <a href="{{ route('admin.extra-questions.index') }}" class="sidebar-link {{ request()->routeIs('admin.extra-questions.*') ? 'active' : '' }}">
                         <i class="bi bi-collection"></i> Zusatz-Fragen
+                    </a>
+                    <a href="{{ route('admin.extra-question-submissions.index') }}" class="sidebar-link {{ request()->routeIs('admin.extra-question-submissions.*') ? 'active' : '' }}">
+                        <i class="bi bi-inbox"></i> Zusatz-Frage-Vorschläge
+                        @php
+                            $pendingSubmissionsCount = cache()->remember('admin_pending_extra_q_submissions_count', 300, fn() => \App\Models\UserExtraQuestionSubmission::where('status', 'pending')->count());
+                        @endphp
+                        @if($pendingSubmissionsCount > 0)
+                            <span class="badge-error text-xs ml-auto">{{ $pendingSubmissionsCount }}</span>
+                        @endif
                     </a>
                     <a href="{{ route('admin.lehrgaenge.index') }}" class="sidebar-link {{ request()->routeIs('admin.lehrgaenge.*') ? 'active' : '' }}">
                         <i class="bi bi-mortarboard"></i> Lehrgänge
@@ -571,11 +583,23 @@
                 @endif
                 @elseif(auth()->user()->canEditQuestions())
                 <div class="nav-section nav-section-admin">Fragen pflegen</div>
+                <a href="{{ route('contributor.dashboard') }}" class="sidebar-link {{ request()->routeIs('contributor.dashboard') ? 'active' : '' }}">
+                    <i class="bi bi-speedometer2"></i> Dashboard
+                </a>
                 <a href="{{ route('admin.questions.index') }}" class="sidebar-link {{ request()->routeIs('admin.questions.*') ? 'active' : '' }}">
                     <i class="bi bi-question-circle"></i> Fragen
                 </a>
                 <a href="{{ route('admin.extra-questions.index') }}" class="sidebar-link {{ request()->routeIs('admin.extra-questions.*') ? 'active' : '' }}">
                     <i class="bi bi-collection"></i> Zusatz-Fragen
+                </a>
+                <a href="{{ route('admin.extra-question-submissions.index') }}" class="sidebar-link {{ request()->routeIs('admin.extra-question-submissions.*') ? 'active' : '' }}">
+                    <i class="bi bi-inbox"></i> Zusatz-Frage-Vorschläge
+                    @php
+                        $pendingSubmissionsCount = cache()->remember('admin_pending_extra_q_submissions_count', 300, fn() => \App\Models\UserExtraQuestionSubmission::where('status', 'pending')->count());
+                    @endphp
+                    @if($pendingSubmissionsCount > 0)
+                        <span class="badge-error text-xs ml-auto">{{ $pendingSubmissionsCount }}</span>
+                    @endif
                 </a>
                 <a href="{{ route('admin.lehrgaenge.index') }}" class="sidebar-link {{ request()->routeIs('admin.lehrgaenge.*') ? 'active' : '' }}">
                     <i class="bi bi-mortarboard"></i> Lehrgänge
