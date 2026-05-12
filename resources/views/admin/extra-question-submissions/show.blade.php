@@ -86,7 +86,7 @@
         </div>
     @endif
 
-    @if($submission->isPending())
+    @if($submission->isPending() && auth()->user()->isAdmin())
         <div class="zf-form-card">
             <div class="zf-form-card__label">
                 <span class="zf-section-label">Aktionen</span>
@@ -131,26 +131,40 @@
                         <i class="bi bi-pencil"></i> Erstellte Frage bearbeiten
                     </a>
                 @endif
-                <button type="button" class="btn-ghost"
-                        onclick="document.getElementById('changed-form').style.display='block'">
-                    <i class="bi bi-pencil-square"></i> Als "mit Änderungen übernommen" markieren
-                </button>
+                @if(auth()->user()->isAdmin())
+                    <button type="button" class="btn-ghost"
+                            onclick="document.getElementById('changed-form').style.display='block'">
+                        <i class="bi bi-pencil-square"></i> Als "mit Änderungen übernommen" markieren
+                    </button>
+                @endif
             </div>
 
-            <form id="changed-form" method="POST" action="{{ route('admin.extra-question-submissions.mark-changed', $submission) }}"
-                  style="display: {{ $submission->status === 'changed' ? 'block' : 'none' }}; margin-top: 1rem;">
-                @csrf
-                <div class="zf-field">
-                    <label class="zf-label" for="admin_notes_changed">Hinweis an den User (optional)</label>
-                    <textarea id="admin_notes_changed" name="admin_notes" class="zf-textarea" maxlength="2000"
-                              placeholder="z.B. Frage wurde umformuliert / Optionen erweitert / Lernabschnitt angepasst">{{ $submission->admin_notes }}</textarea>
-                </div>
-                <div class="zf-form-actions">
-                    <button type="button" class="btn-ghost"
-                            onclick="document.getElementById('changed-form').style.display='none'">Abbrechen</button>
-                    <button type="submit" class="btn-primary">Status &amp; Hinweis speichern</button>
-                </div>
-            </form>
+            @if(auth()->user()->isAdmin())
+                <form id="changed-form" method="POST" action="{{ route('admin.extra-question-submissions.mark-changed', $submission) }}"
+                      style="display: {{ $submission->status === 'changed' ? 'block' : 'none' }}; margin-top: 1rem;">
+                    @csrf
+                    <div class="zf-field">
+                        <label class="zf-label" for="admin_notes_changed">Hinweis an den User (optional)</label>
+                        <textarea id="admin_notes_changed" name="admin_notes" class="zf-textarea" maxlength="2000"
+                                  placeholder="z.B. Frage wurde umformuliert / Optionen erweitert / Lernabschnitt angepasst">{{ $submission->admin_notes }}</textarea>
+                    </div>
+                    <div class="zf-form-actions">
+                        <button type="button" class="btn-ghost"
+                                onclick="document.getElementById('changed-form').style.display='none'">Abbrechen</button>
+                        <button type="submit" class="btn-primary">Status &amp; Hinweis speichern</button>
+                    </div>
+                </form>
+            @endif
+        </div>
+    @elseif($submission->isPending() && !auth()->user()->isAdmin())
+        <div class="zf-form-card">
+            <div class="zf-form-card__label">
+                <span class="zf-section-label">Status</span>
+            </div>
+            <p style="margin: 0; color: var(--text-secondary); font-size: 0.9375rem;">
+                <i class="bi bi-info-circle" style="color: var(--thw-blue); margin-right: 0.35rem;"></i>
+                Diese Einreichung wartet noch auf eine Entscheidung durch einen Admin.
+            </p>
         </div>
     @endif
 
