@@ -190,6 +190,130 @@ class Ortsverband extends Model
     }
 
     /**
+     * Themenabdeckung: pro Lernabschnitt der durchschnittliche Anteil der von
+     * Mitgliedern (keine Ausbilder) jemals beantworteten Fragen. Aufsteigend
+     * sortiert, damit die am wenigsten behandelten Themen oben stehen.
+     */
+    public function getTopicCoverage()
+    {
+        $memberIds = $this->members()->wherePivot('role', 'member')->pluck('users.id');
+        $memberCount = $memberIds->count();
+
+        if ($memberCount === 0) {
+            return collect();
+        }
+
+        $totalPerSection = DB::table('questions')
+            ->select('lernabschnitt', DB::raw('COUNT(*) as total'))
+            ->groupBy('lernabschnitt')
+            ->pluck('total', 'lernabschnitt');
+
+        $attemptsPerUserSection = DB::table('question_statistics')
+            ->join('questions', 'question_statistics.question_id', '=', 'questions.id')
+            ->whereIn('question_statistics.user_id', $memberIds)
+            ->select(
+                'questions.lernabschnitt',
+                'question_statistics.user_id',
+                DB::raw('COUNT(DISTINCT question_statistics.question_id) as attempted')
+            )
+            ->groupBy('questions.lernabschnitt', 'question_statistics.user_id')
+            ->get();
+
+        return $totalPerSection
+            ->filter(fn ($total) => $total > 0)
+            ->map(function ($total, $section) use ($attemptsPerUserSection, $memberCount) {
+                $sectionAttempts = $attemptsPerUserSection->where('lernabschnitt', $section);
+                $sumPercent = 0;
+                foreach ($sectionAttempts as $row) {
+                    $sumPercent += min(100, ($row->attempted / $total) * 100);
+                }
+
+                return [
+                    'section' => (int) $section,
+                    'avg_coverage_percent' => (int) round($sumPercent / $memberCount),
+                    'members_touched' => $sectionAttempts->count(),
+                    'total_members' => $memberCount,
+                    'total_questions' => (int) $total,
+                ];
+            })
+            ->sortBy('avg_coverage_percent')
+            ->values();
+    }
+
+    /**
+     * Pro Ausbildungsmodul: wie viele Mitglieder (keine Ausbilder) haben es
+     * abgeschlossen. Ein Lernabschnitt gilt als abgeschlossen, wenn alle
+     * Unterpunkte abgehakt sind; eine Zusatzausbildung, wenn ihr Key gesetzt ist.
+     */
+    public function getTrainingModuleCompletion(): array
+    {
+        $memberIds = $this->members()->wherePivot('role', 'member')->pluck('users.id');
+        $memberCount = $memberIds->count();
+
+        if ($memberCount === 0) {
+            return [
+                'members_total' => 0,
+                'lernabschnitte' => collect(),
+                'zusatz' => collect(),
+            ];
+        }
+
+        $progressByUser = DB::table('user_training_progress')
+            ->whereIn('user_id', $memberIds)
+            ->get()
+            ->groupBy('user_id')
+            ->map(fn ($rows) => $rows->pluck('item_key')->flip()->all());
+
+        $countCompletedFor = function (array $requiredKeys) use ($memberIds, $progressByUser): int {
+            $count = 0;
+            foreach ($memberIds as $uid) {
+                $userKeys = $progressByUser->get($uid, []);
+                $allDone = true;
+                foreach ($requiredKeys as $key) {
+                    if (!isset($userKeys[$key])) {
+                        $allDone = false;
+                        break;
+                    }
+                }
+                if ($allDone) {
+                    $count++;
+                }
+            }
+            return $count;
+        };
+
+        $lernabschnitte = collect(\App\Services\TrainingProgressService::LERNABSCHNITTE)->map(function ($la) use ($countCompletedFor, $memberCount) {
+            $requiredKeys = array_column($la['items'], 'key');
+            $count = $countCompletedFor($requiredKeys);
+            return [
+                'key' => $la['key'],
+                'nr' => $la['nr'],
+                'title' => $la['title'],
+                'completed_count' => $count,
+                'total_members' => $memberCount,
+                'percent' => (int) round(($count / $memberCount) * 100),
+            ];
+        });
+
+        $zusatz = collect(\App\Services\TrainingProgressService::ZUSATZAUSBILDUNGEN)->map(function ($item) use ($countCompletedFor, $memberCount) {
+            $count = $countCompletedFor([$item['key']]);
+            return [
+                'key' => $item['key'],
+                'label' => $item['label'],
+                'completed_count' => $count,
+                'total_members' => $memberCount,
+                'percent' => (int) round(($count / $memberCount) * 100),
+            ];
+        });
+
+        return [
+            'members_total' => $memberCount,
+            'lernabschnitte' => $lernabschnitte,
+            'zusatz' => $zusatz,
+        ];
+    }
+
+    /**
      * Durchschnittsstatistiken (nur normale Mitglieder, keine Ausbilder)
      */
     public function getAverageStats()

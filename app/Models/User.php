@@ -240,6 +240,21 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->useroll === 'admin';
     }
 
+    /**
+     * Standard-Landingseite nach Login. Ausbilder landen auf ihrem
+     * OV-Dashboard, alle anderen auf dem persönlichen Dashboard.
+     */
+    public function homePath(): string
+    {
+        $ausbilderOV = $this->ortsverbande()
+            ->wherePivot('role', 'ausbildungsbeauftragter')
+            ->first();
+
+        return $ausbilderOV
+            ? '/ortsverband/' . $ausbilderOV->id . '/dashboard'
+            : '/dashboard';
+    }
+
     public function canEditQuestions(): bool
     {
         return in_array($this->useroll, ['admin', 'contributor'], true);

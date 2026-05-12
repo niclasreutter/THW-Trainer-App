@@ -103,9 +103,10 @@ class RegisteredUserController extends Controller
 
         // In Production: Redirect zur App-Domain
         // In Development: Normale Redirect-Logik
+        $homePath = $user->homePath();
         $dashboardUrl = config('domains.development')
-            ? route('dashboard')
-            : DomainHelper::appUrl('/dashboard');
+            ? url($homePath)
+            : DomainHelper::appUrl($homePath);
 
         return redirect($dashboardUrl);
     }
