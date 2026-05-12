@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Admin\UserExtraQuestionSubmissionController;
 use App\Models\ExtraQuestion;
 use App\Models\Question;
+use App\Models\UserExtraQuestionSubmission;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -57,9 +59,18 @@ class ExtraQuestionController extends Controller
             $typ = null;
         }
 
+        $submission = null;
+        if ($request->filled('from_submission')) {
+            $submission = UserExtraQuestionSubmission::find($request->query('from_submission'));
+            if ($submission && $submission->isPending() && !$request->session()->hasOldInput()) {
+                $request->session()->flashInput($this->submissionToOldInput($submission));
+                $typ = $submission->typ;
+            }
+        }
+
         $sections = $this->buildLernabschnitte();
 
-        return view('admin.extra-questions.create', compact('typ', 'sections'));
+        return view('admin.extra-questions.create', compact('typ', 'sections', 'submission'));
     }
 
     public function store(Request $request)
@@ -68,7 +79,8 @@ class ExtraQuestionController extends Controller
 
         $validated = $this->validateForType($request);
 
-        DB::transaction(function () use ($request, $validated) {
+        $createdQuestion = null;
+        DB::transaction(function () use ($request, $validated, &$createdQuestion) {
             $imagePath = null;
             $imageSource = null;
             if ($validated['typ'] === ExtraQuestion::TYP_IMAGE_NAME) {
@@ -87,7 +99,23 @@ class ExtraQuestionController extends Controller
             ]);
 
             $this->persistRelations($question, $request, $validated);
+            $createdQuestion = $question;
         });
+
+        $submissionId = $request->input('_from_submission_id');
+        if ($submissionId && $createdQuestion) {
+            $submission = UserExtraQuestionSubmission::find($submissionId);
+            if ($submission && $submission->isPending()) {
+                $submission->update([
+                    'status' => UserExtraQuestionSubmission::STATUS_APPROVED,
+                    'reviewed_at' => now(),
+                    'reviewed_by' => auth()->id(),
+                    'extra_question_id' => $createdQuestion->id,
+                ]);
+                cache()->forget('admin_pending_extra_q_submissions_count');
+                UserExtraQuestionSubmissionController::notifyUser($submission->fresh());
+            }
+        }
 
         return redirect()
             ->route('admin.extra-questions.index')
@@ -199,6 +227,54 @@ class ExtraQuestionController extends Controller
     }
 
     // ----------------- Helpers -----------------
+
+    /**
+     * Wandelt eine User-Submission in das old()-Input-Format um, sodass
+     * das normale Admin-Create-Formular vorbefüllt werden kann.
+     */
+    private function submissionToOldInput(UserExtraQuestionSubmission $submission): array
+    {
+        $payload = $submission->payload ?? [];
+        $input = [
+            'typ' => $submission->typ,
+            'lernabschnitt' => $submission->lernabschnitt,
+            'frage' => $submission->frage,
+            '_from_submission_id' => (string) $submission->id,
+        ];
+
+        if ($submission->typ === ExtraQuestion::TYP_MATCHING) {
+            $input['categories'] = array_map(
+                fn ($c) => ['name' => $c['name'] ?? ''],
+                $payload['categories'] ?? []
+            );
+            $input['items'] = array_map(
+                fn ($i) => [
+                    'text' => $i['text'] ?? '',
+                    'category_index' => (int) ($i['category_index'] ?? 0),
+                ],
+                $payload['items'] ?? []
+            );
+        } elseif ($submission->typ === ExtraQuestion::TYP_IMAGE_NAME) {
+            $input['image_source'] = $payload['image_source_hint'] ?? '';
+            $input['options'] = array_map(
+                fn ($o) => [
+                    'text' => $o['text'] ?? '',
+                    'is_correct' => !empty($o['is_correct']) ? 1 : 0,
+                ],
+                $payload['options'] ?? []
+            );
+        } elseif ($submission->typ === ExtraQuestion::TYP_IMAGE_SELECT) {
+            $input['options'] = array_map(
+                fn ($o) => [
+                    'image_source' => $o['image_source_hint'] ?? '',
+                    'is_correct' => !empty($o['is_correct']) ? 1 : 0,
+                ],
+                $payload['options'] ?? []
+            );
+        }
+
+        return $input;
+    }
 
     /**
      * Offizielle THW-Lernabschnittsnamen (2022).
