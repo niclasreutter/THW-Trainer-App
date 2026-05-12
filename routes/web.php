@@ -513,6 +513,8 @@ Route::middleware('auth')->group(function () {
         ));
     })->name('profile');
     // Profile-eigene Actions (Avatar, Accessoires, Dashboard-Banner) bleiben unter /profile
+    Route::get('/profile/avatar', [ProfileController::class, 'editAvatar'])->name('profile.avatar.edit');
+    Route::post('/profile/avatar', [ProfileController::class, 'updateAvatar'])->name('profile.avatar.update');
     Route::post('/profile/avatar/regenerate', [ProfileController::class, 'regenerateAvatar'])->name('profile.avatar.regenerate');
     Route::post('/profile/accessory/toggle', [ProfileController::class, 'toggleAccessory'])->name('profile.accessory.toggle');
     Route::post('/profile/accessory/color', [ProfileController::class, 'updateAccessoryColor'])->name('profile.accessory.color');
