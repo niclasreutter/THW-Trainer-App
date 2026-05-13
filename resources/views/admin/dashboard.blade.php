@@ -292,6 +292,10 @@ html.light-mode .admin-root .sr-tile { border-color: rgba(0,51,127,0.08); backgr
 .admin-root .sr-tile__val--gold  { color: #fbbf24; }
 .admin-root .sr-tile__val--green { color: #22c55e; }
 .admin-root .sr-tile__val--purp  { color: #a78bfa; }
+.admin-root .sr-tile__val--blue  { color: #5b9aff; }
+html.light-mode .admin-root .sr-tile__val--blue { color: var(--thw-blue); }
+.admin-root .sr-tile__val--red   { color: #ef4444; }
+.admin-root .sr-stats--4 { grid-template-columns: repeat(4, 1fr); }
 .admin-root .sr-tile__lbl {
     font-family: 'IBM Plex Mono', monospace; font-size: 0.625rem; font-weight: 600;
     text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted);
@@ -316,6 +320,7 @@ html.light-mode .admin-root .sr-dist { background: rgba(0,51,127,0.08); }
     .admin-root .pulse-item + .pulse-item:nth-child(3) { border-left: 0; padding-left: 0; }
     .admin-root .admin-grid, .admin-root .admin-grid--wide { grid-template-columns: 1fr; }
     .admin-root .charts-grid { grid-template-columns: 1fr; }
+    .admin-root .sr-stats--4 { grid-template-columns: repeat(2, 1fr); }
 }
 @media (max-width: 700px) {
     .admin-root .kpi-grid { grid-template-columns: repeat(2, 1fr); }
@@ -748,6 +753,57 @@ html.light-mode .admin-root .sr-dist { background: rgba(0,51,127,0.08); }
             </div>
         </div>
 
+    </div>
+
+    {{-- ── ROW 4: EINREICHUNGS-STATUS ─────────── --}}
+    <div class="card" style="margin-bottom: 1rem;">
+        <div class="card-h">
+            <span class="section-label">Einreichungs-Status</span>
+            <a href="{{ route('admin.extra-question-submissions.index') }}" class="card-h-link">Verwalten →</a>
+        </div>
+
+        <div class="sr-stats sr-stats--4">
+            <div class="sr-tile">
+                <div class="sr-tile__val sr-tile__val--blue">{{ $submissionStats['pending'] }}</div>
+                <div class="sr-tile__lbl">Offen</div>
+            </div>
+            <div class="sr-tile">
+                <div class="sr-tile__val sr-tile__val--green">{{ $submissionStats['approved'] }}</div>
+                <div class="sr-tile__lbl">Übernommen</div>
+            </div>
+            <div class="sr-tile">
+                <div class="sr-tile__val sr-tile__val--gold">{{ $submissionStats['changed'] }}</div>
+                <div class="sr-tile__lbl">Geändert</div>
+            </div>
+            <div class="sr-tile">
+                <div class="sr-tile__val sr-tile__val--red">{{ $submissionStats['rejected'] }}</div>
+                <div class="sr-tile__lbl">Abgelehnt</div>
+            </div>
+        </div>
+
+        @php
+            $totalSubs = max($submissionStats['total'], 1);
+            $pctPending  = round(($submissionStats['pending'] / $totalSubs) * 100);
+            $pctApproved = round(($submissionStats['approved'] / $totalSubs) * 100);
+            $pctChanged  = round(($submissionStats['changed'] / $totalSubs) * 100);
+            $pctRejected = round(($submissionStats['rejected'] / $totalSubs) * 100);
+        @endphp
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.375rem;">
+            <span class="section-label" style="font-size:0.625rem;">Verteilung</span>
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:0.6875rem;color:var(--text-muted);">{{ number_format($submissionStats['total'], 0, ',', '.') }} Einreichungen</span>
+        </div>
+        <div style="display:flex;height:12px;border-radius:999px;overflow:hidden;margin-bottom:0.625rem;background:rgba(255,255,255,0.06);">
+            <div style="width:{{ $pctPending }}%;background:#5b9aff;"></div>
+            <div style="width:{{ $pctApproved }}%;background:#22c55e;"></div>
+            <div style="width:{{ $pctChanged }}%;background:#fbbf24;"></div>
+            <div style="width:{{ $pctRejected }}%;background:#ef4444;"></div>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:0.875rem;font-size:0.6875rem;color:var(--text-muted);">
+            <div style="display:inline-flex;align-items:center;gap:0.35rem;"><span style="width:8px;height:8px;border-radius:2px;background:#5b9aff;"></span>Offen · {{ $pctPending }}%</div>
+            <div style="display:inline-flex;align-items:center;gap:0.35rem;"><span style="width:8px;height:8px;border-radius:2px;background:#22c55e;"></span>Übernommen · {{ $pctApproved }}%</div>
+            <div style="display:inline-flex;align-items:center;gap:0.35rem;"><span style="width:8px;height:8px;border-radius:2px;background:#fbbf24;"></span>Geändert · {{ $pctChanged }}%</div>
+            <div style="display:inline-flex;align-items:center;gap:0.35rem;"><span style="width:8px;height:8px;border-radius:2px;background:#ef4444;"></span>Abgelehnt · {{ $pctRejected }}%</div>
+        </div>
     </div>
 
 </div>
