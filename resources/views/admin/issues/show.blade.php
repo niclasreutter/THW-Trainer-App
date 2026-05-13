@@ -280,6 +280,104 @@ html.light-mode .iss-root .report__avatar { background: var(--thw-blue); }
 .iss-root .report__msg { font-size: 0.875rem; color: var(--text-secondary); line-height: 1.5; margin: 0; }
 .iss-root .report__msg--empty { font-style: italic; color: var(--text-muted); }
 
+/* Activity feed (Jira-style: report = note = status_change = comment) */
+.iss-root .activity-feed { display: flex; flex-direction: column; gap: 0.5rem; }
+.iss-root .activity {
+    display: flex; gap: 0.75rem;
+    padding: 0.75rem 0.875rem;
+    border-radius: 0.625rem;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.05);
+}
+html.light-mode .iss-root .activity {
+    background: rgba(0,51,127,0.02); border-color: rgba(0,51,127,0.06);
+}
+.iss-root .activity--note {
+    background: rgba(251,191,36,0.06);
+    border-color: rgba(251,191,36,0.18);
+}
+.iss-root .activity--status {
+    background: rgba(91,154,255,0.05);
+    border-color: rgba(91,154,255,0.16);
+    align-items: center;
+}
+html.light-mode .iss-root .activity--status {
+    background: rgba(0,51,127,0.04); border-color: rgba(0,51,127,0.12);
+}
+.iss-root .activity__avatar {
+    width: 2rem; height: 2rem; flex-shrink: 0;
+    border-radius: 50%;
+    background: #5b9aff; color: #fff;
+    display: grid; place-items: center;
+    font-weight: 700; font-size: 0.8125rem;
+}
+html.light-mode .iss-root .activity__avatar { background: var(--thw-blue); }
+.iss-root .activity__avatar--note   { background: #fbbf24; color: #1a1a1a; }
+.iss-root .activity__avatar--status { background: rgba(91,154,255,0.18); color: #5b9aff; font-size: 0.9rem; }
+html.light-mode .iss-root .activity__avatar--status {
+    background: rgba(0,51,127,0.12); color: var(--thw-blue);
+}
+.iss-root .activity__body { flex: 1; min-width: 0; }
+.iss-root .activity__head {
+    display: flex; align-items: center; gap: 0.5rem;
+    margin-bottom: 0.25rem; flex-wrap: wrap;
+}
+.iss-root .activity__name {
+    font-weight: 700; font-size: 0.8125rem; color: var(--text-primary);
+}
+.iss-root .activity__badge {
+    display: inline-flex; align-items: center;
+    padding: 0.1rem 0.45rem; border-radius: 999px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.5625rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    background: rgba(251,191,36,0.16); color: #fbbf24;
+}
+.iss-root .activity__badge--report {
+    background: rgba(91,154,255,0.16); color: #5b9aff;
+}
+html.light-mode .iss-root .activity__badge--report { color: var(--thw-blue); }
+.iss-root .activity__time {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.625rem; color: var(--text-muted);
+    margin-left: auto;
+}
+.iss-root .activity__msg {
+    font-size: 0.875rem; color: var(--text-secondary);
+    line-height: 1.5; margin: 0;
+    white-space: pre-wrap; word-break: break-word;
+}
+.iss-root .activity__msg--empty { font-style: italic; color: var(--text-muted); }
+.iss-root .activity__line {
+    font-size: 0.8125rem; color: var(--text-secondary);
+    margin: 0; line-height: 1.5;
+    display: flex; align-items: center; gap: 0.35rem; flex-wrap: wrap;
+}
+.iss-root .activity__line strong { color: var(--text-primary); font-weight: 700; }
+.iss-root .activity--status .activity__time { margin-left: 0; flex-basis: 100%; margin-top: 0.2rem; }
+
+/* Compose / new comment form */
+.iss-root .activity-compose {
+    display: flex; gap: 0.75rem;
+    margin-top: 1rem; padding-top: 1rem;
+    border-top: 1px solid rgba(255,255,255,0.06);
+}
+html.light-mode .iss-root .activity-compose { border-top-color: rgba(0,51,127,0.08); }
+.iss-root .activity-compose__avatar {
+    width: 2rem; height: 2rem; flex-shrink: 0;
+    border-radius: 50%;
+    background: #5b9aff; color: #fff;
+    display: grid; place-items: center;
+    font-weight: 700; font-size: 0.8125rem;
+}
+html.light-mode .iss-root .activity-compose__avatar { background: var(--thw-blue); }
+.iss-root .activity-compose__body { flex: 1; min-width: 0; }
+.iss-root .activity-compose__body .textarea { min-height: 72px; }
+.iss-root .activity-compose__actions {
+    display: flex; justify-content: flex-end;
+    margin-top: 0.5rem;
+}
+
 /* Alert */
 .iss-root .alert {
     display: flex; gap: 0.75rem; align-items: flex-start;
@@ -497,43 +595,117 @@ html.light-mode .iss-root .report__avatar { background: var(--thw-blue); }
 
             <div class="card">
                 <div class="card-h">
-                    <span class="section-label">Meldungen · {{ $issue->reports->count() ?: 1 }}</span>
+                    <span class="section-label">Aktivität</span>
                     <span class="chip chip--count">{{ $issue->report_count }}× gemeldet</span>
                 </div>
 
-                <div class="reports">
-                    @forelse($issue->reports as $report)
-                        <div class="report">
-                            <div class="report__avatar">{{ strtoupper(substr($report->user?->name ?? 'A', 0, 1)) }}</div>
-                            <div class="report__body">
-                                <div class="report__head">
-                                    <span class="report__name">{{ $report->user?->name ?? 'Anonym' }}</span>
-                                    <span class="report__time">{{ $report->created_at->format('d.m.Y H:i') }}</span>
+                @php
+                    // Status-Labels für Statuswechsel-Einträge
+                    $statusLabels = [
+                        'open'      => 'Offen',
+                        'in_review' => 'In Bearbeitung',
+                        'resolved'  => 'Gelöst',
+                        'rejected'  => 'Abgelehnt',
+                    ];
+
+                    // Aktivitäten = alle reports + synthetischer Initial-Eintrag
+                    // (falls Issue keine 'report'-Zeilen hat, aber latest_message existiert)
+                    $activities = $issue->reports->sortBy('created_at')->values();
+                    $hasReportRow = $activities->contains(fn ($a) => ($a->type ?? 'report') === 'report');
+                    if (! $hasReportRow && $issue->reportedByUser) {
+                        $activities = collect([(object) [
+                            '_synthetic' => true,
+                            'type' => 'report',
+                            'message' => $issue->latest_message,
+                            'user' => $issue->reportedByUser,
+                            'created_at' => $issue->created_at,
+                            'meta' => null,
+                        ]])->merge($activities)->values();
+                    }
+                @endphp
+
+                <div class="activity-feed">
+                    @foreach($activities as $act)
+                        @php
+                            $actType = $act->type ?? 'report';
+                            $actUserName = $act->user?->name ?? 'Anonym';
+                            $actInitial = strtoupper(substr($actUserName, 0, 1));
+                        @endphp
+
+                        @if($actType === 'status_change')
+                            <div class="activity activity--status">
+                                <div class="activity__avatar activity__avatar--status">
+                                    <i class="bi bi-arrow-left-right"></i>
                                 </div>
-                                @if($report->message)
-                                    <p class="report__msg">{{ $report->message }}</p>
-                                @else
-                                    <p class="report__msg report__msg--empty">Keine Nachricht</p>
-                                @endif
-                            </div>
-                        </div>
-                    @empty
-                        <div class="report">
-                            <div class="report__avatar">{{ strtoupper(substr($issue->reportedByUser?->name ?? 'A', 0, 1)) }}</div>
-                            <div class="report__body">
-                                <div class="report__head">
-                                    <span class="report__name">{{ $issue->reportedByUser?->name ?? 'Anonym' }}</span>
-                                    <span class="report__time">{{ $issue->updated_at?->format('d.m.Y H:i') }}</span>
+                                <div class="activity__body">
+                                    <p class="activity__line">
+                                        <strong>{{ $actUserName }}</strong>
+                                        änderte Status
+                                        @php
+                                            $old = $act->meta['old'] ?? null;
+                                            $new = $act->meta['new'] ?? null;
+                                        @endphp
+                                        @if($old)
+                                            von <span class="chip chip--{{ $old }}">{{ $statusLabels[$old] ?? $old }}</span>
+                                        @endif
+                                        @if($new)
+                                            auf <span class="chip chip--{{ $new }}">{{ $statusLabels[$new] ?? $new }}</span>
+                                        @endif
+                                    </p>
+                                    <span class="activity__time">{{ $act->created_at->format('d.m.Y H:i') }}</span>
                                 </div>
-                                @if($issue->latest_message)
-                                    <p class="report__msg">{{ $issue->latest_message }}</p>
-                                @else
-                                    <p class="report__msg report__msg--empty">Keine Nachricht</p>
-                                @endif
                             </div>
-                        </div>
-                    @endforelse
+                        @elseif($actType === 'note')
+                            <div class="activity activity--note">
+                                <div class="activity__avatar activity__avatar--note">{{ $actInitial }}</div>
+                                <div class="activity__body">
+                                    <div class="activity__head">
+                                        <span class="activity__name">{{ $actUserName }}</span>
+                                        <span class="activity__badge">Notiz</span>
+                                        <span class="activity__time">{{ $act->created_at->format('d.m.Y H:i') }}</span>
+                                    </div>
+                                    <p class="activity__msg">{{ $act->message }}</p>
+                                </div>
+                            </div>
+                        @else
+                            <div class="activity activity--report">
+                                <div class="activity__avatar">{{ $actInitial }}</div>
+                                <div class="activity__body">
+                                    <div class="activity__head">
+                                        <span class="activity__name">{{ $actUserName }}</span>
+                                        <span class="activity__badge activity__badge--report">Meldung</span>
+                                        <span class="activity__time">{{ $act->created_at->format('d.m.Y H:i') }}</span>
+                                    </div>
+                                    @if($act->message)
+                                        <p class="activity__msg">{{ $act->message }}</p>
+                                    @else
+                                        <p class="activity__msg activity__msg--empty">Keine Nachricht</p>
+                                    @endif
+                                </div>
+                            </div>
+                        @endif
+                    @endforeach
                 </div>
+
+                {{-- Kommentar-Eingabe (Jira-Style: alles ist ein Kommentar) --}}
+                <form method="POST"
+                      action="{{ route('admin.issues.comments.store', ['issue' => $issue->id, 'type' => $type]) }}"
+                      class="activity-compose">
+                    @csrf
+                    <div class="activity-compose__avatar">{{ strtoupper(substr(auth()->user()->name ?? 'A', 0, 1)) }}</div>
+                    <div class="activity-compose__body">
+                        <textarea name="message"
+                                  class="textarea"
+                                  placeholder="Kommentar hinzufügen…"
+                                  maxlength="2000"
+                                  required></textarea>
+                        <div class="activity-compose__actions">
+                            <button type="submit" class="btn btn--primary">
+                                <i class="bi bi-send"></i> Kommentieren
+                            </button>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
 
@@ -584,34 +756,28 @@ html.light-mode .iss-root .report__avatar { background: var(--thw-blue); }
 
             <div class="card">
                 <div class="card-h">
-                    <span class="section-label">Bearbeitung</span>
+                    <span class="section-label">Status</span>
                 </div>
                 <form method="POST" action="{{ route('admin.issues.update', ['issue' => $issue->id, 'type' => $type]) }}">
                     @csrf
                     @method('PUT')
 
                     <div class="field">
-                        <label class="label">Status</label>
+                        <label class="label">Status ändern</label>
                         <select name="status" class="select">
                             <option value="open" {{ $issue->status === 'open' ? 'selected' : '' }}>Offen</option>
                             <option value="in_review" {{ $issue->status === 'in_review' ? 'selected' : '' }}>In Bearbeitung</option>
                             <option value="resolved" {{ $issue->status === 'resolved' ? 'selected' : '' }}>Gelöst</option>
                             <option value="rejected" {{ $issue->status === 'rejected' ? 'selected' : '' }}>Abgelehnt</option>
                         </select>
-                    </div>
-
-                    <div class="field">
-                        <label class="label">Notizen</label>
-                        <textarea name="admin_notes" class="textarea" maxlength="1000"
-                                  placeholder="Interne Notiz...">{{ $issue->admin_notes ?? '' }}</textarea>
-                        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 0.625rem; color: var(--text-muted); margin-top: 0.25rem; letter-spacing: 0.06em;">
-                            <span id="noteCount">{{ strlen($issue->admin_notes ?? '') }}</span>/1000
+                        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 0.625rem; color: var(--text-muted); margin-top: 0.4rem; letter-spacing: 0.06em;">
+                            Statuswechsel erscheinen als Eintrag in der Aktivität.
                         </div>
                     </div>
 
                     <div class="form-actions">
                         <button type="submit" class="btn btn--primary" style="flex: 1;">
-                            <i class="bi bi-check-lg"></i> Speichern
+                            <i class="bi bi-check-lg"></i> Status speichern
                         </button>
                         @if(auth()->user()->isAdmin())
                         <button type="button" onclick="confirmIssueDelete()" class="btn btn--danger">
@@ -637,11 +803,6 @@ html.light-mode .iss-root .report__avatar { background: var(--thw-blue); }
             document.getElementById('deleteForm').submit();
         }
     }
-
-    document.querySelector('textarea[name="admin_notes"]')?.addEventListener('input', function () {
-        const c = document.getElementById('noteCount');
-        if (c) c.textContent = this.value.length;
-    });
 
     // Inline question edit form: submit via fetch & redirect zurück zur Issue-Seite
     (function () {

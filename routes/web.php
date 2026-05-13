@@ -737,6 +737,7 @@ Route::middleware(['auth', \App\Http\Middleware\QuestionEditorMiddleware::class]
     Route::get('issues', [\App\Http\Controllers\Admin\IssueController::class, 'index'])->name('issues.index');
     Route::get('issues/{issue}', [\App\Http\Controllers\Admin\IssueController::class, 'show'])->name('issues.show');
     Route::put('issues/{issue}', [\App\Http\Controllers\Admin\IssueController::class, 'update'])->name('issues.update');
+    Route::post('issues/{issue}/comments', [\App\Http\Controllers\Admin\IssueController::class, 'storeComment'])->name('issues.comments.store');
 
     Route::get('lehrgang-issues', [\App\Http\Controllers\Admin\LehrgangIssueController::class, 'index'])->name('lehrgang-issues.index');
     Route::get('lehrgang-issues/{lehrgang_issue}', [\App\Http\Controllers\Admin\LehrgangIssueController::class, 'show'])->name('lehrgang-issues.show');
