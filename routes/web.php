@@ -661,7 +661,10 @@ Route::middleware('auth')->group(function () {
         
         // Beitreten per Code (für eingeloggte User)
         Route::post('/join', [\App\Http\Controllers\OrtsverbandInvitationController::class, 'joinByCode'])->name('join.code');
-        
+
+        // Dashboard-Hinweis für Ausbilder als gelesen markieren
+        Route::post('/dashboard-notice/dismiss', [\App\Http\Controllers\OrtsverbandController::class, 'dismissDashboardNotice'])->name('dashboard-notice.dismiss');
+
         // Einzelner Ortsverband (für alle Mitglieder)
         Route::get('/{ortsverband}', [\App\Http\Controllers\OrtsverbandController::class, 'show'])->name('show');
         Route::delete('/{ortsverband}/leave', [\App\Http\Controllers\OrtsverbandController::class, 'leave'])->name('leave');

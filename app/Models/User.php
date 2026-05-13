@@ -43,6 +43,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'leaderboard_banner_dismissed',
         'onboarding_completed',
         'onboarding_tour_completed',
+        'ov_dashboard_notice_dismissed',
         'exam_date',
         'extras_enabled',
     ];

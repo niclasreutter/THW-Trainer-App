@@ -256,6 +256,25 @@
 @section('content')
 <div class="dash-container">
 
+    {{-- ── Hinweis zur neuen Startseite (einmalig) ── --}}
+    @if(!auth()->user()->ov_dashboard_notice_dismissed)
+    <div id="ov-dashboard-notice" class="glass" style="padding:1rem 1.25rem;border-radius:0.75rem;border-left:3px solid var(--gold-start);margin-bottom:1.5rem;display:flex;align-items:flex-start;gap:0.875rem;flex-wrap:wrap;">
+        <i class="bi bi-info-circle" style="font-size:1.125rem;color:var(--gold-start);flex-shrink:0;margin-top:0.125rem;"></i>
+        <div style="flex:1;min-width:240px;">
+            <div style="font-size:0.875rem;font-weight:700;color:var(--text-primary);margin-bottom:0.375rem;">Warum lande ich hier?</div>
+            <p style="font-size:0.8125rem;color:var(--text-secondary);line-height:1.5;margin:0;">
+                Als Ausbilder ist für dich meist relevanter, wie sich dein OV entwickelt, als dass du selbst Fragen beantwortest. Deshalb ist das OV-Dashboard deine Startseite. Dein persönliches Lern-Dashboard findest du jederzeit ganz oben in der Seitennavigation.
+            </p>
+        </div>
+        <button type="button"
+                class="btn-primary btn-sm"
+                style="flex-shrink:0;align-self:center;"
+                onclick="dismissOvDashboardNotice(this)">
+            Hinweis gelesen
+        </button>
+    </div>
+    @endif
+
     {{-- ── Header ── --}}
     <div class="ov-dash-header">
         <div>
@@ -591,5 +610,26 @@
 
     </div>
 </div>
+
+@push('scripts')
+<script>
+function dismissOvDashboardNotice(btn) {
+    const notice = document.getElementById('ov-dashboard-notice');
+    if (notice) notice.style.display = 'none';
+
+    fetch('{{ route('ortsverband.dashboard-notice.dismiss') }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+            'Accept': 'application/json'
+        },
+        cache: 'no-store'
+    }).catch(() => {
+        // Silent fail – Notice bleibt bei Page-Reload sichtbar, falls Save scheitert
+    });
+}
+</script>
+@endpush
 
 @endsection
