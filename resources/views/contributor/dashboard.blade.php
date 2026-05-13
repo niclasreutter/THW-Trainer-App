@@ -474,12 +474,7 @@ html.light-mode .admin-root .sr-tile__val--blue { color: var(--thw-blue); }
             </div>
             <div class="feed">
                 @forelse($recentIssues as $i)
-                    @php
-                        $issueLink = $i['kind'] === 'lehrgang'
-                            ? route('admin.lehrgang-issues.show', $i['id'])
-                            : route('admin.issues.show', $i['id']);
-                    @endphp
-                    <a href="{{ $issueLink }}" class="feed-item">
+                    <a href="{{ route('admin.issues.show', ['issue' => $i['id'], 'type' => $i['kind']]) }}" class="feed-item">
                         <div class="feed-icon feed-icon--red">
                             <i class="bi bi-bug-fill"></i>
                         </div>
