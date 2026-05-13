@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\LehrgangQuestionIssue;
+use App\Models\LehrgangQuestionIssueReport;
 use App\Models\QuestionIssue;
+use App\Models\QuestionIssueReport;
 use Illuminate\Http\Request;
 
 class IssueController extends Controller
@@ -138,7 +140,7 @@ class IssueController extends Controller
     }
 
     /**
-     * Update Status und Admin Notes
+     * Update Status (loggt Statuswechsel als Aktivität)
      */
     public function update(Request $request, $id)
     {
@@ -146,19 +148,47 @@ class IssueController extends Controller
 
         $validated = $request->validate([
             'status' => 'required|in:open,in_review,resolved,rejected',
-            'admin_notes' => 'nullable|string|max:1000',
         ]);
 
-        if ($type === 'lehrgang') {
-            $issue = LehrgangQuestionIssue::findOrFail($id);
-        } else {
-            $issue = QuestionIssue::findOrFail($id);
+        $issue = $type === 'lehrgang'
+            ? LehrgangQuestionIssue::findOrFail($id)
+            : QuestionIssue::findOrFail($id);
+
+        $oldStatus = $issue->status;
+        $newStatus = $validated['status'];
+
+        if ($oldStatus !== $newStatus) {
+            $issue->update(['status' => $newStatus]);
+
+            $this->createActivity($issue, $type, 'status_change', null, [
+                'old' => $oldStatus,
+                'new' => $newStatus,
+            ]);
         }
 
-        $issue->update($validated);
+        return redirect()->route('admin.issues.show', ['issue' => $id, 'type' => $type])
+                       ->with('success', 'Status aktualisiert!');
+    }
+
+    /**
+     * Neuer Kommentar (Notiz) im Aktivitäts-Feed
+     */
+    public function storeComment(Request $request, $id)
+    {
+        $type = $request->get('type', 'lehrgang');
+
+        $validated = $request->validate([
+            'message' => 'required|string|max:2000',
+        ]);
+
+        $issue = $type === 'lehrgang'
+            ? LehrgangQuestionIssue::findOrFail($id)
+            : QuestionIssue::findOrFail($id);
+
+        $this->createActivity($issue, $type, 'note', $validated['message']);
 
         return redirect()->route('admin.issues.show', ['issue' => $id, 'type' => $type])
-                       ->with('success', 'Fehlermeldung aktualisiert!');
+                       ->with('success', 'Kommentar hinzugefügt!');
     }
 
     /**
@@ -176,5 +206,31 @@ class IssueController extends Controller
 
         return redirect()->route('admin.issues.index')
                        ->with('success', 'Fehlermeldung gelöscht.');
+    }
+
+    /**
+     * Erstellt einen Aktivitäts-Eintrag (Report, Notiz oder Status-Wechsel)
+     */
+    private function createActivity($issue, string $type, string $activityType, ?string $message, ?array $meta = null): void
+    {
+        $userId = auth()->id();
+
+        if ($type === 'lehrgang') {
+            LehrgangQuestionIssueReport::create([
+                'lehrgang_question_issue_id' => $issue->id,
+                'user_id' => $userId,
+                'type' => $activityType,
+                'message' => $message,
+                'meta' => $meta,
+            ]);
+        } else {
+            QuestionIssueReport::create([
+                'question_issue_id' => $issue->id,
+                'user_id' => $userId,
+                'type' => $activityType,
+                'message' => $message,
+                'meta' => $meta,
+            ]);
+        }
     }
 }
