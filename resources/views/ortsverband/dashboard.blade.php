@@ -22,9 +22,126 @@
     .dash-container > .space-y-4 > *:nth-child(5) { animation-delay: 0.19s; }
     .dash-container > .space-y-4 > *:nth-child(6) { animation-delay: 0.23s; }
     .dash-container > .space-y-4 > *:nth-child(7) { animation-delay: 0.27s; }
+    .dash-container > .space-y-4 > *:nth-child(8) { animation-delay: 0.31s; }
+    .dash-container > .space-y-4 > *:nth-child(9) { animation-delay: 0.35s; }
+
+    /* ─── Module Completion Rows ─── */
+    .ov-mod-row {
+        display: grid;
+        grid-template-columns: 1fr 90px auto;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.5rem 0.25rem;
+    }
+    .ov-mod-row + .ov-mod-row { border-top: 1px solid rgba(255,255,255,0.04); }
+    html.light-mode .ov-mod-row + .ov-mod-row { border-top-color: rgba(0,0,0,0.06); }
+    .ov-mod-label {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .ov-mod-sub {
+        font-size: 0.5625rem;
+        color: var(--text-muted);
+        font-family: 'IBM Plex Mono', monospace;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .ov-mod-count {
+        font-size: 0.8125rem;
+        font-weight: 700;
+        font-family: 'Barlow Condensed', sans-serif;
+        min-width: 2.75rem;
+        text-align: right;
+    }
+    .ov-mod-group-title {
+        font-size: 0.5625rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--text-muted);
+        font-weight: 600;
+        font-family: 'IBM Plex Mono', monospace;
+        margin: 0.75rem 0 0.5rem;
+    }
+    .ov-mod-group-title:first-child { margin-top: 0; }
+
+    @media (max-width: 640px) {
+        .ov-mod-row {
+            grid-template-columns: 1fr auto;
+            row-gap: 0.375rem;
+        }
+        .ov-mod-row > :first-child {
+            grid-column: 1 / -1;
+        }
+        .ov-mod-label,
+        .ov-mod-sub {
+            white-space: normal;
+            overflow: visible;
+            text-overflow: clip;
+        }
+    }
+
+    /* ─── Side-by-side wrapper ─── */
+    .ov-side-by-side {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        align-items: stretch;
+    }
+    @media (min-width: 1024px) {
+        .ov-side-by-side {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+    .ov-side-by-side > .glass {
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+    }
+    .ov-side-scroll {
+        flex: 1;
+        min-height: 0;
+        max-height: 560px;
+        overflow-y: auto;
+    }
 
     @media (prefers-reduced-motion: reduce) {
         .dash-container > .space-y-4 > * { animation: none; }
+    }
+
+    /* ─── Coverage Rows ─── */
+    .ov-cov-row {
+        display: grid;
+        grid-template-columns: 130px 1fr auto;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.5rem 0.25rem;
+    }
+    .ov-cov-row + .ov-cov-row { border-top: 1px solid rgba(255,255,255,0.04); }
+    html.light-mode .ov-cov-row + .ov-cov-row { border-top-color: rgba(0,0,0,0.06); }
+    .ov-cov-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .ov-cov-sub {
+        font-size: 0.5625rem;
+        color: var(--text-muted);
+        font-family: 'IBM Plex Mono', monospace;
+    }
+    .ov-cov-value {
+        font-size: 0.9375rem;
+        font-weight: 800;
+        font-family: 'Barlow Condensed', sans-serif;
+        min-width: 2.75rem;
+        text-align: right;
     }
 
     /* ─── Ranking Items ─── */
@@ -111,17 +228,62 @@
         gap: 0.625rem;
         margin-bottom: 0.75rem;
     }
+
+    /* ─── Dashboard Header ─── */
+    .ov-dash-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+    }
+
+    /* Member search component pushes its own styles via partial */
+    .ov-dash-header > .ov-member-search { margin-left: auto; }
 </style>
 @endpush
 
+@php
+    $searchableMembers = $memberProgress->map(fn($m) => [
+        'id' => $m['user']->id,
+        'name' => $m['user']->name,
+        'avatar' => $m['user']->avatar_url,
+        'role' => $m['role'],
+        'url' => route('ortsverband.members.manage', [$ortsverband, $m['user']]),
+    ])->values();
+@endphp
 @section('content')
 <div class="dash-container">
 
+    {{-- ── Hinweis zur neuen Startseite (einmalig) ── --}}
+    @if(!auth()->user()->ov_dashboard_notice_dismissed)
+    <div id="ov-dashboard-notice" class="glass" style="padding:1rem 1.25rem;border-radius:0.75rem;border-left:3px solid var(--gold-start);margin-bottom:1.5rem;display:flex;align-items:flex-start;gap:0.875rem;flex-wrap:wrap;">
+        <i class="bi bi-info-circle" style="font-size:1.125rem;color:var(--gold-start);flex-shrink:0;margin-top:0.125rem;"></i>
+        <div style="flex:1;min-width:240px;">
+            <div style="font-size:0.875rem;font-weight:700;color:var(--text-primary);margin-bottom:0.375rem;">Warum lande ich hier?</div>
+            <p style="font-size:0.8125rem;color:var(--text-secondary);line-height:1.5;margin:0;">
+                Als Ausbilder ist für dich meist relevanter, wie sich dein OV entwickelt, als dass du selbst Fragen beantwortest. Deshalb ist das OV-Dashboard deine Startseite. Dein persönliches Lern-Dashboard findest du jederzeit ganz oben in der Seitennavigation.
+            </p>
+        </div>
+        <button type="button"
+                class="btn-primary btn-sm"
+                style="flex-shrink:0;align-self:center;"
+                onclick="dismissOvDashboardNotice(this)">
+            Hinweis gelesen
+        </button>
+    </div>
+    @endif
+
     {{-- ── Header ── --}}
-    <div class="mb-6">
-        <p style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);font-weight:600;margin-bottom:0.25rem;">Ausbilder</p>
-        <h1 style="font-size:1.5rem;font-weight:800;line-height:1.2;font-family:'Barlow Condensed',sans-serif;background:linear-gradient(135deg,#5b9aff,#0055cc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">{{ $ortsverband->name }}</h1>
-        <p class="text-sm" style="color: var(--text-muted);">Überblick über den Lernfortschritt deiner Mitglieder</p>
+    <div class="ov-dash-header">
+        <div>
+            <p style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);font-weight:600;margin-bottom:0.25rem;">Ausbilder</p>
+            <h1 style="font-size:1.5rem;font-weight:800;line-height:1.2;font-family:'Barlow Condensed',sans-serif;background:linear-gradient(135deg,#5b9aff,#0055cc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">{{ $ortsverband->name }}</h1>
+            <p class="text-sm" style="color: var(--text-muted);">Überblick über den Lernfortschritt deiner Mitglieder</p>
+        </div>
+
+        @include('ortsverband.partials.member-search', ['members' => $searchableMembers])
     </div>
 
     {{-- ── Stat Pills ── --}}
@@ -158,6 +320,9 @@
 
     <div class="space-y-4">
 
+        {{-- ── Rangliste + Ausbildungsmodule (side-by-side auf lg+) ── --}}
+        <div class="ov-side-by-side">
+
         {{-- ── Rangliste ── --}}
         <div class="glass p-4" style="border-radius:0.75rem;">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;flex-wrap:wrap;gap:0.5rem;">
@@ -182,7 +347,7 @@
                 </div>
             </div>
 
-            <div style="max-height:450px;overflow-y:auto;">
+            <div class="ov-side-scroll">
                 @forelse($memberProgress->take(10) as $index => $member)
                 @php
                     $mUser = $member['user'];
@@ -243,6 +408,65 @@
                 @endforelse
             </div>
         </div>
+
+        {{-- ── Ausbildungsmodule ── --}}
+        <div class="glass p-4" style="border-radius:0.75rem;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;flex-wrap:wrap;gap:0.5rem;">
+                <span class="text-xs uppercase tracking-wider" style="color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:0.5625rem;font-weight:700;">Ausbildungsmodule</span>
+                <span style="font-size:0.5625rem;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;">{{ $moduleCompletion['members_total'] }} Mitglieder</span>
+            </div>
+
+            @if($moduleCompletion['members_total'] === 0)
+                <div style="text-align:center;padding:1.5rem 1rem;">
+                    <div style="font-size:0.875rem;font-weight:600;color:var(--text-primary);margin-bottom:0.25rem;">Keine Mitglieder</div>
+                    <p style="font-size:0.75rem;color:var(--text-muted);">Sobald Mitglieder im Ortsverband sind, erscheint hier der Ausbildungsstand.</p>
+                </div>
+            @else
+                <div class="ov-side-scroll">
+                    <div class="ov-mod-group-title">Lernabschnitte</div>
+                    @foreach($moduleCompletion['lernabschnitte'] as $entry)
+                        @php
+                            $pct = $entry['percent'];
+                            $color = $pct >= 80 ? '#22c55e' : ($pct >= 40 ? '#5b9aff' : ($pct >= 20 ? '#f59e0b' : '#ef4444'));
+                        @endphp
+                        <div class="ov-mod-row">
+                            <div style="min-width:0;">
+                                <div class="ov-mod-label">{{ $entry['nr'] }} · {{ $entry['title'] }}</div>
+                                <div class="ov-mod-sub">{{ $pct }}% abgeschlossen</div>
+                            </div>
+                            <div class="ov-progress-track">
+                                <div style="height:100%;border-radius:2px;background:linear-gradient(90deg,#0055cc,#5b9aff);width:{{ $pct }}%;transition:width 0.6s ease-out;"></div>
+                            </div>
+                            <div class="ov-mod-count" style="color:{{ $color }};">{{ $entry['completed_count'] }}/{{ $entry['total_members'] }}</div>
+                        </div>
+                    @endforeach
+
+                    <div class="ov-mod-group-title">Zusatzausbildungen</div>
+                    @foreach($moduleCompletion['zusatz'] as $entry)
+                        @php
+                            $pct = $entry['percent'];
+                            $color = $pct >= 80 ? '#22c55e' : ($pct >= 40 ? '#5b9aff' : ($pct >= 20 ? '#f59e0b' : '#ef4444'));
+                        @endphp
+                        <div class="ov-mod-row">
+                            <div style="min-width:0;">
+                                <div class="ov-mod-label">{{ $entry['label'] }}</div>
+                                <div class="ov-mod-sub">{{ $pct }}% abgeschlossen</div>
+                            </div>
+                            <div class="ov-progress-track">
+                                <div style="height:100%;border-radius:2px;background:linear-gradient(90deg,#8a6d10,#d4a017);width:{{ $pct }}%;transition:width 0.6s ease-out;"></div>
+                            </div>
+                            <div class="ov-mod-count" style="color:{{ $color }};">{{ $entry['completed_count'] }}/{{ $entry['total_members'] }}</div>
+                        </div>
+                    @endforeach
+                </div>
+            @endif
+        </div>
+
+        </div>
+        {{-- /side-by-side --}}
+
+        {{-- ── Schwachstellen + Themenabdeckung (side-by-side auf lg+) ── --}}
+        <div class="ov-side-by-side">
 
         {{-- ── Schwachstellen ── --}}
         <div class="glass p-4" style="border-radius:0.75rem;">
@@ -307,6 +531,54 @@
             @endif
         </div>
 
+        {{-- ── Themenabdeckung ── --}}
+        @php
+            $sectionNames = [
+                1 => 'THW im Gefüge',
+                2 => 'Rettung & Bergung',
+                3 => 'Leinen & Seile',
+                4 => 'Holz/Gestein/Metall',
+                5 => 'Leitern',
+                6 => 'Strom & Licht',
+                7 => 'Wasser',
+                8 => 'Einsatzgrundlagen',
+                9 => 'Wasser (erw.)',
+                10 => 'Rettung (Grundl.)',
+            ];
+        @endphp
+        <div class="glass p-4" style="border-radius:0.75rem;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;">
+                <span class="text-xs uppercase tracking-wider" style="color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:0.5625rem;font-weight:700;">Themenabdeckung</span>
+                <span style="font-size:0.5625rem;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;">Wenig behandelt zuerst</span>
+            </div>
+
+            @forelse($topicCoverage as $entry)
+                @php
+                    $label = $sectionNames[$entry['section']] ?? ('LA ' . $entry['section']);
+                    $pct = $entry['avg_coverage_percent'];
+                    $valueColor = $pct < 20 ? '#ef4444' : ($pct < 50 ? '#f59e0b' : '#22c55e');
+                @endphp
+                <div class="ov-cov-row">
+                    <div>
+                        <div class="ov-cov-label">LA {{ $entry['section'] }} · {{ $label }}</div>
+                        <div class="ov-cov-sub">{{ $entry['members_touched'] }}/{{ $entry['total_members'] }} aktiv · {{ $entry['total_questions'] }} Fragen</div>
+                    </div>
+                    <div class="ov-progress-track">
+                        <div style="height:100%;border-radius:2px;background:linear-gradient(90deg,#0055cc,#5b9aff);width:{{ $pct }}%;transition:width 0.6s ease-out;"></div>
+                    </div>
+                    <div class="ov-cov-value" style="color:{{ $valueColor }};">{{ $pct }}%</div>
+                </div>
+            @empty
+                <div style="text-align:center;padding:1.5rem 1rem;">
+                    <div style="font-size:0.875rem;font-weight:600;color:var(--text-primary);margin-bottom:0.25rem;">Noch keine Daten</div>
+                    <p style="font-size:0.75rem;color:var(--text-muted);">Sobald Mitglieder Fragen beantworten, erscheint hier die Themenabdeckung.</p>
+                </div>
+            @endforelse
+        </div>
+
+        </div>
+        {{-- /side-by-side --}}
+
         {{-- ── Schnellzugriff ── --}}
         <div class="glass p-4" style="border-radius:0.75rem;">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;">
@@ -329,13 +601,35 @@
                     <i class="bi bi-gear" style="font-size:1.25rem;color:#5b9aff;"></i>
                     <span style="font-weight:600;color:var(--text-primary);font-size:0.75rem;">Einstellungen</span>
                 </a>
-                <a href="{{ route('ortsverband.index') }}" class="ov-quick-tile">
-                    <i class="bi bi-arrow-left" style="font-size:1.25rem;color:var(--text-muted);"></i>
-                    <span style="font-weight:600;color:var(--text-primary);font-size:0.75rem;">Zurück</span>
+                <a href="{{ route('ortsverband.show', $ortsverband) }}" class="ov-quick-tile">
+                    <i class="bi bi-eye" style="font-size:1.25rem;color:#5b9aff;"></i>
+                    <span style="font-weight:600;color:var(--text-primary);font-size:0.75rem;">Mitgliederansicht</span>
                 </a>
             </div>
         </div>
 
     </div>
 </div>
+
+@push('scripts')
+<script>
+function dismissOvDashboardNotice(btn) {
+    const notice = document.getElementById('ov-dashboard-notice');
+    if (notice) notice.style.display = 'none';
+
+    fetch('{{ route('ortsverband.dashboard-notice.dismiss') }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+            'Accept': 'application/json'
+        },
+        cache: 'no-store'
+    }).catch(() => {
+        // Silent fail – Notice bleibt bei Page-Reload sichtbar, falls Save scheitert
+    });
+}
+</script>
+@endpush
+
 @endsection

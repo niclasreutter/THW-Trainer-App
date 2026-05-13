@@ -169,11 +169,25 @@
                                     <svg class="h-4 w-4 transition-transform duration-200" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
                                 </button>
                                 <div id="contributorDropdown" class="absolute right-0 mt-2 w-48 dropdown-glass hidden z-50">
+                                    <a href="{{ route('contributor.dashboard') }}" class="dropdown-item-glass">
+                                        Contributor Dashboard
+                                    </a>
                                     <a href="/admin/questions" class="dropdown-item-glass">
                                         Fragen
                                     </a>
                                     <a href="{{ route('admin.extra-questions.index') }}" class="dropdown-item-glass">
                                         Zusatz-Fragen
+                                    </a>
+                                    <a href="{{ route('admin.extra-question-submissions.index') }}" class="dropdown-item-glass flex items-center justify-between">
+                                        <span>Zusatz-Frage-Vorschläge</span>
+                                        @php
+                                            $pendingSubmissionsCount = cache()->remember('admin_pending_extra_q_submissions_count', 300, function() {
+                                                return \App\Models\UserExtraQuestionSubmission::where('status', 'pending')->count();
+                                            });
+                                        @endphp
+                                        @if($pendingSubmissionsCount > 0)
+                                            <span class="badge-error text-xs">{{ $pendingSubmissionsCount }}</span>
+                                        @endif
                                     </a>
                                     <a href="{{ route('admin.lehrgaenge.index') }}" class="dropdown-item-glass">
                                         Lehrgänge
@@ -438,11 +452,25 @@
                         Fragen pflegen
                     </div>
                     <div class="ml-4 space-y-1">
+                        <a href="{{ route('contributor.dashboard') }}" class="block px-3 py-2 text-sm text-dark-secondary hover:text-gold hover:bg-glass-white-5 rounded-md transition-colors duration-200">
+                            Contributor Dashboard
+                        </a>
                         <a href="/admin/questions" class="block px-3 py-2 text-sm text-dark-secondary hover:text-gold hover:bg-glass-white-5 rounded-md transition-colors duration-200">
                             Fragen
                         </a>
                         <a href="{{ route('admin.extra-questions.index') }}" class="block px-3 py-2 text-sm text-dark-secondary hover:text-gold hover:bg-glass-white-5 rounded-md transition-colors duration-200">
                             Zusatz-Fragen
+                        </a>
+                        <a href="{{ route('admin.extra-question-submissions.index') }}" class="block px-3 py-2 text-sm text-dark-secondary hover:text-gold hover:bg-glass-white-5 rounded-md transition-colors duration-200 flex items-center justify-between">
+                            <span>Zusatz-Frage-Vorschläge</span>
+                            @php
+                                $pendingSubmissionsCountMobileContributor = cache()->remember('admin_pending_extra_q_submissions_count', 300, function() {
+                                    return \App\Models\UserExtraQuestionSubmission::where('status', 'pending')->count();
+                                });
+                            @endphp
+                            @if($pendingSubmissionsCountMobileContributor > 0)
+                                <span class="badge-error text-xs">{{ $pendingSubmissionsCountMobileContributor }}</span>
+                            @endif
                         </a>
                         <a href="{{ route('admin.lehrgaenge.index') }}" class="block px-3 py-2 text-sm text-dark-secondary hover:text-gold hover:bg-glass-white-5 rounded-md transition-colors duration-200">
                             Lehrgänge

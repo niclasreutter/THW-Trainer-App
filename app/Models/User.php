@@ -43,6 +43,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'leaderboard_banner_dismissed',
         'onboarding_completed',
         'onboarding_tour_completed',
+        'ov_dashboard_notice_dismissed',
         'exam_date',
         'extras_enabled',
     ];
@@ -238,6 +239,21 @@ class User extends Authenticatable implements MustVerifyEmail
     public function isAdmin(): bool
     {
         return $this->useroll === 'admin';
+    }
+
+    /**
+     * Standard-Landingseite nach Login. Ausbilder landen auf ihrem
+     * OV-Dashboard, alle anderen auf dem persönlichen Dashboard.
+     */
+    public function homePath(): string
+    {
+        $ausbilderOV = $this->ortsverbande()
+            ->wherePivot('role', 'ausbildungsbeauftragter')
+            ->first();
+
+        return $ausbilderOV
+            ? '/ortsverband/' . $ausbilderOV->id . '/dashboard'
+            : '/dashboard';
     }
 
     public function canEditQuestions(): bool

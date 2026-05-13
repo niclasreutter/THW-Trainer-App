@@ -19,14 +19,17 @@ class OrtsverbandController extends Controller
     public function index()
     {
         $user = Auth::user();
-        
+
         // User kann nur in einem Ortsverband sein - direkt weiterleiten
         $ortsverband = $user->ortsverbande()->first();
-        
+
         if ($ortsverband) {
+            if ($ortsverband->isAusbildungsbeauftragter($user)) {
+                return redirect()->route('ortsverband.dashboard', $ortsverband);
+            }
             return redirect()->route('ortsverband.show', $ortsverband);
         }
-        
+
         // Kein Ortsverband - zeige Erstellen/Beitreten Seite
         return view('ortsverband.index');
     }
@@ -390,11 +393,25 @@ class OrtsverbandController extends Controller
         
         // Nur normale Mitglieder (keine Ausbilder) für Statistiken
         $allProgress = $ortsverband->getMemberProgress();
-        $memberProgress = $allProgress->filter(fn($m) => $m['role'] === 'member');
+        $memberProgress = $allProgress->filter(fn($m) => $m['role'] === 'member')->values();
         $weaknesses = $ortsverband->getWeaknesses();
         $stats = $ortsverband->getAverageStats();
-        
-        return view('ortsverband.dashboard', compact('ortsverband', 'memberProgress', 'weaknesses', 'stats'));
+        $topicCoverage = $ortsverband->getTopicCoverage();
+        $moduleCompletion = $ortsverband->getTrainingModuleCompletion();
+
+        return view('ortsverband.dashboard', compact('ortsverband', 'memberProgress', 'weaknesses', 'stats', 'topicCoverage', 'moduleCompletion'));
+    }
+
+    /**
+     * Markiert den OV-Dashboard-Hinweis für den aktuellen User als gelesen.
+     */
+    public function dismissDashboardNotice(Request $request): JsonResponse
+    {
+        $user = Auth::user();
+        $user->ov_dashboard_notice_dismissed = true;
+        $user->save();
+
+        return response()->json(['success' => true]);
     }
 
     /**

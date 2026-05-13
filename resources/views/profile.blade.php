@@ -882,7 +882,7 @@
             </div>
 
             <div class="hero-actions">
-                <a href="#accessories-card" class="btn-pf-ghost"><i class="bi bi-palette"></i> Avatar anpassen</a>
+                <a href="{{ route('profile.avatar.edit') }}" class="btn-pf-ghost"><i class="bi bi-palette"></i> Avatar anpassen</a>
             </div>
 
             <div class="hero-xp">

@@ -6,6 +6,7 @@ use App\Http\Requests\ProfileUpdateRequest;
 use App\Mail\DataExportMail;
 use App\Models\DataExport;
 use App\Models\UserAvatarAccessory;
+use App\Services\AvatarOptionsService;
 use App\Services\DataExportService;
 use App\Services\ShopService;
 use Illuminate\Http\JsonResponse;
@@ -346,12 +347,14 @@ class ProfileController extends Controller
 
         // Active states für alle Kategorien zurückgeben
         $shopService = new ShopService();
-        $ownedAccessories = $shopService->getOwnedAccessories($user->fresh());
+        $fresh = $user->fresh();
+        $ownedAccessories = $shopService->getOwnedAccessories($fresh);
 
         return response()->json([
             'success' => true,
-            'avatar_url' => $user->fresh()->avatar_url,
+            'avatar_url' => $fresh->avatar_url,
             'owned_accessories' => $ownedAccessories,
+            'active_accessories' => $fresh->active_accessories ?? new \stdClass(),
         ]);
     }
 
@@ -400,10 +403,178 @@ class ProfileController extends Controller
             $user->save();
         }
 
+        $fresh = $user->fresh();
+
         return response()->json([
             'success' => true,
+            'avatar_url' => $fresh->avatar_url,
+            'active_accessories' => $fresh->active_accessories ?? new \stdClass(),
+        ]);
+    }
+
+    /**
+     * Render the graphical avatar editor.
+     */
+    public function editAvatar(Request $request): View
+    {
+        $user = $request->user();
+
+        if (empty($user->avatar_path)) {
+            $seed = (string) $user->id . str_replace(' ', '', $user->name);
+            $user->avatar_path = 'avataaars/svg?radius=50'
+                . '&seed=' . urlencode($seed)
+                . '&backgroundType=gradientLinear'
+                . '&backgroundColor=00337f,0055cc'
+                . '&backgroundRotation=135'
+                . '&accessoriesProbability=0'
+                . '&facialHairProbability=0';
+            $user->save();
+        }
+
+        $currentParams = $this->parseAvatarParams($user->avatar_path);
+        $seed = $currentParams['seed'] ?? (string) $user->id;
+
+        $categories = AvatarOptionsService::buildCategoriesForUser($seed, $currentParams);
+
+        $shopCategories = $this->buildShopCategories($user, $seed);
+        $categories = array_merge($categories, $shopCategories);
+
+        $initialState = [
+            'seed'              => $seed,
+            'categories'        => $categories,
+            'currentParams'     => $currentParams,
+            'activeAccessories' => $user->active_accessories ?? new \stdClass(),
+        ];
+
+        return view('profile.avatar-editor', [
+            'user'         => $user,
+            'initialState' => $initialState,
+        ]);
+    }
+
+    /**
+     * Persist editor changes to avatar_path (free options only).
+     * Shop items keep using profile.accessory.toggle / .color.
+     */
+    public function updateAvatar(Request $request): JsonResponse
+    {
+        $request->validate([
+            'params' => ['required', 'array'],
+        ]);
+
+        $user = $request->user();
+
+        $blacklist = [
+            'accessories', 'accessoriesProbability', 'accessoriesColor',
+            'facialHair', 'facialHairProbability', 'facialHairColor',
+        ];
+
+        $currentParams = $this->parseAvatarParams($user->avatar_path);
+
+        foreach ($request->input('params', []) as $param => $value) {
+            if (in_array($param, $blacklist, true)) {
+                continue;
+            }
+            if (!is_string($value) && !is_numeric($value)) {
+                continue;
+            }
+            if (!AvatarOptionsService::validate((string) $param, (string) $value)) {
+                continue;
+            }
+            $currentParams[$param] = (string) $value;
+        }
+
+        $user->avatar_path = 'avataaars/svg?' . http_build_query($currentParams);
+        $user->save();
+
+        return response()->json([
+            'success'    => true,
             'avatar_url' => $user->fresh()->avatar_url,
         ]);
+    }
+
+    /**
+     * Parse the query string of an avatar_path into an associative array.
+     * Strips the "avataaars/svg" prefix.
+     */
+    private function parseAvatarParams(?string $avatarPath): array
+    {
+        if (empty($avatarPath)) {
+            return [];
+        }
+
+        $parts = parse_url($avatarPath);
+        $query = $parts['query'] ?? '';
+        parse_str($query, $params);
+
+        return is_array($params) ? $params : [];
+    }
+
+    /**
+     * Build the three shop-driven categories (Brille, Hut, Bart) for the editor.
+     * Each option carries a `locked` flag + `slug` for the shop redirect.
+     */
+    private function buildShopCategories(\App\Models\User $user, string $seed): array
+    {
+        $owned = UserAvatarAccessory::where('user_id', $user->id)
+            ->pluck('accessory_slug')
+            ->toArray();
+
+        $tabs = [
+            'accessories' => ['label' => 'Brille',  'accessoryType' => 'accessories'],
+            'topHat'      => ['label' => 'Hut',     'accessoryType' => 'top'],
+            'facialHair'  => ['label' => 'Bart',    'accessoryType' => 'facialHair'],
+        ];
+
+        $result = [];
+
+        foreach ($tabs as $key => $tab) {
+            $options = [];
+            foreach (ShopService::SHOP_ITEMS as $slug => $item) {
+                if (($item['category'] ?? '') !== 'accessory') {
+                    continue;
+                }
+                if (($item['accessory_type'] ?? '') !== $tab['accessoryType']) {
+                    continue;
+                }
+
+                $extraParams = [];
+                if ($tab['accessoryType'] === 'accessories') {
+                    $extraParams['accessoriesProbability'] = 100;
+                }
+                if ($tab['accessoryType'] === 'facialHair') {
+                    $extraParams['facialHairProbability'] = 100;
+                }
+
+                $previewUrl = AvatarOptionsService::buildThumbnailUrl(
+                    $seed,
+                    $tab['accessoryType'],
+                    $item['accessory_value'],
+                    $extraParams
+                );
+
+                $options[] = [
+                    'value'      => $item['accessory_value'],
+                    'label'      => $item['name'],
+                    'slug'       => $slug,
+                    'price'      => $item['price'],
+                    'locked'     => !in_array($slug, $owned, true),
+                    'colors'     => $item['colors'] ?? [],
+                    'previewUrl' => $previewUrl,
+                ];
+            }
+
+            $result[] = [
+                'key'     => $key,
+                'label'   => $tab['label'],
+                'param'   => $tab['accessoryType'],
+                'type'    => 'select',
+                'shop'    => true,
+                'options' => $options,
+            ];
+        }
+
+        return $result;
     }
 
     /**

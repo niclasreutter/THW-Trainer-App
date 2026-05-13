@@ -20,7 +20,7 @@ use Illuminate\Http\Request;
 // Root-Route für App-Subdomain - Redirect zu Dashboard oder Login
 Route::get('/', function () {
     if (auth()->check()) {
-        return redirect()->route('dashboard');
+        return redirect(auth()->user()->homePath());
     }
     return redirect()->route('login');
 })->name('app.home');
@@ -513,6 +513,8 @@ Route::middleware('auth')->group(function () {
         ));
     })->name('profile');
     // Profile-eigene Actions (Avatar, Accessoires, Dashboard-Banner) bleiben unter /profile
+    Route::get('/profile/avatar', [ProfileController::class, 'editAvatar'])->name('profile.avatar.edit');
+    Route::post('/profile/avatar', [ProfileController::class, 'updateAvatar'])->name('profile.avatar.update');
     Route::post('/profile/avatar/regenerate', [ProfileController::class, 'regenerateAvatar'])->name('profile.avatar.regenerate');
     Route::post('/profile/accessory/toggle', [ProfileController::class, 'toggleAccessory'])->name('profile.accessory.toggle');
     Route::post('/profile/accessory/color', [ProfileController::class, 'updateAccessoryColor'])->name('profile.accessory.color');
@@ -659,7 +661,10 @@ Route::middleware('auth')->group(function () {
         
         // Beitreten per Code (für eingeloggte User)
         Route::post('/join', [\App\Http\Controllers\OrtsverbandInvitationController::class, 'joinByCode'])->name('join.code');
-        
+
+        // Dashboard-Hinweis für Ausbilder als gelesen markieren
+        Route::post('/dashboard-notice/dismiss', [\App\Http\Controllers\OrtsverbandController::class, 'dismissDashboardNotice'])->name('dashboard-notice.dismiss');
+
         // Einzelner Ortsverband (für alle Mitglieder)
         Route::get('/{ortsverband}', [\App\Http\Controllers\OrtsverbandController::class, 'show'])->name('show');
         Route::delete('/{ortsverband}/leave', [\App\Http\Controllers\OrtsverbandController::class, 'leave'])->name('leave');
@@ -728,6 +733,10 @@ Route::middleware(['auth', \App\Http\Middleware\QuestionEditorMiddleware::class]
     Route::get('extra-questions/{extra_question}/edit', [\App\Http\Controllers\Admin\ExtraQuestionController::class, 'edit'])->name('extra-questions.edit');
     Route::match(['put', 'patch'], 'extra-questions/{extra_question}', [\App\Http\Controllers\Admin\ExtraQuestionController::class, 'update'])->name('extra-questions.update');
 
+    // Eingereichte Zusatz-Fragen: nur Lesen (Admin kann auch ablehnen/übernehmen, siehe Admin-Gruppe)
+    Route::get('extra-question-submissions', [\App\Http\Controllers\Admin\UserExtraQuestionSubmissionController::class, 'index'])->name('extra-question-submissions.index');
+    Route::get('extra-question-submissions/{submission}', [\App\Http\Controllers\Admin\UserExtraQuestionSubmissionController::class, 'show'])->name('extra-question-submissions.show');
+
     // Lehrgänge: Lesen + Bearbeiten einzelner Fragen
     Route::get('lehrgaenge', [\App\Http\Controllers\Admin\LehrgangController::class, 'index'])->name('lehrgaenge.index');
     Route::get('lehrgaenge/{lehrgang}', [\App\Http\Controllers\Admin\LehrgangController::class, 'show'])->name('lehrgaenge.show');
@@ -735,12 +744,20 @@ Route::middleware(['auth', \App\Http\Middleware\QuestionEditorMiddleware::class]
 
     // Fehlermeldungen (vereinheitlichte Issues + Lehrgang-Issues): Lesen + Status setzen
     Route::get('issues', [\App\Http\Controllers\Admin\IssueController::class, 'index'])->name('issues.index');
+    Route::get('issues/mentionables', [\App\Http\Controllers\Admin\IssueController::class, 'mentionables'])->name('issues.mentionables');
     Route::get('issues/{issue}', [\App\Http\Controllers\Admin\IssueController::class, 'show'])->name('issues.show');
     Route::put('issues/{issue}', [\App\Http\Controllers\Admin\IssueController::class, 'update'])->name('issues.update');
+    Route::put('issues/{issue}/assignee', [\App\Http\Controllers\Admin\IssueController::class, 'assign'])->name('issues.assign');
+    Route::post('issues/{issue}/comments', [\App\Http\Controllers\Admin\IssueController::class, 'storeComment'])->name('issues.comments.store');
 
     Route::get('lehrgang-issues', [\App\Http\Controllers\Admin\LehrgangIssueController::class, 'index'])->name('lehrgang-issues.index');
     Route::get('lehrgang-issues/{lehrgang_issue}', [\App\Http\Controllers\Admin\LehrgangIssueController::class, 'show'])->name('lehrgang-issues.show');
     Route::match(['put', 'patch'], 'lehrgang-issues/{lehrgang_issue}', [\App\Http\Controllers\Admin\LehrgangIssueController::class, 'update'])->name('lehrgang-issues.update');
+});
+
+// Contributor-Dashboard (Admin + Contributor) – Übersicht für Frage-Editoren
+Route::middleware(['auth', \App\Http\Middleware\QuestionEditorMiddleware::class])->prefix('contributor')->name('contributor.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\Contributor\DashboardController::class, 'index'])->name('dashboard');
 });
 
 Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix('admin')->name('admin.')->group(function () {
@@ -758,9 +775,7 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix
     Route::post('extra-questions', [\App\Http\Controllers\Admin\ExtraQuestionController::class, 'store'])->name('extra-questions.store');
     Route::delete('extra-questions/{extra_question}', [\App\Http\Controllers\Admin\ExtraQuestionController::class, 'destroy'])->name('extra-questions.destroy');
 
-    // User-eingereichte Zusatz-Fragen verwalten
-    Route::get('extra-question-submissions', [\App\Http\Controllers\Admin\UserExtraQuestionSubmissionController::class, 'index'])->name('extra-question-submissions.index');
-    Route::get('extra-question-submissions/{submission}', [\App\Http\Controllers\Admin\UserExtraQuestionSubmissionController::class, 'show'])->name('extra-question-submissions.show');
+    // User-eingereichte Zusatz-Fragen verwalten (Index/Show siehe QuestionEditor-Gruppe)
     Route::post('extra-question-submissions/{submission}/reject', [\App\Http\Controllers\Admin\UserExtraQuestionSubmissionController::class, 'reject'])->name('extra-question-submissions.reject');
     Route::post('extra-question-submissions/{submission}/mark-changed', [\App\Http\Controllers\Admin\UserExtraQuestionSubmissionController::class, 'markChanged'])->name('extra-question-submissions.mark-changed');
 

@@ -210,12 +210,16 @@
 
                     <div class="nav-section">Ortsverband</div>
 
-                    <a href="{{ $userOV ? route('ortsverband.show', $userOV) : route('ortsverband.index') }}" class="sidebar-link {{ request()->routeIs('ortsverband.show') ? 'active' : '' }}">
-                        <i class="bi bi-building"></i> {{ $userOV ? $userOV->name : 'Ortsverband' }}
-                    </a>
                     @if($userOV && $userOV->isAusbildungsbeauftragter(auth()->user()))
-                        <a href="{{ route('ortsverband.dashboard', $userOV) }}" class="sidebar-link {{ request()->routeIs('ortsverband.dashboard') ? 'active' : '' }}">
-                            <i class="bi bi-gear"></i> Verwalten
+                        <a href="{{ route('ortsverband.dashboard', $userOV) }}" class="sidebar-link {{ request()->routeIs('ortsverband.dashboard') || request()->routeIs('ortsverband.show') ? 'active' : '' }}">
+                            <i class="bi bi-building"></i> {{ $userOV->name }}
+                        </a>
+                        <a href="{{ route('ortsverband.members', $userOV) }}" class="sidebar-link {{ request()->routeIs('ortsverband.members') || request()->routeIs('ortsverband.members.*') ? 'active' : '' }}">
+                            <i class="bi bi-people"></i> Mitglieder
+                        </a>
+                    @else
+                        <a href="{{ $userOV ? route('ortsverband.show', $userOV) : route('ortsverband.index') }}" class="sidebar-link {{ request()->routeIs('ortsverband.show') ? 'active' : '' }}">
+                            <i class="bi bi-building"></i> {{ $userOV ? $userOV->name : 'Ortsverband' }}
                         </a>
                     @endif
 
@@ -286,11 +290,23 @@
                     @endif
                     @elseif(auth()->user()->canEditQuestions())
                     <div class="nav-section nav-section-admin">Fragen pflegen</div>
+                    <a href="{{ route('contributor.dashboard') }}" class="sidebar-link {{ request()->routeIs('contributor.dashboard') ? 'active' : '' }}">
+                        <i class="bi bi-speedometer2"></i> Dashboard
+                    </a>
                     <a href="{{ route('admin.questions.index') }}" class="sidebar-link {{ request()->routeIs('admin.questions.*') ? 'active' : '' }}">
                         <i class="bi bi-question-circle"></i> Fragen
                     </a>
                     <a href="{{ route('admin.extra-questions.index') }}" class="sidebar-link {{ request()->routeIs('admin.extra-questions.*') ? 'active' : '' }}">
                         <i class="bi bi-collection"></i> Zusatz-Fragen
+                    </a>
+                    <a href="{{ route('admin.extra-question-submissions.index') }}" class="sidebar-link {{ request()->routeIs('admin.extra-question-submissions.*') ? 'active' : '' }}">
+                        <i class="bi bi-inbox"></i> Zusatz-Frage-Vorschläge
+                        @php
+                            $pendingSubmissionsCount = cache()->remember('admin_pending_extra_q_submissions_count', 300, fn() => \App\Models\UserExtraQuestionSubmission::where('status', 'pending')->count());
+                        @endphp
+                        @if($pendingSubmissionsCount > 0)
+                            <span class="badge-error text-xs ml-auto">{{ $pendingSubmissionsCount }}</span>
+                        @endif
                     </a>
                     <a href="{{ route('admin.lehrgaenge.index') }}" class="sidebar-link {{ request()->routeIs('admin.lehrgaenge.*') ? 'active' : '' }}">
                         <i class="bi bi-mortarboard"></i> Lehrgänge
@@ -501,12 +517,16 @@
                         <span class="badge-error text-xs ml-auto">{{ $unopenedLootboxCount }}</span>
                     @endif
                 </a>
-                <a href="{{ $userOV ? route('ortsverband.show', $userOV) : route('ortsverband.index') }}" class="sidebar-link {{ request()->routeIs('ortsverband.show') ? 'active' : '' }}">
-                    <i class="bi bi-building"></i> {{ $userOV ? $userOV->name : 'Ortsverband' }}
-                </a>
                 @if($userOV && $userOV->isAusbildungsbeauftragter(auth()->user()))
-                    <a href="{{ route('ortsverband.dashboard', $userOV) }}" class="sidebar-link {{ request()->routeIs('ortsverband.dashboard') ? 'active' : '' }}">
-                        <i class="bi bi-gear"></i> Verwalten
+                    <a href="{{ route('ortsverband.dashboard', $userOV) }}" class="sidebar-link {{ request()->routeIs('ortsverband.dashboard') || request()->routeIs('ortsverband.show') ? 'active' : '' }}">
+                        <i class="bi bi-building"></i> {{ $userOV->name }}
+                    </a>
+                    <a href="{{ route('ortsverband.members', $userOV) }}" class="sidebar-link {{ request()->routeIs('ortsverband.members') || request()->routeIs('ortsverband.members.*') ? 'active' : '' }}">
+                        <i class="bi bi-people"></i> Mitglieder
+                    </a>
+                @else
+                    <a href="{{ $userOV ? route('ortsverband.show', $userOV) : route('ortsverband.index') }}" class="sidebar-link {{ request()->routeIs('ortsverband.show') ? 'active' : '' }}">
+                        <i class="bi bi-building"></i> {{ $userOV ? $userOV->name : 'Ortsverband' }}
                     </a>
                 @endif
 
@@ -571,11 +591,23 @@
                 @endif
                 @elseif(auth()->user()->canEditQuestions())
                 <div class="nav-section nav-section-admin">Fragen pflegen</div>
+                <a href="{{ route('contributor.dashboard') }}" class="sidebar-link {{ request()->routeIs('contributor.dashboard') ? 'active' : '' }}">
+                    <i class="bi bi-speedometer2"></i> Dashboard
+                </a>
                 <a href="{{ route('admin.questions.index') }}" class="sidebar-link {{ request()->routeIs('admin.questions.*') ? 'active' : '' }}">
                     <i class="bi bi-question-circle"></i> Fragen
                 </a>
                 <a href="{{ route('admin.extra-questions.index') }}" class="sidebar-link {{ request()->routeIs('admin.extra-questions.*') ? 'active' : '' }}">
                     <i class="bi bi-collection"></i> Zusatz-Fragen
+                </a>
+                <a href="{{ route('admin.extra-question-submissions.index') }}" class="sidebar-link {{ request()->routeIs('admin.extra-question-submissions.*') ? 'active' : '' }}">
+                    <i class="bi bi-inbox"></i> Zusatz-Frage-Vorschläge
+                    @php
+                        $pendingSubmissionsCount = cache()->remember('admin_pending_extra_q_submissions_count', 300, fn() => \App\Models\UserExtraQuestionSubmission::where('status', 'pending')->count());
+                    @endphp
+                    @if($pendingSubmissionsCount > 0)
+                        <span class="badge-error text-xs ml-auto">{{ $pendingSubmissionsCount }}</span>
+                    @endif
                 </a>
                 <a href="{{ route('admin.lehrgaenge.index') }}" class="sidebar-link {{ request()->routeIs('admin.lehrgaenge.*') ? 'active' : '' }}">
                     <i class="bi bi-mortarboard"></i> Lehrgänge
