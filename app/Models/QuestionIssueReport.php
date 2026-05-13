@@ -11,12 +11,15 @@ class QuestionIssueReport extends Model
     protected $fillable = [
         'question_issue_id',
         'user_id',
+        'type',
         'message',
+        'meta',
     ];
 
     protected $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+        'meta' => 'array',
     ];
 
     public function issue()

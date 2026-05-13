@@ -1,310 +1,677 @@
 @extends('layouts.app')
-@section('title', 'Fehlermeldung - Admin')
+@section('title', 'Fehlermeldung #' . $issue->id . ' - Admin')
+
+@php
+    if (! function_exists('fmdRenderMentions')) {
+        /**
+         * Escapes a comment message and wraps @mentions in a styled span.
+         */
+        function fmdRenderMentions(?string $text): string {
+            $escaped = e((string) $text);
+            return preg_replace(
+                '/@([A-Za-zÄÖÜäöüß]+(?:\s[A-Za-zÄÖÜäöüß]+)?)/u',
+                '<span class="mention-chip">@$1</span>',
+                $escaped
+            );
+        }
+    }
+@endphp
 
 @push('styles')
 <style>
 /* =========================================================
-   ADMIN ISSUE DETAIL — Design 2026-05
-   Aligned with /admin und /admin/extra-questions Look
+   FMD (Fehlermeldung Details) — Design 2026-05
+   1:1 nach Claude Design Handoff. Anchored in THW design system:
+     — .glass cards, .section-label eyebrows
+     — THW-blue actions, semantic colors (error/warning/success)
+     — Jira-style touches: status pill, assignee/reporter rail,
+       tabbed activity feed, @mention chip in composer.
    ========================================================= */
-.iss-root { width: 100%; max-width: 1280px; margin: 0 auto; }
+.fmd-container { width: 100%; max-width: 76rem; margin: 0 auto; }
 
-/* Header */
-.iss-root .iss-header { margin-bottom: 1.25rem; }
-.iss-root .iss-eyebrow {
+/* Topbar — breadcrumb / actions */
+.fmd-topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap;
+}
+.fmd-crumb {
     font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.75rem; font-weight: 700;
-    text-transform: uppercase; letter-spacing: 0.1em;
-    color: var(--text-muted); margin-bottom: 0.35rem;
+    font-size: 0.6875rem; font-weight: 600;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--text-muted);
+    display: inline-flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;
 }
-.iss-root .iss-h1 {
+.fmd-crumb a { color: var(--text-muted); text-decoration: none; transition: color 0.15s ease; }
+.fmd-crumb a:hover { color: var(--text-primary); }
+.fmd-crumb__sep { opacity: 0.45; }
+.fmd-crumb__current { color: var(--text-secondary); }
+.fmd-actions { display: inline-flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+
+/* Hero — title + status pill */
+.fmd-hero {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    gap: 1.25rem; margin-bottom: 1.25rem; flex-wrap: wrap;
+}
+.fmd-hero__main { min-width: 0; flex: 1 1 24rem; }
+.fmd-hero__id {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6875rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.12em;
+    color: var(--text-muted);
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    margin-bottom: 0.5rem; flex-wrap: wrap;
+}
+.fmd-hero__id .dot {
+    width: 4px; height: 4px; border-radius: 50%;
+    background: var(--text-muted); opacity: 0.5;
+}
+.fmd-hero h1 {
     font-family: 'Figtree', sans-serif;
-    font-weight: 800; font-size: 2rem; line-height: 1.15;
-    letter-spacing: -0.015em;
-    color: #5b9aff; margin: 0 0 0.25rem;
+    font-weight: 800; font-size: 1.875rem; line-height: 1.2;
+    letter-spacing: -0.015em; color: #5b9aff;
+    margin: 0 0 0.5rem;
 }
-html.light-mode .iss-root .iss-h1 { color: var(--thw-blue); }
-.iss-root .iss-sub {
-    font-size: 0.9375rem; color: var(--text-secondary); margin: 0;
-    display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;
+html.light-mode .fmd-hero h1 { color: var(--thw-blue); }
+.fmd-hero__meta {
+    display: flex; flex-wrap: wrap; align-items: center;
+    gap: 0.5rem 0.875rem;
+    font-size: 0.8125rem; color: var(--text-secondary);
+}
+.fmd-hero__meta .dot {
+    width: 3px; height: 3px; border-radius: 50%;
+    background: var(--text-muted); opacity: 0.5;
+}
+.fmd-hero__status {
+    display: inline-flex; flex-direction: column;
+    align-items: flex-end; gap: 0.4rem;
+}
+.fmd-hero__status-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.625rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.12em;
+    color: var(--text-muted);
 }
 
-/* Back link */
-.iss-root .iss-back {
+/* Status pill */
+.status-pill {
     display: inline-flex; align-items: center; gap: 0.4rem;
-    padding: 0.4rem 0.7rem; border-radius: 0.5rem;
-    font-size: 0.8125rem; font-weight: 600;
-    color: var(--text-secondary); background: transparent;
-    border: 1px solid transparent; text-decoration: none;
-    transition: all 0.15s ease; margin-bottom: 1rem;
+    padding: 0.35rem 0.7rem; border-radius: 999px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6875rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    border: 1px solid transparent; white-space: nowrap;
 }
-.iss-root .iss-back:hover {
-    color: #5b9aff; background: rgba(91,154,255,0.08);
-    border-color: rgba(91,154,255,0.20);
+.status-pill .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: currentColor; flex-shrink: 0;
 }
-html.light-mode .iss-root .iss-back:hover { color: var(--thw-blue); background: rgba(0,51,127,0.06); }
+.status-pill--open     { background: rgba(91,154,255,0.14); color: #5b9aff;          border-color: rgba(91,154,255,0.32); }
+.status-pill--in_review{ background: rgba(245,158,11,0.14); color: #f59e0b;          border-color: rgba(245,158,11,0.32); }
+.status-pill--resolved { background: rgba(34,197,94,0.14);  color: #22c55e;          border-color: rgba(34,197,94,0.32); }
+.status-pill--rejected { background: rgba(113,113,122,0.18); color: #a1a1aa;         border-color: rgba(113,113,122,0.32); }
+html.light-mode .status-pill--open      { background: rgba(0,51,127,0.08);  color: var(--thw-blue);   border-color: rgba(0,51,127,0.18); }
+html.light-mode .status-pill--in_review { background: rgba(217,119,6,0.10); color: #b45309;           border-color: rgba(217,119,6,0.30); }
+html.light-mode .status-pill--resolved  { background: rgba(34,197,94,0.10); color: #166534;           border-color: rgba(34,197,94,0.30); }
+html.light-mode .status-pill--rejected  { background: rgba(100,116,139,0.12); color: #475569;         border-color: rgba(100,116,139,0.28); }
+
+.status-pill--lg { padding: 0.5rem 1rem; font-size: 0.75rem; }
+
+button.status-pill {
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+    font-family: 'IBM Plex Mono', monospace;
+}
+button.status-pill:hover { filter: brightness(1.08); }
+button.status-pill .chev { font-size: 0.6875rem; opacity: 0.7; margin-left: 0.15rem; }
 
 /* Layout grid */
-.iss-root .iss-grid {
-    display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+.fmd-grid {
+    display: grid; grid-template-columns: 1fr;
     gap: 1rem; align-items: start;
 }
-.iss-root .iss-col { display: flex; flex-direction: column; gap: 1rem; min-width: 0; }
+@media (min-width: 1024px) {
+    .fmd-grid { grid-template-columns: 1fr 340px; gap: 1.25rem; }
+}
 
-/* Card */
-.iss-root .card {
+/* Cards */
+.fmd-card {
     background: var(--glass-bg); border: 1px solid var(--glass-border);
     border-radius: 0.875rem; padding: 1.25rem;
 }
-html.light-mode .iss-root .card { background: #fff; box-shadow: 0 1px 3px rgba(0,51,127,0.04); }
-.iss-root .card-h {
+html.light-mode .fmd-card { background: #fff; box-shadow: 0 1px 3px rgba(0,51,127,0.04); }
+.fmd-card + .fmd-card { margin-top: 1rem; }
+.fmd-card__h {
     display: flex; align-items: center; justify-content: space-between;
-    gap: 0.75rem; margin-bottom: 1rem; flex-wrap: wrap;
+    gap: 0.75rem; margin-bottom: 0.875rem; flex-wrap: wrap;
 }
-.iss-root .section-label {
+.fmd-card__h-actions { display: inline-flex; gap: 0.375rem; align-items: center; }
+.section-label {
     display: inline-block; font-family: 'IBM Plex Mono', monospace;
     font-size: 0.75rem; font-weight: 600; text-transform: uppercase;
     letter-spacing: 0.1em; color: var(--text-muted);
 }
 
-/* Chip */
-.iss-root .chip {
-    display: inline-flex; align-items: center; gap: 0.3rem;
-    padding: 0.18rem 0.55rem; border-radius: 999px;
+/* Question display */
+.q-text {
+    font-family: 'Figtree', sans-serif;
+    font-weight: 600; font-size: 1.1875rem; line-height: 1.4;
+    color: var(--text-primary); margin: 0 0 1.125rem;
+    text-wrap: pretty;
+}
+.ans-list { display: flex; flex-direction: column; gap: 0.5rem; }
+.ans-row {
+    display: flex; align-items: flex-start; gap: 0.75rem;
+    padding: 0.75rem 0.875rem; border-radius: 0.625rem;
+    background: var(--glass-bg); border: 1px solid var(--glass-border);
+}
+html.light-mode .ans-row { background: rgba(0,51,127,0.025); border-color: rgba(0,51,127,0.08); }
+.ans-row.is-correct {
+    background: rgba(34,197,94,0.07);
+    border-color: rgba(34,197,94,0.30);
+}
+.ans-letter {
+    width: 1.75rem; height: 1.75rem; border-radius: 0.4rem;
+    display: grid; place-items: center;
+    background: rgba(91,154,255,0.14); color: #5b9aff;
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 700; font-size: 0.8125rem; flex-shrink: 0;
+}
+html.light-mode .ans-letter { background: rgba(0,51,127,0.06); color: var(--thw-blue); }
+.ans-row.is-correct .ans-letter { background: #22c55e; color: #fff; }
+.ans-text {
+    font-size: 0.9375rem; line-height: 1.45;
+    color: var(--text-primary); margin: 0.05rem 0 0;
+    text-wrap: pretty; flex: 1;
+}
+.ans-flag {
+    margin-left: auto; align-self: center;
     font-family: 'IBM Plex Mono', monospace;
     font-size: 0.625rem; font-weight: 700;
     text-transform: uppercase; letter-spacing: 0.08em;
-    white-space: nowrap;
+    color: #22c55e;
+    display: inline-flex; align-items: center; gap: 0.3rem; flex-shrink: 0;
 }
-.iss-root .chip--lehrgang   { background: rgba(91,154,255,0.14); color: #5b9aff; }
-html.light-mode .iss-root .chip--lehrgang { color: var(--thw-blue); background: rgba(0,51,127,0.10); }
-.iss-root .chip--question   { background: rgba(167,139,250,0.14); color: #a78bfa; }
-.iss-root .chip--count      { background: rgba(91,154,255,0.18); color: #5b9aff; font-size: 0.7rem; }
-html.light-mode .iss-root .chip--count { color: var(--thw-blue); }
-.iss-root .chip--open       { background: rgba(239,68,68,0.18);  color: #ef4444; }
-.iss-root .chip--in_review  { background: rgba(251,191,36,0.18); color: #fbbf24; }
-.iss-root .chip--resolved   { background: rgba(34,197,94,0.18);  color: #22c55e; }
-.iss-root .chip--rejected   { background: rgba(255,255,255,0.10); color: var(--text-secondary); }
-
-/* Question display */
-.iss-root .q-display {
-    padding: 1rem 1.125rem;
-    border-radius: 0.625rem;
-    background: rgba(91,154,255,0.06);
-    border-left: 3px solid #5b9aff;
-    margin-bottom: 1rem;
+.q-footer {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: 1rem; padding-top: 0.75rem;
+    border-top: 1px solid var(--glass-border-lo);
+    flex-wrap: wrap; gap: 0.5rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6875rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--text-muted);
 }
-html.light-mode .iss-root .q-display {
-    background: rgba(0,51,127,0.04); border-left-color: var(--thw-blue);
-}
-.iss-root .q-display__text {
-    font-size: 1rem; font-weight: 600;
-    color: var(--text-primary); line-height: 1.55; margin: 0;
-}
-
-.iss-root .answer-list { display: flex; flex-direction: column; gap: 0.5rem; }
-.iss-root .answer-item {
-    display: flex; gap: 0.75rem; align-items: flex-start;
-    padding: 0.75rem 0.875rem; border-radius: 0.625rem;
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(255,255,255,0.06);
-}
-html.light-mode .iss-root .answer-item {
-    background: rgba(0,51,127,0.03); border-color: rgba(0,51,127,0.08);
-}
-.iss-root .answer-item.is-correct {
-    background: rgba(34,197,94,0.08); border-color: rgba(34,197,94,0.25);
-}
-.iss-root .answer-letter {
-    width: 1.875rem; height: 1.875rem; flex-shrink: 0;
-    border-radius: 0.5rem;
-    background: rgba(91,154,255,0.14); color: #5b9aff;
-    font-family: 'Figtree', sans-serif; font-weight: 800; font-size: 0.9375rem;
-    display: grid; place-items: center;
-}
-html.light-mode .iss-root .answer-letter { background: rgba(0,51,127,0.10); color: var(--thw-blue); }
-.iss-root .answer-item.is-correct .answer-letter {
-    background: rgba(34,197,94,0.18); color: #22c55e;
-}
-.iss-root .answer-text {
-    flex: 1; min-width: 0; font-size: 0.9rem; color: var(--text-secondary);
-    line-height: 1.5; margin: 0; padding-top: 0.2rem;
-}
+.q-footer__right { color: #22c55e; font-weight: 700; }
 
 /* Inline form */
-.iss-root .field { margin-bottom: 0.875rem; }
-.iss-root .field:last-child { margin-bottom: 0; }
-.iss-root .label {
-    display: block; font-size: 0.8125rem; font-weight: 600;
-    color: var(--text-primary); margin-bottom: 0.375rem;
+.form-field { margin-bottom: 0.875rem; }
+.form-field__label {
+    display: block; font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6875rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--text-muted); margin-bottom: 0.4rem;
 }
-.iss-root .input,
-.iss-root .textarea,
-.iss-root .select {
+.form-input, .form-textarea, .form-select {
     width: 100%;
-    padding: 0.55rem 0.8rem;
-    font-family: inherit; font-size: 0.9rem;
+    background: var(--glass-bg); border: 1px solid var(--glass-border);
+    border-radius: 0.5rem; padding: 0.55rem 0.75rem;
+    font-family: 'Figtree', sans-serif; font-size: 0.875rem;
     color: var(--text-primary);
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 0.5rem; outline: none;
     transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
-html.light-mode .iss-root .input,
-html.light-mode .iss-root .textarea,
-html.light-mode .iss-root .select {
-    background: #fff; border-color: rgba(0,51,127,0.15);
+html.light-mode .form-input,
+html.light-mode .form-textarea,
+html.light-mode .form-select {
+    background: #ffffff; border-color: rgba(0,51,127,0.12);
 }
-.iss-root .input:focus,
-.iss-root .textarea:focus,
-.iss-root .select:focus {
-    border-color: #5b9aff; box-shadow: 0 0 0 3px rgba(91,154,255,0.18);
+.form-input:focus, .form-textarea:focus, .form-select:focus {
+    outline: none;
+    border-color: var(--thw-blue);
+    box-shadow: 0 0 0 3px rgba(0,51,127,0.12);
 }
-html.light-mode .iss-root .input:focus,
-html.light-mode .iss-root .textarea:focus,
-html.light-mode .iss-root .select:focus {
-    border-color: var(--thw-blue); box-shadow: 0 0 0 3px rgba(0,51,127,0.12);
-}
-.iss-root .textarea { min-height: 84px; resize: vertical; line-height: 1.5; }
+.form-textarea { min-height: 5.5rem; resize: vertical; line-height: 1.45; }
 
-.iss-root .answer-row {
-    display: grid; grid-template-columns: auto 1fr auto; gap: 0.625rem;
-    align-items: center; padding: 0.5rem 0;
+.ans-edit-row {
+    display: grid; grid-template-columns: 1.75rem 1fr auto;
+    gap: 0.625rem; align-items: center; margin-bottom: 0.5rem;
 }
-.iss-root .answer-row + .answer-row { border-top: 1px solid rgba(255,255,255,0.05); }
-html.light-mode .iss-root .answer-row + .answer-row { border-top-color: rgba(0,51,127,0.06); }
-.iss-root .answer-row__letter {
-    width: 1.75rem; height: 1.75rem;
-    border-radius: 0.5rem;
-    background: rgba(91,154,255,0.14); color: #5b9aff;
-    font-family: 'Figtree', sans-serif; font-weight: 800; font-size: 0.875rem;
+.ans-edit-correct {
+    display: inline-flex; align-items: center; gap: 0.375rem;
+    padding: 0.35rem 0.625rem; border-radius: 999px;
+    background: var(--glass-bg); border: 1px solid var(--glass-border);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.625rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--text-muted); cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+    white-space: nowrap;
+}
+html.light-mode .ans-edit-correct { background: #fff; border-color: rgba(0,51,127,0.10); }
+.ans-edit-correct.is-on {
+    background: rgba(34,197,94,0.12);
+    border-color: rgba(34,197,94,0.35); color: #22c55e;
+}
+.ans-edit-correct input { display: none; }
+.form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+
+/* Activity tabs */
+.activity-tabs {
+    display: inline-flex; gap: 0.15rem;
+    padding: 3px; border-radius: 0.5rem;
+    background: var(--glass-bg); border: 1px solid var(--glass-border-lo);
+}
+html.light-mode .activity-tabs { background: rgba(0,51,127,0.04); border-color: rgba(0,51,127,0.08); }
+.activity-tab {
+    appearance: none; border: 0; background: transparent;
+    color: var(--text-muted);
+    font-family: 'Figtree', sans-serif;
+    font-size: 0.75rem; font-weight: 600;
+    padding: 0.3rem 0.7rem; border-radius: 0.375rem;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+    display: inline-flex; align-items: center; gap: 0.35rem;
+}
+.activity-tab:hover { color: var(--text-primary); }
+.activity-tab.is-active {
+    background: var(--bg-elevated); color: #5b9aff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.18);
+}
+html.light-mode .activity-tab.is-active {
+    background: #ffffff; color: var(--thw-blue);
+    box-shadow: 0 1px 3px rgba(0,51,127,0.10);
+}
+.activity-tab__count {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.625rem; font-weight: 700;
+    padding: 0 0.32rem; height: 1rem; line-height: 1rem;
+    border-radius: 999px;
+    background: var(--glass-border-lo); color: var(--text-muted);
+}
+.activity-tab.is-active .activity-tab__count {
+    background: rgba(91,154,255,0.18); color: #5b9aff;
+}
+html.light-mode .activity-tab.is-active .activity-tab__count {
+    background: rgba(0,51,127,0.10); color: var(--thw-blue);
+}
+
+/* Activity feed */
+.activity-feed { position: relative; margin-top: 1rem; }
+.activity-feed::before {
+    content: ""; position: absolute;
+    left: 18px; top: 8px; bottom: 8px;
+    width: 2px;
+    background: var(--glass-border-lo); border-radius: 1px;
+}
+html.light-mode .activity-feed::before { background: rgba(0,51,127,0.08); }
+.activity-item {
+    position: relative; display: grid;
+    grid-template-columns: 36px 1fr; gap: 0.75rem;
+    padding: 0.6rem 0 0.85rem;
+}
+.activity-item__avatar {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: linear-gradient(135deg, #5b9aff, #00337F);
+    color: #fff;
     display: grid; place-items: center;
+    font-family: 'Figtree', sans-serif;
+    font-weight: 700; font-size: 0.8125rem;
+    flex-shrink: 0;
+    border: 3px solid var(--bg-elevated);
+    box-sizing: content-box; z-index: 1; margin-left: -3px;
+    overflow: hidden;
 }
-html.light-mode .iss-root .answer-row__letter { background: rgba(0,51,127,0.10); color: var(--thw-blue); }
-.iss-root .answer-row__correct {
-    display: inline-flex; align-items: center; gap: 0.4rem;
-    font-size: 0.75rem; font-weight: 600; color: var(--text-muted);
-    cursor: pointer; user-select: none; white-space: nowrap;
+html.light-mode .activity-item__avatar { border-color: #ffffff; }
+.activity-item__avatar img {
+    width: 100%; height: 100%; object-fit: cover; display: block;
 }
-.iss-root .answer-row__correct input { accent-color: #22c55e; }
-.iss-root .answer-row__correct.is-correct { color: #22c55e; }
+.activity-item__avatar--status {
+    background: rgba(91,154,255,0.18);
+    color: #5b9aff; font-size: 1rem;
+}
+html.light-mode .activity-item__avatar--status {
+    background: rgba(0,51,127,0.10); color: var(--thw-blue);
+}
+.activity-item__avatar--report-icon {
+    background: linear-gradient(135deg, #ef4444, #b91c1c);
+}
 
-/* Buttons */
-.iss-root .btn {
+.activity-item__head {
+    display: flex; align-items: center;
+    gap: 0.5rem; flex-wrap: wrap;
+    margin-bottom: 0.25rem;
+}
+.activity-item__name {
+    font-size: 0.875rem; font-weight: 700;
+    color: var(--text-primary);
+}
+.activity-item__type {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.625rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--text-muted);
+    padding: 0.15rem 0.5rem; border-radius: 999px;
+    border: 1px solid var(--glass-border-lo);
+}
+.activity-item__type--note { color: #5b9aff; border-color: rgba(91,154,255,0.32); }
+html.light-mode .activity-item__type--note { color: var(--thw-blue); border-color: rgba(0,51,127,0.18); }
+.activity-item__type--report { color: #ef4444; border-color: rgba(239,68,68,0.30); }
+.activity-item__type--status { color: var(--text-muted); }
+.activity-item__type--assignment { color: #a78bfa; border-color: rgba(167,139,250,0.30); }
+.activity-item__time {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6875rem; color: var(--text-muted);
+    margin-left: auto;
+}
+.activity-item__msg {
+    font-size: 0.9375rem; line-height: 1.5;
+    color: var(--text-primary); margin: 0.15rem 0 0;
+    text-wrap: pretty; white-space: pre-wrap; word-break: break-word;
+}
+.activity-item__status-line {
+    font-size: 0.8125rem; color: var(--text-secondary);
+    display: inline-flex; align-items: center;
+    gap: 0.5rem; flex-wrap: wrap;
+}
+
+/* Composer */
+.composer {
+    display: grid; grid-template-columns: 36px 1fr;
+    gap: 0.75rem; padding: 0.85rem;
+    border-radius: 0.75rem;
+    background: var(--glass-bg); border: 1px solid var(--glass-border);
+    margin-top: 0.5rem; position: relative;
+}
+html.light-mode .composer { background: rgba(0,51,127,0.025); border-color: rgba(0,51,127,0.10); }
+.composer__avatar {
+    width: 36px; height: 36px; border-radius: 50%;
+    overflow: hidden;
+    background: linear-gradient(135deg, #5b9aff, #00337F);
+    color: #fff;
+    display: grid; place-items: center;
+    font-family: 'Figtree', sans-serif;
+    font-weight: 700; font-size: 0.8125rem;
+}
+.composer__avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.composer__body { display: flex; flex-direction: column; gap: 0.5rem; min-width: 0; }
+.composer textarea {
+    width: 100%; background: transparent; border: 0;
+    resize: vertical; min-height: 3.25rem;
+    font-family: 'Figtree', sans-serif;
+    font-size: 0.9375rem; line-height: 1.5;
+    color: var(--text-primary); padding: 0.25rem 0;
+}
+.composer textarea:focus { outline: none; }
+.composer textarea::placeholder { color: var(--text-muted); }
+.composer__bar {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 0.5rem; flex-wrap: wrap;
+    padding-top: 0.3rem;
+    border-top: 1px solid var(--glass-border-lo);
+}
+.composer__hint {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.625rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--text-muted);
+    display: inline-flex; align-items: center; gap: 0.35rem; flex-wrap: wrap;
+}
+.composer__hint kbd {
+    font-family: 'IBM Plex Mono', monospace;
+    background: var(--glass-bg); border: 1px solid var(--glass-border);
+    border-radius: 0.25rem; padding: 0.05rem 0.35rem;
+    font-size: 0.625rem; color: var(--text-secondary);
+}
+
+/* Mention popup */
+.mention-pop {
+    position: absolute; z-index: 20; min-width: 240px; max-width: 320px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--glass-border);
+    border-radius: 0.625rem;
+    box-shadow: 0 12px 28px rgba(0,0,0,0.35);
+    padding: 0.35rem; overflow: hidden;
+}
+html.light-mode .mention-pop {
+    background: #ffffff; border-color: rgba(0,51,127,0.10);
+    box-shadow: 0 12px 28px rgba(0,51,127,0.12);
+}
+.mention-item {
+    display: flex; align-items: center; gap: 0.5rem;
+    padding: 0.4rem 0.5rem; border-radius: 0.4rem;
+    cursor: pointer; font-size: 0.8125rem;
+}
+.mention-item.is-active { background: rgba(91,154,255,0.14); }
+html.light-mode .mention-item.is-active { background: rgba(0,51,127,0.06); }
+.mention-item__avatar {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: linear-gradient(135deg, #5b9aff, #00337F);
+    color: #fff;
+    display: grid; place-items: center;
+    font-size: 0.625rem; font-weight: 700;
+    flex-shrink: 0; overflow: hidden;
+}
+.mention-item__avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.mention-item__role {
+    margin-left: auto;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.5625rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--text-muted);
+}
+.mention-chip {
+    display: inline-block; padding: 0 0.3rem;
+    border-radius: 0.3rem;
+    background: rgba(91,154,255,0.16); color: #5b9aff;
+    font-weight: 600;
+}
+html.light-mode .mention-chip { background: rgba(0,51,127,0.08); color: var(--thw-blue); }
+
+/* Right rail */
+.meta-list { display: flex; flex-direction: column; }
+.meta-row {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 0.5rem; padding: 0.6rem 0;
+    border-bottom: 1px solid var(--glass-border-lo);
+    font-size: 0.8125rem;
+}
+.meta-row:last-child { border-bottom: 0; }
+.meta-row__label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6875rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--text-muted);
+}
+.meta-row__value {
+    color: var(--text-primary); font-weight: 500; text-align: right;
+}
+.meta-row__value .ts {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem; color: var(--text-secondary);
+}
+
+.person-card {
+    display: flex; align-items: center; gap: 0.625rem;
+    padding: 0.55rem; border-radius: 0.5rem;
+    cursor: pointer;
+    background: var(--glass-bg); border: 1px solid var(--glass-border-lo);
+    transition: border-color 0.15s ease, background 0.15s ease;
+    width: 100%; text-align: left;
+}
+html.light-mode .person-card { background: #ffffff; border-color: rgba(0,51,127,0.08); }
+.person-card:hover { border-color: var(--thw-blue); }
+.person-card__avatar {
+    width: 28px; height: 28px; border-radius: 50%;
+    overflow: hidden;
+    background: linear-gradient(135deg, #5b9aff, #00337F);
+    color: #fff;
+    display: grid; place-items: center;
+    font-size: 0.6875rem; font-weight: 700; flex-shrink: 0;
+}
+.person-card__avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.person-card__avatar--empty {
+    background: var(--glass-border-lo); color: var(--text-muted);
+}
+html.light-mode .person-card__avatar--empty { background: rgba(0,51,127,0.08); }
+.person-card__name {
+    font-size: 0.8125rem; font-weight: 600; color: var(--text-primary);
+}
+.person-card__sub {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.625rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--text-muted);
+}
+.person-card__chev {
+    margin-left: auto;
+    color: var(--text-muted); font-size: 0.875rem;
+}
+
+.rail-row {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 0.4rem;
+}
+.rail-row__hint {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.5625rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--text-muted);
+}
+button.rail-row__hint { background: transparent; border: 0; cursor: pointer; }
+button.rail-row__hint:hover { color: var(--thw-blue); }
+
+/* Danger zone */
+.danger-card { padding: 1rem 1.25rem; }
+.danger-row {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 0.75rem;
+}
+.danger-row__txt {
+    font-size: 0.75rem; color: var(--text-secondary); line-height: 1.4;
+}
+.btn-danger {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    background: transparent;
+    border: 1px solid rgba(239,68,68,0.40);
+    color: #ef4444;
+    border-radius: 0.5rem; padding: 0.45rem 0.75rem;
+    font-family: 'Figtree', sans-serif;
+    font-size: 0.8125rem; font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+    white-space: nowrap;
+}
+.btn-danger:hover { background: #ef4444; color: #fff; }
+
+/* Menu popup (status / assignee) */
+.menu-pop {
+    position: absolute; z-index: 30;
+    min-width: 240px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--glass-border);
+    border-radius: 0.625rem;
+    box-shadow: 0 12px 28px rgba(0,0,0,0.35);
+    padding: 0.35rem; overflow: hidden;
+}
+html.light-mode .menu-pop {
+    background: #ffffff; border-color: rgba(0,51,127,0.10);
+    box-shadow: 0 12px 28px rgba(0,51,127,0.12);
+}
+.menu-item {
+    display: flex; align-items: center; gap: 0.6rem;
+    width: 100%; padding: 0.5rem 0.55rem;
+    border-radius: 0.4rem; cursor: pointer;
+    font-size: 0.8125rem; color: var(--text-primary);
+    background: transparent; border: 0; text-align: left;
+    transition: background 0.15s ease;
+}
+.menu-item:hover { background: var(--glass-bg); }
+html.light-mode .menu-item:hover { background: rgba(0,51,127,0.04); }
+.menu-item__check {
+    margin-left: auto;
+    color: #5b9aff; font-size: 0.875rem;
+}
+html.light-mode .menu-item__check { color: var(--thw-blue); }
+
+/* Role hint badge */
+.role-hint {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    padding: 0.2rem 0.55rem; border-radius: 999px;
+    background: rgba(167,139,250,0.14);
+    color: #a78bfa;
+    border: 1px solid rgba(167,139,250,0.30);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.625rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.08em;
+}
+.role-hint--admin {
+    background: rgba(91,154,255,0.14);
+    color: #5b9aff;
+    border-color: rgba(91,154,255,0.32);
+}
+html.light-mode .role-hint--admin {
+    background: rgba(0,51,127,0.06);
+    color: var(--thw-blue);
+    border-color: rgba(0,51,127,0.18);
+}
+
+/* Icon button (toolbar) */
+.icon-btn-sm {
+    width: 30px; height: 30px; border-radius: 0.4rem;
+    background: var(--glass-bg); border: 1px solid var(--glass-border);
+    color: var(--text-secondary);
+    display: grid; place-items: center;
+    cursor: pointer;
+    transition: border-color 0.15s ease, color 0.15s ease;
+    font-size: 0.875rem; text-decoration: none;
+}
+html.light-mode .icon-btn-sm { background: #ffffff; border-color: rgba(0,51,127,0.10); }
+.icon-btn-sm:hover { border-color: var(--thw-blue); color: var(--thw-blue); }
+.icon-btn-sm.is-active {
+    background: var(--thw-blue); color: #fff;
+    border-color: var(--thw-blue);
+}
+
+/* Subtle alert */
+.alert-flash {
+    display: flex; align-items: center; gap: 0.625rem;
+    padding: 0.6rem 0.875rem; border-radius: 0.5rem;
+    background: rgba(34,197,94,0.10);
+    border: 1px solid rgba(34,197,94,0.28);
+    color: #22c55e;
+    font-size: 0.8125rem; font-weight: 600;
+    margin-bottom: 1rem;
+}
+.alert-flash--error {
+    background: rgba(239,68,68,0.10);
+    border-color: rgba(239,68,68,0.28);
+    color: #ef4444;
+}
+
+/* Buttons (re-anchor) */
+.fmd-btn {
     display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem;
     padding: 0.55rem 1rem; border-radius: 0.5rem;
     font-size: 0.875rem; font-weight: 600;
     border: 1px solid transparent; cursor: pointer; text-decoration: none;
-    transition: all 0.15s ease; font-family: inherit;
+    transition: all 0.15s ease; font-family: 'Figtree', sans-serif;
 }
-.iss-root .btn--primary { background: #5b9aff; color: #fff; }
-.iss-root .btn--primary:hover { background: #3b82f6; }
-html.light-mode .iss-root .btn--primary { background: var(--thw-blue); }
-html.light-mode .iss-root .btn--primary:hover { background: #002a66; }
-.iss-root .btn--secondary {
-    background: var(--glass-bg); border-color: var(--glass-border);
-    color: var(--text-secondary);
-}
-.iss-root .btn--secondary:hover { color: var(--text-primary); border-color: #5b9aff; }
-.iss-root .btn--danger {
-    background: transparent; border-color: rgba(239,68,68,0.30); color: #ef4444;
-}
-.iss-root .btn--danger:hover { background: rgba(239,68,68,0.10); border-color: #ef4444; }
-.iss-root .btn--ghost {
+.fmd-btn--primary { background: #5b9aff; color: #fff; }
+.fmd-btn--primary:hover { background: #3b82f6; }
+html.light-mode .fmd-btn--primary { background: var(--thw-blue); }
+html.light-mode .fmd-btn--primary:hover { background: #002a66; }
+.fmd-btn--ghost {
     background: transparent; color: var(--text-secondary);
     border-color: rgba(255,255,255,0.10);
 }
-html.light-mode .iss-root .btn--ghost { border-color: rgba(0,51,127,0.10); }
-.iss-root .btn--ghost:hover { color: var(--text-primary); border-color: #5b9aff; }
+html.light-mode .fmd-btn--ghost { border-color: rgba(0,51,127,0.10); }
+.fmd-btn--ghost:hover { color: var(--text-primary); border-color: #5b9aff; }
+.fmd-btn[disabled] { opacity: 0.55; cursor: not-allowed; }
 
-/* Edit toggle / pencil button */
-.iss-root .icon-btn {
-    width: 2rem; height: 2rem; border-radius: 0.5rem;
-    background: transparent; border: 1px solid var(--glass-border);
-    color: var(--text-muted); cursor: pointer;
-    display: grid; place-items: center; font-size: 0.85rem;
-    transition: all 0.15s ease;
-}
-.iss-root .icon-btn:hover { color: #5b9aff; border-color: #5b9aff; background: rgba(91,154,255,0.06); }
-html.light-mode .iss-root .icon-btn:hover { color: var(--thw-blue); border-color: var(--thw-blue); }
-
-.iss-root .form-actions {
-    display: flex; gap: 0.5rem; align-items: center;
-    margin-top: 1rem; padding-top: 0.75rem;
-    border-top: 1px solid rgba(255,255,255,0.06);
-    flex-wrap: wrap;
-}
-html.light-mode .iss-root .form-actions { border-top-color: rgba(0,51,127,0.08); }
-
-/* Meta list */
-.iss-root .meta-list { display: grid; gap: 0.5rem; }
-.iss-root .meta-row {
-    display: flex; justify-content: space-between; align-items: center; gap: 0.5rem;
-    padding: 0.55rem 0.75rem; border-radius: 0.5rem;
-    background: rgba(255,255,255,0.03);
-    font-size: 0.8125rem;
-}
-html.light-mode .iss-root .meta-row { background: rgba(0,51,127,0.03); }
-.iss-root .meta-row__label { color: var(--text-muted); font-weight: 600; }
-.iss-root .meta-row__value { color: var(--text-primary); font-weight: 600; }
-
-/* Reports */
-.iss-root .reports {
-    max-height: 360px; overflow-y: auto;
-    padding: 0.25rem;
-}
-.iss-root .report {
-    display: flex; gap: 0.625rem; padding: 0.625rem 0;
-    border-bottom: 1px solid rgba(255,255,255,0.06);
-}
-html.light-mode .iss-root .report { border-bottom-color: rgba(0,51,127,0.06); }
-.iss-root .report:last-child { border-bottom: 0; }
-.iss-root .report__avatar {
-    width: 2rem; height: 2rem; flex-shrink: 0;
-    border-radius: 50%;
-    background: #5b9aff; color: #fff;
-    display: grid; place-items: center;
-    font-weight: 700; font-size: 0.8125rem;
-}
-html.light-mode .iss-root .report__avatar { background: var(--thw-blue); }
-.iss-root .report__body { flex: 1; min-width: 0; }
-.iss-root .report__head {
-    display: flex; align-items: baseline; justify-content: space-between;
-    gap: 0.5rem; margin-bottom: 0.25rem; flex-wrap: wrap;
-}
-.iss-root .report__name { font-weight: 700; font-size: 0.8125rem; color: var(--text-primary); }
-.iss-root .report__time {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.625rem; color: var(--text-muted);
-}
-.iss-root .report__msg { font-size: 0.875rem; color: var(--text-secondary); line-height: 1.5; margin: 0; }
-.iss-root .report__msg--empty { font-style: italic; color: var(--text-muted); }
-
-/* Alert */
-.iss-root .alert {
-    display: flex; gap: 0.75rem; align-items: flex-start;
-    padding: 0.875rem 1rem; border-radius: 0.625rem;
-    margin-bottom: 1rem; font-size: 0.875rem;
-}
-.iss-root .alert--success {
-    background: rgba(34,197,94,0.08);
-    border: 1px solid rgba(34,197,94,0.22);
-    color: #22c55e;
-}
-.iss-root .alert--error {
-    background: rgba(239,68,68,0.08);
-    border: 1px solid rgba(239,68,68,0.22);
-    color: #ef4444;
-}
-.iss-root .alert strong { display: block; }
-
-/* Responsive */
-@media (max-width: 1024px) {
-    .iss-root .iss-grid { grid-template-columns: 1fr; }
-}
+/* Compact density */
 @media (max-width: 640px) {
-    .iss-root .iss-h1 { font-size: 1.625rem; }
-    .iss-root .meta-row { flex-direction: column; align-items: flex-start; gap: 0.2rem; }
+    .fmd-hero h1 { font-size: 1.5rem; }
+    .meta-row { flex-direction: column; align-items: flex-start; gap: 0.2rem; }
+    .meta-row__value { text-align: left; }
 }
 
 [x-cloak] { display: none !important; }
@@ -312,37 +679,185 @@ html.light-mode .iss-root .report__avatar { background: var(--thw-blue); }
 @endpush
 
 @section('content')
-<div class="iss-root" x-data="{ editing: false }">
+@php
+    $statusLabels = [
+        'open'      => 'Offen',
+        'in_review' => 'In Bearbeitung',
+        'resolved'  => 'Gelöst',
+        'rejected'  => 'Abgelehnt',
+    ];
+    $statusDescriptions = [
+        'open'      => 'Wartet auf Sichtung',
+        'in_review' => 'Wird gerade bearbeitet',
+        'resolved'  => 'Problem behoben',
+        'rejected'  => 'Keine Aktion nötig',
+    ];
 
-    <a href="{{ route('admin.issues.index') }}" class="iss-back">
-        <i class="bi bi-arrow-left"></i> Zurück zur Übersicht
-    </a>
+    $sol = $question
+        ? collect(explode(',', (string) ($question->loesung ?? '')))
+            ->map(fn ($s) => strtoupper(trim($s)))
+            ->filter()
+            ->all()
+        : [];
 
-    <div class="iss-header">
-        <div class="iss-eyebrow">Administration · Fehlermeldung #{{ $issue->id }}</div>
-        <h1 class="iss-h1">Fehlermeldung Details</h1>
-        @if($question)
-            <p class="iss-sub">
-                <span class="chip chip--{{ $type }}">{{ $type === 'lehrgang' ? 'Lehrgang' : 'Grundausbildung' }}</span>
-                @if($contextLabel)<span>{{ $contextLabel }}</span>@endif
-            </p>
-        @else
-            <p class="iss-sub" style="color: #ef4444;">Frage wurde gelöscht</p>
-        @endif
+    $editAction = $question
+        ? ($type === 'lehrgang'
+            ? route('admin.lehrgaenge.update-question', ['lehrgang' => $question->lehrgang_id, 'question' => $question->id])
+            : route('admin.questions.update', $question))
+        : null;
+    $editMethod = $type === 'lehrgang' ? 'PATCH' : 'PUT';
+
+    // Aktivitäten zusammenstellen — wie bisher (synthetischer Initial-Eintrag falls keine 'report'-Zeile existiert)
+    $activities = $issue->reports->sortBy('created_at')->values();
+    $hasReportRow = $activities->contains(fn ($a) => ($a->type ?? 'report') === 'report');
+    if (! $hasReportRow && $issue->reportedByUser) {
+        $activities = collect([(object) [
+            '_synthetic' => true,
+            'type' => 'report',
+            'message' => $issue->latest_message,
+            'user' => $issue->reportedByUser,
+            'created_at' => $issue->created_at,
+            'meta' => null,
+        ]])->merge($activities)->values();
+    }
+
+    $reportCount = $issue->report_count;
+    $lastReport = $activities->where('type', 'report')->last();
+    $firstReporter = $activities->where('type', 'report')->first()?->user ?? $issue->reportedByUser;
+
+    $currentUser = auth()->user();
+    $currentRole = $currentUser->useroll === 'admin' ? 'admin' : 'contributor';
+
+    $activityCounts = [
+        'all'    => $activities->count(),
+        'note'   => $activities->where('type', 'note')->count(),
+        'status' => $activities->where('type', 'status_change')->count() + $activities->where('type', 'assignment')->count(),
+        'report' => $activities->where('type', 'report')->count(),
+    ];
+@endphp
+
+<div class="fmd-container"
+     x-data="fmdDetail({
+        issueId: {{ $issue->id }},
+        type: '{{ $type }}',
+        currentUser: {{ Js::from([
+            'id' => $currentUser->id,
+            'name' => $currentUser->name,
+            'avatar_url' => $currentUser->avatar_url,
+            'role' => $currentRole === 'admin' ? 'Admin' : 'Contributor',
+        ]) }},
+        mentionables: {{ Js::from($mentionables) }},
+        urls: {
+            assign: '{{ route('admin.issues.assign', ['issue' => $issue->id, 'type' => $type]) }}',
+            update: '{{ route('admin.issues.update', ['issue' => $issue->id, 'type' => $type]) }}',
+        },
+        initialStatus: '{{ $issue->status }}',
+        initialAssignee: {{ Js::from($issue->assignee ? [
+            'id' => $issue->assignee->id,
+            'name' => $issue->assignee->name,
+            'avatar_url' => $issue->assignee->avatar_url,
+            'role' => $issue->assignee->useroll === 'admin' ? 'Admin' : 'Contributor',
+        ] : null) }},
+        activityCounts: {{ Js::from($activityCounts) }},
+     })">
+
+    {{-- Top bar — breadcrumb + actions --}}
+    <div class="fmd-topbar">
+        <div class="fmd-crumb">
+            <a href="{{ route('admin.dashboard') }}"><i class="bi bi-arrow-left" style="margin-right: 4px;"></i>Admin</a>
+            <span class="fmd-crumb__sep">/</span>
+            <a href="{{ route('admin.issues.index') }}">Fehlermeldungen</a>
+            <span class="fmd-crumb__sep">/</span>
+            <span class="fmd-crumb__current">#{{ $issue->id }}</span>
+        </div>
+        <div class="fmd-actions">
+            <span class="role-hint {{ $currentRole === 'admin' ? 'role-hint--admin' : '' }}">
+                <i class="bi {{ $currentRole === 'admin' ? 'bi-shield-fill' : 'bi-pencil-square' }}"></i>
+                {{ $currentRole === 'admin' ? 'Du bist Admin' : 'Du bist Contributor' }}
+            </span>
+        </div>
+    </div>
+
+    {{-- Hero --}}
+    <div class="fmd-hero">
+        <div class="fmd-hero__main">
+            <div class="fmd-hero__id">
+                <i class="bi bi-bug-fill" style="color: #ef4444; font-size: 0.75rem;"></i>
+                Fehlermeldung · FM-{{ str_pad($issue->id, 3, '0', STR_PAD_LEFT) }}
+                @if($question)
+                    <span class="dot"></span>
+                    <span>{{ $type === 'lehrgang' ? 'Lehrgang' : 'Grundausbildung' }}</span>
+                    @if($contextLabel && $type === 'lehrgang')
+                        <span class="dot"></span><span>{{ $contextLabel }}</span>
+                    @endif
+                    <span class="dot"></span>
+                    <span>Lernabschnitt {{ $question->lernabschnitt ?? '-' }}</span>
+                    <span class="dot"></span>
+                    <span>Frage #{{ $question->nummer ?? '-' }}</span>
+                @endif
+            </div>
+            <h1>{{ $question?->frage ?? 'Frage wurde gelöscht' }}</h1>
+            <div class="fmd-hero__meta">
+                <span>
+                    Erstmals gemeldet von
+                    <strong style="color: var(--text-primary);">{{ $firstReporter?->name ?? 'Anonym' }}</strong>
+                </span>
+                <span class="dot"></span>
+                <span>{{ $reportCount }}× gemeldet</span>
+                <span class="dot"></span>
+                <span>Aktualisiert {{ $issue->updated_at?->format('d.m.Y H:i') ?? '-' }}</span>
+            </div>
+        </div>
+        <div class="fmd-hero__status">
+            <span class="fmd-hero__status-label">Status</span>
+            <div x-ref="statusHeader" style="position: relative;">
+                <button type="button"
+                        class="status-pill status-pill--lg"
+                        :class="'status-pill--' + status"
+                        @click="statusOpen = !statusOpen; assigneeOpen = false">
+                    <span class="dot"></span>
+                    <span x-text="statusLabels[status]"></span>
+                    <i class="bi bi-chevron-down chev"></i>
+                </button>
+                <div class="menu-pop" x-show="statusOpen" x-cloak
+                     @click.outside="statusOpen = false"
+                     style="top: calc(100% + 6px); right: 0;">
+                    <template x-for="opt in statusOptions" :key="opt.id">
+                        <button type="button" class="menu-item" @click="changeStatus(opt.id)">
+                            <span class="status-pill" :class="'status-pill--' + opt.id">
+                                <span class="dot"></span>
+                                <span x-text="opt.label"></span>
+                            </span>
+                            <span style="color: var(--text-muted); font-size: 0.6875rem; margin-left: auto;" x-text="opt.desc"></span>
+                            <i class="bi bi-check2 menu-item__check" x-show="opt.id === status"></i>
+                        </button>
+                    </template>
+                </div>
+            </div>
+        </div>
     </div>
 
     @if(session('success'))
-        <div class="alert alert--success">
+        <div class="alert-flash">
             <i class="bi bi-check-circle-fill"></i>
-            <div>
-                <strong>Erfolg!</strong>
-                <div>{{ session('success') }}</div>
-            </div>
+            <div><strong>{{ session('success') }}</strong></div>
         </div>
     @endif
 
+    <div x-show="flash" x-cloak class="alert-flash">
+        <i class="bi bi-check-circle-fill"></i>
+        <div>
+            <strong>Status aktualisiert</strong>
+            <span style="margin-left: 8px; font-weight: 500; color: var(--text-secondary);"
+                  x-text="'Neuer Status: ' + statusLabels[status]"></span>
+        </div>
+        <button type="button" class="icon-btn-sm" style="margin-left: auto;" @click="flash = false" title="Schließen">
+            <i class="bi bi-x"></i>
+        </button>
+    </div>
+
     @if($errors->any())
-        <div class="alert alert--error">
+        <div class="alert-flash alert-flash--error">
             <i class="bi bi-x-circle-fill"></i>
             <div>
                 <strong>Fehler beim Speichern</strong>
@@ -355,199 +870,476 @@ html.light-mode .iss-root .report__avatar { background: var(--thw-blue); }
         </div>
     @endif
 
-    <div class="iss-grid">
-        {{-- Linke Spalte: Frage + Meldungen --}}
-        <div class="iss-col">
-
-            @if($question)
-                @php
-                    $sol = collect(explode(',', (string) ($question->loesung ?? '')))
-                        ->map(fn ($s) => strtoupper(trim($s)))
-                        ->filter()
-                        ->all();
-                    $editAction = $type === 'lehrgang'
-                        ? route('admin.lehrgaenge.update-question', ['lehrgang' => $question->lehrgang_id, 'question' => $question->id])
-                        : route('admin.questions.update', $question);
-                    $editMethod = $type === 'lehrgang' ? 'PATCH' : 'PUT';
-                @endphp
-
-                <div class="card">
-                    <div class="card-h">
-                        <span class="section-label">Frage</span>
-                        <button type="button"
-                                class="icon-btn"
-                                title="Frage bearbeiten"
-                                @click="editing = !editing"
-                                x-bind:class="{ 'is-active': editing }">
-                            <i class="bi" x-bind:class="editing ? 'bi-x-lg' : 'bi-pencil'"></i>
-                        </button>
+    {{-- Two-col grid --}}
+    <div class="fmd-grid">
+        {{-- Linke Spalte --}}
+        <div>
+            {{-- Frage Card --}}
+            <div class="fmd-card" x-data="{ editing: false }">
+                <div class="fmd-card__h">
+                    <span class="section-label">
+                        <i class="bi bi-patch-question-fill" style="margin-right: 6px; color: #5b9aff;"></i>
+                        Frage
+                    </span>
+                    <div class="fmd-card__h-actions">
+                        @if($question)
+                            <a href="{{ $type === 'lehrgang' && $question->lehrgang_id ? route('admin.lehrgaenge.edit', $question->lehrgang_id) : '#' }}"
+                               class="icon-btn-sm" title="Frage öffnen">
+                                <i class="bi bi-box-arrow-up-right"></i>
+                            </a>
+                            <button type="button"
+                                    class="icon-btn-sm"
+                                    :class="{ 'is-active': editing }"
+                                    @click="editing = !editing"
+                                    title="Frage bearbeiten">
+                                <i class="bi" :class="editing ? 'bi-x-lg' : 'bi-pencil'"></i>
+                            </button>
+                        @endif
                     </div>
+                </div>
 
+                @if($question)
                     {{-- View-Modus --}}
                     <div x-show="!editing" x-cloak>
-                        <div class="q-display">
-                            <p class="q-display__text">{{ $question->frage }}</p>
-                        </div>
-
-                        @php
-                            $solutions = collect(explode(',', (string) ($question->loesung ?? '')))
-                                ->map(fn ($s) => strtoupper(trim($s)))
-                                ->filter()
-                                ->all();
-                        @endphp
-
-                        <div class="answer-list">
+                        <p class="q-text">{{ $question->frage }}</p>
+                        <div class="ans-list">
                             @foreach(['A' => $question->antwort_a, 'B' => $question->antwort_b, 'C' => $question->antwort_c] as $letter => $text)
-                                <div class="answer-item {{ in_array($letter, $solutions, true) ? 'is-correct' : '' }}">
-                                    <div class="answer-letter">{{ $letter }}</div>
-                                    <p class="answer-text">{{ $text }}</p>
+                                <div class="ans-row {{ in_array($letter, $sol, true) ? 'is-correct' : '' }}">
+                                    <div class="ans-letter">{{ $letter }}</div>
+                                    <p class="ans-text">{{ $text }}</p>
+                                    @if(in_array($letter, $sol, true))
+                                        <span class="ans-flag"><i class="bi bi-check-circle-fill"></i> Richtig</span>
+                                    @endif
                                 </div>
                             @endforeach
                         </div>
-
-                        <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid rgba(255,255,255,0.06); flex-wrap: wrap; gap: 0.5rem;">
-                            <span class="section-label">Lösung</span>
-                            <span style="font-family: 'Figtree', sans-serif; font-weight: 800; color: #22c55e; font-size: 1rem; letter-spacing: 0.1em;">
-                                {{ $question->loesung }}
-                            </span>
+                        <div class="q-footer">
+                            <span>Frage-ID #{{ $question->id }}</span>
+                            <span class="q-footer__right">Lösung: {{ $question->loesung }}</span>
                         </div>
-
                         @if(!empty($question->loesungsweg ?? null))
-                            <div style="margin-top: 0.875rem; padding: 0.875rem 1rem; border-radius: 0.625rem; background: rgba(255,255,255,0.03); font-size: 0.875rem; color: var(--text-secondary); line-height: 1.55;">
+                            <div style="margin-top: 0.875rem; padding: 0.875rem 1rem; border-radius: 0.625rem; background: var(--glass-bg); font-size: 0.875rem; color: var(--text-secondary); line-height: 1.55;">
                                 <div class="section-label" style="margin-bottom: 0.4rem;">Lösungsweg</div>
                                 {{ $question->loesungsweg }}
                             </div>
                         @endif
-
-                        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 0.625rem; color: var(--text-muted); margin-top: 0.875rem; text-transform: uppercase; letter-spacing: 0.08em;">
-                            Frage-ID #{{ $question->id }}
-                        </div>
                     </div>
 
-                    {{-- Edit-Modus (für alle Frage-Typen) --}}
+                    {{-- Edit-Modus --}}
                     <div x-show="editing" x-cloak>
-                        <form id="iss-question-edit-form"
-                              method="POST"
-                              action="{{ $editAction }}"
+                        <form id="iss-question-edit-form" method="POST" action="{{ $editAction }}"
                               x-data="{ correct: @js($sol) }">
                             @csrf
                             @method($editMethod)
 
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
-                                <div class="field">
-                                    <label class="label">Lernabschnitt</label>
-                                    <input type="{{ $type === 'lehrgang' ? 'number' : 'text' }}" name="lernabschnitt" class="input" value="{{ old('lernabschnitt', $question->lernabschnitt) }}" required>
+                            <div class="form-row-2">
+                                <div class="form-field">
+                                    <label class="form-field__label">Lernabschnitt</label>
+                                    <input type="{{ $type === 'lehrgang' ? 'number' : 'text' }}"
+                                           name="lernabschnitt" class="form-input"
+                                           value="{{ old('lernabschnitt', $question->lernabschnitt) }}" required>
                                 </div>
-                                <div class="field">
-                                    <label class="label">Nummer</label>
-                                    <input type="number" name="nummer" class="input" value="{{ old('nummer', $question->nummer) }}" required>
+                                <div class="form-field">
+                                    <label class="form-field__label">Frage-Nr.</label>
+                                    <input type="number" name="nummer" class="form-input"
+                                           value="{{ old('nummer', $question->nummer) }}" required>
                                 </div>
                             </div>
 
-                            <div class="field">
-                                <label class="label">Frage</label>
-                                <textarea name="frage" class="textarea" required>{{ old('frage', $question->frage) }}</textarea>
+                            <div class="form-field">
+                                <label class="form-field__label">Frage</label>
+                                <textarea name="frage" class="form-textarea" required>{{ old('frage', $question->frage) }}</textarea>
                             </div>
 
-                            <div class="field">
-                                <label class="label">Antworten · Richtige markieren</label>
+                            <div class="form-field">
+                                <label class="form-field__label">Antworten — Richtige markieren</label>
                                 @foreach(['A' => 'antwort_a', 'B' => 'antwort_b', 'C' => 'antwort_c'] as $letter => $field)
-                                    <div class="answer-row">
-                                        <div class="answer-row__letter">{{ $letter }}</div>
-                                        <input type="text" name="{{ $field }}" class="input"
+                                    <div class="ans-edit-row">
+                                        <div class="ans-letter">{{ $letter }}</div>
+                                        <input type="text" name="{{ $field }}" class="form-input"
                                                value="{{ old($field, $question->{$field}) }}" required>
-                                        <label class="answer-row__correct" x-bind:class="{ 'is-correct': correct.includes('{{ $letter }}') }">
+                                        <label class="ans-edit-correct"
+                                               :class="{ 'is-on': correct.includes('{{ $letter }}') }">
                                             <input type="checkbox" value="{{ $letter }}" x-model="correct">
+                                            <i class="bi" :class="correct.includes('{{ $letter }}') ? 'bi-check-circle-fill' : 'bi-circle'"></i>
                                             Richtig
                                         </label>
                                     </div>
                                 @endforeach
                             </div>
 
-                            {{-- Hidden field: comma-separated solution string (works for both controllers) --}}
                             <input type="hidden" name="loesung" x-bind:value="[...correct].sort().join(',')">
 
                             @if($type === 'question')
-                                <div class="field">
-                                    <label class="label">Lösungsweg <span style="color: var(--text-muted); font-weight: 500; font-size: 0.75rem;">(optional)</span></label>
-                                    <textarea name="loesungsweg" class="textarea">{{ old('loesungsweg', $question->loesungsweg ?? '') }}</textarea>
+                                <div class="form-field">
+                                    <label class="form-field__label">Lösungsweg <span style="text-transform: none; color: var(--text-muted); font-weight: 500;">(optional)</span></label>
+                                    <textarea name="loesungsweg" class="form-textarea">{{ old('loesungsweg', $question->loesungsweg ?? '') }}</textarea>
                                 </div>
                             @endif
 
-                            <div class="form-actions">
-                                <button type="submit" class="btn btn--primary">
+                            <div style="display: flex; gap: 0.5rem; margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid var(--glass-border-lo);">
+                                <button type="submit" class="fmd-btn fmd-btn--primary">
                                     <i class="bi bi-check-lg"></i> Speichern
                                 </button>
-                                <button type="button" class="btn btn--ghost" @click="editing = false">
+                                <button type="button" class="fmd-btn fmd-btn--ghost" @click="editing = false">
                                     Abbrechen
                                 </button>
                             </div>
                         </form>
                     </div>
-                </div>
-            @else
-                <div class="card alert alert--error" style="margin: 0;">
-                    <i class="bi bi-exclamation-triangle-fill"></i>
-                    <div>
-                        <strong>Frage nicht gefunden</strong>
-                        <div>Diese Frage wurde gelöscht oder existiert nicht mehr.</div>
+                @else
+                    <div class="alert-flash alert-flash--error" style="margin: 0;">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        <div>
+                            <strong>Frage nicht gefunden</strong>
+                            <div>Diese Frage wurde gelöscht oder existiert nicht mehr.</div>
+                        </div>
+                    </div>
+                @endif
+            </div>
+
+            {{-- Activity Card --}}
+            <div class="fmd-card">
+                <div class="fmd-card__h">
+                    <span class="section-label">
+                        <i class="bi bi-activity" style="margin-right: 6px; color: #5b9aff;"></i>
+                        Aktivität
+                    </span>
+                    <div class="activity-tabs">
+                        @foreach([
+                            ['id' => 'all',    'label' => 'Alle',           'icon' => 'bi-stack'],
+                            ['id' => 'note',   'label' => 'Kommentare',     'icon' => 'bi-chat-square-text'],
+                            ['id' => 'status', 'label' => 'Statuswechsel',  'icon' => 'bi-arrow-left-right'],
+                            ['id' => 'report', 'label' => 'Meldungen',      'icon' => 'bi-flag'],
+                        ] as $t)
+                            <button type="button"
+                                    class="activity-tab"
+                                    :class="{ 'is-active': activeTab === '{{ $t['id'] }}' }"
+                                    @click="activeTab = '{{ $t['id'] }}'">
+                                <i class="bi {{ $t['icon'] }}"></i>
+                                {{ $t['label'] }}
+                                <span class="activity-tab__count">{{ $activityCounts[$t['id']] ?? 0 }}</span>
+                            </button>
+                        @endforeach
                     </div>
                 </div>
-            @endif
 
-            <div class="card">
-                <div class="card-h">
-                    <span class="section-label">Meldungen · {{ $issue->reports->count() ?: 1 }}</span>
-                    <span class="chip chip--count">{{ $issue->report_count }}× gemeldet</span>
+                <div class="activity-feed">
+                    @foreach($activities as $act)
+                        @php
+                            $actType = $act->type ?? 'report';
+                            $actUser = $act->user ?? null;
+                            $actUserName = $actUser?->name ?? 'Anonym';
+                            $actAvatar = $actUser?->avatar_url;
+                            $matchTab = match ($actType) {
+                                'note' => 'note',
+                                'status_change', 'assignment' => 'status',
+                                default => 'report',
+                            };
+                        @endphp
+
+                        @if($actType === 'status_change')
+                            @php
+                                $old = $act->meta['old'] ?? null;
+                                $new = $act->meta['new'] ?? null;
+                            @endphp
+                            <div class="activity-item"
+                                 x-show="activeTab === 'all' || activeTab === '{{ $matchTab }}'">
+                                <div class="activity-item__avatar activity-item__avatar--status">
+                                    <i class="bi bi-arrow-left-right"></i>
+                                </div>
+                                <div style="min-width: 0;">
+                                    <div class="activity-item__head">
+                                        <span class="activity-item__name">{{ $actUserName }}</span>
+                                        <span class="activity-item__type activity-item__type--status">Statuswechsel</span>
+                                        <span class="activity-item__time">{{ $act->created_at?->format('d.m.Y H:i') }}</span>
+                                    </div>
+                                    <div class="activity-item__status-line">
+                                        änderte Status
+                                        @if($old)
+                                            von <span class="status-pill status-pill--{{ $old }}"><span class="dot"></span>{{ $statusLabels[$old] ?? $old }}</span>
+                                        @endif
+                                        @if($new)
+                                            auf <span class="status-pill status-pill--{{ $new }}"><span class="dot"></span>{{ $statusLabels[$new] ?? $new }}</span>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        @elseif($actType === 'assignment')
+                            @php
+                                $oldName = $act->meta['old_name'] ?? null;
+                                $newName = $act->meta['new_name'] ?? null;
+                            @endphp
+                            <div class="activity-item"
+                                 x-show="activeTab === 'all' || activeTab === '{{ $matchTab }}'">
+                                <div class="activity-item__avatar activity-item__avatar--status">
+                                    <i class="bi bi-person-check"></i>
+                                </div>
+                                <div style="min-width: 0;">
+                                    <div class="activity-item__head">
+                                        <span class="activity-item__name">{{ $actUserName }}</span>
+                                        <span class="activity-item__type activity-item__type--assignment">Zuweisung</span>
+                                        <span class="activity-item__time">{{ $act->created_at?->format('d.m.Y H:i') }}</span>
+                                    </div>
+                                    <div class="activity-item__status-line">
+                                        @if($newName && $oldName)
+                                            verschob Bearbeiter von <strong style="color: var(--text-primary);">{{ $oldName }}</strong>
+                                            auf <strong style="color: var(--text-primary);">{{ $newName }}</strong>
+                                        @elseif($newName)
+                                            wies <strong style="color: var(--text-primary);">{{ $newName }}</strong> zu
+                                        @elseif($oldName)
+                                            entfernte Zuweisung von <strong style="color: var(--text-primary);">{{ $oldName }}</strong>
+                                        @else
+                                            änderte die Zuweisung
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        @elseif($actType === 'note')
+                            <div class="activity-item"
+                                 x-show="activeTab === 'all' || activeTab === '{{ $matchTab }}'">
+                                <div class="activity-item__avatar">
+                                    @if($actAvatar)
+                                        <img src="{{ $actAvatar }}" alt="{{ $actUserName }}">
+                                    @else
+                                        {{ strtoupper(substr($actUserName, 0, 1)) }}
+                                    @endif
+                                </div>
+                                <div style="min-width: 0;">
+                                    <div class="activity-item__head">
+                                        <span class="activity-item__name">{{ $actUserName }}</span>
+                                        <span class="activity-item__type activity-item__type--note">Kommentar</span>
+                                        <span class="activity-item__time">{{ $act->created_at?->format('d.m.Y H:i') }}</span>
+                                    </div>
+                                    <p class="activity-item__msg">{!! fmdRenderMentions($act->message) !!}</p>
+                                </div>
+                            </div>
+                        @else
+                            <div class="activity-item"
+                                 x-show="activeTab === 'all' || activeTab === '{{ $matchTab }}'">
+                                <div class="activity-item__avatar">
+                                    @if($actAvatar)
+                                        <img src="{{ $actAvatar }}" alt="{{ $actUserName }}">
+                                    @else
+                                        {{ strtoupper(substr($actUserName, 0, 1)) }}
+                                    @endif
+                                </div>
+                                <div style="min-width: 0;">
+                                    <div class="activity-item__head">
+                                        <span class="activity-item__name">{{ $actUserName }}</span>
+                                        <span class="activity-item__type activity-item__type--report">
+                                            <i class="bi bi-flag-fill" style="margin-right: 4px;"></i>Meldung
+                                        </span>
+                                        <span class="activity-item__time">{{ $act->created_at?->format('d.m.Y H:i') }}</span>
+                                    </div>
+                                    @if(!empty($act->message))
+                                        <p class="activity-item__msg">{{ $act->message }}</p>
+                                    @else
+                                        <p class="activity-item__msg" style="color: var(--text-muted); font-style: italic;">Keine Nachricht</p>
+                                    @endif
+                                </div>
+                            </div>
+                        @endif
+                    @endforeach
+
+                    <div x-show="filteredEmpty" x-cloak
+                         style="padding: 1.5rem 0; text-align: center; color: var(--text-muted); font-size: 0.8125rem;">
+                        Aktuell keine Einträge in dieser Ansicht.
+                    </div>
                 </div>
 
-                <div class="reports">
-                    @forelse($issue->reports as $report)
-                        <div class="report">
-                            <div class="report__avatar">{{ strtoupper(substr($report->user?->name ?? 'A', 0, 1)) }}</div>
-                            <div class="report__body">
-                                <div class="report__head">
-                                    <span class="report__name">{{ $report->user?->name ?? 'Anonym' }}</span>
-                                    <span class="report__time">{{ $report->created_at->format('d.m.Y H:i') }}</span>
-                                </div>
-                                @if($report->message)
-                                    <p class="report__msg">{{ $report->message }}</p>
-                                @else
-                                    <p class="report__msg report__msg--empty">Keine Nachricht</p>
-                                @endif
+                {{-- Composer mit @mention --}}
+                <form method="POST"
+                      action="{{ route('admin.issues.comments.store', ['issue' => $issue->id, 'type' => $type]) }}"
+                      class="composer"
+                      @submit="onSubmit($event)">
+                    @csrf
+                    <div class="composer__avatar">
+                        @if($currentUser->avatar_url)
+                            <img src="{{ $currentUser->avatar_url }}" alt="{{ $currentUser->name }}">
+                        @else
+                            {{ strtoupper(substr($currentUser->name, 0, 1)) }}
+                        @endif
+                    </div>
+                    <div class="composer__body">
+                        <textarea name="message"
+                                  x-ref="composer"
+                                  x-model="comment"
+                                  @input="onComposerInput($event)"
+                                  @keydown="onComposerKeydown($event)"
+                                  placeholder="Kommentar hinzufügen… Tippe @ um jemanden zu erwähnen"
+                                  rows="2"
+                                  maxlength="2000"
+                                  required></textarea>
+                        <div class="composer__bar">
+                            <span class="composer__hint">
+                                <kbd>@</kbd> erwähnen · <kbd>⌘</kbd>+<kbd>↵</kbd> senden
+                            </span>
+                            <div style="display: flex; gap: 0.4rem;">
+                                <button type="button" class="fmd-btn fmd-btn--ghost" @click="comment = ''" :disabled="!comment.trim()">
+                                    Verwerfen
+                                </button>
+                                <button type="submit" class="fmd-btn fmd-btn--primary" :disabled="!comment.trim()">
+                                    <i class="bi bi-send-fill"></i> Kommentieren
+                                </button>
                             </div>
                         </div>
-                    @empty
-                        <div class="report">
-                            <div class="report__avatar">{{ strtoupper(substr($issue->reportedByUser?->name ?? 'A', 0, 1)) }}</div>
-                            <div class="report__body">
-                                <div class="report__head">
-                                    <span class="report__name">{{ $issue->reportedByUser?->name ?? 'Anonym' }}</span>
-                                    <span class="report__time">{{ $issue->updated_at?->format('d.m.Y H:i') }}</span>
+                        <div class="mention-pop" x-show="mentionOpen && filteredMentions.length"
+                             x-cloak
+                             style="left: 0; right: 0; bottom: calc(100% + 4px);">
+                            <template x-for="(p, i) in filteredMentions" :key="p.id">
+                                <div class="mention-item"
+                                     :class="{ 'is-active': i === mentionActive }"
+                                     @mousedown.prevent="insertMention(p)"
+                                     @mouseenter="mentionActive = i">
+                                    <div class="mention-item__avatar">
+                                        <template x-if="p.avatar_url"><img :src="p.avatar_url" :alt="p.name"></template>
+                                        <template x-if="!p.avatar_url"><span x-text="initials(p.name)"></span></template>
+                                    </div>
+                                    <div x-text="p.name"></div>
+                                    <span class="mention-item__role" x-text="p.role"></span>
                                 </div>
-                                @if($issue->latest_message)
-                                    <p class="report__msg">{{ $issue->latest_message }}</p>
-                                @else
-                                    <p class="report__msg report__msg--empty">Keine Nachricht</p>
-                                @endif
-                            </div>
+                            </template>
                         </div>
-                    @endforelse
-                </div>
+                    </div>
+                </form>
             </div>
         </div>
 
-        {{-- Rechte Spalte: Info + Bearbeitung --}}
-        <div class="iss-col">
+        {{-- Right rail --}}
+        <div>
+            {{-- Status Card --}}
+            <div class="fmd-card">
+                <div class="rail-row">
+                    <span class="section-label">Status</span>
+                    <span class="rail-row__hint" x-text="statusDesc[status]"></span>
+                </div>
+                <div x-ref="statusRail" style="position: relative;">
+                    <button type="button"
+                            class="status-pill"
+                            :class="'status-pill--' + status"
+                            @click="statusRailOpen = !statusRailOpen; assigneeOpen = false"
+                            style="width: 100%; justify-content: space-between;">
+                        <span style="display: inline-flex; align-items: center; gap: 0.4rem;">
+                            <span class="dot"></span>
+                            <span x-text="statusLabels[status]"></span>
+                        </span>
+                        <i class="bi bi-chevron-down chev"></i>
+                    </button>
+                    <div class="menu-pop" x-show="statusRailOpen" x-cloak
+                         @click.outside="statusRailOpen = false"
+                         style="top: calc(100% + 6px); left: 0; right: 0;">
+                        <template x-for="opt in statusOptions" :key="opt.id">
+                            <button type="button" class="menu-item" @click="changeStatus(opt.id); statusRailOpen = false">
+                                <span class="status-pill" :class="'status-pill--' + opt.id">
+                                    <span class="dot"></span>
+                                    <span x-text="opt.label"></span>
+                                </span>
+                                <span style="color: var(--text-muted); font-size: 0.6875rem; margin-left: auto;" x-text="opt.desc"></span>
+                                <i class="bi bi-check2 menu-item__check" x-show="opt.id === status"></i>
+                            </button>
+                        </template>
+                    </div>
+                </div>
+                <div style="font-family: 'IBM Plex Mono', monospace; font-size: 0.625rem; color: var(--text-muted); margin-top: 0.5rem; letter-spacing: 0.06em;">
+                    Statuswechsel erscheinen als Eintrag in der Aktivität.
+                </div>
+            </div>
 
-            <div class="card">
-                <div class="card-h">
-                    <span class="section-label">Information</span>
+            {{-- Assignee Card --}}
+            <div class="fmd-card">
+                <div class="rail-row">
+                    <span class="section-label">Zugewiesen an</span>
+                    <button type="button" class="rail-row__hint"
+                            x-show="!assignee || assignee.id !== currentUser.id"
+                            @click="assignTo(currentUser)">
+                        Mir zuweisen
+                    </button>
+                </div>
+                <div x-ref="assigneeWrap" style="position: relative;">
+                    <button type="button" class="person-card"
+                            @click="assigneeOpen = !assigneeOpen; statusOpen = false; statusRailOpen = false">
+                        <template x-if="assignee">
+                            <div class="person-card__avatar">
+                                <template x-if="assignee.avatar_url"><img :src="assignee.avatar_url" :alt="assignee.name"></template>
+                                <template x-if="!assignee.avatar_url"><span x-text="initials(assignee.name)"></span></template>
+                            </div>
+                        </template>
+                        <template x-if="!assignee">
+                            <div class="person-card__avatar person-card__avatar--empty">
+                                <i class="bi bi-person"></i>
+                            </div>
+                        </template>
+                        <div style="min-width: 0; flex: 1;">
+                            <div class="person-card__name" x-text="assignee ? assignee.name : 'Niemand zugewiesen'"></div>
+                            <div class="person-card__sub" x-text="assignee ? assignee.role : 'Klicken zum Zuweisen'"></div>
+                        </div>
+                        <i class="bi bi-chevron-down person-card__chev"></i>
+                    </button>
+
+                    <div class="menu-pop" x-show="assigneeOpen" x-cloak
+                         @click.outside="assigneeOpen = false"
+                         style="top: calc(100% + 6px); left: 0; right: 0;">
+                        <button type="button" class="menu-item" @click="assignTo(null)">
+                            <span class="person-card__avatar person-card__avatar--empty"
+                                  style="width: 22px; height: 22px; font-size: 0.625rem;">
+                                <i class="bi bi-x"></i>
+                            </span>
+                            <span style="flex: 1;">Niemand</span>
+                            <i class="bi bi-check2 menu-item__check" x-show="!assignee"></i>
+                        </button>
+                        <template x-for="p in mentionables" :key="p.id">
+                            <button type="button" class="menu-item" @click="assignTo(p)">
+                                <span class="person-card__avatar"
+                                      style="width: 22px; height: 22px; font-size: 0.625rem;">
+                                    <template x-if="p.avatar_url"><img :src="p.avatar_url" :alt="p.name"></template>
+                                    <template x-if="!p.avatar_url"><span x-text="initials(p.name)"></span></template>
+                                </span>
+                                <span style="flex: 1;" x-text="p.name"></span>
+                                <span class="person-card__sub" style="margin-right: 4px;" x-text="p.role"></span>
+                                <i class="bi bi-check2 menu-item__check" x-show="assignee && assignee.id === p.id"></i>
+                            </button>
+                        </template>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Reporter Card --}}
+            <div class="fmd-card">
+                <div class="rail-row">
+                    <span class="section-label">Meldender</span>
+                </div>
+                <div class="person-card" style="cursor: default;">
+                    <div class="person-card__avatar">
+                        @if($firstReporter?->avatar_url)
+                            <img src="{{ $firstReporter->avatar_url }}" alt="{{ $firstReporter->name }}">
+                        @elseif($firstReporter)
+                            {{ strtoupper(substr($firstReporter->name, 0, 1)) }}
+                        @else
+                            <i class="bi bi-person"></i>
+                        @endif
+                    </div>
+                    <div>
+                        <div class="person-card__name">{{ $firstReporter?->name ?? 'Anonym' }}</div>
+                        <div class="person-card__sub">{{ $reportCount > 1 ? '+' . ($reportCount - 1) . ' weitere' : 'Erster Bericht' }}</div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Details Card --}}
+            <div class="fmd-card">
+                <div class="rail-row">
+                    <span class="section-label">Details</span>
                 </div>
                 <div class="meta-list">
                     <div class="meta-row">
                         <span class="meta-row__label">Quelle</span>
-                        <span class="chip chip--{{ $type }}">{{ $type === 'lehrgang' ? 'Lehrgang' : 'Grundausbildung' }}</span>
+                        <span class="meta-row__value">
+                            <span class="status-pill status-pill--open" style="padding: 0.2rem 0.55rem;">
+                                <i class="bi bi-bookmark-fill" style="font-size: 0.625rem;"></i>
+                                {{ $type === 'lehrgang' ? 'Lehrgang' : 'Grundausbildung' }}
+                            </span>
+                        </span>
                     </div>
                     @if($question)
                         @foreach($contextDetails as $label => $value)
@@ -556,77 +1348,47 @@ html.light-mode .iss-root .report__avatar { background: var(--thw-blue); }
                                 <span class="meta-row__value">{{ $value }}</span>
                             </div>
                         @endforeach
+                        <div class="meta-row">
+                            <span class="meta-row__label">Frage-ID</span>
+                            <span class="meta-row__value"><span class="ts">#{{ $question->id }}</span></span>
+                        </div>
                     @endif
                     <div class="meta-row">
-                        <span class="meta-row__label">Status</span>
-                        <span class="chip chip--{{ $issue->status }}">
-                            @if($issue->status === 'open') Offen
-                            @elseif($issue->status === 'in_review') In Bearbeitung
-                            @elseif($issue->status === 'resolved') Gelöst
-                            @else Abgelehnt
-                            @endif
-                        </span>
-                    </div>
-                    <div class="meta-row">
                         <span class="meta-row__label">Meldungen</span>
-                        <span class="chip chip--count">{{ $issue->report_count }}×</span>
+                        <span class="meta-row__value">{{ $reportCount }}×</span>
                     </div>
                     <div class="meta-row">
-                        <span class="meta-row__label">Zuletzt von</span>
-                        <span class="meta-row__value">{{ $issue->reportedByUser?->name ?? 'Anonym' }}</span>
+                        <span class="meta-row__label">Erstellt</span>
+                        <span class="meta-row__value"><span class="ts">{{ $issue->created_at?->format('d.m.Y H:i') ?? '-' }}</span></span>
                     </div>
                     <div class="meta-row">
                         <span class="meta-row__label">Aktualisiert</span>
-                        <span class="meta-row__value">{{ $issue->updated_at?->format('d.m.Y H:i') ?? '-' }}</span>
+                        <span class="meta-row__value"><span class="ts">{{ $issue->updated_at?->format('d.m.Y H:i') ?? '-' }}</span></span>
                     </div>
                 </div>
             </div>
 
-            <div class="card">
-                <div class="card-h">
-                    <span class="section-label">Bearbeitung</span>
-                </div>
-                <form method="POST" action="{{ route('admin.issues.update', ['issue' => $issue->id, 'type' => $type]) }}">
-                    @csrf
-                    @method('PUT')
-
-                    <div class="field">
-                        <label class="label">Status</label>
-                        <select name="status" class="select">
-                            <option value="open" {{ $issue->status === 'open' ? 'selected' : '' }}>Offen</option>
-                            <option value="in_review" {{ $issue->status === 'in_review' ? 'selected' : '' }}>In Bearbeitung</option>
-                            <option value="resolved" {{ $issue->status === 'resolved' ? 'selected' : '' }}>Gelöst</option>
-                            <option value="rejected" {{ $issue->status === 'rejected' ? 'selected' : '' }}>Abgelehnt</option>
-                        </select>
+            {{-- Danger Zone --}}
+            @if($currentUser->isAdmin())
+                <div class="fmd-card danger-card">
+                    <div class="rail-row">
+                        <span class="section-label" style="color: #ef4444;">Gefahrenzone</span>
                     </div>
-
-                    <div class="field">
-                        <label class="label">Notizen</label>
-                        <textarea name="admin_notes" class="textarea" maxlength="1000"
-                                  placeholder="Interne Notiz...">{{ $issue->admin_notes ?? '' }}</textarea>
-                        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 0.625rem; color: var(--text-muted); margin-top: 0.25rem; letter-spacing: 0.06em;">
-                            <span id="noteCount">{{ strlen($issue->admin_notes ?? '') }}</span>/1000
-                        </div>
-                    </div>
-
-                    <div class="form-actions">
-                        <button type="submit" class="btn btn--primary" style="flex: 1;">
-                            <i class="bi bi-check-lg"></i> Speichern
-                        </button>
-                        @if(auth()->user()->isAdmin())
-                        <button type="button" onclick="confirmIssueDelete()" class="btn btn--danger">
+                    <div class="danger-row">
+                        <div class="danger-row__txt">Die Fehlermeldung dauerhaft entfernen. Die Aktivitätshistorie geht verloren.</div>
+                        <button type="button" class="btn-danger" onclick="confirmIssueDelete()">
                             <i class="bi bi-trash"></i> Löschen
                         </button>
-                        @endif
                     </div>
-                </form>
-            </div>
-
+                </div>
+            @endif
         </div>
     </div>
 </div>
 
-<form id="deleteForm" method="POST" action="{{ route('admin.issues.destroy', ['issue' => $issue->id, 'type' => $type]) }}" style="display: none;">
+<form id="deleteForm" method="POST"
+      action="{{ route('admin.issues.destroy', ['issue' => $issue->id, 'type' => $type]) }}"
+      style="display: none;">
     @csrf
     @method('DELETE')
 </form>
@@ -637,67 +1399,203 @@ html.light-mode .iss-root .report__avatar { background: var(--thw-blue); }
             document.getElementById('deleteForm').submit();
         }
     }
-
-    document.querySelector('textarea[name="admin_notes"]')?.addEventListener('input', function () {
-        const c = document.getElementById('noteCount');
-        if (c) c.textContent = this.value.length;
-    });
-
-    // Inline question edit form: submit via fetch & redirect zurück zur Issue-Seite
-    (function () {
-        const form = document.getElementById('iss-question-edit-form');
-        if (!form) return;
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const submitBtn = form.querySelector('button[type="submit"]');
-            const originalHtml = submitBtn?.innerHTML;
-            if (submitBtn) { submitBtn.disabled = true; submitBtn.innerHTML = '<i class="bi bi-arrow-clockwise"></i> Speichert...'; }
-
-            try {
-                const fd = new FormData(form);
-                const res = await fetch(form.action, {
-                    method: 'POST',
-                    body: fd,
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json',
-                    },
-                    credentials: 'same-origin',
-                });
-                if (res.ok) {
-                    const url = new URL(window.location.href);
-                    url.searchParams.set('saved', '1');
-                    window.location.href = url.toString();
-                } else {
-                    let msg = 'Fehler beim Speichern.';
-                    try {
-                        const data = await res.json();
-                        if (data?.errors) msg = Object.values(data.errors).flat().join('\n');
-                        else if (data?.message) msg = data.message;
-                    } catch (_) {}
-                    alert(msg);
-                    if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = originalHtml; }
-                }
-            } catch (err) {
-                alert('Netzwerkfehler beim Speichern.');
-                if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = originalHtml; }
-            }
-        });
-
-        // Wenn nach Speichern zurückkommen: Erfolgshinweis zeigen
-        const params = new URLSearchParams(window.location.search);
-        if (params.get('saved') === '1') {
-            const wrap = document.querySelector('.iss-root');
-            if (wrap) {
-                const a = document.createElement('div');
-                a.className = 'alert alert--success';
-                a.innerHTML = '<i class="bi bi-check-circle-fill"></i><div><strong>Frage aktualisiert</strong><div>Die Änderungen wurden gespeichert.</div></div>';
-                wrap.insertBefore(a, wrap.querySelector('.iss-grid'));
-            }
-            params.delete('saved');
-            const newUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
-            window.history.replaceState({}, '', newUrl);
-        }
-    })();
 </script>
+
+@push('alpine-components')
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('fmdDetail', (config) => ({
+            issueId: config.issueId,
+            type: config.type,
+            currentUser: config.currentUser,
+            mentionables: config.mentionables,
+            urls: config.urls,
+            status: config.initialStatus,
+            assignee: config.initialAssignee,
+
+            statusOpen: false,
+            statusRailOpen: false,
+            assigneeOpen: false,
+            flash: false,
+            activityCounts: config.activityCounts,
+
+            activeTab: 'all',
+            comment: '',
+            mentionOpen: false,
+            mentionQuery: '',
+            mentionActive: 0,
+
+            statusLabels: {
+                open: 'Offen',
+                in_review: 'In Bearbeitung',
+                resolved: 'Gelöst',
+                rejected: 'Abgelehnt',
+            },
+            statusDesc: {
+                open: 'Wartet auf Sichtung',
+                in_review: 'Wird gerade bearbeitet',
+                resolved: 'Problem behoben',
+                rejected: 'Keine Aktion nötig',
+            },
+            statusOptions: [
+                { id: 'open',      label: 'Offen',          desc: 'Wartet auf Sichtung' },
+                { id: 'in_review', label: 'In Bearbeitung', desc: 'Wird gerade bearbeitet' },
+                { id: 'resolved',  label: 'Gelöst',         desc: 'Problem behoben' },
+                { id: 'rejected',  label: 'Abgelehnt',      desc: 'Keine Aktion nötig' },
+            ],
+
+            get filteredMentions() {
+                const q = (this.mentionQuery || '').toLowerCase();
+                return this.mentionables
+                    .filter(p => !q || p.name.toLowerCase().includes(q))
+                    .slice(0, 6);
+            },
+
+            get filteredEmpty() {
+                return (this.activityCounts[this.activeTab] ?? 0) === 0;
+            },
+
+            initials(name) {
+                if (!name) return '?';
+                return name.split(' ').map(p => p[0]).slice(0, 2).join('').toUpperCase();
+            },
+
+            csrfToken() {
+                return document.querySelector('meta[name="csrf-token"]')?.content || '';
+            },
+
+            async changeStatus(next) {
+                if (next === this.status) {
+                    this.statusOpen = false;
+                    this.statusRailOpen = false;
+                    return;
+                }
+                const oldStatus = this.status;
+                this.status = next;
+                this.statusOpen = false;
+                this.statusRailOpen = false;
+                this.flash = true;
+                setTimeout(() => { this.flash = false; }, 3200);
+
+                try {
+                    const fd = new FormData();
+                    fd.append('_method', 'PUT');
+                    fd.append('_token', this.csrfToken());
+                    fd.append('status', next);
+
+                    const res = await fetch(this.urls.update, {
+                        method: 'POST',
+                        body: fd,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json',
+                        },
+                        credentials: 'same-origin',
+                    });
+                    if (!res.ok) throw new Error('http ' + res.status);
+                    // Seite neu laden, damit der Aktivitäts-Feed den Statuswechsel zeigt
+                    setTimeout(() => window.location.reload(), 600);
+                } catch (e) {
+                    this.status = oldStatus;
+                    this.flash = false;
+                    alert('Status konnte nicht gespeichert werden.');
+                }
+            },
+
+            async assignTo(person) {
+                const previous = this.assignee;
+                this.assignee = person;
+                this.assigneeOpen = false;
+
+                try {
+                    const fd = new FormData();
+                    fd.append('_method', 'PUT');
+                    fd.append('_token', this.csrfToken());
+                    if (person) fd.append('assignee_id', person.id);
+
+                    const res = await fetch(this.urls.assign, {
+                        method: 'POST',
+                        body: fd,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json',
+                        },
+                        credentials: 'same-origin',
+                    });
+                    if (!res.ok) throw new Error('http ' + res.status);
+                    setTimeout(() => window.location.reload(), 600);
+                } catch (e) {
+                    this.assignee = previous;
+                    alert('Zuweisung konnte nicht gespeichert werden.');
+                }
+            },
+
+            onComposerInput(e) {
+                this.comment = e.target.value;
+                const caret = e.target.selectionStart;
+                const before = this.comment.slice(0, caret);
+                const m = before.match(/@([\wÄÖÜäöüß]*)$/);
+                if (m) {
+                    this.mentionQuery = m[1];
+                    this.mentionActive = 0;
+                    this.mentionOpen = true;
+                } else {
+                    this.mentionOpen = false;
+                }
+            },
+
+            onComposerKeydown(e) {
+                if (this.mentionOpen && this.filteredMentions.length) {
+                    if (e.key === 'ArrowDown') {
+                        e.preventDefault();
+                        this.mentionActive = (this.mentionActive + 1) % this.filteredMentions.length;
+                        return;
+                    }
+                    if (e.key === 'ArrowUp') {
+                        e.preventDefault();
+                        this.mentionActive = (this.mentionActive - 1 + this.filteredMentions.length) % this.filteredMentions.length;
+                        return;
+                    }
+                    if (e.key === 'Enter' || e.key === 'Tab') {
+                        e.preventDefault();
+                        this.insertMention(this.filteredMentions[this.mentionActive]);
+                        return;
+                    }
+                    if (e.key === 'Escape') {
+                        this.mentionOpen = false;
+                        return;
+                    }
+                }
+                if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+                    e.preventDefault();
+                    e.target.form?.requestSubmit();
+                }
+            },
+
+            insertMention(person) {
+                if (!person) return;
+                const ta = this.$refs.composer;
+                const caret = ta.selectionStart;
+                const before = this.comment.slice(0, caret);
+                const after = this.comment.slice(caret);
+                const firstName = person.name.split(' ')[0];
+                const newBefore = before.replace(/@([\wÄÖÜäöüß]*)$/, '@' + firstName);
+                this.comment = newBefore + ' ' + after;
+                this.mentionOpen = false;
+                this.mentionQuery = '';
+                this.$nextTick(() => {
+                    ta.focus();
+                    const pos = newBefore.length + 1;
+                    ta.setSelectionRange(pos, pos);
+                });
+            },
+
+            onSubmit(e) {
+                if (!this.comment.trim()) e.preventDefault();
+            },
+        }));
+    });
+</script>
+@endpush
+
 @endsection
