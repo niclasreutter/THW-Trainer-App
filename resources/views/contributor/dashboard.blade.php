@@ -319,33 +319,6 @@ html.light-mode .admin-root .sr-tile__val--blue { color: var(--thw-blue); }
         </div>
     </div>
 
-    {{-- ── STATUS BAR ──────────────────────────── --}}
-    <div class="sys-pulse" role="status" aria-label="Status-Übersicht">
-        @foreach($statusBar as $item)
-            @php $href = $item['link'] ?? null; @endphp
-            @if($href)
-                <a class="pulse-item pulse-item--link" href="{{ $href }}" title="Details öffnen">
-                    <span class="pulse-dot pulse-dot--{{ $item['status'] }}"></span>
-                    <div class="pulse-meta">
-                        <div class="pulse-label">{{ $item['label'] }}</div>
-                        <div class="pulse-value">{{ $item['value'] }}</div>
-                        <div class="pulse-sub">{{ $item['sub'] }}</div>
-                    </div>
-                    <i class="bi bi-chevron-right pulse-chevron" aria-hidden="true"></i>
-                </a>
-            @else
-                <div class="pulse-item">
-                    <span class="pulse-dot pulse-dot--{{ $item['status'] }}"></span>
-                    <div class="pulse-meta">
-                        <div class="pulse-label">{{ $item['label'] }}</div>
-                        <div class="pulse-value">{{ $item['value'] }}</div>
-                        <div class="pulse-sub">{{ $item['sub'] }}</div>
-                    </div>
-                </div>
-            @endif
-        @endforeach
-    </div>
-
     {{-- ── KPI GRID ─────────────────────────────── --}}
     <div class="kpi-grid">
         @foreach($kpis as $key => $kpi)
@@ -501,7 +474,12 @@ html.light-mode .admin-root .sr-tile__val--blue { color: var(--thw-blue); }
             </div>
             <div class="feed">
                 @forelse($recentIssues as $i)
-                    <a href="{{ route('admin.issues.index') }}" class="feed-item">
+                    @php
+                        $issueLink = $i['kind'] === 'lehrgang'
+                            ? route('admin.lehrgang-issues.show', $i['id'])
+                            : route('admin.issues.show', $i['id']);
+                    @endphp
+                    <a href="{{ $issueLink }}" class="feed-item">
                         <div class="feed-icon feed-icon--red">
                             <i class="bi bi-bug-fill"></i>
                         </div>

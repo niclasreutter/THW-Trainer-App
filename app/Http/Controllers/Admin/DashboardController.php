@@ -48,6 +48,7 @@ class DashboardController extends Controller
         $fragenQualitaet = $this->getFragenQualitaet($days);
         $ortsverbaende  = $this->getOrtsverbaende();
         $srStats        = $this->getSpacedRepetitionStats();
+        $submissionStats = $this->getSubmissionStats();
         $liveFeed       = $this->getLiveFeed();
 
         return view('admin.dashboard', compact(
@@ -59,8 +60,23 @@ class DashboardController extends Controller
             'fragenQualitaet',
             'ortsverbaende',
             'srStats',
+            'submissionStats',
             'liveFeed'
         ));
+    }
+
+    /* =========================================================
+       EINREICHUNGS-STATUS — Zusatz-Fragen-Vorschläge
+       ========================================================= */
+    private function getSubmissionStats(): array
+    {
+        return [
+            'total'    => UserExtraQuestionSubmission::count(),
+            'pending'  => UserExtraQuestionSubmission::where('status', 'pending')->count(),
+            'approved' => UserExtraQuestionSubmission::where('status', 'approved')->count(),
+            'changed'  => UserExtraQuestionSubmission::where('status', 'changed')->count(),
+            'rejected' => UserExtraQuestionSubmission::where('status', 'rejected')->count(),
+        ];
     }
 
     /* =========================================================

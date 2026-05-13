@@ -15,58 +15,12 @@ class DashboardController extends Controller
     public function index()
     {
         return view('contributor.dashboard', [
-            'statusBar'         => $this->getStatusBar(),
             'kpis'              => $this->getKpis(),
             'handlungsbedarf'   => $this->getHandlungsbedarf(),
             'recentSubmissions' => $this->getRecentSubmissions(),
             'submissionStats'   => $this->getSubmissionStats(),
             'recentIssues'      => $this->getRecentIssues(),
         ]);
-    }
-
-    /* =========================================================
-       STATUS BAR — analog zur System-Puls Bar im Admin Dashboard
-       ========================================================= */
-    private function getStatusBar(): array
-    {
-        $totalFragen      = Question::count();
-        $entwuerfe        = Question::whereNull('loesung')->orWhere('loesung', '')->count();
-        $totalExtra       = ExtraQuestion::count();
-        $pendingSubmissions = UserExtraQuestionSubmission::where('status', 'pending')->count();
-        $openIssues       = QuestionIssue::where('status', 'open')->count()
-                          + LehrgangQuestionIssue::where('status', 'open')->count();
-        $totalLehrgaenge  = Lehrgang::count();
-
-        return [
-            'fragen' => [
-                'status' => $entwuerfe > 0 ? 'warn' : 'ok',
-                'label'  => 'Fragen-Pool',
-                'value'  => number_format($totalFragen, 0, ',', '.'),
-                'sub'    => $entwuerfe . ' ' . ($entwuerfe === 1 ? 'Entwurf' : 'Entwürfe'),
-                'link'   => route('admin.questions.index'),
-            ],
-            'zusatz' => [
-                'status' => $pendingSubmissions >= 3 ? 'warn' : 'ok',
-                'label'  => 'Zusatz-Fragen',
-                'value'  => number_format($totalExtra, 0, ',', '.'),
-                'sub'    => $pendingSubmissions . ' ' . ($pendingSubmissions === 1 ? 'Vorschlag offen' : 'Vorschläge offen'),
-                'link'   => route('admin.extra-question-submissions.index', ['status' => 'pending']),
-            ],
-            'lehrgaenge' => [
-                'status' => 'ok',
-                'label'  => 'Lehrgänge',
-                'value'  => number_format($totalLehrgaenge, 0, ',', '.'),
-                'sub'    => 'Kurse zum Bearbeiten',
-                'link'   => route('admin.lehrgaenge.index'),
-            ],
-            'issues' => [
-                'status' => $openIssues === 0 ? 'ok' : ($openIssues >= 5 ? 'err' : 'warn'),
-                'label'  => 'Fehlermeldungen',
-                'value'  => $openIssues === 0 ? 'Keine offen' : $openIssues . ' offen',
-                'sub'    => 'Issues zur Bearbeitung',
-                'link'   => route('admin.issues.index'),
-            ],
-        ];
     }
 
     /* =========================================================
