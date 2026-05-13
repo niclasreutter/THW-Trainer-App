@@ -403,6 +403,18 @@ class OrtsverbandController extends Controller
     }
 
     /**
+     * Markiert den OV-Dashboard-Hinweis für den aktuellen User als gelesen.
+     */
+    public function dismissDashboardNotice(Request $request): JsonResponse
+    {
+        $user = Auth::user();
+        $user->ov_dashboard_notice_dismissed = true;
+        $user->save();
+
+        return response()->json(['success' => true]);
+    }
+
+    /**
      * API Endpoint für Statistiken (optional für AJAX)
      */
     public function stats(Ortsverband $ortsverband)
