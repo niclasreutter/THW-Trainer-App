@@ -210,12 +210,16 @@
 
                     <div class="nav-section">Ortsverband</div>
 
-                    <a href="{{ $userOV ? route('ortsverband.show', $userOV) : route('ortsverband.index') }}" class="sidebar-link {{ request()->routeIs('ortsverband.show') ? 'active' : '' }}">
-                        <i class="bi bi-building"></i> {{ $userOV ? $userOV->name : 'Ortsverband' }}
-                    </a>
                     @if($userOV && $userOV->isAusbildungsbeauftragter(auth()->user()))
-                        <a href="{{ route('ortsverband.dashboard', $userOV) }}" class="sidebar-link {{ request()->routeIs('ortsverband.dashboard') ? 'active' : '' }}">
-                            <i class="bi bi-gear"></i> Verwalten
+                        <a href="{{ route('ortsverband.dashboard', $userOV) }}" class="sidebar-link {{ request()->routeIs('ortsverband.dashboard') || request()->routeIs('ortsverband.show') ? 'active' : '' }}">
+                            <i class="bi bi-building"></i> {{ $userOV->name }}
+                        </a>
+                        <a href="{{ route('ortsverband.members', $userOV) }}" class="sidebar-link {{ request()->routeIs('ortsverband.members') || request()->routeIs('ortsverband.members.*') ? 'active' : '' }}">
+                            <i class="bi bi-people"></i> Mitglieder
+                        </a>
+                    @else
+                        <a href="{{ $userOV ? route('ortsverband.show', $userOV) : route('ortsverband.index') }}" class="sidebar-link {{ request()->routeIs('ortsverband.show') ? 'active' : '' }}">
+                            <i class="bi bi-building"></i> {{ $userOV ? $userOV->name : 'Ortsverband' }}
                         </a>
                     @endif
 
@@ -513,12 +517,16 @@
                         <span class="badge-error text-xs ml-auto">{{ $unopenedLootboxCount }}</span>
                     @endif
                 </a>
-                <a href="{{ $userOV ? route('ortsverband.show', $userOV) : route('ortsverband.index') }}" class="sidebar-link {{ request()->routeIs('ortsverband.show') ? 'active' : '' }}">
-                    <i class="bi bi-building"></i> {{ $userOV ? $userOV->name : 'Ortsverband' }}
-                </a>
                 @if($userOV && $userOV->isAusbildungsbeauftragter(auth()->user()))
-                    <a href="{{ route('ortsverband.dashboard', $userOV) }}" class="sidebar-link {{ request()->routeIs('ortsverband.dashboard') ? 'active' : '' }}">
-                        <i class="bi bi-gear"></i> Verwalten
+                    <a href="{{ route('ortsverband.dashboard', $userOV) }}" class="sidebar-link {{ request()->routeIs('ortsverband.dashboard') || request()->routeIs('ortsverband.show') ? 'active' : '' }}">
+                        <i class="bi bi-building"></i> {{ $userOV->name }}
+                    </a>
+                    <a href="{{ route('ortsverband.members', $userOV) }}" class="sidebar-link {{ request()->routeIs('ortsverband.members') || request()->routeIs('ortsverband.members.*') ? 'active' : '' }}">
+                        <i class="bi bi-people"></i> Mitglieder
+                    </a>
+                @else
+                    <a href="{{ $userOV ? route('ortsverband.show', $userOV) : route('ortsverband.index') }}" class="sidebar-link {{ request()->routeIs('ortsverband.show') ? 'active' : '' }}">
+                        <i class="bi bi-building"></i> {{ $userOV ? $userOV->name : 'Ortsverband' }}
                     </a>
                 @endif
 

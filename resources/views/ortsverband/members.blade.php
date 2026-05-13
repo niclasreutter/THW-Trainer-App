@@ -85,6 +85,15 @@ html.light-mode .ov-progress-track-lg {
 </style>
 @endpush
 
+@php
+    $searchableMembers = $ausbilderProgress->concat($memberProgress)->map(fn($m) => [
+        'id' => $m['user']->id,
+        'name' => $m['user']->name,
+        'avatar' => $m['user']->avatar_url,
+        'role' => $m['role'],
+        'url' => route('ortsverband.members.manage', [$ortsverband, $m['user']]),
+    ])->values();
+@endphp
 @section('content')
 <div class="dash-container">
 
@@ -94,9 +103,12 @@ html.light-mode .ov-progress-track-lg {
             <h1 style="font-size:1.5rem;font-weight:800;line-height:1.2;font-family:'Barlow Condensed',sans-serif;background:linear-gradient(135deg,#5b9aff,#0055cc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Mitglieder verwalten</h1>
             <p class="text-sm" style="color: var(--text-muted);">{{ $ortsverband->name }}</p>
         </div>
-        <a href="{{ route('ortsverband.invitations.index', $ortsverband) }}" class="btn-primary btn-sm" style="text-decoration:none;flex-shrink:0;">
-            Einladen
-        </a>
+        <div style="display:flex;align-items:center;gap:0.625rem;flex-shrink:0;flex-wrap:wrap;">
+            <a href="{{ route('ortsverband.invitations.index', $ortsverband) }}" class="btn-primary btn-sm" style="text-decoration:none;">
+                Einladen
+            </a>
+            @include('ortsverband.partials.member-search', ['members' => $searchableMembers])
+        </div>
     </div>
 
     @if(session('success'))

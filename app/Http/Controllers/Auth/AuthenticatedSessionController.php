@@ -55,9 +55,11 @@ class AuthenticatedSessionController extends Controller
 
         // In Production: Redirect zur App-Domain
         // In Development: Normale Redirect-Logik
+        // Ausbilder landen auf ihrem OV-Dashboard, alle anderen auf /dashboard
+        $homePath = $request->user()->homePath();
         $dashboardUrl = config('domains.development')
-            ? route('dashboard')
-            : DomainHelper::appUrl('/dashboard');
+            ? url($homePath)
+            : DomainHelper::appUrl($homePath);
 
         return redirect()->intended($dashboardUrl);
     }

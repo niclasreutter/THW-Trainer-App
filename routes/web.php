@@ -20,7 +20,7 @@ use Illuminate\Http\Request;
 // Root-Route für App-Subdomain - Redirect zu Dashboard oder Login
 Route::get('/', function () {
     if (auth()->check()) {
-        return redirect()->route('dashboard');
+        return redirect(auth()->user()->homePath());
     }
     return redirect()->route('login');
 })->name('app.home');
