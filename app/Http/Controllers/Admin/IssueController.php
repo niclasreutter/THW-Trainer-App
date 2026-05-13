@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Mail\IssueAssignedMail;
+use App\Mail\IssueMentionedMail;
 use App\Models\LehrgangQuestionIssue;
 use App\Models\LehrgangQuestionIssueReport;
 use App\Models\Notification;
@@ -10,7 +12,8 @@ use App\Models\QuestionIssue;
 use App\Models\QuestionIssueReport;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class IssueController extends Controller
 {
@@ -254,7 +257,9 @@ class IssueController extends Controller
         ]);
 
         // Notify the new assignee (unless they assigned themselves)
-        if ($newUser && $newUser->id !== auth()->id()) {
+        if ($newUser && (int) $newUser->id !== (int) auth()->id()) {
+            $issueUrl = route('admin.issues.show', ['issue' => $issue->id, 'type' => $type]);
+
             Notification::create([
                 'user_id' => $newUser->id,
                 'type' => 'issue_assigned',
@@ -264,9 +269,28 @@ class IssueController extends Controller
                 'data' => [
                     'issue_id' => $issue->id,
                     'issue_type' => $type,
-                    'url' => route('admin.issues.show', ['issue' => $issue->id, 'type' => $type]),
+                    'url' => $issueUrl,
                 ],
             ]);
+
+            if (!empty($newUser->email)) {
+                try {
+                    Mail::to($newUser->email)->queue(new IssueAssignedMail(
+                        assignee: $newUser,
+                        assignedBy: auth()->user(),
+                        issueId: $issue->id,
+                        issueType: $type,
+                        questionText: $this->questionTextFor($issue, $type),
+                        issueUrl: $issueUrl,
+                    ));
+                } catch (\Throwable $e) {
+                    Log::warning('IssueAssignedMail konnte nicht in die Queue gelegt werden', [
+                        'issue_id' => $issue->id,
+                        'user_id' => $newUser->id,
+                        'error' => $e->getMessage(),
+                    ]);
+                }
+            }
         }
 
         if ($request->wantsJson() || $request->ajax()) {
@@ -308,15 +332,19 @@ class IssueController extends Controller
             'mentioned_user_ids' => $mentionedUserIds,
         ]);
 
-        // Benachrichtigungen an erwähnte User (nicht an sich selbst)
+        // Benachrichtigungen + E-Mail an erwähnte User (nicht an sich selbst)
         if (!empty($mentionedUserIds)) {
             $currentUserId = auth()->id();
-            $authorName = auth()->user()->name ?? 'Jemand';
+            $author = auth()->user();
+            $authorName = $author->name ?? 'Jemand';
+            $issueUrl = route('admin.issues.show', ['issue' => $issue->id, 'type' => $type]);
+            $questionText = $this->questionTextFor($issue, $type);
 
             foreach (User::whereIn('id', $mentionedUserIds)->get() as $mentionedUser) {
                 if ((int) $mentionedUser->id === (int) $currentUserId) {
                     continue;
                 }
+
                 Notification::create([
                     'user_id' => $mentionedUser->id,
                     'type' => 'issue_mention',
@@ -326,9 +354,29 @@ class IssueController extends Controller
                     'data' => [
                         'issue_id' => $issue->id,
                         'issue_type' => $type,
-                        'url' => route('admin.issues.show', ['issue' => $issue->id, 'type' => $type]),
+                        'url' => $issueUrl,
                     ],
                 ]);
+
+                if (!empty($mentionedUser->email)) {
+                    try {
+                        Mail::to($mentionedUser->email)->queue(new IssueMentionedMail(
+                            mentioned: $mentionedUser,
+                            author: $author,
+                            issueId: $issue->id,
+                            issueType: $type,
+                            questionText: $questionText,
+                            commentMessage: $validated['message'],
+                            issueUrl: $issueUrl,
+                        ));
+                    } catch (\Throwable $e) {
+                        Log::warning('IssueMentionedMail konnte nicht in die Queue gelegt werden', [
+                            'issue_id' => $issue->id,
+                            'user_id' => $mentionedUser->id,
+                            'error' => $e->getMessage(),
+                        ]);
+                    }
+                }
             }
         }
 
@@ -377,6 +425,19 @@ class IssueController extends Controller
                 'meta' => $meta,
             ]);
         }
+    }
+
+    /**
+     * Liefert den Fragentext zum Issue (für E-Mails) — null wenn die Frage gelöscht ist.
+     */
+    private function questionTextFor($issue, string $type): ?string
+    {
+        if ($type === 'lehrgang') {
+            return $issue->lehrgangQuestion?->frage
+                ?? optional($issue->lehrgangQuestion()->first())?->frage;
+        }
+        return $issue->question?->frage
+            ?? optional($issue->question()->first())?->frage;
     }
 
     /**
