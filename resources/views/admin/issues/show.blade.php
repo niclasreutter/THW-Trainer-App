@@ -27,12 +27,14 @@
      — Jira-style touches: status pill, assignee/reporter rail,
        tabbed activity feed, @mention chip in composer.
    ========================================================= */
-.fmd-container { width: 100%; max-width: 76rem; margin: 0 auto; }
+.fmd-container { width: 100%; max-width: 76rem; margin: 0 auto; min-width: 0; }
+.fmd-container, .fmd-container * { box-sizing: border-box; }
 
 /* Topbar — breadcrumb / actions */
 .fmd-topbar {
     display: flex; align-items: center; justify-content: space-between;
     gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap;
+    min-width: 0;
 }
 .fmd-crumb {
     font-family: 'IBM Plex Mono', monospace;
@@ -51,8 +53,9 @@
 .fmd-hero {
     display: flex; align-items: flex-start; justify-content: space-between;
     gap: 1.25rem; margin-bottom: 1.25rem; flex-wrap: wrap;
+    min-width: 0;
 }
-.fmd-hero__main { min-width: 0; flex: 1 1 24rem; }
+.fmd-hero__main { min-width: 0; flex: 1 1 16rem; word-wrap: break-word; overflow-wrap: anywhere; }
 .fmd-hero__id {
     font-family: 'IBM Plex Mono', monospace;
     font-size: 0.6875rem; font-weight: 700;
@@ -70,6 +73,7 @@
     font-weight: 800; font-size: 1.875rem; line-height: 1.2;
     letter-spacing: -0.015em; color: #5b9aff;
     margin: 0 0 0.5rem;
+    overflow-wrap: anywhere; word-break: break-word;
 }
 html.light-mode .fmd-hero h1 { color: var(--thw-blue); }
 .fmd-hero__meta {
@@ -126,11 +130,12 @@ button.status-pill .chev { font-size: 0.6875rem; opacity: 0.7; margin-left: 0.15
 
 /* Layout grid */
 .fmd-grid {
-    display: grid; grid-template-columns: 1fr;
+    display: grid; grid-template-columns: minmax(0, 1fr);
     gap: 1rem; align-items: start;
 }
+.fmd-grid > * { min-width: 0; }
 @media (min-width: 1024px) {
-    .fmd-grid { grid-template-columns: 1fr 340px; gap: 1.25rem; }
+    .fmd-grid { grid-template-columns: minmax(0, 1fr) 340px; gap: 1.25rem; }
 }
 
 /* Cards */
@@ -157,6 +162,7 @@ html.light-mode .fmd-card { background: #fff; box-shadow: 0 1px 3px rgba(0,51,12
     font-weight: 600; font-size: 1.1875rem; line-height: 1.4;
     color: var(--text-primary); margin: 0 0 1.125rem;
     text-wrap: pretty;
+    overflow-wrap: anywhere; word-break: break-word;
 }
 .ans-list { display: flex; flex-direction: column; gap: 0.5rem; }
 .ans-row {
@@ -181,7 +187,8 @@ html.light-mode .ans-letter { background: rgba(0,51,127,0.06); color: var(--thw-
 .ans-text {
     font-size: 0.9375rem; line-height: 1.45;
     color: var(--text-primary); margin: 0.05rem 0 0;
-    text-wrap: pretty; flex: 1;
+    text-wrap: pretty; flex: 1; min-width: 0;
+    overflow-wrap: anywhere; word-break: break-word;
 }
 .ans-flag {
     margin-left: auto; align-self: center;
@@ -259,7 +266,10 @@ html.light-mode .ans-edit-correct { background: #fff; border-color: rgba(0,51,12
     display: inline-flex; gap: 0.15rem;
     padding: 3px; border-radius: 0.5rem;
     background: var(--glass-bg); border: 1px solid var(--glass-border-lo);
+    max-width: 100%; overflow-x: auto;
+    scrollbar-width: none;
 }
+.activity-tabs::-webkit-scrollbar { display: none; }
 html.light-mode .activity-tabs { background: rgba(0,51,127,0.04); border-color: rgba(0,51,127,0.08); }
 .activity-tab {
     appearance: none; border: 0; background: transparent;
@@ -270,6 +280,7 @@ html.light-mode .activity-tabs { background: rgba(0,51,127,0.04); border-color: 
     cursor: pointer;
     transition: background 0.15s ease, color 0.15s ease;
     display: inline-flex; align-items: center; gap: 0.35rem;
+    white-space: nowrap; flex-shrink: 0;
 }
 .activity-tab:hover { color: var(--text-primary); }
 .activity-tab.is-active {
@@ -365,7 +376,8 @@ html.light-mode .activity-item__type--note { color: var(--thw-blue); border-colo
 .activity-item__msg {
     font-size: 0.9375rem; line-height: 1.5;
     color: var(--text-primary); margin: 0.15rem 0 0;
-    text-wrap: pretty; white-space: pre-wrap; word-break: break-word;
+    text-wrap: pretty; white-space: pre-wrap;
+    word-break: break-word; overflow-wrap: anywhere;
 }
 .activity-item__status-line {
     font-size: 0.8125rem; color: var(--text-secondary);
@@ -667,11 +679,33 @@ html.light-mode .fmd-btn--ghost { border-color: rgba(0,51,127,0.10); }
 .fmd-btn--ghost:hover { color: var(--text-primary); border-color: #5b9aff; }
 .fmd-btn[disabled] { opacity: 0.55; cursor: not-allowed; }
 
-/* Compact density */
+/* Mobile (≤ 640px) */
 @media (max-width: 640px) {
-    .fmd-hero h1 { font-size: 1.5rem; }
+    .fmd-hero h1 { font-size: 1.4rem; }
+    .fmd-hero { gap: 0.75rem; margin-bottom: 1rem; }
+    .fmd-hero__status { align-items: flex-start; width: 100%; }
+    .fmd-card { padding: 1rem; border-radius: 0.75rem; }
+    .fmd-card__h { flex-wrap: wrap; row-gap: 0.5rem; }
+    .q-text { font-size: 1.0625rem; }
+    .ans-row { padding: 0.625rem 0.75rem; gap: 0.625rem; }
+    .ans-letter { width: 1.5rem; height: 1.5rem; font-size: 0.75rem; }
+    .ans-flag { font-size: 0.5625rem; }
+    .form-row-2 { grid-template-columns: 1fr; }
+    .ans-edit-row { grid-template-columns: 1.5rem 1fr; row-gap: 0.4rem; }
+    .ans-edit-row .ans-edit-correct { grid-column: 2; justify-self: start; }
     .meta-row { flex-direction: column; align-items: flex-start; gap: 0.2rem; }
     .meta-row__value { text-align: left; }
+    .fmd-topbar { gap: 0.5rem; }
+    .fmd-actions { width: 100%; justify-content: flex-start; }
+    .danger-row { flex-direction: column; align-items: stretch; gap: 0.625rem; }
+    .danger-row .btn-danger { align-self: flex-start; }
+    .composer__bar { flex-direction: column; align-items: stretch; gap: 0.5rem; }
+    .composer__bar > div { justify-content: flex-end; }
+    .activity-item { grid-template-columns: 32px 1fr; gap: 0.625rem; }
+    .activity-item__avatar { width: 32px; height: 32px; }
+    .activity-feed::before { left: 16px; }
+    .activity-item__time { margin-left: 0; flex-basis: 100%; }
+    .fmd-hero__id { font-size: 0.625rem; letter-spacing: 0.08em; }
 }
 
 [x-cloak] { display: none !important; }
