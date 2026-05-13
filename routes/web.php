@@ -741,8 +741,10 @@ Route::middleware(['auth', \App\Http\Middleware\QuestionEditorMiddleware::class]
 
     // Fehlermeldungen (vereinheitlichte Issues + Lehrgang-Issues): Lesen + Status setzen
     Route::get('issues', [\App\Http\Controllers\Admin\IssueController::class, 'index'])->name('issues.index');
+    Route::get('issues/mentionables', [\App\Http\Controllers\Admin\IssueController::class, 'mentionables'])->name('issues.mentionables');
     Route::get('issues/{issue}', [\App\Http\Controllers\Admin\IssueController::class, 'show'])->name('issues.show');
     Route::put('issues/{issue}', [\App\Http\Controllers\Admin\IssueController::class, 'update'])->name('issues.update');
+    Route::put('issues/{issue}/assignee', [\App\Http\Controllers\Admin\IssueController::class, 'assign'])->name('issues.assign');
     Route::post('issues/{issue}/comments', [\App\Http\Controllers\Admin\IssueController::class, 'storeComment'])->name('issues.comments.store');
 
     Route::get('lehrgang-issues', [\App\Http\Controllers\Admin\LehrgangIssueController::class, 'index'])->name('lehrgang-issues.index');
