@@ -13,6 +13,7 @@ class QuestionIssue extends Model
         'report_count',
         'latest_message',
         'reported_by_user_id',
+        'assignee_id',
         'admin_notes',
         'status',
     ];
@@ -30,6 +31,11 @@ class QuestionIssue extends Model
     public function reportedByUser()
     {
         return $this->belongsTo(User::class, 'reported_by_user_id');
+    }
+
+    public function assignee()
+    {
+        return $this->belongsTo(User::class, 'assignee_id');
     }
 
     public function reports()
