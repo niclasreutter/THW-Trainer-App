@@ -231,15 +231,22 @@ html.light-mode .iss-root .iss-card-mobile { background: #fff; box-shadow: 0 1px
         <div class="filter-row">
             <span class="filter-row__label">Status</span>
             @foreach(['all' => 'Alle', 'open' => 'Offen', 'in_review' => 'In Bearbeitung', 'resolved' => 'Gelöst'] as $key => $label)
-                <a href="{{ route('admin.issues.index', ['status' => $key, 'source' => $source]) }}"
+                <a href="{{ route('admin.issues.index', ['status' => $key, 'source' => $source, 'sort' => $sort]) }}"
                    class="seg-link {{ $status === $key ? 'is-active' : '' }}">{{ $label }}</a>
             @endforeach
         </div>
         <div class="filter-row">
             <span class="filter-row__label">Quelle</span>
             @foreach(['all' => 'Alle', 'lehrgang' => 'Lehrgänge', 'question' => 'Grundausbildung'] as $key => $label)
-                <a href="{{ route('admin.issues.index', ['status' => $status, 'source' => $key]) }}"
+                <a href="{{ route('admin.issues.index', ['status' => $status, 'source' => $key, 'sort' => $sort]) }}"
                    class="seg-link {{ $source === $key ? 'is-active' : '' }}">{{ $label }}</a>
+            @endforeach
+        </div>
+        <div class="filter-row">
+            <span class="filter-row__label">Sortierung</span>
+            @foreach(['recent' => 'Zuletzt aktualisiert', 'reports' => 'Meiste Meldungen'] as $key => $label)
+                <a href="{{ route('admin.issues.index', ['status' => $status, 'source' => $source, 'sort' => $key]) }}"
+                   class="seg-link {{ $sort === $key ? 'is-active' : '' }}">{{ $label }}</a>
             @endforeach
         </div>
     </div>
@@ -289,7 +296,7 @@ html.light-mode .iss-root .iss-card-mobile { background: #fff; box-shadow: 0 1px
                                     </span>
                                 </td>
                                 <td style="text-align: right;">
-                                    <a href="{{ route('admin.issues.show', ['issue' => $issue->id, 'type' => $issue->type]) }}"
+                                    <a href="{{ route('admin.issues.show', ['issue' => $issue->id, 'type' => $issue->type, 'status' => $status, 'source' => $source, 'sort' => $sort]) }}"
                                        class="iss-link-btn">
                                         Anschauen <i class="bi bi-arrow-right"></i>
                                     </a>
@@ -302,7 +309,7 @@ html.light-mode .iss-root .iss-card-mobile { background: #fff; box-shadow: 0 1px
 
             {{-- Mobile cards --}}
             @foreach($issues as $issue)
-                <a href="{{ route('admin.issues.show', ['issue' => $issue->id, 'type' => $issue->type]) }}" class="iss-card-mobile">
+                <a href="{{ route('admin.issues.show', ['issue' => $issue->id, 'type' => $issue->type, 'status' => $status, 'source' => $source, 'sort' => $sort]) }}" class="iss-card-mobile">
                     <div style="display: flex; justify-content: space-between; gap: 0.75rem; align-items: flex-start; margin-bottom: 0.5rem;">
                         <div class="q-text">{{ Str::limit($issue->question_text, 60) }}</div>
                         <span class="chip chip--{{ $issue->status }}">

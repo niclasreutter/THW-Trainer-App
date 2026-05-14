@@ -24,14 +24,52 @@ class IssueController extends Controller
     {
         $status = $request->get('status', 'all');
         $source = $request->get('source', 'all');
+        $sort = $this->normalizeSort($request->get('sort'));
 
-        // Lehrgang Issues
+        $allIssues = $this->buildFilteredIssues($status, $source, $sort);
+
+        // Stats
+        $totalLehrgang = LehrgangQuestionIssue::count();
+        $totalQuestion = QuestionIssue::count();
+        $openLehrgang = LehrgangQuestionIssue::where('status', 'open')->count();
+        $openQuestion = QuestionIssue::where('status', 'open')->count();
+
+        return view('admin.issues.index', [
+            'issues' => $allIssues,
+            'status' => $status,
+            'source' => $source,
+            'sort' => $sort,
+            'totalIssues' => $totalLehrgang + $totalQuestion,
+            'openIssues' => $openLehrgang + $openQuestion,
+            'inReviewIssues' => LehrgangQuestionIssue::where('status', 'in_review')->count() + QuestionIssue::where('status', 'in_review')->count(),
+            'resolvedIssues' => LehrgangQuestionIssue::where('status', 'resolved')->count() + QuestionIssue::where('status', 'resolved')->count(),
+        ]);
+    }
+
+    /**
+     * Erlaubte Sortier-Werte. Default ist 'recent' (zuletzt aktualisiert),
+     * Alternative ist 'reports' (meiste Meldungen zuerst).
+     */
+    private function normalizeSort(?string $sort): string
+    {
+        return in_array($sort, ['recent', 'reports'], true) ? $sort : 'recent';
+    }
+
+    /**
+     * Liefert die zusammengeführte, gefilterte und sortierte Issue-Liste
+     * (gleiche Logik wie auf der Index-Seite — wird auch für Prev/Next-Navigation
+     * in der Detail-Ansicht genutzt).
+     */
+    private function buildFilteredIssues(string $status, string $source, string $sort = 'recent'): \Illuminate\Support\Collection
+    {
         $lehrgangQuery = LehrgangQuestionIssue::with(['lehrgangQuestion.lehrgang', 'reportedByUser']);
-
         if ($status !== 'all') {
             $lehrgangQuery->where('status', $status);
         }
 
+        // toBase(): erzwingt eine Support\Collection. Ohne diesen Cast bleibt eine leere
+        // Eloquent\Collection nach map() eine Eloquent\Collection, und das folgende
+        // ->merge() ruft dann getKey() auf stdClass-Items auf (was crasht).
         $lehrgangIssues = $lehrgangQuery->get()->map(function ($issue) {
             return (object) [
                 'id' => $issue->id,
@@ -45,11 +83,9 @@ class IssueController extends Controller
                 'updated_at' => $issue->updated_at,
                 'created_at' => $issue->created_at,
             ];
-        });
+        })->toBase();
 
-        // Normale Fragen Issues
         $questionQuery = QuestionIssue::with(['question', 'reportedByUser']);
-
         if ($status !== 'all') {
             $questionQuery->where('status', $status);
         }
@@ -68,9 +104,8 @@ class IssueController extends Controller
                 'updated_at' => $issue->updated_at,
                 'created_at' => $issue->created_at,
             ];
-        });
+        })->toBase();
 
-        // Zusammenführen und filtern nach Quelle
         $allIssues = $lehrgangIssues->merge($questionIssues);
 
         if ($source === 'lehrgang') {
@@ -79,24 +114,13 @@ class IssueController extends Controller
             $allIssues = $allIssues->where('type', 'question');
         }
 
-        // Sortieren
-        $allIssues = $allIssues->sortByDesc('report_count')->sortByDesc('updated_at')->values();
+        // sortBy ist stabil — die letzte Sortierung bestimmt den Primärschlüssel,
+        // die vorherige bleibt als Tiebreaker erhalten.
+        if ($sort === 'reports') {
+            return $allIssues->sortByDesc('updated_at')->sortByDesc('report_count')->values();
+        }
 
-        // Stats
-        $totalLehrgang = LehrgangQuestionIssue::count();
-        $totalQuestion = QuestionIssue::count();
-        $openLehrgang = LehrgangQuestionIssue::where('status', 'open')->count();
-        $openQuestion = QuestionIssue::where('status', 'open')->count();
-
-        return view('admin.issues.index', [
-            'issues' => $allIssues,
-            'status' => $status,
-            'source' => $source,
-            'totalIssues' => $totalLehrgang + $totalQuestion,
-            'openIssues' => $openLehrgang + $openQuestion,
-            'inReviewIssues' => LehrgangQuestionIssue::where('status', 'in_review')->count() + QuestionIssue::where('status', 'in_review')->count(),
-            'resolvedIssues' => LehrgangQuestionIssue::where('status', 'resolved')->count() + QuestionIssue::where('status', 'resolved')->count(),
-        ]);
+        return $allIssues->sortByDesc('report_count')->sortByDesc('updated_at')->values();
     }
 
     /**
@@ -151,6 +175,33 @@ class IssueController extends Controller
             ])
             ->values();
 
+        // Prev/Next-Navigation: gleicher Filter und gleiche Sortierung wie auf der Index-Seite.
+        // Filter-Werte kommen entweder aus der URL (verlinkt von der Liste) oder defaulten auf 'all'.
+        $filterStatus = $request->get('status', 'all');
+        $filterSource = $request->get('source', 'all');
+        $filterSort = $this->normalizeSort($request->get('sort'));
+
+        $prevIssue = null;
+        $nextIssue = null;
+        $listPosition = null;
+        $listTotal = null;
+
+        $siblings = $this->buildFilteredIssues($filterStatus, $filterSource, $filterSort);
+        $currentIndex = $siblings->search(
+            fn ($candidate) => $candidate->type === $type && (int) $candidate->id === (int) $id
+        );
+
+        if ($currentIndex !== false) {
+            $listPosition = $currentIndex + 1;
+            $listTotal = $siblings->count();
+            if ($currentIndex > 0) {
+                $prevIssue = $siblings[$currentIndex - 1];
+            }
+            if ($currentIndex < $siblings->count() - 1) {
+                $nextIssue = $siblings[$currentIndex + 1];
+            }
+        }
+
         return view('admin.issues.show', [
             'issue' => $issue,
             'type' => $type,
@@ -158,6 +209,13 @@ class IssueController extends Controller
             'contextLabel' => $contextLabel,
             'contextDetails' => $contextDetails,
             'mentionables' => $mentionables,
+            'prevIssue' => $prevIssue,
+            'nextIssue' => $nextIssue,
+            'listPosition' => $listPosition,
+            'listTotal' => $listTotal,
+            'filterStatus' => $filterStatus,
+            'filterSource' => $filterSource,
+            'filterSort' => $filterSort,
         ]);
     }
 
@@ -215,7 +273,7 @@ class IssueController extends Controller
             return response()->json(['ok' => true, 'status' => $newStatus]);
         }
 
-        return redirect()->route('admin.issues.show', ['issue' => $id, 'type' => $type])
+        return redirect()->route('admin.issues.show', $this->showRouteParams($request, $id, $type))
                        ->with('success', 'Status aktualisiert!');
     }
 
@@ -241,7 +299,7 @@ class IssueController extends Controller
             if ($request->wantsJson() || $request->ajax()) {
                 return response()->json(['ok' => true, 'unchanged' => true]);
             }
-            return redirect()->route('admin.issues.show', ['issue' => $id, 'type' => $type]);
+            return redirect()->route('admin.issues.show', $this->showRouteParams($request, $id, $type));
         }
 
         $issue->update(['assignee_id' => $newId]);
@@ -305,7 +363,7 @@ class IssueController extends Controller
             ]);
         }
 
-        return redirect()->route('admin.issues.show', ['issue' => $id, 'type' => $type])
+        return redirect()->route('admin.issues.show', $this->showRouteParams($request, $id, $type))
                        ->with('success', 'Zuweisung aktualisiert.');
     }
 
@@ -380,7 +438,7 @@ class IssueController extends Controller
             }
         }
 
-        return redirect()->route('admin.issues.show', ['issue' => $id, 'type' => $type])
+        return redirect()->route('admin.issues.show', $this->showRouteParams($request, $id, $type))
                        ->with('success', 'Kommentar hinzugefügt.');
     }
 
@@ -399,6 +457,27 @@ class IssueController extends Controller
 
         return redirect()->route('admin.issues.index')
                        ->with('success', 'Fehlermeldung gelöscht.');
+    }
+
+    /**
+     * Erzeugt die Route-Parameter für admin.issues.show und behält dabei
+     * vorhandene Listen-Filter (status, source) bei, damit die Prev/Next-
+     * Navigation nach einem POST-Redirect denselben Kontext behält.
+     */
+    private function showRouteParams(Request $request, $id, string $type): array
+    {
+        $params = ['issue' => $id, 'type' => $type];
+        foreach (['status', 'source'] as $key) {
+            $value = $request->input($key, $request->query($key));
+            if ($value !== null && $value !== '' && $value !== 'all') {
+                $params[$key] = $value;
+            }
+        }
+        $sort = $request->input('sort', $request->query('sort'));
+        if ($sort !== null && $sort !== '' && $sort !== 'recent') {
+            $params['sort'] = $sort;
+        }
+        return $params;
     }
 
     /**

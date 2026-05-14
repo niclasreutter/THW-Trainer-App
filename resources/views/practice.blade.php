@@ -1794,7 +1794,12 @@
 
                 btn.disabled = true;
 
-                fetch('{{ route('practice.report-issue', $question->id) }}', {
+                @php
+                    $reportRoute = ($context ?? null) === 'lehrgang'
+                        ? route('lehrgaenge.report-issue', $question->id)
+                        : route('practice.report-issue', $question->id);
+                @endphp
+                fetch('{{ $reportRoute }}', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
