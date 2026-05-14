@@ -40,14 +40,15 @@
         </div>
 
         <template x-for="(opt, i) in options" :key="i">
-            <div class="zf-image-tile">
+            <div class="zf-image-tile zf-image-tile--no-thumb">
                 <div class="zf-image-tile__head">
                     <span class="zf-image-tile__num" x-text="'Option ' + String.fromCharCode(65 + i)"></span>
                     <div style="display: flex; align-items: center; gap: 0.5rem;">
                         <label class="zf-correct-toggle" :class="{ 'is-correct': opt.is_correct }">
                             <input type="hidden" :name="`options[${i}][is_correct]`" :value="opt.is_correct ? 1 : 0">
                             <input type="checkbox" x-model="opt.is_correct">
-                            <span>Richtig</span>
+                            <span class="check-icon"><i class="bi bi-check-lg"></i></span>
+                            <span x-text="opt.is_correct ? 'Richtig' : 'Falsch'"></span>
                         </label>
                         <button type="button" class="zf-option-remove"
                                 @click="removeOption(i)"

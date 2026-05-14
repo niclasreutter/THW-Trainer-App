@@ -233,7 +233,7 @@
         <span class="zf-section-label">
             Alle Zusatz-Fragen{{ $total > 0 ? ' · '.$total : '' }}
         </span>
-        @if(auth()->user()->isAdmin())
+        @if(auth()->user()->canEditQuestions())
         <a href="{{ route('admin.extra-questions.create') }}" class="btn-primary">
             <i class="bi bi-plus-lg"></i> Neue Zusatz-Frage
         </a>
@@ -245,7 +245,7 @@
             <div class="zf-empty">
                 <div class="zf-empty__icon"><i class="bi bi-inboxes"></i></div>
                 <p class="zf-empty__text">Noch keine Zusatz-Fragen vorhanden.</p>
-                @if(auth()->user()->isAdmin())
+                @if(auth()->user()->canEditQuestions())
                 <a href="{{ route('admin.extra-questions.create') }}" class="btn-primary">
                     <i class="bi bi-plus-lg"></i> Erste Zusatz-Frage anlegen
                 </a>

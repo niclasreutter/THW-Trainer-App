@@ -90,7 +90,7 @@
         @endif
     @endisset
 
-    <div x-data="{ typ: @js(old('typ', $typ)) }">
+    <div x-data="{ typ: @js(old('typ', $typ)) }" class="zf-form-stack">
         {{-- Fragetyp-Auswahl --}}
         <div class="zf-form-card">
             <div class="zf-form-card__label">
@@ -111,7 +111,7 @@
             </div>
         </div>
 
-        <form method="POST" action="{{ route('admin.extra-questions.store') }}" enctype="multipart/form-data" x-show="typ" x-cloak>
+        <form method="POST" action="{{ route('admin.extra-questions.store') }}" enctype="multipart/form-data" x-show="typ" x-cloak class="zf-form-stack">
             @csrf
             <input type="hidden" name="typ" :value="typ">
             @if(old('_from_submission_id'))
@@ -160,19 +160,19 @@
             {{-- Typ-spezifische Partials: x-if statt x-show, damit inaktive `required`-Felder
                  die Formular-Validierung im Browser nicht blockieren. --}}
             <template x-if="typ === 'matching'">
-                <div>
+                <div class="zf-form-stack">
                     @include('admin.extra-questions.partials.form-matching', ['question' => null])
                 </div>
             </template>
 
             <template x-if="typ === 'image_name'">
-                <div>
+                <div class="zf-form-stack">
                     @include('admin.extra-questions.partials.form-image-name', ['question' => null])
                 </div>
             </template>
 
             <template x-if="typ === 'image_select'">
-                <div>
+                <div class="zf-form-stack">
                     @include('admin.extra-questions.partials.form-image-select', ['question' => null])
                 </div>
             </template>
