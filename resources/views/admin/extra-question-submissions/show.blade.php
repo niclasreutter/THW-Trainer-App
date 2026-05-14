@@ -86,7 +86,7 @@
         </div>
     @endif
 
-    @if($submission->isPending() && auth()->user()->isAdmin())
+    @if($submission->isPending() && auth()->user()->canEditQuestions())
         <div class="zf-form-card">
             <div class="zf-form-card__label">
                 <span class="zf-section-label">Aktionen</span>
@@ -131,7 +131,7 @@
                         <i class="bi bi-pencil"></i> Erstellte Frage bearbeiten
                     </a>
                 @endif
-                @if(auth()->user()->isAdmin())
+                @if(auth()->user()->canEditQuestions())
                     <button type="button" class="btn-ghost"
                             onclick="document.getElementById('changed-form').style.display='block'">
                         <i class="bi bi-pencil-square"></i> Als "mit Änderungen übernommen" markieren
@@ -139,7 +139,7 @@
                 @endif
             </div>
 
-            @if(auth()->user()->isAdmin())
+            @if(auth()->user()->canEditQuestions())
                 <form id="changed-form" method="POST" action="{{ route('admin.extra-question-submissions.mark-changed', $submission) }}"
                       style="display: {{ $submission->status === 'changed' ? 'block' : 'none' }}; margin-top: 1rem;">
                     @csrf
@@ -155,16 +155,6 @@
                     </div>
                 </form>
             @endif
-        </div>
-    @elseif($submission->isPending() && !auth()->user()->isAdmin())
-        <div class="zf-form-card">
-            <div class="zf-form-card__label">
-                <span class="zf-section-label">Status</span>
-            </div>
-            <p style="margin: 0; color: var(--text-secondary); font-size: 0.9375rem;">
-                <i class="bi bi-info-circle" style="color: var(--thw-blue); margin-right: 0.35rem;"></i>
-                Diese Einreichung wartet noch auf eine Entscheidung durch einen Admin.
-            </p>
         </div>
     @endif
 

@@ -48,7 +48,7 @@ class ExtraQuestionController extends Controller
 
     public function create(Request $request)
     {
-        $this->abortIfNotAdmin();
+        $this->abortIfCannotEditQuestions();
 
         $typ = $request->query('typ');
         if (!in_array($typ, [
@@ -75,7 +75,7 @@ class ExtraQuestionController extends Controller
 
     public function store(Request $request)
     {
-        $this->abortIfNotAdmin();
+        $this->abortIfCannotEditQuestions();
 
         $validated = $this->validateForType($request);
 
