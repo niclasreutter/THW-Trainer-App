@@ -12,16 +12,16 @@
         margin-bottom: 0.5rem;
     }
     .zf-page-title__h1 {
-        font-family: var(--font-sans, 'Figtree', sans-serif);
+        font-family: 'Barlow Condensed', sans-serif;
         font-weight: 800;
-        font-size: 2rem;
-        line-height: 1.15;
-        letter-spacing: -0.015em;
-        color: #5b9aff;
+        font-size: 1.5rem;
+        line-height: 1.2;
+        background: linear-gradient(135deg, #5b9aff, #0055cc);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
         margin: 0 0 0.25rem;
     }
-    html.light-mode .zf-page-title__h1,
-    .light-mode .zf-page-title__h1 { color: var(--thw-blue); }
     .zf-page-title__sub {
         font-size: 1rem;
         color: var(--text-secondary);

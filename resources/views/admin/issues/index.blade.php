@@ -18,12 +18,14 @@
     color: var(--text-muted); margin-bottom: 0.35rem;
 }
 .iss-root .iss-h1 {
-    font-family: 'Figtree', sans-serif;
-    font-weight: 800; font-size: 2rem; line-height: 1.15;
-    letter-spacing: -0.015em;
-    color: #5b9aff; margin: 0 0 0.25rem;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800; font-size: 1.5rem; line-height: 1.2;
+    background: linear-gradient(135deg, #5b9aff, #0055cc);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin: 0 0 0.25rem;
 }
-html.light-mode .iss-root .iss-h1 { color: var(--thw-blue); }
 .iss-root .iss-sub { font-size: 0.9375rem; color: var(--text-secondary); margin: 0; }
 
 /* KPI grid */

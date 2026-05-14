@@ -4,30 +4,8 @@
 @section('description', 'Dokumentiere deinen Fortschritt durch die THW-Grundausbildung und Zusatzausbildungen.')
 
 @push('styles')
+@include('admin.extra-questions.partials._styles')
 <style>
-    .dash-container { max-width: 1180px; padding: 0 1rem; }
-
-    .tp-page-title { margin: 1rem 0 1.25rem; }
-    .tp-page-title__eyebrow {
-        font-size: 0.6875rem;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        color: var(--text-muted);
-        font-family: 'IBM Plex Mono', monospace;
-    }
-    .tp-page-title__h1 {
-        font-size: 1.75rem;
-        font-weight: 800;
-        color: var(--text-primary);
-        margin: 0.15rem 0 0.25rem;
-        letter-spacing: -0.01em;
-    }
-    .tp-page-title__sub {
-        font-size: 0.875rem;
-        color: var(--text-muted);
-        max-width: 640px;
-    }
-
     .tp-card { padding: 1.5rem; border-radius: 0.75rem; }
 
     .tp-summary {
@@ -236,12 +214,12 @@
 @endpush
 
 @section('content')
-<div class="dash-container">
+<div class="dash-container" style="max-width: 60rem;">
 
-    <div class="tp-page-title">
-        <div class="tp-page-title__eyebrow">Profil</div>
-        <h1 class="tp-page-title__h1">Ausbildungsfortschritt</h1>
-        <div class="tp-page-title__sub">
+    <div class="zf-page-title">
+        <div class="zf-page-title__eyebrow">Profil</div>
+        <h1 class="zf-page-title__h1">Ausbildungsfortschritt</h1>
+        <div class="zf-page-title__sub">
             Halte neben den Theoriefragen hier auch deinen Fortschritt durch die THW-Grundausbildung im Ortsverband fest. Ganze Module lassen sich über den Haken neben der Überschrift auf einmal abhaken, wenn aber mal nicht alle Bestandteile in einem Dienst vorkommen, kannst du die fehlenden auch markieren. So verlierst du nie den Überblick, was dir auf dem Weg zur Abschlussprüfung noch fehlt.
         </div>
     </div>
