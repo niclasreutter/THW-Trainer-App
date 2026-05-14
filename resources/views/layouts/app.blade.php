@@ -207,6 +207,9 @@
                             <span class="badge-error text-xs ml-auto">{{ $unopenedLootboxCount }}</span>
                         @endif
                     </a>
+                    <a href="{{ route('zusatzfragen-vorschlagen.index') }}" class="sidebar-link {{ request()->routeIs('zusatzfragen-vorschlagen.*') ? 'active' : '' }}">
+                        <i class="bi bi-lightbulb"></i> Zusatz-Frage vorschlagen
+                    </a>
 
                     <div class="nav-section">Ortsverband</div>
 
@@ -516,6 +519,9 @@
                     @if($unopenedLootboxCount > 0)
                         <span class="badge-error text-xs ml-auto">{{ $unopenedLootboxCount }}</span>
                     @endif
+                </a>
+                <a href="{{ route('zusatzfragen-vorschlagen.index') }}" class="sidebar-link {{ request()->routeIs('zusatzfragen-vorschlagen.*') ? 'active' : '' }}">
+                    <i class="bi bi-lightbulb"></i> Zusatz-Frage vorschlagen
                 </a>
                 @if($userOV && $userOV->isAusbildungsbeauftragter(auth()->user()))
                     <a href="{{ route('ortsverband.dashboard', $userOV) }}" class="sidebar-link {{ request()->routeIs('ortsverband.dashboard') || request()->routeIs('ortsverband.show') ? 'active' : '' }}">

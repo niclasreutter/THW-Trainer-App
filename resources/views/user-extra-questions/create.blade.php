@@ -64,7 +64,7 @@
         </div>
     @endif
 
-    <div x-data="{ typ: @js(old('typ', $typ)) }">
+    <div x-data="{ typ: @js(old('typ', $typ)) }" class="zf-form-stack">
         <div class="zf-form-card">
             <div class="zf-form-card__label">
                 <span class="zf-section-label">Fragetyp</span>
@@ -84,7 +84,7 @@
             </div>
         </div>
 
-        <form method="POST" action="{{ route('zusatzfragen-vorschlagen.store') }}" x-show="typ" x-cloak>
+        <form method="POST" action="{{ route('zusatzfragen-vorschlagen.store') }}" x-show="typ" x-cloak class="zf-form-stack">
             @csrf
             <input type="hidden" name="typ" :value="typ">
 
@@ -126,19 +126,19 @@
             </div>
 
             <template x-if="typ === 'matching'">
-                <div>
+                <div class="zf-form-stack">
                     @include('user-extra-questions.partials.form-matching')
                 </div>
             </template>
 
             <template x-if="typ === 'image_name'">
-                <div>
+                <div class="zf-form-stack">
                     @include('user-extra-questions.partials.form-image-name')
                 </div>
             </template>
 
             <template x-if="typ === 'image_select'">
-                <div>
+                <div class="zf-form-stack">
                     @include('user-extra-questions.partials.form-image-select')
                 </div>
             </template>
