@@ -89,18 +89,19 @@
         </div>
 
         <template x-for="(opt, i) in options" :key="i">
-            <div class="zf-option-row">
+            <div class="zf-option-row" :class="{ 'is-correct': opt.is_correct }">
                 <div class="zf-option-num" x-text="String.fromCharCode(65 + i)"></div>
                 <div class="zf-option-body">
-                    <label class="zf-correct-toggle" :class="{ 'is-correct': opt.is_correct }">
-                        <input type="hidden" :name="`options[${i}][is_correct]`" :value="opt.is_correct ? 1 : 0">
-                        <input type="checkbox" x-model="opt.is_correct">
-                        <span>Richtig</span>
-                    </label>
                     <input type="text" class="zf-input"
                            :name="`options[${i}][text]`"
                            x-model="opt.text"
                            :placeholder="`Antwort ${i + 1}`" required>
+                    <label class="zf-correct-toggle" :class="{ 'is-correct': opt.is_correct }">
+                        <input type="hidden" :name="`options[${i}][is_correct]`" :value="opt.is_correct ? 1 : 0">
+                        <input type="checkbox" x-model="opt.is_correct">
+                        <span class="check-icon"><i class="bi bi-check-lg"></i></span>
+                        <span x-text="opt.is_correct ? 'Richtig' : 'Falsch'"></span>
+                    </label>
                 </div>
                 <button type="button" class="zf-option-remove"
                         @click="removeOption(i)"

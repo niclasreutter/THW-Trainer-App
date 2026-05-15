@@ -197,7 +197,8 @@
                 @foreach($questions as $question)
                     <div class="question-card" id="question-card-{{ $question->id }}">
                         <form action="{{ route('admin.lehrgaenge.update-question', [$lehrgang->id, $question->id]) }}"
-                              method="POST" class="question-form">
+                              method="POST" class="question-form"
+                              onsubmit="event.preventDefault(); return false;">
                             @csrf
                             @method('PATCH')
 
@@ -251,8 +252,8 @@
                                         <option value="A,B,C" @if($question->loesung === 'A,B,C') selected @endif>A, B, C</option>
                                     </select>
                                 </div>
-                                <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
-                                    <button type="submit" class="btn-primary" style="padding: 0.5rem 1.25rem; font-size: 0.9rem;">
+                                <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;">
+                                    <button type="submit" class="btn-primary save-btn" data-default-label="Speichern" style="padding: 0.5rem 1.25rem; font-size: 0.9rem;">
                                         Speichern
                                     </button>
                                     @if(auth()->user()->isAdmin())
@@ -288,39 +289,49 @@ function deleteQuestion(questionId) {
     }
 }
 
-document.querySelectorAll('.question-form').forEach(form => {
-    form.addEventListener('submit', async function(e) {
-        e.preventDefault();
+// Event delegation on document — kein Race mit DOMContentLoaded und überlebt
+// auch nachträglich eingefügte Karten.
+document.addEventListener('submit', async function (e) {
+    const form = e.target.closest('.question-form');
+    if (!form) return;
+    e.preventDefault();
 
-        const formData = new FormData(this);
-        const url = this.getAttribute('action');
-        const card = this.closest('.question-card');
+    const card = form.closest('.question-card');
+    const btn = form.querySelector('.save-btn');
+    const defaultLabel = btn?.dataset.defaultLabel || 'Speichern';
 
-        try {
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Accept': 'application/json',
-                },
-                body: formData
-            });
+    const setBtn = (label, state) => {
+        if (!btn) return;
+        btn.textContent = label;
+        btn.dataset.state = state;
+        btn.disabled = state === 'saving';
+    };
 
-            if (response.ok) {
-                const data = await response.json();
-                card.classList.add('saved');
-                setTimeout(() => {
-                    card.classList.remove('saved');
-                }, 1500);
+    setBtn('Speichere…', 'saving');
 
-            } else {
-                alert('Fehler beim Speichern');
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            alert('Fehler beim Speichern');
-        }
-    });
+    try {
+        const response = await fetch(form.action, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json',
+            },
+            body: new FormData(form),
+        });
+
+        if (!response.ok) throw new Error('HTTP ' + response.status);
+
+        card?.classList.add('saved');
+        setBtn('Gespeichert ✓', 'saved');
+        setTimeout(() => {
+            card?.classList.remove('saved');
+            setBtn(defaultLabel, 'idle');
+        }, 1500);
+    } catch (error) {
+        console.error('Error:', error);
+        setBtn('Fehler – nochmal versuchen', 'error');
+        setTimeout(() => setBtn(defaultLabel, 'idle'), 2500);
+    }
 });
 </script>
 @endsection

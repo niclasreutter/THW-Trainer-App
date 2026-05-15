@@ -410,7 +410,7 @@ html.light-mode .composer { background: rgba(0,51,127,0.025); border-color: rgba
     resize: vertical; min-height: 3.25rem;
     font-family: 'Figtree', sans-serif;
     font-size: 0.9375rem; line-height: 1.5;
-    color: var(--text-primary); padding: 0.25rem 0;
+    color: var(--text-primary); padding: 0.4rem 0.65rem;
 }
 .composer textarea:focus { outline: none; }
 .composer textarea::placeholder { color: var(--text-muted); }
@@ -626,6 +626,47 @@ html.light-mode .role-hint--admin {
     border-color: rgba(0,51,127,0.18);
 }
 
+/* Prev/Next navigation between issues */
+.fmd-nav {
+    display: inline-flex; align-items: center;
+    gap: 0; padding: 0;
+    background: var(--glass-bg); border: 1px solid var(--glass-border);
+    border-radius: 0.5rem; overflow: hidden;
+}
+html.light-mode .fmd-nav { background: #ffffff; border-color: rgba(0,51,127,0.10); }
+.fmd-nav__btn {
+    display: inline-flex; align-items: center; gap: 0.35rem;
+    padding: 0.4rem 0.7rem;
+    background: transparent; border: 0; cursor: pointer;
+    color: var(--text-secondary);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6875rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    text-decoration: none;
+    transition: color 0.15s ease, background 0.15s ease;
+}
+.fmd-nav__btn:hover:not(.is-disabled) {
+    color: var(--thw-blue);
+    background: rgba(91,154,255,0.08);
+}
+html.light-mode .fmd-nav__btn:hover:not(.is-disabled) { background: rgba(0,51,127,0.05); }
+.fmd-nav__btn.is-disabled {
+    color: var(--text-muted); opacity: 0.45;
+    cursor: not-allowed; pointer-events: none;
+}
+.fmd-nav__sep {
+    width: 1px; align-self: stretch;
+    background: var(--glass-border);
+}
+html.light-mode .fmd-nav__sep { background: rgba(0,51,127,0.10); }
+.fmd-nav__pos {
+    padding: 0.4rem 0.6rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6875rem; font-weight: 600;
+    color: var(--text-muted);
+    white-space: nowrap;
+}
+
 /* Icon button (toolbar) */
 .icon-btn-sm {
     width: 30px; height: 30px; border-radius: 0.4rem;
@@ -782,8 +823,8 @@ html.light-mode .fmd-btn--ghost { border-color: rgba(0,51,127,0.10); }
         ]) }},
         mentionables: {{ Js::from($mentionables) }},
         urls: {
-            assign: '{{ route('admin.issues.assign', ['issue' => $issue->id, 'type' => $type]) }}',
-            update: '{{ route('admin.issues.update', ['issue' => $issue->id, 'type' => $type]) }}',
+            assign: '{{ route('admin.issues.assign', array_filter(['issue' => $issue->id, 'type' => $type, 'status' => $filterStatus !== 'all' ? $filterStatus : null, 'source' => $filterSource !== 'all' ? $filterSource : null, 'sort' => $filterSort !== 'recent' ? $filterSort : null])) }}',
+            update: '{{ route('admin.issues.update', array_filter(['issue' => $issue->id, 'type' => $type, 'status' => $filterStatus !== 'all' ? $filterStatus : null, 'source' => $filterSource !== 'all' ? $filterSource : null, 'sort' => $filterSort !== 'recent' ? $filterSort : null])) }}',
         },
         initialStatus: '{{ $issue->status }}',
         initialAssignee: {{ Js::from($issue->assignee ? [
@@ -800,11 +841,49 @@ html.light-mode .fmd-btn--ghost { border-color: rgba(0,51,127,0.10); }
         <div class="fmd-crumb">
             <a href="{{ route('admin.dashboard') }}"><i class="bi bi-arrow-left" style="margin-right: 4px;"></i>Admin</a>
             <span class="fmd-crumb__sep">/</span>
-            <a href="{{ route('admin.issues.index') }}">Fehlermeldungen</a>
+            <a href="{{ route('admin.issues.index', array_filter(['status' => $filterStatus !== 'all' ? $filterStatus : null, 'source' => $filterSource !== 'all' ? $filterSource : null, 'sort' => $filterSort !== 'recent' ? $filterSort : null])) }}">Fehlermeldungen</a>
             <span class="fmd-crumb__sep">/</span>
             <span class="fmd-crumb__current">#{{ $issue->id }}</span>
         </div>
         <div class="fmd-actions">
+            @if($listTotal !== null && $listTotal > 1)
+                @php
+                    $navParams = ['status' => $filterStatus, 'source' => $filterSource, 'sort' => $filterSort];
+                    $prevUrl = $prevIssue
+                        ? route('admin.issues.show', array_merge(['issue' => $prevIssue->id, 'type' => $prevIssue->type], $navParams))
+                        : null;
+                    $nextUrl = $nextIssue
+                        ? route('admin.issues.show', array_merge(['issue' => $nextIssue->id, 'type' => $nextIssue->type], $navParams))
+                        : null;
+                @endphp
+                <div class="fmd-nav" role="group" aria-label="Navigation zwischen Fehlermeldungen">
+                    @if($prevUrl)
+                        <a href="{{ $prevUrl }}" class="fmd-nav__btn" title="Vorherige Fehlermeldung" rel="prev">
+                            <i class="bi bi-chevron-left"></i>
+                            <span>Vorherige</span>
+                        </a>
+                    @else
+                        <span class="fmd-nav__btn is-disabled" aria-disabled="true">
+                            <i class="bi bi-chevron-left"></i>
+                            <span>Vorherige</span>
+                        </span>
+                    @endif
+                    <span class="fmd-nav__sep"></span>
+                    <span class="fmd-nav__pos">{{ $listPosition }} / {{ $listTotal }}</span>
+                    <span class="fmd-nav__sep"></span>
+                    @if($nextUrl)
+                        <a href="{{ $nextUrl }}" class="fmd-nav__btn" title="Nächste Fehlermeldung" rel="next">
+                            <span>Nächste</span>
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    @else
+                        <span class="fmd-nav__btn is-disabled" aria-disabled="true">
+                            <span>Nächste</span>
+                            <i class="bi bi-chevron-right"></i>
+                        </span>
+                    @endif
+                </div>
+            @endif
             <span class="role-hint {{ $currentRole === 'admin' ? 'role-hint--admin' : '' }}">
                 <i class="bi {{ $currentRole === 'admin' ? 'bi-shield-fill' : 'bi-pencil-square' }}"></i>
                 {{ $currentRole === 'admin' ? 'Du bist Admin' : 'Du bist Contributor' }}
@@ -909,7 +988,7 @@ html.light-mode .fmd-btn--ghost { border-color: rgba(0,51,127,0.10); }
         {{-- Linke Spalte --}}
         <div>
             {{-- Frage Card --}}
-            <div class="fmd-card" x-data="{ editing: false }">
+            <div class="fmd-card" x-data="{ editing: false, saving: false, saveError: '' }">
                 <div class="fmd-card__h">
                     <span class="section-label">
                         <i class="bi bi-patch-question-fill" style="margin-right: 6px; color: #5b9aff;"></i>
@@ -962,7 +1041,18 @@ html.light-mode .fmd-btn--ghost { border-color: rgba(0,51,127,0.10); }
                     {{-- Edit-Modus --}}
                     <div x-show="editing" x-cloak>
                         <form id="iss-question-edit-form" method="POST" action="{{ $editAction }}"
-                              x-data="{ correct: @js($sol) }">
+                              x-data="{ correct: @js($sol) }"
+                              @submit.prevent="
+                                  saving = true; saveError = '';
+                                  fetch($event.target.action, {
+                                      method: 'POST',
+                                      headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
+                                      body: new FormData($event.target),
+                                  })
+                                  .then(r => r.ok ? r.json() : Promise.reject(new Error('HTTP ' + r.status)))
+                                  .then(() => window.location.reload())
+                                  .catch(err => { saving = false; saveError = 'Speichern fehlgeschlagen — bitte erneut versuchen.'; console.error(err); });
+                              ">
                             @csrf
                             @method($editMethod)
 
@@ -1011,13 +1101,16 @@ html.light-mode .fmd-btn--ghost { border-color: rgba(0,51,127,0.10); }
                                 </div>
                             @endif
 
-                            <div style="display: flex; gap: 0.5rem; margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid var(--glass-border-lo);">
-                                <button type="submit" class="fmd-btn fmd-btn--primary">
-                                    <i class="bi bi-check-lg"></i> Speichern
+                            <div style="display: flex; gap: 0.5rem; margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid var(--glass-border-lo); align-items: center; flex-wrap: wrap;">
+                                <button type="submit" class="fmd-btn fmd-btn--primary" :disabled="saving">
+                                    <i class="bi" :class="saving ? 'bi-hourglass-split' : 'bi-check-lg'"></i>
+                                    <span x-text="saving ? 'Speichere…' : 'Speichern'"></span>
                                 </button>
-                                <button type="button" class="fmd-btn fmd-btn--ghost" @click="editing = false">
+                                <button type="button" class="fmd-btn fmd-btn--ghost" :disabled="saving" @click="editing = false; saveError = ''">
                                     Abbrechen
                                 </button>
+                                <span x-show="saveError" x-cloak x-text="saveError"
+                                      style="color: #ef4444; font-size: 0.85rem;"></span>
                             </div>
                         </form>
                     </div>
@@ -1184,7 +1277,7 @@ html.light-mode .fmd-btn--ghost { border-color: rgba(0,51,127,0.10); }
 
                 {{-- Composer mit @mention --}}
                 <form method="POST"
-                      action="{{ route('admin.issues.comments.store', ['issue' => $issue->id, 'type' => $type]) }}"
+                      action="{{ route('admin.issues.comments.store', array_filter(['issue' => $issue->id, 'type' => $type, 'status' => $filterStatus !== 'all' ? $filterStatus : null, 'source' => $filterSource !== 'all' ? $filterSource : null, 'sort' => $filterSort !== 'recent' ? $filterSort : null])) }}"
                       class="composer"
                       @submit="onSubmit($event)">
                     @csrf

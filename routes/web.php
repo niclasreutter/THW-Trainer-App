@@ -728,14 +728,18 @@ Route::middleware(['auth', \App\Http\Middleware\QuestionEditorMiddleware::class]
     Route::post('questions/{question}/update-field', [\App\Http\Controllers\Admin\QuestionController::class, 'updateField'])->name('questions.update-field');
     Route::post('questions/{question}/ai-suggest-explanation', [\App\Http\Controllers\Admin\QuestionController::class, 'aiSuggestExplanation'])->name('questions.ai-suggest-explanation');
 
-    // Zusatz-Fragen: nur Lesen + Bearbeiten
+    // Zusatz-Fragen: Lesen + Bearbeiten + Anlegen (Anlegen wird auch für "Übernehmen" einer Einreichung benötigt)
     Route::get('extra-questions', [\App\Http\Controllers\Admin\ExtraQuestionController::class, 'index'])->name('extra-questions.index');
+    Route::get('extra-questions/create', [\App\Http\Controllers\Admin\ExtraQuestionController::class, 'create'])->name('extra-questions.create');
+    Route::post('extra-questions', [\App\Http\Controllers\Admin\ExtraQuestionController::class, 'store'])->name('extra-questions.store');
     Route::get('extra-questions/{extra_question}/edit', [\App\Http\Controllers\Admin\ExtraQuestionController::class, 'edit'])->name('extra-questions.edit');
     Route::match(['put', 'patch'], 'extra-questions/{extra_question}', [\App\Http\Controllers\Admin\ExtraQuestionController::class, 'update'])->name('extra-questions.update');
 
-    // Eingereichte Zusatz-Fragen: nur Lesen (Admin kann auch ablehnen/übernehmen, siehe Admin-Gruppe)
+    // Eingereichte Zusatz-Fragen: Lesen + Übernehmen/Ablehnen/Markieren (Admin + Contributor)
     Route::get('extra-question-submissions', [\App\Http\Controllers\Admin\UserExtraQuestionSubmissionController::class, 'index'])->name('extra-question-submissions.index');
     Route::get('extra-question-submissions/{submission}', [\App\Http\Controllers\Admin\UserExtraQuestionSubmissionController::class, 'show'])->name('extra-question-submissions.show');
+    Route::post('extra-question-submissions/{submission}/reject', [\App\Http\Controllers\Admin\UserExtraQuestionSubmissionController::class, 'reject'])->name('extra-question-submissions.reject');
+    Route::post('extra-question-submissions/{submission}/mark-changed', [\App\Http\Controllers\Admin\UserExtraQuestionSubmissionController::class, 'markChanged'])->name('extra-question-submissions.mark-changed');
 
     // Lehrgänge: Lesen + Bearbeiten einzelner Fragen
     Route::get('lehrgaenge', [\App\Http\Controllers\Admin\LehrgangController::class, 'index'])->name('lehrgaenge.index');
@@ -770,14 +774,8 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix
     Route::get('questions/{question}', [\App\Http\Controllers\Admin\QuestionController::class, 'show'])->name('questions.show');
     Route::delete('questions/{question}', [\App\Http\Controllers\Admin\QuestionController::class, 'destroy'])->name('questions.destroy');
 
-    // Zusatz-Fragen: Anlegen + Löschen (nur Admin)
-    Route::get('extra-questions/create', [\App\Http\Controllers\Admin\ExtraQuestionController::class, 'create'])->name('extra-questions.create');
-    Route::post('extra-questions', [\App\Http\Controllers\Admin\ExtraQuestionController::class, 'store'])->name('extra-questions.store');
+    // Zusatz-Fragen: Löschen (nur Admin; Anlegen siehe QuestionEditor-Gruppe)
     Route::delete('extra-questions/{extra_question}', [\App\Http\Controllers\Admin\ExtraQuestionController::class, 'destroy'])->name('extra-questions.destroy');
-
-    // User-eingereichte Zusatz-Fragen verwalten (Index/Show siehe QuestionEditor-Gruppe)
-    Route::post('extra-question-submissions/{submission}/reject', [\App\Http\Controllers\Admin\UserExtraQuestionSubmissionController::class, 'reject'])->name('extra-question-submissions.reject');
-    Route::post('extra-question-submissions/{submission}/mark-changed', [\App\Http\Controllers\Admin\UserExtraQuestionSubmissionController::class, 'markChanged'])->name('extra-question-submissions.mark-changed');
 
     // Lehrgänge: CRUD auf Kursebene + CSV-Import + Frage löschen (nur Admin)
     Route::get('lehrgaenge/create', [\App\Http\Controllers\Admin\LehrgangController::class, 'create'])->name('lehrgaenge.create');

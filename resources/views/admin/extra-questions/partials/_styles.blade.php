@@ -12,16 +12,16 @@
         margin-bottom: 0.5rem;
     }
     .zf-page-title__h1 {
-        font-family: var(--font-sans, 'Figtree', sans-serif);
+        font-family: 'Barlow Condensed', sans-serif;
         font-weight: 800;
-        font-size: 2rem;
-        line-height: 1.15;
-        letter-spacing: -0.015em;
-        color: #5b9aff;
+        font-size: 1.5rem;
+        line-height: 1.2;
+        background: linear-gradient(135deg, #5b9aff, #0055cc);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
         margin: 0 0 0.25rem;
     }
-    html.light-mode .zf-page-title__h1,
-    .light-mode .zf-page-title__h1 { color: var(--thw-blue); }
     .zf-page-title__sub {
         font-size: 1rem;
         color: var(--text-secondary);
@@ -120,6 +120,8 @@
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
     }
     .zf-form-card + .zf-form-card { margin-top: 1rem; }
+
+    .zf-form-stack { display: flex; flex-direction: column; gap: 1rem; }
 
     .zf-form-card__label {
         margin-bottom: 0.875rem;
@@ -288,6 +290,7 @@
         background: rgba(91, 154, 255, 0.12);
         color: #5b9aff;
     }
+    .zf-option-row.is-correct .zf-option-num { background: #22c55e; color: #fff; }
     .zf-option-body {
         display: flex;
         align-items: center;
@@ -454,6 +457,7 @@
         border: 1px solid rgba(0, 51, 127, 0.06);
         margin-bottom: 0.625rem;
     }
+    .zf-image-tile--no-thumb { grid-template-columns: 1fr; }
     html:not(.light-mode) .zf-image-tile {
         background: rgba(255, 255, 255, 0.02);
         border-color: rgba(255, 255, 255, 0.06);
@@ -501,15 +505,63 @@
     .zf-correct-toggle {
         display: inline-flex;
         align-items: center;
-        gap: 0.4rem;
-        cursor: pointer;
-        font-size: 0.75rem;
-        font-weight: 600;
+        justify-content: flex-start;
+        gap: 0.5rem;
+        min-width: 6.2rem;
+        padding: 0.375rem 0.75rem 0.375rem 0.5rem;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.06);
         color: var(--text-muted);
+        font-family: 'IBM Plex Mono', ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, Consolas, monospace;
+        font-size: 0.6875rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        cursor: pointer;
+        align-self: center;
+        transition: all 150ms ease;
         user-select: none;
+        white-space: nowrap;
     }
-    .zf-correct-toggle input { accent-color: #16a34a; }
-    .zf-correct-toggle.is-correct { color: #16a34a; }
+    html.light-mode .zf-correct-toggle {
+        background: #f8fafc;
+        border-color: rgba(0, 51, 127, 0.08);
+    }
+    .zf-correct-toggle:hover {
+        color: var(--text-primary);
+        border-color: rgba(255, 255, 255, 0.10);
+    }
+    html.light-mode .zf-correct-toggle:hover { border-color: rgba(0, 51, 127, 0.14); }
+    .zf-correct-toggle.is-correct {
+        background: rgba(34, 197, 94, 0.18);
+        border-color: rgba(34, 197, 94, 0.40);
+        color: #22c55e;
+    }
+    .zf-correct-toggle .check-icon {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.06);
+        display: grid;
+        place-items: center;
+        color: transparent;
+        font-size: 0.625rem;
+        transition: all 150ms ease;
+    }
+    html.light-mode .zf-correct-toggle .check-icon { background: rgba(0, 51, 127, 0.08); }
+    .zf-correct-toggle.is-correct .check-icon { background: #22c55e; color: #fff; }
+    .zf-correct-toggle input[type="checkbox"] {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap;
+        margin: -1px;
+        padding: 0;
+        border: 0;
+    }
 
     .zf-form-actions {
         display: flex;
