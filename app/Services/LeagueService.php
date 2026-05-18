@@ -182,7 +182,11 @@ class LeagueService
         $leagueKeys = array_keys(self::LEAGUES);
 
         foreach ($leagueKeys as $league) {
+            // Consent-Filter konsistent zu getLeagueLeaderboard(): User ohne
+            // leaderboard_consent sind im sichtbaren Leaderboard unsichtbar und
+            // dürfen daher auch nicht die Kisten-/Auf-/Abstiegs-Reihenfolge verzerren.
             $users = User::where('league', $league)
+                ->where('leaderboard_consent', true)
                 ->where('weekly_points', '>', 0)
                 ->orderBy('weekly_points', 'desc')
                 ->orderBy('points', 'desc')
