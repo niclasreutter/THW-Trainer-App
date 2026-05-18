@@ -131,6 +131,11 @@
                     </span>
 
                     <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        @if($s->isPending() && in_array($s->typ, ['matching', 'pair_matching'], true))
+                            <a href="{{ route('zusatzfragen-vorschlagen.tryout', $s) }}" class="btn-ghost" title="Try-Out / Vorschau">
+                                <i class="bi bi-play-fill"></i>
+                            </a>
+                        @endif
                         @if($s->isPending())
                             <form method="POST" action="{{ route('zusatzfragen-vorschlagen.destroy', $s) }}"
                                   onsubmit="return confirm('Diese Einreichung wirklich löschen?');">

@@ -31,6 +31,7 @@ class UserExtraQuestionSubmission extends Model
     public const TYP_MATCHING = 'matching';
     public const TYP_IMAGE_NAME = 'image_name';
     public const TYP_IMAGE_SELECT = 'image_select';
+    public const TYP_PAIR_MATCHING = 'pair_matching';
 
     public const STATUS_PENDING = 'pending';
     public const STATUS_APPROVED = 'approved';
@@ -41,6 +42,7 @@ class UserExtraQuestionSubmission extends Model
         self::TYP_MATCHING => 'Zuordnung',
         self::TYP_IMAGE_NAME => 'Bild benennen',
         self::TYP_IMAGE_SELECT => 'Bild auswählen',
+        self::TYP_PAIR_MATCHING => 'Wortpaare',
     ];
 
     public const STATUS_LABELS = [

@@ -561,6 +561,10 @@ Route::middleware('auth')->prefix('zusatzfragen-vorschlagen')->name('zusatzfrage
     Route::get('/neu', [\App\Http\Controllers\UserExtraQuestionSubmissionController::class, 'create'])->name('create');
     Route::post('/', [\App\Http\Controllers\UserExtraQuestionSubmissionController::class, 'store'])->name('store');
     Route::delete('/{submission}', [\App\Http\Controllers\UserExtraQuestionSubmissionController::class, 'destroy'])->name('destroy');
+
+    // Try-Out für eigene Einreichungen (Owner + Admin + Contributor; nur matching + pair_matching)
+    Route::get('/{submission}/tryout', [\App\Http\Controllers\ExtraQuestionTryoutController::class, 'showSubmission'])->name('tryout');
+    Route::post('/{submission}/tryout', [\App\Http\Controllers\ExtraQuestionTryoutController::class, 'submitSubmission'])->name('tryout.submit');
 });
 
 Route::middleware('auth')->group(function () {
@@ -734,6 +738,10 @@ Route::middleware(['auth', \App\Http\Middleware\QuestionEditorMiddleware::class]
     Route::post('extra-questions', [\App\Http\Controllers\Admin\ExtraQuestionController::class, 'store'])->name('extra-questions.store');
     Route::get('extra-questions/{extra_question}/edit', [\App\Http\Controllers\Admin\ExtraQuestionController::class, 'edit'])->name('extra-questions.edit');
     Route::match(['put', 'patch'], 'extra-questions/{extra_question}', [\App\Http\Controllers\Admin\ExtraQuestionController::class, 'update'])->name('extra-questions.update');
+
+    // Try-Out / Vorschau (Antworten werden nicht gespeichert)
+    Route::get('extra-questions/{extra_question}/tryout', [\App\Http\Controllers\ExtraQuestionTryoutController::class, 'show'])->name('extra-questions.tryout');
+    Route::post('extra-questions/{extra_question}/tryout', [\App\Http\Controllers\ExtraQuestionTryoutController::class, 'submit'])->name('extra-questions.tryout.submit');
 
     // Eingereichte Zusatz-Fragen: Lesen + Übernehmen/Ablehnen/Markieren (Admin + Contributor)
     Route::get('extra-question-submissions', [\App\Http\Controllers\Admin\UserExtraQuestionSubmissionController::class, 'index'])->name('extra-question-submissions.index');

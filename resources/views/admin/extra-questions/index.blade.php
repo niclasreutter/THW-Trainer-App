@@ -116,6 +116,8 @@
     html:not(.light-mode) .zf-type-chip--matching { background: rgba(91, 154, 255, 0.14); color: #5b9aff; }
     .zf-type-chip--image_name   { background: rgba(22, 163, 74, 0.12);  color: #16a34a; }
     .zf-type-chip--image_select { background: rgba(139, 92, 246, 0.14); color: #8b5cf6; }
+    .zf-type-chip--pair_matching { background: rgba(251, 191, 36, 0.14); color: #d97706; }
+    html:not(.light-mode) .zf-type-chip--pair_matching { background: rgba(251, 191, 36, 0.18); color: #fbbf24; }
 
     .zf-row-actions {
         display: flex;
@@ -165,20 +167,23 @@
 @php
     $total = $questions->count();
     $byTyp = $questions->groupBy('typ');
-    $countMatching    = $byTyp->get('matching', collect())->count();
-    $countImageName   = $byTyp->get('image_name', collect())->count();
-    $countImageSelect = $byTyp->get('image_select', collect())->count();
+    $countMatching     = $byTyp->get('matching', collect())->count();
+    $countImageName    = $byTyp->get('image_name', collect())->count();
+    $countImageSelect  = $byTyp->get('image_select', collect())->count();
+    $countPairMatching = $byTyp->get('pair_matching', collect())->count();
     $grouped = $questions->groupBy('lernabschnitt');
 
     $typLabels = [
-        'matching'     => 'Zuordnung',
-        'image_name'   => 'Bild benennen',
-        'image_select' => 'Bild auswählen',
+        'matching'      => 'Zuordnung',
+        'image_name'    => 'Bild benennen',
+        'image_select'  => 'Bild auswählen',
+        'pair_matching' => 'Wortpaare',
     ];
     $typIcons = [
-        'matching'     => 'bi-diagram-3-fill',
-        'image_name'   => 'bi-image-fill',
-        'image_select' => 'bi-grid-3x3-gap-fill',
+        'matching'      => 'bi-diagram-3-fill',
+        'image_name'    => 'bi-image-fill',
+        'image_select'  => 'bi-grid-3x3-gap-fill',
+        'pair_matching' => 'bi-link-45deg',
     ];
 @endphp
 
@@ -227,6 +232,10 @@
             <div class="zf-stat-pill__value zf-stat-pill__value--warn">{{ $countImageSelect }}</div>
             <div class="zf-stat-pill__label">Bild auswählen</div>
         </div>
+        <div class="zf-stat-pill">
+            <div class="zf-stat-pill__value">{{ $countPairMatching }}</div>
+            <div class="zf-stat-pill__label">Wortpaare</div>
+        </div>
     </div>
 
     <div class="zf-action-row">
@@ -272,6 +281,8 @@
                                         {{ $q->options->count() }} Antworten
                                     @elseif($q->typ === 'image_select')
                                         {{ $q->options->count() }} Bilder
+                                    @elseif($q->typ === 'pair_matching')
+                                        {{ $q->pairItems->count() }} Paare
                                     @endif
                                 </div>
                             </div>
@@ -280,6 +291,9 @@
                                 {{ $typLabels[$q->typ] ?? $q->typ }}
                             </span>
                             <div class="zf-row-actions">
+                                <a href="{{ route('admin.extra-questions.tryout', $q) }}" class="zf-icon-btn" title="Try-Out / Vorschau">
+                                    <i class="bi bi-play-fill"></i>
+                                </a>
                                 <a href="{{ route('admin.extra-questions.edit', $q) }}" class="zf-icon-btn" title="Bearbeiten">
                                     <i class="bi bi-pencil"></i>
                                 </a>
