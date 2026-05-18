@@ -132,14 +132,6 @@ class TrainingProgressService
                 ['key' => 'la10.7', 'label' => 'Brandschutz'],
             ],
         ],
-        [
-            'key' => 'allgemeines',
-            'nr' => 'Allgemein',
-            'title' => 'Allgemeines',
-            'items' => [
-                ['key' => 'allgemeines.1', 'label' => 'Allgemeines'],
-            ],
-        ],
     ];
 
     public const ZUSATZAUSBILDUNGEN = [
