@@ -361,7 +361,7 @@
             backdrop-filter: none;
             -webkit-backdrop-filter: none;
             padding: 1rem;
-            padding-bottom: calc(9rem + env(safe-area-inset-bottom, 0px));
+            padding-bottom: calc(9rem + 15dvh);
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
             overscroll-behavior-y: contain;
