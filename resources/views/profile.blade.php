@@ -1074,6 +1074,12 @@
                     @foreach($auditLogs as $log)
                     @php
                         $adminName = $log->admin ? explode(' ', $log->admin->name)[0] : 'Admin';
+                        $actionVerbMap = [
+                            'mastered'  => 'als gemeistert markiert',
+                            'sr'        => 'zur Wiederholung gesetzt',
+                            'reset'     => 'zurückgesetzt',
+                            'increment' => '+1 Streak',
+                        ];
                         $actionLabel = match($log->action) {
                             'update_field'   => match($log->field) {
                                 'name'   => 'Name geändert',
@@ -1082,11 +1088,13 @@
                                 'points' => 'Punkte (XP) geändert',
                                 default  => ucfirst($log->field ?? '') . ' geändert',
                             },
-                            'verify_email'   => 'E-Mail verifiziert',
-                            'delete'         => 'Konto gelöscht',
-                            'reset_progress' => 'Lernfortschritt zurückgesetzt',
-                            'update_progress'=> 'Lernfortschritt bearbeitet',
-                            default          => ucfirst(str_replace('_', ' ', $log->action)),
+                            'verify_email'             => 'E-Mail verifiziert',
+                            'delete'                   => 'Konto gelöscht',
+                            'reset_progress'           => 'Lernfortschritt zurückgesetzt',
+                            'update_progress'          => 'Lernfortschritt bearbeitet',
+                            'update_progress_question' => 'Einzelne Frage ' . ($actionVerbMap[$log->new_value] ?? 'bearbeitet'),
+                            'update_progress_module'   => 'Lernabschnitt/Lehrgang ' . ($actionVerbMap[explode(' ', $log->new_value ?? '')[0]] ?? 'bearbeitet'),
+                            default                    => ucfirst(str_replace('_', ' ', $log->action)),
                         };
                         $hasDetail = $log->action === 'update_field' && ($log->old_value !== null || $log->new_value !== null);
                     @endphp
@@ -1098,7 +1106,7 @@
                                 <i class="bi bi-envelope-check-fill" style="color: var(--success); font-size: 0.875rem;"></i>
                             @elseif($log->action === 'reset_progress')
                                 <i class="bi bi-arrow-counterclockwise" style="color: var(--warning, #f59e0b); font-size: 0.875rem;"></i>
-                            @elseif($log->action === 'update_progress')
+                            @elseif(in_array($log->action, ['update_progress', 'update_progress_question', 'update_progress_module']))
                                 <i class="bi bi-graph-up" style="color: var(--thw-blue); font-size: 0.875rem;"></i>
                             @else
                                 <i class="bi bi-pencil-fill" style="color: var(--text-muted); font-size: 0.875rem;"></i>

@@ -95,11 +95,12 @@
                         <li>Status der Newsletter-Zustimmung</li>
                         <li>Registrierungs- und Aktivitätszeitpunkte</li>
                     </ul>
-                    <p class="mb-4">Administratoren können in begründeten Fällen Ihren Lernfortschritt zurücksetzen oder anpassen (z.&nbsp;B. zur Fehlerkorrektur) sowie – auf Anforderung oder bei Verstoß gegen die Nutzungsbedingungen – Ihr Konto löschen.</p>
+                    <p class="mb-4">Administratoren können in begründeten Fällen Ihren Lernfortschritt zurücksetzen, einzelne Fragen oder ganze Lernabschnitte/Lehrgänge auf einen bestimmten Status setzen (z.&nbsp;B. „gemeistert", „zur Wiederholung", „zurücksetzen") sowie – auf Anforderung oder bei Verstoß gegen die Nutzungsbedingungen – Ihr Konto löschen.</p>
                     <p class="mb-4"><strong>Protokollierung (Audit-Log):</strong> Sämtliche Änderungen, die ein Administrator an Ihrem Konto vornimmt, werden lückenlos protokolliert. Erfasst werden dabei:</p>
                     <ul class="list-disc ml-8 pl-2 mb-4 space-y-1">
                         <li>Art der Änderung (z.&nbsp;B. Name, E-Mail, Rolle, Punkte, Verifizierung, Löschung)</li>
-                        <li>Alter und neuer Wert</li>
+                        <li>Änderungen am Lernfortschritt (einzelne Fragen, ganze Lernabschnitte oder Lehrgänge inkl. der jeweiligen Aktion: gemeistert, Wiederholung, zurücksetzen, +1 Streak)</li>
+                        <li>Alter und neuer Wert (sofern anwendbar)</li>
                         <li>Zeitstempel der Änderung</li>
                         <li>Name des verantwortlichen Administrators</li>
                         <li>IP-Adresse des Administrators (zur Nachvollziehbarkeit)</li>
@@ -194,7 +195,7 @@
 
             <div class="mt-8 pt-6 border-t border-gray-200">
                 <p class="text-sm text-gray-600">Stand: 26. Mai 2026</p>
-                <p class="text-xs text-gray-500 mt-2">Letzte Änderung: Ergänzung zur Nutzerverwaltung durch Administratoren inkl. Audit-Log (Abschnitt 3.6)</p>
+                <p class="text-xs text-gray-500 mt-2">Letzte Änderung: Präzisierung der protokollierten Lernfortschritts-Änderungen durch Administratoren (Abschnitt 3.6)</p>
             </div>
         </div>
     </div>
