@@ -107,10 +107,15 @@
 @endphp
 
 <div class="dash-container" style="max-width: 60rem;">
-    <div style="margin-bottom: 1.25rem;">
+    <div style="margin-bottom: 1.25rem; display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
         <a href="{{ route('admin.extra-question-submissions.index') }}" class="btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.875rem;">
             <i class="bi bi-arrow-left"></i> Zurück zur Übersicht
         </a>
+        @if($submission->isPending() && in_array($submission->typ, ['matching', 'pair_matching'], true))
+            <a href="{{ route('zusatzfragen-vorschlagen.tryout', $submission) }}" class="btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.875rem;">
+                <i class="bi bi-play-fill"></i> Try-Out / Vorschau
+            </a>
+        @endif
     </div>
 
     <div class="zf-page-title" style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; flex-wrap: wrap;">
@@ -235,6 +240,26 @@
                                 <div style="color: var(--text-muted); font-size: 0.875rem; display: inline-flex; align-items: center; gap: 0.35rem; white-space: nowrap;">
                                     <i class="bi bi-arrow-right"></i> {{ $catName }}
                                 </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            @elseif($typ === 'pair_matching')
+                <div>
+                    <div class="section-header" style="{{ $sectionStyle }}">
+                        <h2 class="section-title">Wortpaare</h2>
+                    </div>
+                    <div class="glass hover-lift" style="padding: 1.5rem;">
+                        @foreach(($payload['pairs'] ?? []) as $i => $pair)
+                            <div class="ueq-option" style="display: flex; align-items: center; justify-content: space-between; gap: 1rem;">
+                                <div style="display: flex; align-items: center; gap: 0.75rem; flex: 1;">
+                                    <span class="ueq-option-letter">{{ $i + 1 }}</span>
+                                    <div style="color: var(--text-secondary); line-height: 1.5;">{{ $pair['left_text'] ?? '' }}</div>
+                                </div>
+                                <div style="color: var(--text-muted); font-size: 0.875rem; display: inline-flex; align-items: center; gap: 0.35rem; white-space: nowrap;">
+                                    <i class="bi bi-arrow-left-right"></i>
+                                </div>
+                                <div style="flex: 1; color: var(--text-secondary); line-height: 1.5; text-align: right;">{{ $pair['right_text'] ?? '' }}</div>
                             </div>
                         @endforeach
                     </div>

@@ -147,6 +147,7 @@ class ExtraQuestionService
                 'options',
                 'matchCategories',
                 'matchItems.correctCategory',
+                'pairItems',
             ])->find($id);
 
             if ($q) {

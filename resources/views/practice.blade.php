@@ -1656,6 +1656,14 @@
                         'isSpacedRepetition' => $isSpacedRepetition ?? false,
                         'difficultyInfo' => $difficultyInfo ?? null,
                     ])
+                @elseif($question->typ === 'pair_matching')
+                    @include('practice.partials.question-pair-matching', [
+                        'question' => $question,
+                        'isCorrect' => $isCorrect ?? null,
+                        'answerResult' => $answerResult ?? null,
+                        'isSpacedRepetition' => $isSpacedRepetition ?? false,
+                        'difficultyInfo' => $difficultyInfo ?? null,
+                    ])
                 @elseif($question->typ === 'image_name')
                     @include('practice.partials.question-image-name', [
                         'question' => $question,

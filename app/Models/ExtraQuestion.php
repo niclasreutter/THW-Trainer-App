@@ -25,6 +25,7 @@ class ExtraQuestion extends Model
     public const TYP_MATCHING = 'matching';
     public const TYP_IMAGE_NAME = 'image_name';
     public const TYP_IMAGE_SELECT = 'image_select';
+    public const TYP_PAIR_MATCHING = 'pair_matching';
 
     /**
      * Antwort-Optionen (für image_name und image_select)
@@ -51,6 +52,14 @@ class ExtraQuestion extends Model
     }
 
     /**
+     * Paare für Paar-Zuordnungsfragen (pair_matching)
+     */
+    public function pairItems()
+    {
+        return $this->hasMany(ExtraPairItem::class)->orderBy('sort_order');
+    }
+
+    /**
      * Fortschritte der User zu dieser Frage
      */
     public function userProgress()
@@ -72,5 +81,10 @@ class ExtraQuestion extends Model
     public function isImageSelect(): bool
     {
         return $this->typ === self::TYP_IMAGE_SELECT;
+    }
+
+    public function isPairMatching(): bool
+    {
+        return $this->typ === self::TYP_PAIR_MATCHING;
     }
 }

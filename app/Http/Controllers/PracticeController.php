@@ -10,6 +10,7 @@ use App\Models\QuestionStatistic;
 use App\Models\UserQuestionProgress;
 use App\Models\ExtraQuestion;
 use App\Models\UserExtraQuestionProgress;
+use App\Services\ExtraQuestionAnswerEvaluator;
 use App\Services\ExtraQuestionService;
 use App\Services\GamificationService;
 use App\Services\PracticeSessionService;
@@ -1023,12 +1024,13 @@ class PracticeController extends Controller
     }
 
     /**
-     * Submit-Handler für Zusatz-Fragen (matching, image_name, image_select).
+     * Submit-Handler für Zusatz-Fragen (matching, pair_matching, image_name, image_select).
      *
      * Detektion erfolgt in submit() via Hidden-Field `question_kind=extra`.
      * Progress + SR werden via ExtraQuestionService::updateProgress aktualisiert.
      * Korrektheits-Regel (strict):
      *  - matching: ALLE Items müssen korrekt zugeordnet sein
+     *  - pair_matching: ALLE Paare müssen 1:1 korrekt zugeordnet sein
      *  - image_name / image_select: Submitted-Set === Korrekt-Set
      */
     public function submitExtra(Request $request)
@@ -1038,11 +1040,12 @@ class PracticeController extends Controller
             'question_id' => ['required', 'integer', 'exists:extra_questions,id'],
         ]);
 
-        $extra = ExtraQuestion::with(['options', 'matchItems', 'matchCategories'])
+        $extra = ExtraQuestion::with(['options', 'matchItems', 'matchCategories', 'pairItems'])
             ->findOrFail($validated['question_id']);
 
         // Typ-spezifische Validierung + Correctness
         $submittedAssignments = null;
+        $submittedPairs = null;
         $userAnswerIds = null;
 
         if ($extra->typ === ExtraQuestion::TYP_MATCHING) {
@@ -1050,7 +1053,13 @@ class PracticeController extends Controller
                 'assignments' => ['required', 'string', 'json'],
             ]);
             $submittedAssignments = json_decode($request->input('assignments'), true) ?: [];
-            $isCorrect = $this->validateMatching($extra, $submittedAssignments);
+            $isCorrect = ExtraQuestionAnswerEvaluator::evaluateMatching($extra, $submittedAssignments);
+        } elseif ($extra->typ === ExtraQuestion::TYP_PAIR_MATCHING) {
+            $request->validate([
+                'pair_assignments' => ['required', 'string', 'json'],
+            ]);
+            $submittedPairs = json_decode($request->input('pair_assignments'), true) ?: [];
+            $isCorrect = ExtraQuestionAnswerEvaluator::evaluatePairMatching($extra, $submittedPairs);
         } else {
             // image_name + image_select
             $request->validate([
@@ -1058,7 +1067,7 @@ class PracticeController extends Controller
                 'answer.*' => ['integer', 'exists:extra_question_options,id'],
             ]);
             $userAnswerIds = array_map('intval', (array) $request->input('answer', []));
-            $isCorrect = $this->validateOptionIds($extra, $userAnswerIds);
+            $isCorrect = ExtraQuestionAnswerEvaluator::evaluateOptionIds($extra, $userAnswerIds);
         }
 
         $user = $request->user();
@@ -1079,6 +1088,9 @@ class PracticeController extends Controller
 
         if ($submittedAssignments !== null) {
             $answerResult['assignments'] = $submittedAssignments;
+        }
+        if ($submittedPairs !== null) {
+            $answerResult['pair_assignments'] = $submittedPairs;
         }
         if ($userAnswerIds !== null) {
             $answerResult['user_answer'] = $userAnswerIds;
@@ -1101,61 +1113,6 @@ class PracticeController extends Controller
         }
 
         return redirect()->route('practice.index');
-    }
-
-    /**
-     * Validiert eine Matching-Frage (strict: alle Items müssen korrekt sein).
-     *
-     * @param array<int|string, int|string|null> $submitted  [itemId => categoryId, ...]
-     */
-    private function validateMatching(ExtraQuestion $extra, array $submitted): bool
-    {
-        $items = $extra->matchItems;
-        if ($items->isEmpty()) {
-            return false;
-        }
-
-        foreach ($items as $item) {
-            $submittedCat = $submitted[$item->id] ?? $submitted[(string) $item->id] ?? null;
-            if ($submittedCat === null) {
-                return false;
-            }
-            if ((int) $submittedCat !== (int) $item->correct_category_id) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * Validiert eine Option-basierte Frage (image_name, image_select).
-     * Strict-Match: Submitted-Set muss exakt dem Korrekt-Set entsprechen.
-     *
-     * @param array<int> $submittedIds
-     */
-    private function validateOptionIds(ExtraQuestion $extra, array $submittedIds): bool
-    {
-        $correctIds = $extra->options
-            ->where('is_correct', true)
-            ->pluck('id')
-            ->map(fn ($id) => (int) $id)
-            ->sort()
-            ->values()
-            ->toArray();
-
-        if (empty($correctIds)) {
-            return false;
-        }
-
-        $submitted = collect($submittedIds)
-            ->map(fn ($id) => (int) $id)
-            ->unique()
-            ->sort()
-            ->values()
-            ->toArray();
-
-        return $submitted === $correctIds;
     }
 
     /**
