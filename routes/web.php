@@ -507,9 +507,16 @@ Route::middleware('auth')->group(function () {
             ];
         }
 
+        $auditLogs = \App\Models\AdminAuditLog::where('user_id', $user->id)
+            ->with('admin:id,name')
+            ->orderByDesc('created_at')
+            ->take(20)
+            ->get();
+
         return view('profile', compact(
             'user', 'ownedAccessories', 'levelProgress', 'nextLevelPoints', 'achievements',
-            'totalQuestions', 'solvedTotal', 'wrongTotal', 'hitRate', 'streakDaysArr'
+            'totalQuestions', 'solvedTotal', 'wrongTotal', 'hitRate', 'streakDaysArr',
+            'auditLogs'
         ));
     })->name('profile');
     // Profile-eigene Actions (Avatar, Accessoires, Dashboard-Banner) bleiben unter /profile
@@ -812,6 +819,8 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix
     Route::post('users/{id}/progress/sr-set-tomorrow', [\App\Http\Controllers\Admin\UserController::class, 'setSpacedRepetitionTomorrow'])->name('users.progress.sr-set-tomorrow');
     Route::post('users/{id}/progress/reset', [\App\Http\Controllers\Admin\UserController::class, 'resetProgress'])->name('users.progress.reset');
     Route::get('users/{id}/xp-history', [\App\Http\Controllers\Admin\UserController::class, 'xpHistory'])->name('users.xp-history');
+    Route::post('users/{id}/verify', [\App\Http\Controllers\Admin\UserController::class, 'verify'])->name('users.verify');
+    Route::get('users/{id}/audit-log', [\App\Http\Controllers\Admin\UserController::class, 'auditLog'])->name('users.audit-log');
 
     // Newsletter Routes
     Route::get('newsletter/create', [\App\Http\Controllers\NewsletterController::class, 'create'])->name('newsletter.create');

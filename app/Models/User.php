@@ -392,6 +392,14 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(SurveyResponse::class);
     }
 
+    /**
+     * Admin-Audit-Logs für diesen User (als betroffener Nutzer)
+     */
+    public function adminAuditLogs()
+    {
+        return $this->hasMany(AdminAuditLog::class, 'user_id');
+    }
+
     public function wantsEmailFor(string $category): bool
     {
         if (!$this->email_consent) {
