@@ -393,6 +393,112 @@ class UserController extends Controller
         return response()->json($logs);
     }
 
+    /**
+     * Liefert aggregierte Fortschrittsdaten für das Admin-Fortschritts-Modal
+     * (Grundausbildung pro Lernabschnitt, Zusatzfragen pro LA, Lehrgänge).
+     */
+    public function progressJson($id)
+    {
+        $this->abortIfNotAdmin();
+        $user = User::findOrFail($id);
+
+        $threshold = UserQuestionProgress::MASTERY_THRESHOLD;
+
+        // ---- Grundausbildung gruppiert nach Lernabschnitt ----
+        $questions = Question::orderByRaw('CAST(lernabschnitt AS UNSIGNED), nummer')->get();
+        $progressByQ = UserQuestionProgress::where('user_id', $user->id)
+            ->whereIn('question_id', $questions->pluck('id'))
+            ->get()
+            ->keyBy('question_id');
+
+        $grundausbildung = $questions->groupBy('lernabschnitt')->map(function ($qs, $la) use ($progressByQ, $threshold) {
+            return $this->aggregateCounts($qs, fn($q) => $progressByQ->get($q->id), $threshold, [
+                'id'    => (string) $la,
+                'title' => 'Lernabschnitt ' . $la,
+            ]);
+        })->sortBy(fn($r) => (int) $r['id'])->values()->all();
+
+        // ---- Zusatzfragen gruppiert nach Lernabschnitt ----
+        $extras = \App\Models\ExtraQuestion::orderBy('lernabschnitt')->get();
+        $extraProgressByQ = \App\Models\UserExtraQuestionProgress::where('user_id', $user->id)
+            ->whereIn('extra_question_id', $extras->pluck('id'))
+            ->get()
+            ->keyBy('extra_question_id');
+
+        $zusatzfragen = $extras->groupBy('lernabschnitt')->map(function ($qs, $la) use ($extraProgressByQ, $threshold) {
+            return $this->aggregateCounts($qs, fn($q) => $extraProgressByQ->get($q->id), $threshold, [
+                'id'    => (string) $la,
+                'title' => 'Zusatzfragen LA ' . $la,
+            ]);
+        })->sortBy(fn($r) => (int) $r['id'])->values()->all();
+
+        // ---- Lehrgänge ----
+        $allLehrgaenge = \App\Models\Lehrgang::orderBy('lehrgang')->get();
+        $enrolledIds = $user->enrolledLehrgaenge()->pluck('lehrgaenge.id')->all();
+
+        $lehrgaenge = $allLehrgaenge->map(function ($l) use ($user, $enrolledIds, $threshold) {
+            $isEnrolled = in_array($l->id, $enrolledIds);
+            $qs = $l->questions()->get();
+            $progress = \App\Models\UserLehrgangProgress::where('user_id', $user->id)
+                ->whereIn('lehrgang_question_id', $qs->pluck('id'))
+                ->get()
+                ->keyBy('lehrgang_question_id');
+
+            $row = $this->aggregateCounts($qs, fn($q) => $progress->get($q->id), $threshold, [
+                'id'       => $l->id,
+                'code'     => strtoupper(\Illuminate\Support\Str::limit($l->slug, 6, '')),
+                'title'    => $l->lehrgang,
+                'enrolled' => $isEnrolled,
+            ]);
+            return $row;
+        })->values()->all();
+
+        return response()->json([
+            'user' => [
+                'id'    => $user->id,
+                'name'  => $user->name,
+                'email' => $user->email,
+                'level' => (int) ($user->level ?? 1),
+                'xp'    => (int) ($user->points ?? 0),
+            ],
+            'grundausbildung' => $grundausbildung,
+            'zusatzfragen'    => $zusatzfragen,
+            'lehrgaenge'      => $lehrgaenge,
+        ]);
+    }
+
+    /**
+     * Aggregiert {mastered, partial, sr, open, total} für eine Frage-Collection.
+     */
+    private function aggregateCounts($questions, callable $progressOf, int $threshold, array $base): array
+    {
+        $mastered = 0;
+        $partial  = 0;
+        $sr       = 0;
+        $open     = 0;
+        foreach ($questions as $q) {
+            $p = $progressOf($q);
+            if (!$p || (int) $p->consecutive_correct === 0) {
+                $open++;
+            } elseif ((int) $p->consecutive_correct >= $threshold) {
+                $mastered++;
+            } else {
+                $partial++;
+            }
+            // Spaced Repetition: zählt zusätzlich, wenn fällige Wiederholung in Vergangenheit
+            if ($p && isset($p->next_review_at) && $p->next_review_at && (int) $p->consecutive_correct < $threshold) {
+                $sr++;
+            }
+        }
+        return array_merge($base, [
+            'total'    => $questions->count(),
+            'mastered' => $mastered,
+            'partial'  => $partial,
+            'sr'       => $sr,
+            'open'     => $open,
+        ]);
+    }
+
     private function calculateLevelFromPoints(int $points): int
     {
         $level = 1;

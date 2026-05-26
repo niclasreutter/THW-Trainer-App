@@ -821,6 +821,7 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix
     Route::get('users/{id}/xp-history', [\App\Http\Controllers\Admin\UserController::class, 'xpHistory'])->name('users.xp-history');
     Route::post('users/{id}/verify', [\App\Http\Controllers\Admin\UserController::class, 'verify'])->name('users.verify');
     Route::get('users/{id}/audit-log', [\App\Http\Controllers\Admin\UserController::class, 'auditLog'])->name('users.audit-log');
+    Route::get('users/{id}/progress-json', [\App\Http\Controllers\Admin\UserController::class, 'progressJson'])->name('users.progress-json');
 
     // Newsletter Routes
     Route::get('newsletter/create', [\App\Http\Controllers\NewsletterController::class, 'create'])->name('newsletter.create');
