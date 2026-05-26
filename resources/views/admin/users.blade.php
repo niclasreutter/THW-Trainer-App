@@ -391,7 +391,6 @@
 </style>
 @endpush
 
-@section('content')
 @php
 $usersJson = $users->map(fn($u) => [
     'id'         => $u->id,
@@ -406,6 +405,43 @@ $usersJson = $users->map(fn($u) => [
     'avatarUrl'  => $u->avatar_url,
 ])->values();
 @endphp
+
+@push('alpine-components')
+<script>
+document.addEventListener('alpine:init', () => {
+    Alpine.data('usersTable', () => ({
+        search: '',
+        roleFilter: 'all',
+        verifFilter: 'all',
+        expanded: null,
+        page: 1,
+        perPage: 8,
+        users: @json($usersJson),
+        get filtered() {
+            const q = this.search.trim().toLowerCase();
+            return this.users.filter(u => {
+                if (q && !u.name.toLowerCase().includes(q) && !u.email.toLowerCase().includes(q)) return false;
+                if (this.roleFilter !== 'all' && u.role !== this.roleFilter) return false;
+                if (this.verifFilter === 'verified'   && !u.verified) return false;
+                if (this.verifFilter === 'unverified' &&  u.verified) return false;
+                return true;
+            });
+        },
+        get totalPages() {
+            return Math.max(1, Math.ceil(this.filtered.length / this.perPage));
+        },
+        get pageItems() {
+            const s = (this.page - 1) * this.perPage;
+            return this.filtered.slice(s, s + this.perPage);
+        },
+        toggleExpand(id) { this.expanded = (this.expanded === id) ? null : id; },
+        roleLabel(r) { return r === 'admin' ? 'Admin' : (r === 'contributor' ? 'Contributor' : 'Benutzer'); },
+    }));
+});
+</script>
+@endpush
+
+@section('content')
 
 <div class="dashboard-container">
 <div class="admin-container">
@@ -489,35 +525,7 @@ $usersJson = $users->map(fn($u) => [
     @endif
 
     {{-- Main Table with Alpine.js --}}
-    <div class="nv-table-card"
-         x-data="{
-            search: '',
-            roleFilter: 'all',
-            verifFilter: 'all',
-            expanded: null,
-            page: 1,
-            perPage: 8,
-            users: @json($usersJson),
-            get filtered() {
-                const q = this.search.trim().toLowerCase();
-                return this.users.filter(u => {
-                    if (q && !u.name.toLowerCase().includes(q) && !u.email.toLowerCase().includes(q)) return false;
-                    if (this.roleFilter !== 'all' && u.role !== this.roleFilter) return false;
-                    if (this.verifFilter === 'verified'   && !u.verified) return false;
-                    if (this.verifFilter === 'unverified' &&  u.verified) return false;
-                    return true;
-                });
-            },
-            get totalPages() {
-                return Math.max(1, Math.ceil(this.filtered.length / this.perPage));
-            },
-            get pageItems() {
-                const s = (this.page - 1) * this.perPage;
-                return this.filtered.slice(s, s + this.perPage);
-            },
-            toggleExpand(id) { this.expanded = (this.expanded === id) ? null : id; },
-            roleLabel(r) { return r === 'admin' ? 'Admin' : (r === 'contributor' ? 'Contributor' : 'Benutzer'); },
-         }">
+    <div class="nv-table-card" x-data="usersTable">
 
         {{-- Table head / filters --}}
         <div class="nv-table-head">
