@@ -84,6 +84,28 @@
                     </ul>
                     <p class="mb-4">Die Einwilligung gilt ausschließlich für die jeweilige Session-Instanz und wird nicht dauerhaft oder für andere Sessions übernommen. Ohne Zustimmung nehmen Sie anonym teil – Ihre Daten erscheinen als „Anonymer Teilnehmer" im Ranking.</p>
                     <p class="mb-4">Die Verarbeitung erfolgt auf Grundlage Ihrer Einwilligung (Art. 6 Abs. 1 lit. a DSGVO). Sie können auch ohne Ranking-Zustimmung an Sessions teilnehmen und den XP-Boost nutzen.</p>
+
+                    <h3 class="text-lg font-medium text-gray-800 mb-2">3.6 Nutzerverwaltung durch Administratoren</h3>
+                    <p class="mb-4">Zur Sicherstellung eines ordnungsgemäßen Betriebs der Plattform haben berechtigte Administratoren Zugriff auf Ihre Kontodaten. Dieser Zugriff erfolgt ausschließlich zweckgebunden und ist auf das für die Verwaltung notwendige Maß beschränkt. Administratoren können folgende Daten einsehen und – sofern erforderlich – bearbeiten:</p>
+                    <ul class="list-disc ml-8 pl-2 mb-4 space-y-1">
+                        <li>Name und E-Mail-Adresse</li>
+                        <li>Benutzerrolle (Benutzer, Contributor, Administrator)</li>
+                        <li>Punkte (XP), Level und Lernfortschritt</li>
+                        <li>E-Mail-Verifizierungsstatus (inkl. manueller Bestätigung)</li>
+                        <li>Status der Newsletter-Zustimmung</li>
+                        <li>Registrierungs- und Aktivitätszeitpunkte</li>
+                    </ul>
+                    <p class="mb-4">Administratoren können in begründeten Fällen Ihren Lernfortschritt zurücksetzen oder anpassen (z.&nbsp;B. zur Fehlerkorrektur) sowie – auf Anforderung oder bei Verstoß gegen die Nutzungsbedingungen – Ihr Konto löschen.</p>
+                    <p class="mb-4"><strong>Protokollierung (Audit-Log):</strong> Sämtliche Änderungen, die ein Administrator an Ihrem Konto vornimmt, werden lückenlos protokolliert. Erfasst werden dabei:</p>
+                    <ul class="list-disc ml-8 pl-2 mb-4 space-y-1">
+                        <li>Art der Änderung (z.&nbsp;B. Name, E-Mail, Rolle, Punkte, Verifizierung, Löschung)</li>
+                        <li>Alter und neuer Wert</li>
+                        <li>Zeitstempel der Änderung</li>
+                        <li>Name des verantwortlichen Administrators</li>
+                        <li>IP-Adresse des Administrators (zur Nachvollziehbarkeit)</li>
+                    </ul>
+                    <p class="mb-4"><strong>Transparenz:</strong> Sie können alle administrativen Änderungen an Ihrem Konto jederzeit in Ihrem Profil unter dem Abschnitt „Verwaltungsänderungen" einsehen.</p>
+                    <p class="mb-4">Die Verarbeitung erfolgt auf Grundlage unseres berechtigten Interesses an einer sicheren, korrekten und nachvollziehbaren Verwaltung der Plattform (Art. 6 Abs. 1 lit. f DSGVO) sowie zur Erfüllung unserer Nachweis- und Rechenschaftspflichten (Art. 5 Abs. 2 DSGVO).</p>
                 </div>
             </section>
 
@@ -171,8 +193,8 @@
             </section>
 
             <div class="mt-8 pt-6 border-t border-gray-200">
-                <p class="text-sm text-gray-600">Stand: 22. Oktober 2025</p>
-                <p class="text-xs text-gray-500 mt-2">Letzte Änderung: Hinzufügung des öffentlichen Leaderboards (Opt-In)</p>
+                <p class="text-sm text-gray-600">Stand: 26. Mai 2026</p>
+                <p class="text-xs text-gray-500 mt-2">Letzte Änderung: Ergänzung zur Nutzerverwaltung durch Administratoren inkl. Audit-Log (Abschnitt 3.6)</p>
             </div>
         </div>
     </div>
