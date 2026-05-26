@@ -116,7 +116,11 @@
                        x-model="it.text"
                        placeholder="Item-Text (z.B. 'Mastwurf')" required>
                 <div class="zf-pair__arrow"><i class="bi bi-arrow-down"></i></div>
-                <select class="zf-select" :name="`items[${i}][category_index]`" x-model.number="it.category_index" required>
+                <select class="zf-select"
+                        :name="`items[${i}][category_index]`"
+                        x-model.number="it.category_index"
+                        x-init="$nextTick(() => { $el.value = it.category_index })"
+                        required>
                     <template x-for="(cat, ci) in categories" :key="ci">
                         <option :value="ci" x-text="(ci + 1) + '. ' + (cat.name || 'Kategorie ' + (ci + 1))"></option>
                     </template>
