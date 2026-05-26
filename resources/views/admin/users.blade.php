@@ -436,6 +436,9 @@ document.addEventListener('alpine:init', () => {
         },
         toggleExpand(id) { this.expanded = (this.expanded === id) ? null : id; },
         roleLabel(r) { return r === 'admin' ? 'Admin' : (r === 'contributor' ? 'Contributor' : 'Benutzer'); },
+        openProgress(u) {
+            window.location = '{{ url('admin/users') }}/' + u.id + '/progress';
+        },
     }));
 });
 </script>
@@ -564,9 +567,10 @@ document.addEventListener('alpine:init', () => {
                         <th style="text-align: right;">Aktionen</th>
                     </tr>
                 </thead>
-                <tbody>
-                    {{-- Empty state --}}
-                    <tr x-show="pageItems.length === 0">
+
+                {{-- Empty state as its own tbody --}}
+                <tbody x-show="pageItems.length === 0">
+                    <tr>
                         <td colspan="4">
                             <div class="nv-empty">
                                 <div class="nv-empty__icon"><i class="bi bi-search"></i></div>
@@ -575,14 +579,15 @@ document.addEventListener('alpine:init', () => {
                             </div>
                         </td>
                     </tr>
+                </tbody>
 
-                    {{--
-                        Alpine x-for inside tbody: we need one <tr> per user.
-                        The expandable detail is rendered as a separate section
-                        below the table (see nv-panels-section below).
-                        We highlight the row when expanded.
-                    --}}
-                    <template x-for="u in pageItems" :key="u.id">
+                {{--
+                    One <tbody> per user — keeps main row and detail row paired so the
+                    expandable panel slides out directly beneath the corresponding row.
+                    Browsers permit multiple <tbody> elements within one <table>.
+                --}}
+                <template x-for="u in pageItems" :key="u.id">
+                    <tbody class="nv-row-group">
                         <tr class="nv-main-row" :class="expanded === u.id ? 'nv-expanded' : ''">
                             <td>
                                 <div class="nv-user-cell">
@@ -617,9 +622,9 @@ document.addEventListener('alpine:init', () => {
                                         <i :class="`bi ${expanded === u.id ? 'bi-chevron-up' : 'bi-chevron-down'}`"></i>
                                         Details
                                     </button>
-                                    <a :href="`{{ url('admin/users') }}/${u.id}/progress`" class="nv-btn nv-btn--primary">
+                                    <button type="button" class="nv-btn nv-btn--primary" @click="openProgress(u)">
                                         <i class="bi bi-graph-up"></i> Fortschritt
-                                    </a>
+                                    </button>
                                     <a :href="`{{ url('admin/users') }}/${u.id}/xp-history`" class="nv-btn nv-btn--icon" title="XP-Verlauf">
                                         <i class="bi bi-clock-history"></i>
                                     </a>
@@ -634,99 +639,99 @@ document.addEventListener('alpine:init', () => {
                                 </div>
                             </td>
                         </tr>
-                    </template>
-                </tbody>
+
+                        {{-- Inline detail row, directly beneath the corresponding user row --}}
+                        <tr class="nv-detail-row" x-show="expanded === u.id" style="display: none;">
+                            <td colspan="4">
+                                <div class="nv-detail-panel">
+                                    <div class="nv-panel-label">Benutzer bearbeiten · #<span x-text="u.id"></span></div>
+
+                                    <form :action="`{{ url('admin/users') }}/${u.id}`" method="POST">
+                                        @csrf
+                                        @method('PUT')
+
+                                        <div class="nv-form-grid">
+                                            <div class="nv-field">
+                                                <label>Name</label>
+                                                <input type="text" name="name" :value="u.name" required />
+                                            </div>
+                                            <div class="nv-field">
+                                                <label>E-Mail</label>
+                                                <input type="email" name="email" :value="u.email" required />
+                                            </div>
+                                            <div class="nv-field">
+                                                <label>Rolle</label>
+                                                <select name="useroll">
+                                                    <option value="user"        :selected="u.role === 'user'">Benutzer</option>
+                                                    <option value="contributor" :selected="u.role === 'contributor'">Contributor</option>
+                                                    <option value="admin"       :selected="u.role === 'admin'">Administrator</option>
+                                                </select>
+                                            </div>
+                                            <div class="nv-field">
+                                                <label>Punkte (XP)</label>
+                                                <input type="number" name="points" :value="u.xp" min="0" />
+                                            </div>
+                                        </div>
+
+                                        <div class="nv-info-row">
+                                            <div>
+                                                <div class="nv-info-label">Level &amp; XP</div>
+                                                <div class="nv-info-value">
+                                                    <strong>Lvl <span x-text="u.level"></span></strong>
+                                                    <span style="color:var(--text-muted);font-weight:500;margin-left:0.5rem;">
+                                                        · <span x-text="u.xp.toLocaleString('de-DE')"></span> XP
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <div class="nv-info-label">E-Mail Status</div>
+                                                <template x-if="u.verified">
+                                                    <div class="nv-info-value nv-info-value--ok">
+                                                        <i class="bi bi-check-circle-fill"></i>
+                                                        Bestätigt am <span x-text="u.verifiedAt || '—'"></span>
+                                                    </div>
+                                                </template>
+                                                <template x-if="!u.verified">
+                                                    <div class="nv-info-value" style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+                                                        <span style="color:var(--error);"><i class="bi bi-x-circle-fill"></i> Nicht bestätigt</span>
+                                                        <form :action="`{{ url('admin/users') }}/${u.id}/verify`" method="POST" style="display:inline;">
+                                                            @csrf
+                                                            <button type="submit" class="nv-btn" style="padding:0.3rem 0.65rem;font-size:0.75rem;color:var(--success);border-color:rgba(34,197,94,0.30);">
+                                                                <i class="bi bi-check-lg"></i> Jetzt verifizieren
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                </template>
+                                            </div>
+                                            <div>
+                                                <div class="nv-info-label">Newsletter</div>
+                                                <template x-if="u.newsletter">
+                                                    <div class="nv-info-value nv-info-value--ok">
+                                                        <i class="bi bi-envelope-check-fill"></i> Aktiv seit Registrierung
+                                                    </div>
+                                                </template>
+                                                <template x-if="!u.newsletter">
+                                                    <div class="nv-info-value nv-info-value--muted">
+                                                        <i class="bi bi-envelope-slash"></i> Keine Zustimmung
+                                                    </div>
+                                                </template>
+                                            </div>
+                                        </div>
+
+                                        <div class="nv-panel-footer">
+                                            <button type="button" class="btn-ghost" @click="toggleExpand(u.id)">Abbrechen</button>
+                                            <button type="submit" class="btn-primary">
+                                                <i class="bi bi-check-lg"></i> Änderungen speichern
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </template>
             </table>
         </div>
-
-        {{-- Expandable detail panels (rendered between table and pagination) --}}
-        <template x-for="u in pageItems" :key="`dp-${u.id}`">
-            <div x-show="expanded === u.id" x-transition:enter="nv-slide-down" style="display:none;">
-                <div class="nv-detail-panel">
-                    <div class="nv-panel-label">Benutzer bearbeiten · #<span x-text="u.id"></span></div>
-
-                    <form :action="`{{ url('admin/users') }}/${u.id}`" method="POST">
-                        @csrf
-                        @method('PUT')
-
-                        <div class="nv-form-grid">
-                            <div class="nv-field">
-                                <label>Name</label>
-                                <input type="text" name="name" :value="u.name" required />
-                            </div>
-                            <div class="nv-field">
-                                <label>E-Mail</label>
-                                <input type="email" name="email" :value="u.email" required />
-                            </div>
-                            <div class="nv-field">
-                                <label>Rolle</label>
-                                <select name="useroll">
-                                    <option value="user"        :selected="u.role === 'user'">Benutzer</option>
-                                    <option value="contributor" :selected="u.role === 'contributor'">Contributor</option>
-                                    <option value="admin"       :selected="u.role === 'admin'">Administrator</option>
-                                </select>
-                            </div>
-                            <div class="nv-field">
-                                <label>Punkte (XP)</label>
-                                <input type="number" name="points" :value="u.xp" min="0" />
-                            </div>
-                        </div>
-
-                        <div class="nv-info-row">
-                            <div>
-                                <div class="nv-info-label">Level &amp; XP</div>
-                                <div class="nv-info-value">
-                                    <strong>Lvl <span x-text="u.level"></span></strong>
-                                    <span style="color:var(--text-muted);font-weight:500;margin-left:0.5rem;">
-                                        · <span x-text="u.xp.toLocaleString('de-DE')"></span> XP
-                                    </span>
-                                </div>
-                            </div>
-                            <div>
-                                <div class="nv-info-label">E-Mail Status</div>
-                                <template x-if="u.verified">
-                                    <div class="nv-info-value nv-info-value--ok">
-                                        <i class="bi bi-check-circle-fill"></i>
-                                        Bestätigt am <span x-text="u.verifiedAt || '—'"></span>
-                                    </div>
-                                </template>
-                                <template x-if="!u.verified">
-                                    <div class="nv-info-value" style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
-                                        <span style="color:var(--error);"><i class="bi bi-x-circle-fill"></i> Nicht bestätigt</span>
-                                        <form :action="`{{ url('admin/users') }}/${u.id}/verify`" method="POST" style="display:inline;">
-                                            @csrf
-                                            <button type="submit" class="nv-btn" style="padding:0.3rem 0.65rem;font-size:0.75rem;color:var(--success);border-color:rgba(34,197,94,0.30);">
-                                                <i class="bi bi-check-lg"></i> Jetzt verifizieren
-                                            </button>
-                                        </form>
-                                    </div>
-                                </template>
-                            </div>
-                            <div>
-                                <div class="nv-info-label">Newsletter</div>
-                                <template x-if="u.newsletter">
-                                    <div class="nv-info-value nv-info-value--ok">
-                                        <i class="bi bi-envelope-check-fill"></i> Aktiv seit Registrierung
-                                    </div>
-                                </template>
-                                <template x-if="!u.newsletter">
-                                    <div class="nv-info-value nv-info-value--muted">
-                                        <i class="bi bi-envelope-slash"></i> Keine Zustimmung
-                                    </div>
-                                </template>
-                            </div>
-                        </div>
-
-                        <div class="nv-panel-footer">
-                            <button type="button" class="btn-ghost" @click="toggleExpand(u.id)">Abbrechen</button>
-                            <button type="submit" class="btn-primary">
-                                <i class="bi bi-check-lg"></i> Änderungen speichern
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </template>
 
         {{-- Pagination --}}
         <div class="nv-pager" x-show="filtered.length > 0">
