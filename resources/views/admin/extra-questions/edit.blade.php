@@ -43,14 +43,16 @@
 @section('content')
 @php
     $typLabels = [
-        'matching'     => 'Zuordnung',
-        'image_name'   => 'Bild benennen',
-        'image_select' => 'Bild auswählen',
+        'matching'      => 'Zuordnung',
+        'image_name'    => 'Bild benennen',
+        'image_select'  => 'Bild auswählen',
+        'pair_matching' => 'Wortpaare',
     ];
     $typIcons = [
-        'matching'     => 'bi-diagram-3-fill',
-        'image_name'   => 'bi-image-fill',
-        'image_select' => 'bi-grid-3x3-gap-fill',
+        'matching'      => 'bi-diagram-3-fill',
+        'image_name'    => 'bi-image-fill',
+        'image_select'  => 'bi-grid-3x3-gap-fill',
+        'pair_matching' => 'bi-link-45deg',
     ];
 
     $currentLern = (string) old('lernabschnitt', $question->lernabschnitt);
@@ -134,6 +136,8 @@
 
         @if($question->typ === 'matching')
             @include('admin.extra-questions.partials.form-matching', ['question' => $question])
+        @elseif($question->typ === 'pair_matching')
+            @include('admin.extra-questions.partials.form-pairs', ['question' => $question])
         @elseif($question->typ === 'image_name')
             @include('admin.extra-questions.partials.form-image-name', ['question' => $question])
         @elseif($question->typ === 'image_select')
@@ -142,6 +146,9 @@
 
         <div class="zf-form-actions">
             <a href="{{ route('admin.extra-questions.index') }}" class="btn-ghost">Abbrechen</a>
+            <a href="{{ route('admin.extra-questions.tryout', $question) }}" class="btn-secondary">
+                <i class="bi bi-play-fill"></i> Try-Out
+            </a>
             <button type="submit" class="btn-primary">
                 <i class="bi bi-check2"></i> Änderungen speichern
             </button>

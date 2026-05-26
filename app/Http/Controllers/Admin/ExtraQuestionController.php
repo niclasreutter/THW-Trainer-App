@@ -37,7 +37,7 @@ class ExtraQuestionController extends Controller
     {
         $this->abortIfCannotEditQuestions();
 
-        $questions = ExtraQuestion::with(['options', 'matchCategories', 'matchItems'])
+        $questions = ExtraQuestion::with(['options', 'matchCategories', 'matchItems', 'pairItems'])
             ->orderBy('lernabschnitt')
             ->orderBy('typ')
             ->orderBy('id')
@@ -55,6 +55,7 @@ class ExtraQuestionController extends Controller
             ExtraQuestion::TYP_MATCHING,
             ExtraQuestion::TYP_IMAGE_NAME,
             ExtraQuestion::TYP_IMAGE_SELECT,
+            ExtraQuestion::TYP_PAIR_MATCHING,
         ], true)) {
             $typ = null;
         }
@@ -126,7 +127,7 @@ class ExtraQuestionController extends Controller
     {
         $this->abortIfCannotEditQuestions();
 
-        $extra_question->load(['options', 'matchCategories', 'matchItems.correctCategory']);
+        $extra_question->load(['options', 'matchCategories', 'matchItems.correctCategory', 'pairItems']);
 
         $sections = $this->buildLernabschnitte($extra_question->lernabschnitt);
 
@@ -177,6 +178,8 @@ class ExtraQuestionController extends Controller
             if ($extra_question->isMatching()) {
                 $extra_question->matchItems()->delete();
                 $extra_question->matchCategories()->delete();
+            } elseif ($extra_question->isPairMatching()) {
+                $extra_question->pairItems()->delete();
             } else {
                 $extra_question->options()->delete();
             }
@@ -271,6 +274,14 @@ class ExtraQuestionController extends Controller
                 ],
                 $payload['options'] ?? []
             );
+        } elseif ($submission->typ === ExtraQuestion::TYP_PAIR_MATCHING) {
+            $input['pairs'] = array_map(
+                fn ($p) => [
+                    'left_text' => $p['left_text'] ?? '',
+                    'right_text' => $p['right_text'] ?? '',
+                ],
+                $payload['pairs'] ?? []
+            );
         }
 
         return $input;
@@ -293,6 +304,13 @@ class ExtraQuestionController extends Controller
     ];
 
     /**
+     * Nicht-numerische Lernabschnitte, die zusätzlich zu LA01-LA10 angeboten werden.
+     */
+    private const EXTRA_SECTIONS = [
+        'allgemeines' => 'Allgemeines',
+    ];
+
+    /**
      * Baut die Lernabschnitt-Auswahl aus der DB:
      * distinct-Werte aus questions + extra_questions, optional ergänzt um einen
      * evtl. vorhandenen custom-Wert (z.B. beim Edit).
@@ -311,7 +329,14 @@ class ExtraQuestionController extends Controller
             ->distinct()
             ->pluck('lernabschnitt');
 
-        $values = $fromQuestions->merge($fromExtra)
+        $official = array_merge(
+            array_map(fn ($n) => (string) $n, array_keys(self::SECTION_NAMES)),
+            array_keys(self::EXTRA_SECTIONS),
+        );
+
+        $values = collect($official)
+            ->merge($fromQuestions)
+            ->merge($fromExtra)
             ->filter(fn ($v) => $v !== null && $v !== '')
             ->map(fn ($v) => (string) $v)
             ->unique()
@@ -347,6 +372,9 @@ class ExtraQuestionController extends Controller
         if (is_numeric($value) && isset(self::SECTION_NAMES[(int) $value])) {
             return $value . ' – ' . self::SECTION_NAMES[(int) $value];
         }
+        if (isset(self::EXTRA_SECTIONS[$value])) {
+            return self::EXTRA_SECTIONS[$value];
+        }
         return $value;
     }
 
@@ -358,7 +386,7 @@ class ExtraQuestionController extends Controller
         $typ = $request->input('typ');
 
         $rules = [
-            'typ' => 'required|in:matching,image_name,image_select',
+            'typ' => 'required|in:matching,image_name,image_select,pair_matching',
             'lernabschnitt' => 'required|string|max:255',
             'frage' => 'required|string',
         ];
@@ -391,6 +419,12 @@ class ExtraQuestionController extends Controller
                 'items' => 'required|array|min:3|max:10',
                 'items.*.text' => 'required|string',
                 'items.*.category_index' => 'required|integer|min:0',
+            ]);
+        } elseif ($typ === ExtraQuestion::TYP_PAIR_MATCHING) {
+            $rules = array_merge($rules, [
+                'pairs' => 'required|array|min:2|max:6',
+                'pairs.*.left_text' => 'required|string|max:255',
+                'pairs.*.right_text' => 'required|string|max:255',
             ]);
         }
 
@@ -484,6 +518,14 @@ class ExtraQuestionController extends Controller
                     'image_path' => $optImagePath,
                     'image_source' => $optData['image_source'] ?? null,
                     'is_correct' => (bool) $optData['is_correct'],
+                    'sort_order' => $i,
+                ]);
+            }
+        } elseif ($question->isPairMatching()) {
+            foreach ($validated['pairs'] as $i => $pairData) {
+                $question->pairItems()->create([
+                    'left_text' => $pairData['left_text'],
+                    'right_text' => $pairData['right_text'],
                     'sort_order' => $i,
                 ]);
             }

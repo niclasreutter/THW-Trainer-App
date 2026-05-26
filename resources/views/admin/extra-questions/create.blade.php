@@ -15,6 +15,12 @@
             'desc'  => 'Items zu Kategorien zuordnen (2–5 Kategorien, 3–10 Items)',
         ],
         [
+            'key'   => 'pair_matching',
+            'icon'  => 'bi-link-45deg',
+            'title' => 'Wortpaare',
+            'desc'  => '1-zu-1-Zuordnung von Begriffen (2–6 Paare)',
+        ],
+        [
             'key'   => 'image_name',
             'icon'  => 'bi-image-fill',
             'title' => 'Bild benennen',
@@ -165,6 +171,12 @@
                 </div>
             </template>
 
+            <template x-if="typ === 'pair_matching'">
+                <div class="zf-form-stack">
+                    @include('admin.extra-questions.partials.form-pairs', ['question' => null])
+                </div>
+            </template>
+
             <template x-if="typ === 'image_name'">
                 <div class="zf-form-stack">
                     @include('admin.extra-questions.partials.form-image-name', ['question' => null])
@@ -180,7 +192,11 @@
             <div class="zf-form-actions">
                 <a href="{{ route('admin.extra-questions.index') }}" class="btn-ghost">Abbrechen</a>
                 <button type="submit" class="btn-primary">
-                    <i class="bi bi-check2"></i> Zusatz-Frage speichern
+                    @if(!empty($submission))
+                        <i class="bi bi-send"></i> Veröffentlichen
+                    @else
+                        <i class="bi bi-check2"></i> Zusatz-Frage speichern
+                    @endif
                 </button>
             </div>
         </form>

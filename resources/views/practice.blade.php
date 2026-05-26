@@ -360,12 +360,25 @@
             background: var(--bg-base);
             backdrop-filter: none;
             -webkit-backdrop-filter: none;
-            padding: 1rem;
-            padding-bottom: calc(9rem + env(safe-area-inset-bottom, 0px));
+            padding: 0;
+            overflow: hidden;
+            animation: none;
+        }
+
+        .practice-card > form {
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .practice-card-body {
+            flex: 1;
+            min-height: 0;
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
             overscroll-behavior-y: contain;
-            animation: none;
+            padding: 1rem;
         }
 
         .practice-card::before { display: none; }
@@ -817,14 +830,10 @@
 
     @media (max-width: 640px) {
         .practice-actions {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            z-index: 100;
+            flex-shrink: 0;
             margin: 0;
             padding: 0.875rem 1rem;
-            padding-bottom: max(calc(0.875rem + env(safe-area-inset-bottom, 0px)), 4.5rem);
+            padding-bottom: calc(0.875rem + env(safe-area-inset-bottom, 0px));
             background: rgba(10, 10, 11, 0.6);
             -webkit-backdrop-filter: blur(20px) saturate(180%);
             backdrop-filter: blur(20px) saturate(180%);
@@ -1636,6 +1645,7 @@
                 <input type="hidden" name="question_kind" value="{{ ($question instanceof \App\Models\ExtraQuestion) ? 'extra' : 'official' }}">
                 <input type="hidden" name="answer_time_ms" id="answerTimeMs" value="0">
 
+                <div class="practice-card-body">
                 @if(!isset($question->typ) || $question->typ === 'multiple_choice' || !($question instanceof \App\Models\ExtraQuestion))
                     @include('practice.partials.question-multiple-choice', [
                         'question' => $question,
@@ -1650,6 +1660,14 @@
                     ])
                 @elseif($question->typ === 'matching')
                     @include('practice.partials.question-matching', [
+                        'question' => $question,
+                        'isCorrect' => $isCorrect ?? null,
+                        'answerResult' => $answerResult ?? null,
+                        'isSpacedRepetition' => $isSpacedRepetition ?? false,
+                        'difficultyInfo' => $difficultyInfo ?? null,
+                    ])
+                @elseif($question->typ === 'pair_matching')
+                    @include('practice.partials.question-pair-matching', [
                         'question' => $question,
                         'isCorrect' => $isCorrect ?? null,
                         'answerResult' => $answerResult ?? null,
@@ -1675,6 +1693,7 @@
                         'difficultyInfo' => $difficultyInfo ?? null,
                     ])
                 @endif
+                </div>
 
                 <!-- Actions -->
                 <div class="practice-actions">

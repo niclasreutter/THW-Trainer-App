@@ -32,6 +32,7 @@ class UserExtraQuestionSubmissionController extends Controller
             UserExtraQuestionSubmission::TYP_MATCHING,
             UserExtraQuestionSubmission::TYP_IMAGE_NAME,
             UserExtraQuestionSubmission::TYP_IMAGE_SELECT,
+            UserExtraQuestionSubmission::TYP_PAIR_MATCHING,
         ], true)) {
             $typ = null;
         }
@@ -102,12 +103,23 @@ class UserExtraQuestionSubmissionController extends Controller
         10 => 'Grundlagen der Rettung und Bergung',
     ];
 
+    private const EXTRA_SECTIONS = [
+        'allgemeines' => 'Allgemeines',
+    ];
+
     private function buildLernabschnitte(): array
     {
         $fromQuestions = Question::query()->select('lernabschnitt')->distinct()->pluck('lernabschnitt');
         $fromExtra = ExtraQuestion::query()->select('lernabschnitt')->distinct()->pluck('lernabschnitt');
 
-        $values = $fromQuestions->merge($fromExtra)
+        $official = array_merge(
+            array_map(fn ($n) => (string) $n, array_keys(self::SECTION_NAMES)),
+            array_keys(self::EXTRA_SECTIONS),
+        );
+
+        $values = collect($official)
+            ->merge($fromQuestions)
+            ->merge($fromExtra)
             ->filter(fn ($v) => $v !== null && $v !== '')
             ->map(fn ($v) => (string) $v)
             ->unique()
@@ -128,9 +140,13 @@ class UserExtraQuestionSubmissionController extends Controller
 
         $sections = [];
         foreach ($values as $val) {
-            $sections[$val] = is_numeric($val) && isset(self::SECTION_NAMES[(int) $val])
-                ? $val . ' – ' . self::SECTION_NAMES[(int) $val]
-                : $val;
+            if (is_numeric($val) && isset(self::SECTION_NAMES[(int) $val])) {
+                $sections[$val] = $val . ' – ' . self::SECTION_NAMES[(int) $val];
+            } elseif (isset(self::EXTRA_SECTIONS[$val])) {
+                $sections[$val] = self::EXTRA_SECTIONS[$val];
+            } else {
+                $sections[$val] = $val;
+            }
         }
 
         return $sections;
@@ -141,7 +157,7 @@ class UserExtraQuestionSubmissionController extends Controller
         $typ = $request->input('typ');
 
         $rules = [
-            'typ' => 'required|in:matching,image_name,image_select',
+            'typ' => 'required|in:matching,image_name,image_select,pair_matching',
             'lernabschnitt' => 'required|string|max:255',
             'frage' => 'required|string|max:2000',
         ];
@@ -168,6 +184,12 @@ class UserExtraQuestionSubmissionController extends Controller
                 'items' => 'required|array|min:3|max:10',
                 'items.*.text' => 'required|string|max:500',
                 'items.*.category_index' => 'required|integer|min:0',
+            ]);
+        } elseif ($typ === UserExtraQuestionSubmission::TYP_PAIR_MATCHING) {
+            $rules = array_merge($rules, [
+                'pairs' => 'required|array|min:2|max:6',
+                'pairs.*.left_text' => 'required|string|max:255',
+                'pairs.*.right_text' => 'required|string|max:255',
             ]);
         }
 
@@ -213,6 +235,15 @@ class UserExtraQuestionSubmissionController extends Controller
                     'text' => $i['text'],
                     'category_index' => (int) $i['category_index'],
                 ], $validated['items']),
+            ];
+        }
+
+        if ($typ === UserExtraQuestionSubmission::TYP_PAIR_MATCHING) {
+            return [
+                'pairs' => array_map(fn ($p) => [
+                    'left_text' => $p['left_text'],
+                    'right_text' => $p['right_text'],
+                ], $validated['pairs']),
             ];
         }
 

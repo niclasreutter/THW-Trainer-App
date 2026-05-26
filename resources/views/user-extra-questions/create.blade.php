@@ -15,6 +15,12 @@
             'desc'  => 'Items zu Kategorien zuordnen (2–5 Kategorien, 3–10 Items)',
         ],
         [
+            'key'   => 'pair_matching',
+            'icon'  => 'bi-link-45deg',
+            'title' => 'Wortpaare',
+            'desc'  => '1-zu-1-Zuordnung von Begriffen (2–6 Paare)',
+        ],
+        [
             'key'   => 'image_name',
             'icon'  => 'bi-image-fill',
             'title' => 'Bild benennen',
@@ -128,6 +134,12 @@
             <template x-if="typ === 'matching'">
                 <div class="zf-form-stack">
                     @include('user-extra-questions.partials.form-matching')
+                </div>
+            </template>
+
+            <template x-if="typ === 'pair_matching'">
+                <div class="zf-form-stack">
+                    @include('user-extra-questions.partials.form-pairs')
                 </div>
             </template>
 
