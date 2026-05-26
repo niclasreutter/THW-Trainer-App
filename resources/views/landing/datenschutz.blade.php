@@ -88,7 +88,7 @@
                     <p class="mb-4">Zur Sicherstellung eines ordnungsgemäßen Betriebs der Plattform haben berechtigte Administratoren Zugriff auf Ihre Kontodaten. Dieser Zugriff erfolgt ausschließlich zweckgebunden und ist auf das für die Verwaltung notwendige Maß beschränkt. Administratoren können folgende Daten einsehen und – sofern erforderlich – bearbeiten:</p>
                     <ul class="list-disc ml-8 pl-2 mb-4 space-y-1">
                         <li>Name und E-Mail-Adresse</li>
-                        <li>Benutzerrolle (Benutzer, Contributor, Administrator)</li>
+                        <li>Benutzerrolle</li>
                         <li>Punkte (XP), Level und Lernfortschritt</li>
                         <li>E-Mail-Verifizierungsstatus (inkl. manueller Bestätigung)</li>
                         <li>Status der Newsletter-Zustimmung</li>
