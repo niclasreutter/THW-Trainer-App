@@ -631,12 +631,12 @@ html.light-mode .logo-for-dark { display: none; }
         align-items: center;
         justify-content: center;
         gap: 0.5rem;
-        padding: 0.875rem 1.75rem;
+        padding: 0.7rem 1.25rem;
         background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
         color: white;
         font-weight: 700;
-        font-size: 0.95rem;
-        border-radius: 0.75rem;
+        font-size: 0.8125rem;
+        border-radius: 0.5rem;
         border: none;
         cursor: pointer;
         transition: all var(--transition-normal);

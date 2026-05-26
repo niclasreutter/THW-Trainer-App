@@ -289,7 +289,7 @@
                         <div style="display: flex; flex-direction: column; gap: 0.5rem;">
                             <a href="{{ route('admin.extra-questions.create', ['from_submission' => $submission->id]) }}"
                                class="btn-primary" style="justify-content: center;">
-                                <i class="bi bi-check2-circle"></i> Übernehmen &amp; Frage anlegen
+                                <i class="bi bi-pencil-square"></i> Vorschlag bearbeiten
                             </a>
                             <button type="button" class="btn-danger" style="justify-content: center;"
                                     onclick="document.getElementById('reject-form').style.display='block'; this.style.display='none';">

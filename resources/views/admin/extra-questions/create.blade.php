@@ -192,7 +192,11 @@
             <div class="zf-form-actions">
                 <a href="{{ route('admin.extra-questions.index') }}" class="btn-ghost">Abbrechen</a>
                 <button type="submit" class="btn-primary">
-                    <i class="bi bi-check2"></i> Zusatz-Frage speichern
+                    @if(!empty($submission))
+                        <i class="bi bi-send"></i> Veröffentlichen
+                    @else
+                        <i class="bi bi-check2"></i> Zusatz-Frage speichern
+                    @endif
                 </button>
             </div>
         </form>
