@@ -388,6 +388,262 @@
         color: var(--text-muted);
     }
     .nv-empty__icon { font-size: 2rem; color: rgba(0,51,127,0.18); margin-bottom: 0.5rem; }
+
+    /* --------- PROGRESS MODAL --------- */
+    .nv-modal-overlay {
+        position: fixed; inset: 0;
+        background: rgba(15,23,42,0.55);
+        backdrop-filter: blur(4px);
+        display: grid; place-items: center;
+        z-index: 1000;
+        padding: 1rem;
+        animation: nv-fade-in 150ms ease-out;
+    }
+    @keyframes nv-fade-in { from { opacity: 0; } to { opacity: 1; } }
+
+    .nv-modal {
+        background: #fff;
+        border-radius: 1rem;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.30);
+        width: 100%;
+        max-width: 920px;
+        max-height: 90vh;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        animation: nv-modal-rise 200ms ease-out;
+    }
+    html:not(.light-mode) .nv-modal {
+        background: var(--bg-card, #1c1c1f);
+        box-shadow: 0 20px 60px rgba(0,0,0,0.55);
+    }
+    @keyframes nv-modal-rise {
+        from { opacity: 0; transform: translateY(12px) scale(0.98); }
+        to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .nv-modal__head {
+        padding: 1.25rem 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        border-bottom: 1px solid rgba(0,51,127,0.08);
+    }
+    html:not(.light-mode) .nv-modal__head { border-bottom-color: rgba(255,255,255,0.08); }
+    .nv-modal__user { display: flex; align-items: center; gap: 0.875rem; min-width: 0; }
+    .nv-modal__avatar {
+        width: 48px; height: 48px; border-radius: 50%;
+        background: #f1f5f9; overflow: hidden; flex-shrink: 0;
+        border: 1px solid rgba(0,51,127,0.10);
+    }
+    .nv-modal__avatar img { width: 100%; height: 100%; display: block; }
+    .nv-modal__eyebrow {
+        font-family: var(--font-mono, 'IBM Plex Mono', monospace);
+        font-size: 0.6875rem; font-weight: 700;
+        text-transform: uppercase; letter-spacing: 0.1em;
+        color: var(--text-muted);
+    }
+    .nv-modal__title {
+        font-size: 1.25rem; font-weight: 700;
+        color: var(--text-primary);
+        line-height: 1.15;
+        letter-spacing: -0.01em;
+    }
+    .nv-modal__sub {
+        font-size: 0.8125rem; color: var(--text-muted);
+        font-family: var(--font-mono, 'IBM Plex Mono', monospace);
+        margin-top: 0.15rem;
+    }
+    .nv-modal__close {
+        width: 36px; height: 36px;
+        display: grid; place-items: center;
+        border-radius: 0.5rem;
+        border: 1px solid rgba(0,51,127,0.10);
+        background: #f8fafc;
+        color: var(--text-secondary);
+        cursor: pointer;
+        transition: all 150ms;
+    }
+    html:not(.light-mode) .nv-modal__close {
+        background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.10);
+    }
+    .nv-modal__close:hover { background: rgba(239,68,68,0.08); border-color: rgba(239,68,68,0.30); color: var(--error); }
+
+    .nv-modal__tabs {
+        display: flex;
+        gap: 0.25rem;
+        padding: 0.5rem 1.5rem 0;
+        background: #f8fafc;
+        border-bottom: 1px solid rgba(0,51,127,0.08);
+    }
+    html:not(.light-mode) .nv-modal__tabs { background: rgba(255,255,255,0.02); border-bottom-color: rgba(255,255,255,0.08); }
+    .nv-modal__tab {
+        display: inline-flex; align-items: center; gap: 0.4rem;
+        padding: 0.6rem 1rem 0.7rem;
+        font-size: 0.8125rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+        background: transparent;
+        border: none;
+        border-bottom: 2px solid transparent;
+        cursor: pointer;
+        transition: all 150ms;
+        font-family: var(--font-sans);
+    }
+    .nv-modal__tab:hover { color: var(--text-primary); }
+    .nv-modal__tab--active {
+        color: var(--thw-blue);
+        border-bottom-color: var(--thw-blue);
+    }
+    .nv-modal__tab-count {
+        display: inline-grid; place-items: center;
+        min-width: 22px; height: 18px; padding: 0 0.4rem;
+        border-radius: 999px;
+        background: rgba(0,51,127,0.10);
+        color: var(--thw-blue);
+        font-size: 0.6875rem;
+        font-weight: 700;
+        font-family: var(--font-mono, 'IBM Plex Mono', monospace);
+    }
+    .nv-modal__tab--active .nv-modal__tab-count { background: var(--thw-blue); color: #fff; }
+
+    .nv-modal__body { padding: 1.5rem; overflow-y: auto; flex: 1; }
+
+    .nv-modal-stats {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+    }
+    @media (max-width: 700px) { .nv-modal-stats { grid-template-columns: repeat(2, 1fr); } }
+    .nv-modal-stat {
+        padding: 0.875rem 1rem;
+        background: #f8fafc;
+        border: 1px solid rgba(0,51,127,0.08);
+        border-radius: 0.625rem;
+        text-align: center;
+    }
+    html:not(.light-mode) .nv-modal-stat { background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.07); }
+    .nv-modal-stat__value { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.015em; line-height: 1.1; }
+    .nv-modal-stat__value--blue { color: var(--thw-blue); }
+    .nv-modal-stat__value--ok   { color: var(--success); }
+    .nv-modal-stat__value--warn { color: var(--warning, #f59e0b); }
+    .nv-modal-stat__value--err  { color: var(--error); }
+    .nv-modal-stat__label {
+        font-family: var(--font-mono, 'IBM Plex Mono', monospace);
+        font-size: 0.6875rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--text-muted);
+        margin-top: 0.2rem;
+    }
+
+    .nv-prog-list { display: flex; flex-direction: column; gap: 0.5rem; }
+    .nv-prog-row {
+        background: #fff;
+        border: 1px solid rgba(0,51,127,0.08);
+        border-radius: 0.625rem;
+        padding: 0.875rem 1rem;
+        transition: border-color 150ms;
+    }
+    html:not(.light-mode) .nv-prog-row { background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.07); }
+    .nv-prog-row:hover { border-color: rgba(0,51,127,0.18); }
+
+    .nv-prog-row__head {
+        display: grid;
+        grid-template-columns: 48px 1fr auto;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 0.6rem;
+    }
+    .nv-prog-row__num {
+        font-family: var(--font-mono, 'IBM Plex Mono', monospace);
+        font-weight: 700;
+        font-size: 0.875rem;
+        height: 30px;
+        display: grid; place-items: center;
+        border-radius: 0.4rem;
+        background: rgba(0,51,127,0.08);
+        color: var(--thw-blue);
+        padding: 0 0.5rem;
+    }
+    .nv-prog-row__num--done { background: rgba(34,197,94,0.14); color: var(--success); }
+    .nv-prog-row__num--mid  { background: rgba(245,158,11,0.14); color: var(--warning, #f59e0b); }
+    .nv-prog-row__num--low  { background: rgba(239,68,68,0.12); color: var(--error); }
+    .nv-prog-row__num--none { background: rgba(100,116,139,0.12); color: #64748b; }
+    .nv-prog-row__title { font-weight: 600; color: var(--text-primary); }
+    .nv-prog-row__pct {
+        font-family: var(--font-mono, 'IBM Plex Mono', monospace);
+        font-weight: 700; font-size: 0.875rem;
+        color: var(--text-secondary);
+    }
+    .nv-prog-row__pct--done { color: var(--success); }
+    .nv-prog-row__pct--mid  { color: var(--warning, #f59e0b); }
+    .nv-prog-row__pct--low  { color: var(--error); }
+    .nv-prog-row__pct--none { color: var(--text-muted); }
+
+    .nv-prog-row__bar {
+        position: relative;
+        height: 6px;
+        background: rgba(0,51,127,0.06);
+        border-radius: 999px;
+        overflow: hidden;
+    }
+    html:not(.light-mode) .nv-prog-row__bar { background: rgba(255,255,255,0.06); }
+    .nv-prog-row__fill {
+        position: absolute; left: 0; top: 0; bottom: 0;
+        border-radius: 999px;
+        transition: width 200ms;
+    }
+    .nv-prog-row__fill--done { background: var(--success); }
+    .nv-prog-row__fill--mid  { background: var(--warning, #f59e0b); }
+    .nv-prog-row__fill--low  { background: var(--error); }
+    .nv-prog-row__fill--none { background: rgba(100,116,139,0.5); }
+
+    .nv-prog-row__meta {
+        margin-top: 0.5rem;
+        display: flex;
+        gap: 0.875rem;
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        font-family: var(--font-mono, 'IBM Plex Mono', monospace);
+        flex-wrap: wrap;
+    }
+    .nv-prog-row__meta-item { display: inline-flex; align-items: center; gap: 0.3rem; }
+    .nv-prog-row__meta-item--ok   { color: var(--success); }
+    .nv-prog-row__meta-item--warn { color: var(--warning, #f59e0b); }
+    .nv-prog-row__meta-item--err  { color: var(--error); }
+    .nv-prog-row__meta-item .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+    .nv-modal__footer {
+        padding: 1rem 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        border-top: 1px solid rgba(0,51,127,0.08);
+        background: #f8fafc;
+        flex-wrap: wrap;
+    }
+    html:not(.light-mode) .nv-modal__footer { background: rgba(255,255,255,0.02); border-top-color: rgba(255,255,255,0.08); }
+    .nv-modal__footer-hint {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+    .nv-modal__footer-actions { display: flex; gap: 0.5rem; }
+
+    .nv-modal-loading {
+        padding: 3rem 1rem;
+        text-align: center;
+        color: var(--text-muted);
+        font-size: 0.875rem;
+    }
+    .nv-modal-loading i { font-size: 1.5rem; display: block; margin-bottom: 0.5rem; opacity: 0.5; }
 </style>
 @endpush
 
@@ -417,6 +673,13 @@ document.addEventListener('alpine:init', () => {
         page: 1,
         perPage: 8,
         users: @json($usersJson),
+
+        // Progress modal state
+        modalUser: null,
+        modalLoading: false,
+        modalData: null,
+        modalTab: 'grundausbildung',
+
         get filtered() {
             const q = this.search.trim().toLowerCase();
             return this.users.filter(u => {
@@ -436,6 +699,68 @@ document.addEventListener('alpine:init', () => {
         },
         toggleExpand(id) { this.expanded = (this.expanded === id) ? null : id; },
         roleLabel(r) { return r === 'admin' ? 'Admin' : (r === 'contributor' ? 'Contributor' : 'Benutzer'); },
+
+        async openProgress(u) {
+            this.modalUser    = u;
+            this.modalTab     = 'grundausbildung';
+            this.modalData    = null;
+            this.modalLoading = true;
+            document.body.style.overflow = 'hidden';
+            try {
+                const res = await fetch(`{{ url('admin/users') }}/${u.id}/progress-json`, {
+                    headers: { 'Accept': 'application/json' },
+                    credentials: 'same-origin',
+                });
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                this.modalData = await res.json();
+            } catch (e) {
+                console.error('Fortschritts-Modal: Laden fehlgeschlagen', e);
+                this.modalData = { error: true };
+            } finally {
+                this.modalLoading = false;
+            }
+        },
+        closeProgress() {
+            this.modalUser    = null;
+            this.modalData    = null;
+            this.modalLoading = false;
+            document.body.style.overflow = '';
+        },
+        get modalRows() {
+            if (!this.modalData || this.modalData.error) return [];
+            return this.modalData[this.modalTab] || [];
+        },
+        get modalActiveRows() {
+            return this.modalTab === 'lehrgaenge'
+                ? this.modalRows.filter(r => r.enrolled)
+                : this.modalRows;
+        },
+        get modalTotals() {
+            const rows = this.modalActiveRows;
+            const acc = { total: 0, mastered: 0, partial: 0, sr: 0 };
+            for (const r of rows) {
+                acc.total    += r.total;
+                acc.mastered += r.mastered;
+                acc.partial  += r.partial;
+                acc.sr       += r.sr;
+            }
+            acc.pct = acc.total > 0 ? Math.round((acc.mastered / acc.total) * 100) : 0;
+            return acc;
+        },
+        pctCls(pct) {
+            if (pct >= 80) return 'done';
+            if (pct >= 50) return 'mid';
+            if (pct >  0)  return 'low';
+            return 'none';
+        },
+        rowPct(r) {
+            return r.total > 0 ? Math.round((r.mastered / r.total) * 100) : 0;
+        },
+        tabCount(tab) {
+            if (!this.modalData) return 0;
+            const rows = this.modalData[tab] || [];
+            return tab === 'lehrgaenge' ? rows.filter(r => r.enrolled).length : rows.length;
+        },
     }));
 });
 </script>
@@ -564,9 +889,10 @@ document.addEventListener('alpine:init', () => {
                         <th style="text-align: right;">Aktionen</th>
                     </tr>
                 </thead>
-                <tbody>
-                    {{-- Empty state --}}
-                    <tr x-show="pageItems.length === 0">
+
+                {{-- Empty state as its own tbody --}}
+                <tbody x-show="pageItems.length === 0">
+                    <tr>
                         <td colspan="4">
                             <div class="nv-empty">
                                 <div class="nv-empty__icon"><i class="bi bi-search"></i></div>
@@ -575,14 +901,15 @@ document.addEventListener('alpine:init', () => {
                             </div>
                         </td>
                     </tr>
+                </tbody>
 
-                    {{--
-                        Alpine x-for inside tbody: we need one <tr> per user.
-                        The expandable detail is rendered as a separate section
-                        below the table (see nv-panels-section below).
-                        We highlight the row when expanded.
-                    --}}
-                    <template x-for="u in pageItems" :key="u.id">
+                {{--
+                    One <tbody> per user — keeps main row and detail row paired so the
+                    expandable panel slides out directly beneath the corresponding row.
+                    Browsers permit multiple <tbody> elements within one <table>.
+                --}}
+                <template x-for="u in pageItems" :key="u.id">
+                    <tbody class="nv-row-group">
                         <tr class="nv-main-row" :class="expanded === u.id ? 'nv-expanded' : ''">
                             <td>
                                 <div class="nv-user-cell">
@@ -617,9 +944,9 @@ document.addEventListener('alpine:init', () => {
                                         <i :class="`bi ${expanded === u.id ? 'bi-chevron-up' : 'bi-chevron-down'}`"></i>
                                         Details
                                     </button>
-                                    <a :href="`{{ url('admin/users') }}/${u.id}/progress`" class="nv-btn nv-btn--primary">
+                                    <button type="button" class="nv-btn nv-btn--primary" @click="openProgress(u)">
                                         <i class="bi bi-graph-up"></i> Fortschritt
-                                    </a>
+                                    </button>
                                     <a :href="`{{ url('admin/users') }}/${u.id}/xp-history`" class="nv-btn nv-btn--icon" title="XP-Verlauf">
                                         <i class="bi bi-clock-history"></i>
                                     </a>
@@ -634,99 +961,99 @@ document.addEventListener('alpine:init', () => {
                                 </div>
                             </td>
                         </tr>
-                    </template>
-                </tbody>
+
+                        {{-- Inline detail row, directly beneath the corresponding user row --}}
+                        <tr class="nv-detail-row" x-show="expanded === u.id" style="display: none;">
+                            <td colspan="4">
+                                <div class="nv-detail-panel">
+                                    <div class="nv-panel-label">Benutzer bearbeiten · #<span x-text="u.id"></span></div>
+
+                                    <form :action="`{{ url('admin/users') }}/${u.id}`" method="POST">
+                                        @csrf
+                                        @method('PUT')
+
+                                        <div class="nv-form-grid">
+                                            <div class="nv-field">
+                                                <label>Name</label>
+                                                <input type="text" name="name" :value="u.name" required />
+                                            </div>
+                                            <div class="nv-field">
+                                                <label>E-Mail</label>
+                                                <input type="email" name="email" :value="u.email" required />
+                                            </div>
+                                            <div class="nv-field">
+                                                <label>Rolle</label>
+                                                <select name="useroll">
+                                                    <option value="user"        :selected="u.role === 'user'">Benutzer</option>
+                                                    <option value="contributor" :selected="u.role === 'contributor'">Contributor</option>
+                                                    <option value="admin"       :selected="u.role === 'admin'">Administrator</option>
+                                                </select>
+                                            </div>
+                                            <div class="nv-field">
+                                                <label>Punkte (XP)</label>
+                                                <input type="number" name="points" :value="u.xp" min="0" />
+                                            </div>
+                                        </div>
+
+                                        <div class="nv-info-row">
+                                            <div>
+                                                <div class="nv-info-label">Level &amp; XP</div>
+                                                <div class="nv-info-value">
+                                                    <strong>Lvl <span x-text="u.level"></span></strong>
+                                                    <span style="color:var(--text-muted);font-weight:500;margin-left:0.5rem;">
+                                                        · <span x-text="u.xp.toLocaleString('de-DE')"></span> XP
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <div class="nv-info-label">E-Mail Status</div>
+                                                <template x-if="u.verified">
+                                                    <div class="nv-info-value nv-info-value--ok">
+                                                        <i class="bi bi-check-circle-fill"></i>
+                                                        Bestätigt am <span x-text="u.verifiedAt || '—'"></span>
+                                                    </div>
+                                                </template>
+                                                <template x-if="!u.verified">
+                                                    <div class="nv-info-value" style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+                                                        <span style="color:var(--error);"><i class="bi bi-x-circle-fill"></i> Nicht bestätigt</span>
+                                                        <form :action="`{{ url('admin/users') }}/${u.id}/verify`" method="POST" style="display:inline;">
+                                                            @csrf
+                                                            <button type="submit" class="nv-btn" style="padding:0.3rem 0.65rem;font-size:0.75rem;color:var(--success);border-color:rgba(34,197,94,0.30);">
+                                                                <i class="bi bi-check-lg"></i> Jetzt verifizieren
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                </template>
+                                            </div>
+                                            <div>
+                                                <div class="nv-info-label">Newsletter</div>
+                                                <template x-if="u.newsletter">
+                                                    <div class="nv-info-value nv-info-value--ok">
+                                                        <i class="bi bi-envelope-check-fill"></i> Aktiv seit Registrierung
+                                                    </div>
+                                                </template>
+                                                <template x-if="!u.newsletter">
+                                                    <div class="nv-info-value nv-info-value--muted">
+                                                        <i class="bi bi-envelope-slash"></i> Keine Zustimmung
+                                                    </div>
+                                                </template>
+                                            </div>
+                                        </div>
+
+                                        <div class="nv-panel-footer">
+                                            <button type="button" class="btn-ghost" @click="toggleExpand(u.id)">Abbrechen</button>
+                                            <button type="submit" class="btn-primary">
+                                                <i class="bi bi-check-lg"></i> Änderungen speichern
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </template>
             </table>
         </div>
-
-        {{-- Expandable detail panels (rendered between table and pagination) --}}
-        <template x-for="u in pageItems" :key="`dp-${u.id}`">
-            <div x-show="expanded === u.id" x-transition:enter="nv-slide-down" style="display:none;">
-                <div class="nv-detail-panel">
-                    <div class="nv-panel-label">Benutzer bearbeiten · #<span x-text="u.id"></span></div>
-
-                    <form :action="`{{ url('admin/users') }}/${u.id}`" method="POST">
-                        @csrf
-                        @method('PUT')
-
-                        <div class="nv-form-grid">
-                            <div class="nv-field">
-                                <label>Name</label>
-                                <input type="text" name="name" :value="u.name" required />
-                            </div>
-                            <div class="nv-field">
-                                <label>E-Mail</label>
-                                <input type="email" name="email" :value="u.email" required />
-                            </div>
-                            <div class="nv-field">
-                                <label>Rolle</label>
-                                <select name="useroll">
-                                    <option value="user"        :selected="u.role === 'user'">Benutzer</option>
-                                    <option value="contributor" :selected="u.role === 'contributor'">Contributor</option>
-                                    <option value="admin"       :selected="u.role === 'admin'">Administrator</option>
-                                </select>
-                            </div>
-                            <div class="nv-field">
-                                <label>Punkte (XP)</label>
-                                <input type="number" name="points" :value="u.xp" min="0" />
-                            </div>
-                        </div>
-
-                        <div class="nv-info-row">
-                            <div>
-                                <div class="nv-info-label">Level &amp; XP</div>
-                                <div class="nv-info-value">
-                                    <strong>Lvl <span x-text="u.level"></span></strong>
-                                    <span style="color:var(--text-muted);font-weight:500;margin-left:0.5rem;">
-                                        · <span x-text="u.xp.toLocaleString('de-DE')"></span> XP
-                                    </span>
-                                </div>
-                            </div>
-                            <div>
-                                <div class="nv-info-label">E-Mail Status</div>
-                                <template x-if="u.verified">
-                                    <div class="nv-info-value nv-info-value--ok">
-                                        <i class="bi bi-check-circle-fill"></i>
-                                        Bestätigt am <span x-text="u.verifiedAt || '—'"></span>
-                                    </div>
-                                </template>
-                                <template x-if="!u.verified">
-                                    <div class="nv-info-value" style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
-                                        <span style="color:var(--error);"><i class="bi bi-x-circle-fill"></i> Nicht bestätigt</span>
-                                        <form :action="`{{ url('admin/users') }}/${u.id}/verify`" method="POST" style="display:inline;">
-                                            @csrf
-                                            <button type="submit" class="nv-btn" style="padding:0.3rem 0.65rem;font-size:0.75rem;color:var(--success);border-color:rgba(34,197,94,0.30);">
-                                                <i class="bi bi-check-lg"></i> Jetzt verifizieren
-                                            </button>
-                                        </form>
-                                    </div>
-                                </template>
-                            </div>
-                            <div>
-                                <div class="nv-info-label">Newsletter</div>
-                                <template x-if="u.newsletter">
-                                    <div class="nv-info-value nv-info-value--ok">
-                                        <i class="bi bi-envelope-check-fill"></i> Aktiv seit Registrierung
-                                    </div>
-                                </template>
-                                <template x-if="!u.newsletter">
-                                    <div class="nv-info-value nv-info-value--muted">
-                                        <i class="bi bi-envelope-slash"></i> Keine Zustimmung
-                                    </div>
-                                </template>
-                            </div>
-                        </div>
-
-                        <div class="nv-panel-footer">
-                            <button type="button" class="btn-ghost" @click="toggleExpand(u.id)">Abbrechen</button>
-                            <button type="submit" class="btn-primary">
-                                <i class="bi bi-check-lg"></i> Änderungen speichern
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </template>
 
         {{-- Pagination --}}
         <div class="nv-pager" x-show="filtered.length > 0">
@@ -745,6 +1072,141 @@ document.addEventListener('alpine:init', () => {
                 <button class="nv-pager__btn" :disabled="page === totalPages" @click="page++">
                     <i class="bi bi-chevron-right"></i>
                 </button>
+            </div>
+        </div>
+
+        {{-- Progress Modal --}}
+        <div class="nv-modal-overlay" x-show="modalUser !== null" @click="closeProgress()" @keydown.escape.window="closeProgress()" style="display: none;">
+            <div class="nv-modal" @click.stop>
+                <div class="nv-modal__head">
+                    <div class="nv-modal__user">
+                        <div class="nv-modal__avatar">
+                            <img :src="modalUser?.avatarUrl" :alt="modalUser?.name || ''" />
+                        </div>
+                        <div style="min-width: 0;">
+                            <div class="nv-modal__eyebrow">Lernfortschritt</div>
+                            <div class="nv-modal__title" x-text="modalUser?.name"></div>
+                            <div class="nv-modal__sub">
+                                <span x-text="modalUser?.email"></span>
+                                <span> · Lvl <span x-text="modalUser?.level"></span></span>
+                                <span> · <span x-text="(modalUser?.xp ?? 0).toLocaleString('de-DE')"></span> XP</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" class="nv-modal__close" @click="closeProgress()" aria-label="Schließen">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+
+                <div class="nv-modal__tabs">
+                    <button type="button" class="nv-modal__tab" :class="modalTab === 'grundausbildung' ? 'nv-modal__tab--active' : ''" @click="modalTab = 'grundausbildung'">
+                        <i class="bi bi-mortarboard-fill"></i> Grundausbildung
+                        <span class="nv-modal__tab-count" x-text="tabCount('grundausbildung')"></span>
+                    </button>
+                    <button type="button" class="nv-modal__tab" :class="modalTab === 'zusatzfragen' ? 'nv-modal__tab--active' : ''" @click="modalTab = 'zusatzfragen'">
+                        <i class="bi bi-lightbulb-fill"></i> Zusatzfragen
+                        <span class="nv-modal__tab-count" x-text="tabCount('zusatzfragen')"></span>
+                    </button>
+                    <button type="button" class="nv-modal__tab" :class="modalTab === 'lehrgaenge' ? 'nv-modal__tab--active' : ''" @click="modalTab = 'lehrgaenge'">
+                        <i class="bi bi-award-fill"></i> Lehrgänge
+                        <span class="nv-modal__tab-count" x-text="tabCount('lehrgaenge')"></span>
+                    </button>
+                </div>
+
+                <div class="nv-modal__body">
+                    {{-- Loading state --}}
+                    <template x-if="modalLoading">
+                        <div class="nv-modal-loading">
+                            <i class="bi bi-arrow-clockwise"></i>
+                            Fortschrittsdaten werden geladen…
+                        </div>
+                    </template>
+
+                    {{-- Error state --}}
+                    <template x-if="!modalLoading && modalData && modalData.error">
+                        <div class="nv-modal-loading" style="color: var(--error);">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            Fortschrittsdaten konnten nicht geladen werden.
+                        </div>
+                    </template>
+
+                    {{-- Data state --}}
+                    <template x-if="!modalLoading && modalData && !modalData.error">
+                        <div>
+                            {{-- Summary stats --}}
+                            <div class="nv-modal-stats">
+                                <div class="nv-modal-stat">
+                                    <div class="nv-modal-stat__value nv-modal-stat__value--blue"><span x-text="modalTotals.pct"></span>%</div>
+                                    <div class="nv-modal-stat__label">Fortschritt</div>
+                                </div>
+                                <div class="nv-modal-stat">
+                                    <div class="nv-modal-stat__value nv-modal-stat__value--ok" x-text="modalTotals.mastered.toLocaleString('de-DE')"></div>
+                                    <div class="nv-modal-stat__label">Gemeistert · 3/3</div>
+                                </div>
+                                <div class="nv-modal-stat">
+                                    <div class="nv-modal-stat__value nv-modal-stat__value--warn" x-text="modalTotals.partial"></div>
+                                    <div class="nv-modal-stat__label">In Lernphase</div>
+                                </div>
+                                <div class="nv-modal-stat">
+                                    <div class="nv-modal-stat__value nv-modal-stat__value--err" x-text="modalTotals.sr"></div>
+                                    <div class="nv-modal-stat__label">SR · Wiederholung</div>
+                                </div>
+                            </div>
+
+                            {{-- Empty per-tab --}}
+                            <template x-if="modalActiveRows.length === 0">
+                                <div class="nv-modal-loading">
+                                    <i class="bi bi-inbox"></i>
+                                    <template x-if="modalTab === 'lehrgaenge'">
+                                        <span>Dieser Nutzer ist in keinen Lehrgang eingeschrieben.</span>
+                                    </template>
+                                    <template x-if="modalTab !== 'lehrgaenge'">
+                                        <span>Keine Daten vorhanden.</span>
+                                    </template>
+                                </div>
+                            </template>
+
+                            {{-- Progress list --}}
+                            <div class="nv-prog-list" x-show="modalActiveRows.length > 0">
+                                <template x-for="(row, i) in modalActiveRows" :key="modalTab + '-' + row.id">
+                                    <div class="nv-prog-row">
+                                        <div class="nv-prog-row__head">
+                                            <div class="nv-prog-row__num" :class="`nv-prog-row__num--${pctCls(rowPct(row))}`"
+                                                 x-text="modalTab === 'lehrgaenge' ? row.code : (i + 1)"></div>
+                                            <div class="nv-prog-row__title" x-text="row.title"></div>
+                                            <div class="nv-prog-row__pct" :class="`nv-prog-row__pct--${pctCls(rowPct(row))}`">
+                                                <span x-text="rowPct(row)"></span>%
+                                            </div>
+                                        </div>
+                                        <div class="nv-prog-row__bar">
+                                            <div class="nv-prog-row__fill" :class="`nv-prog-row__fill--${pctCls(rowPct(row))}`"
+                                                 :style="`width: ${rowPct(row)}%;`"></div>
+                                        </div>
+                                        <div class="nv-prog-row__meta">
+                                            <span class="nv-prog-row__meta-item nv-prog-row__meta-item--ok"><span class="dot"></span> <span x-text="row.mastered"></span> gemeistert</span>
+                                            <span class="nv-prog-row__meta-item nv-prog-row__meta-item--warn" x-show="row.partial > 0"><span class="dot"></span> <span x-text="row.partial"></span> in Lernphase</span>
+                                            <span class="nv-prog-row__meta-item nv-prog-row__meta-item--err" x-show="row.sr > 0"><span class="dot"></span> <span x-text="row.sr"></span> SR</span>
+                                            <span class="nv-prog-row__meta-item"><span x-text="row.total"></span> Fragen</span>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                <div class="nv-modal__footer">
+                    <div class="nv-modal__footer-hint">
+                        <i class="bi bi-info-circle"></i>
+                        Übersicht. Für die detaillierte Bearbeitung pro Frage:
+                    </div>
+                    <div class="nv-modal__footer-actions">
+                        <button type="button" class="btn-ghost" @click="closeProgress()">Schließen</button>
+                        <a :href="modalUser ? `{{ url('admin/users') }}/${modalUser.id}/progress` : '#'" class="btn-primary">
+                            <i class="bi bi-pencil-square"></i> Detailliert bearbeiten
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
 
