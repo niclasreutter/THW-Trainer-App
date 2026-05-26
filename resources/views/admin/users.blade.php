@@ -644,6 +644,141 @@
         font-size: 0.875rem;
     }
     .nv-modal-loading i { font-size: 1.5rem; display: block; margin-bottom: 0.5rem; opacity: 0.5; }
+
+    /* --------- BULK BUTTONS PRO MODUL --------- */
+    .nv-prog-row__bulk {
+        display: inline-flex;
+        gap: 0.25rem;
+        margin-left: auto;
+        flex-wrap: wrap;
+    }
+    .nv-bulk-btn {
+        display: inline-flex; align-items: center; gap: 0.3rem;
+        padding: 0.3rem 0.55rem;
+        border-radius: 0.4rem;
+        background: #fff;
+        border: 1px solid rgba(0,51,127,0.12);
+        color: var(--text-secondary);
+        font-size: 0.6875rem;
+        font-weight: 600;
+        font-family: var(--font-sans);
+        cursor: pointer;
+        transition: all 150ms;
+        white-space: nowrap;
+    }
+    html:not(.light-mode) .nv-bulk-btn { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.10); }
+    .nv-bulk-btn:hover:not(:disabled) { background: rgba(0,51,127,0.04); border-color: rgba(0,51,127,0.20); color: var(--text-primary); }
+    .nv-bulk-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .nv-bulk-btn--ok:hover:not(:disabled)    { background: rgba(34,197,94,0.08);  border-color: rgba(34,197,94,0.30);  color: var(--success); }
+    .nv-bulk-btn--sr:hover:not(:disabled)    { background: rgba(239,68,68,0.06);  border-color: rgba(239,68,68,0.25);  color: var(--error); }
+    .nv-bulk-btn--reset:hover:not(:disabled) { background: rgba(245,158,11,0.06); border-color: rgba(245,158,11,0.25); color: var(--warning, #f59e0b); }
+
+    .nv-prog-row--open { border-color: rgba(0,51,127,0.18); }
+
+    /* --------- QUESTION LIST IM AUFGEKLAPPTEN MODUL --------- */
+    .nv-q-expand {
+        margin-top: 0.75rem;
+        padding-top: 0.875rem;
+        border-top: 1px dashed rgba(0,51,127,0.10);
+    }
+    html:not(.light-mode) .nv-q-expand { border-top-color: rgba(255,255,255,0.08); }
+
+    .nv-q-legend {
+        display: flex; gap: 1rem; flex-wrap: wrap;
+        padding: 0.5rem 0.75rem;
+        background: rgba(0,51,127,0.03);
+        border-radius: 0.4rem;
+        font-size: 0.6875rem;
+        color: var(--text-secondary);
+        font-family: var(--font-mono, 'IBM Plex Mono', monospace);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        margin-bottom: 0.75rem;
+    }
+    html:not(.light-mode) .nv-q-legend { background: rgba(255,255,255,0.03); }
+    .nv-q-legend__item { display: inline-flex; align-items: center; gap: 0.35rem; }
+    .nv-q-legend__item .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+
+    .nv-q-list { display: flex; flex-direction: column; gap: 0.3rem; max-height: 360px; overflow-y: auto; padding-right: 0.25rem; }
+
+    .nv-q-item {
+        display: grid;
+        grid-template-columns: 48px 180px 1fr auto;
+        align-items: center;
+        gap: 0.6rem;
+        padding: 0.5rem 0.75rem;
+        background: #fff;
+        border: 1px solid rgba(0,51,127,0.06);
+        border-left-width: 3px;
+        border-radius: 0.4rem;
+        font-size: 0.8125rem;
+        transition: all 120ms;
+    }
+    html:not(.light-mode) .nv-q-item { background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.06); }
+    .nv-q-item:hover { border-color: rgba(0,51,127,0.18); }
+    .nv-q-item--done    { border-left-color: var(--success); }
+    .nv-q-item--partial { border-left-color: var(--warning, #f59e0b); }
+    .nv-q-item--sr      { border-left-color: var(--error); }
+    .nv-q-item--open    { border-left-color: #94a3b8; }
+
+    .nv-q-item__num {
+        font-family: var(--font-mono, 'IBM Plex Mono', monospace);
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        font-weight: 600;
+    }
+    .nv-q-item__status { display: inline-flex; align-items: center; gap: 0.35rem; min-width: 0; }
+    .nv-q-item__label {
+        font-size: 0.6875rem;
+        font-family: var(--font-mono, 'IBM Plex Mono', monospace);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--text-secondary);
+        white-space: nowrap;
+    }
+    .nv-q-item__id {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        font-family: var(--font-mono, 'IBM Plex Mono', monospace);
+        overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .nv-q-item__actions { display: inline-flex; gap: 0.2rem; }
+
+    .nv-q-streak { display: inline-flex; gap: 0.15rem; }
+    .nv-q-streak__dot {
+        width: 7px; height: 7px;
+        border-radius: 50%;
+        background: rgba(100,116,139,0.30);
+        display: inline-block;
+    }
+    .nv-q-streak__dot--on { background: var(--success); }
+
+    .nv-q-act {
+        width: 28px; height: 28px;
+        display: grid; place-items: center;
+        border-radius: 0.35rem;
+        background: #f8fafc;
+        border: 1px solid rgba(0,51,127,0.08);
+        color: var(--text-secondary);
+        cursor: pointer;
+        transition: all 120ms;
+        font-size: 0.75rem;
+    }
+    html:not(.light-mode) .nv-q-act { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.10); }
+    .nv-q-act:hover:not(:disabled) { background: rgba(0,51,127,0.06); border-color: rgba(0,51,127,0.20); color: var(--text-primary); }
+    .nv-q-act:disabled { opacity: 0.35; cursor: not-allowed; }
+    .nv-q-act--ok.is-active    { background: var(--success); border-color: var(--success); color: #fff; }
+    .nv-q-act--sr.is-active    { background: var(--error);   border-color: var(--error);   color: #fff; }
+    .nv-q-act--plus:hover:not(:disabled)  { background: rgba(0,51,127,0.06);  border-color: rgba(0,51,127,0.25);  color: var(--thw-blue); }
+    .nv-q-act--ok:hover:not(:disabled)    { background: rgba(34,197,94,0.10); border-color: rgba(34,197,94,0.35); color: var(--success); }
+    .nv-q-act--sr:hover:not(:disabled)    { background: rgba(239,68,68,0.08); border-color: rgba(239,68,68,0.30); color: var(--error); }
+    .nv-q-act--reset:hover:not(:disabled) { background: rgba(245,158,11,0.08); border-color: rgba(245,158,11,0.30); color: var(--warning, #f59e0b); }
+
+    @media (max-width: 720px) {
+        .nv-q-item { grid-template-columns: 40px 1fr auto; }
+        .nv-q-item__id { display: none; }
+        .nv-prog-row__bulk .nv-bulk-btn span { display: none; }
+    }
 </style>
 @endpush
 
@@ -700,11 +835,20 @@ document.addEventListener('alpine:init', () => {
         toggleExpand(id) { this.expanded = (this.expanded === id) ? null : id; },
         roleLabel(r) { return r === 'admin' ? 'Admin' : (r === 'contributor' ? 'Contributor' : 'Benutzer'); },
 
+        modalOpenModule: null,    // key like "grundausbildung-1"
+        modalModuleQuestions: {}, // cache: { 'grundausbildung-1': [...] }
+        modalThreshold: 3,
+        modalDirty: false,
+        modalBusy: false,
+
         async openProgress(u) {
-            this.modalUser    = u;
-            this.modalTab     = 'grundausbildung';
-            this.modalData    = null;
-            this.modalLoading = true;
+            this.modalUser           = u;
+            this.modalTab            = 'grundausbildung';
+            this.modalData           = null;
+            this.modalLoading        = true;
+            this.modalOpenModule     = null;
+            this.modalModuleQuestions = {};
+            this.modalDirty          = false;
             document.body.style.overflow = 'hidden';
             try {
                 const res = await fetch(`{{ url('admin/users') }}/${u.id}/progress-json`, {
@@ -713,6 +857,7 @@ document.addEventListener('alpine:init', () => {
                 });
                 if (!res.ok) throw new Error('HTTP ' + res.status);
                 this.modalData = await res.json();
+                this.modalThreshold = this.modalData.threshold ?? 3;
             } catch (e) {
                 console.error('Fortschritts-Modal: Laden fehlgeschlagen', e);
                 this.modalData = { error: true };
@@ -721,10 +866,133 @@ document.addEventListener('alpine:init', () => {
             }
         },
         closeProgress() {
-            this.modalUser    = null;
-            this.modalData    = null;
-            this.modalLoading = false;
+            this.modalUser            = null;
+            this.modalData            = null;
+            this.modalLoading         = false;
+            this.modalOpenModule      = null;
+            this.modalModuleQuestions = {};
+            this.modalDirty           = false;
+            this.modalBusy            = false;
             document.body.style.overflow = '';
+        },
+
+        moduleKey(row) {
+            return this.modalTab + '-' + row.id;
+        },
+        async toggleModule(row) {
+            const key = this.moduleKey(row);
+            if (this.modalOpenModule === key) {
+                this.modalOpenModule = null;
+                return;
+            }
+            this.modalOpenModule = key;
+            if (!this.modalModuleQuestions[key]) {
+                try {
+                    const url = `{{ url('admin/users') }}/${this.modalUser.id}/progress-module-json?type=${encodeURIComponent(this.modalTab)}&module_id=${encodeURIComponent(row.id)}`;
+                    const res = await fetch(url, { headers: { 'Accept': 'application/json' }, credentials: 'same-origin' });
+                    if (!res.ok) throw new Error('HTTP ' + res.status);
+                    const data = await res.json();
+                    this.modalModuleQuestions[key] = data.questions || [];
+                    this.modalThreshold = data.threshold ?? this.modalThreshold;
+                } catch (e) {
+                    console.error('Modul-Fragen Laden fehlgeschlagen', e);
+                    this.modalModuleQuestions[key] = [];
+                }
+            }
+        },
+        async questionAction(row, qi, action) {
+            if (this.modalBusy) return;
+            const key = this.moduleKey(row);
+            const q = this.modalModuleQuestions[key]?.[qi];
+            if (!q) return;
+            this.modalBusy = true;
+            try {
+                const res = await fetch(`{{ url('admin/users') }}/${this.modalUser.id}/progress-question`, {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+                    },
+                    body: JSON.stringify({ type: this.modalTab, question_id: q.id, action }),
+                });
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                const data = await res.json();
+                Object.assign(this.modalModuleQuestions[key][qi], {
+                    streak:     data.streak,
+                    sr:         data.sr,
+                    isMastered: data.isMastered,
+                });
+                this.recalcModuleCounts(row);
+                this.modalDirty = true;
+            } catch (e) {
+                console.error('Frage-Aktion fehlgeschlagen', e);
+                alert('Aktion fehlgeschlagen. Bitte erneut versuchen.');
+            } finally {
+                this.modalBusy = false;
+            }
+        },
+        async moduleBulkAction(row, action) {
+            if (this.modalBusy) return;
+            const verb = action === 'mastered' ? 'als gemeistert markieren' : (action === 'sr' ? 'auf SR setzen' : 'zurücksetzen');
+            if (!confirm(`Alle ${row.total} Fragen von "${row.title}" ${verb}?`)) return;
+            this.modalBusy = true;
+            try {
+                const res = await fetch(`{{ url('admin/users') }}/${this.modalUser.id}/progress-module-bulk`, {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+                    },
+                    body: JSON.stringify({ type: this.modalTab, module_id: row.id, action }),
+                });
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                const data = await res.json();
+                Object.assign(row, data.counts);
+                // Invalidate cached questions for this module so next expand reloads
+                const key = this.moduleKey(row);
+                delete this.modalModuleQuestions[key];
+                if (this.modalOpenModule === key) {
+                    this.modalOpenModule = null;
+                }
+                this.modalDirty = true;
+            } catch (e) {
+                console.error('Bulk-Aktion fehlgeschlagen', e);
+                alert('Aktion fehlgeschlagen. Bitte erneut versuchen.');
+            } finally {
+                this.modalBusy = false;
+            }
+        },
+        recalcModuleCounts(row) {
+            const key = this.moduleKey(row);
+            const qs = this.modalModuleQuestions[key] || [];
+            const t = this.modalThreshold;
+            let mastered = 0, partial = 0, sr = 0, open = 0;
+            for (const q of qs) {
+                if (q.sr) sr++;
+                else if (q.streak >= t) mastered++;
+                else if (q.streak > 0) partial++;
+                else open++;
+            }
+            row.mastered = mastered;
+            row.partial  = partial;
+            row.sr       = sr;
+            row.open     = open;
+        },
+        questionStatus(q) {
+            if (q.sr) return 'sr';
+            if (q.streak >= this.modalThreshold) return 'done';
+            if (q.streak > 0) return 'partial';
+            return 'open';
+        },
+        questionStatusLabel(q) {
+            if (q.sr) return 'SR · Wiederholung';
+            if (q.streak >= this.modalThreshold) return 'Gemeistert · ' + this.modalThreshold + '/' + this.modalThreshold;
+            if (q.streak > 0) return q.streak + '/' + this.modalThreshold + ' richtig';
+            return 'Neu · 0/' + this.modalThreshold;
         },
         get modalRows() {
             if (!this.modalData || this.modalData.error) return [];
@@ -1169,7 +1437,7 @@ document.addEventListener('alpine:init', () => {
                             {{-- Progress list --}}
                             <div class="nv-prog-list" x-show="modalActiveRows.length > 0">
                                 <template x-for="(row, i) in modalActiveRows" :key="modalTab + '-' + row.id">
-                                    <div class="nv-prog-row">
+                                    <div class="nv-prog-row" :class="modalOpenModule === moduleKey(row) ? 'nv-prog-row--open' : ''">
                                         <div class="nv-prog-row__head">
                                             <div class="nv-prog-row__num" :class="`nv-prog-row__num--${pctCls(rowPct(row))}`"
                                                  x-text="modalTab === 'lehrgaenge' ? row.code : (i + 1)"></div>
@@ -1186,7 +1454,83 @@ document.addEventListener('alpine:init', () => {
                                             <span class="nv-prog-row__meta-item nv-prog-row__meta-item--ok"><span class="dot"></span> <span x-text="row.mastered"></span> gemeistert</span>
                                             <span class="nv-prog-row__meta-item nv-prog-row__meta-item--warn" x-show="row.partial > 0"><span class="dot"></span> <span x-text="row.partial"></span> in Lernphase</span>
                                             <span class="nv-prog-row__meta-item nv-prog-row__meta-item--err" x-show="row.sr > 0"><span class="dot"></span> <span x-text="row.sr"></span> SR</span>
-                                            <span class="nv-prog-row__meta-item"><span x-text="row.total"></span> Fragen</span>
+                                            <span class="nv-prog-row__meta-item"><span x-text="row.total"></span> gesamt</span>
+
+                                            <div class="nv-prog-row__bulk">
+                                                <button type="button" class="nv-bulk-btn nv-bulk-btn--ok" :disabled="modalBusy" @click="moduleBulkAction(row, 'mastered')" title="Alle als gemeistert markieren">
+                                                    <i class="bi bi-check2-all"></i> Alle gemeistert
+                                                </button>
+                                                <button type="button" class="nv-bulk-btn nv-bulk-btn--sr" :disabled="modalBusy" @click="moduleBulkAction(row, 'sr')" title="Alle auf SR-Wiederholung setzen">
+                                                    <i class="bi bi-arrow-repeat"></i> Alle SR
+                                                </button>
+                                                <button type="button" class="nv-bulk-btn nv-bulk-btn--reset" :disabled="modalBusy" @click="moduleBulkAction(row, 'reset')" title="Alle zurücksetzen">
+                                                    <i class="bi bi-arrow-counterclockwise"></i>
+                                                </button>
+                                                <button type="button" class="nv-bulk-btn" @click="toggleModule(row)" :title="modalOpenModule === moduleKey(row) ? 'Einklappen' : 'Fragen anzeigen'">
+                                                    <i :class="`bi bi-chevron-${modalOpenModule === moduleKey(row) ? 'up' : 'down'}`"></i>
+                                                    <span x-text="modalOpenModule === moduleKey(row) ? 'Schließen' : 'Fragen'"></span>
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        {{-- Expanded question list --}}
+                                        <div class="nv-q-expand" x-show="modalOpenModule === moduleKey(row)" style="display: none;">
+                                            <template x-if="!modalModuleQuestions[moduleKey(row)]">
+                                                <div class="nv-modal-loading" style="padding: 1rem;">
+                                                    <i class="bi bi-arrow-clockwise"></i> Fragen werden geladen…
+                                                </div>
+                                            </template>
+                                            <template x-if="modalModuleQuestions[moduleKey(row)] && modalModuleQuestions[moduleKey(row)].length === 0">
+                                                <div class="nv-modal-loading" style="padding: 1rem;">Keine Fragen vorhanden.</div>
+                                            </template>
+                                            <template x-if="modalModuleQuestions[moduleKey(row)] && modalModuleQuestions[moduleKey(row)].length > 0">
+                                                <div>
+                                                    <div class="nv-q-legend">
+                                                        <span class="nv-q-legend__item"><span class="dot" style="background: var(--success);"></span> Gemeistert · 3/3</span>
+                                                        <span class="nv-q-legend__item"><span class="dot" style="background: var(--warning, #f59e0b);"></span> Lernphase · 1/3 · 2/3</span>
+                                                        <span class="nv-q-legend__item"><span class="dot" style="background: var(--error);"></span> SR · Wiederholung</span>
+                                                        <span class="nv-q-legend__item"><span class="dot" style="background: #94a3b8;"></span> Neu · 0/3</span>
+                                                        <span style="margin-left: auto; color: var(--text-muted); font-size: 0.75rem;">
+                                                            <i class="bi bi-info-circle"></i> 3× in Folge richtig = gemeistert
+                                                        </span>
+                                                    </div>
+                                                    <div class="nv-q-list">
+                                                        <template x-for="(q, qi) in modalModuleQuestions[moduleKey(row)]" :key="q.id">
+                                                            <div class="nv-q-item" :class="`nv-q-item--${questionStatus(q)}`">
+                                                                <div class="nv-q-item__num" x-text="'#' + (qi + 1)"></div>
+                                                                <div class="nv-q-item__status">
+                                                                    <template x-if="!q.sr">
+                                                                        <span class="nv-q-streak" :title="`Streak ${q.streak}/${modalThreshold}`">
+                                                                            <template x-for="k in modalThreshold" :key="k">
+                                                                                <span class="nv-q-streak__dot" :class="k <= q.streak ? 'nv-q-streak__dot--on' : ''"></span>
+                                                                            </template>
+                                                                        </span>
+                                                                    </template>
+                                                                    <template x-if="q.sr">
+                                                                        <i class="bi bi-arrow-repeat" style="color: var(--error);"></i>
+                                                                    </template>
+                                                                    <span class="nv-q-item__label" x-text="questionStatusLabel(q)"></span>
+                                                                </div>
+                                                                <div class="nv-q-item__id" x-text="q.label"></div>
+                                                                <div class="nv-q-item__actions">
+                                                                    <button type="button" class="nv-q-act nv-q-act--plus" :disabled="q.isMastered || modalBusy" @click="questionAction(row, qi, 'increment')" title="+1 Streak">
+                                                                        <i class="bi bi-plus-lg"></i>
+                                                                    </button>
+                                                                    <button type="button" class="nv-q-act nv-q-act--ok" :class="q.isMastered ? 'is-active' : ''" :disabled="modalBusy" @click="questionAction(row, qi, 'mastered')" title="Auf gemeistert (3/3)">
+                                                                        <i class="bi bi-check2-all"></i>
+                                                                    </button>
+                                                                    <button type="button" class="nv-q-act nv-q-act--sr" :class="q.sr ? 'is-active' : ''" :disabled="modalBusy" @click="questionAction(row, qi, 'sr')" :title="q.sr ? 'SR-Flag entfernen' : 'Auf SR setzen'">
+                                                                        <i class="bi bi-arrow-repeat"></i>
+                                                                    </button>
+                                                                    <button type="button" class="nv-q-act nv-q-act--reset" :disabled="modalBusy" @click="questionAction(row, qi, 'reset')" title="Zurücksetzen">
+                                                                        <i class="bi bi-arrow-counterclockwise"></i>
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        </template>
+                                                    </div>
+                                                </div>
+                                            </template>
                                         </div>
                                     </div>
                                 </template>
@@ -1197,14 +1541,18 @@ document.addEventListener('alpine:init', () => {
 
                 <div class="nv-modal__footer">
                     <div class="nv-modal__footer-hint">
-                        <i class="bi bi-info-circle"></i>
-                        Übersicht. Für die detaillierte Bearbeitung pro Frage:
+                        <template x-if="modalDirty">
+                            <span style="color: var(--success);"><i class="bi bi-check-circle-fill"></i> Änderungen gespeichert (live)</span>
+                        </template>
+                        <template x-if="!modalDirty">
+                            <span><i class="bi bi-info-circle"></i> Klick auf eine Frage öffnet die Aktionen</span>
+                        </template>
                     </div>
                     <div class="nv-modal__footer-actions">
-                        <button type="button" class="btn-ghost" @click="closeProgress()">Schließen</button>
-                        <a :href="modalUser ? `{{ url('admin/users') }}/${modalUser.id}/progress` : '#'" class="btn-primary">
-                            <i class="bi bi-pencil-square"></i> Detailliert bearbeiten
+                        <a :href="modalUser ? `{{ url('admin/users') }}/${modalUser.id}/progress` : '#'" class="btn-ghost" title="Zur vollständigen Bearbeitungsseite">
+                            <i class="bi bi-arrow-up-right-square"></i> Vollansicht
                         </a>
+                        <button type="button" class="btn-primary" @click="closeProgress()">Fertig</button>
                     </div>
                 </div>
             </div>

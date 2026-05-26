@@ -461,6 +461,7 @@ class UserController extends Controller
                 'level' => (int) ($user->level ?? 1),
                 'xp'    => (int) ($user->points ?? 0),
             ],
+            'threshold'       => $threshold,
             'grundausbildung' => $grundausbildung,
             'zusatzfragen'    => $zusatzfragen,
             'lehrgaenge'      => $lehrgaenge,
@@ -497,6 +498,248 @@ class UserController extends Controller
             'sr'       => $sr,
             'open'     => $open,
         ]);
+    }
+
+    /**
+     * Liefert die Einzelfragen eines Moduls (lazy load beim Aufklappen im Modal).
+     */
+    public function progressModuleJson(Request $request, $id)
+    {
+        $this->abortIfNotAdmin();
+        $user = User::findOrFail($id);
+
+        $type     = $request->query('type');
+        $moduleId = $request->query('module_id');
+        $threshold = UserQuestionProgress::MASTERY_THRESHOLD;
+
+        $questions = $this->resolveModuleQuestions($type, $moduleId);
+        $progressByQ = $this->resolveProgressByQuestionId($type, $user->id, $questions->pluck('id')->all());
+
+        $items = $questions->map(function ($q) use ($progressByQ, $threshold, $type) {
+            $p = $progressByQ->get($q->id);
+            $streak = $p ? (int) $p->consecutive_correct : 0;
+            $sr     = $p && isset($p->next_review_at) && $p->next_review_at && $streak < $threshold;
+            return [
+                'id'         => $q->id,
+                'label'      => $this->questionLabel($q, $type),
+                'streak'     => $streak,
+                'sr'         => $sr,
+                'isMastered' => $streak >= $threshold,
+            ];
+        })->values()->all();
+
+        return response()->json([
+            'type'      => $type,
+            'moduleId'  => $moduleId,
+            'threshold' => $threshold,
+            'questions' => $items,
+        ]);
+    }
+
+    /**
+     * Aktion auf eine einzelne Frage (action: mastered|sr|reset|increment).
+     */
+    public function progressUpdateQuestion(Request $request, $id)
+    {
+        $this->abortIfNotAdmin();
+        $user = User::findOrFail($id);
+
+        $request->validate([
+            'type'        => 'required|in:grundausbildung,zusatzfragen,lehrgaenge',
+            'question_id' => 'required|integer',
+            'action'      => 'required|in:mastered,sr,reset,increment',
+        ]);
+
+        $type       = $request->input('type');
+        $questionId = (int) $request->input('question_id');
+        $action     = $request->input('action');
+        $threshold  = UserQuestionProgress::MASTERY_THRESHOLD;
+
+        $result = $this->applyProgressAction($type, $user->id, $questionId, $action, $threshold);
+
+        AdminAuditLog::logChange(
+            auth()->user(),
+            $user->id,
+            'update_progress_question',
+            $type . '#' . $questionId,
+            null,
+            $action,
+            $request
+        );
+
+        return response()->json($result);
+    }
+
+    /**
+     * Bulk-Aktion auf alle Fragen eines Moduls (action: mastered|sr|reset).
+     */
+    public function progressUpdateModuleBulk(Request $request, $id)
+    {
+        $this->abortIfNotAdmin();
+        $user = User::findOrFail($id);
+
+        $request->validate([
+            'type'      => 'required|in:grundausbildung,zusatzfragen,lehrgaenge',
+            'module_id' => 'required',
+            'action'    => 'required|in:mastered,sr,reset',
+        ]);
+
+        $type      = $request->input('type');
+        $moduleId  = $request->input('module_id');
+        $action    = $request->input('action');
+        $threshold = UserQuestionProgress::MASTERY_THRESHOLD;
+
+        $questions = $this->resolveModuleQuestions($type, $moduleId);
+        foreach ($questions as $q) {
+            $this->applyProgressAction($type, $user->id, $q->id, $action, $threshold);
+        }
+
+        AdminAuditLog::logChange(
+            auth()->user(),
+            $user->id,
+            'update_progress_module',
+            $type . ':' . $moduleId,
+            null,
+            $action . ' (' . $questions->count() . ' Fragen)',
+            $request
+        );
+
+        // Aggregat zurückgeben
+        $progressByQ = $this->resolveProgressByQuestionId($type, $user->id, $questions->pluck('id')->all());
+        $agg = $this->aggregateCounts($questions, fn($q) => $progressByQ->get($q->id), $threshold, []);
+
+        return response()->json([
+            'type'     => $type,
+            'moduleId' => $moduleId,
+            'counts'   => [
+                'total'    => $agg['total'],
+                'mastered' => $agg['mastered'],
+                'partial'  => $agg['partial'],
+                'sr'       => $agg['sr'],
+                'open'     => $agg['open'],
+            ],
+        ]);
+    }
+
+    private function resolveModuleQuestions(string $type, $moduleId)
+    {
+        if ($type === 'grundausbildung') {
+            return Question::where('lernabschnitt', (string) $moduleId)
+                ->orderBy('nummer')
+                ->get();
+        }
+        if ($type === 'zusatzfragen') {
+            return \App\Models\ExtraQuestion::where('lernabschnitt', (string) $moduleId)
+                ->orderBy('id')
+                ->get();
+        }
+        // lehrgaenge
+        $lehrgang = \App\Models\Lehrgang::findOrFail($moduleId);
+        return $lehrgang->questions()
+            ->orderByRaw('CAST(lernabschnitt AS UNSIGNED)')
+            ->orderBy('nummer')
+            ->get();
+    }
+
+    private function resolveProgressByQuestionId(string $type, int $userId, array $questionIds)
+    {
+        if (empty($questionIds)) return collect();
+
+        if ($type === 'grundausbildung') {
+            return UserQuestionProgress::where('user_id', $userId)
+                ->whereIn('question_id', $questionIds)
+                ->get()->keyBy('question_id');
+        }
+        if ($type === 'zusatzfragen') {
+            return \App\Models\UserExtraQuestionProgress::where('user_id', $userId)
+                ->whereIn('extra_question_id', $questionIds)
+                ->get()->keyBy('extra_question_id');
+        }
+        return \App\Models\UserLehrgangProgress::where('user_id', $userId)
+            ->whereIn('lehrgang_question_id', $questionIds)
+            ->get()->keyBy('lehrgang_question_id');
+    }
+
+    private function questionLabel($q, string $type): string
+    {
+        if ($type === 'grundausbildung') {
+            return 'LA ' . $q->lernabschnitt . ' · #' . $q->nummer;
+        }
+        if ($type === 'zusatzfragen') {
+            return 'LA ' . $q->lernabschnitt . ' · ZF #' . $q->id;
+        }
+        $nr = $q->nummer ?? $q->id;
+        return 'LA ' . ($q->lernabschnitt ?? '–') . ' · #' . $nr;
+    }
+
+    /**
+     * Wendet eine Aktion (mastered|sr|reset|increment) auf eine einzelne Frage an
+     * und gibt den neuen Status zurück.
+     */
+    private function applyProgressAction(string $type, int $userId, int $questionId, string $action, int $threshold): array
+    {
+        $modelClass = match ($type) {
+            'grundausbildung' => UserQuestionProgress::class,
+            'zusatzfragen'    => \App\Models\UserExtraQuestionProgress::class,
+            'lehrgaenge'      => \App\Models\UserLehrgangProgress::class,
+        };
+        $foreignKey = match ($type) {
+            'grundausbildung' => 'question_id',
+            'zusatzfragen'    => 'extra_question_id',
+            'lehrgaenge'      => 'lehrgang_question_id',
+        };
+
+        $progress = $modelClass::where('user_id', $userId)
+            ->where($foreignKey, $questionId)
+            ->first();
+
+        if ($action === 'reset') {
+            if ($progress) $progress->delete();
+            return ['streak' => 0, 'sr' => false, 'isMastered' => false];
+        }
+
+        if (!$progress) {
+            $progress = new $modelClass();
+            $progress->user_id = $userId;
+            $progress->{$foreignKey} = $questionId;
+            $progress->consecutive_correct = 0;
+        }
+
+        $table = $progress->getTable();
+        $hasSrField   = \Illuminate\Support\Facades\Schema::hasColumn($table, 'next_review_at');
+        $hasAnsweredAt = \Illuminate\Support\Facades\Schema::hasColumn($table, 'last_answered_at');
+
+        $setSr      = function ($v) use ($progress, $hasSrField)    { if ($hasSrField)    $progress->next_review_at = $v; };
+        $touchTime  = function ()  use ($progress, $hasAnsweredAt)  { if ($hasAnsweredAt) $progress->last_answered_at = now(); };
+
+        if ($action === 'mastered') {
+            $progress->consecutive_correct = $threshold;
+            $setSr(null);
+            $touchTime();
+        } elseif ($action === 'sr') {
+            $progress->consecutive_correct = 0;
+            $setSr(now());
+            $touchTime();
+        } elseif ($action === 'increment') {
+            $newStreak = min($threshold, (int) $progress->consecutive_correct + 1);
+            $progress->consecutive_correct = $newStreak;
+            if ($newStreak >= $threshold) $setSr(null);
+            $touchTime();
+        }
+
+        if ($type === 'lehrgaenge') {
+            $progress->solved = $progress->consecutive_correct >= $threshold;
+        }
+
+        $progress->save();
+
+        $streak = (int) $progress->consecutive_correct;
+        $sr = $hasSrField && $progress->next_review_at && $streak < $threshold;
+        return [
+            'streak'     => $streak,
+            'sr'         => (bool) $sr,
+            'isMastered' => $streak >= $threshold,
+        ];
     }
 
     private function calculateLevelFromPoints(int $points): int
