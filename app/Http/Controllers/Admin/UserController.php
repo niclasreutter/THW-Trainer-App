@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers\Admin;
 
+use App\Models\AdminAuditLog;
 use App\Models\Question;
 use App\Models\User;
 use App\Models\UserQuestionProgress;
@@ -150,6 +151,16 @@ class UserController extends Controller
             }
         }
         
+        AdminAuditLog::logChange(
+            auth()->user(),
+            $user->id,
+            'update_progress',
+            null,
+            null,
+            null,
+            $request
+        );
+
         return redirect()->route('admin.users.index')->with('success', 'Fortschritt aktualisiert (Grundausbildung + Lehrgänge)');
     }
     public function pullForwardSpacedRepetition($id)
@@ -245,6 +256,16 @@ class UserController extends Controller
         $user->daily_questions_date   = null;
         $user->save();
 
+        AdminAuditLog::logChange(
+            auth()->user(),
+            $user->id,
+            'reset_progress',
+            null,
+            null,
+            null,
+            request()
+        );
+
         return redirect()->route('admin.users.progress.edit', $user->id)
             ->with('success', 'Fortschritt von ' . $user->name . ' wurde vollständig zurückgesetzt.');
     }
@@ -294,17 +315,82 @@ class UserController extends Controller
             'useroll' => 'required|in:user,admin,contributor',
             'points' => 'nullable|integer|min:0',
         ]);
+
+        $admin = auth()->user();
+
+        // Track changes before saving
+        $changes = [];
+        if ($user->name !== $request->name) {
+            $changes[] = ['field' => 'name', 'old' => $user->name, 'new' => $request->name];
+        }
+        if ($user->email !== $request->email) {
+            $changes[] = ['field' => 'email', 'old' => $user->email, 'new' => $request->email];
+        }
+        if ($user->useroll !== $request->useroll) {
+            $changes[] = ['field' => 'role', 'old' => $user->useroll, 'new' => $request->useroll];
+        }
+
         $user->name = $request->name;
         $user->email = $request->email;
         $user->useroll = $request->useroll;
 
         if ($request->has('points')) {
+            $oldPoints = $user->points;
             $user->points = (int) $request->points;
             $user->level = $this->calculateLevelFromPoints($user->points);
+            if ($oldPoints != $user->points) {
+                $changes[] = ['field' => 'points', 'old' => $oldPoints, 'new' => $user->points];
+            }
         }
 
         $user->save();
+
+        // Log each changed field
+        foreach ($changes as $change) {
+            AdminAuditLog::logChange(
+                $admin,
+                $user->id,
+                'update_field',
+                $change['field'],
+                $change['old'],
+                $change['new'],
+                $request
+            );
+        }
+
         return redirect()->route('admin.users.index')->with('success', 'Nutzer aktualisiert');
+    }
+
+    public function verify($id)
+    {
+        $this->abortIfNotAdmin();
+        $user = User::findOrFail($id);
+
+        $user->email_verified_at = now();
+        $user->save();
+
+        AdminAuditLog::logChange(
+            auth()->user(),
+            $user->id,
+            'verify_email',
+            null,
+            null,
+            now()->format('Y-m-d H:i:s'),
+            request()
+        );
+
+        return redirect()->route('admin.users.index')->with('success', 'E-Mail von ' . $user->name . ' wurde verifiziert.');
+    }
+
+    public function auditLog($id)
+    {
+        $this->abortIfNotAdmin();
+        $logs = AdminAuditLog::where('user_id', $id)
+            ->with('admin:id,name')
+            ->orderByDesc('created_at')
+            ->take(50)
+            ->get();
+        return response()->json($logs);
     }
 
     private function calculateLevelFromPoints(int $points): int
@@ -324,6 +410,17 @@ class UserController extends Controller
     {
         $this->abortIfNotAdmin();
         $user = User::findOrFail($id);
+
+        AdminAuditLog::logChange(
+            auth()->user(),
+            $user->id,
+            'delete',
+            null,
+            $user->name . ' <' . $user->email . '>',
+            null,
+            request()
+        );
+
         $user->delete();
         return redirect()->route('admin.users.index')->with('success', 'Nutzer gelöscht');
     }

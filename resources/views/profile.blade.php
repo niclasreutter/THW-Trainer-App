@@ -1051,6 +1051,85 @@
             @endif
         </div>
 
+        {{-- ══════════════════════════════════════════
+             VERWALTUNGSÄNDERUNGEN (DSGVO Audit-Log)
+        ══════════════════════════════════════════ --}}
+        <div class="glass card" id="audit-log-card" style="grid-column: 1 / -1;">
+            <div class="card-head">
+                <span class="section-label"><i class="bi bi-shield-lock" style="margin-right: 0.4rem;"></i>Verwaltungsänderungen</span>
+            </div>
+            <p style="font-size: 0.8125rem; color: var(--text-muted); margin-bottom: 1rem; line-height: 1.5;">
+                Admins können deine Daten zur Systemverwaltung einsehen und ändern — gemäß Art. 6 Abs. 1 lit. f DSGVO.
+                Hier siehst du alle Änderungen, die von Administratoren an deinem Konto vorgenommen wurden.
+            </p>
+
+            @if($auditLogs->isEmpty())
+                <div style="text-align: center; padding: 2rem 1rem; color: var(--text-muted);">
+                    <i class="bi bi-inbox" style="font-size: 1.75rem; display: block; margin-bottom: 0.5rem; opacity: 0.4;"></i>
+                    <div style="font-weight: 600; color: var(--text-secondary);">Keine Verwaltungsänderungen vorhanden</div>
+                    <div style="font-size: 0.8125rem; margin-top: 0.25rem;">Dein Konto wurde bisher nicht durch Admins bearbeitet.</div>
+                </div>
+            @else
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    @foreach($auditLogs as $log)
+                    @php
+                        $adminName = $log->admin ? explode(' ', $log->admin->name)[0] : 'Admin';
+                        $actionLabel = match($log->action) {
+                            'update_field'   => match($log->field) {
+                                'name'   => 'Name geändert',
+                                'email'  => 'E-Mail geändert',
+                                'role'   => 'Rolle geändert',
+                                'points' => 'Punkte (XP) geändert',
+                                default  => ucfirst($log->field ?? '') . ' geändert',
+                            },
+                            'verify_email'   => 'E-Mail verifiziert',
+                            'delete'         => 'Konto gelöscht',
+                            'reset_progress' => 'Lernfortschritt zurückgesetzt',
+                            'update_progress'=> 'Lernfortschritt bearbeitet',
+                            default          => ucfirst(str_replace('_', ' ', $log->action)),
+                        };
+                        $hasDetail = $log->action === 'update_field' && ($log->old_value !== null || $log->new_value !== null);
+                    @endphp
+                    <div style="display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.75rem 1rem; background: var(--bg-elevated, rgba(255,255,255,0.03)); border-radius: 0.5rem; border: 1px solid rgba(0,51,127,0.06);">
+                        <div style="flex-shrink: 0; margin-top: 0.1rem;">
+                            @if($log->action === 'delete')
+                                <i class="bi bi-trash-fill" style="color: var(--error); font-size: 0.875rem;"></i>
+                            @elseif($log->action === 'verify_email')
+                                <i class="bi bi-envelope-check-fill" style="color: var(--success); font-size: 0.875rem;"></i>
+                            @elseif($log->action === 'reset_progress')
+                                <i class="bi bi-arrow-counterclockwise" style="color: var(--warning, #f59e0b); font-size: 0.875rem;"></i>
+                            @elseif($log->action === 'update_progress')
+                                <i class="bi bi-graph-up" style="color: var(--thw-blue); font-size: 0.875rem;"></i>
+                            @else
+                                <i class="bi bi-pencil-fill" style="color: var(--text-muted); font-size: 0.875rem;"></i>
+                            @endif
+                        </div>
+                        <div style="flex: 1; min-width: 0;">
+                            <div style="font-size: 0.875rem; font-weight: 600; color: var(--text-primary);">
+                                {{ $actionLabel }}
+                                <span style="font-weight: 400; color: var(--text-muted);">durch {{ $adminName }}</span>
+                            </div>
+                            @if($hasDetail)
+                            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem; font-family: 'IBM Plex Mono', monospace;">
+                                @if($log->old_value !== null)
+                                    <span style="background: rgba(239,68,68,0.08); color: var(--error); padding: 0.1rem 0.4rem; border-radius: 0.25rem;">{{ $log->old_value }}</span>
+                                    &nbsp;→&nbsp;
+                                @endif
+                                @if($log->new_value !== null)
+                                    <span style="background: rgba(34,197,94,0.10); color: var(--success); padding: 0.1rem 0.4rem; border-radius: 0.25rem;">{{ $log->new_value }}</span>
+                                @endif
+                            </div>
+                            @endif
+                        </div>
+                        <div style="flex-shrink: 0; font-size: 0.75rem; color: var(--text-muted); font-family: 'IBM Plex Mono', monospace; white-space: nowrap;">
+                            {{ $log->created_at->format('d.m.Y H:i') }}
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+            @endif
+        </div>
+
     </div>{{-- /.bento --}}
 </div>{{-- /.dash-container --}}
 

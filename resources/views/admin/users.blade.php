@@ -1,472 +1,757 @@
 @extends('layouts.app')
 @section('title', 'Nutzerverwaltung - THW Trainer Admin')
 
+@push('styles')
+<style>
+    /* ======================================================
+       Nutzerverwaltung Redesign
+       ====================================================== */
+
+    .admin-container { width: 100%; max-width: 1280px; margin: 0 auto; }
+
+    /* --------- DSGVO BANNER --------- */
+    .dsgvo-notice {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.625rem 1rem;
+        background: rgba(0,51,127,0.05);
+        border: 1px solid rgba(0,51,127,0.10);
+        border-radius: 0.5rem;
+        font-size: 0.8125rem;
+        color: var(--text-muted);
+        margin-bottom: 1.5rem;
+    }
+
+    /* --------- HEADER STATS --------- */
+    .nv-header-stats {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+    }
+    @media (max-width: 1100px) { .nv-header-stats { grid-template-columns: repeat(4, 1fr); } }
+    @media (max-width: 640px)  { .nv-header-stats { grid-template-columns: repeat(2, 1fr); } }
+
+    .nv-hstat {
+        background: #fff;
+        border: 1px solid rgba(0,51,127,0.08);
+        border-radius: 0.75rem;
+        padding: 0.875rem 1rem;
+        box-shadow: 0 1px 3px rgba(0,51,127,0.04);
+        display: flex;
+        flex-direction: column;
+        gap: 0.15rem;
+    }
+    html:not(.light-mode) .nv-hstat {
+        background: var(--bg-card, #1c1c1f);
+        border-color: rgba(255,255,255,0.07);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+    .nv-hstat__icon {
+        width: 28px; height: 28px;
+        border-radius: 0.5rem;
+        display: grid;
+        place-items: center;
+        font-size: 0.875rem;
+        margin-bottom: 0.4rem;
+    }
+    .nv-hstat__icon--blue   { background: rgba(0,51,127,0.10);   color: var(--thw-blue); }
+    .nv-hstat__icon--gold   { background: rgba(217,119,6,0.12);  color: var(--gold-dark, #b45309); }
+    .nv-hstat__icon--green  { background: rgba(34,197,94,0.12);  color: var(--success); }
+    .nv-hstat__icon--red    { background: rgba(239,68,68,0.12);  color: var(--error); }
+    .nv-hstat__icon--purple { background: rgba(167,139,250,0.14);color: #7c3aed; }
+    .nv-hstat__icon--slate  { background: rgba(100,116,139,0.12);color: #64748b; }
+    html:not(.light-mode) .nv-hstat__icon--slate { color: #94a3b8; }
+    .nv-hstat__value {
+        font-weight: 800;
+        font-size: 1.5rem;
+        line-height: 1.1;
+        letter-spacing: -0.015em;
+        color: var(--text-primary);
+    }
+    .nv-hstat__label {
+        font-family: var(--font-mono, 'IBM Plex Mono', monospace);
+        font-size: 0.6875rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--text-muted);
+        margin-top: 0.1rem;
+    }
+
+    /* --------- ACTION BAR --------- */
+    .nv-action-bar {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+    }
+
+    /* --------- TABLE CARD --------- */
+    .nv-table-card {
+        background: #fff;
+        border: 1px solid rgba(0,51,127,0.08);
+        border-radius: 1rem;
+        box-shadow: 0 1px 3px rgba(15,23,42,0.04), 0 2px 12px rgba(0,51,127,0.06);
+        overflow: hidden;
+    }
+    html:not(.light-mode) .nv-table-card {
+        background: var(--bg-card, #1c1c1f);
+        border-color: rgba(255,255,255,0.07);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+    }
+    .nv-table-head {
+        padding: 1.25rem 1.5rem 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        flex-wrap: wrap;
+        border-bottom: 1px solid rgba(0,51,127,0.06);
+    }
+    html:not(.light-mode) .nv-table-head { border-bottom-color: rgba(255,255,255,0.06); }
+    .nv-title-row { display: flex; align-items: baseline; gap: 0.75rem; }
+    .nv-count {
+        font-family: var(--font-mono, 'IBM Plex Mono', monospace);
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        font-weight: 600;
+    }
+
+    /* --------- FILTERS --------- */
+    .nv-filters { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+    .nv-search { position: relative; display: flex; align-items: center; }
+    .nv-search .bi {
+        position: absolute; left: 0.75rem;
+        color: var(--text-muted); font-size: 0.875rem; pointer-events: none;
+    }
+    .nv-search input {
+        width: 280px;
+        padding: 0.5rem 0.75rem 0.5rem 2rem;
+        border-radius: 0.5rem;
+        background: #f8fafc;
+        border: 1px solid rgba(0,51,127,0.10);
+        color: var(--text-primary);
+        font-size: 0.875rem;
+        transition: border-color 150ms, box-shadow 150ms;
+    }
+    html:not(.light-mode) .nv-search input { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.10); }
+    .nv-search input::placeholder { color: var(--text-muted); }
+    .nv-search input:focus { outline: none; border-color: var(--thw-blue); box-shadow: 0 0 0 3px rgba(0,51,127,0.12); background: #fff; }
+    html:not(.light-mode) .nv-search input:focus { background: rgba(255,255,255,0.08); }
+    .nv-filter-select {
+        padding: 0.5rem 2rem 0.5rem 0.75rem;
+        border-radius: 0.5rem;
+        background: #f8fafc;
+        border: 1px solid rgba(0,51,127,0.10);
+        color: var(--text-primary);
+        font-size: 0.875rem;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%2364748b'%3E%3Cpath d='M4 6l4 4 4-4z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 0.5rem center;
+        background-size: 14px;
+        cursor: pointer;
+    }
+    html:not(.light-mode) .nv-filter-select {
+        background-color: rgba(255,255,255,0.05);
+        border-color: rgba(255,255,255,0.10);
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%2394a3b8'%3E%3Cpath d='M4 6l4 4 4-4z'/%3E%3C/svg%3E");
+    }
+    .nv-filter-select:focus { outline: none; border-color: var(--thw-blue); box-shadow: 0 0 0 3px rgba(0,51,127,0.12); }
+
+    /* --------- TABLE --------- */
+    .nv-table { width: 100%; border-collapse: collapse; table-layout: auto; }
+    .nv-table thead th {
+        text-align: left;
+        padding: 0.75rem 1rem;
+        font-family: var(--font-mono, 'IBM Plex Mono', monospace);
+        font-size: 0.6875rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--text-muted);
+        background: #f8fafc;
+        border-bottom: 1px solid rgba(0,51,127,0.06);
+        white-space: nowrap;
+    }
+    html:not(.light-mode) .nv-table thead th {
+        background: rgba(255,255,255,0.03);
+        border-bottom-color: rgba(255,255,255,0.06);
+    }
+    .nv-table tbody td {
+        padding: 0.875rem 1rem;
+        font-size: 0.9375rem;
+        color: var(--text-primary);
+        border-bottom: 1px solid rgba(0,51,127,0.05);
+        vertical-align: middle;
+    }
+    html:not(.light-mode) .nv-table tbody td { border-bottom-color: rgba(255,255,255,0.04); }
+    .nv-table tbody tr.nv-main-row { transition: background 150ms; }
+    .nv-table tbody tr.nv-main-row:hover { background: rgba(0,51,127,0.02); }
+    html:not(.light-mode) .nv-table tbody tr.nv-main-row:hover { background: rgba(255,255,255,0.02); }
+    .nv-table tbody tr.nv-main-row.nv-expanded { background: rgba(0,51,127,0.03); }
+    html:not(.light-mode) .nv-table tbody tr.nv-main-row.nv-expanded { background: rgba(255,255,255,0.03); }
+    .nv-table tbody tr.nv-main-row.nv-expanded td { border-bottom-color: transparent; }
+    .nv-table tbody tr.nv-detail-row td { padding: 0; }
+
+    /* --------- USER CELL --------- */
+    .nv-user-cell { display: flex; align-items: center; gap: 0.75rem; }
+    .nv-avatar {
+        width: 40px; height: 40px;
+        border-radius: 50%;
+        flex-shrink: 0;
+        background: #f1f5f9;
+        border: 1px solid rgba(0,51,127,0.08);
+        overflow: hidden;
+    }
+    .nv-avatar img { width: 100%; height: 100%; display: block; }
+    .nv-user-name { font-weight: 600; line-height: 1.2; }
+    .nv-user-email { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.1rem; font-family: var(--font-mono, 'IBM Plex Mono', monospace); }
+
+    /* --------- BADGES --------- */
+    .nv-role {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        padding: 0.2rem 0.6rem;
+        border-radius: 999px;
+        font-size: 0.6875rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+    .nv-role--admin       { background: rgba(217,119,6,0.12);  color: var(--gold-dark, #b45309); }
+    .nv-role--contributor { background: rgba(167,139,250,0.14);color: #7c3aed; }
+    .nv-role--user        { background: rgba(0,51,127,0.08);   color: var(--thw-blue); }
+
+    .nv-verif-ok { font-size: 1.125rem; color: var(--success); }
+    .nv-verif-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.3rem 0.6rem;
+        border-radius: 999px;
+        background: rgba(239,68,68,0.08);
+        border: 1px solid rgba(239,68,68,0.25);
+        color: var(--error);
+        font-size: 0.75rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 150ms;
+        white-space: nowrap;
+    }
+    .nv-verif-btn:hover { background: var(--success); border-color: var(--success); color: #fff; }
+
+    /* --------- ACTION BUTTONS --------- */
+    .nv-actions { display: flex; gap: 0.375rem; justify-content: flex-end; }
+    .nv-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.45rem 0.75rem;
+        border-radius: 0.5rem;
+        background: #f8fafc;
+        border: 1px solid rgba(0,51,127,0.08);
+        color: var(--text-secondary);
+        font-size: 0.8125rem;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 150ms;
+        white-space: nowrap;
+        font-family: var(--font-sans);
+    }
+    html:not(.light-mode) .nv-btn { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.10); }
+    .nv-btn:hover { background: rgba(0,51,127,0.04); border-color: rgba(0,51,127,0.18); color: var(--thw-blue); }
+    html:not(.light-mode) .nv-btn:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.20); }
+    .nv-btn--primary { background: var(--thw-blue); color: #fff; border-color: var(--thw-blue); }
+    .nv-btn--primary:hover { background: var(--thw-blue-light, #0044a8); color: #fff; }
+    .nv-btn--danger { background: #fff; color: var(--error); border-color: rgba(239,68,68,0.20); }
+    html:not(.light-mode) .nv-btn--danger { background: transparent; }
+    .nv-btn--danger:hover { background: rgba(239,68,68,0.06); border-color: var(--error); }
+    .nv-btn--icon { padding: 0.45rem; width: 34px; justify-content: center; gap: 0; }
+
+    /* --------- DETAIL PANEL --------- */
+    .nv-detail-panel {
+        padding: 1.5rem;
+        background: #f8fafc;
+        border-bottom: 1px solid rgba(0,51,127,0.06);
+        animation: nv-slide-down 200ms ease-out;
+    }
+    html:not(.light-mode) .nv-detail-panel {
+        background: rgba(255,255,255,0.02);
+        border-bottom-color: rgba(255,255,255,0.05);
+    }
+    @keyframes nv-slide-down {
+        from { opacity: 0; transform: translateY(-6px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+    .nv-panel-label {
+        font-family: var(--font-mono, 'IBM Plex Mono', monospace);
+        font-size: 0.6875rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--text-muted);
+        margin-bottom: 0.75rem;
+    }
+    .nv-form-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+        margin-bottom: 1.25rem;
+    }
+    @media (max-width: 900px) { .nv-form-grid { grid-template-columns: repeat(2, 1fr); } }
+    .nv-field { display: flex; flex-direction: column; gap: 0.35rem; }
+    .nv-field label { font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); }
+    .nv-field input, .nv-field select {
+        padding: 0.5rem 0.75rem;
+        border-radius: 0.5rem;
+        border: 1px solid rgba(0,51,127,0.12);
+        background: #fff;
+        font-size: 0.875rem;
+        color: var(--text-primary);
+        font-family: var(--font-sans);
+        transition: all 150ms;
+    }
+    html:not(.light-mode) .nv-field input,
+    html:not(.light-mode) .nv-field select {
+        background: rgba(255,255,255,0.06);
+        border-color: rgba(255,255,255,0.12);
+        color: var(--text-primary);
+    }
+    .nv-field input:focus, .nv-field select:focus {
+        outline: none; border-color: var(--thw-blue); box-shadow: 0 0 0 3px rgba(0,51,127,0.12);
+    }
+    .nv-info-row {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem 1.5rem;
+        padding: 1rem 1.25rem;
+        background: #fff;
+        border-radius: 0.5rem;
+        border: 1px solid rgba(0,51,127,0.06);
+        margin-bottom: 1rem;
+    }
+    html:not(.light-mode) .nv-info-row {
+        background: rgba(255,255,255,0.04);
+        border-color: rgba(255,255,255,0.06);
+    }
+    @media (max-width: 700px) { .nv-info-row { grid-template-columns: 1fr; } }
+    .nv-info-label {
+        font-size: 0.6875rem; font-weight: 600; text-transform: uppercase;
+        letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 0.25rem;
+    }
+    .nv-info-value { font-size: 0.875rem; font-weight: 500; color: var(--text-primary); }
+    .nv-info-value--ok { color: var(--success); }
+    .nv-info-value--muted { color: var(--text-muted); }
+    .nv-panel-footer { display: flex; justify-content: flex-end; gap: 0.5rem; }
+
+    /* --------- PAGINATION --------- */
+    .nv-pager {
+        padding: 1rem 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        flex-wrap: wrap;
+        background: #f8fafc;
+        border-top: 1px solid rgba(0,51,127,0.06);
+    }
+    html:not(.light-mode) .nv-pager { background: rgba(255,255,255,0.02); border-top-color: rgba(255,255,255,0.06); }
+    .nv-pager__info { font-size: 0.8125rem; color: var(--text-muted); }
+    .nv-pager__nav { display: flex; gap: 0.25rem; }
+    .nv-pager__btn {
+        width: 32px; height: 32px;
+        display: grid; place-items: center;
+        border-radius: 0.4rem;
+        background: #fff;
+        border: 1px solid rgba(0,51,127,0.10);
+        color: var(--text-secondary);
+        font-size: 0.8125rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 150ms;
+    }
+    html:not(.light-mode) .nv-pager__btn { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.10); }
+    .nv-pager__btn:hover { background: rgba(0,51,127,0.04); border-color: rgba(0,51,127,0.18); }
+    .nv-pager__btn.is-active { background: var(--thw-blue); color: #fff; border-color: var(--thw-blue); }
+    .nv-pager__btn:disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
+
+    /* --------- EMPTY STATE --------- */
+    .nv-empty {
+        text-align: center;
+        padding: 3rem 1rem;
+        color: var(--text-muted);
+    }
+    .nv-empty__icon { font-size: 2rem; color: rgba(0,51,127,0.18); margin-bottom: 0.5rem; }
+</style>
+@endpush
+
 @section('content')
+@php
+$usersJson = $users->map(fn($u) => [
+    'id'         => $u->id,
+    'name'       => $u->name,
+    'email'      => $u->email,
+    'role'       => $u->useroll ?? 'user',
+    'verified'   => !is_null($u->email_verified_at),
+    'verifiedAt' => $u->email_verified_at?->format('d.m.Y H:i'),
+    'newsletter' => (bool) ($u->email_consent ?? false),
+    'xp'         => (int) ($u->points ?? 0),
+    'level'      => (int) ($u->level ?? 1),
+    'avatarUrl'  => $u->avatar_url,
+])->values();
+@endphp
+
 <div class="dashboard-container">
-    <!-- Header -->
-    <header class="dashboard-header">
-        <h1 class="page-title">Nutzer<span>verwaltung</span></h1>
-        <p class="page-subtitle">Verwalte alle Benutzer und ihre Daten</p>
+<div class="admin-container">
+
+    {{-- Page title --}}
+    <header class="dashboard-header" style="margin-bottom: 1.5rem;">
+        <div style="font-family: var(--font-mono, 'IBM Plex Mono', monospace); font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 0.25rem;">Admin · Nutzer</div>
+        <h1 class="page-title">Nutzerverwaltung</h1>
+        <p class="page-subtitle">Verwalte alle Benutzer, Rollen und Lernfortschritte</p>
     </header>
 
-    <!-- Stats Pills -->
-    <div class="stats-row">
-        <div class="stat-pill">
-            <span class="stat-pill-icon text-gold"><i class="bi bi-people"></i></span>
-            <div>
-                <div class="stat-pill-value">{{ $users->count() }}</div>
-                <div class="stat-pill-label">Gesamt</div>
-            </div>
+    {{-- Header Stats --}}
+    <div class="nv-header-stats">
+        <div class="nv-hstat">
+            <div class="nv-hstat__icon nv-hstat__icon--blue"><i class="bi bi-people-fill"></i></div>
+            <div class="nv-hstat__value">{{ $users->count() }}</div>
+            <div class="nv-hstat__label">Gesamt</div>
         </div>
-
-        <div class="stat-pill">
-            <span class="stat-pill-icon" style="color: var(--thw-blue-light);"><i class="bi bi-shield-check"></i></span>
-            <div>
-                <div class="stat-pill-value">{{ $users->where('useroll', 'admin')->count() }}</div>
-                <div class="stat-pill-label">Admins</div>
-            </div>
+        <div class="nv-hstat">
+            <div class="nv-hstat__icon nv-hstat__icon--gold"><i class="bi bi-shield-fill"></i></div>
+            <div class="nv-hstat__value">{{ $users->where('useroll', 'admin')->count() }}</div>
+            <div class="nv-hstat__label">Admins</div>
         </div>
-
-        <div class="stat-pill">
-            <span class="stat-pill-icon text-gold"><i class="bi bi-pencil-square"></i></span>
-            <div>
-                <div class="stat-pill-value">{{ $users->where('useroll', 'contributor')->count() }}</div>
-                <div class="stat-pill-label">Contributors</div>
-            </div>
+        <div class="nv-hstat">
+            <div class="nv-hstat__icon nv-hstat__icon--purple"><i class="bi bi-pencil-square"></i></div>
+            <div class="nv-hstat__value">{{ $users->where('useroll', 'contributor')->count() }}</div>
+            <div class="nv-hstat__label">Contributors</div>
         </div>
-
-        <div class="stat-pill">
-            <span class="stat-pill-icon text-dark-secondary"><i class="bi bi-person"></i></span>
-            <div>
-                <div class="stat-pill-value">{{ $users->where('useroll', 'user')->count() }}</div>
-                <div class="stat-pill-label">Benutzer</div>
-            </div>
+        <div class="nv-hstat">
+            <div class="nv-hstat__icon nv-hstat__icon--slate"><i class="bi bi-person-fill"></i></div>
+            <div class="nv-hstat__value">{{ $users->where('useroll', 'user')->count() }}</div>
+            <div class="nv-hstat__label">Benutzer</div>
         </div>
-
-        <div class="stat-pill">
-            <span class="stat-pill-icon text-success"><i class="bi bi-envelope-check"></i></span>
-            <div>
-                <div class="stat-pill-value">{{ $users->whereNotNull('email_verified_at')->count() }}</div>
-                <div class="stat-pill-label">Verifiziert</div>
-            </div>
+        <div class="nv-hstat">
+            <div class="nv-hstat__icon nv-hstat__icon--green"><i class="bi bi-envelope-check-fill"></i></div>
+            <div class="nv-hstat__value">{{ $users->whereNotNull('email_verified_at')->count() }}</div>
+            <div class="nv-hstat__label">Verifiziert</div>
         </div>
-
-        <div class="stat-pill">
-            <span class="stat-pill-icon text-error"><i class="bi bi-envelope-x"></i></span>
-            <div>
-                <div class="stat-pill-value">{{ $users->whereNull('email_verified_at')->count() }}</div>
-                <div class="stat-pill-label">Nicht verifiziert</div>
-            </div>
+        <div class="nv-hstat">
+            <div class="nv-hstat__icon nv-hstat__icon--red"><i class="bi bi-envelope-x-fill"></i></div>
+            <div class="nv-hstat__value">{{ $users->whereNull('email_verified_at')->count() }}</div>
+            <div class="nv-hstat__label">Nicht verifiziert</div>
         </div>
-
-        <div class="stat-pill">
-            <span class="stat-pill-icon text-warning"><i class="bi bi-envelope-heart"></i></span>
-            <div>
-                <div class="stat-pill-value">{{ $users->where('email_consent', true)->count() }}</div>
-                <div class="stat-pill-label">Newsletter</div>
-            </div>
+        <div class="nv-hstat">
+            <div class="nv-hstat__icon nv-hstat__icon--gold"><i class="bi bi-megaphone-fill"></i></div>
+            <div class="nv-hstat__value">{{ $users->where('email_consent', true)->count() }}</div>
+            <div class="nv-hstat__label">Newsletter</div>
         </div>
     </div>
 
-    <!-- Action Buttons -->
-    <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 2rem;">
+    {{-- DSGVO Banner --}}
+    <div class="dsgvo-notice">
+        <i class="bi bi-shield-lock-fill" style="color: var(--thw-blue); flex-shrink: 0;"></i>
+        Änderungen werden protokolliert und sind für den Nutzer einsehbar.
+    </div>
+
+    {{-- Action Bar --}}
+    <div class="nv-action-bar">
         <a href="{{ route('admin.newsletter.create') }}" class="btn-primary">
-            Newsletter senden
+            <i class="bi bi-megaphone-fill"></i> Newsletter senden
         </a>
-        <a href="{{ route('dashboard') }}" class="btn-ghost">
+        <a href="{{ route('admin.dashboard') }}" class="btn-ghost">
             <i class="bi bi-arrow-left"></i> Zum Dashboard
+        </a>
+        <a href="{{ route('admin.users.index') }}?export=csv" class="btn-ghost">
+            <i class="bi bi-download"></i> Export CSV
         </a>
     </div>
 
     @if(session('success'))
-        <div class="alert-glass success" style="margin-bottom: 1.5rem;">
+        <div class="alert-glass success" style="margin-bottom: 1rem;">
             <i class="bi bi-check-circle" style="font-size: 1.25rem; color: var(--success);"></i>
             <span>{{ session('success') }}</span>
         </div>
     @endif
-
     @if(session('error'))
-        <div class="alert-glass error" style="margin-bottom: 1.5rem;">
+        <div class="alert-glass error" style="margin-bottom: 1rem;">
             <i class="bi bi-x-circle" style="font-size: 1.25rem; color: var(--error);"></i>
             <span>{{ session('error') }}</span>
         </div>
     @endif
 
-    <!-- Benutzertabelle -->
-    <div class="glass" style="padding: 1.5rem;">
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
-            <div class="section-header" style="padding-left: 1rem; border-left: 3px solid var(--gold-start);">
-                <h2 class="section-title">Alle Benutzer</h2>
+    {{-- Main Table with Alpine.js --}}
+    <div class="nv-table-card"
+         x-data="{
+            search: '',
+            roleFilter: 'all',
+            verifFilter: 'all',
+            expanded: null,
+            page: 1,
+            perPage: 8,
+            users: @json($usersJson),
+            get filtered() {
+                const q = this.search.trim().toLowerCase();
+                return this.users.filter(u => {
+                    if (q && !u.name.toLowerCase().includes(q) && !u.email.toLowerCase().includes(q)) return false;
+                    if (this.roleFilter !== 'all' && u.role !== this.roleFilter) return false;
+                    if (this.verifFilter === 'verified'   && !u.verified) return false;
+                    if (this.verifFilter === 'unverified' &&  u.verified) return false;
+                    return true;
+                });
+            },
+            get totalPages() {
+                return Math.max(1, Math.ceil(this.filtered.length / this.perPage));
+            },
+            get pageItems() {
+                const s = (this.page - 1) * this.perPage;
+                return this.filtered.slice(s, s + this.perPage);
+            },
+            toggleExpand(id) { this.expanded = (this.expanded === id) ? null : id; },
+            roleLabel(r) { return r === 'admin' ? 'Admin' : (r === 'contributor' ? 'Contributor' : 'Benutzer'); },
+         }">
+
+        {{-- Table head / filters --}}
+        <div class="nv-table-head">
+            <div class="nv-title-row">
+                <span class="section-label">Alle Benutzer</span>
+                <span class="nv-count">· <span x-text="filtered.length"></span> von {{ $users->count() }}</span>
             </div>
-            <div style="position: relative; min-width: 220px; max-width: 360px; flex: 1;">
-                <i class="bi bi-search" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.9rem; pointer-events: none;"></i>
-                <input type="text" id="user-search" class="input-glass" placeholder="Name oder E-Mail suchen..." style="padding-left: 2.5rem; margin: 0;" oninput="filterUsers(this.value)" />
+            <div class="nv-filters">
+                <div class="nv-search">
+                    <i class="bi bi-search"></i>
+                    <input type="text" placeholder="Name oder E-Mail suchen…"
+                           x-model="search" @input="page = 1" />
+                </div>
+                <select class="nv-filter-select" x-model="roleFilter" @change="page = 1">
+                    <option value="all">Alle Rollen</option>
+                    <option value="admin">Admin</option>
+                    <option value="contributor">Contributor</option>
+                    <option value="user">Benutzer</option>
+                </select>
+                <select class="nv-filter-select" x-model="verifFilter" @change="page = 1">
+                    <option value="all">Alle Status</option>
+                    <option value="verified">Verifiziert</option>
+                    <option value="unverified">Nicht verifiziert</option>
+                </select>
             </div>
         </div>
 
-        <div id="no-results" class="hidden" style="text-align: center; padding: 2rem; color: var(--text-muted);">
-            Keine Benutzer gefunden.
-        </div>
-
-        <!-- Desktop Tabelle -->
-        <div class="hidden md:block" style="overflow-x: auto;">
-            <table class="table-glass">
+        {{-- Table --}}
+        <div style="overflow-x: auto;">
+            <table class="nv-table">
                 <thead>
                     <tr>
-                        <th>ID</th>
-                        <th>Rolle</th>
-                        <th>Status</th>
                         <th>Name</th>
-                        <th>E-Mail</th>
-                        <th>Verifiziert</th>
-                        <th>Aktionen</th>
+                        <th>Rolle</th>
+                        <th style="text-align: center;">Verif.</th>
+                        <th style="text-align: right;">Aktionen</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($users as $user)
-                    <tr id="user-row-{{ $user->id }}">
-                        <td>
-                            <span class="badge-thw">{{ $user->id }}</span>
-                        </td>
-                        <td style="text-align: center;">
-                            @if($user->useroll === 'admin')
-                                <span class="badge-gold" title="Administrator"><i class="bi bi-shield-check"></i> Admin</span>
-                            @elseif($user->useroll === 'contributor')
-                                <span class="badge-thw" title="Contributor"><i class="bi bi-pencil-square"></i> Contributor</span>
-                            @else
-                                <span class="badge-glass" title="Benutzer"><i class="bi bi-person"></i> User</span>
-                            @endif
-                        </td>
-                        <td style="text-align: center;">
-                            @if($user->is_online ?? false)
-                                <span style="display: inline-flex; align-items: center; gap: 0.35rem; color: var(--success);" title="Online (letzte Session: {{ $user->updated_at->diffForHumans() }})">
-                                    <i class="bi bi-circle-fill" style="font-size: 0.5rem;"></i> Online
-                                </span>
-                            @else
-                                <span style="display: inline-flex; align-items: center; gap: 0.35rem; color: var(--text-muted);" title="Offline (letzte Session: {{ $user->updated_at->diffForHumans() }})">
-                                    <i class="bi bi-circle" style="font-size: 0.5rem;"></i> Offline
-                                </span>
-                            @endif
-                        </td>
-                        <td style="font-weight: 600; color: var(--text-primary);">
-                            {{ $user->name }}
-                        </td>
-                        <td style="color: var(--text-secondary);">
-                            {{ $user->email }}
-                        </td>
-                        <td>
-                            @if($user->email_verified_at)
-                                <span class="badge-success"><i class="bi bi-check"></i> Verifiziert</span>
-                            @else
-                                <span class="badge-error"><i class="bi bi-x"></i> Ausstehend</span>
-                            @endif
-                        </td>
-                        <td>
-                            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                                <button onclick="toggleUserDetails({{ $user->id }})" class="btn-ghost btn-sm" title="Details anzeigen/verbergen">
-                                    <i class="bi bi-chevron-down" id="toggle-icon-{{ $user->id }}"></i>
-                                    Details
-                                </button>
-
-                                <a href="{{ route('admin.users.progress.edit', $user->id) }}" class="btn-primary btn-sm" title="Fortschritt bearbeiten">
-                                    <i class="bi bi-graph-up"></i>
-                                    Fortschritt
-                                </a>
-
-                                <a href="{{ route('admin.users.xp-history', $user->id) }}" class="btn-secondary btn-sm" title="XP-Verlauf anzeigen">
-                                    <i class="bi bi-clock-history"></i>
-                                    XP-Verlauf
-                                </a>
-
-                                <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" style="display: inline;">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn-danger btn-sm" title="Benutzer löschen" onclick="return confirm('Benutzer {{ $user->name }} wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden!')">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </form>
+                    {{-- Empty state --}}
+                    <tr x-show="pageItems.length === 0">
+                        <td colspan="4">
+                            <div class="nv-empty">
+                                <div class="nv-empty__icon"><i class="bi bi-search"></i></div>
+                                <div style="font-weight: 600; color: var(--text-secondary);">Keine Treffer</div>
+                                <div style="font-size: 0.8125rem; margin-top: 0.25rem;">Passe deine Such- oder Filterkriterien an.</div>
                             </div>
                         </td>
                     </tr>
 
-                    <!-- Aufklappbare Details -->
-                    <tr id="user-details-{{ $user->id }}" class="hidden">
-                        <td colspan="7" style="padding: 1.5rem; background: rgba(255, 255, 255, 0.02);">
-                            <div class="glass-subtle" style="padding: 1.5rem;">
-                                <h3 style="font-size: 1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 1rem;">Benutzerdetails bearbeiten</h3>
-
-                                <form action="{{ route('admin.users.update', $user->id) }}" method="POST">
-                                    @csrf
-                                    @method('PUT')
-
-                                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
-                                        <div>
-                                            <label class="label-glass">Name</label>
-                                            <input type="text" name="name" value="{{ $user->name }}" class="input-glass" />
-                                        </div>
-
-                                        <div>
-                                            <label class="label-glass">E-Mail</label>
-                                            <input type="email" name="email" value="{{ $user->email }}" class="input-glass" />
-                                        </div>
-
-                                        <div>
-                                            <label class="label-glass">Rolle</label>
-                                            <select name="useroll" class="select-glass">
-                                                <option value="user" @if($user->useroll === 'user') selected @endif>Benutzer</option>
-                                                <option value="contributor" @if($user->useroll === 'contributor') selected @endif>Contributor</option>
-                                                <option value="admin" @if($user->useroll === 'admin') selected @endif>Administrator</option>
-                                            </select>
-                                        </div>
-
-                                        <div>
-                                            <label class="label-glass">Punkte (XP)</label>
-                                            <input type="number" name="points" value="{{ $user->points ?? 0 }}" min="0" class="input-glass" />
-                                        </div>
-
-                                        <div>
-                                            <label class="label-glass">Registriert am</label>
-                                            <div style="padding: 0.875rem 1rem; background: rgba(255, 255, 255, 0.03); border-radius: 0.75rem; color: var(--text-secondary); font-size: 0.9rem;">
-                                                {{ $user->created_at->format('d.m.Y H:i') }}
-                                            </div>
-                                        </div>
-
-                                        <div>
-                                            <label class="label-glass">Letzte Aktivität</label>
-                                            <div style="padding: 0.875rem 1rem; background: rgba(255, 255, 255, 0.03); border-radius: 0.75rem; color: var(--text-secondary); font-size: 0.9rem;">
-                                                {{ $user->updated_at->format('d.m.Y H:i') }}
-                                            </div>
-                                        </div>
-
-                                        <div>
-                                            <label class="label-glass">E-Mail Status</label>
-                                            <div style="padding: 0.875rem 1rem; background: rgba(255, 255, 255, 0.03); border-radius: 0.75rem; font-size: 0.9rem;">
-                                                @if($user->email_verified_at)
-                                                    <span style="color: var(--success);"><i class="bi bi-check-circle"></i> Bestätigt am {{ $user->email_verified_at->format('d.m.Y H:i') }}</span>
-                                                @else
-                                                    <span style="color: var(--error);"><i class="bi bi-x-circle"></i> Nicht bestätigt</span>
-                                                @endif
-                                            </div>
-                                        </div>
-
-                                        <div>
-                                            <label class="label-glass">Newsletter-Zustimmung</label>
-                                            <div style="padding: 0.875rem 1rem; background: rgba(255, 255, 255, 0.03); border-radius: 0.75rem; font-size: 0.9rem;">
-                                                @if($user->email_consent)
-                                                    <span style="color: var(--success);"><i class="bi bi-envelope-check"></i> Zustimmung erteilt
-                                                        @if($user->email_consent_at)
-                                                            am {{ $user->email_consent_at->format('d.m.Y H:i') }}
-                                                        @endif
-                                                    </span>
-                                                @else
-                                                    <span style="color: var(--text-muted);"><i class="bi bi-envelope-x"></i> Keine Zustimmung</span>
-                                                @endif
-                                            </div>
-                                        </div>
+                    {{--
+                        Alpine x-for inside tbody: we need one <tr> per user.
+                        The expandable detail is rendered as a separate section
+                        below the table (see nv-panels-section below).
+                        We highlight the row when expanded.
+                    --}}
+                    <template x-for="u in pageItems" :key="u.id">
+                        <tr class="nv-main-row" :class="expanded === u.id ? 'nv-expanded' : ''">
+                            <td>
+                                <div class="nv-user-cell">
+                                    <div class="nv-avatar">
+                                        <img :src="u.avatarUrl" :alt="u.name" loading="lazy" />
                                     </div>
-
-                                    <div style="display: flex; justify-content: flex-end; padding-top: 1rem;">
-                                        <button type="submit" class="btn-primary">
-                                            Änderungen speichern
+                                    <div>
+                                        <div class="nv-user-name" x-text="u.name"></div>
+                                        <div class="nv-user-email" x-text="u.email"></div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span :class="`nv-role nv-role--${u.role}`" x-text="roleLabel(u.role)"></span>
+                            </td>
+                            <td style="text-align: center;">
+                                <template x-if="u.verified">
+                                    <i class="bi bi-check-circle-fill nv-verif-ok" title="Verifiziert"></i>
+                                </template>
+                                <template x-if="!u.verified">
+                                    <form :action="`{{ url('admin/users') }}/${u.id}/verify`" method="POST" style="display:inline;">
+                                        @csrf
+                                        <button type="submit" class="nv-verif-btn" title="Jetzt verifizieren">
+                                            <i class="bi bi-x-circle-fill"></i> Verifizieren
                                         </button>
-                                    </div>
-                                </form>
-                            </div>
-                        </td>
-                    </tr>
-                    @endforeach
+                                    </form>
+                                </template>
+                            </td>
+                            <td>
+                                <div class="nv-actions">
+                                    <button class="nv-btn" @click="toggleExpand(u.id)">
+                                        <i :class="`bi ${expanded === u.id ? 'bi-chevron-up' : 'bi-chevron-down'}`"></i>
+                                        Details
+                                    </button>
+                                    <a :href="`{{ url('admin/users') }}/${u.id}/progress`" class="nv-btn nv-btn--primary">
+                                        <i class="bi bi-graph-up"></i> Fortschritt
+                                    </a>
+                                    <a :href="`{{ url('admin/users') }}/${u.id}/xp-history`" class="nv-btn nv-btn--icon" title="XP-Verlauf">
+                                        <i class="bi bi-clock-history"></i>
+                                    </a>
+                                    <form :action="`{{ url('admin/users') }}/${u.id}`" method="POST" style="display:inline;"
+                                          @submit.prevent="if(confirm('Benutzer ' + u.name + ' wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden!')) $el.submit()">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="nv-btn nv-btn--danger nv-btn--icon" title="Löschen">
+                                            <i class="bi bi-trash-fill"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    </template>
                 </tbody>
             </table>
         </div>
 
-        <!-- Mobile Karten -->
-        <div class="block md:hidden">
-            <div style="display: flex; flex-direction: column; gap: 1rem;">
-            @foreach($users as $user)
-            <div class="glass-subtle" style="padding: 1.25rem;">
-                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
-                    <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
-                        <span class="badge-thw">ID: {{ $user->id }}</span>
-                        @if($user->useroll === 'admin')
-                            <span class="badge-gold"><i class="bi bi-shield-check"></i></span>
-                        @elseif($user->useroll === 'contributor')
-                            <span class="badge-thw"><i class="bi bi-pencil-square"></i></span>
-                        @endif
-                        @if($user->is_online ?? false)
-                            <span style="color: var(--success);"><i class="bi bi-circle-fill" style="font-size: 0.5rem;"></i></span>
-                        @else
-                            <span style="color: var(--text-muted);"><i class="bi bi-circle" style="font-size: 0.5rem;"></i></span>
-                        @endif
-                    </div>
-                </div>
+        {{-- Expandable detail panels (rendered between table and pagination) --}}
+        <template x-for="u in pageItems" :key="`dp-${u.id}`">
+            <div x-show="expanded === u.id" x-transition:enter="nv-slide-down" style="display:none;">
+                <div class="nv-detail-panel">
+                    <div class="nv-panel-label">Benutzer bearbeiten · #<span x-text="u.id"></span></div>
 
-                <div style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.25rem;">{{ $user->name }}</div>
-                <div style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.75rem;">{{ $user->email }}</div>
-
-                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem;">
-                    @if($user->email_verified_at)
-                        <span class="badge-success"><i class="bi bi-check"></i> E-Mail bestätigt</span>
-                    @else
-                        <span class="badge-error"><i class="bi bi-x"></i> E-Mail nicht bestätigt</span>
-                    @endif
-
-                    @if($user->email_consent)
-                        <span class="badge-gold"><i class="bi bi-envelope-check"></i> Newsletter</span>
-                    @endif
-                </div>
-
-                <!-- Aufklappbare Details Mobile -->
-                <div id="mobile-details-{{ $user->id }}" class="hidden" style="margin-bottom: 1rem;">
-                    <div style="padding: 1rem; background: rgba(255, 255, 255, 0.03); border-radius: 0.75rem; margin-top: 1rem;">
-                        <h4 style="font-size: 0.9rem; font-weight: 700; color: var(--text-primary); margin-bottom: 1rem;">Details bearbeiten</h4>
-
-                        <form action="{{ route('admin.users.update', $user->id) }}" method="POST">
-                            @csrf
-                            @method('PUT')
-
-                            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-                                <div>
-                                    <label class="label-glass">Name</label>
-                                    <input type="text" name="name" value="{{ $user->name }}" class="input-glass" />
-                                </div>
-
-                                <div>
-                                    <label class="label-glass">E-Mail</label>
-                                    <input type="email" name="email" value="{{ $user->email }}" class="input-glass" />
-                                </div>
-
-                                <div>
-                                    <label class="label-glass">Rolle</label>
-                                    <select name="useroll" class="select-glass">
-                                        <option value="user" @if($user->useroll === 'user') selected @endif>Benutzer</option>
-                                        <option value="contributor" @if($user->useroll === 'contributor') selected @endif>Contributor</option>
-                                        <option value="admin" @if($user->useroll === 'admin') selected @endif>Administrator</option>
-                                    </select>
-                                </div>
-
-                                <div>
-                                    <label class="label-glass">Punkte (XP)</label>
-                                    <input type="number" name="points" value="{{ $user->points ?? 0 }}" min="0" class="input-glass" />
-                                </div>
-
-                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; font-size: 0.875rem;">
-                                    <div>
-                                        <div style="color: var(--text-muted); margin-bottom: 0.25rem;">Registriert:</div>
-                                        <div style="font-weight: 600; color: var(--text-secondary);">{{ $user->created_at->format('d.m.Y') }}</div>
-                                    </div>
-                                    <div>
-                                        <div style="color: var(--text-muted); margin-bottom: 0.25rem;">Letzte Aktivität:</div>
-                                        <div style="font-weight: 600; color: var(--text-secondary);">{{ $user->updated_at->format('d.m.Y') }}</div>
-                                    </div>
-                                </div>
-
-                                <button type="submit" class="btn-primary" style="width: 100%; margin-top: 0.5rem;">
-                                    Änderungen speichern
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 0.5rem;">
-                    <button onclick="toggleMobileDetails({{ $user->id }})" class="btn-ghost btn-sm" style="justify-content: center;">
-                        <i class="bi bi-chevron-down" id="mobile-toggle-icon-{{ $user->id }}"></i>
-                        Details
-                    </button>
-
-                    <a href="{{ route('admin.users.progress.edit', $user->id) }}" class="btn-primary btn-sm" style="justify-content: center;">
-                        <i class="bi bi-graph-up"></i>
-                        Fortschritt
-                    </a>
-
-                    <a href="{{ route('admin.users.xp-history', $user->id) }}" class="btn-secondary btn-sm" style="justify-content: center;">
-                        <i class="bi bi-clock-history"></i>
-                        XP-Verlauf
-                    </a>
-
-                    <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" style="grid-column: 1 / -1;">
+                    <form :action="`{{ url('admin/users') }}/${u.id}`" method="POST">
                         @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn-danger btn-sm" style="width: 100%; justify-content: center;" onclick="return confirm('Benutzer {{ $user->name }} wirklich löschen?')">
-                            <i class="bi bi-trash"></i>
-                            Löschen
-                        </button>
+                        @method('PUT')
+
+                        <div class="nv-form-grid">
+                            <div class="nv-field">
+                                <label>Name</label>
+                                <input type="text" name="name" :value="u.name" required />
+                            </div>
+                            <div class="nv-field">
+                                <label>E-Mail</label>
+                                <input type="email" name="email" :value="u.email" required />
+                            </div>
+                            <div class="nv-field">
+                                <label>Rolle</label>
+                                <select name="useroll">
+                                    <option value="user"        :selected="u.role === 'user'">Benutzer</option>
+                                    <option value="contributor" :selected="u.role === 'contributor'">Contributor</option>
+                                    <option value="admin"       :selected="u.role === 'admin'">Administrator</option>
+                                </select>
+                            </div>
+                            <div class="nv-field">
+                                <label>Punkte (XP)</label>
+                                <input type="number" name="points" :value="u.xp" min="0" />
+                            </div>
+                        </div>
+
+                        <div class="nv-info-row">
+                            <div>
+                                <div class="nv-info-label">Level &amp; XP</div>
+                                <div class="nv-info-value">
+                                    <strong>Lvl <span x-text="u.level"></span></strong>
+                                    <span style="color:var(--text-muted);font-weight:500;margin-left:0.5rem;">
+                                        · <span x-text="u.xp.toLocaleString('de-DE')"></span> XP
+                                    </span>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="nv-info-label">E-Mail Status</div>
+                                <template x-if="u.verified">
+                                    <div class="nv-info-value nv-info-value--ok">
+                                        <i class="bi bi-check-circle-fill"></i>
+                                        Bestätigt am <span x-text="u.verifiedAt || '—'"></span>
+                                    </div>
+                                </template>
+                                <template x-if="!u.verified">
+                                    <div class="nv-info-value" style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+                                        <span style="color:var(--error);"><i class="bi bi-x-circle-fill"></i> Nicht bestätigt</span>
+                                        <form :action="`{{ url('admin/users') }}/${u.id}/verify`" method="POST" style="display:inline;">
+                                            @csrf
+                                            <button type="submit" class="nv-btn" style="padding:0.3rem 0.65rem;font-size:0.75rem;color:var(--success);border-color:rgba(34,197,94,0.30);">
+                                                <i class="bi bi-check-lg"></i> Jetzt verifizieren
+                                            </button>
+                                        </form>
+                                    </div>
+                                </template>
+                            </div>
+                            <div>
+                                <div class="nv-info-label">Newsletter</div>
+                                <template x-if="u.newsletter">
+                                    <div class="nv-info-value nv-info-value--ok">
+                                        <i class="bi bi-envelope-check-fill"></i> Aktiv seit Registrierung
+                                    </div>
+                                </template>
+                                <template x-if="!u.newsletter">
+                                    <div class="nv-info-value nv-info-value--muted">
+                                        <i class="bi bi-envelope-slash"></i> Keine Zustimmung
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+
+                        <div class="nv-panel-footer">
+                            <button type="button" class="btn-ghost" @click="toggleExpand(u.id)">Abbrechen</button>
+                            <button type="submit" class="btn-primary">
+                                <i class="bi bi-check-lg"></i> Änderungen speichern
+                            </button>
+                        </div>
                     </form>
                 </div>
             </div>
-            @endforeach
+        </template>
+
+        {{-- Pagination --}}
+        <div class="nv-pager" x-show="filtered.length > 0">
+            <div class="nv-pager__info">
+                Zeige
+                <strong x-text="Math.min((page - 1) * perPage + 1, filtered.length)"></strong>–<strong x-text="Math.min(page * perPage, filtered.length)"></strong>
+                von <strong x-text="filtered.length"></strong>
+            </div>
+            <div class="nv-pager__nav">
+                <button class="nv-pager__btn" :disabled="page === 1" @click="page--">
+                    <i class="bi bi-chevron-left"></i>
+                </button>
+                <template x-for="p in Array.from({length: totalPages}, (_, i) => i + 1)" :key="p">
+                    <button class="nv-pager__btn" :class="p === page ? 'is-active' : ''" @click="page = p" x-text="p"></button>
+                </template>
+                <button class="nv-pager__btn" :disabled="page === totalPages" @click="page++">
+                    <i class="bi bi-chevron-right"></i>
+                </button>
             </div>
         </div>
-    </div>
 
-    <!-- Footer Navigation -->
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2rem; flex-wrap: wrap; gap: 1rem;">
-        <a href="{{ route('admin.questions.index') }}" class="btn-secondary">
+    </div>{{-- /.nv-table-card --}}
+
+    {{-- Footer nav --}}
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:2rem;flex-wrap:wrap;gap:1rem;">
+        <a href="{{ route('admin.questions.index') }}" class="btn-ghost">
             Zur Fragenverwaltung
         </a>
-
-        <div style="color: var(--text-muted); font-weight: 600;">
+        <div style="color:var(--text-muted);font-size:0.875rem;">
             Gesamt: {{ $users->count() }} Benutzer
         </div>
     </div>
-</div>
 
-<script>
-    function toggleUserDetails(userId) {
-        const detailsRow = document.getElementById('user-details-' + userId);
-        const icon = document.getElementById('toggle-icon-' + userId);
-
-        if (detailsRow.classList.contains('hidden')) {
-            detailsRow.classList.remove('hidden');
-            icon.classList.remove('bi-chevron-down');
-            icon.classList.add('bi-chevron-up');
-        } else {
-            detailsRow.classList.add('hidden');
-            icon.classList.remove('bi-chevron-up');
-            icon.classList.add('bi-chevron-down');
-        }
-    }
-
-    function filterUsers(query) {
-        const q = query.toLowerCase().trim();
-        let visibleCount = 0;
-
-        // Desktop-Tabelle filtern
-        document.querySelectorAll('table.table-glass tbody tr[id^="user-row-"]').forEach(function(row) {
-            const name = row.querySelector('td:nth-child(4)').textContent.toLowerCase();
-            const email = row.querySelector('td:nth-child(5)').textContent.toLowerCase();
-            const match = !q || name.includes(q) || email.includes(q);
-            const detailsRow = document.getElementById('user-details-' + row.id.replace('user-row-', ''));
-
-            row.style.display = match ? '' : 'none';
-            if (!match && detailsRow) detailsRow.classList.add('hidden');
-            if (match) visibleCount++;
-        });
-
-        // Mobile-Karten filtern
-        document.querySelectorAll('.block.md\\:hidden > div > .glass-subtle').forEach(function(card) {
-            const name = card.querySelector('div[style*="font-size: 1.1rem"]').textContent.toLowerCase();
-            const email = card.querySelector('div[style*="font-size: 0.875rem"]').textContent.toLowerCase();
-            const match = !q || name.includes(q) || email.includes(q);
-            card.style.display = match ? '' : 'none';
-        });
-
-        document.getElementById('no-results').classList.toggle('hidden', visibleCount > 0 || !q);
-    }
-
-    function toggleMobileDetails(userId) {
-        const detailsDiv = document.getElementById('mobile-details-' + userId);
-        const icon = document.getElementById('mobile-toggle-icon-' + userId);
-
-        if (detailsDiv.classList.contains('hidden')) {
-            detailsDiv.classList.remove('hidden');
-            icon.classList.remove('bi-chevron-down');
-            icon.classList.add('bi-chevron-up');
-        } else {
-            detailsDiv.classList.add('hidden');
-            icon.classList.remove('bi-chevron-up');
-            icon.classList.add('bi-chevron-down');
-        }
-    }
-</script>
+</div>{{-- /.admin-container --}}
+</div>{{-- /.dashboard-container --}}
 @endsection
