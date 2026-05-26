@@ -93,7 +93,6 @@
                         <li>Punkte (XP), Level und Lernfortschritt</li>
                         <li>E-Mail-Verifizierungsstatus (inkl. manueller Bestätigung)</li>
                         <li>Status der Newsletter-Zustimmung</li>
-                        <li>Registrierungs- und Aktivitätszeitpunkte</li>
                     </ul>
                     <p class="mb-4">Administratoren können in begründeten Fällen Ihren Lernfortschritt zurücksetzen, einzelne Fragen oder ganze Lernabschnitte/Lehrgänge auf einen bestimmten Status setzen (z.&nbsp;B. „gemeistert", „zur Wiederholung", „zurücksetzen") sowie – auf Anforderung oder bei Verstoß gegen die Nutzungsbedingungen – Ihr Konto löschen.</p>
                     <p class="mb-4"><strong>Protokollierung (Audit-Log):</strong> Sämtliche Änderungen, die ein Administrator an Ihrem Konto vornimmt, werden lückenlos protokolliert. Erfasst werden dabei:</p>
