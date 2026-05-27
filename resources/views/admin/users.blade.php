@@ -1219,9 +1219,16 @@ document.addEventListener('alpine:init', () => {
                                         <i class="bi bi-clock-history"></i>
                                     </a>
                                     <form :action="`{{ url('admin/users') }}/${u.id}`" method="POST" style="display:inline;"
-                                          @submit.prevent="if(confirm('Benutzer ' + u.name + ' wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden!')) $el.submit()">
+                                          @submit.prevent="
+                                              const reason = prompt('DSGVO: Bitte gib den Grund für die Löschung von ' + u.name + ' an.\n\nAlle personenbezogenen Daten werden unwiderruflich gelöscht.');
+                                              if (reason === null) return;
+                                              if (reason.trim().length < 3) { alert('Bitte gib einen Grund mit mindestens 3 Zeichen an.'); return; }
+                                              $el.querySelector('input[name=reason]').value = reason;
+                                              $el.submit();
+                                          ">
                                         @csrf
                                         @method('DELETE')
+                                        <input type="hidden" name="reason" value="">
                                         <button type="submit" class="nv-btn nv-btn--danger nv-btn--icon" title="Löschen">
                                             <i class="bi bi-trash-fill"></i>
                                         </button>

@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\UserQuestionProgress;
 use App\Services\GamificationService;
 use App\Services\SpacedRepetitionService;
+use App\Services\UserDeletionService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -755,23 +756,32 @@ class UserController extends Controller
         return $level;
     }
 
-    public function destroy($id)
+    public function destroy(Request $request, $id, UserDeletionService $deletionService)
     {
         $this->abortIfNotAdmin();
         $user = User::findOrFail($id);
 
-        AdminAuditLog::logChange(
+        if ($user->id === auth()->id()) {
+            return redirect()->route('admin.users.index')
+                ->with('error', 'Du kannst deinen eigenen Account nicht über die Admin-Verwaltung löschen.');
+        }
+
+        $request->validate([
+            'reason' => 'required|string|min:3|max:500',
+        ], [
+            'reason.required' => 'Aus DSGVO-Gründen ist ein Lösch-Grund erforderlich.',
+            'reason.min'      => 'Der Lösch-Grund muss mindestens 3 Zeichen lang sein.',
+        ]);
+
+        $deletionService->deleteUser(
+            $user,
             auth()->user(),
-            $user->id,
-            'delete',
-            null,
-            $user->name . ' <' . $user->email . '>',
-            null,
-            request()
+            $request->input('reason'),
+            $request
         );
 
-        $user->delete();
-        return redirect()->route('admin.users.index')->with('success', 'Nutzer gelöscht');
+        return redirect()->route('admin.users.index')
+            ->with('success', 'Nutzer und alle verbundenen Daten wurden DSGVO-konform gelöscht.');
     }
 
     public function xpHistory($id)
