@@ -70,68 +70,17 @@
                 </div>
             </div>
 
-            @if($futureCount > 0)
-                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.06);">
-                    <div>
-                        <div style="font-weight: 600; color: var(--text-primary);">{{ $futureCount }} zukünftige Wiederholungen vorziehen</div>
-                        <div style="font-size: 0.8rem; color: var(--text-muted);">Setzt alle geplanten SR-Fragen auf heute</div>
-                    </div>
-                    <form method="POST" action="{{ route('admin.users.progress.sr-pull-forward', $user->id) }}">
-                        @csrf
-                        <button type="submit" class="btn-primary btn-sm" onclick="return confirm('{{ $futureCount }} Fragen auf heute vorziehen?')">
-                            Alle auf heute setzen
-                        </button>
-                    </form>
-                </div>
-            @else
-                <div style="padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.06); color: var(--text-muted); font-size: 0.875rem;">
-                    Alle SR-Fragen sind bereits heute fällig oder es gibt keine zukünftigen Wiederholungen.
-                </div>
-            @endif
-
         </div>
     @endif
 
-    <!-- Test-Tool: Alle Fragen auf morgen setzen (immer sichtbar) -->
-    <div class="glass" style="margin-bottom: 2rem; padding: 1.5rem;">
-        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
-            <div>
-                <div style="font-weight: 600; color: var(--text-primary);">Alle Fragen auf morgen setzen</div>
-                <div style="font-size: 0.8rem; color: var(--text-muted);">Test-Tool: Erstellt SR-Einträge für alle Fragen und setzt sie auf morgen fällig</div>
-            </div>
-            <form method="POST" action="{{ route('admin.users.progress.sr-set-tomorrow', $user->id) }}">
-                @csrf
-                <button type="submit" class="btn-secondary btn-sm" onclick="return confirm('Alle Fragen auf morgen setzen? (erstellt fehlende Einträge)')">
-                    Alle auf morgen setzen
-                </button>
-            </form>
-        </div>
+    <div class="glass" style="padding: 1rem 1.5rem; margin-bottom: 2rem; display: flex; align-items: center; gap: 0.75rem;">
+        <i class="bi bi-shield-lock" style="color: var(--text-muted); font-size: 1.1rem;"></i>
+        <span style="color: var(--text-secondary); font-size: 0.875rem;">
+            DSGVO: Diese Ansicht ist read-only. Admins können Lernfortschritt einsehen, aber nicht mehr verändern.
+        </span>
     </div>
 
-    <!-- Fortschritt zurücksetzen -->
-    <div class="glass-error" style="padding: 1.5rem; margin-bottom: 2rem; border: 1px solid rgba(239, 68, 68, 0.25);">
-        <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap;">
-            <div style="flex: 1; min-width: 200px;">
-                <h3 style="font-size: 1rem; font-weight: 700; color: var(--error); margin-bottom: 0.5rem;">Fortschritt vollständig zurücksetzen</h3>
-                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0;">
-                    Setzt <strong>alle</strong> Daten dieses Nutzers auf null zurück:
-                    Grundausbildung, Spaced Repetition, Lehrgänge und Prüfungsstatistiken.
-                    Diese Aktion kann nicht rückgängig gemacht werden.
-                </p>
-            </div>
-            <form method="POST" action="{{ route('admin.users.progress.reset', $user->id) }}"
-                  onsubmit="return confirmReset('{{ $user->name }}')">
-                @csrf
-                <button type="submit" class="btn-danger">
-                    Fortschritt zurücksetzen
-                </button>
-            </form>
-        </div>
-    </div>
-
-    <form method="POST" action="{{ route('admin.users.progress.update', $user->id) }}">
-        @csrf
-        @method('PUT')
+    <div>
 
         <!-- Lehrgänge Sektion mit Dropdowns -->
         @if($lehrgangData && !$lehrgangData->isEmpty())
@@ -175,14 +124,6 @@
                                         <p style="font-size: 0.85rem; color: var(--text-muted);">{{ $data['totalSolved'] }} Fragen</p>
                                     </div>
                                 </div>
-                                <div style="display: flex; gap: 0.5rem;">
-                                    <button type="button" onclick="selectAllLehrgangQuestions('lehrgang-{{ $lehrgangId }}-questions', true)" class="btn-secondary btn-sm">
-                                        <i class="bi bi-check-all"></i> Alle auswählen
-                                    </button>
-                                    <button type="button" onclick="selectAllLehrgangQuestions('lehrgang-{{ $lehrgangId }}-questions', false)" class="btn-ghost btn-sm">
-                                        <i class="bi bi-x-lg"></i> Alle abwählen
-                                    </button>
-                                </div>
                             </div>
 
                             <!-- Fragen Grid -->
@@ -192,12 +133,10 @@
                                         $progress = $data['progressData'][$question->id] ?? null;
                                         $isSolved = $progress && $progress->solved;
                                     @endphp
-                                    <label class="question-checkbox {{ $isSolved ? 'checked' : '' }}" style="display: flex; align-items: flex-start; padding: 0.75rem; background: rgba(255, 255, 255, 0.03); border: 1px solid {{ $isSolved ? 'rgba(34, 197, 94, 0.3)' : 'rgba(255, 255, 255, 0.06)' }}; border-radius: 0.75rem; cursor: pointer; transition: all 0.2s;">
-                                        <input type="checkbox"
-                                               name="lehrgang_{{ $lehrgangId }}_solved[]"
-                                               value="{{ $question->id }}"
-                                               @if($isSolved) checked @endif
-                                               class="checkbox-glass" style="margin-top: 0.125rem; margin-right: 0.75rem;">
+                                    <div class="question-checkbox {{ $isSolved ? 'checked' : '' }}" style="display: flex; align-items: flex-start; padding: 0.75rem; background: rgba(255, 255, 255, 0.03); border: 1px solid {{ $isSolved ? 'rgba(34, 197, 94, 0.3)' : 'rgba(255, 255, 255, 0.06)' }}; border-radius: 0.75rem;">
+                                        <span style="margin-top: 0.125rem; margin-right: 0.75rem; color: {{ $isSolved ? 'var(--success)' : 'var(--text-muted)' }};">
+                                            <i class="bi bi-{{ $isSolved ? 'check-square-fill' : 'square' }}"></i>
+                                        </span>
                                         <div style="flex: 1; min-width: 0;">
                                             <div style="font-size: 0.875rem; font-weight: 600; color: var(--text-primary);">Frage {{ $question->nummer }}</div>
                                             <div style="font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ Str::limit($question->frage, 40) }}</div>
@@ -206,7 +145,7 @@
                                                 <div style="font-size: 0.7rem; color: var(--success); font-weight: 600; margin-top: 0.25rem;"><i class="bi bi-check"></i> {{ $progress->consecutive_correct }}x richtig</div>
                                             @endif
                                         </div>
-                                    </label>
+                                    </div>
                                 @endforeach
                             </div>
                         </div>
@@ -299,12 +238,6 @@
                         <i class="bi bi-chevron-down" id="solved-questions-arrow"></i>
                         <span id="solved-questions-toggle-text">Aufklappen</span>
                     </button>
-                    <button type="button" onclick="selectAll('solved_questions', true)" class="btn-secondary btn-sm">
-                        <i class="bi bi-check-all"></i> Alle auswählen
-                    </button>
-                    <button type="button" onclick="selectAll('solved_questions', false)" class="btn-ghost btn-sm">
-                        <i class="bi bi-x-lg"></i> Alle abwählen
-                    </button>
                 </div>
             </div>
 
@@ -312,16 +245,16 @@
                 <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.75rem;">
                     @foreach($questions as $question)
                         @php $isSolved = in_array($question->id, $solved); @endphp
-                        <label class="question-checkbox {{ $isSolved ? 'checked' : '' }}" style="display: flex; align-items: flex-start; padding: 0.75rem; background: rgba(255, 255, 255, 0.03); border: 1px solid {{ $isSolved ? 'rgba(34, 197, 94, 0.3)' : 'rgba(255, 255, 255, 0.06)' }}; border-radius: 0.75rem; cursor: pointer; transition: all 0.2s;">
-                            <input type="checkbox" name="solved_questions[]" value="{{ $question->id }}"
-                                   @if($isSolved) checked @endif
-                                   class="checkbox-glass" style="margin-top: 0.125rem; margin-right: 0.75rem;">
+                        <div class="question-checkbox {{ $isSolved ? 'checked' : '' }}" style="display: flex; align-items: flex-start; padding: 0.75rem; background: rgba(255, 255, 255, 0.03); border: 1px solid {{ $isSolved ? 'rgba(34, 197, 94, 0.3)' : 'rgba(255, 255, 255, 0.06)' }}; border-radius: 0.75rem;">
+                            <span style="margin-top: 0.125rem; margin-right: 0.75rem; color: {{ $isSolved ? 'var(--success)' : 'var(--text-muted)' }};">
+                                <i class="bi bi-{{ $isSolved ? 'check-square-fill' : 'square' }}"></i>
+                            </span>
                             <div style="flex: 1; min-width: 0;">
                                 <div style="font-size: 0.875rem; font-weight: 600; color: var(--text-primary);">Frage {{ $question->id }}</div>
                                 <div style="font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ Str::limit($question->frage, 40) }}</div>
                                 <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.25rem;">LA: {{ $question->lernabschnitt }}</div>
                             </div>
-                        </label>
+                        </div>
                     @endforeach
                 </div>
             </div>
@@ -342,12 +275,6 @@
                         <i class="bi bi-chevron-down" id="failed-questions-arrow"></i>
                         <span id="failed-questions-toggle-text">Aufklappen</span>
                     </button>
-                    <button type="button" onclick="selectAll('exam_failed_questions', true)" class="btn-danger btn-sm">
-                        <i class="bi bi-check-all"></i> Alle auswählen
-                    </button>
-                    <button type="button" onclick="selectAll('exam_failed_questions', false)" class="btn-ghost btn-sm">
-                        <i class="bi bi-x-lg"></i> Alle abwählen
-                    </button>
                 </div>
             </div>
 
@@ -355,41 +282,30 @@
                 <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.75rem;">
                     @foreach($questions as $question)
                         @php $isFailed = isset($failed) && in_array($question->id, $failed); @endphp
-                        <label class="question-checkbox {{ $isFailed ? 'checked-error' : '' }}" style="display: flex; align-items: flex-start; padding: 0.75rem; background: rgba(255, 255, 255, 0.03); border: 1px solid {{ $isFailed ? 'rgba(239, 68, 68, 0.3)' : 'rgba(255, 255, 255, 0.06)' }}; border-radius: 0.75rem; cursor: pointer; transition: all 0.2s;">
-                            <input type="checkbox" name="exam_failed_questions[]" value="{{ $question->id }}"
-                                   @if($isFailed) checked @endif
-                                   class="checkbox-glass" style="margin-top: 0.125rem; margin-right: 0.75rem;">
+                        <div class="question-checkbox {{ $isFailed ? 'checked-error' : '' }}" style="display: flex; align-items: flex-start; padding: 0.75rem; background: rgba(255, 255, 255, 0.03); border: 1px solid {{ $isFailed ? 'rgba(239, 68, 68, 0.3)' : 'rgba(255, 255, 255, 0.06)' }}; border-radius: 0.75rem;">
+                            <span style="margin-top: 0.125rem; margin-right: 0.75rem; color: {{ $isFailed ? 'var(--error)' : 'var(--text-muted)' }};">
+                                <i class="bi bi-{{ $isFailed ? 'x-square-fill' : 'square' }}"></i>
+                            </span>
                             <div style="flex: 1; min-width: 0;">
                                 <div style="font-size: 0.875rem; font-weight: 600; color: var(--text-primary);">Frage {{ $question->id }}</div>
                                 <div style="font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ Str::limit($question->frage, 40) }}</div>
                                 <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.25rem;">LA: {{ $question->lernabschnitt }}</div>
                             </div>
-                        </label>
+                        </div>
                     @endforeach
                 </div>
             </div>
         </div>
 
-        <!-- Aktionen -->
-        <div class="glass-gold" style="padding: 2rem; text-align: center;">
-            <i class="bi bi-save" style="font-size: 2.5rem; color: var(--gold); margin-bottom: 1rem; display: block;"></i>
-            <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.5rem;">Änderungen speichern</h3>
-            <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1.5rem;">Vergiss nicht, deine Änderungen zu speichern!</p>
-
-            <button type="submit" class="btn-primary btn-lg" style="margin-bottom: 1.5rem;">
-                <i class="bi bi-check-lg"></i> Änderungen speichern
-            </button>
-
-            <div style="border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 1.5rem; display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
-                <a href="{{ route('admin.users.edit', $user->id) }}" class="btn-secondary btn-sm">
-                    <i class="bi bi-person"></i> Benutzer bearbeiten
-                </a>
-                <a href="{{ route('admin.users.index') }}" class="btn-ghost btn-sm">
-                    <i class="bi bi-list"></i> Zur Übersicht
-                </a>
-            </div>
+        <div class="glass" style="padding: 1.5rem; display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+            <a href="{{ route('admin.users.edit', $user->id) }}" class="btn-secondary btn-sm">
+                <i class="bi bi-person"></i> Benutzer bearbeiten
+            </a>
+            <a href="{{ route('admin.users.index') }}" class="btn-ghost btn-sm">
+                <i class="bi bi-list"></i> Zur Übersicht
+            </a>
         </div>
-    </form>
+    </div>
 </div>
 
 <script>
@@ -426,116 +342,6 @@
         }
     }
 
-    function selectAllLehrgangQuestions(containerSelector, checked) {
-        const container = document.getElementById(containerSelector);
-        const checkboxes = container.querySelectorAll('input[type="checkbox"]');
-        checkboxes.forEach(cb => {
-            cb.checked = checked;
-            const label = cb.closest('label');
-            if (checked) {
-                label.style.borderColor = 'rgba(34, 197, 94, 0.3)';
-                label.style.background = 'rgba(34, 197, 94, 0.08)';
-            } else {
-                label.style.borderColor = 'rgba(255, 255, 255, 0.06)';
-                label.style.background = 'rgba(255, 255, 255, 0.03)';
-            }
-        });
-        showFeedback(checked ? 'Alle ausgewählt' : 'Alle abgewählt');
-    }
-
-    function selectAll(name, checked) {
-        const checkboxes = document.querySelectorAll('input[name="'+name+'[]"]');
-        const isError = name === 'exam_failed_questions';
-        checkboxes.forEach(cb => {
-            cb.checked = checked;
-            const label = cb.closest('label');
-            if (checked) {
-                if (isError) {
-                    label.style.borderColor = 'rgba(239, 68, 68, 0.3)';
-                    label.style.background = 'rgba(239, 68, 68, 0.08)';
-                } else {
-                    label.style.borderColor = 'rgba(34, 197, 94, 0.3)';
-                    label.style.background = 'rgba(34, 197, 94, 0.08)';
-                }
-            } else {
-                label.style.borderColor = 'rgba(255, 255, 255, 0.06)';
-                label.style.background = 'rgba(255, 255, 255, 0.03)';
-            }
-        });
-
-        updateCounters();
-        showFeedback(checked ? 'Alle ausgewählt' : 'Alle abgewählt');
-    }
-
-    function updateCounters() {
-        const solvedCount = document.querySelectorAll('input[name="solved_questions[]"]:checked').length;
-        const failedCount = document.querySelectorAll('input[name="exam_failed_questions[]"]:checked').length;
-
-        animateCounter('solvedCount', solvedCount);
-        animateCounter('failedCount', failedCount);
-    }
-
-    function animateCounter(elementId, newValue) {
-        const element = document.getElementById(elementId);
-        if (!element) return;
-        const currentValue = parseInt(element.textContent);
-
-        if (currentValue !== newValue) {
-            element.style.transform = 'scale(1.2)';
-            setTimeout(() => {
-                element.textContent = newValue;
-                element.style.transform = 'scale(1)';
-            }, 150);
-        }
-    }
-
-    function showFeedback(message) {
-        const feedback = document.createElement('div');
-        feedback.style.cssText = 'position: fixed; top: 1rem; right: 1rem; padding: 0.875rem 1.5rem; background: var(--gradient-gold); color: var(--thw-blue-dark); font-weight: 600; border-radius: 0.75rem; z-index: 9999; transform: translateX(100%); transition: transform 0.3s ease; box-shadow: 0 8px 25px rgba(251, 191, 36, 0.4);';
-        feedback.textContent = message;
-        document.body.appendChild(feedback);
-
-        setTimeout(() => {
-            feedback.style.transform = 'translateX(0)';
-        }, 100);
-
-        setTimeout(() => {
-            feedback.style.transform = 'translateX(calc(100% + 1rem))';
-            setTimeout(() => {
-                document.body.removeChild(feedback);
-            }, 300);
-        }, 2000);
-    }
-
-    function confirmReset(userName) {
-        if (!confirm('Fortschritt von "' + userName + '" wirklich komplett zurücksetzen?\n\nDies löscht:\n– Grundausbildung-Fortschritt\n– Spaced Repetition\n– Lehrgang-Fortschritt\n– Alle Prüfungsstatistiken\n\nDiese Aktion kann NICHT rückgängig gemacht werden!')) {
-            return false;
-        }
-        return confirm('Letzte Sicherheitsabfrage: Wirklich ALLES für "' + userName + '" auf null setzen?');
-    }
-
-    // Event listener for checkbox changes
-    document.addEventListener('change', function(e) {
-        if (e.target.type === 'checkbox') {
-            updateCounters();
-
-            const label = e.target.closest('label');
-            const isError = e.target.name === 'exam_failed_questions[]';
-
-            if (e.target.checked) {
-                if (isError) {
-                    label.style.borderColor = 'rgba(239, 68, 68, 0.3)';
-                    label.style.background = 'rgba(239, 68, 68, 0.08)';
-                } else {
-                    label.style.borderColor = 'rgba(34, 197, 94, 0.3)';
-                    label.style.background = 'rgba(34, 197, 94, 0.08)';
-                }
-            } else {
-                label.style.borderColor = 'rgba(255, 255, 255, 0.06)';
-                label.style.background = 'rgba(255, 255, 255, 0.03)';
-            }
-        }
-    });
 </script>
 
 <style>
