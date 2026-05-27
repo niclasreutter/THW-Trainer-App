@@ -17,6 +17,17 @@ class UserController extends Controller
     {
         $this->abortIfNotAdmin();
         $user = User::findOrFail($id);
+
+        AdminAuditLog::logChange(
+            auth()->user(),
+            $user->id,
+            'view_progress_detail',
+            null,
+            null,
+            'Detail-Fortschrittsansicht geöffnet',
+            request()
+        );
+
         $questions = \App\Models\Question::all();
         $solved = is_array($user->solved_questions) ? $user->solved_questions : json_decode($user->solved_questions ?? '[]', true);
         $failed = is_array($user->exam_failed_questions) ? $user->exam_failed_questions : json_decode($user->exam_failed_questions ?? '[]', true);
@@ -189,6 +200,16 @@ class UserController extends Controller
     {
         $this->abortIfNotAdmin();
         $user = User::findOrFail($id);
+
+        AdminAuditLog::logChange(
+            auth()->user(),
+            $user->id,
+            'view_progress_detail',
+            null,
+            null,
+            'Fortschritts-Modal geöffnet',
+            request()
+        );
 
         $threshold = UserQuestionProgress::MASTERY_THRESHOLD;
 
@@ -420,6 +441,17 @@ class UserController extends Controller
     {
         $this->abortIfNotAdmin();
         $user = User::findOrFail($id);
+
+        AdminAuditLog::logChange(
+            auth()->user(),
+            $user->id,
+            'view_xp_history',
+            null,
+            null,
+            'XP-Verlauf geöffnet',
+            request()
+        );
+
         $entries = $user->xpHistories()->paginate(50);
 
         return view('admin.xp-history', compact('user', 'entries'));
