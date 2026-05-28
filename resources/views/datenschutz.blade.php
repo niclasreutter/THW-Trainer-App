@@ -84,27 +84,35 @@
                     </ul>
                     <p class="mb-4">Die Einwilligung gilt ausschließlich für die jeweilige Session-Instanz und wird nicht dauerhaft oder für andere Sessions übernommen. Ohne Zustimmung nehmen Sie anonym teil – Ihre Daten erscheinen als „Anonymer Teilnehmer" im Ranking.</p>
                     <p class="mb-4">Die Verarbeitung erfolgt auf Grundlage Ihrer Einwilligung (Art. 6 Abs. 1 lit. a DSGVO). Sie können auch ohne Ranking-Zustimmung an Sessions teilnehmen und den XP-Boost nutzen.</p>
+                    <p class="mb-4"><strong>Liga-Ranglisten in der Admin-Ansicht:</strong> Auch in der internen Admin-Übersicht der Liga-Ranglisten werden Teilnehmer, die nicht ausdrücklich in die namentliche Anzeige im Leaderboard eingewilligt haben, als „Anonymer Teilnehmer" angezeigt.</p>
 
                     <h3 class="text-lg font-medium text-gray-800 mb-2">3.6 Nutzerverwaltung durch Administratoren</h3>
-                    <p class="mb-4">Zur Sicherstellung eines ordnungsgemäßen Betriebs der Plattform haben berechtigte Administratoren Zugriff auf Ihre Kontodaten. Dieser Zugriff erfolgt ausschließlich zweckgebunden und ist auf das für die Verwaltung notwendige Maß beschränkt. Administratoren können folgende Daten einsehen und – sofern erforderlich – bearbeiten:</p>
+                    <p class="mb-4">Zur Sicherstellung eines ordnungsgemäßen Betriebs der Plattform haben berechtigte Administratoren <strong>lesenden</strong> Zugriff auf Ihre Kontodaten. Dieser Zugriff erfolgt ausschließlich zweckgebunden und ist auf das für die Verwaltung notwendige Maß beschränkt. Administratoren können folgende Daten einsehen:</p>
                     <ul class="list-disc ml-8 pl-2 mb-4 space-y-1">
                         <li>Name und E-Mail-Adresse</li>
                         <li>Benutzerrolle</li>
                         <li>Punkte (XP), Level und Lernfortschritt</li>
-                        <li>E-Mail-Verifizierungsstatus (inkl. manueller Bestätigung)</li>
+                        <li>E-Mail-Verifizierungsstatus</li>
                         <li>Status der Newsletter-Zustimmung</li>
                     </ul>
-                    <p class="mb-4">Administratoren können in begründeten Fällen Ihren Lernfortschritt zurücksetzen, einzelne Fragen oder ganze Lernabschnitte/Lehrgänge auf einen bestimmten Status setzen (z.&nbsp;B. „gemeistert", „zur Wiederholung", „zurücksetzen") sowie – auf Anforderung oder bei Verstoß gegen die Nutzungsbedingungen – Ihr Konto löschen.</p>
-                    <p class="mb-4"><strong>Protokollierung (Audit-Log):</strong> Sämtliche Änderungen, die ein Administrator an Ihrem Konto vornimmt, werden lückenlos protokolliert. Erfasst werden dabei:</p>
+                    <p class="mb-4"><strong>Administrative Aktionen sind beschränkt auf:</strong></p>
                     <ul class="list-disc ml-8 pl-2 mb-4 space-y-1">
-                        <li>Art der Änderung (z.&nbsp;B. Name, E-Mail, Rolle, Punkte, Verifizierung, Löschung)</li>
-                        <li>Änderungen am Lernfortschritt (einzelne Fragen, ganze Lernabschnitte oder Lehrgänge inkl. der jeweiligen Aktion: gemeistert, Wiederholung, zurücksetzen, +1 Streak)</li>
-                        <li>Alter und neuer Wert (sofern anwendbar)</li>
-                        <li>Zeitstempel der Änderung</li>
+                        <li>Bearbeitung von Stammdaten (Name, E-Mail, Rolle, Punkte)</li>
+                        <li>Manuelle E-Mail-Verifizierung</li>
+                        <li>Löschung des Kontos – nur auf Ihren Antrag oder bei Verstoß gegen die Nutzungsbedingungen, und nur unter Angabe einer zwingenden Begründung</li>
+                    </ul>
+                    <p class="mb-4">Eine Manipulation Ihres Lernfortschritts durch Administratoren (z.&nbsp;B. Markieren als gemeistert, Zurücksetzen einzelner Fragen, Reset des gesamten Fortschritts) ist <strong>nicht mehr möglich</strong>.</p>
+
+                    <p class="mb-4"><strong>Protokollierung (Audit-Log):</strong> Sämtliche Aktionen, die ein Administrator an oder mit Ihren Daten vornimmt, werden lückenlos protokolliert – einschließlich reiner Lese-Zugriffe auf Detaildaten. Erfasst werden:</p>
+                    <ul class="list-disc ml-8 pl-2 mb-4 space-y-1">
+                        <li>Art der Aktion (z.&nbsp;B. Stammdaten-Änderung, E-Mail-Verifizierung, Einsicht in den Lernfortschritt, Einsicht in den XP-Verlauf, Konto-Löschung)</li>
+                        <li>Alter und neuer Wert bei Stammdaten-Änderungen</li>
+                        <li>Bei Konto-Löschungen: der vom Administrator angegebene Lösch-Grund</li>
+                        <li>Zeitstempel der Aktion</li>
                         <li>Name des verantwortlichen Administrators</li>
                         <li>IP-Adresse des Administrators (zur Nachvollziehbarkeit)</li>
                     </ul>
-                    <p class="mb-4"><strong>Transparenz:</strong> Sie können alle administrativen Änderungen an Ihrem Konto jederzeit in Ihrem Profil unter dem Abschnitt „Verwaltungsänderungen" einsehen.</p>
+                    <p class="mb-4"><strong>Transparenz:</strong> Sie können alle administrativen Aktionen, die Ihr Konto betreffen, jederzeit in Ihrem Profil unter dem Abschnitt „Verwaltungsänderungen" einsehen – inklusive der bloßen Einsichtnahme durch Administratoren.</p>
                     <p class="mb-4">Die Verarbeitung erfolgt auf Grundlage unseres berechtigten Interesses an einer sicheren, korrekten und nachvollziehbaren Verwaltung der Plattform (Art. 6 Abs. 1 lit. f DSGVO) sowie zur Erfüllung unserer Nachweis- und Rechenschaftspflichten (Art. 5 Abs. 2 DSGVO).</p>
                 </div>
             </section>
@@ -119,7 +127,10 @@
             <section>
                 <h2 class="text-xl font-semibold text-gray-800 mb-3">5. Speicherdauer</h2>
                 <div class="ml-4">
-                    <p>Ihre personenbezogenen Daten werden gelöscht, sobald sie für die Zwecke, für die sie erhoben wurden, nicht mehr erforderlich sind. Benutzerdaten werden nach Löschung des Benutzerkontos entfernt, es sei denn, gesetzliche Aufbewahrungsfristen erfordern eine längere Speicherung.</p>
+                    <p class="mb-4">Ihre personenbezogenen Daten werden gelöscht, sobald sie für die Zwecke, für die sie erhoben wurden, nicht mehr erforderlich sind, es sei denn, gesetzliche Aufbewahrungsfristen erfordern eine längere Speicherung.</p>
+                    <p class="mb-4"><strong>Bei Löschung Ihres Kontos</strong> – egal ob durch Sie selbst oder durch einen Administrator – werden alle direkt zuordenbaren personenbezogenen Daten unwiderruflich entfernt. Konkret gelöscht werden u.&nbsp;a.: Lernfortschritt, XP-Verlauf, Benachrichtigungen, Push-Abonnements, Lootboxen, Shop-Käufe, Umfrage- und Prüfungs-Feedback sowie aktive Sitzungen (Sessions).</p>
+                    <p class="mb-4"><strong>Anonymisiert erhalten</strong> bleiben statistische Daten zu beantworteten Fragen (z.&nbsp;B. „Frage X wurde von n Personen falsch beantwortet"). Diese Daten enthalten nach der Löschung keinen Personenbezug mehr und ermöglichen keine Re-Identifikation.</p>
+                    <p>Zur Erfüllung unserer Rechenschaftspflicht (Art. 5 Abs. 2 DSGVO) wird die Löschung selbst in einem separaten Compliance-Protokoll dokumentiert. Dieses Protokoll enthält ausschließlich den Zeitpunkt der Löschung, die ID des durchführenden Administrators, dessen IP-Adresse und den Lösch-Grund – es enthält <strong>keinerlei personenbezogene Daten zum gelöschten Konto</strong>. Diese Protokoll-Einträge werden für drei Jahre aufbewahrt und anschließend gelöscht.</p>
                 </div>
             </section>
 
@@ -193,8 +204,8 @@
             </section>
 
             <div class="mt-8 pt-6 border-t border-gray-200">
-                <p class="text-sm text-gray-600">Stand: 26. Mai 2026</p>
-                <p class="text-xs text-gray-500 mt-2">Letzte Änderung: Präzisierung der protokollierten Lernfortschritts-Änderungen durch Administratoren (Abschnitt 3.6)</p>
+                <p class="text-sm text-gray-600">Stand: 27. Mai 2026</p>
+                <p class="text-xs text-gray-500 mt-2">Letzte Änderung: Beschränkung administrativer Aktionen auf reine Stammdaten-Pflege, Audit-Log für Lese-Zugriffe, DSGVO-konforme Konto-Löschung mit anonymisiertem Compliance-Protokoll und Anonymisierung in Admin-Ranglisten.</p>
             </div>
         </div>
     </div>

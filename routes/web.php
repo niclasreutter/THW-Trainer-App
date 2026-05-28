@@ -814,17 +814,11 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix
     Route::put('users/{id}', [\App\Http\Controllers\Admin\UserController::class, 'update'])->name('users.update');
     Route::delete('users/{id}', [\App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('users.destroy');
     Route::get('users/{id}/progress', [\App\Http\Controllers\Admin\UserController::class, 'editProgress'])->name('users.progress.edit');
-    Route::put('users/{id}/progress', [\App\Http\Controllers\Admin\UserController::class, 'updateProgress'])->name('users.progress.update');
-    Route::post('users/{id}/progress/sr-pull-forward', [\App\Http\Controllers\Admin\UserController::class, 'pullForwardSpacedRepetition'])->name('users.progress.sr-pull-forward');
-    Route::post('users/{id}/progress/sr-set-tomorrow', [\App\Http\Controllers\Admin\UserController::class, 'setSpacedRepetitionTomorrow'])->name('users.progress.sr-set-tomorrow');
-    Route::post('users/{id}/progress/reset', [\App\Http\Controllers\Admin\UserController::class, 'resetProgress'])->name('users.progress.reset');
     Route::get('users/{id}/xp-history', [\App\Http\Controllers\Admin\UserController::class, 'xpHistory'])->name('users.xp-history');
     Route::post('users/{id}/verify', [\App\Http\Controllers\Admin\UserController::class, 'verify'])->name('users.verify');
     Route::get('users/{id}/audit-log', [\App\Http\Controllers\Admin\UserController::class, 'auditLog'])->name('users.audit-log');
     Route::get('users/{id}/progress-json', [\App\Http\Controllers\Admin\UserController::class, 'progressJson'])->name('users.progress-json');
     Route::get('users/{id}/progress-module-json', [\App\Http\Controllers\Admin\UserController::class, 'progressModuleJson'])->name('users.progress-module-json');
-    Route::post('users/{id}/progress-question', [\App\Http\Controllers\Admin\UserController::class, 'progressUpdateQuestion'])->name('users.progress-question');
-    Route::post('users/{id}/progress-module-bulk', [\App\Http\Controllers\Admin\UserController::class, 'progressUpdateModuleBulk'])->name('users.progress-module-bulk');
 
     // Newsletter Routes
     Route::get('newsletter/create', [\App\Http\Controllers\NewsletterController::class, 'create'])->name('newsletter.create');

@@ -417,4 +417,16 @@ class User extends Authenticatable implements MustVerifyEmail
         $column = "notify_{$category}_push";
         return (bool) ($this->{$column} ?? false);
     }
+
+    /**
+     * Anzeigename für Leaderboards/Rankings.
+     * Ohne explizite Leaderboard-Einwilligung wird der Name pseudonymisiert,
+     * damit auch Admins/Ausbilder den Klarnamen im Ranking nicht sehen.
+     */
+    public function leaderboardDisplayName(): string
+    {
+        return $this->leaderboard_consent
+            ? $this->name
+            : 'Anonymer Teilnehmer';
+    }
 }

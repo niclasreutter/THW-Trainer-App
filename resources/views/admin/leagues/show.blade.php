@@ -127,7 +127,8 @@
                     </thead>
                     <tbody>
                         @foreach($users as $index => $user)
-                        <tr class="league-user-row" data-name="{{ strtolower($user->name) }}">
+                        @php($displayName = $user->leaderboardDisplayName())
+                        <tr class="league-user-row" data-name="{{ strtolower($displayName) }}">
                             <td>
                                 @if($index < 3 && $user->weekly_points > 0)
                                     <span style="font-weight: 700; color: {{ ['#fbbf24', '#94a3b8', '#cd7f32'][$index] }};">
@@ -138,7 +139,12 @@
                                 @endif
                             </td>
                             <td style="font-weight: 600; color: var(--text-primary);">
-                                {{ $user->name }}
+                                {{ $displayName }}
+                                @unless($user->leaderboard_consent)
+                                    <span title="Keine Leaderboard-Einwilligung" style="font-size: 0.7rem; color: var(--text-muted); margin-left: 0.4rem;">
+                                        <i class="bi bi-shield-lock"></i>
+                                    </span>
+                                @endunless
                             </td>
                             <td>
                                 <span style="font-weight: 600; color: {{ $user->weekly_points > 0 ? 'var(--success)' : 'var(--text-muted)' }};">
@@ -172,7 +178,8 @@
             <!-- Mobile Cards -->
             <div class="md:hidden" style="display: flex; flex-direction: column; gap: 0.75rem;">
                 @foreach($users as $index => $user)
-                <div class="glass-subtle league-user-card" data-name="{{ strtolower($user->name) }}" style="padding: 1rem;">
+                @php($displayName = $user->leaderboardDisplayName())
+                <div class="glass-subtle league-user-card" data-name="{{ strtolower($displayName) }}" style="padding: 1rem;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
                         <div style="display: flex; align-items: center; gap: 0.5rem;">
                             @if($index < 3 && $user->weekly_points > 0)
@@ -182,7 +189,10 @@
                             @else
                                 <span style="color: var(--text-muted);">#{{ $index + 1 }}</span>
                             @endif
-                            <span style="font-weight: 600; color: var(--text-primary);">{{ $user->name }}</span>
+                            <span style="font-weight: 600; color: var(--text-primary);">{{ $displayName }}</span>
+                            @unless($user->leaderboard_consent)
+                                <i class="bi bi-shield-lock" title="Keine Leaderboard-Einwilligung" style="font-size: 0.7rem; color: var(--text-muted);"></i>
+                            @endunless
                         </div>
                         <span class="badge-thw">Lv. {{ $user->level ?? 1 }}</span>
                     </div>

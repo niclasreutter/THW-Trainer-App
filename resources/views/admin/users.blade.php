@@ -900,72 +900,6 @@ document.addEventListener('alpine:init', () => {
                 }
             }
         },
-        async questionAction(row, qi, action) {
-            if (this.modalBusy) return;
-            const key = this.moduleKey(row);
-            const q = this.modalModuleQuestions[key]?.[qi];
-            if (!q) return;
-            this.modalBusy = true;
-            try {
-                const res = await fetch(`{{ url('admin/users') }}/${this.modalUser.id}/progress-question`, {
-                    method: 'POST',
-                    credentials: 'same-origin',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
-                    },
-                    body: JSON.stringify({ type: this.modalTab, question_id: q.id, action }),
-                });
-                if (!res.ok) throw new Error('HTTP ' + res.status);
-                const data = await res.json();
-                Object.assign(this.modalModuleQuestions[key][qi], {
-                    streak:     data.streak,
-                    sr:         data.sr,
-                    isMastered: data.isMastered,
-                });
-                this.recalcModuleCounts(row);
-                this.modalDirty = true;
-            } catch (e) {
-                console.error('Frage-Aktion fehlgeschlagen', e);
-                alert('Aktion fehlgeschlagen. Bitte erneut versuchen.');
-            } finally {
-                this.modalBusy = false;
-            }
-        },
-        async moduleBulkAction(row, action) {
-            if (this.modalBusy) return;
-            const verb = action === 'mastered' ? 'als gemeistert markieren' : (action === 'sr' ? 'auf SR setzen' : 'zurücksetzen');
-            if (!confirm(`Alle ${row.total} Fragen von "${row.title}" ${verb}?`)) return;
-            this.modalBusy = true;
-            try {
-                const res = await fetch(`{{ url('admin/users') }}/${this.modalUser.id}/progress-module-bulk`, {
-                    method: 'POST',
-                    credentials: 'same-origin',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
-                    },
-                    body: JSON.stringify({ type: this.modalTab, module_id: row.id, action }),
-                });
-                if (!res.ok) throw new Error('HTTP ' + res.status);
-                const data = await res.json();
-                Object.assign(row, data.counts);
-                // Invalidate cached questions for this module so next expand reloads
-                const key = this.moduleKey(row);
-                delete this.modalModuleQuestions[key];
-                if (this.modalOpenModule === key) {
-                    this.modalOpenModule = null;
-                }
-                this.modalDirty = true;
-            } catch (e) {
-                console.error('Bulk-Aktion fehlgeschlagen', e);
-                alert('Aktion fehlgeschlagen. Bitte erneut versuchen.');
-            } finally {
-                this.modalBusy = false;
-            }
-        },
         recalcModuleCounts(row) {
             const key = this.moduleKey(row);
             const qs = this.modalModuleQuestions[key] || [];
@@ -1464,15 +1398,6 @@ document.addEventListener('alpine:init', () => {
                                             <span class="nv-prog-row__meta-item"><span x-text="row.total"></span> gesamt</span>
 
                                             <div class="nv-prog-row__bulk">
-                                                <button type="button" class="nv-bulk-btn nv-bulk-btn--ok" :disabled="modalBusy" @click="moduleBulkAction(row, 'mastered')" title="Alle als gemeistert markieren">
-                                                    <i class="bi bi-check2-all"></i> Alle gemeistert
-                                                </button>
-                                                <button type="button" class="nv-bulk-btn nv-bulk-btn--sr" :disabled="modalBusy" @click="moduleBulkAction(row, 'sr')" title="Alle auf SR-Wiederholung setzen">
-                                                    <i class="bi bi-arrow-repeat"></i> Alle SR
-                                                </button>
-                                                <button type="button" class="nv-bulk-btn nv-bulk-btn--reset" :disabled="modalBusy" @click="moduleBulkAction(row, 'reset')" title="Alle zurücksetzen">
-                                                    <i class="bi bi-arrow-counterclockwise"></i>
-                                                </button>
                                                 <button type="button" class="nv-bulk-btn" @click="toggleModule(row)" :title="modalOpenModule === moduleKey(row) ? 'Einklappen' : 'Fragen anzeigen'">
                                                     <i :class="`bi bi-chevron-${modalOpenModule === moduleKey(row) ? 'up' : 'down'}`"></i>
                                                     <span x-text="modalOpenModule === moduleKey(row) ? 'Schließen' : 'Fragen'"></span>
@@ -1519,20 +1444,6 @@ document.addEventListener('alpine:init', () => {
                                                                     <span class="nv-q-item__label" x-text="questionStatusLabel(q)"></span>
                                                                 </div>
                                                                 <div class="nv-q-item__id" x-text="q.label"></div>
-                                                                <div class="nv-q-item__actions">
-                                                                    <button type="button" class="nv-q-act nv-q-act--plus" :disabled="q.isMastered || modalBusy" @click="questionAction(row, qi, 'increment')" title="+1 Streak">
-                                                                        <i class="bi bi-plus-lg"></i>
-                                                                    </button>
-                                                                    <button type="button" class="nv-q-act nv-q-act--ok" :class="q.isMastered ? 'is-active' : ''" :disabled="modalBusy" @click="questionAction(row, qi, 'mastered')" title="Auf gemeistert (3/3)">
-                                                                        <i class="bi bi-check2-all"></i>
-                                                                    </button>
-                                                                    <button type="button" class="nv-q-act nv-q-act--sr" :class="q.sr ? 'is-active' : ''" :disabled="modalBusy" @click="questionAction(row, qi, 'sr')" :title="q.sr ? 'SR-Flag entfernen' : 'Auf SR setzen'">
-                                                                        <i class="bi bi-arrow-repeat"></i>
-                                                                    </button>
-                                                                    <button type="button" class="nv-q-act nv-q-act--reset" :disabled="modalBusy" @click="questionAction(row, qi, 'reset')" title="Zurücksetzen">
-                                                                        <i class="bi bi-arrow-counterclockwise"></i>
-                                                                    </button>
-                                                                </div>
                                                             </div>
                                                         </template>
                                                     </div>
@@ -1548,18 +1459,13 @@ document.addEventListener('alpine:init', () => {
 
                 <div class="nv-modal__footer">
                     <div class="nv-modal__footer-hint">
-                        <template x-if="modalDirty">
-                            <span style="color: var(--success);"><i class="bi bi-check-circle-fill"></i> Änderungen gespeichert (live)</span>
-                        </template>
-                        <template x-if="!modalDirty">
-                            <span><i class="bi bi-info-circle"></i> Klick auf eine Frage öffnet die Aktionen</span>
-                        </template>
+                        <span><i class="bi bi-shield-lock"></i> Read-only · DSGVO-konform</span>
                     </div>
                     <div class="nv-modal__footer-actions">
-                        <a :href="modalUser ? `{{ url('admin/users') }}/${modalUser.id}/progress` : '#'" class="btn-ghost" title="Zur vollständigen Bearbeitungsseite">
+                        <a :href="modalUser ? `{{ url('admin/users') }}/${modalUser.id}/progress` : '#'" class="btn-ghost" title="Zur vollständigen Detailansicht">
                             <i class="bi bi-arrow-up-right-square"></i> Vollansicht
                         </a>
-                        <button type="button" class="btn-primary" @click="closeProgress()">Fertig</button>
+                        <button type="button" class="btn-primary" @click="closeProgress()">Schließen</button>
                     </div>
                 </div>
             </div>
