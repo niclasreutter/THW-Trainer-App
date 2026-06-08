@@ -138,6 +138,7 @@ html.light-mode .iss-root .iss-table tbody tr:hover { background: rgba(0,51,127,
 .iss-root .chip--lehrgang   { background: rgba(91,154,255,0.14); color: #5b9aff; }
 html.light-mode .iss-root .chip--lehrgang { color: var(--thw-blue); background: rgba(0,51,127,0.10); }
 .iss-root .chip--question   { background: rgba(167,139,250,0.14); color: #a78bfa; }
+.iss-root .chip--extra      { background: rgba(245,158,11,0.16);  color: #f59e0b; }
 .iss-root .chip--count {
     background: rgba(91,154,255,0.18); color: #5b9aff; font-size: 0.7rem;
 }
@@ -239,7 +240,7 @@ html.light-mode .iss-root .iss-card-mobile { background: #fff; box-shadow: 0 1px
         </div>
         <div class="filter-row">
             <span class="filter-row__label">Quelle</span>
-            @foreach(['all' => 'Alle', 'lehrgang' => 'Lehrgänge', 'question' => 'Grundausbildung'] as $key => $label)
+            @foreach(['all' => 'Alle', 'lehrgang' => 'Lehrgänge', 'question' => 'Grundausbildung', 'extra' => 'Zusatzfragen'] as $key => $label)
                 <a href="{{ route('admin.issues.index', ['status' => $status, 'source' => $key, 'sort' => $sort]) }}"
                    class="seg-link {{ $source === $key ? 'is-active' : '' }}">{{ $label }}</a>
             @endforeach
@@ -279,7 +280,10 @@ html.light-mode .iss-root .iss-card-mobile { background: #fff; box-shadow: 0 1px
                                 </td>
                                 <td>
                                     <span class="chip chip--{{ $issue->type }}">
-                                        {{ $issue->type === 'lehrgang' ? 'Lehrgang' : 'Grundausbildung' }}
+                                        @if($issue->type === 'lehrgang') Lehrgang
+                                        @elseif($issue->type === 'extra') Zusatzfrage
+                                        @else Grundausbildung
+                                        @endif
                                     </span>
                                     @if($issue->context)
                                         <div class="q-meta">{{ $issue->context }}</div>
@@ -324,7 +328,10 @@ html.light-mode .iss-root .iss-card-mobile { background: #fff; box-shadow: 0 1px
                     </div>
                     <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center;">
                         <span class="chip chip--{{ $issue->type }}">
-                            {{ $issue->type === 'lehrgang' ? 'Lehrgang' : 'Grundausbildung' }}
+                            @if($issue->type === 'lehrgang') Lehrgang
+                            @elseif($issue->type === 'extra') Zusatzfrage
+                            @else Grundausbildung
+                            @endif
                         </span>
                         <span class="q-meta" style="margin-top: 0;">ID #{{ $issue->question_id }}</span>
                         <span class="chip chip--count" style="margin-left: auto;">{{ $issue->report_count }}×</span>

@@ -130,7 +130,8 @@
                                         @php
                                             $openIssuesCount = cache()->remember('admin_open_issues_count', 300, function() {
                                                 return \App\Models\LehrgangQuestionIssue::where('status', 'open')->count()
-                                                     + \App\Models\QuestionIssue::where('status', 'open')->count();
+                                                     + \App\Models\QuestionIssue::where('status', 'open')->count()
+                                                     + \App\Models\ExtraQuestionIssue::where('status', 'open')->count();
                                             });
                                         @endphp
                                         @if($openIssuesCount > 0)
@@ -197,7 +198,8 @@
                                         @php
                                             $openIssuesCount = cache()->remember('admin_open_issues_count', 300, function() {
                                                 return \App\Models\LehrgangQuestionIssue::where('status', 'open')->count()
-                                                     + \App\Models\QuestionIssue::where('status', 'open')->count();
+                                                     + \App\Models\QuestionIssue::where('status', 'open')->count()
+                                                     + \App\Models\ExtraQuestionIssue::where('status', 'open')->count();
                                             });
                                         @endphp
                                         @if($openIssuesCount > 0)

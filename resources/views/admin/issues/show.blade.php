@@ -775,7 +775,7 @@ html.light-mode .fmd-btn--ghost { border-color: rgba(0,51,127,0.10); }
             ->all()
         : [];
 
-    $editAction = $question
+    $editAction = ($question && $type !== 'extra')
         ? ($type === 'lehrgang'
             ? route('admin.lehrgaenge.update-question', ['lehrgang' => $question->lehrgang_id, 'question' => $question->id])
             : route('admin.questions.update', $question))
@@ -995,7 +995,7 @@ html.light-mode .fmd-btn--ghost { border-color: rgba(0,51,127,0.10); }
                         Frage
                     </span>
                     <div class="fmd-card__h-actions">
-                        @if($question)
+                        @if($question && $type !== 'extra')
                             <a href="{{ $type === 'lehrgang' && $question->lehrgang_id ? route('admin.lehrgaenge.edit', $question->lehrgang_id) : '#' }}"
                                class="icon-btn-sm" title="Frage öffnen">
                                 <i class="bi bi-box-arrow-up-right"></i>
@@ -1012,6 +1012,25 @@ html.light-mode .fmd-btn--ghost { border-color: rgba(0,51,127,0.10); }
                 </div>
 
                 @if($question)
+                    @if($type === 'extra')
+                        {{-- Zusatzfragen: nur Frage-Text + Typ-Hinweis; Editor liegt in /admin/extra-questions --}}
+                        <p class="q-text">{{ $question->frage }}</p>
+                        <div style="margin-top: 0.875rem; padding: 0.875rem 1rem; border-radius: 0.625rem; background: var(--glass-bg); font-size: 0.875rem; color: var(--text-secondary); line-height: 1.55;">
+                            <div class="section-label" style="margin-bottom: 0.4rem;">Typ</div>
+                            {{ $question->typ ?? 'unbekannt' }}
+                            <div style="margin-top: 0.5rem; font-size: 0.8125rem; color: var(--text-muted);">
+                                Antworten und Lösungsoptionen siehe Zusatzfragen-Editor.
+                            </div>
+                        </div>
+                        <div class="q-footer">
+                            <span>Frage-ID #{{ $question->id }}</span>
+                            <span class="q-footer__right">
+                                <a href="{{ route('admin.extra-questions.edit', $question->id) }}" style="color: #5b9aff; text-decoration: none;">
+                                    Editor öffnen <i class="bi bi-box-arrow-up-right"></i>
+                                </a>
+                            </span>
+                        </div>
+                    @else
                     {{-- View-Modus --}}
                     <div x-show="!editing" x-cloak>
                         <p class="q-text">{{ $question->frage }}</p>
@@ -1114,6 +1133,7 @@ html.light-mode .fmd-btn--ghost { border-color: rgba(0,51,127,0.10); }
                             </div>
                         </form>
                     </div>
+                    @endif {{-- /if $type === 'extra' --}}
                 @else
                     <div class="alert-flash alert-flash--error" style="margin: 0;">
                         <i class="bi bi-exclamation-triangle-fill"></i>
@@ -1275,7 +1295,12 @@ html.light-mode .fmd-btn--ghost { border-color: rgba(0,51,127,0.10); }
                     </div>
                 </div>
 
-                {{-- Composer mit @mention --}}
+                {{-- Composer mit @mention — für Zusatzfragen (noch) nicht verfügbar --}}
+                @if($type === 'extra')
+                <div style="padding: 0.875rem 1rem; border-radius: 0.625rem; background: var(--glass-bg); font-size: 0.8125rem; color: var(--text-muted); line-height: 1.5;">
+                    Kommentare und Erwähnungen sind für Zusatzfragen aktuell nicht verfügbar.
+                </div>
+                @else
                 <form method="POST"
                       action="{{ route('admin.issues.comments.store', array_filter(['issue' => $issue->id, 'type' => $type, 'status' => $filterStatus !== 'all' ? $filterStatus : null, 'source' => $filterSource !== 'all' ? $filterSource : null, 'sort' => $filterSort !== 'recent' ? $filterSort : null])) }}"
                       class="composer"
@@ -1330,6 +1355,7 @@ html.light-mode .fmd-btn--ghost { border-color: rgba(0,51,127,0.10); }
                         </div>
                     </div>
                 </form>
+                @endif {{-- /if $type === 'extra' (composer) --}}
             </div>
         </div>
 
