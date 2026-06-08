@@ -731,6 +731,26 @@
             </a>
             @endif
 
+            {{-- Nur Standardfragen / Nur Zusatz-Fragen (sichtbar nur wenn Zusatz-Fragen aktiviert sind) --}}
+            @if($user->extras_enabled)
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
+                <a href="{{ route('practice.standard-only') }}" class="glass" style="display:flex;align-items:center;justify-content:space-between;text-decoration:none;padding:0.875rem 1rem;">
+                    <div>
+                        <div style="font-size:0.8125rem;font-weight:600;color:var(--text-primary);">Nur Standardfragen</div>
+                        <div style="font-size:0.6875rem;color:var(--text-muted);margin-top:0.15rem;">Ohne Zusatz-Fragen üben</div>
+                    </div>
+                    <i class="bi bi-arrow-right" style="color:#5b9aff;font-size:0.875rem;"></i>
+                </a>
+                <a href="{{ route('practice.extras-only') }}" class="glass" style="display:flex;align-items:center;justify-content:space-between;text-decoration:none;padding:0.875rem 1rem;">
+                    <div>
+                        <div style="font-size:0.8125rem;font-weight:600;color:var(--text-primary);">Nur Zusatz-Fragen</div>
+                        <div style="font-size:0.6875rem;color:var(--text-muted);margin-top:0.15rem;">Zuordnungen &amp; Bilder</div>
+                    </div>
+                    <i class="bi bi-arrow-right" style="color:#5b9aff;font-size:0.875rem;"></i>
+                </a>
+            </div>
+            @endif
+
             {{-- Streak-at-risk Warning --}}
             @if(isset($streakAtRisk) && $streakAtRisk && ($dailyStreakGoal ?? 0) > 0)
             <div class="streak-warning">

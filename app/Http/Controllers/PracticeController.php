@@ -283,6 +283,16 @@ class PracticeController extends Controller
     }
 
     /**
+     * Nur offizielle Standardfragen üben — überspringt das Einmischen von Zusatz-Fragen,
+     * selbst wenn der User `extras_enabled` aktiviert hat.
+     */
+    public function standardOnly()
+    {
+        session()->forget(['practice_mode', 'practice_parameter', 'practice_ids', 'practice_queue', 'practice_skipped']);
+        return $this->practiceMode('standard_only');
+    }
+
+    /**
      * Nur Zusatz-Fragen üben (Opt-in via extras_enabled)
      */
     public function extrasOnly()
@@ -346,6 +356,7 @@ class PracticeController extends Controller
         $query = Question::query();
         
         switch ($mode) {
+            case 'standard_only':
             case 'all':
                 // Intelligente Priorisierung für Practice All:
                 // 1. Falsch beantwortete Fragen aus Prüfungen (dringend)
@@ -592,7 +603,7 @@ class PracticeController extends Controller
                 fn ($id) => ['type' => 'extra', 'id' => (int) $id],
                 array_values($extraIds)
             );
-        } elseif ($user && $user->extras_enabled && !empty($officialIds)) {
+        } elseif ($mode !== 'standard_only' && $user && $user->extras_enabled && !empty($officialIds)) {
             $extrasCount = max(1, intdiv(count($officialIds), 4));
             $extraIds = $extraQuestionService->buildQueue($user, 'mixed', $lernabschnitt, $extrasCount);
             $mergedQueue = $extraQuestionService->mergeQueues($officialIds, $extraIds);
@@ -614,7 +625,7 @@ class PracticeController extends Controller
             }
 
             // Prüfe ob Fragen existieren, aber alle durch SR-Zeitplanung blockiert sind
-            if (in_array($mode, ['section', 'all', 'search'])) {
+            if (in_array($mode, ['section', 'all', 'search', 'standard_only'])) {
                 $sectionQuestionIds = match($mode) {
                     'section' => Question::where('lernabschnitt', $parameter)->pluck('id')->toArray(),
                     'search' => Question::where(function($q) use ($parameter) {
