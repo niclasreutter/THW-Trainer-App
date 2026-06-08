@@ -197,6 +197,12 @@ Route::get('/dashboard', function () {
     $canStartExam = ($progress >= $totalQuestions && !$hasFailedQuestions);
     $progressPercent = $totalQuestions > 0 ? round(($progress / $totalQuestions) * 100) : 0;
 
+    // Zusatzfragen-Fortschritt (nur relevant, wenn aktiviert; zählen NICHT zur Prüfung)
+    $extrasEnabled = (bool) $user->extras_enabled;
+    $extraTotal = $extrasEnabled ? \App\Models\ExtraQuestion::count() : 0;
+    $extraMastered = $extrasEnabled ? \App\Models\UserExtraQuestionProgress::countMastered($user->id) : 0;
+    $extraMasteryPercent = $extraTotal > 0 ? round(($extraMastered / $extraTotal) * 100) : 0;
+
     $exams = \App\Models\ExamStatistic::where('user_id', $user->id)
         ->where('is_passed', true)->count();
 
@@ -383,7 +389,7 @@ Route::get('/dashboard', function () {
             ->where('weekly_points', '>', 0)->count();
     }
 
-    // Mastery percent (for journey stepper) — reuse $progress from above
+    // Mastery percent (for journey stepper) — nur Standardfragen (ohne Zusatzfragen)
     $masteryPercent = $progressPercent;
 
     // Solved questions total
@@ -449,6 +455,7 @@ Route::get('/dashboard', function () {
         'smartAction', 'examCountdown', 'enrolledLehrgaenge',
         'streakAtRisk', 'leagueRank', 'leagueSize', 'progressPercent',
         'masteryPercent', 'solvedPercent', 'solvedTotal',
+        'extrasEnabled', 'extraTotal', 'extraMastered', 'extraMasteryPercent',
         'canStartExam', 'exams', 'hasFailedQuestions',
         'levelProgress', 'nextLevelPoints', 'unopenedLootboxes',
         'todayAnswered', 'todayCorrect', 'dailyStreakGoal',
