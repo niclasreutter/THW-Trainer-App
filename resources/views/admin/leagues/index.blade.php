@@ -99,7 +99,7 @@
                     <div style="padding: 0.75rem; border-radius: 8px; background: var(--glass-bg); display: flex; align-items: center; gap: 0.75rem;">
                         <i class="bi bi-trophy-fill" style="color: {{ $league['info']['color'] }};"></i>
                         <div>
-                            <div style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary);">{{ $league['top_user']->name }}</div>
+                            <div style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary);">{{ $league['top_user']->leaderboardDisplayName() }}</div>
                             <div style="font-size: 0.75rem; color: var(--text-muted);">{{ number_format($league['top_user']->weekly_points) }} Wochenpunkte</div>
                         </div>
                     </div>

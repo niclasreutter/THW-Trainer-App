@@ -226,6 +226,7 @@ class PracticeSessionService
             'spaced_repetition' => 'Wiederholung',
             'bookmarked' => 'Lesezeichen',
             'extras_only' => 'Nur Zusatz-Fragen',
+            'standard_only' => 'Nur Standardfragen',
         ];
 
         $summary = [

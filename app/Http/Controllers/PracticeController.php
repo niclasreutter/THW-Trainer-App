@@ -3,6 +3,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\ExtraQuestionIssue;
+use App\Models\ExtraQuestionIssueReport;
 use App\Models\Question;
 use App\Models\QuestionIssue;
 use App\Models\QuestionIssueReport;
@@ -281,6 +283,16 @@ class PracticeController extends Controller
     }
 
     /**
+     * Nur offizielle Standardfragen üben — überspringt das Einmischen von Zusatz-Fragen,
+     * selbst wenn der User `extras_enabled` aktiviert hat.
+     */
+    public function standardOnly()
+    {
+        session()->forget(['practice_mode', 'practice_parameter', 'practice_ids', 'practice_queue', 'practice_skipped']);
+        return $this->practiceMode('standard_only');
+    }
+
+    /**
      * Nur Zusatz-Fragen üben (Opt-in via extras_enabled)
      */
     public function extrasOnly()
@@ -344,6 +356,7 @@ class PracticeController extends Controller
         $query = Question::query();
         
         switch ($mode) {
+            case 'standard_only':
             case 'all':
                 // Intelligente Priorisierung für Practice All:
                 // 1. Falsch beantwortete Fragen aus Prüfungen (dringend)
@@ -590,7 +603,7 @@ class PracticeController extends Controller
                 fn ($id) => ['type' => 'extra', 'id' => (int) $id],
                 array_values($extraIds)
             );
-        } elseif ($user && $user->extras_enabled && !empty($officialIds)) {
+        } elseif ($mode !== 'standard_only' && $user && $user->extras_enabled && !empty($officialIds)) {
             $extrasCount = max(1, intdiv(count($officialIds), 4));
             $extraIds = $extraQuestionService->buildQueue($user, 'mixed', $lernabschnitt, $extrasCount);
             $mergedQueue = $extraQuestionService->mergeQueues($officialIds, $extraIds);
@@ -612,7 +625,7 @@ class PracticeController extends Controller
             }
 
             // Prüfe ob Fragen existieren, aber alle durch SR-Zeitplanung blockiert sind
-            if (in_array($mode, ['section', 'all', 'search'])) {
+            if (in_array($mode, ['section', 'all', 'search', 'standard_only'])) {
                 $sectionQuestionIds = match($mode) {
                     'section' => Question::where('lernabschnitt', $parameter)->pluck('id')->toArray(),
                     'search' => Question::where(function($q) use ($parameter) {
@@ -1224,7 +1237,9 @@ class PracticeController extends Controller
     }
 
     /**
-     * Melde einen Fehler in einer Frage
+     * Melde einen Fehler in einer Frage. Dispatch nach `question_kind`:
+     *  - "official" (Default): offizielle Frage → QuestionIssue.
+     *  - "extra": Zusatzfrage → ExtraQuestionIssue (eigene Tabelle, FK-frei auf main).
      */
     public function reportIssue(Request $request, $questionId)
     {
@@ -1242,6 +1257,12 @@ class PracticeController extends Controller
 
         if ($message && strlen($message) > 500) {
             return response()->json(['error' => 'Nachricht zu lang (max 500 Zeichen)'], 422);
+        }
+
+        $kind = $request->input('question_kind') === 'extra' ? 'extra' : 'official';
+
+        if ($kind === 'extra') {
+            return $this->reportExtraQuestionIssue((int) $questionId, $user->id, $message);
         }
 
         try {
@@ -1277,6 +1298,49 @@ class PracticeController extends Controller
         QuestionIssueReport::create([
             'question_issue_id' => $issue->id,
             'user_id' => $user->id,
+            'message' => $message ?? null,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => $isNew ? 'Fehler gemeldet!' : 'Fehler aktualisiert!',
+            'report_count' => $issue->report_count,
+        ]);
+    }
+
+    private function reportExtraQuestionIssue(int $extraQuestionId, int $userId, ?string $message)
+    {
+        if (!ExtraQuestion::whereKey($extraQuestionId)->exists()) {
+            return response()->json(['error' => 'Frage nicht gefunden'], 404);
+        }
+
+        $issue = ExtraQuestionIssue::where('extra_question_id', $extraQuestionId)->first();
+
+        if ($issue) {
+            $issue->report_count++;
+            $issue->latest_message = $message ?? null;
+            $issue->reported_by_user_id = $userId;
+
+            if ($issue->status !== 'open') {
+                $issue->status = 'open';
+            }
+
+            $issue->save();
+            $isNew = false;
+        } else {
+            $issue = ExtraQuestionIssue::create([
+                'extra_question_id' => $extraQuestionId,
+                'report_count' => 1,
+                'latest_message' => $message ?? null,
+                'reported_by_user_id' => $userId,
+                'status' => 'open',
+            ]);
+            $isNew = true;
+        }
+
+        ExtraQuestionIssueReport::create([
+            'extra_question_issue_id' => $issue->id,
+            'user_id' => $userId,
             'message' => $message ?? null,
         ]);
 

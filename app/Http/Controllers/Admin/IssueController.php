@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Mail\IssueAssignedMail;
 use App\Mail\IssueMentionedMail;
+use App\Models\ExtraQuestionIssue;
 use App\Models\LehrgangQuestionIssue;
 use App\Models\LehrgangQuestionIssueReport;
 use App\Models\Notification;
@@ -31,18 +32,24 @@ class IssueController extends Controller
         // Stats
         $totalLehrgang = LehrgangQuestionIssue::count();
         $totalQuestion = QuestionIssue::count();
+        $totalExtra = ExtraQuestionIssue::count();
         $openLehrgang = LehrgangQuestionIssue::where('status', 'open')->count();
         $openQuestion = QuestionIssue::where('status', 'open')->count();
+        $openExtra = ExtraQuestionIssue::where('status', 'open')->count();
 
         return view('admin.issues.index', [
             'issues' => $allIssues,
             'status' => $status,
             'source' => $source,
             'sort' => $sort,
-            'totalIssues' => $totalLehrgang + $totalQuestion,
-            'openIssues' => $openLehrgang + $openQuestion,
-            'inReviewIssues' => LehrgangQuestionIssue::where('status', 'in_review')->count() + QuestionIssue::where('status', 'in_review')->count(),
-            'resolvedIssues' => LehrgangQuestionIssue::where('status', 'resolved')->count() + QuestionIssue::where('status', 'resolved')->count(),
+            'totalIssues' => $totalLehrgang + $totalQuestion + $totalExtra,
+            'openIssues' => $openLehrgang + $openQuestion + $openExtra,
+            'inReviewIssues' => LehrgangQuestionIssue::where('status', 'in_review')->count()
+                + QuestionIssue::where('status', 'in_review')->count()
+                + ExtraQuestionIssue::where('status', 'in_review')->count(),
+            'resolvedIssues' => LehrgangQuestionIssue::where('status', 'resolved')->count()
+                + QuestionIssue::where('status', 'resolved')->count()
+                + ExtraQuestionIssue::where('status', 'resolved')->count(),
         ]);
     }
 
@@ -106,12 +113,35 @@ class IssueController extends Controller
             ];
         })->toBase();
 
-        $allIssues = $lehrgangIssues->merge($questionIssues);
+        $extraQuery = ExtraQuestionIssue::with(['extraQuestion', 'reportedByUser']);
+        if ($status !== 'all') {
+            $extraQuery->where('status', $status);
+        }
+
+        $extraIssues = $extraQuery->get()->map(function ($issue) {
+            $q = $issue->extraQuestion;
+            return (object) [
+                'id' => $issue->id,
+                'type' => 'extra',
+                'question_text' => $q?->frage ?? 'Gelöscht',
+                'question_id' => $issue->extra_question_id,
+                'context' => $q?->typ,
+                'report_count' => $issue->report_count,
+                'status' => $issue->status,
+                'reported_by' => $issue->reportedByUser?->name ?? 'Anonym',
+                'updated_at' => $issue->updated_at,
+                'created_at' => $issue->created_at,
+            ];
+        })->toBase();
+
+        $allIssues = $lehrgangIssues->merge($questionIssues)->merge($extraIssues);
 
         if ($source === 'lehrgang') {
             $allIssues = $allIssues->where('type', 'lehrgang');
         } elseif ($source === 'question') {
             $allIssues = $allIssues->where('type', 'question');
+        } elseif ($source === 'extra') {
+            $allIssues = $allIssues->where('type', 'extra');
         }
 
         // sortBy ist stabil — die letzte Sortierung bestimmt den Primärschlüssel,
@@ -145,6 +175,19 @@ class IssueController extends Controller
                 'Lehrgang' => $lehrgangName ?? '-',
                 'Lernabschnitt' => $question->lernabschnitt,
                 'Frage-Nr.' => $question->nummer,
+            ] : [];
+        } elseif ($type === 'extra') {
+            $issue = ExtraQuestionIssue::with([
+                'extraQuestion',
+                'reportedByUser',
+                'reports' => fn($q) => $q->with('user')->orderBy('created_at', 'asc'),
+            ])->findOrFail($id);
+
+            $question = $issue->extraQuestion;
+            $contextLabel = $question ? 'Zusatzfrage' : null;
+            $contextDetails = $question ? [
+                'Typ' => $question->typ ?? '-',
+                'Frage-ID' => $issue->extra_question_id,
             ] : [];
         } else {
             $issue = QuestionIssue::with([
@@ -253,9 +296,11 @@ class IssueController extends Controller
             'status' => 'required|in:open,in_review,resolved,rejected',
         ]);
 
-        $issue = $type === 'lehrgang'
-            ? LehrgangQuestionIssue::findOrFail($id)
-            : QuestionIssue::findOrFail($id);
+        $issue = match ($type) {
+            'lehrgang' => LehrgangQuestionIssue::findOrFail($id),
+            'extra' => ExtraQuestionIssue::findOrFail($id),
+            default => QuestionIssue::findOrFail($id),
+        };
 
         $oldStatus = $issue->status;
         $newStatus = $validated['status'];
@@ -283,6 +328,14 @@ class IssueController extends Controller
     public function assign(Request $request, $id)
     {
         $type = $request->get('type', 'lehrgang');
+
+        // Zusatzfragen-Issues haben (noch) keine Bearbeiterzuweisung — Tabelle ohne assignee_id.
+        if ($type === 'extra') {
+            return $request->wantsJson() || $request->ajax()
+                ? response()->json(['ok' => false, 'error' => 'Zuweisung für Zusatzfragen nicht verfügbar.'], 422)
+                : redirect()->route('admin.issues.show', $this->showRouteParams($request, $id, $type))
+                    ->with('error', 'Zuweisung für Zusatzfragen aktuell nicht verfügbar.');
+        }
 
         $validated = $request->validate([
             'assignee_id' => 'nullable|integer|exists:users,id',
@@ -375,6 +428,13 @@ class IssueController extends Controller
     {
         $type = $request->get('type', 'lehrgang');
 
+        // Aktivitäts-Feed/Kommentare nutzen die Report-Tabellen mit type/meta-Schema,
+        // das auf extra_question_issue_reports (noch) nicht existiert.
+        if ($type === 'extra') {
+            return redirect()->route('admin.issues.show', $this->showRouteParams($request, $id, $type))
+                ->with('error', 'Kommentare für Zusatzfragen aktuell nicht verfügbar.');
+        }
+
         $validated = $request->validate([
             'message' => 'required|string|max:2000',
         ]);
@@ -451,6 +511,8 @@ class IssueController extends Controller
 
         if ($type === 'lehrgang') {
             LehrgangQuestionIssue::findOrFail($id)->delete();
+        } elseif ($type === 'extra') {
+            ExtraQuestionIssue::findOrFail($id)->delete();
         } else {
             QuestionIssue::findOrFail($id)->delete();
         }
@@ -485,6 +547,12 @@ class IssueController extends Controller
      */
     private function createActivity($issue, string $type, string $activityType, ?string $message, ?array $meta = null): void
     {
+        // extra_question_issue_reports kennt (noch) keine type/meta-Spalten — Aktivitäts-Log
+        // bleibt für Zusatzfragen leer, der Status-Wechsel selbst funktioniert trotzdem.
+        if ($type === 'extra') {
+            return;
+        }
+
         $userId = auth()->id();
 
         if ($type === 'lehrgang') {
