@@ -7,8 +7,6 @@ use Illuminate\Support\Str;
 use App\Models\Question;
 use App\Models\QuestionStatistic;
 use App\Models\UserQuestionProgress;
-use App\Models\ExtraQuestion;
-use App\Models\UserExtraQuestionProgress;
 use App\Models\ExamStatistic;
 use Illuminate\Support\Facades\Session;
 use App\Services\GamificationService;
@@ -53,14 +51,10 @@ class ExamController extends Controller
             return redirect()->route('dashboard')->with('error', 'Du musst zuerst deine falschen Antworten wiederholen, bevor du eine neue Prüfung starten kannst.');
         }
 
-        // Prüfe ob alle Fragen gemeistert sind (inkl. Zusatzfragen falls aktiviert)
+        // Prüfe ob alle Prüfungsfragen gemeistert sind
+        // Zusatzfragen blockieren die Prüfung NICHT und sind kein Teil des Prüfungspools
         $totalQuestions = Question::count();
         $masteredCount = UserQuestionProgress::countMastered($user->id);
-
-        if ($user->extras_enabled) {
-            $totalQuestions += ExtraQuestion::count();
-            $masteredCount += UserExtraQuestionProgress::countMastered($user->id);
-        }
 
         if ($masteredCount < $totalQuestions) {
             $remaining = $totalQuestions - $masteredCount;

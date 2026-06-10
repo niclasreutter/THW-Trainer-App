@@ -1166,7 +1166,7 @@
             </div>
 
             {{-- Gamification Pills (desktop sidebar) --}}
-            <div style="display:flex;gap:0.5rem;">
+            <div style="{{ $extrasEnabled ? 'display:grid;grid-template-columns:1fr 1fr;' : 'display:flex;' }}gap:0.5rem;">
                 <div class="gami-pill {{ isset($streakAtRisk) && $streakAtRisk ? 'gami-pill--streak-risk' : '' }}" data-tour-step="streak">
                     <div class="gami-pill__value gami-pill__value--gold">{{ $user->streak_days ?? 0 }}</div>
                     <div class="gami-pill__label">Streak</div>
@@ -1195,8 +1195,14 @@
                     </a>
                 @else
                     <a href="{{ route('gamification.leaderboard') }}" class="gami-pill" style="text-decoration:none;cursor:pointer;">
-                        <div class="gami-pill__value" style="color:{{ $leagueInfo['color'] }};font-size:0.75rem;">{{ $leagueInfo['name'] }}</div>
-                        <div class="gami-pill__label" style="font-size:0.5rem;">Teilnehmen &rarr;</div>
+                        <div class="gami-pill__value" style="color:{{ $leagueInfo['color'] }};">{{ $leagueInfo['name'] }}</div>
+                        <div class="gami-pill__label">Teilnehmen &rarr;</div>
+                    </a>
+                @endif
+                @if($extrasEnabled)
+                    <a href="{{ route('practice.extras-only') }}" class="gami-pill" style="text-decoration:none;cursor:pointer;">
+                        <div class="gami-pill__value gami-pill__value--blue">{{ $extraMastered }}/{{ $extraTotal }}</div>
+                        <div class="gami-pill__label">Zusatz</div>
                     </a>
                 @endif
             </div>
@@ -1295,7 +1301,7 @@
     <div class="lg:hidden space-y-4 mt-4">
 
         {{-- Gamification Pills --}}
-        <div style="display:flex;gap:0.5rem;">
+        <div style="{{ $extrasEnabled ? 'display:grid;grid-template-columns:1fr 1fr;' : 'display:flex;' }}gap:0.5rem;">
             <div class="gami-pill {{ isset($streakAtRisk) && $streakAtRisk ? 'gami-pill--streak-risk' : '' }}" data-tour-step="streak">
                 <div class="gami-pill__value gami-pill__value--gold">{{ $user->streak_days ?? 0 }}</div>
                 <div class="gami-pill__label">Streak</div>
@@ -1324,8 +1330,14 @@
                 </a>
             @else
                 <a href="{{ route('gamification.leaderboard') }}" class="gami-pill" style="text-decoration:none;cursor:pointer;">
-                    <div class="gami-pill__value" style="color:{{ $leagueInfo['color'] }};font-size:0.75rem;">{{ $leagueInfo['name'] }}</div>
-                    <div class="gami-pill__label" style="font-size:0.5rem;">Teilnehmen &rarr;</div>
+                    <div class="gami-pill__value" style="color:{{ $leagueInfo['color'] }};">{{ $leagueInfo['name'] }}</div>
+                    <div class="gami-pill__label">Teilnehmen &rarr;</div>
+                </a>
+            @endif
+            @if($extrasEnabled)
+                <a href="{{ route('practice.extras-only') }}" class="gami-pill" style="text-decoration:none;cursor:pointer;">
+                    <div class="gami-pill__value gami-pill__value--blue">{{ $extraMastered }}/{{ $extraTotal }}</div>
+                    <div class="gami-pill__label">Zusatz</div>
                 </a>
             @endif
         </div>
