@@ -172,6 +172,52 @@ class OrtsverbandInvitationController extends Controller
             abort(403, 'Keine Berechtigung.');
         }
 
+        $output = $this->generateQrCodePng($invitation);
+
+        return response($output)
+            ->header('Content-Type', 'image/png')
+            ->header('Content-Disposition', 'inline; filename="qr-code-' . $invitation->code . '.png"')
+            ->header('Cache-Control', 'no-cache, no-store, must-revalidate');
+    }
+
+    /**
+     * Druckfertiger A4-Aushang mit QR-Einladung für den Ortsverband
+     */
+    public function aushang(Ortsverband $ortsverband, OrtsverbandInvitation $invitation)
+    {
+        $user = Auth::user();
+
+        if (!$invitation->ortsverband->isAusbildungsbeauftragter($user)) {
+            abort(403, 'Keine Berechtigung.');
+        }
+
+        // QR-Code als eingebettetes Bild (Base64), damit der Druck ohne
+        // zusätzliche Netzwerk-Requests vollständig funktioniert.
+        $qrDataUri = 'data:image/png;base64,' . base64_encode($this->generateQrCodePng($invitation));
+
+        // Logo ebenfalls einbetten
+        $logoPath = public_path('logo-thw-trainer.png');
+        $logoDataUri = is_file($logoPath)
+            ? 'data:image/png;base64,' . base64_encode(file_get_contents($logoPath))
+            : null;
+
+        $registerUrl = route('register', ['code' => $invitation->code]);
+
+        return view('ortsverband.invitations.aushang', [
+            'ortsverband' => $ortsverband,
+            'invitation' => $invitation,
+            'qrDataUri' => $qrDataUri,
+            'logoDataUri' => $logoDataUri,
+            'registerUrl' => $registerUrl,
+        ]);
+    }
+
+    /**
+     * Erzeugt den QR-Code (PNG-Bytes) mit zentriertem THW-Trainer Logo.
+     * Wird sowohl für die Anzeige als auch für den Aushang genutzt.
+     */
+    private function generateQrCodePng(OrtsverbandInvitation $invitation): string
+    {
         // URL für die Einladung
         $url = route('register', ['code' => $invitation->code]);
 
@@ -188,12 +234,11 @@ class OrtsverbandInvitationController extends Controller
             ->generate($url);
 
         // QR-Code und Logo kombinieren mit GD
-        $qrImage = imagecreatefromstring($qrCodeBase);
-        $logo = imagecreatefrompng($logoPath);
+        $qrImage = @imagecreatefromstring($qrCodeBase);
+        $logo = is_file($logoPath) ? @imagecreatefrompng($logoPath) : false;
 
         if (!$qrImage || !$logo) {
-            return response($qrCodeBase)
-                ->header('Content-Type', 'image/png');
+            return (string) $qrCodeBase;
         }
 
         // Dimensionen
@@ -259,9 +304,6 @@ class OrtsverbandInvitationController extends Controller
         imagedestroy($qrImage);
         imagedestroy($logo);
 
-        return response($output)
-            ->header('Content-Type', 'image/png')
-            ->header('Content-Disposition', 'inline; filename="qr-code-' . $invitation->code . '.png"')
-            ->header('Cache-Control', 'no-cache, no-store, must-revalidate');
+        return $output;
     }
 }

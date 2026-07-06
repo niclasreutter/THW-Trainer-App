@@ -171,6 +171,22 @@ html.light-mode .modal-close-btn:hover {
                     $statusText = $isExpired ? 'Abgelaufen' : ($isActive ? 'Aktiv' : 'Pausiert');
                     $statusColor = $isExpired ? '#ef4444' : ($isActive ? '#22c55e' : '#eab308');
                     $statusBg = $isExpired ? 'rgba(239,68,68,0.12)' : ($isActive ? 'rgba(34,197,94,0.12)' : 'rgba(234,179,8,0.12)');
+
+                    // Fertige E-Mail-Vorlage zum Weiterleiten
+                    $inviteLink = route('register', ['code' => $invitation->code]);
+                    $inviteHost = preg_replace('/^www\./', '', parse_url($inviteLink, PHP_URL_HOST) ?? 'thw-trainer.de');
+                    $emailTemplate = [
+                        'subject' => 'THW-Trainer: Lern-Zugang für den OV ' . $ortsverband->name,
+                        'body' => "Hallo zusammen,\n\n"
+                            . "für unsere Ausbildung nutzen wir den THW-Trainer – die kostenlose Lern- und Prüfungsplattform für die THW-Theorie. Damit könnt ihr Theoriefragen üben, echte Prüfungen simulieren und euren Fortschritt verfolgen.\n\n"
+                            . "So seid ihr in 2 Minuten dabei:\n\n"
+                            . "1. Diesen Link öffnen: " . $inviteLink . "\n"
+                            . "2. Kostenlos registrieren – dem Ortsverband „" . $ortsverband->name . "“ tretet ihr dabei automatisch bei.\n"
+                            . "3. Loslegen und für die Grundausbildung lernen.\n\n"
+                            . "Falls der Link nicht funktioniert: Einfach auf " . $inviteHost . " registrieren und den Ortsverband-Code " . $invitation->code . " eingeben.\n\n"
+                            . "Viele Grüße\n"
+                            . (auth()->user()->name ?? ''),
+                    ];
                 @endphp
 
                 <div class="glass p-4" style="border-radius:0.75rem;">
@@ -215,6 +231,21 @@ html.light-mode .modal-close-btn:hover {
                             QR
                         </button>
                     </div>
+
+                    {{-- Material für den OV --}}
+                    <div style="display: flex; gap: 0.5rem; margin-bottom: 0.75rem; flex-wrap: wrap;">
+                        <a href="{{ route('ortsverband.invitations.aushang', [$ortsverband, $invitation]) }}"
+                           target="_blank" rel="noopener"
+                           class="btn-secondary btn-sm"
+                           style="flex: 1; min-width: 140px; text-align: center; text-decoration: none;">
+                            Aushang (A4-PDF)
+                        </a>
+                        <button type="button" class="btn-secondary btn-sm" style="flex: 1; min-width: 140px;"
+                                onclick="showEmailTemplate({{ $invitation->id }})">
+                            E-Mail-Vorlage
+                        </button>
+                    </div>
+                    <script type="application/json" id="email-tpl-{{ $invitation->id }}">@json($emailTemplate)</script>
 
                     {{-- Stats --}}
                     <div style="display: flex; gap: 1rem; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.75rem;">
@@ -284,6 +315,35 @@ html.light-mode .modal-close-btn:hover {
     </div>
 </div>
 
+<!-- E-Mail-Vorlage Modal -->
+<div id="email-modal" class="modal-overlay-glass" style="display: none;">
+    <div class="modal-glass" style="max-width: 560px;">
+        <div class="modal-header-glass">
+            <h2 style="font-size: 1.25rem;">E-Mail-Vorlage</h2>
+            <button onclick="closeEmailModal()" class="modal-close-btn">&times;</button>
+        </div>
+        <div class="modal-body-glass" style="text-align: left;">
+            <p style="color: var(--text-secondary); margin-bottom: 1.25rem; font-size: 0.85rem;">
+                Fertige Vorlage zum Weiterleiten an deine Helfer &ndash; z.B. an den GA-Jahrgang oder den OV-Verteiler. Link und Code sind bereits eingesetzt.
+            </p>
+
+            <label style="display:block; font-weight:600; font-size:0.8rem; color:var(--text-primary); margin-bottom:0.4rem;">Betreff</label>
+            <div style="display:flex; gap:0.5rem; margin-bottom:1rem;">
+                <input type="text" id="email-subject" class="input-glass" readonly style="flex:1; font-size:0.85rem; padding:0.5rem 0.75rem;">
+                <button type="button" class="btn-secondary btn-sm" onclick="copyToClipboard('email-subject', this)">Kopieren</button>
+            </div>
+
+            <label style="display:block; font-weight:600; font-size:0.8rem; color:var(--text-primary); margin-bottom:0.4rem;">Nachricht</label>
+            <textarea id="email-body" class="input-glass" readonly rows="12" style="width:100%; font-size:0.82rem; line-height:1.5; padding:0.6rem 0.75rem; resize:vertical; font-family:inherit;"></textarea>
+
+            <div style="display:flex; gap:0.75rem; justify-content:flex-end; margin-top:1.25rem; flex-wrap:wrap;">
+                <button type="button" class="btn-secondary btn-sm" onclick="copyToClipboard('email-body', this)">Text kopieren</button>
+                <a id="email-mailto" href="#" class="btn-primary btn-sm" style="text-decoration:none;">In E-Mail-Programm öffnen</a>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
 let currentQRCodeUrl = '';
 
@@ -322,6 +382,36 @@ function closeQRModal() {
     modal.style.display = 'none';
 }
 
+function showEmailTemplate(invitationId) {
+    const dataEl = document.getElementById('email-tpl-' + invitationId);
+    if (!dataEl) return;
+
+    let tpl;
+    try {
+        tpl = JSON.parse(dataEl.textContent);
+    } catch (e) {
+        return;
+    }
+
+    document.getElementById('email-subject').value = tpl.subject;
+    document.getElementById('email-body').value = tpl.body;
+    document.getElementById('email-mailto').href =
+        'mailto:?subject=' + encodeURIComponent(tpl.subject) + '&body=' + encodeURIComponent(tpl.body);
+
+    const modal = document.getElementById('email-modal');
+    modal.style.display = 'flex';
+    modal.onclick = function(e) {
+        if (e.target === modal) {
+            closeEmailModal();
+        }
+    };
+}
+
+function closeEmailModal() {
+    const modal = document.getElementById('email-modal');
+    modal.style.display = 'none';
+}
+
 function downloadQRCode() {
     const link = document.createElement('a');
     link.href = currentQRCodeUrl;
@@ -349,6 +439,7 @@ function printQRCode() {
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
         closeQRModal();
+        closeEmailModal();
     }
 });
 </script>
