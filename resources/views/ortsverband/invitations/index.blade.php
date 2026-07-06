@@ -323,8 +323,12 @@ html.light-mode .modal-close-btn:hover {
             <button onclick="closeEmailModal()" class="modal-close-btn">&times;</button>
         </div>
         <div class="modal-body-glass" style="text-align: left;">
-            <p style="color: var(--text-secondary); margin-bottom: 1.25rem; font-size: 0.85rem;">
+            <p style="color: var(--text-secondary); margin-bottom: 0.75rem; font-size: 0.85rem;">
                 Fertige Vorlage zum Weiterleiten an deine Helfer &ndash; z.B. an den GA-Jahrgang oder den OV-Verteiler. Link und Code sind bereits eingesetzt.
+            </p>
+            <p style="color: var(--text-muted); margin-bottom: 1.25rem; font-size: 0.78rem; display: flex; gap: 0.4rem; align-items: flex-start;">
+                <i class="bi bi-shield-check" style="color: #22c55e; flex-shrink: 0; margin-top: 0.15rem;"></i>
+                <span>Datenschutz-Tipp: Beim Versand an mehrere Personen die Empf&auml;nger ins <strong>BCC</strong> setzen &ndash; so sehen die Helfer die Adressen der anderen nicht.</span>
             </p>
 
             <label style="display:block; font-weight:600; font-size:0.8rem; color:var(--text-primary); margin-bottom:0.4rem;">Betreff</label>
