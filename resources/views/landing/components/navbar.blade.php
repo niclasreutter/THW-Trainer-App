@@ -12,6 +12,7 @@
             <a href="{{ route('landing.home') }}#features" class="landing-nav-link">Features</a>
             <a href="{{ route('landing.home') }}#faq" class="landing-nav-link">FAQ</a>
             <a href="{{ route('landing.statistics') }}" class="landing-nav-link">Statistiken</a>
+            <a href="{{ route('landing.wiki.index') }}" class="landing-nav-link">Wiki</a>
         </div>
 
         {{-- Auth Buttons (Desktop) --}}
@@ -54,6 +55,7 @@
             <a href="{{ route('landing.home') }}#features" class="landing-mobile-link" @click="mobileMenuOpen = false">Features</a>
             <a href="{{ route('landing.home') }}#faq" class="landing-mobile-link" @click="mobileMenuOpen = false">FAQ</a>
             <a href="{{ route('landing.statistics') }}" class="landing-mobile-link" @click="mobileMenuOpen = false">Statistiken</a>
+            <a href="{{ route('landing.wiki.index') }}" class="landing-mobile-link" @click="mobileMenuOpen = false">Wiki</a>
         </div>
         <div class="landing-mobile-menu-auth">
             @php

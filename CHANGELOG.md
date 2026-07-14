@@ -7,6 +7,10 @@ Versionierung: [Semantic Versioning](https://semver.org/lang/de/)
 
 ## [Unreleased]
 
+### Neue Features
+
+- **Öffentliches Wiki** unter `/wiki`: Anleitung zu allen Funktionen der Plattform, ohne Login erreichbar. Rendert Markdown-Dateien aus `resources/wiki/` mit Deep-Links auf Seiten und Überschriften (wie Microsoft Learn), Inhaltsverzeichnis mit Scroll-Spy und Hinweisboxen. Dieses Changelog ist als Wiki-Seite unter `/wiki/changelog` eingebunden.
+
 ## [1.0.2] - 2026-04-17
 
 ### Intern
