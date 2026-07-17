@@ -103,7 +103,8 @@ class WikiService
             "wiki:page:{$slug}:{$mtime}",
             now()->addDay(),
             function () use ($path) {
-                $html = $this->convert(file_get_contents($path));
+                $markdown = $this->stripEmptyUnreleased(file_get_contents($path));
+                $html = $this->convert($markdown);
                 $html = $this->transformCallouts($html);
 
                 return [
@@ -124,6 +125,16 @@ class WikiService
             'next' => $next,
             'updated_at' => Carbon::createFromTimestamp($mtime),
         ];
+    }
+
+    /**
+     * Leeren "## [Unreleased]"-Abschnitt entfernen (Changelog-Rendering):
+     * Zwischen Releases ist der Abschnitt leer und würde sonst als nackte
+     * Überschrift über der aktuellen Version erscheinen.
+     */
+    private function stripEmptyUnreleased(string $markdown): string
+    {
+        return preg_replace('/^## \[Unreleased\]\s*(?=^## \[|\z)/msu', '', $markdown);
     }
 
     private function resolvePath(string $file): string
