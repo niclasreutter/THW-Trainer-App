@@ -6,8 +6,8 @@ use Illuminate\Console\Command;
 
 /**
  * Release vorbereiten: verschiebt die Einträge aus "## [Unreleased]" in
- * einen neuen Versionsabschnitt im CHANGELOG.md, aktualisiert die
- * Vergleichs-Links, die VERSION-Datei und composer.json.
+ * einen neuen Versionsabschnitt im CHANGELOG.md und aktualisiert die
+ * VERSION-Datei sowie composer.json.
  *
  * Beispiel: php artisan app:release 1.1.0
  */
@@ -60,11 +60,6 @@ class ReleaseCommand extends Command
             return self::FAILURE;
         }
 
-        // Repo-URL aus vorhandenen Vergleichs-Links ableiten
-        $repoUrl = preg_match('#^\[[^\]]+\]:\s*(https://github\.com/[^/]+/[^/]+)/#m', $changelog, $repoMatch)
-            ? $repoMatch[1]
-            : 'https://github.com/niclasreutter/THW-Trainer-App';
-
         $date = now()->format('Y-m-d');
 
         // Unreleased leeren und neuen Versionsabschnitt direkt darunter einfügen
@@ -76,21 +71,7 @@ class ReleaseCommand extends Command
             strlen($m[0][0])
         );
 
-        // Vergleichs-Links pflegen: [Unreleased] aktualisieren bzw. ergänzen, neue Version einfügen
-        $unreleasedLink = "[Unreleased]: {$repoUrl}/compare/v{$version}...HEAD";
-        $versionLink = $previous !== null
-            ? "[{$version}]: {$repoUrl}/compare/v{$previous}...v{$version}"
-            : "[{$version}]: {$repoUrl}/commits/main";
-
-        if (preg_match('/^\[Unreleased\]:.*$/m', $changelog)) {
-            $changelog = preg_replace('/^\[Unreleased\]:.*$/m', "{$unreleasedLink}\n{$versionLink}", $changelog, 1);
-        } elseif (preg_match('/^\[\d+\.\d+\.\d+\]:.*$/m', $changelog, $firstRef, PREG_OFFSET_CAPTURE)) {
-            $changelog = substr_replace($changelog, "{$unreleasedLink}\n{$versionLink}\n", $firstRef[0][1], 0);
-        } else {
-            $changelog = rtrim($changelog) . "\n\n{$unreleasedLink}\n{$versionLink}\n";
-        }
-
-        file_put_contents($changelogPath, $changelog);
+        file_put_contents($changelogPath, rtrim($changelog) . "\n");
 
         // VERSION-Datei (Quelle für das Footer-Badge)
         file_put_contents(base_path('VERSION'), $version . "\n");

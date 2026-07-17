@@ -14,7 +14,7 @@ Versionierung: [Semantic Versioning](https://semver.org/lang/de/)
 
 ### Intern
 
-- Neuer Artisan-Befehl `php artisan app:release X.Y.Z`: verschiebt die `[Unreleased]`-Einträge in einen neuen Versionsabschnitt und aktualisiert VERSION-Datei, Vergleichs-Links und composer.json in einem Schritt.
+- Neuer Artisan-Befehl `php artisan app:release X.Y.Z`: verschiebt die `[Unreleased]`-Einträge in einen neuen Versionsabschnitt und aktualisiert VERSION-Datei und composer.json in einem Schritt.
 - Changelog-Pflege als fester Bestandteil des Entwicklungs-Workflows in CLAUDE.md/AGENTS.md dokumentiert.
 
 ## [1.0.2] - 2026-04-17
@@ -123,8 +123,3 @@ Erste offizielle Version. Bündelt die bisherige Entwicklungshistorie
 - Alle Cronjobs in Laravel Scheduler migriert (1 CloudPanel-Eintrag genügt)
 
 (~15 sonstige PRs zusammengefasst)
-
-[Unreleased]: https://github.com/niclasreutter/THW-Trainer-App/compare/v1.0.2...HEAD
-[1.0.2]: https://github.com/niclasreutter/THW-Trainer-App/compare/v1.0.1...v1.0.2
-[1.0.1]: https://github.com/niclasreutter/THW-Trainer-App/compare/v1.0.0...v1.0.1
-[1.0.0]: https://github.com/niclasreutter/THW-Trainer-App/commits/main
