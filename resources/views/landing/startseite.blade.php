@@ -42,6 +42,7 @@
                 <a href="#how-it-works" class="text-sm font-medium text-zinc-400 hover:text-white transition-colors duration-200">So geht's</a>
                 <a href="#faq" class="text-sm font-medium text-zinc-400 hover:text-white transition-colors duration-200">FAQ</a>
                 <a href="{{ route('landing.statistics') }}" class="text-sm font-medium text-zinc-400 hover:text-white transition-colors duration-200">Statistiken</a>
+                <a href="{{ route('landing.wiki.index') }}" class="text-sm font-medium text-zinc-400 hover:text-white transition-colors duration-200">Wiki</a>
             </div>
 
             {{-- Desktop Auth --}}
@@ -71,6 +72,7 @@
                 <a href="#how-it-works" class="text-zinc-300 hover:text-white py-2" @click="mobileMenuOpen = false">So geht's</a>
                 <a href="#faq" class="text-zinc-300 hover:text-white py-2" @click="mobileMenuOpen = false">FAQ</a>
                 <a href="{{ route('landing.statistics') }}" class="text-zinc-300 hover:text-white py-2" @click="mobileMenuOpen = false">Statistiken</a>
+                <a href="{{ route('landing.wiki.index') }}" class="text-zinc-300 hover:text-white py-2" @click="mobileMenuOpen = false">Wiki</a>
                 <hr class="sp-mobile-divider my-1">
                 <a href="{{ $loginUrl }}" class="text-zinc-300 hover:text-white py-2">Anmelden</a>
                 <a href="{{ $registerUrl }}" class="sp-btn-gold text-center text-sm" style="padding: 0.75rem 1.5rem;">Registrieren</a>
@@ -633,6 +635,7 @@
                         <a href="{{ url('/') }}" class="text-sm text-zinc-500 hover:text-zinc-300 transition-colors">Startseite</a>
                         <a href="{{ route('landing.statistics') }}" class="text-sm text-zinc-500 hover:text-zinc-300 transition-colors">Statistiken</a>
                         <a href="{{ route('landing.guest.practice.menu') }}" class="text-sm text-zinc-500 hover:text-zinc-300 transition-colors">Anonym üben</a>
+                        <a href="{{ route('landing.wiki.index') }}" class="text-sm text-zinc-500 hover:text-zinc-300 transition-colors">Wiki & Anleitung</a>
                     </div>
                 </div>
 
@@ -661,7 +664,7 @@
 
             {{-- Copyright --}}
             <div class="pt-8 sp-copyright-border">
-                <p class="text-sm text-zinc-600">&copy; {{ date('Y') }} THW-Trainer. Entwickelt von Niclas Reutter.</p>
+                <p class="text-sm text-zinc-600">&copy; {{ date('Y') }} THW-Trainer <x-version-badge class="text-zinc-600 hover:text-zinc-400" />. Entwickelt von Niclas Reutter.</p>
                 <p class="text-xs text-zinc-700 mt-1">
                     Kein offizielles Angebot des THW. Private Initiative zur Prüfungsvorbereitung.
                 </p>

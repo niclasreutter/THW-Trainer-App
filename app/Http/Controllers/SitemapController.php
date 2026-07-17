@@ -32,6 +32,11 @@ class SitemapController extends Controller
         // Öffentliche Statistik-Seite
         $sitemap .= $this->addUrl(route('landing.statistics'), '0.7', 'weekly');
 
+        // Wiki / Anleitung (alle Seiten aus config/wiki.php)
+        foreach (app(\App\Services\WikiService::class)->allPages() as $page) {
+            $sitemap .= $this->addUrl($page['url'], '0.6', 'weekly');
+        }
+
         // Gast-Übungsmodus (niedrigere Priorität als Hauptseite!)
         $sitemap .= $this->addUrl(url('/guest/practice-menu'), '0.5', 'monthly');
 
