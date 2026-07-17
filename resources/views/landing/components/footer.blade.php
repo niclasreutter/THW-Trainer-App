@@ -18,6 +18,7 @@
             <div class="landing-footer-links">
                 <a href="{{ route('landing.home') }}">Startseite</a>
                 <a href="{{ route('landing.statistics') }}">Statistiken</a>
+                <a href="{{ route('landing.wiki.index') }}">Wiki & Anleitung</a>
             </div>
         </div>
 

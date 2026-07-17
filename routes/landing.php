@@ -49,6 +49,13 @@ Route::get('/thw-grundausbildung', [\App\Http\Controllers\LandingController::cla
 Route::get('/statistik', [\App\Http\Controllers\PublicStatisticsController::class, 'index'])
     ->name('landing.statistics');
 
+// Wiki / Anleitung (öffentlich, ohne Login - rendert Markdown aus resources/wiki/)
+Route::get('/wiki', [\App\Http\Controllers\WikiController::class, 'index'])
+    ->name('landing.wiki.index');
+Route::get('/wiki/{slug}', [\App\Http\Controllers\WikiController::class, 'show'])
+    ->where('slug', '[a-z0-9\-]+')
+    ->name('landing.wiki.show');
+
 // PWA Offline-Seite
 Route::get('/offline', function () {
     return view('offline');
@@ -78,6 +85,7 @@ Allow: /thw-theoriepruefung
 Allow: /thw-grundausbildung
 Allow: /guest/practice-menu
 Allow: /statistik
+Allow: /wiki
 
 # Login/Register
 Allow: /login
