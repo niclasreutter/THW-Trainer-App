@@ -1,4 +1,8 @@
 {{-- Landing Page Footer - THW Blue --}}
+@php
+    // Lokal überschreibt web.php die '/'-Route, daher existiert landing.home dort nicht
+    $landingHomeUrl = \Illuminate\Support\Facades\Route::has('landing.home') ? route('landing.home') : url('/home');
+@endphp
 <footer class="landing-footer">
     <div class="landing-footer-container">
         {{-- Logo und Beschreibung --}}
@@ -16,7 +20,7 @@
         <div class="landing-footer-links-section">
             <h4 class="text-white font-semibold mb-4">Links</h4>
             <div class="landing-footer-links">
-                <a href="{{ route('landing.home') }}">Startseite</a>
+                <a href="{{ $landingHomeUrl }}">Startseite</a>
                 <a href="{{ route('landing.statistics') }}">Statistiken</a>
                 <a href="{{ route('landing.wiki.index') }}">Wiki & Anleitung</a>
             </div>
@@ -47,7 +51,7 @@
     {{-- Copyright --}}
     <div class="landing-footer-copyright">
         <div class="landing-footer-copyright-container">
-            <p>&copy; {{ date('Y') }} THW-Trainer. Entwickelt von Niclas Reutter.</p>
+            <p>&copy; {{ date('Y') }} THW-Trainer <x-version-badge />. Entwickelt von Niclas Reutter.</p>
             <p class="text-blue-200 text-xs mt-1">
                 Kein offizielles Angebot des THW. Private Initiative zur Prüfungsvorbereitung.
             </p>

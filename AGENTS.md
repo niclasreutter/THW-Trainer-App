@@ -40,6 +40,10 @@ git commit -m "EMOJI: Beschreibung (max 4 Wörter)"
 ```
 
 ### 3. Nach jeder Änderung
+1. **CHANGELOG.md pflegen (PFLICHT):** Jede nutzersichtbare Änderung bekommt einen Eintrag
+   unter `## [Unreleased]` (Kategorien: `Neue Features` / `Bugfixes` / `UI & Design` /
+   `Performance` / `Sicherheit` / `Intern`). Rein interne Refactorings unter `Intern`.
+2. Assets bauen und Caches leeren:
 ```bash
 npm run build && php artisan view:clear && php artisan cache:clear
 ```
@@ -71,6 +75,14 @@ fetch(url, { cache: 'no-store' });
 2. **User-Rolle:** `$user->useroll` (Typo im Schema, nicht ändern)
 3. **Lösung-Format:** Sortiert, komma-getrennt: `"A,B"` nicht `"B,A"`
 4. **Flash-Data:** Nur für 1 Request, dann weg
+
+## Versionierung & Changelog
+
+- **`CHANGELOG.md`** (Repo-Root, Keep-a-Changelog-Format) wird öffentlich unter `/wiki/changelog` gerendert
+- **`VERSION`**-Datei = Single Source of Truth für das Footer-Badge (`<x-version-badge />` in allen Footern)
+- **Release erstellen:** `php artisan app:release X.Y.Z` verschiebt `[Unreleased]` in einen neuen
+  Versionsabschnitt und aktualisiert VERSION, Vergleichs-Links und composer.json. Danach committen + taggen.
+- **Wiki-Inhalte:** Markdown in `resources/wiki/`, Navigation in `config/wiki.php`
 
 ## Detail-Dokumentation
 

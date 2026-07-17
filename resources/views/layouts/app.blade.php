@@ -406,7 +406,7 @@
                     <div class="max-w-7xl mx-auto px-4 py-6">
                         <div class="flex items-center justify-between text-sm text-dark-muted">
                             <div>
-                                &copy; {{ date('Y') }} THW-Trainer &ndash;
+                                &copy; {{ date('Y') }} THW-Trainer <x-version-badge target="_blank" rel="noopener" class="hover:text-gold transition-colors" /> &ndash;
                                 <a href="{{ route('landing.impressum') }}" class="text-gold hover:text-gold-light transition-colors">Impressum</a> &middot;
                                 <a href="{{ route('landing.datenschutz') }}" class="text-gold hover:text-gold-light transition-colors">Datenschutz</a> &middot;
                                 <a href="https://thw-trainer.de/statistik" class="text-gold hover:text-gold-light transition-colors" target="_blank">Statistik</a> &middot;
@@ -634,6 +634,7 @@
                     <a href="{{ route('landing.impressum') }}">Impressum</a>
                     <a href="{{ route('landing.datenschutz') }}">Datenschutz</a>
                     <a href="https://thw-trainer.de/statistik" target="_blank">Statistik</a>
+                    <x-version-badge target="_blank" rel="noopener" />
                 </div>
 
                 <a href="{{ route('profile') }}" class="sidebar-user-card">
