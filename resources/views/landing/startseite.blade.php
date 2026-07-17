@@ -664,7 +664,7 @@
 
             {{-- Copyright --}}
             <div class="pt-8 sp-copyright-border">
-                <p class="text-sm text-zinc-600">&copy; {{ date('Y') }} THW-Trainer. Entwickelt von Niclas Reutter.</p>
+                <p class="text-sm text-zinc-600">&copy; {{ date('Y') }} THW-Trainer <x-version-badge class="text-zinc-600 hover:text-zinc-400" />. Entwickelt von Niclas Reutter.</p>
                 <p class="text-xs text-zinc-700 mt-1">
                     Kein offizielles Angebot des THW. Private Initiative zur Prüfungsvorbereitung.
                 </p>

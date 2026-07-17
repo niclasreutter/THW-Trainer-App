@@ -139,7 +139,7 @@
                 </nav>
             @endif
 
-            <p class="wiki-updated">Stand: {{ $page['updated_at']->translatedFormat('d. F Y') }}</p>
+            <p class="wiki-updated">Stand: {{ $page['updated_at']->format('d.m.Y') }}</p>
         </main>
 
         {{-- Rechte Spalte: In diesem Artikel --}}
@@ -163,7 +163,7 @@
     <footer class="wiki-footer">
         <div class="wiki-footer-inner">
             <div class="wiki-footer-brand">
-                <span class="font-semibold text-white">THW-Trainer</span>
+                <span class="font-semibold text-white">THW-Trainer <x-version-badge /></span>
                 <span>Kostenlose Prüfungsvorbereitung für die THW-Grundausbildung</span>
             </div>
             <nav class="wiki-footer-links" aria-label="Footer">

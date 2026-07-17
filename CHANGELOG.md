@@ -10,6 +10,12 @@ Versionierung: [Semantic Versioning](https://semver.org/lang/de/)
 ### Neue Features
 
 - **Öffentliches Wiki** unter `/wiki`: Anleitung zu allen Funktionen der Plattform, ohne Login erreichbar. Rendert Markdown-Dateien aus `resources/wiki/` mit Deep-Links auf Seiten und Überschriften (wie Microsoft Learn), Inhaltsverzeichnis mit Scroll-Spy und Hinweisboxen. Dieses Changelog ist als Wiki-Seite unter `/wiki/changelog` eingebunden.
+- **Versionsnummer im Footer**: Alle Footer (App, Startseite, Landing, Wiki) zeigen die aktuelle Version aus der `VERSION`-Datei und verlinken auf das Changelog im Wiki.
+
+### Intern
+
+- Neuer Artisan-Befehl `php artisan app:release X.Y.Z`: verschiebt die `[Unreleased]`-Einträge in einen neuen Versionsabschnitt und aktualisiert VERSION-Datei, Vergleichs-Links und composer.json in einem Schritt.
+- Changelog-Pflege als fester Bestandteil des Entwicklungs-Workflows in CLAUDE.md/AGENTS.md dokumentiert.
 
 ## [1.0.2] - 2026-04-17
 
@@ -118,6 +124,7 @@ Erste offizielle Version. Bündelt die bisherige Entwicklungshistorie
 
 (~15 sonstige PRs zusammengefasst)
 
+[Unreleased]: https://github.com/niclasreutter/THW-Trainer-App/compare/v1.0.2...HEAD
 [1.0.2]: https://github.com/niclasreutter/THW-Trainer-App/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/niclasreutter/THW-Trainer-App/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/niclasreutter/THW-Trainer-App/commits/main

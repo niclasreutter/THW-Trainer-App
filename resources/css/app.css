@@ -8020,3 +8020,19 @@ html.light-mode .smart-action--info {
         box-shadow: 0 8px 24px rgba(15, 23, 42, 0.15);
     }
 }
+
+/* --- Versions-Badge (Footer, verlinkt aufs Wiki-Changelog) --- */
+.version-badge {
+    color: inherit;
+    opacity: 0.75;
+    text-decoration: none;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+    transition: opacity 150ms ease, color 150ms ease;
+}
+
+.version-badge:hover {
+    opacity: 1;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
