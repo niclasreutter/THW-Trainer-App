@@ -81,7 +81,7 @@ fetch(url, { cache: 'no-store' });
 - **`CHANGELOG.md`** (Repo-Root, Keep-a-Changelog-Format) wird öffentlich unter `/wiki/changelog` gerendert
 - **`VERSION`**-Datei = Single Source of Truth für das Footer-Badge (`<x-version-badge />` in allen Footern)
 - **Release erstellen:** `php artisan app:release X.Y.Z` verschiebt `[Unreleased]` in einen neuen
-  Versionsabschnitt und aktualisiert VERSION, Vergleichs-Links und composer.json. Danach committen + taggen.
+  Versionsabschnitt und aktualisiert VERSION und composer.json. Danach committen + taggen.
 - **Wiki-Inhalte:** Markdown in `resources/wiki/`, Navigation in `config/wiki.php`
 
 ## Detail-Dokumentation
