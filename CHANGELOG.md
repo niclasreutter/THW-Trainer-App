@@ -5,6 +5,10 @@ Alle nennenswerten Änderungen an diesem Projekt werden hier dokumentiert.
 
 ## [Unreleased]
 
+### Bugfixes
+
+- **Liga-Teilnahme respektiert Zustimmung**: Nutzer ohne Leaderboard-Einwilligung nehmen nicht mehr am wöchentlichen Liga-Wettbewerb teil. Bisher konnten "unsichtbare" Teilnehmer (ohne Zustimmung) trotzdem Wochenbelohnungen gewinnen sowie auf- und absteigen und verzerrten so das Ranking. Jetzt werden bei der wöchentlichen Verarbeitung nur noch zustimmende Nutzer für Belohnungen, Auf- und Abstieg berücksichtigt.
+
 ## [1.1.0] - 2026-07-17
 
 ### Neue Features
