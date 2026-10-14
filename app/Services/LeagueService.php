@@ -182,7 +182,12 @@ class LeagueService
         $leagueKeys = array_keys(self::LEAGUES);
 
         foreach ($leagueKeys as $league) {
-            $users = User::where('league', $league)
+            // Nur User, die der Leaderboard-Teilnahme zugestimmt haben, nehmen am
+            // Liga-Wettbewerb teil (Ranking, Auf-/Abstieg, Wochenbelohnungen). User
+            // ohne Zustimmung sind zwar in der Liga, "sitzen" die Woche aber aus –
+            // sonst gewinnen unsichtbare Teilnehmer Preise und verzerren das Ranking.
+            $users = User::where('leaderboard_consent', true)
+                ->where('league', $league)
                 ->where('weekly_points', '>', 0)
                 ->orderBy('weekly_points', 'desc')
                 ->orderBy('points', 'desc')

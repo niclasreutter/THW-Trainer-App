@@ -19,7 +19,10 @@ class LandingGuestPracticeController extends Controller
      */
     public function menu()
     {
-        return view('guest.practice-menu')->with('isLanding', true);
+        return view('landing.guest.practice-menu', [
+            'totalQuestions' => cache()->remember('landing_total_questions', 3600, fn () => Question::count()),
+            'exam' => LandingController::EXAM,
+        ]);
     }
 
     /**

@@ -20,7 +20,7 @@ class PublicStatisticsController extends Controller
 {
     public function index()
     {
-        $stats = Cache::remember('public_statistics_v4', 300, function () {
+        $stats = Cache::remember('public_statistics_v5', 300, function () {
             $totalExams = ExamStatistic::count();
             $passedExams = ExamStatistic::where('is_passed', true)->count();
             $users = User::count();
@@ -108,7 +108,7 @@ class PublicStatisticsController extends Controller
 
             // Build 30-day arrays
             $chartData = [];
-            $questionsPerDay = ['labels' => [], 'values' => []];
+            $questionsPerDay = ['labels' => [], 'dates' => [], 'values' => []];
             $successRatePerDay = ['labels' => [], 'values' => []];
             $examsPerDay = ['labels' => [], 'total' => [], 'passed' => []];
 
@@ -128,6 +128,7 @@ class PublicStatisticsController extends Controller
                     + (int) ($lehrgangByDay[$dateStr] ?? 0)
                     + (int) ($lernpoolByDay[$dateStr] ?? 0);
                 $questionsPerDay['labels'][] = $label;
+                $questionsPerDay['dates'][] = $dateStr;
                 $questionsPerDay['values'][] = $dayQuestions;
 
                 // Success rate
