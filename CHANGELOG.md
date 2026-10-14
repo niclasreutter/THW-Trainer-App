@@ -5,6 +5,16 @@ Alle nennenswerten Änderungen an diesem Projekt werden hier dokumentiert.
 
 ## [Unreleased]
 
+### Neue Features
+
+- **Eine Seite pro Lernabschnitt**: Jeder der 10 Lernabschnitte hat eine eigene Seite mit allen Fragen, Lösungen und Erklärungen, dazu fünf Fragen zum direkten Ausprobieren
+- **Lernabschnitt ohne Konto üben**: Von jeder Abschnittsseite aus lassen sich genau die Fragen dieses Abschnitts anonym üben
+
+### UI & Design
+
+- **Übersicht der Lernabschnitte**: Die Seite „THW Theorie“ zeigt alle 10 Lernabschnitte mit Fragenanzahl und führt direkt zu den Abschnittsseiten
+- **Version des Fragenkatalogs**: Startseite und Infoseiten nennen den verwendeten Fragenkatalog (Version 03.5, Stand September 2024)
+
 ## [1.2.0] - 2026-10-14
 
 ### Bugfixes

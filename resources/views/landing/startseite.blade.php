@@ -1,7 +1,7 @@
 @extends('layouts.public')
 
-@section('title', 'THW-Trainer — Kostenlose Prüfungsvorbereitung für die Grundausbildung 2026')
-@section('description', 'THW-Trainer: kostenlos für die THW-Grundausbildung lernen. Alle Prüfungsfragen online, Prüfungssimulation und Lernfortschritt. Werbefrei & als App.')
+@section('title', "THW Theorie kostenlos lernen: alle {$totalQuestions} Fragen | THW-Trainer")
+@section('description', "Alle {$totalQuestions} THW Theorie Fragen (Fragenkatalog Version {$catalog['version']}) mit Erklärung, Prüfungssimulation und Wiederholung. Kostenlos, werbefrei, ohne Anmeldung.")
 @section('canonical', \App\Helpers\DomainHelper::landingUrl('/'))
 
 @push('head')
@@ -42,7 +42,7 @@
 <section class="d-hero d-band" data-nav-dark>
     @include('landing.partials.gear')
     <div class="d-wrap d-hero-inner">
-        <h1 class="d-h1 d-in" style="--i:1"><span class="d-eyebrow">THW-Theorie lernen · Grundausbildung 2026</span> Die <span style="white-space:nowrap">THW-Theorie</span>.<br> Klar gelernt.</h1>
+        <h1 class="d-h1 d-in" style="--i:1"><span class="d-eyebrow">THW Theorie lernen · Grundausbildung 2026</span> Die <span style="white-space:nowrap">THW-Theorie</span>.<br> Klar gelernt.</h1>
         <p class="d-sub d-in" style="--i:2">Alle {{ $totalQuestions }} Prüfungsfragen. Wiederholung im richtigen Moment. Eine Simulation wie die echte Prüfung. Kostenlos und werbefrei.</p>
         <div class="d-ctas d-in" style="--i:3">
             <a class="d-pill" href="{{ route('register') }}">Kostenlos starten</a>
@@ -134,12 +134,12 @@
 </section>
 
 <section class="d-wrap d-section" aria-labelledby="abschnitte">
-    <p class="d-eyebrow d-reveal">Der Fragenkatalog</p>
+    <p class="d-eyebrow d-reveal">Fragenkatalog Version {{ $catalog['version'] }}</p>
     <h2 id="abschnitte" class="d-h2 d-reveal">Zehn Lernabschnitte.</h2>
     <p class="d-copy d-reveal" style="margin:16px 0 48px">Vom Auftrag des THW bis zur Rettung und Bergung – genau so gegliedert wie deine Grundausbildung.</p>
     <ol class="d-list d-reveal">
         @foreach($sections as $s)
-            <li><a href="{{ route('landing.thw-theorie') }}#la-{{ $s['nr'] }}"><span class="n">{{ $s['nr'] }}</span><span class="t">{{ $s['short'] }}</span><span class="c">{{ $s['count'] }}</span></a></li>
+            <li><a href="{{ route('landing.thw-theorie.abschnitt', $s['slug']) }}"><span class="n">{{ $s['nr'] }}</span><span class="t">{{ $s['short'] }}</span><span class="c">{{ $s['count'] }}</span></a></li>
         @endforeach
     </ol>
     <p style="margin:28px 0 0"><a class="d-more" href="{{ route('landing.thw-theorie') }}">Alle Lernabschnitte der THW-Theorie</a></p>
