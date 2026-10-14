@@ -19,17 +19,21 @@ class LandingController extends Controller
     /** Regeln der Prüfungssimulation (siehe ExamController, Wiki „Die Prüfungssimulation“) */
     public const EXAM = ['questions' => 40, 'minutes' => 30, 'percent' => 80, 'passCount' => 32, 'masterAfter' => 3, 'readyAfter' => 5];
 
-    private const SECTIONS = [
-        1 => ['Das THW im Gefüge des Zivil- und Katastrophenschutzes', 'THW & Zivilschutz'],
-        2 => ['Arbeitssicherheit und Gesundheitsschutz', 'Arbeitssicherheit'],
-        3 => ['Arbeiten mit Leinen, Drahtseilen, Ketten, Rund- und Bandschlingen', 'Leinen & Anschlagmittel'],
-        4 => ['Arbeiten mit Leitern', 'Leitern'],
-        5 => ['Stromerzeugung und Beleuchtung', 'Strom & Licht'],
-        6 => ['Metall-, Holz- und Steinbearbeitung', 'Metall, Holz, Stein'],
-        7 => ['Bewegen von Lasten', 'Lasten bewegen'],
-        8 => ['Arbeiten am und auf dem Wasser', 'Am und auf dem Wasser'],
-        9 => ['Einsatzgrundlagen', 'Einsatzgrundlagen'],
-        10 => ['Grundlagen der Rettung und Bergung', 'Rettung & Bergung'],
+    /** Stand des Fragenkatalogs der Grundausbildung (bei neuem Katalog hier anpassen) */
+    public const CATALOG = ['version' => '03.5', 'date' => 'September 2024'];
+
+    /** Lernabschnitt => [Name, Kurzname, URL-Slug, Einleitung der Abschnittsseite] */
+    public const SECTIONS = [
+        1 => ['Das THW im Gefüge des Zivil- und Katastrophenschutzes', 'THW & Zivilschutz', 'thw-und-zivilschutz', 'Aufgaben, Aufbau und rechtliche Grundlagen des THW und seine Rolle im Zivil- und Katastrophenschutz.'],
+        2 => ['Arbeitssicherheit und Gesundheitsschutz', 'Arbeitssicherheit', 'arbeitssicherheit', 'Unfallverhütung, persönliche Schutzausrüstung und sicheres Verhalten im Dienst und im Einsatz.'],
+        3 => ['Arbeiten mit Leinen, Drahtseilen, Ketten, Rund- und Bandschlingen', 'Leinen & Anschlagmittel', 'leinen-und-anschlagmittel', 'Knoten und Stiche, der Umgang mit Leinen, Drahtseilen und Ketten und das Anschlagen mit Rund- und Bandschlingen.'],
+        4 => ['Arbeiten mit Leitern', 'Leitern', 'leitern', 'Leiterarten, sicheres Aufstellen und Besteigen von Leitern im Einsatz.'],
+        5 => ['Stromerzeugung und Beleuchtung', 'Strom & Licht', 'strom-und-licht', 'Stromerzeuger, elektrische Sicherheit und das Ausleuchten von Einsatzstellen.'],
+        6 => ['Metall-, Holz- und Steinbearbeitung', 'Metall, Holz, Stein', 'metall-holz-stein', 'Werkzeuge und Geräte zum Trennen, Bohren und Bearbeiten von Metall, Holz und Stein.'],
+        7 => ['Bewegen von Lasten', 'Lasten bewegen', 'lasten-bewegen', 'Heben, Ziehen und Sichern von Lasten mit Hebeln, Zuggeräten und Hebern.'],
+        8 => ['Arbeiten am und auf dem Wasser', 'Am und auf dem Wasser', 'am-und-auf-dem-wasser', 'Verhalten am und auf dem Wasser, Eigensicherung und Rettungsmittel.'],
+        9 => ['Einsatzgrundlagen', 'Einsatzgrundlagen', 'einsatzgrundlagen', 'Ablauf von Einsätzen, Führung, Kommunikation und Verhalten an der Einsatzstelle.'],
+        10 => ['Grundlagen der Rettung und Bergung', 'Rettung & Bergung', 'rettung-und-bergung', 'Retten und Bergen von Menschen, vom Erkunden der Schadensstelle bis zum Transport.'],
     ];
 
     public function startseite()
@@ -48,6 +52,7 @@ class LandingController extends Controller
             'exam' => self::EXAM,
             'demo' => $this->demoPair(),
             'faq' => $this->homeFaq(array_sum(array_column($sections, 'count'))),
+            'catalog' => self::CATALOG,
         ]);
     }
 
@@ -78,11 +83,38 @@ class LandingController extends Controller
 
         return view('landing.topic', [
             'slug' => $slug,
-            'topic' => $this->topics($total)[$slug],
+            'topic' => $this->topics($sections)[$slug],
             'sections' => $sections,
             'totalQuestions' => $total,
             'exam' => self::EXAM,
+            'catalog' => self::CATALOG,
             'questions' => $slug === 'thw-pruefungsfragen' ? $this->sampleQuestions() : [],
+        ]);
+    }
+
+    /** Eine Seite pro Lernabschnitt mit allen veröffentlichten Fragen samt Lösung */
+    public function lernabschnitt(string $abschnitt): View
+    {
+        $sections = $this->sections();
+        $section = collect($sections)->firstWhere('slug', $abschnitt) ?? abort(404);
+        $nr = $section['nr'];
+
+        $questions = cache()->remember("landing_section_questions_{$nr}", 3600, fn () => Question::where('status', 'published')
+            ->where('lernabschnitt', $nr)
+            ->get(['lernabschnitt', 'nummer', 'frage', 'antwort_a', 'antwort_b', 'antwort_c', 'loesung', 'loesungsweg'])
+            ->sortBy('nummer', SORT_NATURAL)
+            ->map(fn ($q) => $this->format($q) + ['number' => $q->nummer])
+            ->values()
+            ->all());
+
+        return view('landing.lernabschnitt', [
+            'section' => $section,
+            'sections' => $sections,
+            'questions' => $questions,
+            'totalQuestions' => array_sum(array_column($sections, 'count')),
+            'catalog' => self::CATALOG,
+            'prev' => $sections[$nr - 2] ?? null,
+            'next' => $sections[$nr] ?? null,
         ]);
     }
 
@@ -116,8 +148,8 @@ class LandingController extends Controller
             ->toArray());
 
         $sections = [];
-        foreach (self::SECTIONS as $nr => [$name, $short]) {
-            $sections[] = ['nr' => $nr, 'name' => $name, 'short' => $short, 'count' => (int) ($counts[$nr] ?? $counts[(string) $nr] ?? 0)];
+        foreach (self::SECTIONS as $nr => [$name, $short, $slug, $intro]) {
+            $sections[] = ['nr' => $nr, 'name' => $name, 'short' => $short, 'slug' => $slug, 'intro' => $intro, 'count' => (int) ($counts[$nr] ?? $counts[(string) $nr] ?? 0)];
         }
 
         return $sections;
@@ -167,10 +199,11 @@ class LandingController extends Controller
     private function homeFaq(int $total): array
     {
         $e = self::EXAM;
+        $c = self::CATALOG;
 
         return [
             ['q' => 'Was kostet der THW-Trainer?', 'a' => 'Nichts. Der THW-Trainer ist komplett kostenlos, werbefrei und ohne versteckte Kosten. Er wird als private Initiative zur Unterstützung der THW-Ausbildung betrieben.'],
-            ['q' => 'Welche Prüfungsfragen sind enthalten?', 'a' => "Alle {$total} Theoriefragen der THW-Grundausbildung in 10 Lernabschnitten sowie Fragen verschiedener Lehrgänge. Der Fragenkatalog wird regelmäßig aktualisiert und entspricht dem Stand 2026."],
+            ['q' => 'Welche Prüfungsfragen sind enthalten?', 'a' => "Alle {$total} Theoriefragen der THW-Grundausbildung in 10 Lernabschnitten aus dem aktuellen Fragenkatalog (Version {$c['version']}, Stand {$c['date']}) sowie Fragen verschiedener Lehrgänge."],
             ['q' => 'Kann ich auch ohne Registrierung üben?', 'a' => 'Ja. Du kannst anonym und ohne Konto Fragen üben und Prüfungssimulationen durchführen. Für Lernfortschritt, Spaced Repetition und Ortsverband-Funktionen ist eine kostenlose Registrierung nötig.'],
             ['q' => 'Wie läuft die Prüfungssimulation ab?', 'a' => "{$e['questions']} zufällig ausgewählte Fragen, {$e['minutes']} Minuten Zeit, bestanden ab {$e['percent']} Prozent – also mindestens {$e['passCount']} richtigen Antworten. Eine Frage zählt nur, wenn alle richtigen Antworten gewählt sind."],
             ['q' => 'Funktioniert die App auf dem Handy?', 'a' => 'Ja. Der THW-Trainer ist als Progressive Web App (PWA) für alle Geräte optimiert. Du kannst ihn auf dem Handy wie eine echte App installieren.'],
@@ -184,34 +217,39 @@ class LandingController extends Controller
     /**
      * Inhalte der SEO-Landingpages. Jede Seite bedient eine eigene Suchintention.
      */
-    private function topics(int $total): array
+    private function topics(array $sections): array
     {
         $e = self::EXAM;
+        $c = self::CATALOG;
+        $total = array_sum(array_column($sections, 'count'));
         $simulation = "{$e['questions']} Fragen, {$e['minutes']} Minuten, bestanden ab {$e['percent']} % ({$e['passCount']} richtige)";
+        $bySize = collect($sections)->sortByDesc('count')->values();
+        [$big1, $big2, $small] = [$bySize->first(), $bySize->get(1), $bySize->last()];
+        $bigShare = $total > 0 ? (int) round(($big1['count'] + $big2['count']) / $total * 100) : 0;
 
         return [
             'thw-theorie' => [
                 'kind' => 'catalog',
-                'title' => 'THW Theorie 2026 — Alle Prüfungsfragen der Grundausbildung online lernen',
-                'description' => "Lerne alle {$total} THW Theorie Fragen kostenlos online: 10 Lernabschnitte, Spaced Repetition und Prüfungssimulation mit {$e['questions']} Fragen. Werbefrei, auch ohne Anmeldung.",
-                'crumb' => 'THW Theorie',
-                'eyebrow' => 'Grundausbildung (GA) · Theorie 2026',
-                'h1' => 'THW Theorie online lernen',
-                'h1Accent' => "Alle {$total} Fragen, 10 Lernabschnitte",
-                'lead' => "Alle {$total} Theoriefragen der THW-Grundausbildung in 10 Lernabschnitten. Lerne gezielt, verfolge deinen Fortschritt und bestehe die THW-Theorieprüfung.",
+                'title' => 'THW Theorie: Die 10 Lernabschnitte der Grundausbildung',
+                'description' => "Die 10 Lernabschnitte der THW-Grundausbildung im Überblick: alle {$total} Prüfungsfragen mit Lösung, nach Thema sortiert. Fragenkatalog Version {$c['version']}, kostenlos üben.",
+                'crumb' => 'Lernabschnitte',
+                'eyebrow' => "THW Theorie · Fragenkatalog {$c['version']}",
+                'h1' => 'Die 10 Lernabschnitte',
+                'h1Accent' => "{$total} Fragen, nach Thema sortiert",
+                'lead' => 'Jeder Lernabschnitt hat eine eigene Seite mit allen Fragen, Lösungen und Erklärungen. Fang mit dem an, was gerade am Dienstabend dran ist.',
                 'cta' => ['label' => 'Erste Frage üben', 'route' => 'landing.guest.practice.all'],
-                'blocksTitle' => 'Was ist die THW Grundausbildung Theorie?',
+                'blocksTitle' => 'So lernst du die Abschnitte',
                 'blocks' => [
-                    ['h' => 'Die Grundausbildung im THW', 'p' => "Die THW-Grundausbildung (kurz: GA) ist die erste Ausbildungsstufe im Technischen Hilfswerk. Jeder neue THW-Helfer durchläuft diese Ausbildung, die aus einem praktischen und einem theoretischen Teil besteht. Der Theorie-Fragenkatalog umfasst {$total} Fragen aus 10 Lernabschnitten."],
-                    ['h' => 'Wie läuft die THW Theorieprüfung ab?', 'p' => "In der Prüfung werden Fragen aus allen 10 Lernabschnitten gestellt. Pro Frage gibt es drei Antwortmöglichkeiten, von denen eine oder mehrere richtig sein können. Zum Bestehen müssen mindestens {$e['percent']} % der Fragen korrekt beantwortet werden. Die Simulation im THW-Trainer bildet das nach: {$simulation}."],
-                    ['h' => 'THW Theorie online lernen', 'p' => 'Der THW-Trainer bietet dir alle Prüfungsfragen kostenlos und online zum Lernen an. Nutze das Spaced-Repetition-System, um schwierige Fragen gezielt zu wiederholen. Verfolge deinen Lernfortschritt pro Lernabschnitt und starte die Prüfungssimulation, wenn du bereit bist. Das THW Training funktioniert auf Handy, Tablet und PC.'],
+                    ['h' => 'Abschnitt für Abschnitt', 'p' => 'Die Theorie der Grundausbildung ist in 10 Lernabschnitte gegliedert, vom Auftrag des THW bis zur Rettung und Bergung. Lerne die Fragen zu dem Abschnitt, den ihr gerade am Dienstabend durchnehmt. So passen Praxis und Theorie zusammen.'],
+                    ['h' => 'Die großen Abschnitte zuerst', 'p' => "Am meisten Fragen haben {$big1['short']} ({$big1['count']}) und {$big2['short']} ({$big2['count']}). Zusammen sind das {$bigShare} % des Katalogs. Plane dort mehr Lernzeit ein."],
+                    ['h' => 'In der Prüfung kommt alles dran', 'p' => "In der Prüfung werden Fragen aus allen 10 Lernabschnitten gestellt. Auch die Simulation im THW-Trainer zieht aus dem ganzen Katalog: {$simulation}. Lass also keinen Abschnitt aus, auch keinen kleinen."],
                 ],
                 'faq' => [
-                    ['q' => 'Was ist die THW Grundausbildung Theorie?', 'a' => "Die THW-Grundausbildung (GA) Theorie umfasst {$total} Prüfungsfragen aus 10 Lernabschnitten. Sie deckt alle theoretischen Grundlagen ab, die ein THW-Helfer benötigt: von Arbeitssicherheit über Einsatzgrundlagen bis hin zu technischem Wissen. Die Theorieprüfung muss bestanden werden, um die Grundausbildung abzuschließen."],
-                    ['q' => 'Wie viele Theorie Fragen hat die THW Grundausbildung?', 'a' => "Der Fragenkatalog der THW-Grundausbildung Theorie enthält {$total} Fragen, aufgeteilt in 10 Lernabschnitte. Die Prüfungssimulation im THW-Trainer stellt daraus {$e['questions']} zufällige Fragen. Im THW-Trainer kannst du alle {$total} Fragen üben."],
-                    ['q' => 'Kann ich THW Theorie Fragen kostenlos online üben?', 'a' => 'Ja. Auf thw-trainer.de kannst du alle THW Theorie Fragen komplett kostenlos und ohne Werbung online üben. Du kannst sofort anonym starten oder dich kostenlos registrieren, um deinen Lernfortschritt zu speichern.'],
-                    ['q' => 'Wie bestehe ich die THW Theorieprüfung?', 'a' => "Zum Bestehen müssen mindestens {$e['percent']} % der Prüfungsfragen korrekt beantwortet werden. Der beste Weg zur Vorbereitung: Alle Theorie Fragen im THW-Trainer durcharbeiten, schwierige Fragen mit Spaced Repetition wiederholen und die Prüfungssimulation nutzen."],
-                    ['q' => 'Was sind die Themen der THW GA Prüfung?', 'a' => 'Die THW GA Prüfung (Grundausbildung) deckt 10 Lernabschnitte ab: Das THW im Zivil- und Katastrophenschutz, Arbeitssicherheit, Arbeiten mit Leinen und Seilen, Leitern, Stromerzeugung, Metall-/Holz-/Steinbearbeitung, Bewegen von Lasten, Arbeiten am Wasser, Einsatzgrundlagen und Grundlagen der Rettung. Im THW-Trainer kannst du jeden Abschnitt gezielt üben.'],
+                    ['q' => 'Wie viele Lernabschnitte hat die THW Grundausbildung?', 'a' => "Die Theorie der THW-Grundausbildung ist in 10 Lernabschnitte gegliedert. Zusammen enthalten sie {$total} Prüfungsfragen aus dem Fragenkatalog Version {$c['version']} (Stand {$c['date']})."],
+                    ['q' => 'Welcher Lernabschnitt hat die meisten Fragen?', 'a' => "Lernabschnitt {$big1['nr']} „{$big1['name']}“ ist mit {$big1['count']} Fragen der größte. Der kleinste ist Lernabschnitt {$small['nr']} „{$small['name']}“ mit {$small['count']} Fragen."],
+                    ['q' => 'Kann ich einzelne Lernabschnitte üben?', 'a' => 'Ja. Auf jeder Abschnittsseite übst du die Fragen direkt, ohne Konto. Mit einem kostenlosen Konto merkt sich der THW-Trainer deinen Fortschritt pro Lernabschnitt und wiederholt gezielt, was noch nicht sitzt.'],
+                    ['q' => 'Kommen in der Prüfung alle Lernabschnitte dran?', 'a' => "Ja. Die Fragen der Theorieprüfung stammen aus allen 10 Lernabschnitten. Die Prüfungssimulation im THW-Trainer wählt ihre {$e['questions']} Fragen ebenfalls aus dem gesamten Katalog."],
+                    ['q' => 'Welcher Fragenkatalog wird verwendet?', 'a' => "Der aktuelle Fragenkatalog der THW-Grundausbildung, Version {$c['version']} (Stand {$c['date']}), mit {$total} Fragen. Jede Frage hat drei Antworten, von denen eine oder mehrere richtig sind."],
                 ],
                 'related' => ['thw-pruefungsfragen', 'thw-theoriepruefung', 'thw-grundausbildung'],
             ],
@@ -251,7 +289,7 @@ class LandingController extends Controller
                 'title' => 'THW Prüfungsfragen — Alle Fragen der Grundausbildung kostenlos üben 2026',
                 'description' => "Alle {$total} THW Prüfungsfragen der Grundausbildung (GA) kostenlos online üben: mit Lösung, Erklärung und Prüfungssimulation. Probiere fünf echte Fragen direkt aus.",
                 'crumb' => 'THW Prüfungsfragen',
-                'eyebrow' => 'Fragenkatalog 2026',
+                'eyebrow' => "Fragenkatalog Version {$c['version']}",
                 'h1' => 'THW Prüfungsfragen online üben',
                 'h1Accent' => 'Mit Lösung und Erklärung',
                 'lead' => "Übe alle {$total} Prüfungsfragen der THW-Grundausbildung. Jede Frage hat drei Antworten, eine oder mehrere sind richtig. Probiere es direkt aus – mit fünf Fragen aus dem Katalog, ohne Anmeldung.",
@@ -264,7 +302,7 @@ class LandingController extends Controller
                 ],
                 'faq' => [
                     ['q' => 'Wie viele THW Prüfungsfragen gibt es?', 'a' => "Der Fragenkatalog der THW-Grundausbildung umfasst {$total} Fragen aus 10 Lernabschnitten. Die Prüfungssimulation im THW-Trainer wählt daraus {$e['questions']} Fragen zufällig aus. Im THW-Trainer kannst du alle Fragen üben."],
-                    ['q' => 'Sind das die offiziellen THW Prüfungsfragen?', 'a' => 'Der THW-Trainer enthält alle Prüfungsfragen der THW-Grundausbildung (GA). Die Fragen werden regelmäßig auf Aktualität geprüft und aktualisiert.'],
+                    ['q' => 'Sind das die offiziellen THW Prüfungsfragen?', 'a' => "Der THW-Trainer enthält alle Prüfungsfragen der THW-Grundausbildung (GA) aus dem aktuellen Fragenkatalog, Version {$c['version']} (Stand {$c['date']}). Die Fragen werden regelmäßig auf Aktualität geprüft."],
                     ['q' => 'Kann ich die THW Prüfungsfragen kostenlos üben?', 'a' => 'Ja. Alle Prüfungsfragen sind komplett kostenlos und ohne Werbung verfügbar. Du kannst sofort anonym starten oder dich registrieren, um deinen Lernfortschritt zu speichern.'],
                     ['q' => 'Wie sind die THW Prüfungsfragen aufgebaut?', 'a' => 'Jede Frage hat drei Antwortmöglichkeiten (A, B, C). Es können eine oder mehrere Antworten richtig sein. Richtig ist eine Frage nur, wenn exakt alle richtigen Antworten gewählt sind – Teilpunkte gibt es nicht.'],
                     ['q' => 'Wie lerne ich die THW Prüfungsfragen am besten?', 'a' => 'Arbeite alle Fragen systematisch durch, nutze die Spaced-Repetition-Funktion für schwierige Fragen und teste dich regelmäßig mit der Prüfungssimulation. So gehst du optimal vorbereitet in die THW-Theorieprüfung.'],

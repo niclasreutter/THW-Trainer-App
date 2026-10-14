@@ -366,6 +366,19 @@ main:has(> .d-closing:last-child) + .d-footer { margin-top: 0; }
 .d-related b { font: 600 clamp(1.375rem, 2.4vw, 1.75rem)/1.2 var(--font); letter-spacing: -0.022em; transition: color 150ms ease; }
 @media (hover: hover) and (pointer: fine) { .d-related a:hover b { color: var(--blue); } }
 
+/* Abschnittsseiten: Anteil des Lernabschnitts am Katalog. Segmente öffnen sich von links, dann färbt sich der eigene Abschnitt */
+.d-share { display: flex; gap: 3px; height: 10px; margin-top: clamp(40px, 6vw, 64px); }
+.d-share i { flex: var(--n) 1 0; min-width: 0; border-radius: 3px; background: var(--blue-50); }
+.d-share i.is-on { background: var(--thw); }
+.js .d-share i { clip-path: inset(0 100% 0 0); transition: clip-path 800ms var(--ease-out) calc(var(--i) * 45ms + 150ms); }
+.js .d-share.is-in i { clip-path: inset(0 0 0 0); }
+.js .d-share i.is-on { background: var(--blue-50); }
+.js .d-share.is-in i.is-on { background: var(--thw); transition: clip-path 800ms var(--ease-out) calc(var(--i) * 45ms + 150ms), background-color 500ms ease 1000ms; }
+@media (prefers-reduced-motion: reduce) {
+    .js .d-share i { clip-path: none; transition: none; }
+    .js .d-share i.is-on { background: var(--thw); }
+}
+
 /* Unterseiten mit zweiter Navigationsleiste: fixierte Morph-Bühne darunter */
 @media (max-width: 860px) { .has-local .d-story .d-morph { top: 112px; height: 42svh; } }
 

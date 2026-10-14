@@ -30,16 +30,28 @@ class LandingGuestPracticeController extends Controller
      */
     public function all()
     {
+        return $this->start('all', Question::pluck('id')->shuffle()->all());
+    }
+
+    /**
+     * Einen Lernabschnitt üben (Gast-Modus), Einstieg von den Abschnittsseiten
+     */
+    public function section(int $nr)
+    {
+        abort_unless(isset(LandingController::SECTIONS[$nr]), 404);
+
+        return $this->start('section', Question::where('lernabschnitt', $nr)->pluck('id')->shuffle()->all(), $nr);
+    }
+
+    private function start(string $mode, array $ids, ?int $parameter = null)
+    {
         session()->forget(['guest_practice_mode', 'guest_practice_parameter', 'guest_practice_ids', 'guest_practice_skipped', 'guest_questions_answered']);
 
-        $allIds = Question::pluck('id')->toArray();
-        shuffle($allIds);
-
         session([
-            'guest_practice_mode' => 'all',
-            'guest_practice_parameter' => null,
-            'guest_practice_ids' => $allIds,
-            'guest_practice_total_start' => count($allIds),
+            'guest_practice_mode' => $mode,
+            'guest_practice_parameter' => $parameter,
+            'guest_practice_ids' => $ids,
+            'guest_practice_total_start' => count($ids),
         ]);
 
         return redirect()->route('landing.guest.practice.index');
