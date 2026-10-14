@@ -5,11 +5,14 @@ Alle nennenswerten Änderungen an diesem Projekt werden hier dokumentiert.
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-10-14
+
 ### Bugfixes
 
 - **Liga-Teilnahme respektiert Zustimmung**: Nutzer ohne Leaderboard-Einwilligung nehmen nicht mehr am wöchentlichen Liga-Wettbewerb teil. Bisher konnten "unsichtbare" Teilnehmer (ohne Zustimmung) trotzdem Wochenbelohnungen gewinnen sowie auf- und absteigen und verzerrten so das Ranking. Jetzt werden bei der wöchentlichen Verarbeitung nur noch zustimmende Nutzer für Belohnungen, Auf- und Abstieg berücksichtigt.
 - **Richtige Prüfungsangaben**: Einige Infoseiten nannten noch 30 statt 40 Fragen pro Prüfung
 - **Zahlen auf der Startseite**: Nutzer- und Prüfungszahlen wurden teilweise als „0+“ angezeigt
+- **Link „Alle Achievements ansehen“**: Führt im Profil wieder zur Achievement-Übersicht statt zur Statistik
 
 ### UI & Design
 
