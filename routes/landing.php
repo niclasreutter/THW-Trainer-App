@@ -36,6 +36,10 @@ Route::get('/datenschutz', function () {
 Route::get('/thw-theorie', [\App\Http\Controllers\LandingController::class, 'thwTheorie'])
     ->name('landing.thw-theorie');
 
+Route::get('/thw-theorie/{abschnitt}', [\App\Http\Controllers\LandingController::class, 'lernabschnitt'])
+    ->where('abschnitt', '[a-z\-]+')
+    ->name('landing.thw-theorie.abschnitt');
+
 Route::get('/thw-pruefungsfragen', [\App\Http\Controllers\LandingController::class, 'thwPruefungsfragen'])
     ->name('landing.thw-pruefungsfragen');
 
@@ -120,6 +124,9 @@ Route::prefix('guest')->name('landing.guest.')->group(function () {
         ->name('practice.menu');
     Route::get('/practice/all', [\App\Http\Controllers\LandingGuestPracticeController::class, 'all'])
         ->name('practice.all');
+    Route::get('/practice/section/{nr}', [\App\Http\Controllers\LandingGuestPracticeController::class, 'section'])
+        ->whereNumber('nr')
+        ->name('practice.section');
     Route::get('/practice', [\App\Http\Controllers\LandingGuestPracticeController::class, 'show'])
         ->name('practice.index');
     Route::post('/practice', [\App\Http\Controllers\LandingGuestPracticeController::class, 'submit'])

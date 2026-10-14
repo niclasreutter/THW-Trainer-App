@@ -137,7 +137,7 @@ class WikiService
         return preg_replace('/^## \[Unreleased\]\s*(?=^## \[|\z)/msu', '', $markdown);
     }
 
-    private function resolvePath(string $file): string
+    public function resolvePath(string $file): string
     {
         if (str_starts_with($file, 'root:')) {
             return base_path(substr($file, 5));

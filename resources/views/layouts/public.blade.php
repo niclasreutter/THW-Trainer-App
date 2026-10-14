@@ -10,7 +10,7 @@
     $robots = trim($__env->yieldContent('robots')) ?: 'index, follow';
     $logo = asset('logo-thw-trainer.png').'?v='.filemtime(public_path('logo-thw-trainer.png'));
     $nav = [
-        ['route' => 'landing.thw-theorie', 'label' => 'Lernabschnitte'],
+        ['route' => 'landing.thw-theorie', 'label' => 'Lernabschnitte', 'active' => 'landing.thw-theorie*'],
         ['route' => 'landing.thw-theoriepruefung', 'label' => 'Prüfung'],
         ['route' => 'landing.thw-pruefungsfragen', 'label' => 'Fragen'],
         ['route' => 'landing.statistics', 'label' => 'Statistik'],
@@ -103,7 +103,8 @@
         <p class="note">Der THW-Trainer ist eine private, ehrenamtliche Initiative zur Prüfungsvorbereitung und kein offizielles Angebot der Bundesanstalt Technisches Hilfswerk.</p>
         <div class="cols">
             <div><h2>Themen</h2><ul>
-                <li><a href="{{ route('landing.thw-theorie') }}">THW Theorie</a></li>
+                <li><a href="{{ $home }}">THW Theorie</a></li>
+                <li><a href="{{ route('landing.thw-theorie') }}">Lernabschnitte</a></li>
                 <li><a href="{{ route('landing.thw-grundausbildung') }}">THW Grundausbildung</a></li>
                 <li><a href="{{ route('landing.thw-pruefungsfragen') }}">THW Prüfungsfragen</a></li>
                 <li><a href="{{ route('landing.thw-theoriepruefung') }}">THW Theorieprüfung</a></li>

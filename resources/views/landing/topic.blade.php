@@ -6,7 +6,7 @@
 
 @php
     $kind = $topic['kind'];
-    $labels = ['thw-theorie' => 'THW Theorie', 'thw-grundausbildung' => 'THW Grundausbildung', 'thw-pruefungsfragen' => 'THW Prüfungsfragen', 'thw-theoriepruefung' => 'THW Theorieprüfung'];
+    $labels = ['thw-theorie' => 'Die 10 Lernabschnitte', 'thw-grundausbildung' => 'THW Grundausbildung', 'thw-pruefungsfragen' => 'THW Prüfungsfragen', 'thw-theoriepruefung' => 'THW Theorieprüfung'];
     $relatedText = ['thw-theorie' => "Alle {$totalQuestions} Fragen nach Lernabschnitten", 'thw-grundausbildung' => 'Ablauf vom Eintritt bis zur Prüfung', 'thw-pruefungsfragen' => 'Prüfungsfragen mit Lösung üben', 'thw-theoriepruefung' => 'Ablauf, Bestehensgrenze, Simulation'];
     $ctaUrl = route($topic['cta']['route']);
     $home = \App\Helpers\DomainHelper::landingHomeUrl();
@@ -71,7 +71,7 @@
 @php
     $beats = $kind === 'catalog'
         ? [
-            [$totalQuestions.' Fragen.', 'Der komplette Fragenkatalog der Grundausbildung, Stand 2026. Jeder Punkt steht für rund '.max(1, round($totalQuestions / 40)).' Fragen.'],
+            [$totalQuestions.' Fragen.', 'Der komplette Fragenkatalog der Grundausbildung, Version '.$catalog['version'].'. Jeder Punkt steht für rund '.max(1, round($totalQuestions / 40)).' Fragen.'],
             ['Zehn Lernabschnitte, ungleich groß.', 'Jeder Lernabschnitt hat einen anderen Umfang. Plane deine Lernzeit nach dem Anteil am Katalog.'],
             ['Gemeistert nach drei richtigen Antworten.', 'Jede Frage durchläuft drei Stufen. Erst nach drei richtigen Antworten in Folge gilt sie als gemeistert – ein Fehler setzt die Serie zurück.'],
         ]
@@ -154,7 +154,7 @@
         <h2 class="d-h2 d-reveal" style="margin-bottom:48px">Was du lernst.</h2>
         <ol class="d-list d-reveal">
             @foreach($sections as $s)
-                <li id="la-{{ $s['nr'] }}"><div><span class="n">{{ $s['nr'] }}</span><span class="t">{{ $s['name'] }}</span><span class="c">{{ $s['count'] }} Fragen</span></div></li>
+                <li id="la-{{ $s['nr'] }}"><a href="{{ route('landing.thw-theorie.abschnitt', $s['slug']) }}"><span class="n">{{ $s['nr'] }}</span><span class="t">{{ $s['name'] }}</span><span class="c">{{ $s['count'] }} Fragen</span></a></li>
             @endforeach
         </ol>
     @elseif($kind === 'exam')
@@ -181,6 +181,7 @@
                 <summary><span><small>Lernabschnitt {{ $q['section'] }}</small>{{ $q['text'] }}</span></summary>
                 <ol type="A">@foreach($q['answers'] as $n => $a)<li @class(['ok' => in_array($n, $q['correct'])])>{{ $a }}</li>@endforeach</ol>
                 <p><b>Richtig: {{ collect($q['correct'])->map(fn ($c) => 'ABC'[$c])->join(' und ') }}.</b> {{ $q['explain'] }}</p>
+                @isset($sections[$q['section'] - 1])<p><a class="d-more" href="{{ route('landing.thw-theorie.abschnitt', $sections[$q['section'] - 1]['slug']) }}">Alle Fragen aus Lernabschnitt {{ $q['section'] }}</a></p>@endisset
             </details>
             @endforeach
         </div>
