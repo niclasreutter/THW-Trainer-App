@@ -2,6 +2,8 @@
 
 namespace App\Helpers;
 
+use Illuminate\Support\Facades\Route;
+
 /**
  * Helper für Domain-übergreifende URL-Generierung
  *
@@ -33,6 +35,16 @@ class DomainHelper
      * @param string $path Pfad (z.B. '/kontakt' oder 'impressum')
      * @return string Vollständige URL
      */
+    /**
+     * URL der öffentlichen Startseite (lokal liegt sie unter /home, weil / der App gehört)
+     */
+    public static function landingHomeUrl(): string
+    {
+        return config('domains.development') && Route::has('landing.home.dev')
+            ? route('landing.home.dev')
+            : self::landingUrl('/');
+    }
+
     public static function landingUrl(string $path = ''): string
     {
         if (config('domains.development')) {

@@ -40,9 +40,7 @@ class SitemapController extends Controller
         // Gast-Übungsmodus (niedrigere Priorität als Hauptseite!)
         $sitemap .= $this->addUrl(url('/guest/practice-menu'), '0.5', 'monthly');
 
-        // Auth Seiten
-        $sitemap .= $this->addUrl(route('register'), '0.6', 'monthly');
-        $sitemap .= $this->addUrl(route('login'), '0.5', 'monthly');
+        // Login/Registrierung liegen auf der App-Domain (robots.txt: Disallow) und gehören nicht in die Sitemap
 
         // Rechtliches
         $sitemap .= $this->addUrl(route('landing.impressum'), '0.3', 'yearly');

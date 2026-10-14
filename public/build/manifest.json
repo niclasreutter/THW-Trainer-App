@@ -1,32 +1,33 @@
 {
-  "_auto-aF82oVy8.js": {
-    "file": "assets/auto-aF82oVy8.js",
-    "name": "auto"
-  },
-  "node_modules/bootstrap-icons/font/fonts/bootstrap-icons.woff": {
+  "../../../node_modules/bootstrap-icons/font/fonts/bootstrap-icons.woff": {
     "file": "assets/bootstrap-icons-BeopsB42.woff",
-    "src": "node_modules/bootstrap-icons/font/fonts/bootstrap-icons.woff"
+    "src": "../../../node_modules/bootstrap-icons/font/fonts/bootstrap-icons.woff"
   },
-  "node_modules/bootstrap-icons/font/fonts/bootstrap-icons.woff2": {
+  "../../../node_modules/bootstrap-icons/font/fonts/bootstrap-icons.woff2": {
     "file": "assets/bootstrap-icons-mSm7cUeB.woff2",
-    "src": "node_modules/bootstrap-icons/font/fonts/bootstrap-icons.woff2"
+    "src": "../../../node_modules/bootstrap-icons/font/fonts/bootstrap-icons.woff2"
   },
   "resources/css/app.css": {
-    "file": "assets/app-C9WGh454.css",
+    "file": "assets/app-DVVjQBgL.css",
     "src": "resources/css/app.css",
     "isEntry": true,
     "names": [
       "app.css"
     ]
   },
+  "resources/css/public.css": {
+    "file": "assets/public-C-f0f_U3.css",
+    "src": "resources/css/public.css",
+    "isEntry": true,
+    "names": [
+      "public.css"
+    ]
+  },
   "resources/js/admin.js": {
-    "file": "assets/admin-BwMuTq7b.js",
+    "file": "assets/admin-D4P1vv6u.js",
     "name": "admin",
     "src": "resources/js/admin.js",
-    "isEntry": true,
-    "imports": [
-      "_auto-aF82oVy8.js"
-    ]
+    "isEntry": true
   },
   "resources/js/app.js": {
     "file": "assets/app-Bm6nwrg7.js",
@@ -34,13 +35,10 @@
     "src": "resources/js/app.js",
     "isEntry": true
   },
-  "resources/js/landing-charts.js": {
-    "file": "assets/landing-charts-BwMuTq7b.js",
-    "name": "landing-charts",
-    "src": "resources/js/landing-charts.js",
-    "isEntry": true,
-    "imports": [
-      "_auto-aF82oVy8.js"
-    ]
+  "resources/js/public.js": {
+    "file": "assets/public-DBfSsE9Q.js",
+    "name": "public",
+    "src": "resources/js/public.js",
+    "isEntry": true
   }
 }
