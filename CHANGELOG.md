@@ -5,6 +5,15 @@ Alle nennenswerten Änderungen an diesem Projekt werden hier dokumentiert.
 
 ## [Unreleased]
 
+### UI & Design
+
+- **Neues Design für Dashboard, Übungsmenü, Üben und Prüfung**: Die Lernseiten erscheinen im Stil der Startseite, hell oder dunkel je nach Farbschema. Oben steht immer genau eine Empfehlung, was als Nächstes dran ist
+- **Neue Seitenleiste und mobiles Menü**: Profilbild, Mitteilungen, Farbschema und Abmelden sitzen gesammelt unten in der Seitenleiste; auf dem Handy öffnet sich das Menü von rechts
+- **Wiederholung verständlich erklärt**: Überall heißt es jetzt einheitlich „Wiederholung“. Das Dashboard zeigt, wie viele Fragen heute, morgen und in den nächsten Tagen wiederkommen, und nach jeder Antwort steht, wann die Frage wiederkommt und wie oft sie noch richtig beantwortet werden muss
+- **Ruhiges Üben**: Beim Üben und in der Prüfung blendet sich die Navigation aus; Antworten werden unten im Daumenbereich abgeschickt und in einem Fenster von unten aufgelöst
+- **Prüfung mit allen 40 Fragen im Blick**: Eine Leiste zeigt beantwortete, offene und markierte Fragen; das Ergebnis zeigt einen Balken mit der 80-%-Grenze, und jede Frage lässt sich direkt zur Nachbesprechung antippen
+- **Ohne Konto üben und Prüfung simulieren im neuen Design**: Üben und Prüfungssimulation ohne Anmeldung zeigen die Navigation der Startseite und die gleiche Oberfläche wie für angemeldete Nutzer; in der Auswertung springt ein Tipp auf die Fragenleiste direkt zur passenden Lösung
+
 ## [1.3.0] - 2026-10-19
 
 ### Neue Features

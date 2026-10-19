@@ -1,0 +1,3 @@
+/* Gast-Seiten (layouts/public): Lernseiten-Stylesheet plus Bootstrap Icons, die dort sonst nur app.css mitbringt */
+@import 'bootstrap-icons/font/bootstrap-icons.css';
+@import './learn.css';

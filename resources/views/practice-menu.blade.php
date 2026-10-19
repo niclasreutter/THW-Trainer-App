@@ -2,543 +2,176 @@
 
 @section('title', 'Theorie lernen - THW Trainer')
 
-@push('styles')
-<link rel="preconnect" href="https://fonts.bunny.net">
-<link href="https://fonts.bunny.net/css2?family=Barlow+Condensed:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style>
-    /* ─── Smart Action Card ──────────────────────── */
-    .smart-action {
-        display: block;
-        text-decoration: none;
-        background: linear-gradient(135deg, #00337F, #004db3);
-        border-radius: 0.75rem;
-        padding: 1.125rem 1.25rem;
-        position: relative;
-        overflow: hidden;
-        transition: transform 250ms ease, box-shadow 250ms ease;
-    }
-
-    .smart-action:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 24px rgba(0,51,127,0.25);
-        text-decoration: none;
-    }
-
-    .smart-action::after {
-        content: '';
-        position: absolute;
-        top: -40%;
-        right: -20%;
-        width: 200px;
-        height: 200px;
-        background: radial-gradient(circle, rgba(91,154,255,0.1) 0%, transparent 70%);
-        pointer-events: none;
-    }
-
-    .smart-action__label {
-        font-size: 0.625rem;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        color: rgba(255,255,255,0.5);
-        font-weight: 700;
-        margin-bottom: 0.35rem;
-        font-family: 'IBM Plex Mono', monospace;
-    }
-
-    .smart-action__title {
-        font-size: 1.125rem;
-        font-weight: 700;
-        color: #fff;
-        margin-bottom: 0.2rem;
-    }
-
-    .smart-action__desc {
-        font-size: 0.75rem;
-        color: rgba(255,255,255,0.55);
-        margin-bottom: 0.75rem;
-    }
-
-    .smart-action__btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.375rem;
-        background: linear-gradient(135deg, #5b9aff, #0055cc);
-        color: #fff;
-        font-size: 0.75rem;
-        font-weight: 700;
-        padding: 0.4rem 0.875rem;
-        border-radius: 0.375rem;
-    }
-
-    /* ─── Section Items ──────────────────────────── */
-    .section-item {
-        display: flex;
-        align-items: center;
-        gap: 0.625rem;
-        padding: 0.5rem 0.25rem;
-        text-decoration: none;
-        transition: background 150ms ease;
-        border-radius: 0.375rem;
-    }
-
-    .section-item:hover {
-        background: rgba(255,255,255,0.03);
-        text-decoration: none;
-    }
-
-    html.light-mode .section-item:hover { background: rgba(0,0,0,0.03); }
-
-    .section-item + .section-item {
-        border-top: 1px solid rgba(255,255,255,0.04);
-    }
-
-    html.light-mode .section-item + .section-item {
-        border-top-color: rgba(0,0,0,0.06);
-    }
-
-    .section-num {
-        width: 1.5rem;
-        height: 1.5rem;
-        border-radius: 0.375rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.6875rem;
-        font-weight: 700;
-        flex-shrink: 0;
-        font-family: 'IBM Plex Mono', monospace;
-    }
-
-    .section-num--green { background: rgba(34,197,94,0.12); color: #22c55e; }
-    .section-num--blue  { background: rgba(0,85,204,0.12); color: #5b9aff; }
-    .section-num--red   { background: rgba(239,68,68,0.12); color: #ef4444; }
-
-    html.light-mode .section-num--green { background: rgba(34,197,94,0.1); }
-    html.light-mode .section-num--blue  { background: rgba(0,51,127,0.08); color: #00337F; }
-    html.light-mode .section-num--red   { background: rgba(239,68,68,0.08); }
-
-    .section-bar {
-        height: 3px;
-        background: rgba(255,255,255,0.06);
-        border-radius: 2px;
-        overflow: hidden;
-        margin-top: 0.35rem;
-    }
-
-    html.light-mode .section-bar { background: rgba(0,0,0,0.06); }
-
-    .section-bar__fill {
-        height: 100%;
-        border-radius: 2px;
-        transition: width 0.6s ease-out;
-    }
-
-    .section-pct {
-        font-size: 0.75rem;
-        font-weight: 700;
-        color: #5b9aff;
-        flex-shrink: 0;
-        font-family: 'Barlow Condensed', sans-serif;
-    }
-
-    html.light-mode .section-pct { color: #00337F; }
-
-    .section-arrow {
-        color: var(--text-muted);
-        font-size: 0.75rem;
-        flex-shrink: 0;
-        transition: color 150ms ease;
-    }
-
-    .section-item:hover .section-arrow { color: #5b9aff; }
-    html.light-mode .section-item:hover .section-arrow { color: #00337F; }
-
-    /* ─── Stagger Animation ──────────────────────── */
-    @keyframes dash-rise {
-        from { opacity: 0; transform: translateY(10px); }
-        to   { opacity: 1; transform: translateY(0); }
-    }
-
-    .dash-container > .space-y-4 > * {
-        animation: dash-rise 0.45s cubic-bezier(0.22,1,0.36,1) both;
-    }
-
-    .dash-container > .space-y-4 > *:nth-child(1) { animation-delay: 0.03s; }
-    .dash-container > .space-y-4 > *:nth-child(2) { animation-delay: 0.07s; }
-    .dash-container > .space-y-4 > *:nth-child(3) { animation-delay: 0.11s; }
-    .dash-container > .space-y-4 > *:nth-child(4) { animation-delay: 0.15s; }
-    .dash-container > .space-y-4 > *:nth-child(5) { animation-delay: 0.19s; }
-    .dash-container > .space-y-4 > *:nth-child(6) { animation-delay: 0.23s; }
-    .dash-container > .space-y-4 > *:nth-child(7) { animation-delay: 0.27s; }
-
-    @media (prefers-reduced-motion: reduce) {
-        .dash-container > .space-y-4 > * { animation: none; }
-    }
-
-    /* ─── SR Nudge ───────────────────────────────── */
-    .sr-nudge {
-        display: flex;
-        align-items: center;
-        gap: 0.625rem;
-        padding: 0.875rem 1rem;
-        text-decoration: none;
-        transition: transform 150ms ease, box-shadow 150ms ease;
-    }
-
-    .sr-nudge:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(0,51,127,0.1);
-        text-decoration: none;
-    }
-
-    .sr-nudge__badge {
-        width: 2rem;
-        height: 2rem;
-        border-radius: 0.5rem;
-        background: linear-gradient(135deg, #0055cc, #5b9aff);
-        color: #fff;
-        font-size: 0.8125rem;
-        font-weight: 800;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-family: 'Barlow Condensed', sans-serif;
-        flex-shrink: 0;
-    }
-
-    .sr-nudge__title {
-        font-size: 0.8125rem;
-        font-weight: 600;
-        color: var(--text-primary);
-    }
-
-    .sr-nudge__desc {
-        font-size: 0.625rem;
-        color: var(--text-muted);
-        margin-top: 0.1rem;
-    }
-
-    /* ─── Smart Action Info State ──────────────── */
-    .smart-action--info {
-        background: linear-gradient(135deg, rgba(34,197,94,0.08), rgba(34,197,94,0.03));
-        border: 1px solid rgba(34,197,94,0.15);
-        cursor: default;
-    }
-
-    .smart-action--info:hover {
-        transform: none;
-        box-shadow: none;
-    }
-
-    .smart-action--info .smart-action__label {
-        color: rgba(34,197,94,0.7);
-    }
-
-    .smart-action--info .smart-action__title {
-        color: #22c55e;
-    }
-
-    html.light-mode .smart-action--info {
-        background: linear-gradient(135deg, rgba(34,197,94,0.06), rgba(34,197,94,0.02));
-        border-color: rgba(34,197,94,0.12);
-    }
-
-    .smart-action__status {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.375rem;
-        color: rgba(34,197,94,0.6);
-        font-size: 0.75rem;
-        font-weight: 600;
-    }
-
-    /* ─── Smart Action Warning State ─────────── */
-    .smart-action--warning {
-        background: linear-gradient(135deg, rgba(251,191,36,0.10), rgba(251,191,36,0.04));
-        border: 1px solid rgba(251,191,36,0.18);
-        cursor: default;
-        transition: opacity 0.6s ease;
-    }
-
-    .smart-action--warning:hover {
-        transform: none;
-        box-shadow: none;
-    }
-
-    .smart-action--warning .smart-action__label {
-        color: rgba(251,191,36,0.7);
-    }
-
-    .smart-action--warning .smart-action__title {
-        color: #f59e0b;
-    }
-
-    html.light-mode .smart-action--warning {
-        background: linear-gradient(135deg, rgba(251,191,36,0.06), rgba(251,191,36,0.02));
-        border-color: rgba(251,191,36,0.15);
-    }
-
-    /* ─── Disabled Tiles ──────────────────────── */
-    .tile-disabled {
-        opacity: 0.5;
-        cursor: default;
-    }
-
-    /* ─── SR Nudge Upcoming ──────────────────── */
-    .sr-nudge--upcoming {
-        cursor: default;
-    }
-
-    .sr-nudge--upcoming:hover {
-        transform: none;
-        box-shadow: none;
-    }
-
-    .sr-nudge__badge--muted {
-        background: rgba(255,255,255,0.06);
-        color: var(--text-muted);
-        font-size: 0.875rem;
-    }
-
-    html.light-mode .sr-nudge__badge--muted {
-        background: rgba(0,0,0,0.05);
-    }
-
-    /* ─── Search Input ───────────────────────────── */
-    .pm-search-input {
-        width: 100%;
-        background: rgba(255,255,255,0.04);
-        border: 1px solid rgba(255,255,255,0.08);
-        border-radius: 0.5rem;
-        padding: 0.5rem 0.75rem;
-        font-size: 0.8125rem;
-        color: var(--text-primary);
-        font-family: inherit;
-        outline: none;
-        transition: border-color 150ms ease;
-        margin-top: 0.5rem;
-    }
-
-    .pm-search-input::placeholder { color: var(--text-muted); }
-    .pm-search-input:focus { border-color: rgba(91,154,255,0.4); }
-
-    html.light-mode .pm-search-input {
-        background: rgba(0,0,0,0.03);
-        border-color: rgba(0,0,0,0.1);
-    }
-</style>
-@endpush
-
 @section('content')
-<div class="dash-container">
+@php
+    $wd = fn ($t) => \App\Helpers\LearnText::wd($t);
+    $unavailable = session('practice_unavailable');
+    $extrasEnabled = auth()->check() && auth()->user()->extras_enabled;
+@endphp
 
-    {{-- ── Header (wie Dashboard-Username) ── --}}
-    <div class="mb-6">
-        <p style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);font-weight:600;margin-bottom:0.25rem;">Theorie</p>
-        <h1 style="font-size:1.5rem;font-weight:800;line-height:1.2;font-family:'Barlow Condensed',sans-serif;background:linear-gradient(135deg,#5b9aff,#0055cc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Theorie lernen</h1>
-        <p class="text-sm" style="color: var(--text-muted);">Wähle deinen Lernmodus</p>
-    </div>
+<div class="l-page">
+    <header class="l-head">
+        <h1 class="l-title">Theorie lernen</h1>
+        <p class="l-meta">Wähle deinen Lernmodus</p>
+    </header>
 
-    {{-- ── Stat Pills (gami-pill wie Statistics) ── --}}
-    <div class="flex gap-3 mb-6" style="flex-wrap: wrap;">
-        <div class="gami-pill">
-            <div class="gami-pill__value" style="color: var(--error); -webkit-text-fill-color: var(--error);">{{ $failedCount }}</div>
-            <div class="gami-pill__label">Fehler</div>
-        </div>
-        <div class="gami-pill">
-            <div class="gami-pill__value" style="color: var(--warning); -webkit-text-fill-color: var(--warning);">{{ $unsolvedCount }}</div>
-            <div class="gami-pill__label">Ungelöst</div>
-        </div>
-        <div class="gami-pill">
-            <div class="gami-pill__value" style="color: var(--success); -webkit-text-fill-color: var(--success);">{{ $solvedCount }}</div>
-            <div class="gami-pill__label">Gemeistert</div>
-        </div>
-        <div class="gami-pill">
-            <div class="gami-pill__value">{{ $totalQuestions }}</div>
-            <div class="gami-pill__label">Gesamt</div>
-        </div>
-    </div>
-
-    <div class="space-y-4">
-
-        @auth
-        @if(!auth()->user()->extras_enabled)
-        {{-- ── Opt-in Hinweis: Zusatz-Fragen (nur wenn deaktiviert) ── --}}
-        <div class="glass" style="padding:1rem 1.25rem;border-left:3px solid var(--gold-start);border-radius:0.75rem;">
-            <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;">
-                <div style="flex:1;min-width:0;">
-                    <div style="font-weight:600;color:var(--gold-start);font-size:0.9375rem;">Mehr Lern-Methoden verfügbar</div>
-                    <div style="color:var(--text-muted);font-size:0.8125rem;margin-top:0.25rem;">Zuordnungs- und Bild-Fragen als Lern-Ergänzung — nicht Teil der Prüfung.</div>
-                </div>
-                <a href="{{ route('einstellungen') }}#extras-enabled" class="btn-secondary" style="flex-shrink:0;">In Einstellungen aktivieren</a>
-            </div>
-        </div>
-        @endif
-        @endauth
-
-        {{-- ── Smart Action Card ── --}}
-        @if(session('practice_unavailable'))
-            @php $unavailable = session('practice_unavailable'); @endphp
-            <div class="smart-action smart-action--warning" id="practice-unavailable-card">
-                <div class="smart-action__label">Nicht verfügbar</div>
-                <div class="smart-action__title">{{ $unavailable['title'] }}</div>
-                <div class="smart-action__desc">{{ $unavailable['message'] }}</div>
-                <span class="smart-action__status" style="color:rgba(251,191,36,0.6);">
-                    <i class="bi bi-clock"></i>
-                    {{ $unavailable['next_review'] }}
+    <div class="l-stack">
+        {{-- Kennzahlen und Fragensuche --}}
+        <div class="l-pm-top">
+            <dl class="l-figs">
+                <div><dt>Fehler</dt><dd class="{{ $failedCount > 0 ? 'l-tone-bad' : '' }}">{{ $failedCount }}</dd></div>
+                <div><dt>Ungelöst</dt><dd>{{ $unsolvedCount }}</dd></div>
+                <div><dt>Gemeistert</dt><dd>{{ $solvedCount }}</dd></div>
+                <div><dt>Gesamt</dt><dd>{{ $totalQuestions }}</dd></div>
+            </dl>
+            <form action="{{ route('practice.search') }}" method="GET" class="l-search" role="search">
+                <label class="l-small" for="l-search-q">Fragensuche</label>
+                <span>
+                    <i class="bi bi-search" aria-hidden="true"></i>
+                    <input type="text" name="search" id="l-search-q" placeholder="Frage Nr. eingeben...">
                 </span>
-            </div>
-
-            {{-- Normale Smart Action Card (anfangs versteckt, wird nach 10s eingeblendet) --}}
-            <div id="smart-action-normal" style="display:none;">
-        @endif
-
-        @if(($smartAction['type'] ?? 'action') === 'info')
-        <div class="smart-action smart-action--info">
-            <div class="smart-action__label">{{ $smartAction['label'] }}</div>
-            <div class="smart-action__title">{{ $smartAction['title'] }}</div>
-            <div class="smart-action__desc">{{ $smartAction['desc'] }}</div>
-            <span class="smart-action__status">
-                <i class="bi bi-check-circle"></i>
-                Komm später wieder
-            </span>
-        </div>
-        @else
-        <a href="{{ $smartAction['route'] }}" class="smart-action">
-            <div class="smart-action__label">{{ $smartAction['label'] }}</div>
-            <div class="smart-action__title">{{ $smartAction['title'] }}</div>
-            <div class="smart-action__desc">{{ $smartAction['desc'] }}</div>
-            <span class="smart-action__btn">
-                Jetzt starten
-                <i class="bi bi-arrow-right"></i>
-            </span>
-        </a>
-        @endif
-
-        @if(session('practice_unavailable'))
-            </div>
-        @endif
-
-        {{-- ── Training Mode Tiles ── --}}
-        <div class="grid grid-cols-3 gap-2">
-            <a href="{{ route('practice.all') }}" class="glass p-3 text-center block" style="border-radius:0.75rem;text-decoration:none;">
-                <div style="font-size:1.5rem;font-weight:800;font-family:'Barlow Condensed',sans-serif;line-height:1;color:var(--text-primary);">{{ $totalQuestions }}</div>
-                <div class="text-xs uppercase tracking-wider mt-1" style="color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:0.5rem;">Alle Fragen</div>
-                <div class="mt-2" style="font-size:0.6875rem;color:#5b9aff;font-weight:600;">Starten →</div>
-            </a>
-            @if($unsolvedCount > 0)
-            <a href="{{ route('practice.unsolved') }}" class="glass p-3 text-center block" style="border-radius:0.75rem;text-decoration:none;">
-                <div style="font-size:1.5rem;font-weight:800;font-family:'Barlow Condensed',sans-serif;line-height:1;color:var(--warning);">{{ $unsolvedCount }}</div>
-                <div class="text-xs uppercase tracking-wider mt-1" style="color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:0.5rem;">Ungelöste</div>
-                <div class="mt-2" style="font-size:0.6875rem;color:#5b9aff;font-weight:600;">Starten →</div>
-            </a>
-            @else
-            <div class="glass p-3 text-center block tile-disabled" style="border-radius:0.75rem;">
-                <div style="font-size:1.5rem;font-weight:800;font-family:'Barlow Condensed',sans-serif;line-height:1;color:var(--text-muted);">0</div>
-                <div class="text-xs uppercase tracking-wider mt-1" style="color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:0.5rem;">Ungelöste</div>
-                <div class="mt-2" style="font-size:0.6875rem;color:var(--text-muted);font-weight:600;">Erledigt</div>
-            </div>
-            @endif
-            @if($failedCount > 0)
-            <a href="{{ route('failed.index') }}" class="glass p-3 text-center block" style="border-radius:0.75rem;text-decoration:none;">
-                <div style="font-size:1.5rem;font-weight:800;font-family:'Barlow Condensed',sans-serif;line-height:1;color:var(--error);">{{ $failedCount }}</div>
-                <div class="text-xs uppercase tracking-wider mt-1" style="color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:0.5rem;">Fehler</div>
-                <div class="mt-2" style="font-size:0.6875rem;color:#5b9aff;font-weight:600;">Starten →</div>
-            </a>
-            @else
-            <div class="glass p-3 text-center block tile-disabled" style="border-radius:0.75rem;">
-                <div style="font-size:1.5rem;font-weight:800;font-family:'Barlow Condensed',sans-serif;line-height:1;color:var(--text-muted);">0</div>
-                <div class="text-xs uppercase tracking-wider mt-1" style="color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:0.5rem;">Fehler</div>
-                <div class="mt-2" style="font-size:0.6875rem;color:var(--text-muted);font-weight:600;">Keine</div>
-            </div>
-            @endif
-        </div>
-
-        @auth
-        @if(auth()->user()->extras_enabled)
-        {{-- ── Nur Standardfragen / Nur Zusatz-Fragen (Opt-in) ── --}}
-        <a href="{{ route('practice.standard-only') }}" class="glass p-3 block" style="border-radius:0.75rem;text-decoration:none;display:flex;align-items:center;gap:0.75rem;">
-            <div style="flex:1;">
-                <div style="font-size:0.9375rem;font-weight:700;color:var(--text-primary);font-family:'Barlow Condensed',sans-serif;">Nur Standardfragen</div>
-                <div style="font-size:0.75rem;color:var(--text-muted);margin-top:0.125rem;">Offizielle Fragen ohne Zusatz-Fragen üben</div>
-            </div>
-            <div style="font-size:0.6875rem;color:#5b9aff;font-weight:700;">Starten →</div>
-        </a>
-        <a href="{{ route('practice.extras-only') }}" class="glass p-3 block" style="border-radius:0.75rem;text-decoration:none;display:flex;align-items:center;gap:0.75rem;">
-            <div style="flex:1;">
-                <div style="font-size:0.9375rem;font-weight:700;color:var(--text-primary);font-family:'Barlow Condensed',sans-serif;">Nur Zusatz-Fragen</div>
-                <div style="font-size:0.75rem;color:var(--text-muted);margin-top:0.125rem;">Zuordnungen und Bild-Fragen üben</div>
-            </div>
-            <div style="font-size:0.6875rem;color:#5b9aff;font-weight:700;">Starten →</div>
-        </a>
-        @endif
-
-        {{-- ── Zusatz-Frage vorschlagen (alle User) ── --}}
-        <a href="{{ route('zusatzfragen-vorschlagen.index') }}" class="glass p-3 block" style="border-radius:0.75rem;text-decoration:none;display:flex;align-items:center;gap:0.75rem;border-left:3px solid var(--gold-start);">
-            <div style="flex:1;">
-                <div style="font-size:0.9375rem;font-weight:700;color:var(--text-primary);font-family:'Barlow Condensed',sans-serif;">Zusatz-Frage vorschlagen</div>
-                <div style="font-size:0.75rem;color:var(--text-muted);margin-top:0.125rem;">Eigene Frage für den Katalog einreichen</div>
-            </div>
-            <div style="font-size:0.6875rem;color:var(--gold-start);font-weight:700;">Einreichen →</div>
-        </a>
-        @endauth
-
-        {{-- ── Spaced Repetition + Fragensuche ── --}}
-        <div class="grid grid-cols-1 gap-2" style="{{ ($spacedRepetitionDue > 0 || $nextSrLabel) ? 'grid-template-columns:1fr 1fr;' : '' }}">
-            @if($spacedRepetitionDue > 0)
-            <a href="{{ route('practice.spaced-repetition') }}" class="glass sr-nudge">
-                <div class="sr-nudge__badge">{{ $spacedRepetitionDue }}</div>
-                <div>
-                    <div class="sr-nudge__title">Reviews fällig</div>
-                    <div class="sr-nudge__desc">Jetzt wiederholen</div>
-                </div>
-            </a>
-            @elseif($nextSrLabel)
-            <div class="glass sr-nudge sr-nudge--upcoming">
-                <div class="sr-nudge__badge sr-nudge__badge--muted">
-                    <i class="bi bi-clock"></i>
-                </div>
-                <div>
-                    <div class="sr-nudge__title" style="color:var(--text-muted);">{{ $nextSrCount }} Reviews {{ $nextSrLabel }}</div>
-                    <div class="sr-nudge__desc">Aktuell keine fällig</div>
-                </div>
-            </div>
-            @endif
-            <form action="{{ route('practice.search') }}" method="GET" class="glass p-3" style="border-radius:0.75rem;">
-                <div class="text-xs uppercase tracking-wider" style="color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:0.5625rem;font-weight:700;">Fragensuche</div>
-                <input type="text" name="search" class="pm-search-input" placeholder="Frage Nr. eingeben...">
             </form>
         </div>
 
-        {{-- ── Lernabschnitte ── --}}
-        <div class="glass p-4" style="border-radius:0.75rem;">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;">
-                <span class="text-xs uppercase tracking-wider" style="color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:0.5625rem;font-weight:700;">Lernabschnitte</span>
-                <span style="font-size:0.6875rem;color:var(--text-muted);">10 Abschnitte</span>
+        {{-- Hinweis: Zusatz-Fragen (nur wenn deaktiviert) --}}
+        @auth
+            @if(!$extrasEnabled)
+                <div class="l-group">
+                    <a href="{{ route('einstellungen') }}#extras-enabled" class="l-row">
+                        <span class="l-row-t">
+                            <b>Mehr Lern-Methoden verfügbar</b>
+                            <span>Zuordnungs- und Bild-Fragen als Lern-Ergänzung. Nicht Teil der Prüfung.</span>
+                        </span>
+                        <span class="l-link">In Einstellungen aktivieren</span>
+                    </a>
+                </div>
+            @endif
+        @endauth
+
+        {{-- Bühne: Empfehlung, oder der Hinweis „nicht verfügbar“ (blendet sich nach 10 Sekunden aus) --}}
+        @if($unavailable)
+            <div class="l-warn" id="practice-unavailable-card" role="status">
+                <p class="l-warn-l">Nicht verfügbar</p>
+                <p class="l-warn-t">{{ $unavailable['title'] }}</p>
+                <p class="l-small">{{ $wd($unavailable['message']) }}</p>
+                <p class="l-warn-n">{{ $wd($unavailable['next_review']) }}</p>
             </div>
+            <div id="smart-action-normal" style="display: none;">
+        @endif
 
-            @for($i = 1; $i <= 10; $i++)
-                @php
-                    $total = $sectionStats[$i]['total'];
-                    $solved = $sectionStats[$i]['solved'];
-                    $pct = $total > 0 ? round(($solved / $total) * 100) : 0;
-                    $colorClass = $pct >= 80 ? 'green' : ($pct >= 50 ? 'blue' : 'red');
-                    $barColor = $pct >= 80 ? '#22c55e' : ($pct >= 50 ? '#0055cc' : '#ef4444');
-                @endphp
-                <a href="{{ route('practice.section', $i) }}" class="section-item">
-                    <div class="section-num section-num--{{ $colorClass }}">{{ $i }}</div>
-                    <div style="flex:1;min-width:0;">
-                        <div style="font-size:0.75rem;font-weight:600;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ $sectionNames[$i] }}</div>
-                        <div class="section-bar">
-                            <div class="section-bar__fill" style="width:{{ $pct }}%;background:{{ $barColor }};"></div>
-                        </div>
-                    </div>
-                    <span class="section-pct">{{ $pct }}%</span>
-                    <i class="bi bi-chevron-right section-arrow"></i>
+        @if(($smartAction['type'] ?? 'action') === 'info')
+            <div class="l-stage l-stage--calm l-stage--sm">
+                <span class="l-stage-label">{{ $smartAction['label'] }}</span>
+                <span class="l-stage-title">{{ $wd($smartAction['title']) }}</span>
+                <span class="l-stage-desc">{{ $wd($smartAction['desc']) }}</span>
+                <span class="l-stage-status"><i class="bi bi-check-circle-fill" aria-hidden="true"></i>Komm später wieder</span>
+            </div>
+        @else
+            <a href="{{ $smartAction['route'] }}" class="l-stage l-stage--sm">
+                <span class="l-gearmark" aria-hidden="true">@include('landing.partials.gear')</span>
+                <span class="l-stage-label">{{ $smartAction['label'] }}</span>
+                <span class="l-stage-title">{{ $wd($smartAction['title']) }}</span>
+                <span class="l-stage-desc">{{ $wd($smartAction['desc']) }}</span>
+                <span class="l-btn l-btn--white">Jetzt starten</span>
+            </a>
+        @endif
+
+        @if($unavailable)
+            </div>
+        @endif
+
+        {{-- Lernmodus --}}
+        <section aria-labelledby="l-modi">
+            <h2 id="l-modi" class="l-group-h">Lernmodus</h2>
+            <div class="l-group">
+                <a href="{{ route('practice.all') }}" class="l-row">
+                    <span class="l-row-t"><b>Alle Fragen</b><span>Ungelöste werden bevorzugt</span></span>
+                    <span class="l-row-v">{{ $totalQuestions }}</span>
+                    <i class="bi bi-chevron-right l-chev" aria-hidden="true"></i>
                 </a>
-            @endfor
-        </div>
+                @if($unsolvedCount > 0)
+                    <a href="{{ route('practice.unsolved') }}" class="l-row">
+                        <span class="l-row-t"><b>Ungelöste</b><span>Neue Fragen lernen</span></span>
+                        <span class="l-row-v">{{ $unsolvedCount }}</span>
+                        <i class="bi bi-chevron-right l-chev" aria-hidden="true"></i>
+                    </a>
+                @else
+                    <div class="l-row is-off">
+                        <span class="l-row-t"><b>Ungelöste</b><span>Erledigt</span></span>
+                        <span class="l-row-v">0</span>
+                    </div>
+                @endif
+                @if($failedCount > 0)
+                    <a href="{{ route('failed.index') }}" class="l-row">
+                        <span class="l-row-t"><b>Fehler</b><span>Fehlerfragen wiederholen</span></span>
+                        <span class="l-row-v">{{ $failedCount }}</span>
+                        <i class="bi bi-chevron-right l-chev" aria-hidden="true"></i>
+                    </a>
+                @else
+                    <div class="l-row is-off">
+                        <span class="l-row-t"><b>Fehler</b><span>Keine</span></span>
+                        <span class="l-row-v">0</span>
+                    </div>
+                @endif
+                @if($spacedRepetitionDue > 0)
+                    <a href="{{ route('practice.spaced-repetition') }}" class="l-row">
+                        <span class="l-row-t"><b>Wiederholung</b><span>Fragen kommen nach 1 Tag, dann nach 3 Tagen wieder</span></span>
+                        <b class="l-count">{{ $spacedRepetitionDue }}</b>
+                    </a>
+                @elseif($nextSrLabel)
+                    <div class="l-row">
+                        <span class="l-row-t"><b>Wiederholung</b><span>Aktuell keine fällig</span></span>
+                        <span class="l-row-v">{{ $nextSrCount }} {{ $nextSrLabel === 'In 1 Tagen' ? 'morgen' : lcfirst($nextSrLabel) }}</span>
+                    </div>
+                @endif
+                @if($extrasEnabled)
+                    <a href="{{ route('practice.standard-only') }}" class="l-row">
+                        <span class="l-row-t"><b>Nur Standardfragen</b><span>Offizielle Fragen ohne Zusatz-Fragen üben</span></span>
+                        <i class="bi bi-chevron-right l-chev" aria-hidden="true"></i>
+                    </a>
+                    <a href="{{ route('practice.extras-only') }}" class="l-row">
+                        <span class="l-row-t"><b>Nur Zusatz-Fragen</b><span>Zuordnungen und Bild-Fragen üben</span></span>
+                        <i class="bi bi-chevron-right l-chev" aria-hidden="true"></i>
+                    </a>
+                @endif
+            </div>
+        </section>
 
+        {{-- Lernabschnitte: zwei Gruppen nebeneinander --}}
+        <section aria-labelledby="l-la">
+            <h2 id="l-la" class="l-group-h">Lernabschnitte <span>10 Abschnitte</span></h2>
+            <div class="l-la">
+                @foreach([[1, 5], [6, 10]] as [$from, $to])
+                    <div class="l-group">
+                        @for($i = $from; $i <= $to; $i++)
+                            @php
+                                $total = $sectionStats[$i]['total'];
+                                $solved = $sectionStats[$i]['solved'];
+                                $pct = $total > 0 ? round(($solved / $total) * 100) : 0;
+                            @endphp
+                            <a href="{{ route('practice.section', $i) }}" class="l-row">
+                                <span class="l-row-n">{{ $i }}</span>
+                                <span class="l-row-t">
+                                    <b>{{ $sectionNames[$i] }}</b>
+                                    <span>{{ $solved }} von {{ $total }} gemeistert</span>
+                                    <span class="l-line {{ $pct >= 100 ? 'is-ok' : '' }}"><i style="width: {{ $pct }}%;"></i></span>
+                                </span>
+                                <span class="l-row-v">{{ $pct }} %</span>
+                            </a>
+                        @endfor
+                    </div>
+                @endforeach
+            </div>
+        </section>
+
+        @auth
+            <div class="l-group">
+                <a href="{{ route('zusatzfragen-vorschlagen.index') }}" class="l-row">
+                    <span class="l-row-t"><b>Zusatz-Frage vorschlagen</b><span>Eigene Frage für den Katalog einreichen</span></span>
+                    <span class="l-link">Einreichen</span>
+                </a>
+            </div>
+        @endauth
     </div>
 </div>
 @endsection
