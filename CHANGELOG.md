@@ -5,6 +5,8 @@ Alle nennenswerten Änderungen an diesem Projekt werden hier dokumentiert.
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-10-19
+
 ### Neue Features
 
 - **Eine Seite pro Lernabschnitt**: Jeder der 10 Lernabschnitte hat eine eigene Seite mit allen Fragen, Lösungen und Erklärungen, dazu fünf Fragen zum direkten Ausprobieren
