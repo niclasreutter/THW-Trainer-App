@@ -8,11 +8,27 @@
     "src": "node_modules/bootstrap-icons/font/fonts/bootstrap-icons.woff2"
   },
   "resources/css/app.css": {
-    "file": "assets/app-DVVjQBgL.css",
+    "file": "assets/app-BzS4xv11.css",
     "src": "resources/css/app.css",
     "isEntry": true,
     "names": [
       "app.css"
+    ]
+  },
+  "resources/css/learn-guest.css": {
+    "file": "assets/learn-guest-DxeZ-7E-.css",
+    "src": "resources/css/learn-guest.css",
+    "isEntry": true,
+    "names": [
+      "learn-guest.css"
+    ]
+  },
+  "resources/css/learn.css": {
+    "file": "assets/learn-5hczreJl.css",
+    "src": "resources/css/learn.css",
+    "isEntry": true,
+    "names": [
+      "learn.css"
     ]
   },
   "resources/css/public.css": {

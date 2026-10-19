@@ -14,7 +14,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>@hasSection('title')@yield('title') - THW-Trainer@else THW-Trainer - Dein digitaler Begleiter für THW Theorie @endif</title>
+        <title>@hasSection('title')@yield('title') - THW-Trainer @else THW-Trainer - Dein digitaler Begleiter für THW Theorie @endif</title>
 
         <!-- SEO Meta Tags -->
         <meta name="description" content="@hasSection('description')@yield('description')@else THW-Trainer: Bereite dich optimal auf deine THW-Prüfung vor. Kostenlose Theoriefragen, Prüfungssimulation und Lernfortschritt. Jetzt anonym oder mit Account üben! @endif">
@@ -119,11 +119,11 @@
         @stack('alpine-components')
 
         <!-- Scripts -->
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
+        @vite(['resources/css/app.css', 'resources/css/learn.css', 'resources/js/app.js'])
 
         @stack('styles')
     </head>
-    <body class="font-sans antialiased" x-data="{ sidebarOpen: false }">
+    <body class="font-sans antialiased" x-data="{ sidebarOpen: false }" @keydown.escape.window="sidebarOpen = false">
         <script>
             window.addEventListener('DOMContentLoaded', function() {
                 var s = document.getElementById('pwa-splash');
@@ -131,540 +131,118 @@
             });
         </script>
 
-        <div class="min-h-screen flex">
-            <!-- Sidebar (Desktop) -->
-            @auth
-            @php
-                $unreadLeagueNotifs = \App\Models\Notification::where('user_id', auth()->id())
-                    ->where('is_read', false)
-                    ->whereIn('type', ['league_promotion', 'league_relegation'])
-                    ->count();
-                $unopenedLootboxCount = \App\Models\Lootbox::where('user_id', auth()->id())->where('opened', false)->count();
-                $userOV = auth()->user()->ortsverbände->first();
-                $sidebarNotificationCount = auth()->user()->unreadNotifications()->count();
-                $sidebarLevelProgress = app(\App\Services\GamificationService::class)->getLevelProgress(auth()->user());
-            @endphp
-            <aside class="hidden lg:flex lg:flex-col lg:fixed lg:inset-y-0 sidebar-glass" style="width: 264px;">
-                <div class="sidebar-border"></div>
-
-                <!-- Logo -->
-                <div class="sidebar-header">
-                    <div class="sidebar-logo-mark">
-                        <img src="{{ asset('logo-thw-trainer.png') . '?v=' . filemtime(public_path('logo-thw-trainer.png')) }}" alt="THW" class="w-8 h-8 relative logo-for-light" style="z-index:1;">
-                        <img src="{{ asset('logo-thw-trainer_w.png') . '?v=' . filemtime(public_path('logo-thw-trainer_w.png')) }}" alt="THW" class="w-8 h-8 relative logo-for-dark" style="z-index:1;">
-                    </div>
-                    <span class="sidebar-brand">THW-Trainer</span>
-                </div>
-
-                <!-- Navigation -->
-                <nav class="sidebar-nav" data-tour-step="sidebar">
-                    <div class="nav-section">Navigation</div>
-
-                    <a href="{{ route('dashboard') }}" class="sidebar-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
-                        <i class="bi bi-house-door"></i> Dashboard
-                    </a>
-                    <a href="{{ route('statistics') }}" class="sidebar-link {{ request()->routeIs('statistics') ? 'active' : '' }}">
-                        <i class="bi bi-bar-chart"></i> Statistiken
-                    </a>
-                    <a href="{{ route('practice.menu') }}" class="sidebar-link {{ request()->routeIs('practice.*') ? 'active' : '' }}">
-                        <i class="bi bi-book"></i> Theorie Lernen
-                    </a>
-                    <a href="{{ route('bookmarks.index') }}" class="sidebar-link {{ request()->routeIs('bookmarks.*') ? 'active' : '' }}">
-                        <i class="bi bi-bookmark"></i> Gespeicherte Fragen
-                    </a>
-                    <a href="{{ route('exam.index') }}" class="sidebar-link {{ request()->routeIs('exam.index') ? 'active' : '' }}">
-                        <i class="bi bi-clipboard-check"></i> Prüfung
-                    </a>
-                    <a href="{{ route('exam.history') }}" class="sidebar-link {{ request()->routeIs('exam.history*') ? 'active' : '' }}">
-                        <i class="bi bi-bar-chart-line"></i> Prüfungshistorie
-                    </a>
-                    <a href="{{ route('lehrgaenge.index') }}" class="sidebar-link {{ request()->routeIs('lehrgaenge.*') ? 'active' : '' }}">
-                        <i class="bi bi-mortarboard"></i> Lehrgänge
-                    </a>
-                    <a href="{{ route('training-progress.index') }}" class="sidebar-link {{ request()->routeIs('training-progress.*') ? 'active' : '' }}">
-                        <i class="bi bi-journal-check"></i> Ausbildungsfortschritt
-                    </a>
-                    <a href="{{ route('contact.index') }}" class="sidebar-link {{ request()->routeIs('contact.*') ? 'active' : '' }}">
-                        <i class="bi bi-envelope"></i> Kontakt
-                    </a>
-
-                    <div class="nav-section">Community</div>
-
-                    <a href="{{ route('gamification.leaderboard') }}" class="sidebar-link {{ request()->routeIs('gamification.leaderboard') ? 'active' : '' }}">
-                        <i class="bi bi-trophy"></i> Liga
-                        @if($unreadLeagueNotifs > 0)
-                            <span class="badge-error text-xs ml-auto">{{ $unreadLeagueNotifs }}</span>
-                        @endif
-                    </a>
-                    <a href="{{ route('gamification.achievements') }}" class="sidebar-link {{ request()->routeIs('gamification.achievements') ? 'active' : '' }}">
-                        <i class="bi bi-award"></i> Achievements
-                    </a>
-                    <a href="{{ route('lernsession.index') }}" class="sidebar-link {{ request()->routeIs('lernsession.*') ? 'active' : '' }}">
-                        <i class="bi bi-people"></i> Lernsessions
-                    </a>
-                    <a href="{{ route('shop.index') }}" class="sidebar-link {{ request()->routeIs('shop.*') ? 'active' : '' }}">
-                        <i class="bi bi-shop"></i> Shop
-                        @if($unopenedLootboxCount > 0)
-                            <span class="badge-error text-xs ml-auto">{{ $unopenedLootboxCount }}</span>
-                        @endif
-                    </a>
-                    <a href="{{ route('zusatzfragen-vorschlagen.index') }}" class="sidebar-link {{ request()->routeIs('zusatzfragen-vorschlagen.*') ? 'active' : '' }}">
-                        <i class="bi bi-lightbulb"></i> Zusatz-Frage vorschlagen
-                    </a>
-
-                    <div class="nav-section">Ortsverband</div>
-
-                    @if($userOV && $userOV->isAusbildungsbeauftragter(auth()->user()))
-                        <a href="{{ route('ortsverband.dashboard', $userOV) }}" class="sidebar-link {{ request()->routeIs('ortsverband.dashboard') || request()->routeIs('ortsverband.show') ? 'active' : '' }}">
-                            <i class="bi bi-building"></i> {{ $userOV->name }}
-                        </a>
-                        <a href="{{ route('ortsverband.members', $userOV) }}" class="sidebar-link {{ request()->routeIs('ortsverband.members') || request()->routeIs('ortsverband.members.*') ? 'active' : '' }}">
-                            <i class="bi bi-people"></i> Mitglieder
-                        </a>
-                    @else
-                        <a href="{{ $userOV ? route('ortsverband.show', $userOV) : route('ortsverband.index') }}" class="sidebar-link {{ request()->routeIs('ortsverband.show') ? 'active' : '' }}">
-                            <i class="bi bi-building"></i> {{ $userOV ? $userOV->name : 'Ortsverband' }}
-                        </a>
-                    @endif
-
-                    @if(auth()->user()->isAdmin())
-                    <div class="nav-section nav-section-admin">Admin</div>
-
-                    <a href="{{ route('admin.dashboard') }}" class="sidebar-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
-                        <i class="bi bi-speedometer2"></i> Dashboard
-                    </a>
-                    <a href="{{ route('admin.statistics') }}" class="sidebar-link {{ request()->routeIs('admin.statistics') ? 'active' : '' }}">
-                        <i class="bi bi-graph-up"></i> Statistiken
-                    </a>
-                    <a href="{{ route('admin.users.index') }}" class="sidebar-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
-                        <i class="bi bi-people"></i> Nutzer
-                    </a>
-                    <a href="{{ route('admin.questions.index') }}" class="sidebar-link {{ request()->routeIs('admin.questions.*') ? 'active' : '' }}">
-                        <i class="bi bi-question-circle"></i> Fragen
-                    </a>
-                    <a href="{{ route('admin.lehrgaenge.index') }}" class="sidebar-link {{ request()->routeIs('admin.lehrgaenge.*') ? 'active' : '' }}">
-                        <i class="bi bi-mortarboard"></i> Lehrgänge
-                    </a>
-                    <a href="{{ route('admin.ortsverband.index') }}" class="sidebar-link {{ request()->routeIs('admin.ortsverband.*') ? 'active' : '' }}">
-                        <i class="bi bi-building"></i> Ortsverbände
-                    </a>
-                    <a href="{{ route('admin.leagues.index') }}" class="sidebar-link {{ request()->routeIs('admin.leagues.*') ? 'active' : '' }}">
-                        <i class="bi bi-trophy"></i> Ligen
-                    </a>
-                    <a href="{{ route('admin.shop-analytics') }}" class="sidebar-link {{ request()->routeIs('admin.shop-analytics') ? 'active' : '' }}">
-                        <i class="bi bi-cart3"></i> Shop Analytics
-                    </a>
-                    <a href="{{ route('admin.newsletter.index') }}" class="sidebar-link {{ request()->routeIs('admin.newsletter.*') ? 'active' : '' }}">
-                        <i class="bi bi-megaphone"></i> Newsletter
-                    </a>
-                    <a href="{{ route('admin.issues.index') }}" class="sidebar-link {{ request()->routeIs('admin.issues.*') ? 'active' : '' }}">
-                        <i class="bi bi-exclamation-triangle"></i> Fehlermeldungen
-                        @php
-                            $openIssuesCount = cache()->remember('admin_open_issues_count', 300, fn() => \App\Models\LehrgangQuestionIssue::where('status', 'open')->count() + \App\Models\QuestionIssue::where('status', 'open')->count());
-                        @endphp
-                        @if($openIssuesCount > 0)
-                            <span class="badge-error text-xs ml-auto">{{ $openIssuesCount }}</span>
-                        @endif
-                    </a>
-                    <a href="{{ route('admin.contact-messages.index') }}" class="sidebar-link {{ request()->routeIs('admin.contact-messages.*') ? 'active' : '' }}">
-                        <i class="bi bi-envelope"></i> Kontaktanfragen
-                        @php
-                            $unreadContactCount = cache()->remember('admin_unread_messages_count', 300, fn() => \App\Models\ContactMessage::where('is_read', false)->count());
-                        @endphp
-                        @if($unreadContactCount > 0)
-                            <span class="badge-error text-xs ml-auto">{{ $unreadContactCount }}</span>
-                        @endif
-                    </a>
-                    <a href="{{ route('admin.exam-feedback.index') }}" class="sidebar-link {{ request()->routeIs('admin.exam-feedback.*') ? 'active' : '' }}">
-                        <i class="bi bi-mortarboard"></i> Prüfungs-Feedback
-                    </a>
-                    <a href="{{ route('admin.umfragen.index') }}" class="sidebar-link {{ request()->routeIs('admin.umfragen.*') ? 'active' : '' }}">
-                        <i class="bi bi-clipboard-data"></i> Umfragen
-                    </a>
-                    <a href="{{ route('admin.logs.index', 'scheduler') }}" class="sidebar-link {{ request()->routeIs('admin.logs.*') && request()->route('type') === 'scheduler' ? 'active' : '' }}">
-                        <i class="bi bi-terminal"></i> Scheduler-Logs
-                    </a>
-                    <a href="{{ route('admin.logs.index', 'worker') }}" class="sidebar-link {{ request()->routeIs('admin.logs.*') && request()->route('type') === 'worker' ? 'active' : '' }}">
-                        <i class="bi bi-gear"></i> Worker-Logs
-                    </a>
-                    @if(!app()->environment('production'))
-                    <a href="{{ route('admin.time-simulator') }}" class="sidebar-link {{ request()->routeIs('admin.time-simulator*') ? 'active' : '' }}">
-                        <i class="bi bi-clock-history"></i> Zeitsimulator
-                    </a>
-                    @endif
-                    @elseif(auth()->user()->canEditQuestions())
-                    <div class="nav-section nav-section-admin">Fragen pflegen</div>
-                    <a href="{{ route('contributor.dashboard') }}" class="sidebar-link {{ request()->routeIs('contributor.dashboard') ? 'active' : '' }}">
-                        <i class="bi bi-speedometer2"></i> Dashboard
-                    </a>
-                    <a href="{{ route('admin.questions.index') }}" class="sidebar-link {{ request()->routeIs('admin.questions.*') ? 'active' : '' }}">
-                        <i class="bi bi-question-circle"></i> Fragen
-                    </a>
-                    <a href="{{ route('admin.extra-questions.index') }}" class="sidebar-link {{ request()->routeIs('admin.extra-questions.*') ? 'active' : '' }}">
-                        <i class="bi bi-collection"></i> Zusatz-Fragen
-                    </a>
-                    <a href="{{ route('admin.extra-question-submissions.index') }}" class="sidebar-link {{ request()->routeIs('admin.extra-question-submissions.*') ? 'active' : '' }}">
-                        <i class="bi bi-inbox"></i> Zusatz-Frage-Vorschläge
-                        @php
-                            $pendingSubmissionsCount = cache()->remember('admin_pending_extra_q_submissions_count', 300, fn() => \App\Models\UserExtraQuestionSubmission::where('status', 'pending')->count());
-                        @endphp
-                        @if($pendingSubmissionsCount > 0)
-                            <span class="badge-error text-xs ml-auto">{{ $pendingSubmissionsCount }}</span>
-                        @endif
-                    </a>
-                    <a href="{{ route('admin.lehrgaenge.index') }}" class="sidebar-link {{ request()->routeIs('admin.lehrgaenge.*') ? 'active' : '' }}">
-                        <i class="bi bi-mortarboard"></i> Lehrgänge
-                    </a>
-                    <a href="{{ route('admin.issues.index') }}" class="sidebar-link {{ request()->routeIs('admin.issues.*') ? 'active' : '' }}">
-                        <i class="bi bi-exclamation-triangle"></i> Fehlermeldungen
-                        @php
-                            $openIssuesCount = cache()->remember('admin_open_issues_count', 300, fn() => \App\Models\LehrgangQuestionIssue::where('status', 'open')->count() + \App\Models\QuestionIssue::where('status', 'open')->count());
-                        @endphp
-                        @if($openIssuesCount > 0)
-                            <span class="badge-error text-xs ml-auto">{{ $openIssuesCount }}</span>
-                        @endif
-                    </a>
-                    @endif
-                </nav>
-
-                <!-- User Card (bottom) -->
-                <div class="sidebar-user">
-                    <a href="{{ route('profile') }}" class="sidebar-user-card">
-                        <img src="{{ auth()->user()->avatar_url }}" alt="Avatar" class="sidebar-user-avatar">
-                        <div class="sidebar-user-meta">
-                            <p class="sidebar-user-name">{{ auth()->user()->name }}</p>
-                            <div class="sidebar-level-row">
-                                <span class="sidebar-level-text">Lvl {{ auth()->user()->level ?? 1 }}</span>
-                                <div class="sidebar-level-track"><div class="sidebar-level-fill" style="width: {{ $sidebarLevelProgress }}%;"></div></div>
-                            </div>
-                        </div>
-                    </a>
-                    <div class="sidebar-actions">
-                        <a href="{{ route('notifications.index') }}" class="sidebar-action-btn {{ request()->routeIs('notifications.*') ? 'active' : '' }}" title="Mitteilungen">
-                            <i class="bi bi-bell"></i>
-                            @if($sidebarNotificationCount > 0)
-                                <span class="sidebar-notif-dot"></span>
-                            @endif
-                        </a>
-                        <button type="button" onclick="toggleTheme()" class="sidebar-action-btn theme-toggle" title="Farbschema">
-                            <i class="bi bi-moon-fill icon-moon"></i>
-                            <i class="bi bi-sun-fill icon-sun"></i>
-                            <i class="bi bi-circle-half icon-auto"></i>
-                        </button>
-                        <a href="{{ route('profile') }}" class="sidebar-action-btn" title="Profil">
-                            <i class="bi bi-person"></i>
-                        </a>
-                        <form method="POST" action="{{ route('logout') }}" class="sidebar-action-form">
-                            @csrf
-                            <button type="submit" class="sidebar-action-btn" title="Abmelden">
-                                <i class="bi bi-box-arrow-right"></i>
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            </aside>
-            @endauth
-
-            <!-- Main Content -->
-            <div class="flex-1 @auth lg:pl-[264px] @endauth flex flex-col min-h-screen" style="min-width:0;">
-                <!-- Mobile Header -->
-                <header class="lg:hidden sticky top-0 z-40 mobile-header-glass">
-                    <div class="flex items-center justify-between px-4 py-3">
-                        <div class="flex items-center gap-2">
-                            <div class="w-8 h-8 flex items-center justify-center">
-                                <img src="{{ asset('logo-thw-trainer.png') . '?v=' . filemtime(public_path('logo-thw-trainer.png')) }}" alt="THW" class="w-8 h-8 logo-for-light">
-                                <img src="{{ asset('logo-thw-trainer_w.png') . '?v=' . filemtime(public_path('logo-thw-trainer_w.png')) }}" alt="THW" class="w-8 h-8 logo-for-dark">
-                            </div>
-                            <span class="font-semibold text-dark-primary">THW-Trainer</span>
-                        </div>
-
-                        <div class="flex items-center gap-2">
-                            <button type="button" onclick="toggleTheme()" class="theme-toggle-sm" title="Farbschema">
-                                <i class="bi bi-moon-fill icon-moon"></i>
-                                <i class="bi bi-sun-fill icon-sun"></i>
-                                <i class="bi bi-circle-half icon-auto"></i>
-                            </button>
-                            @auth
-                            <button @click="sidebarOpen = true" class="p-2 text-dark-muted hover:text-dark-primary" data-tour-step="mobile-menu">
-                                <i class="bi bi-list text-xl"></i>
-                            </button>
-                            @else
-                            <a href="{{ route('login') }}" class="btn-ghost btn-sm">Anmelden</a>
-                            @endauth
-                        </div>
-                    </div>
-                </header>
-
-
-                <!-- Page Content -->
-                <main class="flex-1 px-4 lg:px-8 py-6 lg:py-8 @auth pb-28 lg:pb-8 @endauth" id="main-content" style="min-width:0;overflow-x:hidden;">
-                    @yield('content')
-                </main>
-
-                <!-- Footer (Desktop only, within main content) -->
-                <footer class="footer-glass mt-auto hidden lg:block">
-                    <div class="max-w-7xl mx-auto px-4 py-6">
-                        <div class="flex items-center justify-between text-sm text-dark-muted">
-                            <div>
-                                &copy; {{ date('Y') }} THW-Trainer <x-version-badge target="_blank" rel="noopener" class="hover:text-gold transition-colors" /> &ndash;
-                                <a href="{{ route('landing.impressum') }}" class="text-gold hover:text-gold-light transition-colors">Impressum</a> &middot;
-                                <a href="{{ route('landing.datenschutz') }}" class="text-gold hover:text-gold-light transition-colors">Datenschutz</a> &middot;
-                                <a href="https://thw-trainer.de/statistik" class="text-gold hover:text-gold-light transition-colors" target="_blank">Statistik</a> &middot;
-                                <a href="{{ route('contact.index') }}" class="text-gold hover:text-gold-light transition-colors">Kontakt</a>
-                            </div>
-                            <div>
-                                <a href="https://bero-host.de/spenden/ks14llyclh8q" target="_blank" rel="noopener" class="text-gold hover:text-gold-light transition-colors">Unterstützen</a>
-                            </div>
-                        </div>
-                    </div>
-                </footer>
-
-            </div>
-        </div>
-
-        <!-- Bottom Navigation (Mobile) - Outside flex container for reliable backdrop-filter -->
         @auth
-        <nav class="lg:hidden bottom-nav-glass bottom-nav-pill z-40 bottom-nav-blue" data-tour-step="bottom-nav">
-            <div class="flex items-center justify-around py-2">
-                <a href="{{ route('dashboard') }}" class="bottom-nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
-                    <i class="bi bi-house-door{{ request()->routeIs('dashboard') ? '-fill' : '' }}"></i>
-                    <span>Home</span>
-                </a>
-
-                <a href="{{ route('practice.menu') }}" class="bottom-nav-item {{ request()->routeIs('practice.*') ? 'active' : '' }}">
-                    <i class="bi bi-book{{ request()->routeIs('practice.*') ? '-fill' : '' }}"></i>
-                    <span>Lernen</span>
-                </a>
-
-                <a href="{{ route('exam.index') }}" class="bottom-nav-item {{ request()->routeIs('exam.*') ? 'active' : '' }}">
-                    <i class="bi bi-clipboard{{ request()->routeIs('exam.*') ? '-check-fill' : '' }}"></i>
-                    <span>Prüfung</span>
-                </a>
-
-                <a href="{{ route('profile') }}" class="bottom-nav-item {{ request()->routeIs('profile') ? 'active' : '' }}">
-                    <i class="bi bi-person{{ request()->routeIs('profile') ? '-fill' : '' }}"></i>
-                    <span>Profil</span>
-                </a>
-            </div>
-        </nav>
+        @php
+            $unreadLeagueNotifs = \App\Models\Notification::where('user_id', auth()->id())
+                ->where('is_read', false)
+                ->whereIn('type', ['league_promotion', 'league_relegation'])
+                ->count();
+            $unopenedLootboxCount = \App\Models\Lootbox::where('user_id', auth()->id())->where('opened', false)->count();
+            $userOV = auth()->user()->ortsverbände->first();
+            $sidebarNotificationCount = auth()->user()->unreadNotifications()->count();
+            $sidebarLevelProgress = app(\App\Services\GamificationService::class)->getLevelProgress(auth()->user());
+        @endphp
+        {{-- Seitenleiste (Desktop) --}}
+        <aside class="l-side" aria-label="Seitenleiste">
+            <a href="{{ route('dashboard') }}" class="l-logo">
+                <img src="{{ asset('logo-thw-trainer.png') . '?v=' . filemtime(public_path('logo-thw-trainer.png')) }}" alt="" class="logo-for-light">
+                <img src="{{ asset('logo-thw-trainer_w.png') . '?v=' . filemtime(public_path('logo-thw-trainer_w.png')) }}" alt="" class="logo-for-dark">
+                THW-Trainer
+            </a>
+            <nav class="l-nav" aria-label="Hauptnavigation" data-tour-step="sidebar">
+                @include('layouts.partials.app-nav')
+            </nav>
+            @include('layouts.partials.app-user')
+        </aside>
         @endauth
 
-        <!-- Mobile Sidebar Overlay -->
-        @auth
-        <div x-show="sidebarOpen"
-             x-transition:enter="transition ease-out duration-200"
-             x-transition:enter-start="opacity-0"
-             x-transition:enter-end="opacity-100"
-             x-transition:leave="transition ease-in duration-150"
-             x-transition:leave-start="opacity-100"
-             x-transition:leave-end="opacity-0"
-             class="lg:hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
-             @click="sidebarOpen = false"
-             style="display: none;">
+        <div class="l-shell @auth l-shell--auth @endauth flex flex-col min-h-screen">
+            {{-- Kopfzeile (Handy) --}}
+            <header class="l-mtop">
+                <a href="{{ auth()->check() ? route('dashboard') : url('/') }}" class="l-logo">
+                    <img src="{{ asset('logo-thw-trainer.png') . '?v=' . filemtime(public_path('logo-thw-trainer.png')) }}" alt="" class="logo-for-light">
+                    <img src="{{ asset('logo-thw-trainer_w.png') . '?v=' . filemtime(public_path('logo-thw-trainer_w.png')) }}" alt="" class="logo-for-dark">
+                    THW-Trainer
+                </a>
+                <span class="l-mtop-r">
+                    @auth
+                        <a href="{{ route('profile') }}" aria-label="Profil öffnen"><img src="{{ auth()->user()->avatar_url }}" alt="" class="l-avatar"></a>
+                        <button type="button" class="l-round" @click="sidebarOpen = true" :aria-expanded="sidebarOpen.toString()" aria-controls="l-menu" aria-label="Menü" data-tour-step="mobile-menu">
+                            <i class="bi bi-list" aria-hidden="true"></i>
+                        </button>
+                    @else
+                        <button type="button" onclick="toggleTheme()" class="l-round l-theme" title="Farbschema" aria-label="Farbschema wechseln">
+                            <i class="bi bi-moon-fill icon-moon" aria-hidden="true"></i>
+                            <i class="bi bi-sun-fill icon-sun" aria-hidden="true"></i>
+                            <i class="bi bi-circle-half icon-auto" aria-hidden="true"></i>
+                        </button>
+                        <a href="{{ route('login') }}" class="l-mtop-login">Anmelden</a>
+                    @endauth
+                </span>
+            </header>
+
+            <!-- Page Content -->
+            <main class="flex-1 px-4 lg:px-8 py-6 lg:py-8 @auth pb-28 lg:pb-8 @endauth" id="main-content" style="min-width:0;overflow-x:hidden;">
+                @yield('content')
+            </main>
+
+            {{-- Fußzeile (Desktop) --}}
+            <footer class="l-footer hidden lg:block">
+                <div class="l-footer-in">
+                    <span>&copy; {{ date('Y') }} THW-Trainer <x-version-badge target="_blank" rel="noopener" /></span>
+                    <nav aria-label="Rechtliches">
+                        <a href="{{ route('landing.impressum') }}">Impressum</a>
+                        <a href="{{ route('landing.datenschutz') }}">Datenschutz</a>
+                        <a href="https://thw-trainer.de/statistik" target="_blank">Statistik</a>
+                        <a href="{{ route('contact.index') }}">Kontakt</a>
+                        <a href="https://bero-host.de/spenden/ks14llyclh8q" target="_blank" rel="noopener">Unterstützen</a>
+                    </nav>
+                </div>
+            </footer>
         </div>
 
-        <!-- Mobile Sidebar -->
-        <aside x-show="sidebarOpen"
-               x-transition:enter="transition ease-out duration-200"
-               x-transition:enter-start="translate-x-full"
-               x-transition:enter-end="translate-x-0"
-               x-transition:leave="transition ease-in duration-150"
-               x-transition:leave-start="translate-x-0"
-               x-transition:leave-end="translate-x-full"
-               class="lg:hidden fixed inset-y-0 right-0 z-50 sidebar-glass mobile-sidebar-panel flex flex-col"
-               style="display: none;">
-            <div class="sidebar-border sidebar-border-left"></div>
+        @auth
+        {{-- Tab-Leiste (Handy) --}}
+        <nav class="l-tabs" aria-label="Navigation" data-tour-step="bottom-nav">
+            <a href="{{ route('dashboard') }}" @if(request()->routeIs('dashboard')) aria-current="page" @endif>
+                <i class="bi bi-house-door{{ request()->routeIs('dashboard') ? '-fill' : '' }}" aria-hidden="true"></i>
+                <span>Home</span>
+            </a>
+            <a href="{{ route('practice.menu') }}" @if(request()->routeIs('practice.*')) aria-current="page" @endif>
+                <i class="bi bi-book{{ request()->routeIs('practice.*') ? '-fill' : '' }}" aria-hidden="true"></i>
+                <span>Lernen</span>
+            </a>
+            <a href="{{ route('exam.index') }}" @if(request()->routeIs('exam.*')) aria-current="page" @endif>
+                <i class="bi bi-clipboard{{ request()->routeIs('exam.*') ? '-check-fill' : '' }}" aria-hidden="true"></i>
+                <span>Prüfung</span>
+            </a>
+            <a href="{{ route('profile') }}" @if(request()->routeIs('profile')) aria-current="page" @endif>
+                <i class="bi bi-person{{ request()->routeIs('profile') ? '-fill' : '' }}" aria-hidden="true"></i>
+                <span>Profil</span>
+            </a>
+        </nav>
 
-            <!-- Header -->
-            <div class="mobile-sidebar-head">
-                <span class="font-bold text-dark-primary">Menü</span>
-                <button @click="sidebarOpen = false" class="mobile-sidebar-close">
-                    <i class="bi bi-x-lg"></i>
-                </button>
-            </div>
-
-            <!-- Scrollable Navigation -->
-            <nav class="sidebar-nav">
-                <a href="{{ route('statistics') }}" class="sidebar-link {{ request()->routeIs('statistics') ? 'active' : '' }}">
-                    <i class="bi bi-bar-chart"></i> Statistiken
-                </a>
-                <a href="{{ route('bookmarks.index') }}" class="sidebar-link {{ request()->routeIs('bookmarks.*') ? 'active' : '' }}">
-                    <i class="bi bi-bookmark"></i> Gespeicherte Fragen
-                </a>
-                <a href="{{ route('exam.history') }}" class="sidebar-link {{ request()->routeIs('exam.history*') ? 'active' : '' }}">
-                    <i class="bi bi-bar-chart-line"></i> Prüfungshistorie
-                </a>
-                <a href="{{ route('lehrgaenge.index') }}" class="sidebar-link {{ request()->routeIs('lehrgaenge.*') ? 'active' : '' }}">
-                    <i class="bi bi-mortarboard"></i> Lehrgänge
-                </a>
-                <a href="{{ route('training-progress.index') }}" class="sidebar-link {{ request()->routeIs('training-progress.*') ? 'active' : '' }}">
-                    <i class="bi bi-journal-check"></i> Ausbildungsfortschritt
-                </a>
-                <a href="{{ route('contact.index') }}" class="sidebar-link {{ request()->routeIs('contact.*') ? 'active' : '' }}">
-                    <i class="bi bi-envelope"></i> Kontakt
-                </a>
-                <a href="{{ route('gamification.leaderboard') }}" class="sidebar-link {{ request()->routeIs('gamification.leaderboard') ? 'active' : '' }}">
-                    <i class="bi bi-trophy"></i> Liga
-                    @if($unreadLeagueNotifs > 0)
-                        <span class="badge-error text-xs ml-auto">{{ $unreadLeagueNotifs }}</span>
-                    @endif
-                </a>
-                <a href="{{ route('gamification.achievements') }}" class="sidebar-link {{ request()->routeIs('gamification.achievements') ? 'active' : '' }}">
-                    <i class="bi bi-award"></i> Achievements
-                </a>
-                <a href="{{ route('lernsession.index') }}" class="sidebar-link {{ request()->routeIs('lernsession.*') ? 'active' : '' }}">
-                    <i class="bi bi-people"></i> Lernsessions
-                </a>
-                <a href="{{ route('shop.index') }}" class="sidebar-link {{ request()->routeIs('shop.*') ? 'active' : '' }}">
-                    <i class="bi bi-shop"></i> Shop
-                    @if($unopenedLootboxCount > 0)
-                        <span class="badge-error text-xs ml-auto">{{ $unopenedLootboxCount }}</span>
-                    @endif
-                </a>
-                <a href="{{ route('zusatzfragen-vorschlagen.index') }}" class="sidebar-link {{ request()->routeIs('zusatzfragen-vorschlagen.*') ? 'active' : '' }}">
-                    <i class="bi bi-lightbulb"></i> Zusatz-Frage vorschlagen
-                </a>
-                @if($userOV && $userOV->isAusbildungsbeauftragter(auth()->user()))
-                    <a href="{{ route('ortsverband.dashboard', $userOV) }}" class="sidebar-link {{ request()->routeIs('ortsverband.dashboard') || request()->routeIs('ortsverband.show') ? 'active' : '' }}">
-                        <i class="bi bi-building"></i> {{ $userOV->name }}
-                    </a>
-                    <a href="{{ route('ortsverband.members', $userOV) }}" class="sidebar-link {{ request()->routeIs('ortsverband.members') || request()->routeIs('ortsverband.members.*') ? 'active' : '' }}">
-                        <i class="bi bi-people"></i> Mitglieder
-                    </a>
-                @else
-                    <a href="{{ $userOV ? route('ortsverband.show', $userOV) : route('ortsverband.index') }}" class="sidebar-link {{ request()->routeIs('ortsverband.show') ? 'active' : '' }}">
-                        <i class="bi bi-building"></i> {{ $userOV ? $userOV->name : 'Ortsverband' }}
-                    </a>
-                @endif
-
-                @if(auth()->user()->isAdmin())
-                <div class="nav-section nav-section-admin">Admin</div>
-
-                <a href="{{ route('admin.dashboard') }}" class="sidebar-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
-                    <i class="bi bi-speedometer2"></i> Dashboard
-                </a>
-                <a href="{{ route('admin.statistics') }}" class="sidebar-link {{ request()->routeIs('admin.statistics') ? 'active' : '' }}">
-                    <i class="bi bi-graph-up"></i> Statistiken
-                </a>
-                <a href="{{ route('admin.users.index') }}" class="sidebar-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
-                    <i class="bi bi-people"></i> Nutzer
-                </a>
-                <a href="{{ route('admin.questions.index') }}" class="sidebar-link {{ request()->routeIs('admin.questions.*') ? 'active' : '' }}">
-                    <i class="bi bi-question-circle"></i> Fragen
-                </a>
-                <a href="{{ route('admin.lehrgaenge.index') }}" class="sidebar-link {{ request()->routeIs('admin.lehrgaenge.*') ? 'active' : '' }}">
-                    <i class="bi bi-mortarboard"></i> Lehrgänge
-                </a>
-                <a href="{{ route('admin.ortsverband.index') }}" class="sidebar-link {{ request()->routeIs('admin.ortsverband.*') ? 'active' : '' }}">
-                    <i class="bi bi-building"></i> Ortsverbände
-                </a>
-                <a href="{{ route('admin.leagues.index') }}" class="sidebar-link {{ request()->routeIs('admin.leagues.*') ? 'active' : '' }}">
-                    <i class="bi bi-trophy"></i> Ligen
-                </a>
-                <a href="{{ route('admin.shop-analytics') }}" class="sidebar-link {{ request()->routeIs('admin.shop-analytics') ? 'active' : '' }}">
-                    <i class="bi bi-cart3"></i> Shop Analytics
-                </a>
-                <a href="{{ route('admin.newsletter.index') }}" class="sidebar-link {{ request()->routeIs('admin.newsletter.*') ? 'active' : '' }}">
-                    <i class="bi bi-megaphone"></i> Newsletter
-                </a>
-                <a href="{{ route('admin.issues.index') }}" class="sidebar-link {{ request()->routeIs('admin.issues.*') ? 'active' : '' }}">
-                    <i class="bi bi-exclamation-triangle"></i> Fehlermeldungen
-                    @if($openIssuesCount > 0)
-                        <span class="badge-error text-xs ml-auto">{{ $openIssuesCount }}</span>
-                    @endif
-                </a>
-                <a href="{{ route('admin.contact-messages.index') }}" class="sidebar-link {{ request()->routeIs('admin.contact-messages.*') ? 'active' : '' }}">
-                    <i class="bi bi-envelope"></i> Kontaktanfragen
-                    @if($unreadContactCount > 0)
-                        <span class="badge-error text-xs ml-auto">{{ $unreadContactCount }}</span>
-                    @endif
-                </a>
-                <a href="{{ route('admin.exam-feedback.index') }}" class="sidebar-link {{ request()->routeIs('admin.exam-feedback.*') ? 'active' : '' }}">
-                    <i class="bi bi-mortarboard"></i> Prüfungs-Feedback
-                </a>
-                <a href="{{ route('admin.umfragen.index') }}" class="sidebar-link {{ request()->routeIs('admin.umfragen.*') ? 'active' : '' }}">
-                    <i class="bi bi-clipboard-data"></i> Umfragen
-                </a>
-                <a href="{{ route('admin.logs.index', 'scheduler') }}" class="sidebar-link {{ request()->routeIs('admin.logs.*') && request()->route('type') === 'scheduler' ? 'active' : '' }}">
-                    <i class="bi bi-terminal"></i> Scheduler-Logs
-                </a>
-                <a href="{{ route('admin.logs.index', 'worker') }}" class="sidebar-link {{ request()->routeIs('admin.logs.*') && request()->route('type') === 'worker' ? 'active' : '' }}">
-                    <i class="bi bi-gear"></i> Worker-Logs
-                </a>
-                @if(!app()->environment('production'))
-                <a href="{{ route('admin.time-simulator') }}" class="sidebar-link {{ request()->routeIs('admin.time-simulator*') ? 'active' : '' }}">
-                    <i class="bi bi-clock-history"></i> Zeitsimulator
-                </a>
-                @endif
-                @elseif(auth()->user()->canEditQuestions())
-                <div class="nav-section nav-section-admin">Fragen pflegen</div>
-                <a href="{{ route('contributor.dashboard') }}" class="sidebar-link {{ request()->routeIs('contributor.dashboard') ? 'active' : '' }}">
-                    <i class="bi bi-speedometer2"></i> Dashboard
-                </a>
-                <a href="{{ route('admin.questions.index') }}" class="sidebar-link {{ request()->routeIs('admin.questions.*') ? 'active' : '' }}">
-                    <i class="bi bi-question-circle"></i> Fragen
-                </a>
-                <a href="{{ route('admin.extra-questions.index') }}" class="sidebar-link {{ request()->routeIs('admin.extra-questions.*') ? 'active' : '' }}">
-                    <i class="bi bi-collection"></i> Zusatz-Fragen
-                </a>
-                <a href="{{ route('admin.extra-question-submissions.index') }}" class="sidebar-link {{ request()->routeIs('admin.extra-question-submissions.*') ? 'active' : '' }}">
-                    <i class="bi bi-inbox"></i> Zusatz-Frage-Vorschläge
-                    @php
-                        $pendingSubmissionsCount = cache()->remember('admin_pending_extra_q_submissions_count', 300, fn() => \App\Models\UserExtraQuestionSubmission::where('status', 'pending')->count());
-                    @endphp
-                    @if($pendingSubmissionsCount > 0)
-                        <span class="badge-error text-xs ml-auto">{{ $pendingSubmissionsCount }}</span>
-                    @endif
-                </a>
-                <a href="{{ route('admin.lehrgaenge.index') }}" class="sidebar-link {{ request()->routeIs('admin.lehrgaenge.*') ? 'active' : '' }}">
-                    <i class="bi bi-mortarboard"></i> Lehrgänge
-                </a>
-                <a href="{{ route('admin.issues.index') }}" class="sidebar-link {{ request()->routeIs('admin.issues.*') ? 'active' : '' }}">
-                    <i class="bi bi-exclamation-triangle"></i> Fehlermeldungen
-                    @if($openIssuesCount > 0)
-                        <span class="badge-error text-xs ml-auto">{{ $openIssuesCount }}</span>
-                    @endif
-                </a>
-                @endif
-            </nav>
-
-            <!-- Footer -->
-            <div class="mobile-sidebar-footer">
-                <div class="mobile-footer-links">
+        {{-- Menü (Handy): Panel von rechts, schließt per Tippen daneben oder Escape --}}
+        <div x-show="sidebarOpen" class="l-menu-wrap lg:hidden" @click.self="sidebarOpen = false" style="display: none;">
+            <nav class="l-menu" id="l-menu" aria-label="Menü">
+                <div class="l-menu-head">
+                    <b>Menü</b>
+                    <button type="button" class="l-round" @click="sidebarOpen = false" aria-label="Menü schließen">
+                        <i class="bi bi-x-lg" aria-hidden="true"></i>
+                    </button>
+                </div>
+                <div class="l-nav">
+                    @include('layouts.partials.app-nav')
+                </div>
+                @include('layouts.partials.app-user')
+                <div class="l-menu-legal">
                     <a href="{{ route('landing.impressum') }}">Impressum</a>
                     <a href="{{ route('landing.datenschutz') }}">Datenschutz</a>
                     <a href="https://thw-trainer.de/statistik" target="_blank">Statistik</a>
                     <x-version-badge target="_blank" rel="noopener" />
                 </div>
-
-                <a href="{{ route('profile') }}" class="sidebar-user-card">
-                    <img src="{{ auth()->user()->avatar_url }}" alt="Avatar" class="sidebar-user-avatar">
-                    <div class="sidebar-user-meta">
-                        <p class="sidebar-user-name">{{ auth()->user()->name }}</p>
-                        <div class="sidebar-level-row">
-                            <span class="sidebar-level-text">Lvl {{ auth()->user()->level ?? 1 }}</span>
-                            <div class="sidebar-level-track"><div class="sidebar-level-fill" style="width: {{ $sidebarLevelProgress }}%;"></div></div>
-                        </div>
-                    </div>
-                    <i class="bi bi-chevron-right text-dark-muted" style="font-size: 0.85rem;"></i>
-                </a>
-
-                <div class="mobile-action-row">
-                    <a href="{{ route('notifications.index') }}" class="mobile-action-btn">
-                        <i class="bi bi-bell"></i> Mitteilungen
-                        @if($sidebarNotificationCount > 0)
-                            <span class="badge-error text-xs ml-auto">{{ $sidebarNotificationCount }}</span>
-                        @endif
-                    </a>
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button type="submit" class="mobile-action-btn w-full">
-                            <i class="bi bi-box-arrow-right"></i> Abmelden
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </aside>
+            </nav>
+        </div>
         @endauth
 
         <!-- Gamification Notifications -->
