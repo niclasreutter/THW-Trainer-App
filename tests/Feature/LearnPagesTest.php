@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Question;
+use App\Models\QuestionStatistic;
 use App\Models\User;
 use App\Models\UserQuestionProgress;
 
@@ -36,6 +37,29 @@ test('Dashboard zeigt Navigation, Bühne und den Wiederholungsplan', function ()
         ->assertSee('Nach dreimal richtig in Folge ist eine Frage gemeistert')
         ->assertDontSee('Spaced Repetition')
         ->assertDontSee('Reviews');
+});
+
+test('Dashboard: „Diese Woche“ zählt nur Montag bis Sonntag der laufenden Woche', function () {
+    $this->travelTo(\Carbon\Carbon::parse('2026-10-28 12:00')); // Mittwoch
+    $user = User::factory()->create();
+    $ids = learnQuestions(1);
+    $answer = function (string $at, bool $correct) use ($user, $ids) {
+        $stat = QuestionStatistic::create(['user_id' => $user->id, 'question_id' => $ids[0], 'is_correct' => $correct]);
+        $stat->created_at = \Carbon\Carbon::parse($at);
+        $stat->save();
+    };
+    $answer('2026-10-23 10:00', false); // Freitag der Vorwoche: nicht mitzählen
+    $answer('2026-10-23 10:05', false);
+    $answer('2026-10-27 10:00', true);
+    $answer('2026-10-27 10:05', true);
+    $answer('2026-10-28 09:00', false);
+
+    $this->actingAs($user)->get(route('dashboard'))
+        ->assertOk()
+        ->assertSee('<p class="l-big">3</p>', false)
+        ->assertSee('Fragen pro Tag: Mo 0, Di 2, Mi 1, Do 0, Fr 0, Sa 0, So 0')
+        ->assertSee('Heute 1')
+        ->assertSee('Richtig 67 %');
 });
 
 test('Übungsmenü rendert Lernmodus und Lernabschnitte', function () {

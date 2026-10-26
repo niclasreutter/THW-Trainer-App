@@ -5,7 +5,13 @@ Alle nennenswerten Änderungen an diesem Projekt werden hier dokumentiert.
 
 ## [Unreleased]
 
+### Bugfixes
+
+- **Wochenzahl passt zum Diagramm**: „Diese Woche“ im Dashboard zählt nur noch die Fragen von Montag bis Sonntag der laufenden Woche, genau wie die Säulen darunter. Bisher flossen auch Tage der Vorwoche in die Summe und die Trefferquote ein
+
 ### UI & Design
+
+- **Ruhigeres Dashboard**: „Dein Fortschritt“ zeigt unter jeder Zahl nur noch ein Wort, die Erklärung steht einmal darunter. „Diese Woche“ und „Ausbildung“ sind gleich aufgebaut, Zahlen, Texte und Diagramme stehen auf einer Höhe, und beide Diagramme teilen sich Höhe, Säulenbreite und Grundlinie. Der weiße Button in der blauen Empfehlung bleibt beim Überfahren mit der Maus lesbar
 
 - **Neues Design für Dashboard, Übungsmenü, Üben und Prüfung**: Die Lernseiten erscheinen im Stil der Startseite, hell oder dunkel je nach Farbschema. Oben steht immer genau eine Empfehlung, was als Nächstes dran ist
 - **Neue Seitenleiste und mobiles Menü**: Profilbild, Mitteilungen, Farbschema und Abmelden sitzen gesammelt unten in der Seitenleiste; auf dem Handy öffnet sich das Menü von rechts

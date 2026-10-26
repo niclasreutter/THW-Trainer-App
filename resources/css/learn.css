@@ -182,6 +182,12 @@ body:has(> header.d-nav) .l-band { padding-top: 12px; }
 .l-btn--soft { background: var(--bg-2); color: var(--text); }
 @media (hover: hover) and (pointer: fine) { .l-btn--soft:hover:not([disabled]) { background: var(--bg-3); color: var(--text); } }
 .l-btn.is-done { background: transparent; color: var(--ok); cursor: default; }
+.l-btn.is-done:active { transform: none; }
+/* Hover hellt nur die Fläche auf; die Schrift der Variante bleibt (sonst Weiß auf Hellblau) */
+@media (hover: hover) and (pointer: fine) {
+    .l-btn--white:hover:not([disabled]), a.l-stage:hover .l-btn--white { background: #E7EEF9; color: #00337F; }
+    .l-btn.is-done:hover { background: transparent; color: var(--ok); }
+}
 
 /* ==========================================================
    Dashboard: zwei Spalten, mobil eine Spalte nach Dringlichkeit
@@ -210,7 +216,6 @@ a.l-stage:active { transform: scale(0.99); }
 .l-stage-sub { font-size: 14px; color: var(--text-2); margin-top: 14px; }
 .l-stage .l-btn { margin-top: 24px; }
 .l-stage--sm .l-stage-title { font-size: clamp(1.5rem, 3vw, 2rem); }
-@media (hover: hover) and (pointer: fine) { a.l-stage:hover .l-btn--white { background: #E7EEF9; } }
 .l-stage.is-urgent .l-stage-label { color: #FFD27A; }
 .l-stage.is-error .l-stage-label { color: #FFB4A8; }
 .l-live { display: inline-block; width: 8px; height: 8px; margin-right: 8px; border-radius: 50%; background: #8FE3AE; vertical-align: 1px; }
@@ -223,35 +228,44 @@ a.l-stage:active { transform: scale(0.99); }
 .l-note b { color: var(--warn); font-weight: 600; }
 @media (max-width: 1023px) { .l-note { margin-top: -14px; } }
 
-/* Fortschritt: Linie über der Zahl */
-.l-steps { list-style: none; margin: 16px 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
-.l-steps li { position: relative; padding-top: 16px; }
+/* Fortschritt: Linie über der Zahl. Bezeichnung, Zahl und Text teilen sich Zeilen (Subgrid),
+   damit alle drei auf einer Höhe stehen, auch wenn eine Bezeichnung umbricht */
+.l-steps { list-style: none; margin: 16px 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: repeat(3, auto); column-gap: 24px; }
+.l-steps li { position: relative; padding-top: 16px; display: grid; grid-row: span 3; grid-template-rows: subgrid; align-content: start; }
+.l-steps + .l-small { margin-top: 14px; }
 .l-steps li::before, .l-steps li::after { content: ""; position: absolute; left: 0; top: 0; height: 3px; border-radius: 2px; }
 .l-steps li::before { right: 0; background: var(--bg-3); }
 .l-steps li::after { width: var(--p); background: var(--pill); }
 .l-steps li.is-done::after { background: var(--ok); }
 .l-step-l { font-size: 14px; color: var(--text-2); }
 .l-step-v { font: 600 clamp(1.75rem, 3vw, 2.25rem)/1.05 var(--font); letter-spacing: -0.035em; margin: 4px 0 2px !important; }
-@media (max-width: 560px) { .l-steps { gap: 14px; } .l-step-v { font-size: 26px; } }
+@media (max-width: 560px) { .l-steps { column-gap: 14px; } .l-step-v { font-size: 26px; } }
 
 .l-sec-h { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 12px; margin-bottom: 12px; }
-.l-duo { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 40px; padding-top: 28px; border-top: 1px solid var(--line-2); }
-@media (max-width: 640px) { .l-duo { grid-template-columns: 1fr; gap: 32px; } }
-.l-bars { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; height: 128px; margin-top: 16px; }
-.l-bars span { position: relative; height: 100%; }
-.l-bars i { position: absolute; left: 16%; right: 16%; bottom: 22px; height: calc((100% - 44px) * var(--f)); min-height: 4px; border-radius: 6px; background: var(--bar); }
-.l-bars b { font-style: normal; position: absolute; left: 50%; bottom: calc(100% + 4px); translate: -50% 0; font-size: 11px; font-weight: 600; color: var(--text-2); }
-.l-bars em { position: absolute; left: 0; right: 0; bottom: 0; text-align: center; font-style: normal; font-size: 12px; color: var(--text-3); }
+/* Zwei Kennzahlen nebeneinander (Diese Woche, Ausbildung): gleiches Zeilenraster aus Kopf, Zahl, Text,
+   Diagramm und Fuß (Subgrid), damit Zahlen und Achsen auf einer Höhe liegen, auch wenn ein Text umbricht.
+   Ist die Hauptspalte zu schmal (Handy, 1024–1199 px neben der Seitenleiste), stehen sie untereinander. */
+.l-duo { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(5, auto); column-gap: 40px; padding-top: 28px; border-top: 1px solid var(--line-2); }
+.l-duo > section { display: grid; grid-row: span 5; grid-template-rows: subgrid; align-content: start; min-width: 0; }
+@media (max-width: 640px), (min-width: 1024px) and (max-width: 1199px) {
+    .l-duo { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; row-gap: 32px; }
+    .l-duo > section { grid-row: auto; grid-template-rows: none; }
+}
+.l-duo .l-split { margin-top: 10px; }
+/* Säulen: beide Diagramme gleich hoch, gleich breite Spuren auf einer gemeinsamen Unterkante, Beschriftung darunter */
+.l-bars, .l-mini { --axis: 22px; display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: 4px; height: 100px; margin-top: 18px; }
+.l-bars { --n: 7; }
+.l-mini { --n: 10; }
+.l-bars > span, .l-mini > a { position: relative; min-width: 0; text-decoration: none; }
+.l-bars i, .l-mini i, .l-bars > span::before, .l-mini > a::before { position: absolute; left: 0; right: 0; bottom: var(--axis); width: min(100%, 20px); margin-inline: auto; border-radius: 4px 4px 0 0; }
+.l-bars > span::before, .l-mini > a::before { content: ""; top: 0; background: var(--bg-3); }
+.l-bars i, .l-mini i { height: calc((100% - var(--axis)) * var(--f)); background: var(--bar); }
+.l-bars i { min-height: 4px; }
+.l-bars em, .l-mini em { position: absolute; left: 0; right: 0; bottom: 0; text-align: center; font-style: normal; font-size: 12px; line-height: 16px; color: var(--text-3); }
 .l-bars .is-today i { background: var(--pill); }
 .l-bars .is-today em { color: var(--text); font-weight: 600; }
-.l-mini { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 4px; height: 56px; margin-top: 14px; }
-.l-mini a { position: relative; text-decoration: none; }
-.l-mini a::before { content: ""; position: absolute; left: 0; right: 0; top: 0; bottom: 18px; border-radius: 3px; background: var(--bg-3); }
-.l-mini i { position: absolute; left: 0; right: 0; bottom: 18px; height: calc((100% - 18px) * var(--f)); border-radius: 3px; background: var(--bar); }
 .l-mini .is-done i { background: var(--ok); }
-.l-mini em { position: absolute; left: 0; right: 0; bottom: 0; text-align: center; font-style: normal; font-size: 11px; color: var(--text-3); }
 @media (hover: hover) and (pointer: fine) { .l-mini a:hover em { color: var(--text); } }
-.l-empty { display: grid; gap: 6px; justify-items: start; padding: 24px 0 8px; font-size: 15px; color: var(--text-2); }
 
 /* Gruppierte Liste: das eine Behälter-Muster */
 .l-group-h { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font: 600 13px var(--font) !important; color: var(--text-2); padding: 0 4px 8px; }

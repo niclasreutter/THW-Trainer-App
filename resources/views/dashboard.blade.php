@@ -68,12 +68,23 @@
         }
     }
 
-    /* ── Weekly activity data ────────────────────── */
+    /* ── Weekly activity data (Mo–So dieser Woche; Summe passt zu den Säulen) ── */
     $weekStart = \Carbon\Carbon::now()->startOfWeek();
     $days = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
-    $maxCount = max((int) ($weeklyActivity->max('count') ?? 0), 1);
-    $weekTotal = $weeklyActivity->sum('count');
-    $weekCorrect = $weeklyActivity->sum('correct');
+    $weekDays = collect(range(0, 6))->map(function ($d) use ($weekStart, $days, $weeklyActivity) {
+        $dayDate = $weekStart->copy()->addDays($d);
+        $dayData = $weeklyActivity->firstWhere('date', $dayDate->format('Y-m-d'));
+        return [
+            'name' => $days[$d],
+            'date' => $dayDate->format('d.m.'),
+            'today' => $dayDate->isToday(),
+            'count' => (int) ($dayData->count ?? 0),
+            'correct' => (int) ($dayData->correct ?? 0),
+        ];
+    });
+    $maxCount = max($weekDays->max('count'), 1);
+    $weekTotal = $weekDays->sum('count');
+    $weekCorrect = $weekDays->sum('correct');
     $weekHitRate = $weekTotal > 0 ? round(($weekCorrect / $weekTotal) * 100) : 0;
 
     /* ── Gemeistert (3× in Folge richtig) für „Alle meistern“ ── */
@@ -145,7 +156,7 @@
                 </p>
             @endif
 
-            {{-- Dein Fortschritt: Linie über der Zahl --}}
+            {{-- Dein Fortschritt: Linie über der Zahl, je Schritt ein Wort; Erklärung einmal darunter --}}
             <section class="l-o5" aria-labelledby="l-fort">
                 <h2 id="l-fort" class="l-h2">Dein Fortschritt</h2>
                 <ol class="l-steps">
@@ -157,16 +168,18 @@
                     <li class="{{ $masteryPercent >= 100 ? 'is-done' : '' }}" style="--p: {{ min(100, $masteryPercent) }}%;">
                         <p class="l-step-l">Alle meistern</p>
                         <p class="l-step-v">{{ $masteryPercent }} %</p>
-                        <p class="l-small">3× in Folge richtig, {{ $masteredCount }} von {{ $totalQuestions }}</p>
+                        <p class="l-small">gemeistert</p>
                     </li>
                     <li class="{{ $exams >= 5 ? 'is-done' : '' }}" style="--p: {{ min(100, $exams * 20) }}%;" data-tour-step="exam">
                         <p class="l-step-l">Prüfung</p>
                         <p class="l-step-v">{{ $exams }}/5</p>
-                        <p class="l-small">{{ $canStartExam || $exams > 0 ? 'bestanden' : 'öffnet, wenn alle Fragen gemeistert sind' }}</p>
+                        <p class="l-small">bestanden</p>
                     </li>
                 </ol>
+                <p class="l-small">Gemeistert heißt 3× in Folge richtig, bisher {{ $masteredCount }} von {{ $totalQuestions }} Fragen.@unless($canStartExam || $exams > 0) Die Prüfung öffnet, wenn alle Fragen gemeistert sind.@endunless</p>
             </section>
 
+            {{-- Zwei Kennzahlen mit gleichem Aufbau: Kopf, Zahl, Text, Diagramm, Fuß --}}
             <div class="l-duo l-o8">
                 {{-- Diese Woche --}}
                 <section aria-labelledby="l-wo" data-tour-step="stats">
@@ -174,37 +187,30 @@
                         <h2 id="l-wo" class="l-h2">Diese Woche</h2>
                         <a href="{{ route('statistics') }}" class="l-link">Statistiken</a>
                     </div>
-                    @if($weekTotal > 0)
-                        <p class="l-small">{{ $weekTotal }} Fragen, davon {{ $weekHitRate }} % richtig.@if($todayAnswered > 0) Heute {{ $todayAnswered }}.@endif</p>
-                        <div class="l-bars" role="img" aria-label="Fragen pro Tag in dieser Woche">
-                            @for($d = 0; $d < 7; $d++)
-                                @php
-                                    $dayDate = $weekStart->copy()->addDays($d);
-                                    $dayData = $weeklyActivity->firstWhere('date', $dayDate->format('Y-m-d'));
-                                    $count = $dayData->count ?? 0;
-                                @endphp
-                                <span class="{{ $dayDate->isToday() ? 'is-today' : '' }}" title="{{ $count }} Fragen am {{ $dayDate->format('d.m.') }}">
-                                    <i style="--f: {{ round($count / $maxCount, 3) }};">@if($count > 0)<b>{{ $count }}</b>@endif</i>
-                                    <em>{{ $days[$d] }}</em>
-                                </span>
-                            @endfor
-                        </div>
-                    @else
-                        <div class="l-empty">
-                            <p>Noch keine Aktivität diese Woche</p>
-                            <a href="{{ route('practice.all') }}" class="l-link">Erste Frage beantworten</a>
-                        </div>
-                    @endif
+                    <p class="l-big">{{ $weekTotal }}</p>
+                    <p class="l-small">{{ $weekTotal == 1 ? 'Frage' : 'Fragen' }} beantwortet</p>
+                    <div class="l-bars" role="img" aria-label="Fragen pro Tag: {{ $weekDays->map(fn ($day) => $day['name'].' '.$day['count'])->implode(', ') }}">
+                        @foreach($weekDays as $day)
+                            <span class="{{ $day['today'] ? 'is-today' : '' }}" title="{{ $day['count'] }} {{ $day['count'] == 1 ? 'Frage' : 'Fragen' }} am {{ $day['date'] }}">
+                                @if($day['count'] > 0)<i style="--f: {{ round($day['count'] / $maxCount, 3) }};"></i>@endif
+                                <em>{{ $day['name'] }}</em>
+                            </span>
+                        @endforeach
+                    </div>
+                    <p class="l-small l-split">
+                        <span>Heute {{ $todayAnswered }}</span>
+                        <span>Richtig {{ $weekTotal > 0 ? $weekHitRate.' %' : '–' }}</span>
+                    </p>
                 </section>
 
                 {{-- Ausbildungsfortschritt --}}
                 <section aria-labelledby="l-au">
                     <div class="l-sec-h">
-                        <h2 id="l-au" class="l-h2">Ausbildungsfortschritt</h2>
+                        <h2 id="l-au" class="l-h2">Ausbildung</h2>
                         <a href="{{ route('training-progress.index') }}" class="l-link">Module ansehen</a>
                     </div>
                     <p class="l-big">{{ $trainingOverview['percent'] }} %</p>
-                    <p class="l-small">{{ $trainingOverview['done'] }} / {{ $trainingOverview['total'] }} Module erledigt</p>
+                    <p class="l-small">{{ $trainingOverview['done'] }} von {{ $trainingOverview['total'] }} Modulen erledigt</p>
                     <div class="l-mini" aria-label="Module je Lernabschnitt">
                         @foreach($trainingLaSummary as $la)
                             <a href="{{ route('training-progress.index', ['open' => $la['key']]) }}"
