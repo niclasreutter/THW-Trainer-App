@@ -1,10 +1,11 @@
-@extends(isset($isLanding) && $isLanding ? 'layouts.landing' : 'layouts.app')
+@extends(isset($isLanding) && $isLanding ? 'layouts.public' : 'layouts.app')
 @section('title', isset($isLanding) && $isLanding ? 'Anonym üben | THW-Trainer.de' : 'THW Theorie üben - Interaktive Fragen mit Lernfortschritt')
 @section('description', isset($isLanding) && $isLanding ? 'Übe THW Theoriefragen sofort und anonym ohne Anmeldung. Kostenlos verfügbar!' : 'Übe THW Theoriefragen mit deinem persönlichen Lernfortschritt. Markiere schwierige Fragen, filtere nach Lernabschnitten und verfolge deinen Erfolg. Kostenlos und effektiv!')
 
 @section('content')
 @php
     $isGuest = ($context ?? 'global') === 'guest';
+    $ctx = $context ?? 'global';
 
     // Hole Antwort-Details aus View-Variable oder Session (Backward-Compat)
     $answerResultFromView = isset($answerResult);
@@ -33,1415 +34,33 @@
     }
 @endphp
 
-@push('styles')
-<link rel="preconnect" href="https://fonts.bunny.net">
-<link href="https://fonts.bunny.net/css2?family=Barlow+Condensed:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style>
-    /* ============================================
-       PRACTICE PAGE - Dashboard-Matched Design
-       Mobile-First, Fullscreen, No Scroll
-       ============================================ */
-
-    /* ── Footer während Übungs-Session ausblenden (alle Breakpoints) ─── */
-    footer {
-        display: none !important;
-    }
-
-    /* ── Mobile: Fullscreen Takeover ─────────────── */
-    @media (max-width: 640px) {
-        html, body {
-            height: 100dvh !important;
-            overflow: hidden !important;
-        }
-        footer, nav, header {
-            display: none !important;
-        }
-        main {
-            padding: 0 !important;
-            margin: 0 !important;
-            height: 100dvh !important;
-            overflow: hidden !important;
-        }
-    }
-
-    /* ── Practice Shell ──────────────────────────── */
-    .practice-shell {
-        max-width: 1100px;
-        margin: 0 auto;
-        padding: 1.5rem;
-    }
-
-    @media (max-width: 640px) {
-        .practice-shell {
-            padding: 0;
-            max-width: 100%;
-            height: 100dvh;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-    }
-
-    /* ── Top Bar (Mobile) ────────────────────────── */
-    .practice-topbar {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0.625rem 1rem;
-        padding-top: calc(0.625rem + env(safe-area-inset-top, 0px));
-        background: rgba(255, 255, 255, 0.03);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-        flex-shrink: 0;
-    }
-
-    html.light-mode .practice-topbar {
-        background: rgba(0, 51, 127, 0.03);
-        border-bottom-color: rgba(0, 51, 127, 0.08);
-    }
-
-    @media (min-width: 641px) {
-        .practice-topbar { display: none; }
-    }
-
-    .topbar-back {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 2rem;
-        height: 2rem;
-        border-radius: 0.5rem;
-        color: var(--text-secondary);
-        transition: all 0.2s;
-    }
-
-    .topbar-back:hover {
-        color: var(--text-primary);
-        background: rgba(255, 255, 255, 0.05);
-    }
-
-    .topbar-center {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .topbar-progress-text {
-        font-size: 0.6875rem;
-        font-weight: 700;
-        color: var(--text-muted);
-        font-family: 'IBM Plex Mono', monospace;
-        letter-spacing: 0.02em;
-    }
-
-    .topbar-progress-ring {
-        width: 32px;
-        height: 32px;
-    }
-
-    .topbar-progress-ring .ring-track { stroke: rgba(255, 255, 255, 0.08); }
-    .topbar-progress-ring .ring-fill {
-        transition: stroke-dashoffset 0.5s ease;
-        transform: rotate(-90deg);
-        transform-origin: 50% 50%;
-    }
-
-    html.light-mode .topbar-progress-ring .ring-track { stroke: rgba(0, 51, 127, 0.1); }
-
-    .topbar-actions {
-        display: flex;
-        align-items: center;
-        gap: 0.375rem;
-    }
-
-    /* ── Mobile Fortschritts-Stufen ──────────────── */
-    .practice-mobile-progress {
-        display: none;
-    }
-
-    @media (max-width: 640px) {
-        .practice-mobile-progress {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.375rem 0.5rem;
-            align-items: center;
-            padding: 0.5rem 1rem 0.25rem;
-            font-size: 0.6875rem;
-            font-weight: 600;
-            color: #5b9aff;
-        }
-        html.light-mode .practice-mobile-progress { color: #00337F; }
-        .practice-mobile-progress .pmp-item { opacity: 0.75; }
-        .practice-mobile-progress .pmp-mastered { opacity: 1; }
-        .practice-mobile-progress .pmp-sep { opacity: 0.35; }
-    }
-
-    /* ── Desktop Header ──────────────────────────── */
-    .practice-header {
-        margin-bottom: 1.25rem;
-    }
-
-    @media (max-width: 640px) {
-        .practice-header { display: none; }
-    }
-
-    .practice-greeting {
-        font-size: 0.5625rem;
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        color: var(--text-muted);
-        font-weight: 700;
-        font-family: 'IBM Plex Mono', monospace;
-        margin-bottom: 0.375rem;
-    }
-
-    .practice-title {
-        font-size: 1.5rem;
-        font-weight: 800;
-        color: var(--text-primary);
-        font-family: 'Barlow Condensed', sans-serif;
-        line-height: 1.2;
-        margin-bottom: 0.25rem;
-    }
-
-    .practice-level-line {
-        font-size: 0.8125rem;
-        color: #5b9aff;
-        font-weight: 600;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-    }
-
-    html.light-mode .practice-level-line { color: #00337F; }
-
-    .practice-xp-bar {
-        height: 4px;
-        background: rgba(255, 255, 255, 0.08);
-        border-radius: 2px;
-        overflow: hidden;
-        max-width: 160px;
-        flex-shrink: 0;
-    }
-
-    html.light-mode .practice-xp-bar { background: rgba(0, 0, 0, 0.08); }
-
-    .practice-xp-fill {
-        height: 100%;
-        background: linear-gradient(90deg, #5b9aff, #0055cc);
-        border-radius: 2px;
-        transition: width 0.6s ease-out;
-    }
-
-    /* ── Badge Row ────────────────────────────────── */
-    .practice-badges {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        flex-wrap: wrap;
-        margin-bottom: 1rem;
-    }
-
-    @media (max-width: 640px) {
-        .practice-badges { display: none; }
-    }
-
-    .p-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.25rem;
-        padding: 0.2rem 0.625rem;
-        border-radius: 0.375rem;
-        font-size: 0.625rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        line-height: 1;
-        white-space: nowrap;
-    }
-
-    .p-badge--mode {
-        color: #5b9aff;
-        background: rgba(0, 77, 179, 0.12);
-        border: 1px solid rgba(0, 77, 179, 0.25);
-    }
-
-    html.light-mode .p-badge--mode {
-        color: #00337F;
-        background: rgba(0, 51, 127, 0.08);
-        border-color: rgba(0, 51, 127, 0.2);
-    }
-
-    .p-badge--sr {
-        color: #818cf8;
-        background: rgba(129, 140, 248, 0.12);
-        border: 1px solid rgba(129, 140, 248, 0.25);
-    }
-
-    .p-badge--easy {
-        color: #22c55e;
-        background: rgba(34, 197, 94, 0.12);
-        border: 1px solid rgba(34, 197, 94, 0.2);
-    }
-
-    .p-badge--medium {
-        color: #fbbf24;
-        background: rgba(251, 191, 36, 0.12);
-        border: 1px solid rgba(251, 191, 36, 0.2);
-    }
-
-    .p-badge--hard {
-        color: #ef4444;
-        background: rgba(239, 68, 68, 0.12);
-        border: 1px solid rgba(239, 68, 68, 0.2);
-    }
-
-    html.light-mode .p-badge--easy { color: #16a34a; }
-    html.light-mode .p-badge--medium { color: #b45309; }
-    html.light-mode .p-badge--hard { color: #dc2626; }
-
-    .p-badge--progress {
-        color: var(--text-muted);
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        font-family: 'IBM Plex Mono', monospace;
-    }
-
-    html.light-mode .p-badge--progress {
-        background: rgba(0, 0, 0, 0.04);
-        border-color: rgba(0, 0, 0, 0.08);
-    }
-
-    /* ── Question Card ───────────────────────────── */
-    .practice-card {
-        background: rgba(255, 255, 255, 0.05);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.10);
-        border-radius: 1.5rem 0.5rem 1.5rem 1.5rem;
-        padding: 1.5rem;
-        position: relative;
-        overflow: hidden;
-        animation: practice-rise 0.45s cubic-bezier(0.22,1,0.36,1) both;
-    }
-
-    .practice-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 3px;
-        background: linear-gradient(90deg, #00337F, #0055cc, #5b9aff);
-    }
-
-    @keyframes practice-rise {
-        from { opacity: 0; transform: translateY(12px); }
-        to   { opacity: 1; transform: translateY(0); }
-    }
-
-    html.light-mode .practice-card {
-        background: rgba(255, 255, 255, 0.95);
-        border-color: rgba(0, 51, 127, 0.12);
-        box-shadow: 0 4px 24px rgba(0, 51, 127, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04);
-    }
-
-    html.light-mode .practice-card::before {
-        background: linear-gradient(90deg, #00337F, #0055cc, #5b9aff);
-    }
-
-    @media (max-width: 640px) {
-        .practice-card {
-            border-radius: 0;
-            border: none;
-            flex: 1;
-            min-height: 0;
-            display: flex;
-            flex-direction: column;
-            background: var(--bg-base);
-            backdrop-filter: none;
-            -webkit-backdrop-filter: none;
-            padding: 0;
-            overflow: hidden;
-            animation: none;
-        }
-
-        .practice-card > form {
-            flex: 1;
-            min-height: 0;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .practice-card-body {
-            flex: 1;
-            min-height: 0;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-            overscroll-behavior-y: contain;
-            padding: 1rem;
-        }
-
-        .practice-card::before { display: none; }
-
-        html.light-mode .practice-card {
-            background: var(--bg-base);
-            border: none;
-            box-shadow: none;
-        }
-    }
-
-    /* ── Mobile Badges (inside card) ─────────────── */
-    .practice-mobile-badges {
-        display: none;
-        gap: 0.375rem;
-        flex-wrap: wrap;
-        margin-bottom: 0.75rem;
-    }
-
-    @media (max-width: 640px) {
-        .practice-mobile-badges { display: flex; }
-    }
-
-    .pm-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.2rem;
-        padding: 0.15rem 0.5rem;
-        border-radius: 0.25rem;
-        font-size: 0.5625rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.04em;
-    }
-
-    .pm-badge--sr {
-        color: #818cf8;
-        background: rgba(129, 140, 248, 0.12);
-    }
-
-    .pm-badge--easy { color: #22c55e; background: rgba(34, 197, 94, 0.1); }
-    .pm-badge--medium { color: #fbbf24; background: rgba(251, 191, 36, 0.1); }
-    .pm-badge--hard { color: #ef4444; background: rgba(239, 68, 68, 0.1); }
-
-    html.light-mode .pm-badge--easy { color: #16a34a; }
-    html.light-mode .pm-badge--medium { color: #b45309; }
-    html.light-mode .pm-badge--hard { color: #dc2626; }
-
-    /* ── Question Meta ───────────────────────────── */
-    .question-meta {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 0.75rem;
-    }
-
-    .question-meta-left {
-        font-size: 0.5625rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        color: var(--text-muted);
-        font-family: 'IBM Plex Mono', monospace;
-    }
-
-    /* ── Question Text ───────────────────────────── */
-    .question-text {
-        font-size: 1rem;
-        font-weight: 600;
-        color: var(--text-primary);
-        line-height: 1.55;
-        margin-bottom: 1.25rem;
-    }
-
-    @media (min-width: 641px) {
-        .question-text {
-            font-size: 1.0625rem;
-        }
-    }
-
-    /* ── Answer Options ──────────────────────────── */
-    .answers-grid {
-        display: flex;
-        flex-direction: column;
-        gap: 0.625rem;
-    }
-
-    .answer-opt {
-        display: flex;
-        align-items: flex-start;
-        gap: 0.75rem;
-        padding: 0.875rem 1rem;
-        background: rgba(255, 255, 255, 0.03);
-        border: 2px solid rgba(255, 255, 255, 0.08);
-        border-radius: 0.75rem;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        position: relative;
-    }
-
-    .answer-opt:hover {
-        background: rgba(0, 77, 179, 0.06);
-        border-color: rgba(0, 77, 179, 0.25);
-        transform: translateX(3px);
-    }
-
-    .answer-opt:active {
-        transform: scale(0.98);
-    }
-
-    .answer-opt.selected {
-        background: rgba(0, 77, 179, 0.1);
-        border-color: #0055cc;
-        box-shadow: 0 0 0 1px rgba(0, 85, 204, 0.3);
-    }
-
-    html.light-mode .answer-opt {
-        background: #f8fafc;
-        border-color: rgba(0, 51, 127, 0.12);
-    }
-
-    html.light-mode .answer-opt:hover {
-        background: rgba(0, 51, 127, 0.04);
-        border-color: rgba(0, 51, 127, 0.3);
-    }
-
-    html.light-mode .answer-opt.selected {
-        background: rgba(0, 51, 127, 0.08);
-        border-color: #00337F;
-    }
-
-    /* Custom Checkbox */
-    .answer-check {
-        appearance: none;
-        -webkit-appearance: none;
-        width: 22px;
-        height: 22px;
-        min-width: 22px;
-        border: 2px solid rgba(255, 255, 255, 0.25);
-        border-radius: 0.375rem;
-        background: rgba(255, 255, 255, 0.05);
-        cursor: pointer;
-        transition: all 0.2s ease;
-        position: relative;
-        margin-top: 1px;
-    }
-
-    .answer-check:checked {
-        background: linear-gradient(135deg, #0055cc, #5b9aff);
-        border-color: #0055cc;
-    }
-
-    .answer-check:checked::after {
-        content: '✓';
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        color: #fff;
-        font-size: 13px;
-        font-weight: bold;
-    }
-
-    html.light-mode .answer-check {
-        border-color: rgba(0, 51, 127, 0.25);
-        background: #fff;
-    }
-
-    html.light-mode .answer-check:checked {
-        background: linear-gradient(135deg, #00337F, #0055cc);
-        border-color: #00337F;
-    }
-
-    .answer-text {
-        font-size: 0.9375rem;
-        color: var(--text-primary);
-        line-height: 1.45;
-        flex: 1;
-    }
-
-    @media (max-width: 640px) {
-        .answer-text { font-size: 0.875rem; }
-    }
-
-    /* ── Result States ───────────────────────────── */
-    .answer-opt--correct {
-        background: rgba(34, 197, 94, 0.12) !important;
-        border-color: rgba(34, 197, 94, 0.4) !important;
-    }
-
-    .answer-opt--correct-missed {
-        background: rgba(34, 197, 94, 0.06) !important;
-        border-color: rgba(34, 197, 94, 0.25) !important;
-    }
-
-    .answer-opt--wrong {
-        background: rgba(239, 68, 68, 0.12) !important;
-        border-color: rgba(239, 68, 68, 0.4) !important;
-    }
-
-    .answer-opt--neutral {
-        background: rgba(255, 255, 255, 0.02) !important;
-        border-color: rgba(255, 255, 255, 0.05) !important;
-        opacity: 0.5;
-    }
-
-    html.light-mode .answer-opt--correct {
-        background: rgba(34, 197, 94, 0.1) !important;
-    }
-
-    html.light-mode .answer-opt--wrong {
-        background: rgba(239, 68, 68, 0.1) !important;
-    }
-
-    html.light-mode .answer-opt--neutral {
-        background: #f1f5f9 !important;
-        border-color: rgba(0, 0, 0, 0.06) !important;
-    }
-
-    .result-icon {
-        width: 22px;
-        height: 22px;
-        min-width: 22px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.75rem;
-        font-weight: 700;
-        margin-top: 1px;
-    }
-
-    .result-icon--correct {
-        background: rgba(34, 197, 94, 0.2);
-        color: #22c55e;
-    }
-
-    .result-icon--wrong {
-        background: rgba(239, 68, 68, 0.2);
-        color: #ef4444;
-    }
-
-    /* ── Inline Result Banner ────────────────────── */
-    .result-banner {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 0.75rem;
-        padding: 0.75rem 1rem;
-        border-radius: 0.75rem;
-        margin-bottom: 1rem;
-        animation: bannerSlide 0.35s cubic-bezier(0.22,1,0.36,1) both;
-    }
-
-    @keyframes bannerSlide {
-        from { opacity: 0; transform: translateY(-8px); }
-        to   { opacity: 1; transform: translateY(0); }
-    }
-
-    .result-banner--correct {
-        background: rgba(34, 197, 94, 0.1);
-        border: 1px solid rgba(34, 197, 94, 0.25);
-    }
-
-    .result-banner--wrong {
-        background: rgba(239, 68, 68, 0.1);
-        border: 1px solid rgba(239, 68, 68, 0.25);
-    }
-
-    html.light-mode .result-banner--correct {
-        background: rgba(34, 197, 94, 0.08);
-        border-color: rgba(34, 197, 94, 0.2);
-    }
-
-    html.light-mode .result-banner--wrong {
-        background: rgba(239, 68, 68, 0.08);
-        border-color: rgba(239, 68, 68, 0.2);
-    }
-
-    .result-banner-left {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        min-width: 0;
-    }
-
-    .result-banner-icon {
-        font-size: 1.25rem;
-        flex-shrink: 0;
-    }
-
-    .result-banner-text {
-        font-size: 0.875rem;
-        font-weight: 700;
-        font-family: 'Barlow Condensed', sans-serif;
-    }
-
-    .result-banner--correct .result-banner-text { color: #22c55e; }
-    .result-banner--wrong .result-banner-text { color: #ef4444; }
-
-    html.light-mode .result-banner--correct .result-banner-text { color: #16a34a; }
-    html.light-mode .result-banner--wrong .result-banner-text { color: #dc2626; }
-
-    .result-banner-xp {
-        font-size: 0.875rem;
-        font-weight: 800;
-        color: var(--gold);
-        font-family: 'Barlow Condensed', sans-serif;
-        flex-shrink: 0;
-    }
-
-    .result-banner-mastery {
-        font-size: 0.6875rem;
-        color: var(--text-muted);
-        font-family: 'IBM Plex Mono', monospace;
-        flex-shrink: 0;
-    }
-
-    /* ── Result Summary Line ─────────────────────── */
-    .result-summary {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-top: 1rem;
-        padding-top: 0.75rem;
-        border-top: 1px solid rgba(255, 255, 255, 0.06);
-        font-size: 0.8125rem;
-    }
-
-    html.light-mode .result-summary {
-        border-top-color: rgba(0, 51, 127, 0.08);
-    }
-
-    .result-label--correct {
-        color: #22c55e;
-        font-weight: 700;
-    }
-
-    .result-label--wrong {
-        color: #ef4444;
-        font-weight: 700;
-    }
-
-    /* ── Lösungsweg / Erklärung ─────────────────── */
-    .explanation-card {
-        position: relative;
-        margin-top: 1rem;
-        padding: 1rem 1.125rem;
-        border-radius: 0.875rem;
-        background: linear-gradient(135deg, rgba(251,191,36,0.10), rgba(245,158,11,0.06));
-        border: 1px solid rgba(251,191,36,0.25);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        box-shadow: 0 8px 32px rgba(0,0,0,0.20);
-        animation: explanation-rise 0.35s ease both;
-        overflow: hidden;
-    }
-    .explanation-card::before {
-        content: '';
-        position: absolute;
-        inset: 0 0 auto 0;
-        height: 2px;
-        background: linear-gradient(90deg, transparent, var(--gold-start, #fbbf24), transparent);
-    }
-    .explanation-card--wrong {
-        background: linear-gradient(135deg, rgba(91,154,255,0.10), rgba(0,51,127,0.05));
-        border-color: rgba(91,154,255,0.25);
-    }
-    .explanation-card--wrong::before {
-        background: linear-gradient(90deg, transparent, var(--thw-blue-glow, #5b9aff), transparent);
-    }
-    html.light-mode .explanation-card {
-        background: linear-gradient(135deg, rgba(251,191,36,0.12), rgba(255,255,255,0.85));
-        border-color: rgba(245,158,11,0.30);
-        box-shadow: 0 4px 16px rgba(0,51,127,0.06);
-    }
-    html.light-mode .explanation-card--wrong {
-        background: linear-gradient(135deg, rgba(91,154,255,0.10), rgba(255,255,255,0.85));
-        border-color: rgba(0,51,127,0.20);
-    }
-    .explanation-card-head {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-family: 'IBM Plex Mono', ui-monospace, monospace;
-        font-size: 0.6875rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        color: var(--text-muted);
-        margin-bottom: 0.5rem;
-    }
-    .explanation-card-head i {
-        font-size: 0.95rem;
-        color: var(--gold, #fbbf24);
-    }
-    .explanation-card--wrong .explanation-card-head i {
-        color: var(--thw-blue-glow, #5b9aff);
-    }
-    html.light-mode .explanation-card--wrong .explanation-card-head i {
-        color: var(--thw-blue, #00337F);
-    }
-    .explanation-card-body {
-        margin: 0;
-        font-size: 0.9375rem;
-        line-height: 1.55;
-        color: var(--text-primary);
-    }
-    @keyframes explanation-rise {
-        from { opacity: 0; transform: translateY(6px); }
-        to   { opacity: 1; transform: translateY(0); }
-    }
-
-    /* ── Desktop Progress Bar ────────────────────── */
-    .practice-progress-bar {
-        margin-bottom: 1.25rem;
-    }
-
-    @media (max-width: 640px) {
-        .practice-progress-bar { display: none; }
-    }
-
-    .ppb-track {
-        height: 4px;
-        background: rgba(255, 255, 255, 0.08);
-        border-radius: 2px;
-        overflow: hidden;
-    }
-
-    html.light-mode .ppb-track { background: rgba(0, 0, 0, 0.06); }
-
-    .ppb-fill {
-        height: 100%;
-        background: linear-gradient(90deg, #0055cc, #5b9aff);
-        border-radius: 2px;
-        transition: width 0.5s ease-out;
-    }
-
-    /* ── Bottom Action Bar ────────────────────────── */
-    .practice-actions {
-        margin-top: 1.25rem;
-        padding-top: 1rem;
-        border-top: 1px solid rgba(255, 255, 255, 0.06);
-    }
-
-    html.light-mode .practice-actions {
-        border-top-color: rgba(0, 51, 127, 0.08);
-    }
-
-    @media (max-width: 640px) {
-        .practice-actions {
-            flex-shrink: 0;
-            margin: 0;
-            padding: 0.875rem 1rem;
-            padding-bottom: calc(0.875rem + env(safe-area-inset-bottom, 0px));
-            background: rgba(10, 10, 11, 0.6);
-            -webkit-backdrop-filter: blur(20px) saturate(180%);
-            backdrop-filter: blur(20px) saturate(180%);
-            border-top: 1px solid rgba(255, 255, 255, 0.06);
-        }
-
-        html.light-mode .practice-actions {
-            background: rgba(243, 244, 246, 0.6);
-            border-top-color: rgba(0, 51, 127, 0.08);
-        }
-    }
-
-    .action-submit {
-        width: 100%;
-        padding: 0.875rem;
-        font-size: 0.9375rem;
-        font-weight: 700;
-        border-radius: 0.75rem;
-        border: none;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        font-family: inherit;
-        text-align: center;
-        text-decoration: none;
-        display: block;
-    }
-
-    .action-submit--primary {
-        background: linear-gradient(135deg, #00337F, #0055cc);
-        color: #fff;
-        box-shadow: 0 4px 16px rgba(0, 51, 127, 0.3);
-    }
-
-    .action-submit--primary:hover {
-        box-shadow: 0 6px 24px rgba(0, 51, 127, 0.4);
-        transform: translateY(-1px);
-    }
-
-    .action-submit--primary:disabled {
-        opacity: 0.4;
-        cursor: not-allowed;
-        transform: none;
-        box-shadow: none;
-    }
-
-    .action-submit--gold {
-        background: var(--gradient-gold);
-        color: #1a1a2e;
-        box-shadow: 0 4px 16px rgba(251, 191, 36, 0.25);
-    }
-
-    .action-submit--gold:hover {
-        box-shadow: 0 6px 24px rgba(251, 191, 36, 0.35);
-        transform: translateY(-1px);
-    }
-
-    .action-end {
-        display: block;
-        width: 100%;
-        text-align: center;
-        margin-top: 0.5rem;
-        padding: 0.5rem;
-        font-size: 0.75rem;
-        font-weight: 600;
-        color: var(--text-muted);
-        text-decoration: none;
-        border-radius: 0.5rem;
-        transition: color 0.2s;
-    }
-
-    .action-end:hover { color: var(--text-secondary); }
-
-    /* ── Bookmark Button ─────────────────────────── */
-    .bookmark-btn {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 2rem;
-        height: 2rem;
-        border-radius: 0.5rem;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        transition: all 0.2s ease;
-        cursor: pointer;
-        flex-shrink: 0;
-        padding: 0;
-    }
-
-    .bookmark-btn:hover {
-        background: rgba(251, 191, 36, 0.1);
-        border-color: rgba(251, 191, 36, 0.3);
-    }
-
-    .bookmark-btn.active {
-        background: rgba(251, 191, 36, 0.15);
-        border-color: var(--gold);
-    }
-
-    html.light-mode .bookmark-btn {
-        background: rgba(0, 51, 127, 0.04);
-        border-color: rgba(0, 51, 127, 0.1);
-    }
-
-    html.light-mode .bookmark-btn:hover {
-        background: rgba(217, 119, 6, 0.08);
-        border-color: rgba(217, 119, 6, 0.25);
-    }
-
-    html.light-mode .bookmark-btn.active {
-        background: rgba(217, 119, 6, 0.12);
-        border-color: #d97706;
-    }
-
-    html.light-mode .bookmark-btn svg path {
-        stroke: rgba(0, 51, 127, 0.4) !important;
-    }
-
-    html.light-mode .bookmark-btn:hover svg path {
-        stroke: #d97706 !important;
-    }
-
-    html.light-mode .bookmark-btn.active svg path {
-        stroke: #d97706 !important;
-        fill: #d97706 !important;
-    }
-
-    /* ── Report Button ───────────────────────────── */
-    .report-btn {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 2rem;
-        height: 2rem;
-        border-radius: 0.5rem;
-        border: 1px solid rgba(255, 255, 255, 0.06);
-        background: rgba(255, 255, 255, 0.03);
-        color: rgba(255, 255, 255, 0.3);
-        font-size: 0.8rem;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        flex-shrink: 0;
-        padding: 0;
-    }
-
-    .report-btn:hover {
-        background: rgba(239, 68, 68, 0.12);
-        border-color: rgba(239, 68, 68, 0.3);
-        color: #ef4444;
-    }
-
-    html.light-mode .report-btn {
-        border-color: rgba(0, 0, 0, 0.08);
-        background: rgba(0, 0, 0, 0.02);
-        color: rgba(0, 0, 0, 0.25);
-    }
-
-    html.light-mode .report-btn:hover {
-        background: rgba(239, 68, 68, 0.08);
-        color: #dc2626;
-    }
-
-    /* ── Desktop Bookmark (large) ────────────────── */
-    .bookmark-btn-lg {
-        width: 2.5rem;
-        height: 2.5rem;
-        border-radius: 0.625rem;
-    }
-
-    /* Fullscreen Overlays werden global via Layout gerendert
-       (milestone-celebration.blade.php + gamification-notifications.blade.php) */
-
-    /* ── Report Modal ────────────────────────────── */
-    .report-overlay {
-        display: none;
-        position: fixed;
-        inset: 0;
-        z-index: 99999;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .report-backdrop {
-        position: absolute;
-        inset: 0;
-        background: rgba(0, 0, 0, 0.6);
-        -webkit-backdrop-filter: blur(4px);
-        backdrop-filter: blur(4px);
-    }
-
-    .report-card {
-        position: relative;
-        z-index: 1;
-        width: 90%;
-        max-width: 400px;
-        padding: 1.5rem;
-        animation: reportPop 0.25s ease;
-    }
-
-    @keyframes reportPop {
-        from { transform: translateY(10px); opacity: 0; }
-        to { transform: translateY(0); opacity: 1; }
-    }
-
-    .report-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 0.75rem;
-    }
-
-    .report-header h3 {
-        font-size: 1rem;
-        font-weight: 700;
-        color: var(--text-primary);
-        font-family: 'Barlow Condensed', sans-serif;
-    }
-
-    .report-close {
-        background: none;
-        border: none;
-        color: var(--text-muted);
-        font-size: 1.1rem;
-        cursor: pointer;
-        padding: 0.25rem;
-        transition: color 0.2s;
-    }
-
-    .report-close:hover { color: var(--text-primary); }
-
-    .report-meta {
-        font-size: 0.6875rem;
-        color: var(--text-muted);
-        margin-bottom: 0.75rem;
-        font-family: 'IBM Plex Mono', monospace;
-    }
-
-    .report-textarea {
-        width: 100%;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 0.5rem;
-        padding: 0.75rem;
-        color: var(--text-primary);
-        font-size: 0.875rem;
-        resize: vertical;
-        margin-bottom: 0.75rem;
-        transition: border-color 0.2s;
-        font-family: inherit;
-    }
-
-    .report-textarea:focus {
-        outline: none;
-        border-color: rgba(0, 85, 204, 0.4);
-    }
-
-    .report-textarea::placeholder { color: var(--text-muted); }
-
-    html.light-mode .report-textarea {
-        background: rgba(0, 0, 0, 0.03);
-        border-color: rgba(0, 0, 0, 0.12);
-        color: #1e293b;
-    }
-
-    .report-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 0.5rem;
-    }
-
-    .report-feedback {
-        margin-top: 0.75rem;
-        font-size: 0.75rem;
-        text-align: center;
-        display: none;
-    }
-
-    /* ── Shake Animation ─────────────────────────── */
-    @keyframes shake {
-        0%, 100% { transform: translateX(0); }
-        20% { transform: translateX(-8px); }
-        40% { transform: translateX(8px); }
-        60% { transform: translateX(-6px); }
-        80% { transform: translateX(6px); }
-    }
-
-    .shake { animation: shake 0.4s ease; }
-
-    /* ── Empty State ─────────────────────────────── */
-    .practice-empty {
-        text-align: center;
-        padding: 3rem 1.5rem;
-    }
-
-    .practice-empty-icon {
-        width: 64px;
-        height: 64px;
-        border-radius: 50%;
-        background: rgba(34, 197, 94, 0.12);
-        color: #22c55e;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.75rem;
-        margin-bottom: 1.25rem;
-        box-shadow: 0 0 30px rgba(34, 197, 94, 0.15);
-    }
-
-    /* ── Reduced Motion ──────────────────────────── */
-    @media (prefers-reduced-motion: reduce) {
-        .practice-card,
-        .fs-overlay-card,
-        .answer-opt,
-        .action-submit {
-            animation: none !important;
-            transition: none !important;
-        }
-    }
-
-    /* Neue Desktop-Exam-Progress standardmäßig verborgen (Mobile-First) */
-    .practice-exam-progress { display: none; }
-
-    /* =========================================================
-       DESKTOP C-MINIMAL (Claude Design) — ab 641px
-       Überschreibt Look & Feel ohne Mobile anzutasten
-       ========================================================= */
-    @media (min-width: 641px) {
-        .practice-shell {
-            padding: 1.5rem 1.5rem calc(120px + 1.5rem);
-        }
-
-        /* Header: Eyebrow + großer "Frage N/M" Titel + Sub */
-        .practice-header {
-            margin-bottom: 1rem;
-        }
-        .practice-header .practice-greeting {
-            font-size: 0.6875rem;
-            letter-spacing: 0.12em;
-            color: var(--thw-blue);
-            margin-bottom: 0.5rem;
-        }
-        html:not(.light-mode) .practice-header .practice-greeting {
-            color: #5b9aff;
-        }
-        .practice-header .practice-title {
-            font-family: 'Barlow Condensed', sans-serif;
-            font-weight: 800;
-            font-size: 2.25rem;
-            line-height: 1.1;
-            letter-spacing: -0.02em;
-            margin: 0 0 0.35rem;
-            display: inline-flex;
-            align-items: baseline;
-            gap: 0.35rem;
-        }
-        .practice-header .practice-title .pt-of {
-            font-weight: 500;
-            font-size: 1.125rem;
-            color: var(--text-muted);
-            letter-spacing: 0;
-        }
-        .practice-header .practice-subline {
-            font-size: 0.9375rem;
-            color: var(--text-secondary);
-            margin: 0;
-        }
-        .practice-header .practice-subline .dot {
-            color: var(--text-muted);
-            margin: 0 0.35rem;
-        }
-        .practice-header .practice-xp-bar,
-        .practice-header .practice-level-line { display: none; }
-
-        /* Two-column progress bars (1× / 2× richtig) */
-        .practice-progress-bar { display: none; }
-        .practice-exam-progress {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0.75rem;
-            margin-bottom: 1rem;
-        }
-        .pep-row {
-            display: flex;
-            align-items: center;
-            gap: 0.625rem;
-            padding: 0.625rem 0.875rem;
-            border-radius: 0.625rem;
-            background: rgba(255, 255, 255, 0.6);
-            border: 1px solid rgba(0, 51, 127, 0.08);
-        }
-        html:not(.light-mode) .pep-row {
-            background: rgba(255, 255, 255, 0.04);
-            border-color: rgba(255, 255, 255, 0.08);
-        }
-        .pep-label {
-            font-family: 'IBM Plex Mono', monospace;
-            font-size: 0.6875rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: var(--text-muted);
-            white-space: nowrap;
-        }
-        .pep-track {
-            flex: 1;
-            height: 4px;
-            border-radius: 999px;
-            background: rgba(0, 51, 127, 0.08);
-            overflow: hidden;
-        }
-        html:not(.light-mode) .pep-track { background: rgba(255, 255, 255, 0.08); }
-        .pep-fill {
-            height: 100%;
-            background: var(--thw-blue);
-            border-radius: 999px;
-            transition: width 0.4s ease-out;
-        }
-        html:not(.light-mode) .pep-fill { background: #5b9aff; }
-        .pep-fill--gold { background: var(--gold); }
-        .pep-num {
-            font-family: 'Barlow Condensed', sans-serif;
-            font-weight: 800;
-            font-size: 0.9375rem;
-            color: var(--text-primary);
-            min-width: 2rem;
-            text-align: right;
-        }
-
-        /* C-Minimal: Card transparent, kein Rand, kein Schatten */
-        .practice-card {
-            background: transparent !important;
-            backdrop-filter: none;
-            -webkit-backdrop-filter: none;
-            border: 0 !important;
-            border-radius: 0;
-            box-shadow: none !important;
-            padding: 0 !important;
-            overflow: visible;
-            animation: none;
-        }
-        html.light-mode .practice-card { box-shadow: none !important; }
-        .practice-card::before { display: none; }
-
-        /* Question-Block: transparent mit Trennlinie unten */
-        .practice-card .question-meta {
-            font-family: 'IBM Plex Mono', monospace;
-            font-size: 0.625rem;
-            letter-spacing: 0.14em;
-            color: var(--text-muted);
-            margin-bottom: 0.5rem;
-            padding-bottom: 0;
-            border: 0;
-        }
-        .practice-card .question-text {
-            font-size: 1.125rem;
-            font-weight: 600;
-            line-height: 1.45;
-            margin: 0 0 1rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid rgba(0, 51, 127, 0.08);
-        }
-        html:not(.light-mode) .practice-card .question-text {
-            border-bottom-color: rgba(255, 255, 255, 0.08);
-        }
-
-        /* Answer-Options: cleaner, kein Transform beim Hover */
-        .answer-opt {
-            background: #ffffff;
-            border: 1px solid rgba(0, 51, 127, 0.10);
-            border-radius: 0.625rem;
-            padding: 0.875rem 1rem;
-            box-shadow: 0 1px 2px rgba(0, 51, 127, 0.03);
-            transition: border-color 0.15s, background 0.15s;
-        }
-        .answer-opt:hover {
-            transform: none;
-            background: rgba(91, 154, 255, 0.05);
-            border-color: var(--thw-blue);
-        }
-        html:not(.light-mode) .answer-opt {
-            background: rgba(255, 255, 255, 0.03);
-            border-color: rgba(255, 255, 255, 0.08);
-            box-shadow: none;
-        }
-        html:not(.light-mode) .answer-opt:hover {
-            background: rgba(91, 154, 255, 0.08);
-            border-color: #5b9aff;
-        }
-
-        /* Icon-Buttons im Header (Fehler melden / Merken) */
-        .practice-header .bookmark-btn-lg {
-            width: 40px;
-            height: 40px;
-            border-radius: 0.5rem;
-        }
-
-        /* Fixed Bottom Bar (Submit-CTA + Lernen beenden) */
-        .practice-actions {
-            position: fixed;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            z-index: 30;
-            margin: 0;
-            padding: 0.875rem 1.5rem calc(0.875rem + env(safe-area-inset-bottom, 0px));
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(20px) saturate(180%);
-            -webkit-backdrop-filter: blur(20px) saturate(180%);
-            border-top: 1px solid rgba(0, 51, 127, 0.08);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        html:not(.light-mode) .practice-actions {
-            background: rgba(15, 15, 20, 0.78);
-            border-top-color: rgba(255, 255, 255, 0.06);
-        }
-        /* Sidebar (lg:fixed, 264px) Offset für die Bottom-Bar */
-        @media (min-width: 1024px) {
-            .practice-actions {
-                left: 264px;
-                padding-left: 1.5rem;
-            }
-        }
-        .practice-actions > * {
-            width: 100%;
-            max-width: 1100px;
-        }
-        .practice-actions .action-submit {
-            padding: 0.9rem 1.25rem;
-            border-radius: 0.75rem;
-            font-size: 1rem;
-        }
-        .practice-actions .action-end {
-            margin-top: 0;
-        }
-    }
-
-    /* =========================================================
-       NARROW DESKTOP (641-1919.98px) — Kompaktere Darstellung,
-       damit auf schmalen Viewports mit sichtbarer Sidebar alles
-       ohne Scroll sichtbar ist.
-       ========================================================= */
-    @media (min-width: 641px) and (max-width: 1919.98px) {
-        .practice-shell { padding: 1rem 1.25rem calc(92px + 0.75rem); }
-
-        .practice-header { margin-bottom: 0.5rem; }
-        .practice-header .practice-greeting { margin-bottom: 0.25rem; font-size: 0.625rem; }
-        .practice-header .practice-title { font-size: 1.75rem; margin-bottom: 0.2rem; }
-        .practice-header .practice-title .pt-of { font-size: 1rem; }
-        .practice-header .practice-subline { font-size: 0.875rem; }
-        .practice-header .bookmark-btn-lg { width: 34px; height: 34px; }
-
-        /* Badges + Exam-Progress in einer Zeile */
-        .practice-meta-row {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            margin-bottom: 0.625rem;
-        }
-        .practice-badges { gap: 0.375rem; margin-bottom: 0; flex-shrink: 0; }
-        .p-badge { padding: 0.15rem 0.5rem; font-size: 0.5625rem; }
-
-        .practice-exam-progress { gap: 0.5rem; margin-bottom: 0; flex: 1; min-width: 0; }
-        .pep-row { padding: 0.4rem 0.75rem; gap: 0.5rem; }
-        .pep-label { font-size: 0.625rem; }
-        .pep-num { font-size: 0.875rem; }
-
-        .practice-card .question-meta { margin-bottom: 0.35rem; }
-        .practice-card .question-text {
-            font-size: 1.0625rem;
-            margin-bottom: 0.75rem;
-            padding-bottom: 0.75rem;
-        }
-
-        .practice-actions {
-            padding: 0.55rem 1.25rem calc(0.55rem + env(safe-area-inset-bottom, 0px));
-            gap: 0.25rem;
-        }
-        .practice-actions .action-submit { padding: 0.65rem 1rem; font-size: 0.9375rem; }
-        .practice-actions .action-end { font-size: 0.75rem; }
-    }
-</style>
-@endpush
-
-<!-- Practice Shell -->
-<div class="practice-shell" id="practiceContainer">
+@if(isset($isLanding) && $isLanding)
+    {{-- Gäste: Startseiten-Layout mit Topleiste, dazu das Stylesheet der Lernseiten --}}
+    @push('head')
+        @vite('resources/css/learn-guest.css')
+    @endpush
+@endif
+
+<div class="l-focus-root" id="practiceContainer">
     @if(isset($registrationPrompt))
-        {{-- Fullscreen Registration Interstitial --}}
-        <div style="position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:1.5rem;">
-            <div style="position:absolute;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);"></div>
-            <div class="glass-blue" style="position:relative;z-index:1;max-width:420px;width:100%;padding:2.5rem 2rem;text-align:center;">
-                <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#00337F,#0055cc);display:inline-flex;align-items:center;justify-content:center;margin-bottom:1.5rem;font-size:1.75rem;color:#fff;">
-                    <i class="bi {{ $registrationPrompt['icon'] }}"></i>
+        {{-- Hinweis für Gäste: Registrieren oder weiter üben --}}
+        <div class="l-dlg-wrap">
+            <div class="l-dlg" role="dialog" aria-modal="true" aria-labelledby="l-guest-t">
+                <p class="l-eyebrow">{{ \App\Helpers\LearnText::wd($registrationPrompt['benefit']) }}</p>
+                <h2 id="l-guest-t">{{ $registrationPrompt['title'] }}</h2>
+                <p>{{ $registrationPrompt['description'] }}</p>
+                <p class="l-small">{{ $questionsAnswered ?? 0 }} Fragen beantwortet</p>
+                <div class="l-dlg-acts l-dlg-acts--stack">
+                    <a href="{{ route('register') }}" class="l-btn">Kostenlos registrieren</a>
+                    <a href="{{ ($showUrl ?? route('landing.guest.practice.index')) . '?continue=1' }}" class="l-btn l-btn--soft">Weiter üben</a>
                 </div>
-                <h2 style="font-size:1.5rem;font-weight:800;color:var(--text-primary);margin-bottom:0.75rem;font-family:'Barlow Condensed',sans-serif;">{{ $registrationPrompt['title'] }}</h2>
-                <p style="font-size:0.875rem;color:var(--text-secondary);line-height:1.6;margin-bottom:1rem;">{{ $registrationPrompt['description'] }}</p>
-                <span style="display:inline-block;background:rgba(0,85,204,0.15);color:#5b9aff;font-size:0.6875rem;font-weight:700;padding:0.3rem 0.75rem;border-radius:2rem;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:1.5rem;">{{ $registrationPrompt['benefit'] }}</span>
-                <p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:1.5rem;">{{ $questionsAnswered ?? 0 }} Fragen beantwortet</p>
-                <a href="{{ route('register') }}" class="action-submit action-submit--primary" style="display:block;margin-bottom:0.75rem;">Kostenlos registrieren</a>
-                <a href="{{ ($showUrl ?? route('landing.guest.practice.index')) . '?continue=1' }}" class="action-submit" style="display:block;background:transparent;color:var(--text-muted);font-size:0.8125rem;">Weiter üben</a>
             </div>
         </div>
     @endif
 
     @if($question)
         @auth
-            @if(($context ?? 'global') === 'global')
+            @if($ctx === 'global')
                 @php
                     $user = Auth::user();
                     $bookmarked = is_array($user->bookmarked_questions ?? null)
@@ -1457,67 +76,11 @@
             @php $isBookmarked = false; @endphp
         @endguest
 
-        <!-- Mobile Top Bar -->
-        <div class="practice-topbar">
-            <a href="{{ $menuUrl ?? route('practice.menu') }}" class="topbar-back">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                </svg>
-            </a>
-
-            <div class="topbar-center">
-                <span class="topbar-progress-text"
-                      title="Gemeisterte Fragen: 3× in Folge richtig beantwortet. Der Fortschrittsring wächst bereits bei der ersten richtigen Antwort.">{{ $progress }}/{{ $total }}</span>
-                <svg class="topbar-progress-ring" viewBox="0 0 36 36">
-                    <circle class="ring-track" cx="18" cy="18" r="14" fill="none" stroke-width="3"/>
-                    <circle class="ring-fill" cx="18" cy="18" r="14" fill="none"
-                            stroke="url(#thwGradMini)" stroke-width="3"
-                            stroke-dasharray="87.96"
-                            stroke-dashoffset="{{ 87.96 - (87.96 * ($progressPercent ?? 0) / 100) }}"/>
-                    <defs>
-                        <linearGradient id="thwGradMini" x1="0%" y1="0%" x2="100%" y2="0%">
-                            <stop offset="0%" stop-color="#0055cc"/>
-                            <stop offset="100%" stop-color="#5b9aff"/>
-                        </linearGradient>
-                    </defs>
-                </svg>
-            </div>
-
-            <div class="topbar-actions">
-                @auth
-                <button type="button" onclick="openReportModal()" class="report-btn" title="Fehler melden">
-                    <i class="bi bi-exclamation-triangle-fill"></i>
-                </button>
-                @if(($context ?? 'global') === 'global')
-                <button type="button" class="bookmark-btn {{ $isBookmarked ? 'active' : '' }}" id="bookmarkBtnMobile"
-                        data-bookmarked="{{ $isBookmarked ? 'true' : 'false' }}"
-                        onclick="toggleBookmark({{ $question->id }}, {{ $isBookmarked ? 'true' : 'false' }})">
-                    <svg class="w-4 h-4" viewBox="0 0 20 20" id="bookmarkIconMobile">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M5 5a2 2 0 012-2h6a2 2 0 012 2v10l-5-3-5 3V5z"
-                              style="stroke: {{ $isBookmarked ? '#fbbf24' : 'rgba(255,255,255,0.4)' }}; fill: {{ $isBookmarked ? '#fbbf24' : 'none' }};"></path>
-                    </svg>
-                </button>
-                @endif
-                @endauth
-            </div>
-        </div>
-
-        <!-- Mobile Fortschritts-Stufen -->
-        <div class="practice-mobile-progress">
-            @if(($progressOnce ?? 0) > 0)
-                <span class="pmp-item">1× richtig: {{ $progressOnce }}</span>
-                <span class="pmp-sep">&middot;</span>
-            @endif
-            @if(($progressTwice ?? 0) > 0)
-                <span class="pmp-item">2× richtig: {{ $progressTwice }}</span>
-                <span class="pmp-sep">&middot;</span>
-            @endif
-            <span class="pmp-mastered">{{ $progress ?? 0 }}/{{ $total ?? 0 }} gemeistert</span>
-        </div>
-
-        <!-- Desktop Header -->
         @php
+            $isExtra = $question instanceof \App\Models\ExtraQuestion;
+            $qType = $isExtra ? ($question->typ ?? 'multiple_choice') : 'multiple_choice';
+            $typeLabels = ['matching' => 'Zuordnung', 'pair_matching' => 'Wortpaare', 'image_name' => 'Bild benennen', 'image_select' => 'Bild auswählen'];
+
             $eyebrowText = $isGuest
                 ? 'Anonym üben'
                 : (isset($mode)
@@ -1532,149 +95,85 @@
                     : ($contextLabel ?? 'Theorie üben'));
             $qCurrent = $currentInMode ?? (($progress ?? 0) + 1);
             $qTotal   = $totalInMode   ?? ($total ?? 0);
-            $laStr = ($question->lernabschnitt ?? '-') . '.' . ($question->nummer ?? '-');
+            $laStr = ($question->lernabschnitt ?? '-') . (isset($question->nummer) ? '.' . $question->nummer : '');
+            $backLabel = $isGuest ? 'Übungsmenü' : ($ctx === 'global' ? 'Theorie lernen' : 'Zurück');
+            $hasDifficulty = isset($difficultyInfo) && ($difficultyInfo['level'] ?? 'unknown') !== 'unknown';
         @endphp
-        <div class="practice-header">
-            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;">
-                <div style="flex:1;">
-                    <div class="practice-greeting">{{ $eyebrowText }}</div>
-                    <h1 class="practice-title">
-                        Frage <span>{{ $qCurrent }}</span><span class="pt-of">/{{ $qTotal }}</span>
-                    </h1>
-                    <p class="practice-subline">
-                        <span>LA {{ $laStr }}</span>
-                        @if(isset($difficultyInfo) && $difficultyInfo['level'] !== 'unknown')
-                            <span class="dot">·</span>
-                            <span>{{ $difficultyInfo['label'] }}@if($difficultyInfo['percent'] !== null) · {{ $difficultyInfo['percent'] }} % Fehlerquote @endif</span>
-                        @endif
-                        @if(isset($isSpacedRepetition) && $isSpacedRepetition)
-                            <span class="dot">·</span>
-                            <span>Wiederholung</span>
-                        @endif
-                        <span class="dot">·</span>
-                        <span title="Gemeistert = 3× hintereinander richtig beantwortet">
-                            {{ $progress ?? 0 }}/{{ $total ?? 0 }} gemeistert · {{ $progressPercent ?? 0 }} %
-                        </span>
-                    </p>
-                    {{-- Legacy level-line bleibt für <=640px erhalten, wird per CSS auf Desktop ausgeblendet --}}
-                    <div class="practice-level-line">
-                        <span>{{ $progress }}/{{ $total }} gemeistert · {{ $progressPercent ?? 0 }}%</span>
-                        <div class="practice-xp-bar">
-                            <div class="practice-xp-fill" style="width: {{ $progressPercent ?? 0 }}%;"></div>
-                        </div>
-                    </div>
-                </div>
 
-                @auth
-                <div style="display:flex;align-items:center;gap:0.5rem;">
-                    <button type="button" onclick="openReportModal()" class="report-btn bookmark-btn-lg" title="Fehler melden">
-                        <i class="bi bi-exclamation-triangle-fill"></i>
-                    </button>
-                    @if(($context ?? 'global') === 'global')
-                    <button type="button"
-                            class="bookmark-btn bookmark-btn-lg {{ $isBookmarked ? 'active' : '' }}"
-                            title="{{ $isBookmarked ? 'Aus Lesezeichen entfernen' : 'Zu Lesezeichen hinzufügen' }}"
-                            id="bookmarkBtn"
-                            data-bookmarked="{{ $isBookmarked ? 'true' : 'false' }}"
-                            onclick="toggleBookmark({{ $question->id }}, {{ $isBookmarked ? 'true' : 'false' }})">
-                        <svg class="w-5 h-5" viewBox="0 0 20 20" id="bookmarkIcon">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M5 5a2 2 0 012-2h6a2 2 0 012 2v10l-5-3-5 3V5z"
-                                  style="stroke: {{ $isBookmarked ? '#fbbf24' : 'rgba(255,255,255,0.4)' }}; fill: {{ $isBookmarked ? '#fbbf24' : 'none' }};"></path>
-                        </svg>
-                    </button>
-                    @endif
-                </div>
-                @endauth
+        {{-- Kopfzeile: zurück, Modus, Werkzeuge; darunter der Fortschritt (gemeistert) --}}
+        <header class="l-fbar">
+            <div class="l-fbar-in">
+                <a href="{{ $menuUrl ?? route('practice.menu') }}" class="l-back"><i class="bi bi-chevron-left" aria-hidden="true"></i><span>{{ $backLabel }}</span></a>
+                <p class="l-fbar-t">{{ $isExtra && !isset($mode) ? 'Zusatz-Fragen' : $eyebrowText }}</p>
+                <span class="l-tools">
+                    @auth
+                        <button type="button" onclick="openReportModal()" class="l-tool" title="Fehler melden">
+                            <i class="bi bi-exclamation-triangle" aria-hidden="true"></i><span>Fehler melden</span>
+                        </button>
+                        @if($ctx === 'global')
+                            <button type="button" class="l-tool {{ $isBookmarked ? 'active' : '' }}" id="bookmarkBtn"
+                                    aria-pressed="{{ $isBookmarked ? 'true' : 'false' }}"
+                                    title="{{ $isBookmarked ? 'Aus Lesezeichen entfernen' : 'Zu Lesezeichen hinzufügen' }}"
+                                    aria-label="{{ $isBookmarked ? 'Aus Lesezeichen entfernen' : 'Zu Lesezeichen hinzufügen' }}"
+                                    onclick="toggleBookmark({{ $question->id }}, {{ $isBookmarked ? 'true' : 'false' }})">
+                                <i class="bi {{ $isBookmarked ? 'bi-bookmark-fill' : 'bi-bookmark' }}" aria-hidden="true"></i>
+                            </button>
+                        @endif
+                    @endauth
+                </span>
             </div>
-        </div>
+            <div class="l-fprog" title="Gemeisterte Fragen: 3× in Folge richtig beantwortet"><i style="width: {{ $progressPercent ?? 0 }}%;"></i></div>
+        </header>
 
-        <!-- Desktop Badge Row + Exam-Progress (auf schmalem Desktop in einer Zeile) -->
-        <div class="practice-meta-row">
-            <div class="practice-badges">
+        <main class="l-focus {{ isset($isCorrect) ? 'is-checked' : '' }}" id="questionContent">
+            <p class="l-qmeta">
+                @if($isExtra)
+                    <span>Zusatz-Frage, LA {{ $question->lernabschnitt ?? '-' }}, {{ $typeLabels[$qType] ?? '' }}</span>
+                @else
+                    <span>Frage {{ $qCurrent }} von {{ $qTotal }}, LA {{ $laStr }}</span>
+                @endif
                 @if(isset($isSpacedRepetition) && $isSpacedRepetition)
-                    <span class="p-badge p-badge--sr"><i class="bi bi-arrow-repeat"></i> Wiederholung</span>
+                    <span class="l-sr">Wiederholung</span>
                 @endif
-
-                @if(isset($difficultyInfo) && $difficultyInfo['level'] !== 'unknown')
-                    <span class="p-badge p-badge--{{ $difficultyInfo['level'] }}">
-                        {{ $difficultyInfo['label'] }}
-                        @if($difficultyInfo['percent'] !== null)
-                            &middot; {{ $difficultyInfo['percent'] }}%
-                        @endif
-                    </span>
+                @if($hasDifficulty)
+                    <span class="l-diff is-{{ $difficultyInfo['level'] }}">{{ $difficultyInfo['label'] }}@if($difficultyInfo['percent'] !== null), {{ $difficultyInfo['percent'] }} % Fehlerquote @endif</span>
                 @endif
+                <span class="l-id">ID {{ $question->id }}</span>
+            </p>
+            <h1 class="l-qtext">{{ $question->frage }}</h1>
 
-                @if(isset($totalInMode) && $totalInMode > 0)
-                    <span class="p-badge p-badge--progress">Frage {{ $currentInMode ?? 1 }}/{{ $totalInMode }}</span>
-                @endif
-            </div>
-
-            <!-- Desktop Progress Bar (Legacy, nur Mobile) -->
-            <div class="practice-progress-bar">
-                <div class="ppb-track">
-                    <div class="ppb-fill" style="width: {{ $progressPercent ?? 0 }}%;"></div>
-                </div>
-            </div>
-
-            <!-- Desktop Exam-Progress (1× richtig / 2× richtig) -->
-            @php
-                $total = max(1, (int)($total ?? 1));
-                $oncePct  = round((($progressOnce  ?? 0) / $total) * 100);
-                $twicePct = round((($progressTwice ?? 0) / $total) * 100);
-            @endphp
-            <div class="practice-exam-progress">
-                <div class="pep-row">
-                    <span class="pep-label">1× richtig</span>
-                    <div class="pep-track"><div class="pep-fill" style="width: {{ $oncePct }}%;"></div></div>
-                    <span class="pep-num">{{ $progressOnce ?? 0 }}</span>
-                </div>
-                <div class="pep-row">
-                    <span class="pep-label">2× richtig</span>
-                    <div class="pep-track"><div class="pep-fill pep-fill--gold" style="width: {{ $twicePct }}%;"></div></div>
-                    <span class="pep-num">{{ $progressTwice ?? 0 }}</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Question Card -->
-        <div class="practice-card" id="questionContent">
             <form method="POST" action="{{ $submitUrl ?? route('practice.submit') }}" id="practiceForm">
                 @csrf
                 <input type="hidden" name="question_id" value="{{ $question->id }}">
-                <input type="hidden" name="question_kind" value="{{ ($question instanceof \App\Models\ExtraQuestion) ? 'extra' : 'official' }}">
+                <input type="hidden" name="question_kind" value="{{ $isExtra ? 'extra' : 'official' }}">
                 <input type="hidden" name="answer_time_ms" id="answerTimeMs" value="0">
 
-                <div class="practice-card-body">
-                @if(!isset($question->typ) || $question->typ === 'multiple_choice' || !($question instanceof \App\Models\ExtraQuestion))
+                @if(!$isExtra || $qType === 'multiple_choice')
                     @include('practice.partials.question-multiple-choice', [
                         'question' => $question,
                         'isCorrect' => $isCorrect ?? null,
                         'answerResult' => $answerResult ?? null,
                         'userAnswer' => $userAnswer ?? null,
-                        'isSpacedRepetition' => $isSpacedRepetition ?? false,
-                        'difficultyInfo' => $difficultyInfo ?? null,
-                        'gamificationResult' => $gamificationResult ?? null,
-                        'isGuest' => $isGuest ?? false,
-                        'questionProgress' => $questionProgress ?? null,
                     ])
-                @elseif($question->typ === 'matching')
+                @elseif($qType === 'matching')
                     @include('practice.partials.question-matching', [
                         'question' => $question,
                         'isCorrect' => $isCorrect ?? null,
                         'answerResult' => $answerResult ?? null,
                         'isSpacedRepetition' => $isSpacedRepetition ?? false,
                         'difficultyInfo' => $difficultyInfo ?? null,
+                        'inShell' => true,
                     ])
-                @elseif($question->typ === 'pair_matching')
+                @elseif($qType === 'pair_matching')
                     @include('practice.partials.question-pair-matching', [
                         'question' => $question,
                         'isCorrect' => $isCorrect ?? null,
                         'answerResult' => $answerResult ?? null,
                         'isSpacedRepetition' => $isSpacedRepetition ?? false,
                         'difficultyInfo' => $difficultyInfo ?? null,
+                        'inShell' => true,
                     ])
-                @elseif($question->typ === 'image_name')
+                @elseif($qType === 'image_name')
                     @include('practice.partials.question-image-name', [
                         'question' => $question,
                         'isCorrect' => $isCorrect ?? null,
@@ -1682,8 +181,9 @@
                         'userAnswer' => $userAnswer ?? null,
                         'isSpacedRepetition' => $isSpacedRepetition ?? false,
                         'difficultyInfo' => $difficultyInfo ?? null,
+                        'inShell' => true,
                     ])
-                @elseif($question->typ === 'image_select')
+                @elseif($qType === 'image_select')
                     @include('practice.partials.question-image-select', [
                         'question' => $question,
                         'isCorrect' => $isCorrect ?? null,
@@ -1691,56 +191,123 @@
                         'userAnswer' => $userAnswer ?? null,
                         'isSpacedRepetition' => $isSpacedRepetition ?? false,
                         'difficultyInfo' => $difficultyInfo ?? null,
+                        'inShell' => true,
                     ])
                 @endif
-                </div>
 
-                <!-- Actions -->
-                <div class="practice-actions">
-                    @if(!isset($isCorrect))
-                        <button type="submit" id="submitBtn" class="action-submit action-submit--primary" disabled>
-                            Antwort absenden
-                        </button>
-                    @else
-                        <a href="{{ $showUrl ?? route('practice.index') }}" class="action-submit action-submit--primary">
-                            Nächste Frage
-                        </a>
-                    @endif
-                    <a href="{{ $summaryUrl ?? route('practice.summary') }}" class="action-end">Lernen beenden</a>
-                </div>
+                {{-- Fortschrittsstufen: 1× / 2× richtig, gemeistert = 3× in Folge --}}
+                <p class="l-tiers">
+                    @isset($progressOnce)<span>1× richtig <b>{{ $progressOnce }}</b></span>@endisset
+                    @isset($progressTwice)<span>2× richtig <b>{{ $progressTwice }}</b></span>@endisset
+                    <span title="Gemeistert = 3× hintereinander richtig beantwortet">Gemeistert <b>{{ $progress ?? 0 }}/{{ $total ?? 0 }}</b> ({{ $progressPercent ?? 0 }} %)</span>
+                </p>
+
+                @if(!isset($isCorrect))
+                    <div class="l-bar">
+                        <div class="l-acts">
+                            <a href="{{ $summaryUrl ?? route('practice.summary') }}" class="l-end">Lernen beenden</a>
+                            <button type="submit" id="submitBtn" class="l-btn l-btn--lg" disabled>Antwort absenden</button>
+                        </div>
+                    </div>
+                @endif
             </form>
-        </div>
+        </main>
+
+        {{-- Auflösung als Sheet: Ergebnis, wann die Frage wiederkommt, Lösungsweg, weiter --}}
+        @if(isset($isCorrect))
+            @php
+                $verdicts = [
+                    'matching' => ['Alle richtig zugeordnet', 'Zuordnung prüfen'],
+                    'pair_matching' => ['Alle Paare korrekt', 'Einige Paare passen nicht'],
+                    'image_name' => ['Richtig benannt', 'Leider falsch'],
+                    'image_select' => ['Richtig ausgewählt', 'Auswahl prüfen'],
+                ];
+                $celebrations = ['Grandios!', 'Fantastisch!', 'Super!', 'Stark!', 'Mega!', 'Klasse!', 'Volltreffer!', 'Genial!'];
+                $verdict = isset($verdicts[$qType])
+                    ? $verdicts[$qType][$isCorrect ? 0 : 1]
+                    : ($isCorrect ? $celebrations[$question->id % count($celebrations)] : 'Falsch');
+
+                $pointsAwarded = ($isCorrect && $gamificationResult && isset($gamificationResult['points_awarded'])) ? (int) $gamificationResult['points_awarded'] : 0;
+                $masteryThreshold = \App\Models\UserQuestionProgress::MASTERY_THRESHOLD;
+                $showMastery = !$isGuest && !$isExtra && $questionProgress !== null;
+                $streakAfter = $showMastery ? min($masteryThreshold, (int) $questionProgress->consecutive_correct) : 0;
+
+                // Wann kommt die Frage wieder? Liest den gespeicherten Termin (SpacedRepetitionService), ändert nichts.
+                $srLine = null;
+                if (!$isGuest && $ctx === 'global' && !$isExtra && auth()->check()) {
+                    $srProgress = \App\Models\UserQuestionProgress::where('user_id', auth()->id())
+                        ->where('question_id', $question->id)
+                        ->first();
+                    if ($srProgress) {
+                        if (!$srProgress->next_review_at && $srProgress->isMastered()) {
+                            $srLine = 'Gemeistert. Diese Frage muss nicht mehr wiederholt werden.';
+                        } elseif ($srProgress->next_review_at) {
+                            $srDays = (int) now()->startOfDay()->diffInDays(\Carbon\Carbon::parse($srProgress->next_review_at)->startOfDay(), false);
+                            $srLine = 'Kommt ' . \App\Helpers\LearnText::when($srDays) . ' wieder. '
+                                . ($isCorrect
+                                    ? 'Noch ' . max(1, $masteryThreshold - (int) $srProgress->consecutive_correct) . '× richtig in Folge, dann gemeistert.'
+                                    : 'Der Zähler beginnt neu.');
+                        }
+                    }
+                }
+                $explanation = trim($question->loesungsweg ?? '');
+            @endphp
+            <section class="l-sheet {{ $isCorrect ? 'l-sheet--ok' : 'l-sheet--bad' }}" id="l-sheet" aria-live="polite">
+                <div class="l-sheet-in">
+                    <div class="l-sheet-h">
+                        <span class="l-verdict"><i class="bi {{ $isCorrect ? 'bi-check-circle-fill' : 'bi-x-circle-fill' }}" aria-hidden="true"></i></span>
+                        <p>
+                            <b>{{ $verdict }}</b>
+                            @if($showMastery)
+                                <span class="l-mastery" role="img" aria-label="{{ $streakAfter }} von {{ $masteryThreshold }} richtig in Folge">
+                                    @for($k = 0; $k < $masteryThreshold; $k++)<i class="{{ $k < $streakAfter ? 'is-on' : '' }}"></i>@endfor
+                                </span>
+                            @endif
+                        </p>
+                        @if($pointsAwarded > 0 && !$isGuest)
+                            <span class="l-gain">+{{ $pointsAwarded }} XP</span>
+                        @endif
+                    </div>
+                    @if($srLine)
+                        <p class="l-srline">{{ $srLine }}</p>
+                    @endif
+                    @if($explanation !== '')
+                        <div class="l-expl">
+                            <p class="l-small">Lösungsweg</p>
+                            <p>{!! nl2br(e($explanation)) !!}</p>
+                        </div>
+                    @endif
+                    <div class="l-acts">
+                        <a href="{{ $summaryUrl ?? route('practice.summary') }}" class="l-end">Lernen beenden</a>
+                        <a href="{{ $showUrl ?? route('practice.index') }}" class="l-btn l-btn--lg">Nächste Frage</a>
+                    </div>
+                </div>
+            </section>
+        @endif
 
         {{-- Lightbox für Bild-Fragen (image_name + image_select) --}}
         @include('practice.partials.image-lightbox')
 
         @auth
-        <!-- Report Modal -->
-        <div id="reportModal" class="report-overlay" onclick="if(event.target===this)closeReportModal()">
-            <div class="report-backdrop"></div>
-            <div class="report-card glass">
-                <div class="report-header">
-                    <h3>Fehler melden</h3>
-                    <button type="button" onclick="closeReportModal()" class="report-close">&#x2715;</button>
+            {{-- Fehler melden --}}
+            <div id="reportModal" class="l-dlg-wrap" style="display: none;" onclick="if(event.target===this)closeReportModal()">
+                <div class="l-dlg" role="dialog" aria-modal="true" aria-labelledby="l-report-t">
+                    <h2 id="l-report-t">Fehler melden</h2>
+                    <p>Frage {{ $question->lernabschnitt ?? '-' }}.{{ $question->nummer ?? '-' }}</p>
+                    <textarea id="reportMessage" rows="3" maxlength="500"
+                        aria-label="Beschreibung des Fehlers"
+                        placeholder="Optionale Beschreibung des Fehlers (max. 500 Zeichen)"></textarea>
+                    <p id="reportFeedback" class="l-fb" style="display: none;"></p>
+                    <div class="l-dlg-acts">
+                        <button type="button" onclick="closeReportModal()" class="l-btn l-btn--soft">Abbrechen</button>
+                        <button type="button" onclick="submitReport()" id="reportSubmitBtn" class="l-btn">Melden</button>
+                    </div>
                 </div>
-                <p class="report-meta">Frage {{ $question->lernabschnitt ?? '-' }}.{{ $question->nummer ?? '-' }}</p>
-                <textarea id="reportMessage" rows="3" maxlength="500"
-                    class="report-textarea"
-                    placeholder="Optionale Beschreibung des Fehlers (max. 500 Zeichen)"></textarea>
-                <div class="report-actions">
-                    <button type="button" onclick="closeReportModal()" class="btn-ghost btn-sm">Abbrechen</button>
-                    <button type="button" onclick="submitReport()" id="reportSubmitBtn" class="btn-secondary btn-sm">Melden</button>
-                </div>
-                <p id="reportFeedback" class="report-feedback"></p>
             </div>
-        </div>
         @endauth
 
-        {{-- Fullscreen-Overlays (Level-Up, Achievement, Streak) werden
-             global über layouts/app.blade.php gerendert via:
-             - components/milestone-celebration.blade.php (Fullscreen)
-             - components/gamification-notifications.blade.php (Fly-in)
-             Hier NICHT nochmal rendern! --}}
+        {{-- Fullscreen-Overlays (Level-Up, Achievement, Streak) werden global über
+             layouts/app.blade.php gerendert. Hier NICHT nochmal rendern! --}}
 
         <script>
             // Answer time measurement
@@ -1755,31 +322,34 @@
                 }
             })();
 
-            // Selection style
-            function updateSelectionStyle(label) {
-                const checkbox = label.querySelector('input[type="checkbox"]');
-                label.classList.toggle('selected', checkbox.checked);
-            }
+            // Auswahl wird per CSS (:has(:checked)) dargestellt; Funktion bleibt für Partials bestehen
+            function updateSelectionStyle(label) {}
 
             // Submit button state
             function updateSubmitButton() {
-                const checkboxes = document.querySelectorAll('input[name="answer[]"]');
-                const submitBtn = document.getElementById('submitBtn');
-                const checked = Array.from(checkboxes).some(cb => cb.checked);
+                var submitBtn = document.getElementById('submitBtn');
+                if (!submitBtn) return;
+                var checked = Array.from(document.querySelectorAll('input[name="answer[]"]')).some(function(cb) { return cb.checked; });
                 submitBtn.disabled = !checked;
-
-                checkboxes.forEach(cb => {
-                    cb.closest('.answer-opt').classList.toggle('selected', cb.checked);
-                });
             }
+
+            // Sheet-Höhe als Abstand unter der Frage, damit nichts verdeckt wird
+            (function() {
+                var sheet = document.getElementById('l-sheet');
+                var focus = document.getElementById('questionContent');
+                if (!sheet || !focus || !('ResizeObserver' in window)) return;
+                new ResizeObserver(function() {
+                    focus.style.setProperty('--sheet-h', sheet.offsetHeight + 'px');
+                }).observe(sheet);
+            })();
 
             // Shake on wrong answer + Floating points
             document.addEventListener('DOMContentLoaded', function() {
                 @if(isset($isCorrect) && !$isCorrect)
                     var qc = document.getElementById('questionContent');
                     if (qc) {
-                        qc.classList.add('shake');
-                        setTimeout(function() { qc.classList.remove('shake'); }, 400);
+                        qc.classList.add('l-shake');
+                        setTimeout(function() { qc.classList.remove('l-shake'); }, 400);
                     }
                 @endif
 
@@ -1796,15 +366,21 @@
             // Report modal
             function openReportModal() {
                 var modal = document.getElementById('reportModal');
-                modal.style.display = 'flex';
+                modal.style.display = 'grid';
                 document.getElementById('reportMessage').value = '';
                 document.getElementById('reportFeedback').style.display = 'none';
                 document.getElementById('reportSubmitBtn').disabled = false;
+                setTimeout(function() { document.getElementById('reportMessage').focus(); }, 50);
             }
 
             function closeReportModal() {
                 document.getElementById('reportModal').style.display = 'none';
             }
+
+            document.addEventListener('keydown', function(e) {
+                var modal = document.getElementById('reportModal');
+                if (e.key === 'Escape' && modal && modal.style.display !== 'none') closeReportModal();
+            });
 
             function submitReport() {
                 var btn = document.getElementById('reportSubmitBtn');
@@ -1831,29 +407,27 @@
                 .then(function(data) {
                     feedback.style.display = 'block';
                     if (data.success) {
-                        feedback.style.color = '#22c55e';
+                        feedback.style.color = 'var(--ok)';
                         feedback.textContent = data.message;
                         setTimeout(closeReportModal, 1500);
                     } else {
-                        feedback.style.color = '#ef4444';
+                        feedback.style.color = 'var(--bad)';
                         feedback.textContent = data.error || 'Fehler beim Senden.';
                         btn.disabled = false;
                     }
                 })
                 .catch(function() {
                     feedback.style.display = 'block';
-                    feedback.style.color = '#ef4444';
+                    feedback.style.color = 'var(--bad)';
                     feedback.textContent = 'Verbindungsfehler. Bitte erneut versuchen.';
                     btn.disabled = false;
                 });
             }
 
-            @if(($context ?? 'global') === 'global')
+            @if($ctx === 'global')
             // Bookmark toggle
             function toggleBookmark(questionId, currentlyBookmarked) {
-                var btnMobile = document.getElementById('bookmarkBtnMobile');
-                var btnDesktop = document.getElementById('bookmarkBtn');
-                var btn = window.innerWidth <= 640 ? btnMobile : btnDesktop;
+                var btn = document.getElementById('bookmarkBtn');
                 if (!btn) return;
 
                 var formData = new FormData();
@@ -1871,21 +445,14 @@
                 .then(function(response) { return response.json(); })
                 .then(function(data) {
                     if (data.success) {
-                        var targetColor = data.is_bookmarked ? '#fbbf24' : 'rgba(255,255,255,0.4)';
-                        var targetFill = data.is_bookmarked ? '#fbbf24' : 'none';
-
-                        [btnMobile, btnDesktop].forEach(function(button) {
-                            if (!button) return;
-                            button.setAttribute('data-bookmarked', data.is_bookmarked ? 'true' : 'false');
-                            button.setAttribute('onclick', 'toggleBookmark(' + questionId + ', ' + data.is_bookmarked + ')');
-                            button.classList.toggle('active', data.is_bookmarked);
-
-                            var path = button.querySelector('svg path');
-                            if (path) {
-                                path.style.stroke = targetColor;
-                                path.style.fill = targetFill;
-                            }
-                        });
+                        var label = data.is_bookmarked ? 'Aus Lesezeichen entfernen' : 'Zu Lesezeichen hinzufügen';
+                        btn.setAttribute('aria-pressed', data.is_bookmarked ? 'true' : 'false');
+                        btn.setAttribute('title', label);
+                        btn.setAttribute('aria-label', label);
+                        btn.setAttribute('onclick', 'toggleBookmark(' + questionId + ', ' + data.is_bookmarked + ')');
+                        btn.classList.toggle('active', data.is_bookmarked);
+                        var icon = btn.querySelector('.bi');
+                        if (icon) icon.className = 'bi ' + (data.is_bookmarked ? 'bi-bookmark-fill' : 'bi-bookmark');
                     }
                 })
                 .catch(function(error) {
@@ -1900,23 +467,29 @@
             @endauth
         </script>
     @else
-        <!-- No more questions -->
-        <div class="practice-card">
-            <div class="practice-empty">
-                <div class="practice-empty-icon"><i class="bi bi-check-circle-fill"></i></div>
-                <h2 style="font-size:1.5rem;font-weight:800;color:var(--text-primary);margin-bottom:0.25rem;font-family:'Barlow Condensed',sans-serif;">Geschafft!</h2>
-                <p style="font-size:0.875rem;color:var(--text-secondary);margin-bottom:1.5rem;">Du hast alle Fragen in diesem Modus bearbeitet</p>
-                <div style="display:flex;flex-direction:column;gap:0.75rem;max-width:300px;margin:0 auto;">
-                    <a href="{{ $menuUrl ?? route('practice.menu') }}" class="action-submit action-submit--primary">Zurück zum Menü</a>
+        {{-- Keine Fragen mehr in diesem Modus --}}
+        <header class="l-fbar">
+            <div class="l-fbar-in">
+                <a href="{{ $menuUrl ?? route('practice.menu') }}" class="l-back"><i class="bi bi-chevron-left" aria-hidden="true"></i><span>{{ $isGuest ? 'Übungsmenü' : (($context ?? 'global') === 'global' ? 'Theorie lernen' : 'Zurück') }}</span></a>
+                <span></span>
+                <span></span>
+            </div>
+        </header>
+        <main class="l-focus">
+            <div class="l-done">
+                <h1 class="l-title">Geschafft!</h1>
+                <p class="l-meta">Du hast alle Fragen in diesem Modus bearbeitet</p>
+                <div class="l-done-acts">
+                    <a href="{{ $menuUrl ?? route('practice.menu') }}" class="l-btn l-btn--lg">Zurück zum Menü</a>
                     @auth
-                    <a href="{{ route('dashboard') }}" class="action-submit action-submit--gold">Dashboard</a>
+                        <a href="{{ route('dashboard') }}" class="l-btn l-btn--lg l-btn--soft">Dashboard</a>
                     @endauth
                     @guest
-                    <a href="{{ route('register') }}" class="action-submit action-submit--gold">Kostenlos registrieren</a>
+                        <a href="{{ route('register') }}" class="l-btn l-btn--lg l-btn--soft">Kostenlos registrieren</a>
                     @endguest
                 </div>
             </div>
-        </div>
+        </main>
     @endif
 </div>
 @endsection

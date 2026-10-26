@@ -327,8 +327,8 @@ function onboardingTour() {
             },
             {
                 target: '[data-tour-step="practice"]',
-                title: 'Spaced Repetition',
-                description: 'Richtig beantwortete Fragen werden in wachsenden Abständen wiederholt. Die Intervalle passen sich automatisch an die Schwierigkeit an – schwere Fragen kommen häufiger dran. Nach 3x richtig ist eine Frage gemeistert.'
+                title: 'Wiederholung',
+                description: 'Richtig beantwortete Fragen werden in wachsenden Abständen wiederholt. Die Intervalle passen sich automatisch an die Schwierigkeit an, schwere Fragen kommen häufiger dran. Nach 3x richtig ist eine Frage gemeistert.'
             },
             {
                 target: '[data-tour-step="streak"]',
